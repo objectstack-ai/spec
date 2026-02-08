@@ -1,0 +1,53 @@
+{
+  "$ref": "#/definitions/GetFieldLabelsResponse",
+  "definitions": {
+    "GetFieldLabelsResponse": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name"
+        },
+        "locale": {
+          "type": "string",
+          "description": "Locale code"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Translated field label"
+              },
+              "help": {
+                "type": "string",
+                "description": "Translated help text"
+              },
+              "options": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Translated option labels"
+              }
+            },
+            "required": [
+              "label"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Field labels keyed by field name"
+        }
+      },
+      "required": [
+        "object",
+        "locale",
+        "labels"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

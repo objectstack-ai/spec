@@ -1,0 +1,31 @@
+{
+  "$ref": "#/definitions/RealtimeSubscribeRequest",
+  "definitions": {
+    "RealtimeSubscribeRequest": {
+      "type": "object",
+      "properties": {
+        "channel": {
+          "type": "string",
+          "description": "Channel name to subscribe to"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specific event types to listen for"
+        },
+        "filter": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Event filter criteria"
+        }
+      },
+      "required": [
+        "channel"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

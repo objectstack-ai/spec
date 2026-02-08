@@ -1,0 +1,24 @@
+{
+  "$ref": "#/definitions/GetWorkflowStateRequest",
+  "definitions": {
+    "GetWorkflowStateRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name"
+        },
+        "recordId": {
+          "type": "string",
+          "description": "Record ID to get workflow state for"
+        }
+      },
+      "required": [
+        "object",
+        "recordId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

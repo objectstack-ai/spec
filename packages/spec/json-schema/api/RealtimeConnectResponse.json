@@ -1,0 +1,33 @@
+{
+  "$ref": "#/definitions/RealtimeConnectResponse",
+  "definitions": {
+    "RealtimeConnectResponse": {
+      "type": "object",
+      "properties": {
+        "connectionId": {
+          "type": "string",
+          "description": "Unique connection identifier"
+        },
+        "transport": {
+          "type": "string",
+          "enum": [
+            "websocket",
+            "sse",
+            "polling"
+          ],
+          "description": "Negotiated transport protocol"
+        },
+        "url": {
+          "type": "string",
+          "description": "WebSocket/SSE endpoint URL"
+        }
+      },
+      "required": [
+        "connectionId",
+        "transport"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

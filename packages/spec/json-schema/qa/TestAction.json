@@ -15,7 +15,8 @@
             "api_call",
             "run_script",
             "wait"
-          ]
+          ],
+          "description": "The action type to execute"
         },
         "target": {
           "type": "string",
@@ -28,14 +29,15 @@
         },
         "user": {
           "type": "string",
-          "description": "Run as specific user/role"
+          "description": "Run as specific user/role for impersonation testing"
         }
       },
       "required": [
         "type",
         "target"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A single test action to execute against the system"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

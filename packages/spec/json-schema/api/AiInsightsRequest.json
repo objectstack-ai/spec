@@ -1,0 +1,33 @@
+{
+  "$ref": "#/definitions/AiInsightsRequest",
+  "definitions": {
+    "AiInsightsRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name to analyze"
+        },
+        "recordId": {
+          "type": "string",
+          "description": "Specific record to analyze"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "summary",
+            "trends",
+            "anomalies",
+            "recommendations"
+          ],
+          "description": "Type of insight"
+        }
+      },
+      "required": [
+        "object"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

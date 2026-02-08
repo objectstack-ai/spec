@@ -1,0 +1,31 @@
+{
+  "$ref": "#/definitions/AiSuggestRequest",
+  "definitions": {
+    "AiSuggestRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name for context"
+        },
+        "field": {
+          "type": "string",
+          "description": "Field to suggest values for"
+        },
+        "recordId": {
+          "type": "string",
+          "description": "Record ID for context"
+        },
+        "partial": {
+          "type": "string",
+          "description": "Partial input for completion"
+        }
+      },
+      "required": [
+        "object"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

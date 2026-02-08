@@ -1,0 +1,24 @@
+{
+  "$ref": "#/definitions/GetViewRequest",
+  "definitions": {
+    "GetViewRequest": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "description": "Object name (snake_case)"
+        },
+        "viewId": {
+          "type": "string",
+          "description": "View identifier"
+        }
+      },
+      "required": [
+        "object",
+        "viewId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

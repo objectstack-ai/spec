@@ -1,0 +1,76 @@
+{
+  "$ref": "#/definitions/ListNotificationsResponse",
+  "definitions": {
+    "ListNotificationsResponse": {
+      "type": "object",
+      "properties": {
+        "notifications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Notification ID"
+              },
+              "type": {
+                "type": "string",
+                "description": "Notification type"
+              },
+              "title": {
+                "type": "string",
+                "description": "Notification title"
+              },
+              "body": {
+                "type": "string",
+                "description": "Notification body text"
+              },
+              "read": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether notification has been read"
+              },
+              "data": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Additional notification data"
+              },
+              "actionUrl": {
+                "type": "string",
+                "description": "URL to navigate to when clicked"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When notification was created"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "title",
+              "body",
+              "createdAt"
+            ],
+            "additionalProperties": false
+          },
+          "description": "List of notifications"
+        },
+        "unreadCount": {
+          "type": "number",
+          "description": "Total number of unread notifications"
+        },
+        "cursor": {
+          "type": "string",
+          "description": "Next page cursor"
+        }
+      },
+      "required": [
+        "notifications",
+        "unreadCount"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

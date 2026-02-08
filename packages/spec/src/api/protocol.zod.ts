@@ -17,6 +17,10 @@ import {
   InstallPluginRequest,
   InstallPluginResponse
 } from './hub.zod';
+import { RealtimePresenceSchema, TransportProtocol } from './realtime.zod';
+import { ObjectPermissionSchema, FieldPermissionSchema } from '../security/permission.zod';
+import { WorkflowRuleSchema } from '../automation/workflow.zod';
+import { TranslationDataSchema } from '../system/translation.zod';
 import {
   ListPackagesRequestSchema,
   ListPackagesResponseSchema,
@@ -426,6 +430,438 @@ export {
 };
 
 // ==========================================
+// View Management Operations
+// ==========================================
+
+export const ListViewsRequestSchema = z.object({
+  object: z.string().describe('Object name (snake_case)'),
+  type: z.enum(['list', 'form']).optional().describe('Filter by view type'),
+});
+
+export const ListViewsResponseSchema = z.object({
+  object: z.string().describe('Object name'),
+  views: z.array(ViewSchema).describe('Array of view definitions'),
+});
+
+export const GetViewRequestSchema = z.object({
+  object: z.string().describe('Object name (snake_case)'),
+  viewId: z.string().describe('View identifier'),
+});
+
+export const GetViewResponseSchema = z.object({
+  object: z.string().describe('Object name'),
+  view: ViewSchema.describe('View definition'),
+});
+
+export const CreateViewRequestSchema = z.object({
+  object: z.string().describe('Object name (snake_case)'),
+  data: ViewSchema.describe('View definition to create'),
+});
+
+export const CreateViewResponseSchema = z.object({
+  object: z.string().describe('Object name'),
+  viewId: z.string().describe('Created view identifier'),
+  view: ViewSchema.describe('Created view definition'),
+});
+
+export const UpdateViewRequestSchema = z.object({
+  object: z.string().describe('Object name (snake_case)'),
+  viewId: z.string().describe('View identifier'),
+  data: ViewSchema.partial().describe('Partial view data to update'),
+});
+
+export const UpdateViewResponseSchema = z.object({
+  object: z.string().describe('Object name'),
+  viewId: z.string().describe('Updated view identifier'),
+  view: ViewSchema.describe('Updated view definition'),
+});
+
+export const DeleteViewRequestSchema = z.object({
+  object: z.string().describe('Object name (snake_case)'),
+  viewId: z.string().describe('View identifier to delete'),
+});
+
+export const DeleteViewResponseSchema = z.object({
+  object: z.string().describe('Object name'),
+  viewId: z.string().describe('Deleted view identifier'),
+  success: z.boolean().describe('Whether deletion succeeded'),
+});
+
+// ==========================================
+// Permission Operations
+// ==========================================
+
+export const CheckPermissionRequestSchema = z.object({
+  object: z.string().describe('Object name to check permissions for'),
+  action: z.enum(['create', 'read', 'edit', 'delete', 'transfer', 'restore', 'purge']).describe('Action to check'),
+  recordId: z.string().optional().describe('Specific record ID (for record-level checks)'),
+  field: z.string().optional().describe('Specific field name (for field-level checks)'),
+});
+
+export const CheckPermissionResponseSchema = z.object({
+  allowed: z.boolean().describe('Whether the action is permitted'),
+  reason: z.string().optional().describe('Reason if denied'),
+});
+
+export const GetObjectPermissionsRequestSchema = z.object({
+  object: z.string().describe('Object name to get permissions for'),
+});
+
+export const GetObjectPermissionsResponseSchema = z.object({
+  object: z.string().describe('Object name'),
+  permissions: ObjectPermissionSchema.describe('Object-level permissions'),
+  fieldPermissions: z.record(z.string(), FieldPermissionSchema).optional().describe('Field-level permissions keyed by field name'),
+});
+
+export const GetEffectivePermissionsRequestSchema = z.object({});
+
+export const GetEffectivePermissionsResponseSchema = z.object({
+  objects: z.record(z.string(), ObjectPermissionSchema).describe('Effective object permissions keyed by object name'),
+  systemPermissions: z.array(z.string()).describe('Effective system-level permissions'),
+});
+
+// ==========================================
+// Workflow Operations
+// ==========================================
+
+export const GetWorkflowConfigRequestSchema = z.object({
+  object: z.string().describe('Object name to get workflow config for'),
+});
+
+export const GetWorkflowConfigResponseSchema = z.object({
+  object: z.string().describe('Object name'),
+  workflows: z.array(WorkflowRuleSchema).describe('Active workflow rules for this object'),
+});
+
+export const WorkflowStateSchema = z.object({
+  currentState: z.string().describe('Current workflow state name'),
+  availableTransitions: z.array(z.object({
+    name: z.string().describe('Transition name'),
+    targetState: z.string().describe('Target state after transition'),
+    label: z.string().optional().describe('Display label'),
+    requiresApproval: z.boolean().default(false).describe('Whether transition requires approval'),
+  })).describe('Available transitions from current state'),
+  history: z.array(z.object({
+    fromState: z.string().describe('Previous state'),
+    toState: z.string().describe('New state'),
+    action: z.string().describe('Action that triggered the transition'),
+    userId: z.string().describe('User who performed the action'),
+    timestamp: z.string().datetime().describe('When the transition occurred'),
+    comment: z.string().optional().describe('Optional comment'),
+  })).optional().describe('State transition history'),
+});
+
+export const GetWorkflowStateRequestSchema = z.object({
+  object: z.string().describe('Object name'),
+  recordId: z.string().describe('Record ID to get workflow state for'),
+});
+
+export const GetWorkflowStateResponseSchema = z.object({
+  object: z.string().describe('Object name'),
+  recordId: z.string().describe('Record ID'),
+  state: WorkflowStateSchema.describe('Current workflow state and available transitions'),
+});
+
+export const WorkflowTransitionRequestSchema = z.object({
+  object: z.string().describe('Object name'),
+  recordId: z.string().describe('Record ID'),
+  transition: z.string().describe('Transition name to execute'),
+  comment: z.string().optional().describe('Optional comment for the transition'),
+  data: z.record(z.string(), z.unknown()).optional().describe('Additional data for the transition'),
+});
+
+export const WorkflowTransitionResponseSchema = z.object({
+  object: z.string().describe('Object name'),
+  recordId: z.string().describe('Record ID'),
+  success: z.boolean().describe('Whether the transition succeeded'),
+  state: WorkflowStateSchema.describe('New workflow state after transition'),
+});
+
+export const WorkflowApproveRequestSchema = z.object({
+  object: z.string().describe('Object name'),
+  recordId: z.string().describe('Record ID'),
+  comment: z.string().optional().describe('Approval comment'),
+  data: z.record(z.string(), z.unknown()).optional().describe('Additional data'),
+});
+
+export const WorkflowApproveResponseSchema = z.object({
+  object: z.string().describe('Object name'),
+  recordId: z.string().describe('Record ID'),
+  success: z.boolean().describe('Whether the approval succeeded'),
+  state: WorkflowStateSchema.describe('New workflow state after approval'),
+});
+
+export const WorkflowRejectRequestSchema = z.object({
+  object: z.string().describe('Object name'),
+  recordId: z.string().describe('Record ID'),
+  reason: z.string().describe('Rejection reason'),
+  comment: z.string().optional().describe('Additional comment'),
+});
+
+export const WorkflowRejectResponseSchema = z.object({
+  object: z.string().describe('Object name'),
+  recordId: z.string().describe('Record ID'),
+  success: z.boolean().describe('Whether the rejection succeeded'),
+  state: WorkflowStateSchema.describe('New workflow state after rejection'),
+});
+
+// ==========================================
+// Realtime Operations
+// ==========================================
+
+export const RealtimeConnectRequestSchema = z.object({
+  transport: TransportProtocol.optional().describe('Preferred transport protocol'),
+  channels: z.array(z.string()).optional().describe('Channels to subscribe to on connect'),
+  token: z.string().optional().describe('Authentication token'),
+});
+
+export const RealtimeConnectResponseSchema = z.object({
+  connectionId: z.string().describe('Unique connection identifier'),
+  transport: TransportProtocol.describe('Negotiated transport protocol'),
+  url: z.string().optional().describe('WebSocket/SSE endpoint URL'),
+});
+
+export const RealtimeDisconnectRequestSchema = z.object({
+  connectionId: z.string().optional().describe('Connection ID to disconnect'),
+});
+
+export const RealtimeDisconnectResponseSchema = z.object({
+  success: z.boolean().describe('Whether disconnection succeeded'),
+});
+
+export const RealtimeSubscribeRequestSchema = z.object({
+  channel: z.string().describe('Channel name to subscribe to'),
+  events: z.array(z.string()).optional().describe('Specific event types to listen for'),
+  filter: z.record(z.string(), z.unknown()).optional().describe('Event filter criteria'),
+});
+
+export const RealtimeSubscribeResponseSchema = z.object({
+  subscriptionId: z.string().describe('Unique subscription identifier'),
+  channel: z.string().describe('Subscribed channel name'),
+});
+
+export const RealtimeUnsubscribeRequestSchema = z.object({
+  subscriptionId: z.string().describe('Subscription ID to cancel'),
+});
+
+export const RealtimeUnsubscribeResponseSchema = z.object({
+  success: z.boolean().describe('Whether unsubscription succeeded'),
+});
+
+export const SetPresenceRequestSchema = z.object({
+  channel: z.string().describe('Channel to set presence in'),
+  state: RealtimePresenceSchema.describe('Presence state to set'),
+});
+
+export const SetPresenceResponseSchema = z.object({
+  success: z.boolean().describe('Whether presence was set'),
+});
+
+export const GetPresenceRequestSchema = z.object({
+  channel: z.string().describe('Channel to get presence for'),
+});
+
+export const GetPresenceResponseSchema = z.object({
+  channel: z.string().describe('Channel name'),
+  members: z.array(RealtimePresenceSchema).describe('Active members and their presence state'),
+});
+
+// ==========================================
+// Notification Operations
+// ==========================================
+
+export const RegisterDeviceRequestSchema = z.object({
+  token: z.string().describe('Device push notification token'),
+  platform: z.enum(['ios', 'android', 'web']).describe('Device platform'),
+  deviceId: z.string().optional().describe('Unique device identifier'),
+  name: z.string().optional().describe('Device friendly name'),
+});
+
+export const RegisterDeviceResponseSchema = z.object({
+  deviceId: z.string().describe('Registered device ID'),
+  success: z.boolean().describe('Whether registration succeeded'),
+});
+
+export const UnregisterDeviceRequestSchema = z.object({
+  deviceId: z.string().describe('Device ID to unregister'),
+});
+
+export const UnregisterDeviceResponseSchema = z.object({
+  success: z.boolean().describe('Whether unregistration succeeded'),
+});
+
+export const NotificationPreferencesSchema = z.object({
+  email: z.boolean().default(true).describe('Receive email notifications'),
+  push: z.boolean().default(true).describe('Receive push notifications'),
+  inApp: z.boolean().default(true).describe('Receive in-app notifications'),
+  digest: z.enum(['none', 'daily', 'weekly']).default('none').describe('Email digest frequency'),
+  channels: z.record(z.string(), z.object({
+    enabled: z.boolean().default(true).describe('Whether this channel is enabled'),
+    email: z.boolean().optional().describe('Override email setting'),
+    push: z.boolean().optional().describe('Override push setting'),
+  })).optional().describe('Per-channel notification preferences'),
+});
+
+export const GetNotificationPreferencesRequestSchema = z.object({});
+
+export const GetNotificationPreferencesResponseSchema = z.object({
+  preferences: NotificationPreferencesSchema.describe('Current notification preferences'),
+});
+
+export const UpdateNotificationPreferencesRequestSchema = z.object({
+  preferences: NotificationPreferencesSchema.partial().describe('Preferences to update'),
+});
+
+export const UpdateNotificationPreferencesResponseSchema = z.object({
+  preferences: NotificationPreferencesSchema.describe('Updated notification preferences'),
+});
+
+export const NotificationSchema = z.object({
+  id: z.string().describe('Notification ID'),
+  type: z.string().describe('Notification type'),
+  title: z.string().describe('Notification title'),
+  body: z.string().describe('Notification body text'),
+  read: z.boolean().default(false).describe('Whether notification has been read'),
+  data: z.record(z.string(), z.unknown()).optional().describe('Additional notification data'),
+  actionUrl: z.string().optional().describe('URL to navigate to when clicked'),
+  createdAt: z.string().datetime().describe('When notification was created'),
+});
+
+export const ListNotificationsRequestSchema = z.object({
+  read: z.boolean().optional().describe('Filter by read status'),
+  type: z.string().optional().describe('Filter by notification type'),
+  limit: z.number().default(20).describe('Maximum number of notifications to return'),
+  cursor: z.string().optional().describe('Pagination cursor'),
+});
+
+export const ListNotificationsResponseSchema = z.object({
+  notifications: z.array(NotificationSchema).describe('List of notifications'),
+  unreadCount: z.number().describe('Total number of unread notifications'),
+  cursor: z.string().optional().describe('Next page cursor'),
+});
+
+export const MarkNotificationsReadRequestSchema = z.object({
+  ids: z.array(z.string()).describe('Notification IDs to mark as read'),
+});
+
+export const MarkNotificationsReadResponseSchema = z.object({
+  success: z.boolean().describe('Whether the operation succeeded'),
+  readCount: z.number().describe('Number of notifications marked as read'),
+});
+
+export const MarkAllNotificationsReadRequestSchema = z.object({});
+
+export const MarkAllNotificationsReadResponseSchema = z.object({
+  success: z.boolean().describe('Whether the operation succeeded'),
+  readCount: z.number().describe('Number of notifications marked as read'),
+});
+
+// ==========================================
+// AI Operations
+// ==========================================
+
+export const AiNlqRequestSchema = z.object({
+  query: z.string().describe('Natural language query string'),
+  object: z.string().optional().describe('Target object context'),
+  conversationId: z.string().optional().describe('Conversation ID for multi-turn queries'),
+});
+
+export const AiNlqResponseSchema = z.object({
+  query: z.unknown().describe('Generated structured query (AST)'),
+  explanation: z.string().optional().describe('Human-readable explanation of the query'),
+  confidence: z.number().min(0).max(1).optional().describe('Confidence score (0-1)'),
+  suggestions: z.array(z.string()).optional().describe('Suggested follow-up queries'),
+});
+
+export const AiChatRequestSchema = z.object({
+  message: z.string().describe('User message'),
+  conversationId: z.string().optional().describe('Conversation ID for context'),
+  context: z.record(z.string(), z.unknown()).optional().describe('Additional context data'),
+});
+
+export const AiChatResponseSchema = z.object({
+  message: z.string().describe('Assistant response message'),
+  conversationId: z.string().describe('Conversation ID'),
+  actions: z.array(z.object({
+    type: z.string().describe('Action type'),
+    label: z.string().describe('Action display label'),
+    data: z.record(z.string(), z.unknown()).optional().describe('Action data'),
+  })).optional().describe('Suggested actions'),
+});
+
+export const AiSuggestRequestSchema = z.object({
+  object: z.string().describe('Object name for context'),
+  field: z.string().optional().describe('Field to suggest values for'),
+  recordId: z.string().optional().describe('Record ID for context'),
+  partial: z.string().optional().describe('Partial input for completion'),
+});
+
+export const AiSuggestResponseSchema = z.object({
+  suggestions: z.array(z.object({
+    value: z.unknown().describe('Suggested value'),
+    label: z.string().describe('Display label'),
+    confidence: z.number().min(0).max(1).optional().describe('Confidence score (0-1)'),
+    reason: z.string().optional().describe('Reason for this suggestion'),
+  })).describe('Suggested values'),
+});
+
+export const AiInsightsRequestSchema = z.object({
+  object: z.string().describe('Object name to analyze'),
+  recordId: z.string().optional().describe('Specific record to analyze'),
+  type: z.enum(['summary', 'trends', 'anomalies', 'recommendations']).optional().describe('Type of insight'),
+});
+
+export const AiInsightsResponseSchema = z.object({
+  insights: z.array(z.object({
+    type: z.string().describe('Insight type'),
+    title: z.string().describe('Insight title'),
+    description: z.string().describe('Detailed description'),
+    confidence: z.number().min(0).max(1).optional().describe('Confidence score (0-1)'),
+    data: z.record(z.string(), z.unknown()).optional().describe('Supporting data'),
+  })).describe('Generated insights'),
+});
+
+// ==========================================
+// i18n Operations
+// ==========================================
+
+export const GetLocalesRequestSchema = z.object({});
+
+export const GetLocalesResponseSchema = z.object({
+  locales: z.array(z.object({
+    code: z.string().describe('BCP-47 locale code (e.g., en-US, zh-CN)'),
+    label: z.string().describe('Display name of the locale'),
+    isDefault: z.boolean().default(false).describe('Whether this is the default locale'),
+  })).describe('Available locales'),
+});
+
+export const GetTranslationsRequestSchema = z.object({
+  locale: z.string().describe('BCP-47 locale code'),
+  namespace: z.string().optional().describe('Translation namespace (e.g., objects, apps, messages)'),
+  keys: z.array(z.string()).optional().describe('Specific translation keys to fetch'),
+});
+
+export const GetTranslationsResponseSchema = z.object({
+  locale: z.string().describe('Locale code'),
+  translations: TranslationDataSchema.describe('Translation data'),
+});
+
+export const GetFieldLabelsRequestSchema = z.object({
+  object: z.string().describe('Object name'),
+  locale: z.string().describe('BCP-47 locale code'),
+});
+
+export const GetFieldLabelsResponseSchema = z.object({
+  object: z.string().describe('Object name'),
+  locale: z.string().describe('Locale code'),
+  labels: z.record(z.string(), z.object({
+    label: z.string().describe('Translated field label'),
+    help: z.string().optional().describe('Translated help text'),
+    options: z.record(z.string(), z.string()).optional().describe('Translated option labels'),
+  })).describe('Field labels keyed by field name'),
+});
+
+// ==========================================
 // Protocol Interface Schema
 // ==========================================
 
@@ -531,6 +967,86 @@ export const ObjectStackProtocolSchema = z.object({
 
   deleteManyData: z.function()
     .describe('Delete multiple records'),
+
+  // View Management Operations
+  listViews: z.function()
+    .describe('List views for an object'),
+  getView: z.function()
+    .describe('Get a specific view'),
+  createView: z.function()
+    .describe('Create a new view'),
+  updateView: z.function()
+    .describe('Update an existing view'),
+  deleteView: z.function()
+    .describe('Delete a view'),
+
+  // Permission Operations
+  checkPermission: z.function()
+    .describe('Check if an action is permitted'),
+  getObjectPermissions: z.function()
+    .describe('Get permissions for an object'),
+  getEffectivePermissions: z.function()
+    .describe('Get effective permissions for current user'),
+
+  // Workflow Operations
+  getWorkflowConfig: z.function()
+    .describe('Get workflow configuration for an object'),
+  getWorkflowState: z.function()
+    .describe('Get workflow state for a record'),
+  workflowTransition: z.function()
+    .describe('Execute a workflow state transition'),
+  workflowApprove: z.function()
+    .describe('Approve a workflow step'),
+  workflowReject: z.function()
+    .describe('Reject a workflow step'),
+
+  // Realtime Operations
+  realtimeConnect: z.function()
+    .describe('Establish realtime connection'),
+  realtimeDisconnect: z.function()
+    .describe('Close realtime connection'),
+  realtimeSubscribe: z.function()
+    .describe('Subscribe to a realtime channel'),
+  realtimeUnsubscribe: z.function()
+    .describe('Unsubscribe from a realtime channel'),
+  setPresence: z.function()
+    .describe('Set user presence state'),
+  getPresence: z.function()
+    .describe('Get channel presence information'),
+
+  // Notification Operations
+  registerDevice: z.function()
+    .describe('Register a device for push notifications'),
+  unregisterDevice: z.function()
+    .describe('Unregister a device'),
+  getNotificationPreferences: z.function()
+    .describe('Get notification preferences'),
+  updateNotificationPreferences: z.function()
+    .describe('Update notification preferences'),
+  listNotifications: z.function()
+    .describe('List notifications'),
+  markNotificationsRead: z.function()
+    .describe('Mark specific notifications as read'),
+  markAllNotificationsRead: z.function()
+    .describe('Mark all notifications as read'),
+
+  // AI Operations
+  aiNlq: z.function()
+    .describe('Natural language query'),
+  aiChat: z.function()
+    .describe('AI chat interaction'),
+  aiSuggest: z.function()
+    .describe('Get AI-powered suggestions'),
+  aiInsights: z.function()
+    .describe('Get AI-generated insights'),
+
+  // i18n Operations
+  getLocales: z.function()
+    .describe('Get available locales'),
+  getTranslations: z.function()
+    .describe('Get translations for a locale'),
+  getFieldLabels: z.function()
+    .describe('Get translated field labels for an object'),
 });
 
 /**
@@ -579,6 +1095,91 @@ export type UpdateManyDataRequest = z.input<typeof UpdateManyDataRequestSchema>;
 export type UpdateManyDataResponse = z.infer<typeof UpdateManyDataResponseSchema>;
 export type DeleteManyDataRequest = z.input<typeof DeleteManyDataRequestSchema>;
 export type DeleteManyDataResponse = z.infer<typeof DeleteManyDataResponseSchema>;
+
+// View Management Types
+export type ListViewsRequest = z.input<typeof ListViewsRequestSchema>;
+export type ListViewsResponse = z.infer<typeof ListViewsResponseSchema>;
+export type GetViewRequest = z.input<typeof GetViewRequestSchema>;
+export type GetViewResponse = z.infer<typeof GetViewResponseSchema>;
+export type CreateViewRequest = z.input<typeof CreateViewRequestSchema>;
+export type CreateViewResponse = z.infer<typeof CreateViewResponseSchema>;
+export type UpdateViewRequest = z.input<typeof UpdateViewRequestSchema>;
+export type UpdateViewResponse = z.infer<typeof UpdateViewResponseSchema>;
+export type DeleteViewRequest = z.input<typeof DeleteViewRequestSchema>;
+export type DeleteViewResponse = z.infer<typeof DeleteViewResponseSchema>;
+
+// Permission Types
+export type CheckPermissionRequest = z.input<typeof CheckPermissionRequestSchema>;
+export type CheckPermissionResponse = z.infer<typeof CheckPermissionResponseSchema>;
+export type GetObjectPermissionsRequest = z.input<typeof GetObjectPermissionsRequestSchema>;
+export type GetObjectPermissionsResponse = z.infer<typeof GetObjectPermissionsResponseSchema>;
+export type GetEffectivePermissionsRequest = z.input<typeof GetEffectivePermissionsRequestSchema>;
+export type GetEffectivePermissionsResponse = z.infer<typeof GetEffectivePermissionsResponseSchema>;
+
+// Workflow Types
+export type GetWorkflowConfigRequest = z.input<typeof GetWorkflowConfigRequestSchema>;
+export type GetWorkflowConfigResponse = z.infer<typeof GetWorkflowConfigResponseSchema>;
+export type WorkflowState = z.infer<typeof WorkflowStateSchema>;
+export type GetWorkflowStateRequest = z.input<typeof GetWorkflowStateRequestSchema>;
+export type GetWorkflowStateResponse = z.infer<typeof GetWorkflowStateResponseSchema>;
+export type WorkflowTransitionRequest = z.input<typeof WorkflowTransitionRequestSchema>;
+export type WorkflowTransitionResponse = z.infer<typeof WorkflowTransitionResponseSchema>;
+export type WorkflowApproveRequest = z.input<typeof WorkflowApproveRequestSchema>;
+export type WorkflowApproveResponse = z.infer<typeof WorkflowApproveResponseSchema>;
+export type WorkflowRejectRequest = z.input<typeof WorkflowRejectRequestSchema>;
+export type WorkflowRejectResponse = z.infer<typeof WorkflowRejectResponseSchema>;
+
+// Realtime Types
+export type RealtimeConnectRequest = z.input<typeof RealtimeConnectRequestSchema>;
+export type RealtimeConnectResponse = z.infer<typeof RealtimeConnectResponseSchema>;
+export type RealtimeDisconnectRequest = z.input<typeof RealtimeDisconnectRequestSchema>;
+export type RealtimeDisconnectResponse = z.infer<typeof RealtimeDisconnectResponseSchema>;
+export type RealtimeSubscribeRequest = z.input<typeof RealtimeSubscribeRequestSchema>;
+export type RealtimeSubscribeResponse = z.infer<typeof RealtimeSubscribeResponseSchema>;
+export type RealtimeUnsubscribeRequest = z.input<typeof RealtimeUnsubscribeRequestSchema>;
+export type RealtimeUnsubscribeResponse = z.infer<typeof RealtimeUnsubscribeResponseSchema>;
+export type SetPresenceRequest = z.input<typeof SetPresenceRequestSchema>;
+export type SetPresenceResponse = z.infer<typeof SetPresenceResponseSchema>;
+export type GetPresenceRequest = z.input<typeof GetPresenceRequestSchema>;
+export type GetPresenceResponse = z.infer<typeof GetPresenceResponseSchema>;
+
+// Notification Types
+export type RegisterDeviceRequest = z.input<typeof RegisterDeviceRequestSchema>;
+export type RegisterDeviceResponse = z.infer<typeof RegisterDeviceResponseSchema>;
+export type UnregisterDeviceRequest = z.input<typeof UnregisterDeviceRequestSchema>;
+export type UnregisterDeviceResponse = z.infer<typeof UnregisterDeviceResponseSchema>;
+export type NotificationPreferences = z.infer<typeof NotificationPreferencesSchema>;
+export type NotificationPreferencesInput = z.input<typeof NotificationPreferencesSchema>;
+export type GetNotificationPreferencesRequest = z.input<typeof GetNotificationPreferencesRequestSchema>;
+export type GetNotificationPreferencesResponse = z.infer<typeof GetNotificationPreferencesResponseSchema>;
+export type UpdateNotificationPreferencesRequest = z.input<typeof UpdateNotificationPreferencesRequestSchema>;
+export type UpdateNotificationPreferencesResponse = z.infer<typeof UpdateNotificationPreferencesResponseSchema>;
+export type Notification = z.infer<typeof NotificationSchema>;
+export type NotificationInput = z.input<typeof NotificationSchema>;
+export type ListNotificationsRequest = z.input<typeof ListNotificationsRequestSchema>;
+export type ListNotificationsResponse = z.infer<typeof ListNotificationsResponseSchema>;
+export type MarkNotificationsReadRequest = z.input<typeof MarkNotificationsReadRequestSchema>;
+export type MarkNotificationsReadResponse = z.infer<typeof MarkNotificationsReadResponseSchema>;
+export type MarkAllNotificationsReadRequest = z.input<typeof MarkAllNotificationsReadRequestSchema>;
+export type MarkAllNotificationsReadResponse = z.infer<typeof MarkAllNotificationsReadResponseSchema>;
+
+// AI Types
+export type AiNlqRequest = z.input<typeof AiNlqRequestSchema>;
+export type AiNlqResponse = z.infer<typeof AiNlqResponseSchema>;
+export type AiChatRequest = z.input<typeof AiChatRequestSchema>;
+export type AiChatResponse = z.infer<typeof AiChatResponseSchema>;
+export type AiSuggestRequest = z.input<typeof AiSuggestRequestSchema>;
+export type AiSuggestResponse = z.infer<typeof AiSuggestResponseSchema>;
+export type AiInsightsRequest = z.input<typeof AiInsightsRequestSchema>;
+export type AiInsightsResponse = z.infer<typeof AiInsightsResponseSchema>;
+
+// i18n Types
+export type GetLocalesRequest = z.input<typeof GetLocalesRequestSchema>;
+export type GetLocalesResponse = z.infer<typeof GetLocalesResponseSchema>;
+export type GetTranslationsRequest = z.input<typeof GetTranslationsRequestSchema>;
+export type GetTranslationsResponse = z.infer<typeof GetTranslationsResponseSchema>;
+export type GetFieldLabelsRequest = z.input<typeof GetFieldLabelsRequestSchema>;
+export type GetFieldLabelsResponse = z.infer<typeof GetFieldLabelsResponseSchema>;
 
 // Package Management Types (re-exported from kernel for convenience)
 export type { 
@@ -641,4 +1242,51 @@ export interface IObjectStackProtocolLegacy {
   createManyData(request: CreateManyDataRequest): Promise<CreateManyDataResponse>;
   updateManyData(request: UpdateManyDataRequest): Promise<UpdateManyDataResponse>;
   deleteManyData(request: DeleteManyDataRequest): Promise<DeleteManyDataResponse>;
+
+  // View Management
+  listViews(request: ListViewsRequest): Promise<ListViewsResponse>;
+  getView(request: GetViewRequest): Promise<GetViewResponse>;
+  createView(request: CreateViewRequest): Promise<CreateViewResponse>;
+  updateView(request: UpdateViewRequest): Promise<UpdateViewResponse>;
+  deleteView(request: DeleteViewRequest): Promise<DeleteViewResponse>;
+
+  // Permissions
+  checkPermission(request: CheckPermissionRequest): Promise<CheckPermissionResponse>;
+  getObjectPermissions(request: GetObjectPermissionsRequest): Promise<GetObjectPermissionsResponse>;
+  getEffectivePermissions(request: GetEffectivePermissionsRequest): Promise<GetEffectivePermissionsResponse>;
+
+  // Workflows
+  getWorkflowConfig(request: GetWorkflowConfigRequest): Promise<GetWorkflowConfigResponse>;
+  getWorkflowState(request: GetWorkflowStateRequest): Promise<GetWorkflowStateResponse>;
+  workflowTransition(request: WorkflowTransitionRequest): Promise<WorkflowTransitionResponse>;
+  workflowApprove(request: WorkflowApproveRequest): Promise<WorkflowApproveResponse>;
+  workflowReject(request: WorkflowRejectRequest): Promise<WorkflowRejectResponse>;
+
+  // Realtime
+  realtimeConnect(request: RealtimeConnectRequest): Promise<RealtimeConnectResponse>;
+  realtimeDisconnect(request: RealtimeDisconnectRequest): Promise<RealtimeDisconnectResponse>;
+  realtimeSubscribe(request: RealtimeSubscribeRequest): Promise<RealtimeSubscribeResponse>;
+  realtimeUnsubscribe(request: RealtimeUnsubscribeRequest): Promise<RealtimeUnsubscribeResponse>;
+  setPresence(request: SetPresenceRequest): Promise<SetPresenceResponse>;
+  getPresence(request: GetPresenceRequest): Promise<GetPresenceResponse>;
+
+  // Notifications
+  registerDevice(request: RegisterDeviceRequest): Promise<RegisterDeviceResponse>;
+  unregisterDevice(request: UnregisterDeviceRequest): Promise<UnregisterDeviceResponse>;
+  getNotificationPreferences(request: GetNotificationPreferencesRequest): Promise<GetNotificationPreferencesResponse>;
+  updateNotificationPreferences(request: UpdateNotificationPreferencesRequest): Promise<UpdateNotificationPreferencesResponse>;
+  listNotifications(request: ListNotificationsRequest): Promise<ListNotificationsResponse>;
+  markNotificationsRead(request: MarkNotificationsReadRequest): Promise<MarkNotificationsReadResponse>;
+  markAllNotificationsRead(request: MarkAllNotificationsReadRequest): Promise<MarkAllNotificationsReadResponse>;
+
+  // AI
+  aiNlq(request: AiNlqRequest): Promise<AiNlqResponse>;
+  aiChat(request: AiChatRequest): Promise<AiChatResponse>;
+  aiSuggest(request: AiSuggestRequest): Promise<AiSuggestResponse>;
+  aiInsights(request: AiInsightsRequest): Promise<AiInsightsResponse>;
+
+  // i18n
+  getLocales(request: GetLocalesRequest): Promise<GetLocalesResponse>;
+  getTranslations(request: GetTranslationsRequest): Promise<GetTranslationsResponse>;
+  getFieldLabels(request: GetFieldLabelsRequest): Promise<GetFieldLabelsResponse>;
 }
