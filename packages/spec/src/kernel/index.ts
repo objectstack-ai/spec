@@ -8,6 +8,7 @@ export * from './plugin-capability.zod';
 export * from './plugin-lifecycle-advanced.zod';
 export * from './plugin-lifecycle-events.zod';
 export * from './plugin-loading.zod';
+export * from './plugin-runtime.zod';
 export * from './plugin-security-advanced.zod';
 export * from './plugin-structure.zod';
 export * from './plugin-validator.zod';

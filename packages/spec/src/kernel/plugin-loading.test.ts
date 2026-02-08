@@ -209,6 +209,51 @@ describe('Plugin Loading Protocol', () => {
       expect(result.enabled).toBe(false);
       expect(result.strategy).toBe('full');
       expect(result.debounceMs).toBe(300);
+      expect(result.environment).toBe('development');
+    });
+
+    it('should accept production environment with safety config', () => {
+      const config = {
+        enabled: true,
+        environment: 'production' as const,
+        strategy: 'state-preserve' as const,
+        productionSafety: {
+          healthValidation: true,
+          rollbackOnFailure: true,
+          healthTimeout: 60000,
+          drainConnections: true,
+          drainTimeout: 30000,
+          maxConcurrentReloads: 2,
+          minReloadInterval: 10000,
+        },
+      };
+      const result = PluginHotReloadSchema.parse(config);
+      expect(result.environment).toBe('production');
+      expect(result.productionSafety?.healthValidation).toBe(true);
+      expect(result.productionSafety?.rollbackOnFailure).toBe(true);
+      expect(result.productionSafety?.maxConcurrentReloads).toBe(2);
+    });
+
+    it('should apply production safety defaults', () => {
+      const config = {
+        enabled: true,
+        environment: 'production' as const,
+        productionSafety: {},
+      };
+      const result = PluginHotReloadSchema.parse(config);
+      expect(result.productionSafety?.healthValidation).toBe(true);
+      expect(result.productionSafety?.rollbackOnFailure).toBe(true);
+      expect(result.productionSafety?.drainConnections).toBe(true);
+      expect(result.productionSafety?.maxConcurrentReloads).toBe(1);
+      expect(result.productionSafety?.minReloadInterval).toBe(5000);
+    });
+
+    it('should accept all environment values', () => {
+      const envs = ['development', 'staging', 'production'];
+      envs.forEach((env) => {
+        const result = PluginHotReloadSchema.parse({ environment: env });
+        expect(result.environment).toBe(env);
+      });
     });
   });
 
@@ -269,6 +314,49 @@ describe('Plugin Loading Protocol', () => {
       const result = PluginSandboxingSchema.parse({});
       expect(result.enabled).toBe(false);
       expect(result.isolationLevel).toBe('none');
+      expect(result.scope).toBe('automation-only');
+    });
+
+    it('should accept all isolation scope values', () => {
+      const scopes = ['automation-only', 'untrusted-only', 'all-plugins'];
+      scopes.forEach((scope) => {
+        const result = PluginSandboxingSchema.parse({ scope });
+        expect(result.scope).toBe(scope);
+      });
+    });
+
+    it('should accept full plugin isolation with IPC', () => {
+      const config = {
+        enabled: true,
+        scope: 'all-plugins' as const,
+        isolationLevel: 'process' as const,
+        ipc: {
+          enabled: true,
+          transport: 'unix-socket' as const,
+          maxMessageSize: 2097152,
+          timeout: 15000,
+          allowedServices: ['metadata', 'data', 'auth'],
+        },
+      };
+      const result = PluginSandboxingSchema.parse(config);
+      expect(result.scope).toBe('all-plugins');
+      expect(result.ipc?.enabled).toBe(true);
+      expect(result.ipc?.transport).toBe('unix-socket');
+      expect(result.ipc?.allowedServices).toHaveLength(3);
+    });
+
+    it('should apply IPC defaults', () => {
+      const config = {
+        enabled: true,
+        scope: 'all-plugins' as const,
+        isolationLevel: 'process' as const,
+        ipc: {},
+      };
+      const result = PluginSandboxingSchema.parse(config);
+      expect(result.ipc?.enabled).toBe(true);
+      expect(result.ipc?.transport).toBe('message-port');
+      expect(result.ipc?.maxMessageSize).toBe(1048576);
+      expect(result.ipc?.timeout).toBe(30000);
     });
   });
 
@@ -401,6 +489,9 @@ describe('Plugin Loading Protocol', () => {
         'cache-hit',
         'cache-miss',
         'hot-reload',
+        'dynamic-load',
+        'dynamic-unload',
+        'dynamic-discover',
       ];
 
       types.forEach((type) => {
@@ -438,6 +529,8 @@ describe('Plugin Loading Protocol', () => {
         'ready',
         'failed',
         'reloading',
+        'unloading',
+        'unloaded',
       ];
 
       states.forEach((stateValue) => {

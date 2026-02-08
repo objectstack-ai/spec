@@ -291,13 +291,25 @@ export const PluginDependencyResolutionSchema = z.object({
 
 /**
  * Plugin Hot Reload Configuration
- * Enables hot module replacement for development
+ * Enables hot module replacement for development and production environments.
+ * 
+ * Production mode adds safety features: health validation, rollback on failure,
+ * connection draining, and concurrency control for zero-downtime reloads.
  */
 export const PluginHotReloadSchema = z.object({
   /**
    * Enable hot reload
    */
   enabled: z.boolean().default(false),
+  
+  /**
+   * Target environment for hot reload behavior
+   */
+  environment: z.enum([
+    'development',   // Fast reload with relaxed safety (file watchers, no health gates)
+    'staging',       // Production-like reload with validation but relaxed rollback
+    'production',    // Full safety: health gates, rollback, connection draining
+  ]).default('development').describe('Target environment controlling safety level'),
   
   /**
    * Hot reload strategy
@@ -346,6 +358,54 @@ export const PluginHotReloadSchema = z.object({
     beforeReload: z.string().optional().describe('Function to call before reload'),
     afterReload: z.string().optional().describe('Function to call after reload'),
     onError: z.string().optional().describe('Function to call on reload error'),
+  }).optional(),
+  
+  /**
+   * Production safety configuration
+   * Applied when environment is 'staging' or 'production'
+   */
+  productionSafety: z.object({
+    /**
+     * Validate plugin health before completing reload
+     */
+    healthValidation: z.boolean().default(true)
+      .describe('Run health checks after reload before accepting traffic'),
+    
+    /**
+     * Automatically rollback to previous version on reload failure
+     */
+    rollbackOnFailure: z.boolean().default(true)
+      .describe('Auto-rollback if reloaded plugin fails health check'),
+    
+    /**
+     * Maximum time to wait for health validation after reload (ms)
+     */
+    healthTimeout: z.number().int().min(1000).default(30000)
+      .describe('Health check timeout after reload in ms'),
+    
+    /**
+     * Drain active connections before reload
+     */
+    drainConnections: z.boolean().default(true)
+      .describe('Gracefully drain active requests before reloading'),
+    
+    /**
+     * Maximum time to wait for connection draining (ms)
+     */
+    drainTimeout: z.number().int().min(0).default(15000)
+      .describe('Max wait time for connection draining in ms'),
+    
+    /**
+     * Maximum number of concurrent plugin reloads
+     */
+    maxConcurrentReloads: z.number().int().min(1).default(1)
+      .describe('Limit concurrent reloads to prevent system instability'),
+    
+    /**
+     * Minimum interval between reloads of the same plugin (ms)
+     */
+    minReloadInterval: z.number().int().min(0).default(5000)
+      .describe('Cooldown period between reloads of the same plugin'),
   }).optional(),
 }).describe('Plugin hot reload configuration');
 
@@ -409,13 +469,25 @@ export const PluginCachingSchema = z.object({
 
 /**
  * Plugin Sandboxing Configuration
- * Security isolation for untrusted plugins
+ * Security isolation for plugins with configurable scope.
+ * 
+ * Supports isolation beyond automation scripts: any plugin can be sandboxed
+ * with process-level isolation and inter-plugin communication (IPC).
  */
 export const PluginSandboxingSchema = z.object({
   /**
    * Enable sandboxing
    */
   enabled: z.boolean().default(false),
+  
+  /**
+   * Isolation scope - which plugins are subject to sandboxing
+   */
+  scope: z.enum([
+    'automation-only',  // Sandbox automation/scripting plugins only (current behavior)
+    'untrusted-only',   // Sandbox plugins below a trust threshold
+    'all-plugins',      // Sandbox all plugins (maximum isolation)
+  ]).default('automation-only').describe('Which plugins are subject to isolation'),
   
   /**
    * Sandbox isolation level
@@ -481,6 +553,47 @@ export const PluginSandboxingSchema = z.object({
      * Allowed environment variables
      */
     allowedEnvVars: z.array(z.string()).optional(),
+  }).optional(),
+  
+  /**
+   * Inter-Plugin Communication (IPC) configuration
+   * Enables isolated plugins to communicate with the kernel and other plugins
+   */
+  ipc: z.object({
+    /**
+     * Enable IPC for sandboxed plugins
+     */
+    enabled: z.boolean().default(true)
+      .describe('Allow sandboxed plugins to communicate via IPC'),
+    
+    /**
+     * IPC transport mechanism
+     */
+    transport: z.enum([
+      'message-port',   // MessagePort (worker threads / Web Workers)
+      'unix-socket',    // Unix domain sockets (process isolation)
+      'tcp',            // TCP sockets (container isolation)
+      'memory',         // Shared memory channel (in-process VM)
+    ]).default('message-port')
+      .describe('IPC transport for cross-boundary communication'),
+    
+    /**
+     * Maximum message size in bytes
+     */
+    maxMessageSize: z.number().int().min(1024).default(1048576)
+      .describe('Maximum IPC message size in bytes (default 1MB)'),
+    
+    /**
+     * Message timeout in milliseconds
+     */
+    timeout: z.number().int().min(100).default(30000)
+      .describe('IPC message response timeout in ms'),
+    
+    /**
+     * Allowed service calls through IPC
+     */
+    allowedServices: z.array(z.string()).optional()
+      .describe('Service names the sandboxed plugin may invoke via IPC'),
   }).optional(),
 }).describe('Plugin sandboxing configuration');
 
@@ -579,7 +692,7 @@ export const PluginLoadingConfigSchema = z.object({
   dependencyResolution: PluginDependencyResolutionSchema.optional(),
   
   /**
-   * Hot reload configuration (development only)
+   * Hot reload configuration (development and production)
    */
   hotReload: PluginHotReloadSchema.optional(),
   
@@ -619,6 +732,9 @@ export const PluginLoadingEventSchema = z.object({
     'cache-hit',
     'cache-miss',
     'hot-reload',
+    'dynamic-load',       // Plugin loaded at runtime
+    'dynamic-unload',     // Plugin unloaded at runtime
+    'dynamic-discover',   // Plugin discovered via registry
   ]),
   
   /**
@@ -672,6 +788,8 @@ export const PluginLoadingStateSchema = z.object({
     'ready',         // Fully initialized and ready
     'failed',        // Failed to load or initialize
     'reloading',     // Hot reloading in progress
+    'unloading',     // Being unloaded at runtime
+    'unloaded',      // Successfully unloaded (dynamic loading)
   ]),
   
   /**
