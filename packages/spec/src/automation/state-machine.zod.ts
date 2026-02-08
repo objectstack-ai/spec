@@ -33,6 +33,8 @@ export const GuardRefSchema = z.union([
   })
 ]);
 
+export type GuardRef = z.infer<typeof GuardRefSchema>;
+
 // --- Core Structure ---
 
 /**
@@ -54,6 +56,8 @@ export const EventSchema = z.object({
   // Payload validation schema could go here if we want deep validation
   schema: z.record(z.string(), z.unknown()).optional().describe('Expected event payload structure'),
 });
+
+export type Event = z.infer<typeof EventSchema>;
 
 export type ActionRef = z.infer<typeof ActionRefSchema>;
 export type Transition = z.infer<typeof TransitionSchema>;
@@ -129,4 +133,5 @@ export const StateMachineSchema = z.object({
   on: z.record(z.string(), z.union([z.string(), TransitionSchema, z.array(TransitionSchema)])).optional(),
 });
 
+export type StateMachine = z.infer<typeof StateMachineSchema>;
 export type StateMachineConfig = z.infer<typeof StateMachineSchema>;

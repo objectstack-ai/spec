@@ -53,6 +53,8 @@ export const EqualityOperatorSchema = z.object({
   $ne: z.any().optional(),
 });
 
+export type EqualityOperator = z.infer<typeof EqualityOperatorSchema>;
+
 /**
  * Comparison operators for numeric and date comparisons.
  * Supported data types: Number, Date
@@ -71,6 +73,8 @@ export const ComparisonOperatorSchema = z.object({
   $lte: z.union([z.number(), z.date(), FieldReferenceSchema]).optional(),
 });
 
+export type ComparisonOperator = z.infer<typeof ComparisonOperatorSchema>;
+
 // ============================================================================
 // 3.2 Set & Range Operators
 // ============================================================================
@@ -86,6 +90,8 @@ export const SetOperatorSchema = z.object({
   $nin: z.array(z.any()).optional(),
 });
 
+export type SetOperator = z.infer<typeof SetOperatorSchema>;
+
 /**
  * Range operator for interval checks (closed interval).
  * SQL: BETWEEN ? AND ? | MongoDB: $gte AND $lte
@@ -97,6 +103,8 @@ export const RangeOperatorSchema = z.object({
     z.union([z.number(), z.date(), FieldReferenceSchema])
   ]).optional(),
 });
+
+export type RangeOperator = z.infer<typeof RangeOperatorSchema>;
 
 // ============================================================================
 // 3.3 String-Specific Operators
@@ -116,6 +124,8 @@ export const StringOperatorSchema = z.object({
   /** Ends with suffix - SQL: LIKE %? | MongoDB: $regex */
   $endsWith: z.string().optional(),
 });
+
+export type StringOperator = z.infer<typeof StringOperatorSchema>;
 
 // ============================================================================
 // 3.5 Special Operators
