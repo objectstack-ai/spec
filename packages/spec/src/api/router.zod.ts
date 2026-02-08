@@ -88,6 +88,13 @@ export const RouterConfigSchema = z.object({
     analytics: z.string().default('/analytics').describe('Analytics Protocol'),
     hub: z.string().default('/hub').describe('Hub Management Protocol'),
     graphql: z.string().default('/graphql').describe('GraphQL Endpoint'),
+    ui: z.string().default('/ui').describe('UI Metadata Protocol (Views, Layouts)'),
+    workflow: z.string().default('/workflow').describe('Workflow Engine Protocol'),
+    realtime: z.string().default('/realtime').describe('Realtime/WebSocket Protocol'),
+    notifications: z.string().default('/notifications').describe('Notification Protocol'),
+    ai: z.string().default('/ai').describe('AI Engine Protocol (NLQ, Chat, Suggest)'),
+    i18n: z.string().default('/i18n').describe('Internationalization Protocol'),
+    packages: z.string().default('/packages').describe('Package Management Protocol'),
   }).default({
     data: '/data',
     metadata: '/meta',
@@ -96,7 +103,14 @@ export const RouterConfigSchema = z.object({
     storage: '/storage',
     analytics: '/analytics',
     hub: '/hub',
-    graphql: '/graphql'
+    graphql: '/graphql',
+    ui: '/ui',
+    workflow: '/workflow',
+    realtime: '/realtime',
+    notifications: '/notifications',
+    ai: '/ai',
+    i18n: '/i18n',
+    packages: '/packages',
   }), // Defaults match standardized spec
 
   /**
