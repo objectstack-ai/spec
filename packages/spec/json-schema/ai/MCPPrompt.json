@@ -1,0 +1,99 @@
+{
+  "$ref": "#/definitions/MCPPrompt",
+  "definitions": {
+    "MCPPrompt": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$",
+          "description": "Prompt template name (snake_case)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Prompt description"
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "type": "string",
+                "enum": [
+                  "system",
+                  "user",
+                  "assistant"
+                ],
+                "description": "Message role"
+              },
+              "content": {
+                "type": "string",
+                "description": "Message content (can include {{variable}} placeholders)"
+              }
+            },
+            "required": [
+              "role",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Prompt message sequence"
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Argument name"
+              },
+              "description": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "string",
+                  "number",
+                  "boolean"
+                ],
+                "default": "string"
+              },
+              "required": {
+                "type": "boolean",
+                "default": false
+              },
+              "default": {}
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Dynamic arguments for the prompt"
+        },
+        "category": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "version": {
+          "type": "string",
+          "default": "1.0.0"
+        }
+      },
+      "required": [
+        "name",
+        "messages"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

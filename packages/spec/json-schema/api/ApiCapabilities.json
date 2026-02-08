@@ -29,6 +29,26 @@
           "type": "boolean",
           "default": false,
           "description": "Is Hub management enabled?"
+        },
+        "ai": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is the AI engine enabled?"
+        },
+        "workflow": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is the Workflow engine enabled?"
+        },
+        "notifications": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is the Notification service enabled?"
+        },
+        "i18n": {
+          "type": "boolean",
+          "default": false,
+          "description": "Is the i18n service enabled?"
         }
       },
       "additionalProperties": false

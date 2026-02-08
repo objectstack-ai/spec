@@ -1,0 +1,83 @@
+{
+  "$ref": "#/definitions/MCPResourceTemplate",
+  "definitions": {
+    "MCPResourceTemplate": {
+      "type": "object",
+      "properties": {
+        "uriPattern": {
+          "type": "string",
+          "description": "URI pattern with variables (e.g., \"objectstack://objects/{objectName}/{recordId}\")"
+        },
+        "name": {
+          "type": "string",
+          "description": "Template name"
+        },
+        "description": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Parameter name"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "string",
+                  "number",
+                  "boolean"
+                ],
+                "default": "string"
+              },
+              "required": {
+                "type": "boolean",
+                "default": true
+              },
+              "description": {
+                "type": "string"
+              },
+              "pattern": {
+                "type": "string",
+                "description": "Regex validation pattern"
+              },
+              "default": {}
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "description": "URI parameters"
+        },
+        "handler": {
+          "type": "string",
+          "description": "Handler function name for dynamic generation"
+        },
+        "mimeType": {
+          "type": "string"
+        },
+        "resourceType": {
+          "type": "string",
+          "enum": [
+            "text",
+            "json",
+            "binary",
+            "stream"
+          ],
+          "default": "json"
+        }
+      },
+      "required": [
+        "uriPattern",
+        "name",
+        "parameters"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

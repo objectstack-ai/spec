@@ -5,6 +5,7 @@
  * - Agent Configuration
  * - DevOps Agent (Self-iterating Development)
  * - Model Registry & Selection
+ * - Model Context Protocol (MCP)
  * - RAG Pipeline
  * - Natural Language Query (NLQ)
  * - Workflow Automation
@@ -21,6 +22,7 @@ export * from './devops-agent.zod';
 export * from './plugin-development.zod';
 export * from './runtime-ops.zod';
 export * from './model-registry.zod';
+export * from './mcp.zod';
 export * from './rag-pipeline.zod';
 export * from './nlq.zod';
 export * from './orchestration.zod';

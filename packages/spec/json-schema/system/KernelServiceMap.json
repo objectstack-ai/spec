@@ -21,7 +21,11 @@
           "hub",
           "realtime",
           "job",
-          "notification"
+          "notification",
+          "ai",
+          "i18n",
+          "ui",
+          "workflow"
         ]
       }
     }

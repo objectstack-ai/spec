@@ -1,0 +1,24 @@
+{
+  "$ref": "#/definitions/MCPPromptRequest",
+  "definitions": {
+    "MCPPromptRequest": {
+      "type": "object",
+      "properties": {
+        "promptName": {
+          "type": "string",
+          "description": "Prompt template to use"
+        },
+        "arguments": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Prompt arguments"
+        }
+      },
+      "required": [
+        "promptName"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
