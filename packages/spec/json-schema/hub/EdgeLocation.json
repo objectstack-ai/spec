@@ -84,6 +84,11 @@
             "inactive"
           ],
           "default": "active"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Custom metadata key-value pairs for extensibility"
         }
       },
       "required": [

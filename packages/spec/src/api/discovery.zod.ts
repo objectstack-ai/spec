@@ -69,6 +69,11 @@ export const DiscoverySchema = z.object({
     supported: z.array(z.string()),
     timezone: z.string(),
   }),
+  
+  /**
+   * Custom metadata key-value pairs for extensibility
+   */
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom metadata key-value pairs for extensibility'),
 });
 
 export type DiscoveryResponse = z.infer<typeof DiscoverySchema>;

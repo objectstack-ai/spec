@@ -14,6 +14,11 @@
             "type": "string"
           },
           "description": "List of all file paths relative to root"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Custom metadata key-value pairs for extensibility"
         }
       },
       "required": [

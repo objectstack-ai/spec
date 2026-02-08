@@ -119,6 +119,11 @@
             "timezone"
           ],
           "additionalProperties": false
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Custom metadata key-value pairs for extensibility"
         }
       },
       "required": [

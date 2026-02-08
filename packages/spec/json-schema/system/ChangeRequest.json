@@ -291,6 +291,11 @@
             "additionalProperties": false
           },
           "description": "Attachments"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Custom metadata key-value pairs for extensibility"
         }
       },
       "required": [

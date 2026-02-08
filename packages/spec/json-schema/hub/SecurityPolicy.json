@@ -5,17 +5,20 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for the security policy"
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Human-readable name of the security policy"
         },
         "autoScan": {
           "type": "object",
           "properties": {
             "enabled": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Whether automatic scanning is enabled"
             },
             "frequency": {
               "type": "string",
@@ -25,10 +28,12 @@
                 "weekly",
                 "monthly"
               ],
-              "default": "daily"
+              "default": "daily",
+              "description": "How often automatic scans are performed"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Automatic security scanning configuration"
         },
         "thresholds": {
           "type": "object",
@@ -36,20 +41,24 @@
             "maxCritical": {
               "type": "integer",
               "minimum": 0,
-              "default": 0
+              "default": 0,
+              "description": "Maximum allowed critical vulnerabilities before blocking"
             },
             "maxHigh": {
               "type": "integer",
               "minimum": 0,
-              "default": 0
+              "default": 0,
+              "description": "Maximum allowed high vulnerabilities before blocking"
             },
             "maxMedium": {
               "type": "integer",
               "minimum": 0,
-              "default": 5
+              "default": 5,
+              "description": "Maximum allowed medium vulnerabilities before warning"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Vulnerability count thresholds for policy enforcement"
         },
         "allowedLicenses": {
           "type": "array",
@@ -62,7 +71,8 @@
             "BSD-3-Clause",
             "BSD-2-Clause",
             "ISC"
-          ]
+          ],
+          "description": "List of SPDX license identifiers that are permitted"
         },
         "prohibitedLicenses": {
           "type": "array",
@@ -72,24 +82,28 @@
           "default": [
             "GPL-3.0",
             "AGPL-3.0"
-          ]
+          ],
+          "description": "List of SPDX license identifiers that are prohibited"
         },
         "codeSigning": {
           "type": "object",
           "properties": {
             "required": {
               "type": "boolean",
-              "default": false
+              "default": false,
+              "description": "Whether code signing is required for plugins"
             },
             "allowedSigners": {
               "type": "array",
               "items": {
                 "type": "string"
               },
-              "default": []
+              "default": [],
+              "description": "List of trusted signer identities"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Code signing requirements for plugin artifacts"
         },
         "sandbox": {
           "type": "object",
@@ -102,14 +116,16 @@
                 "allowlist",
                 "all"
               ],
-              "default": "all"
+              "default": "all",
+              "description": "Level of network access granted to the plugin"
             },
             "allowedDestinations": {
               "type": "array",
               "items": {
                 "type": "string"
               },
-              "default": []
+              "default": [],
+              "description": "Permitted network destinations when using allowlist mode"
             },
             "filesystemAccess": {
               "type": "string",
@@ -119,18 +135,22 @@
                 "temp-only",
                 "full"
               ],
-              "default": "full"
+              "default": "full",
+              "description": "Level of file system access granted to the plugin"
             },
             "maxMemoryMB": {
               "type": "integer",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0,
+              "description": "Maximum memory allocation in megabytes"
             },
             "maxCPUSeconds": {
               "type": "integer",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0,
+              "description": "Maximum CPU time allowed in seconds"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Sandbox restrictions for plugin execution"
         }
       },
       "required": [
@@ -139,7 +159,8 @@
         "autoScan",
         "thresholds"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Security policy governing plugin scanning and enforcement"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

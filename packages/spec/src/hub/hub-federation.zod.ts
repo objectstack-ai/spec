@@ -83,6 +83,11 @@ export const RegionSchema = z.object({
     maxTenants: z.number().int().positive().optional(),
     maxStorage: z.number().int().positive().optional().describe('Bytes'),
   }).optional(),
+  
+  /**
+   * Custom metadata key-value pairs for extensibility
+   */
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom metadata key-value pairs for extensibility'),
 });
 
 export type Region = z.infer<typeof RegionSchema>;
@@ -159,6 +164,11 @@ export const HubInstanceSchema = z.object({
    */
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  
+  /**
+   * Custom metadata key-value pairs for extensibility
+   */
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom metadata key-value pairs for extensibility'),
 });
 
 export type HubInstance = z.infer<typeof HubInstanceSchema>;
@@ -255,6 +265,11 @@ export const FederationTopologySchema = z.object({
      */
     conflictResolution: z.enum(['last-write-wins', 'primary-wins', 'manual']).default('last-write-wins'),
   }),
+  
+  /**
+   * Custom metadata key-value pairs for extensibility
+   */
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom metadata key-value pairs for extensibility'),
 });
 
 export type FederationTopology = z.infer<typeof FederationTopologySchema>;
@@ -503,6 +518,11 @@ export const EdgeLocationSchema = z.object({
    * Status
    */
   status: z.enum(['active', 'inactive']).default('active'),
+  
+  /**
+   * Custom metadata key-value pairs for extensibility
+   */
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom metadata key-value pairs for extensibility'),
 });
 
 export type EdgeLocation = z.infer<typeof EdgeLocationSchema>;

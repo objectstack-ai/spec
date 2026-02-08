@@ -111,14 +111,16 @@
             "name",
             "isolationLevel"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Tenant details"
         }
       },
       "required": [
         "success",
         "data"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Response containing a single tenant"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

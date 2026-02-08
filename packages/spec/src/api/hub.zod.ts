@@ -39,23 +39,23 @@ export const PaginationRequestSchema = z.object({
   /**
    * Page number (1-indexed)
    */
-  page: z.number().int().min(1).default(1).optional(),
+  page: z.number().int().min(1).default(1).optional().describe('Page number (1-indexed)'),
   
   /**
    * Number of items per page
    */
-  perPage: z.number().int().min(1).max(100).default(20).optional(),
+  perPage: z.number().int().min(1).max(100).default(20).optional().describe('Number of items per page'),
   
   /**
    * Sort field
    */
-  sortBy: z.string().optional(),
+  sortBy: z.string().optional().describe('Field name to sort results by'),
   
   /**
    * Sort direction
    */
-  sortOrder: z.enum(['asc', 'desc']).default('desc').optional(),
-});
+  sortOrder: z.enum(['asc', 'desc']).default('desc').optional().describe('Sort direction'),
+}).describe('Pagination request parameters');
 
 /**
  * Pagination Response Metadata
@@ -64,33 +64,33 @@ export const PaginationResponseSchema = z.object({
   /**
    * Current page number
    */
-  page: z.number().int().min(1),
+  page: z.number().int().min(1).describe('Current page number'),
   
   /**
    * Items per page
    */
-  perPage: z.number().int().min(1),
+  perPage: z.number().int().min(1).describe('Items per page'),
   
   /**
    * Total number of items
    */
-  total: z.number().int().min(0),
+  total: z.number().int().min(0).describe('Total number of items'),
   
   /**
    * Total number of pages
    */
-  totalPages: z.number().int().min(0),
+  totalPages: z.number().int().min(0).describe('Total number of pages'),
   
   /**
    * Whether there is a next page
    */
-  hasNext: z.boolean(),
+  hasNext: z.boolean().describe('Whether there is a next page'),
   
   /**
    * Whether there is a previous page
    */
-  hasPrev: z.boolean(),
-});
+  hasPrev: z.boolean().describe('Whether there is a previous page'),
+}).describe('Pagination response metadata');
 
 // ============================================================================
 // Space Management API
@@ -120,11 +120,11 @@ export const CreateSpaceRequestSchema = z.object({
   name: z.string().min(1).max(255).describe('Space display name'),
   slug: z.string().regex(/^[a-z0-9-]+$/).min(1).max(100).describe('URL-friendly identifier'),
   ownerId: z.string().describe('Owner user/org ID'),
-  runtime: HubSpaceSchema.shape.runtime.optional(),
+  runtime: HubSpaceSchema.shape.runtime.optional().describe('Runtime configuration for the space'),
   bom: BillOfMaterialsSchema.optional().describe('Initial Bill of Materials'),
-  subscription: HubSpaceSchema.shape.subscription.optional(),
-  deployment: HubSpaceSchema.shape.deployment.optional(),
-});
+  subscription: HubSpaceSchema.shape.subscription.optional().describe('Subscription plan configuration'),
+  deployment: HubSpaceSchema.shape.deployment.optional().describe('Deployment settings for the space'),
+}).describe('Request payload for creating a new space');
 
 /**
  * Update Space Request
@@ -143,7 +143,7 @@ export const CreateSpaceRequestSchema = z.object({
  * }
  * ```
  */
-export const UpdateSpaceRequestSchema = CreateSpaceRequestSchema.partial();
+export const UpdateSpaceRequestSchema = CreateSpaceRequestSchema.partial().describe('Request payload for updating an existing space');
 
 /**
  * Space Response
@@ -174,8 +174,8 @@ export const UpdateSpaceRequestSchema = CreateSpaceRequestSchema.partial();
  * ```
  */
 export const SpaceResponseSchema = BaseResponseSchema.extend({
-  data: HubSpaceSchema
-});
+  data: HubSpaceSchema.describe('Space details'),
+}).describe('Response containing a single space');
 
 /**
  * List Spaces Request
@@ -183,7 +183,7 @@ export const SpaceResponseSchema = BaseResponseSchema.extend({
 export const ListSpacesRequestSchema = PaginationRequestSchema.extend({
   ownerId: z.string().optional().describe('Filter by owner'),
   search: z.string().optional().describe('Search in name and slug'),
-});
+}).describe('Request parameters for listing spaces');
 
 /**
  * List Spaces Response
@@ -214,9 +214,9 @@ export const ListSpacesRequestSchema = PaginationRequestSchema.extend({
  * ```
  */
 export const ListSpacesResponseSchema = BaseResponseSchema.extend({
-  data: z.array(HubSpaceSchema),
-  pagination: PaginationResponseSchema,
-});
+  data: z.array(HubSpaceSchema).describe('List of spaces'),
+  pagination: PaginationResponseSchema.describe('Pagination metadata'),
+}).describe('Paginated response containing a list of spaces');
 
 // ============================================================================
 // Tenant Management API
@@ -240,38 +240,38 @@ export const ListSpacesResponseSchema = BaseResponseSchema.extend({
  */
 export const CreateTenantRequestSchema = z.object({
   name: z.string().min(1).max(255).describe('Tenant display name'),
-  isolationLevel: TenantSchema.shape.isolationLevel,
-  customizations: TenantSchema.shape.customizations.optional(),
-  quotas: TenantSchema.shape.quotas.optional(),
-});
+  isolationLevel: TenantSchema.shape.isolationLevel.describe('Data isolation level for the tenant'),
+  customizations: TenantSchema.shape.customizations.optional().describe('Tenant-specific customizations'),
+  quotas: TenantSchema.shape.quotas.optional().describe('Resource quotas for the tenant'),
+}).describe('Request payload for creating a new tenant');
 
 /**
  * Update Tenant Request
  */
-export const UpdateTenantRequestSchema = CreateTenantRequestSchema.partial();
+export const UpdateTenantRequestSchema = CreateTenantRequestSchema.partial().describe('Request payload for updating an existing tenant');
 
 /**
  * Tenant Response
  */
 export const TenantResponseSchema = BaseResponseSchema.extend({
-  data: TenantSchema
-});
+  data: TenantSchema.describe('Tenant details'),
+}).describe('Response containing a single tenant');
 
 /**
  * List Tenants Request
  */
 export const ListTenantsRequestSchema = PaginationRequestSchema.extend({
-  isolationLevel: TenantSchema.shape.isolationLevel.optional(),
-  search: z.string().optional(),
-});
+  isolationLevel: TenantSchema.shape.isolationLevel.optional().describe('Filter by isolation level'),
+  search: z.string().optional().describe('Search tenants by name'),
+}).describe('Request parameters for listing tenants');
 
 /**
  * List Tenants Response
  */
 export const ListTenantsResponseSchema = BaseResponseSchema.extend({
-  data: z.array(TenantSchema),
-  pagination: PaginationResponseSchema,
-});
+  data: z.array(TenantSchema).describe('List of tenants'),
+  pagination: PaginationResponseSchema.describe('Pagination metadata'),
+}).describe('Paginated response containing a list of tenants');
 
 // ============================================================================
 // Plugin Registry API
@@ -302,19 +302,19 @@ export const PublishPluginRequestSchema = PluginRegistryEntrySchema.omit({
   updatedAt: true,
   statistics: true,
   quality: true,
-});
+}).describe('Request payload for publishing a plugin');
 
 /**
  * Update Plugin Request
  */
-export const UpdatePluginRequestSchema = PublishPluginRequestSchema.partial();
+export const UpdatePluginRequestSchema = PublishPluginRequestSchema.partial().describe('Request payload for updating a published plugin');
 
 /**
  * Plugin Response
  */
 export const PluginResponseSchema = BaseResponseSchema.extend({
-  data: PluginRegistryEntrySchema
-});
+  data: PluginRegistryEntrySchema.describe('Plugin registry entry details'),
+}).describe('Response containing a single plugin');
 
 /**
  * Search Plugins Request
@@ -362,39 +362,39 @@ export const SearchPluginsRequestSchema = PluginSearchFiltersSchema;
  * ```
  */
 export const SearchPluginsResponseSchema = BaseResponseSchema.extend({
-  data: z.array(PluginRegistryEntrySchema),
-  pagination: PaginationResponseSchema,
-});
+  data: z.array(PluginRegistryEntrySchema).describe('List of matching plugins'),
+  pagination: PaginationResponseSchema.describe('Pagination metadata'),
+}).describe('Paginated response containing plugin search results');
 
 /**
  * Get Plugin Versions Request
  */
 export const GetPluginVersionsRequestSchema = z.object({
   pluginId: z.string().describe('Plugin identifier'),
-});
+}).describe('Request parameters for retrieving plugin versions');
 
 /**
  * Plugin Version Info
  */
 export const PluginVersionInfoSchema = z.object({
-  version: z.string(),
-  publishedAt: z.string().datetime(),
-  deprecated: z.boolean().default(false),
+  version: z.string().describe('Semantic version string'),
+  publishedAt: z.string().datetime().describe('Timestamp when this version was published'),
+  deprecated: z.boolean().default(false).describe('Whether this version is deprecated'),
   yanked: z.boolean().default(false).describe('Whether this version was removed'),
-  changelog: z.string().optional(),
-});
+  changelog: z.string().optional().describe('Release notes for this version'),
+}).describe('Version metadata for a plugin release');
 
 /**
  * Get Plugin Versions Response
  */
 export const GetPluginVersionsResponseSchema = BaseResponseSchema.extend({
   data: z.object({
-    pluginId: z.string(),
-    versions: z.array(PluginVersionInfoSchema),
+    pluginId: z.string().describe('Plugin identifier'),
+    versions: z.array(PluginVersionInfoSchema).describe('List of available versions'),
     latest: z.string().describe('Latest stable version'),
     latestPrerelease: z.string().optional().describe('Latest pre-release version'),
-  })
-});
+  }).describe('Plugin version listing'),
+}).describe('Response containing plugin version information');
 
 // ============================================================================
 // Marketplace API
@@ -404,38 +404,38 @@ export const GetPluginVersionsResponseSchema = BaseResponseSchema.extend({
  * List Marketplace Plugins Request
  */
 export const ListMarketplaceRequestSchema = PaginationRequestSchema.extend({
-  category: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  verified: z.boolean().optional(),
-  search: z.string().optional(),
-});
+  category: z.string().optional().describe('Filter by plugin category'),
+  tags: z.array(z.string()).optional().describe('Filter by tags'),
+  verified: z.boolean().optional().describe('Filter by vendor verification status'),
+  search: z.string().optional().describe('Search marketplace plugins by keyword'),
+}).describe('Request parameters for listing marketplace plugins');
 
 /**
  * List Marketplace Response
  */
 export const ListMarketplaceResponseSchema = BaseResponseSchema.extend({
-  data: z.array(MarketplacePluginSchema),
-  pagination: PaginationResponseSchema,
+  data: z.array(MarketplacePluginSchema).describe('List of marketplace plugins'),
+  pagination: PaginationResponseSchema.describe('Pagination metadata'),
   categories: z.array(z.object({
-    id: z.string(),
-    label: z.string(),
-    count: z.number().int(),
-  })).optional().describe('Available categories with counts'),
-});
+    id: z.string().describe('Category identifier'),
+    label: z.string().describe('Category display name'),
+    count: z.number().int().describe('Number of plugins in this category'),
+  }).describe('Marketplace category summary')).optional().describe('Available categories with counts'),
+}).describe('Paginated response containing marketplace plugin listings');
 
 /**
  * Get Marketplace Plugin Details Request
  */
 export const GetMarketplacePluginRequestSchema = z.object({
-  pluginId: z.string(),
-});
+  pluginId: z.string().describe('Plugin identifier to retrieve'),
+}).describe('Request parameters for retrieving marketplace plugin details');
 
 /**
  * Marketplace Plugin Details Response
  */
 export const MarketplacePluginResponseSchema = BaseResponseSchema.extend({
-  data: MarketplacePluginSchema
-});
+  data: MarketplacePluginSchema.describe('Marketplace plugin details'),
+}).describe('Response containing marketplace plugin details');
 
 // ============================================================================
 // License Management API
@@ -462,18 +462,18 @@ export const MarketplacePluginResponseSchema = BaseResponseSchema.extend({
 export const IssueLicenseRequestSchema = z.object({
   spaceId: z.string().describe('Target space ID'),
   planCode: z.string().describe('Plan code'),
-  expiresAt: z.string().datetime().optional(),
-  customFeatures: z.array(z.string()).optional(),
-  customLimits: z.record(z.string(), z.number()).optional(),
-  plugins: z.array(z.string()).optional(),
-});
+  expiresAt: z.string().datetime().optional().describe('License expiration date'),
+  customFeatures: z.array(z.string()).optional().describe('Custom feature flags to enable'),
+  customLimits: z.record(z.string(), z.number()).optional().describe('Custom resource limits'),
+  plugins: z.array(z.string()).optional().describe('Licensed plugin identifiers'),
+}).describe('Request payload for issuing a new license');
 
 /**
  * License Response
  */
 export const LicenseResponseSchema = BaseResponseSchema.extend({
-  data: LicenseSchema
-});
+  data: LicenseSchema.describe('License details'),
+}).describe('Response containing a single license');
 
 /**
  * Validate License Request
@@ -487,9 +487,9 @@ export const LicenseResponseSchema = BaseResponseSchema.extend({
  * ```
  */
 export const ValidateLicenseRequestSchema = z.object({
-  spaceId: z.string(),
+  spaceId: z.string().describe('Space ID to validate the license for'),
   signature: z.string().describe('License signature/token'),
-});
+}).describe('Request payload for validating a license');
 
 /**
  * License Validation Response
@@ -514,37 +514,37 @@ export const ValidateLicenseRequestSchema = z.object({
  */
 export const ValidateLicenseResponseSchema = BaseResponseSchema.extend({
   data: z.object({
-    valid: z.boolean(),
-    license: LicenseSchema.optional(),
-    errors: z.array(z.string()).default([]),
-    warnings: z.array(z.string()).default([]),
-  })
-});
+    valid: z.boolean().describe('Whether the license is valid'),
+    license: LicenseSchema.optional().describe('License details if found'),
+    errors: z.array(z.string()).default([]).describe('Validation error messages'),
+    warnings: z.array(z.string()).default([]).describe('Validation warning messages'),
+  }).describe('License validation result'),
+}).describe('Response containing license validation results');
 
 /**
  * Revoke License Request
  */
 export const RevokeLicenseRequestSchema = z.object({
-  spaceId: z.string(),
-  reason: z.string().optional(),
-});
+  spaceId: z.string().describe('Space ID whose license should be revoked'),
+  reason: z.string().optional().describe('Reason for revoking the license'),
+}).describe('Request payload for revoking a license');
 
 /**
  * List Licenses Request
  */
 export const ListLicensesRequestSchema = PaginationRequestSchema.extend({
-  spaceId: z.string().optional(),
-  planCode: z.string().optional(),
-  status: LicenseSchema.shape.status.optional(),
-});
+  spaceId: z.string().optional().describe('Filter by space ID'),
+  planCode: z.string().optional().describe('Filter by plan code'),
+  status: LicenseSchema.shape.status.optional().describe('Filter by license status'),
+}).describe('Request parameters for listing licenses');
 
 /**
  * List Licenses Response
  */
 export const ListLicensesResponseSchema = BaseResponseSchema.extend({
-  data: z.array(LicenseSchema),
-  pagination: PaginationResponseSchema,
-});
+  data: z.array(LicenseSchema).describe('List of licenses'),
+  pagination: PaginationResponseSchema.describe('Pagination metadata'),
+}).describe('Paginated response containing a list of licenses');
 
 // ============================================================================
 // Composer Service API
@@ -581,15 +581,15 @@ export const CompileManifestRequestSchema = ComposerRequestSchema;
  * Compile Manifest Response
  */
 export const CompileManifestResponseSchema = BaseResponseSchema.extend({
-  data: ComposerResponseSchema
-});
+  data: ComposerResponseSchema.describe('Compilation result'),
+}).describe('Response containing the compiled manifest result');
 
 /**
  * Get Build Status Request
  */
 export const GetBuildStatusRequestSchema = z.object({
-  buildId: z.string(),
-});
+  buildId: z.string().describe('Unique build identifier'),
+}).describe('Request parameters for retrieving build status');
 
 /**
  * Build Status Response
@@ -615,20 +615,20 @@ export const GetBuildStatusRequestSchema = z.object({
  */
 export const BuildStatusResponseSchema = BaseResponseSchema.extend({
   data: z.object({
-    buildId: z.string(),
-    status: z.enum(['pending', 'in_progress', 'success', 'failed']),
+    buildId: z.string().describe('Unique build identifier'),
+    status: z.enum(['pending', 'in_progress', 'success', 'failed']).describe('Current build status'),
     progress: z.number().min(0).max(100).describe('Completion percentage'),
-    startedAt: z.string().datetime().optional(),
-    completedAt: z.string().datetime().optional(),
+    startedAt: z.string().datetime().optional().describe('Timestamp when the build started'),
+    completedAt: z.string().datetime().optional().describe('Timestamp when the build completed'),
     duration: z.number().optional().describe('Duration in milliseconds'),
     logs: z.array(z.object({
-      timestamp: z.string().datetime(),
-      level: z.enum(['debug', 'info', 'warn', 'error']),
-      message: z.string(),
-    })).optional(),
-    error: z.string().optional(),
-  })
-});
+      timestamp: z.string().datetime().describe('Log entry timestamp'),
+      level: z.enum(['debug', 'info', 'warn', 'error']).describe('Log severity level'),
+      message: z.string().describe('Log message content'),
+    }).describe('Build log entry')).optional().describe('Build log entries'),
+    error: z.string().optional().describe('Error message if the build failed'),
+  }).describe('Build status details'),
+}).describe('Response containing build status information');
 
 // ============================================================================
 // Health & Monitoring
@@ -666,17 +666,17 @@ export const BuildStatusResponseSchema = BaseResponseSchema.extend({
  */
 export const HubHealthResponseSchema = BaseResponseSchema.extend({
   data: z.object({
-    status: z.enum(['healthy', 'degraded', 'unhealthy']),
-    version: z.string(),
+    status: z.enum(['healthy', 'degraded', 'unhealthy']).describe('Overall hub health status'),
+    version: z.string().describe('Hub service version'),
     uptime: z.number().describe('Uptime in seconds'),
     services: z.record(z.string(), z.object({
-      status: z.enum(['healthy', 'degraded', 'unhealthy']),
+      status: z.enum(['healthy', 'degraded', 'unhealthy']).describe('Service health status'),
       latency: z.number().optional().describe('Latency in milliseconds'),
-      message: z.string().optional(),
-    })),
-    timestamp: z.string().datetime(),
-  })
-});
+      message: z.string().optional().describe('Additional status message'),
+    }).describe('Individual service health details')).describe('Health status of dependent services'),
+    timestamp: z.string().datetime().describe('Timestamp of the health check'),
+  }).describe('Hub health check details'),
+}).describe('Response containing hub health status');
 
 /**
  * Hub Metrics Response
@@ -716,28 +716,28 @@ export const HubMetricsResponseSchema = BaseResponseSchema.extend({
   data: z.object({
     metrics: z.object({
       spaces: z.object({
-        total: z.number().int(),
-        active: z.number().int(),
-        created_last_30d: z.number().int().optional(),
-      }).optional(),
+        total: z.number().int().describe('Total number of spaces'),
+        active: z.number().int().describe('Number of active spaces'),
+        created_last_30d: z.number().int().optional().describe('Spaces created in the last 30 days'),
+      }).optional().describe('Space-related metrics'),
       tenants: z.object({
-        total: z.number().int(),
-        active: z.number().int(),
-      }).optional(),
+        total: z.number().int().describe('Total number of tenants'),
+        active: z.number().int().describe('Number of active tenants'),
+      }).optional().describe('Tenant-related metrics'),
       plugins: z.object({
-        total: z.number().int(),
-        published_last_30d: z.number().int().optional(),
-        total_downloads: z.number().int().optional(),
-      }).optional(),
+        total: z.number().int().describe('Total number of plugins'),
+        published_last_30d: z.number().int().optional().describe('Plugins published in the last 30 days'),
+        total_downloads: z.number().int().optional().describe('Cumulative plugin downloads'),
+      }).optional().describe('Plugin-related metrics'),
       api: z.object({
-        requests_per_minute: z.number(),
+        requests_per_minute: z.number().describe('Current API request rate per minute'),
         avg_response_time: z.number().describe('Milliseconds'),
-        error_rate: z.number().min(0).max(1),
-      }).optional(),
-    }),
-    timestamp: z.string().datetime(),
-  })
-});
+        error_rate: z.number().min(0).max(1).describe('Ratio of failed API requests'),
+      }).optional().describe('API performance metrics'),
+    }).describe('Aggregated hub metrics'),
+    timestamp: z.string().datetime().describe('Timestamp when metrics were collected'),
+  }).describe('Hub metrics data'),
+}).describe('Response containing hub operational metrics');
 
 // ============================================================================
 // Export Types
@@ -824,7 +824,7 @@ export const HubAPIContract = {
       response: ListSpacesResponseSchema,
     },
     delete: {
-      response: z.object({ success: z.boolean() }),
+      response: z.object({ success: z.boolean().describe('Whether the deletion was successful') }).describe('Space deletion response'),
     },
   },
   
@@ -846,7 +846,7 @@ export const HubAPIContract = {
       response: ListTenantsResponseSchema,
     },
     delete: {
-      response: z.object({ success: z.boolean() }),
+      response: z.object({ success: z.boolean().describe('Whether the deletion was successful') }).describe('Tenant deletion response'),
     },
   },
   
@@ -872,7 +872,7 @@ export const HubAPIContract = {
       response: GetPluginVersionsResponseSchema,
     },
     delete: {
-      response: z.object({ success: z.boolean() }),
+      response: z.object({ success: z.boolean().describe('Whether the deletion was successful') }).describe('Plugin deletion response'),
     },
   },
   
@@ -900,7 +900,7 @@ export const HubAPIContract = {
     },
     revoke: {
       request: RevokeLicenseRequestSchema,
-      response: z.object({ success: z.boolean() }),
+      response: z.object({ success: z.boolean().describe('Whether the revocation was successful') }).describe('License revocation response'),
     },
     list: {
       request: ListLicensesRequestSchema,
@@ -939,14 +939,14 @@ export const InstallPluginRequestSchema = z.object({
   pluginId: z.string().describe('Plugin Package ID'),
   version: z.string().optional().describe('Version requirement'),
   config: z.record(z.string(), z.unknown()).optional().describe('Plugin configuration'),
-});
+}).describe('Request payload for installing a plugin into a space');
 
 /**
  * Install Plugin Response
  */
 export const InstallPluginResponseSchema = BaseResponseSchema.extend({
-  data: z.unknown() // Returns installation status or installed instance
-});
+  data: z.unknown().describe('Installation status or installed plugin instance'),
+}).describe('Response containing plugin installation result');
 
 
 

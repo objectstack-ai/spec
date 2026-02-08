@@ -60,7 +60,7 @@
             "isolation"
           ],
           "additionalProperties": false,
-          "description": "Runtime instance configuration"
+          "description": "Runtime configuration for the space"
         },
         "bom": {
           "type": "object",
@@ -196,7 +196,8 @@
             "planId",
             "status"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Subscription plan configuration"
         },
         "deployment": {
           "type": "object",
@@ -228,10 +229,12 @@
           "required": [
             "provider"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Deployment settings for the space"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Request payload for updating an existing space"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

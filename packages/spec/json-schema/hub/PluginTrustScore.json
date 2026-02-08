@@ -5,12 +5,14 @@
       "type": "object",
       "properties": {
         "pluginId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier of the plugin"
         },
         "score": {
           "type": "number",
           "minimum": 0,
-          "maximum": 100
+          "maximum": 100,
+          "description": "Overall trust score from 0 to 100"
         },
         "components": {
           "type": "object",
@@ -18,27 +20,32 @@
             "vendorReputation": {
               "type": "number",
               "minimum": 0,
-              "maximum": 100
+              "maximum": 100,
+              "description": "Vendor reputation score from 0 to 100"
             },
             "securityScore": {
               "type": "number",
               "minimum": 0,
-              "maximum": 100
+              "maximum": 100,
+              "description": "Security scan results score from 0 to 100"
             },
             "codeQuality": {
               "type": "number",
               "minimum": 0,
-              "maximum": 100
+              "maximum": 100,
+              "description": "Code quality score from 0 to 100"
             },
             "communityScore": {
               "type": "number",
               "minimum": 0,
-              "maximum": 100
+              "maximum": 100,
+              "description": "Community engagement score from 0 to 100"
             },
             "maintenanceScore": {
               "type": "number",
               "minimum": 0,
-              "maximum": 100
+              "maximum": 100,
+              "description": "Maintenance and update frequency score from 0 to 100"
             }
           },
           "required": [
@@ -48,7 +55,8 @@
             "communityScore",
             "maintenanceScore"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Individual score components contributing to the overall trust score"
         },
         "level": {
           "type": "string",
@@ -58,7 +66,8 @@
             "neutral",
             "untrusted",
             "blocked"
-          ]
+          ],
+          "description": "Computed trust level based on the overall score"
         },
         "badges": {
           "type": "array",
@@ -73,11 +82,13 @@
               "popular"
             ]
           },
-          "default": []
+          "default": [],
+          "description": "Verification badges earned by the plugin"
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when the trust score was last updated"
         }
       },
       "required": [
@@ -87,7 +98,8 @@
         "level",
         "updatedAt"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Trust score and verification status for a plugin"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

@@ -69,10 +69,12 @@
                 "healthy",
                 "degraded",
                 "unhealthy"
-              ]
+              ],
+              "description": "Overall hub health status"
             },
             "version": {
-              "type": "string"
+              "type": "string",
+              "description": "Hub service version"
             },
             "uptime": {
               "type": "number",
@@ -89,25 +91,30 @@
                       "healthy",
                       "degraded",
                       "unhealthy"
-                    ]
+                    ],
+                    "description": "Service health status"
                   },
                   "latency": {
                     "type": "number",
                     "description": "Latency in milliseconds"
                   },
                   "message": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Additional status message"
                   }
                 },
                 "required": [
                   "status"
                 ],
-                "additionalProperties": false
-              }
+                "additionalProperties": false,
+                "description": "Individual service health details"
+              },
+              "description": "Health status of dependent services"
             },
             "timestamp": {
               "type": "string",
-              "format": "date-time"
+              "format": "date-time",
+              "description": "Timestamp of the health check"
             }
           },
           "required": [
@@ -117,14 +124,16 @@
             "services",
             "timestamp"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Hub health check details"
         }
       },
       "required": [
         "success",
         "data"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Response containing hub health status"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

@@ -361,6 +361,11 @@ export const ChangeRequestSchema = z.object({
      */
     url: z.string().url().describe('Attachment URL'),
   })).optional().describe('Attachments'),
+
+  /**
+   * Custom metadata key-value pairs for extensibility
+   */
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom metadata key-value pairs for extensibility'),
 });
 
 // Type exports

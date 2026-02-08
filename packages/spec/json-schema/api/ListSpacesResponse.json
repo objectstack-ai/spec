@@ -334,32 +334,39 @@
               "updatedAt"
             ],
             "additionalProperties": false
-          }
+          },
+          "description": "List of spaces"
         },
         "pagination": {
           "type": "object",
           "properties": {
             "page": {
               "type": "integer",
-              "minimum": 1
+              "minimum": 1,
+              "description": "Current page number"
             },
             "perPage": {
               "type": "integer",
-              "minimum": 1
+              "minimum": 1,
+              "description": "Items per page"
             },
             "total": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 0,
+              "description": "Total number of items"
             },
             "totalPages": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 0,
+              "description": "Total number of pages"
             },
             "hasNext": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Whether there is a next page"
             },
             "hasPrev": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Whether there is a previous page"
             }
           },
           "required": [
@@ -370,7 +377,8 @@
             "hasNext",
             "hasPrev"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Pagination metadata"
         }
       },
       "required": [
@@ -378,7 +386,8 @@
         "data",
         "pagination"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Paginated response containing a list of spaces"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
