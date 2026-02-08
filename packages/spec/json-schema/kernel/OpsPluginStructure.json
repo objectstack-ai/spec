@@ -20,7 +20,8 @@
         "root",
         "files"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Full plugin project layout validated against OPS conventions"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

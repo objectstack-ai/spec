@@ -736,8 +736,8 @@
                           "aes-256-cbc",
                           "chacha20-poly1305"
                         ],
-                        "default": "aes-256-gcm",
-                        "description": "Encryption algorithm"
+                        "description": "Encryption algorithm",
+                        "default": "aes-256-gcm"
                       },
                       "keyManagement": {
                         "type": "object",
@@ -824,7 +824,8 @@
                     "type": "object",
                     "properties": {
                       "field": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Field name to apply masking to"
                       },
                       "strategy": {
                         "type": "string",
@@ -836,7 +837,8 @@
                           "randomize",
                           "nullify",
                           "substitute"
-                        ]
+                        ],
+                        "description": "Masking strategy to use"
                       },
                       "pattern": {
                         "type": "string",
@@ -844,11 +846,13 @@
                       },
                       "preserveFormat": {
                         "type": "boolean",
-                        "default": true
+                        "default": true,
+                        "description": "Keep the original data format after masking"
                       },
                       "preserveLength": {
                         "type": "boolean",
-                        "default": true
+                        "default": true,
+                        "description": "Keep the original data length after masking"
                       },
                       "roles": {
                         "type": "array",
@@ -986,7 +990,7 @@
                   "encryption": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Deprecated: Use encryptionConfig for enhanced encryption features. Simple flag for backward compatibility."
+                    "description": "DEPRECATED: Use `encryptionConfig` for enhanced encryption features. Scheduled for removal in v2.0.0"
                   },
                   "index": {
                     "type": "boolean",

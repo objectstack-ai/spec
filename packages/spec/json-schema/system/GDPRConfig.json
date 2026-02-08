@@ -5,37 +5,45 @@
       "type": "object",
       "properties": {
         "enabled": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Enable GDPR compliance controls"
         },
         "dataSubjectRights": {
           "type": "object",
           "properties": {
             "rightToAccess": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Allow data subjects to access their data"
             },
             "rightToRectification": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Allow data subjects to correct their data"
             },
             "rightToErasure": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Allow data subjects to request deletion"
             },
             "rightToRestriction": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Allow data subjects to restrict processing"
             },
             "rightToPortability": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Allow data subjects to export their data"
             },
             "rightToObjection": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Allow data subjects to object to processing"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Data subject rights configuration per GDPR Articles 15-21"
         },
         "legalBasis": {
           "type": "string",
@@ -46,17 +54,21 @@
             "vital-interests",
             "public-task",
             "legitimate-interests"
-          ]
+          ],
+          "description": "Legal basis for data processing under GDPR Article 6"
         },
         "consentTracking": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Track and record user consent"
         },
         "dataRetentionDays": {
-          "type": "number"
+          "type": "number",
+          "description": "Maximum data retention period in days"
         },
         "dataProcessingAgreement": {
-          "type": "string"
+          "type": "string",
+          "description": "URL or reference to the data processing agreement"
         }
       },
       "required": [
@@ -64,7 +76,8 @@
         "dataSubjectRights",
         "legalBasis"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "GDPR (General Data Protection Regulation) compliance configuration"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

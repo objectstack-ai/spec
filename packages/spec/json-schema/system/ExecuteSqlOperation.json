@@ -21,7 +21,8 @@
         "type",
         "sql"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Execute a raw SQL statement"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

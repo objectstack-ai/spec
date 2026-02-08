@@ -5,11 +5,13 @@
       "type": "object",
       "properties": {
         "field": {
-          "type": "string"
+          "type": "string",
+          "description": "Field name to generate facets from"
         },
         "maxValues": {
           "type": "number",
-          "default": 10
+          "default": 10,
+          "description": "Maximum number of facet values to return"
         },
         "sort": {
           "type": "string",
@@ -17,13 +19,15 @@
             "count",
             "alpha"
           ],
-          "default": "count"
+          "default": "count",
+          "description": "Facet value sort order"
         }
       },
       "required": [
         "field"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Faceted search configuration for a single field"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

@@ -16,7 +16,8 @@
       "required": [
         "migrationId"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Dependency reference to another migration that must run first"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

@@ -6,20 +6,24 @@
       "properties": {
         "enabled": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "description": "Enable dead letter queue for failed messages"
         },
         "maxRetries": {
           "type": "number",
-          "default": 3
+          "default": 3,
+          "description": "Maximum delivery attempts before sending to DLQ"
         },
         "queueName": {
-          "type": "string"
+          "type": "string",
+          "description": "Name of the dead letter queue"
         }
       },
       "required": [
         "queueName"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Dead letter queue configuration for unprocessable messages"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

@@ -8,37 +8,45 @@
           "type": "object",
           "properties": {
             "enabled": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Enable GDPR compliance controls"
             },
             "dataSubjectRights": {
               "type": "object",
               "properties": {
                 "rightToAccess": {
                   "type": "boolean",
-                  "default": true
+                  "default": true,
+                  "description": "Allow data subjects to access their data"
                 },
                 "rightToRectification": {
                   "type": "boolean",
-                  "default": true
+                  "default": true,
+                  "description": "Allow data subjects to correct their data"
                 },
                 "rightToErasure": {
                   "type": "boolean",
-                  "default": true
+                  "default": true,
+                  "description": "Allow data subjects to request deletion"
                 },
                 "rightToRestriction": {
                   "type": "boolean",
-                  "default": true
+                  "default": true,
+                  "description": "Allow data subjects to restrict processing"
                 },
                 "rightToPortability": {
                   "type": "boolean",
-                  "default": true
+                  "default": true,
+                  "description": "Allow data subjects to export their data"
                 },
                 "rightToObjection": {
                   "type": "boolean",
-                  "default": true
+                  "default": true,
+                  "description": "Allow data subjects to object to processing"
                 }
               },
-              "additionalProperties": false
+              "additionalProperties": false,
+              "description": "Data subject rights configuration per GDPR Articles 15-21"
             },
             "legalBasis": {
               "type": "string",
@@ -49,17 +57,21 @@
                 "vital-interests",
                 "public-task",
                 "legitimate-interests"
-              ]
+              ],
+              "description": "Legal basis for data processing under GDPR Article 6"
             },
             "consentTracking": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Track and record user consent"
             },
             "dataRetentionDays": {
-              "type": "number"
+              "type": "number",
+              "description": "Maximum data retention period in days"
             },
             "dataProcessingAgreement": {
-              "type": "string"
+              "type": "string",
+              "description": "URL or reference to the data processing agreement"
             }
           },
           "required": [
@@ -67,52 +79,62 @@
             "dataSubjectRights",
             "legalBasis"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "GDPR compliance settings"
         },
         "hipaa": {
           "type": "object",
           "properties": {
             "enabled": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Enable HIPAA compliance controls"
             },
             "phi": {
               "type": "object",
               "properties": {
                 "encryption": {
                   "type": "boolean",
-                  "default": true
+                  "default": true,
+                  "description": "Encrypt Protected Health Information at rest"
                 },
                 "accessControl": {
                   "type": "boolean",
-                  "default": true
+                  "default": true,
+                  "description": "Enforce role-based access to PHI"
                 },
                 "auditTrail": {
                   "type": "boolean",
-                  "default": true
+                  "default": true,
+                  "description": "Log all PHI access events"
                 },
                 "backupAndRecovery": {
                   "type": "boolean",
-                  "default": true
+                  "default": true,
+                  "description": "Enable PHI backup and disaster recovery"
                 }
               },
-              "additionalProperties": false
+              "additionalProperties": false,
+              "description": "Protected Health Information safeguards"
             },
             "businessAssociateAgreement": {
               "type": "boolean",
-              "default": false
+              "default": false,
+              "description": "BAA is in place with third-party processors"
             }
           },
           "required": [
             "enabled",
             "phi"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "HIPAA compliance settings"
         },
         "pciDss": {
           "type": "object",
           "properties": {
             "enabled": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Enable PCI-DSS compliance controls"
             },
             "level": {
               "type": "string",
@@ -121,25 +143,30 @@
                 "2",
                 "3",
                 "4"
-              ]
+              ],
+              "description": "PCI-DSS compliance level (1 = highest)"
             },
             "cardDataFields": {
               "type": "array",
               "items": {
                 "type": "string"
-              }
+              },
+              "description": "Field names containing cardholder data"
             },
             "tokenization": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Replace card data with secure tokens"
             },
             "encryptionInTransit": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Encrypt cardholder data during transmission"
             },
             "encryptionAtRest": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Encrypt stored cardholder data"
             }
           },
           "required": [
@@ -147,26 +174,31 @@
             "level",
             "cardDataFields"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "PCI-DSS compliance settings"
         },
         "auditLog": {
           "type": "object",
           "properties": {
             "enabled": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Enable audit logging"
             },
             "retentionDays": {
               "type": "number",
-              "default": 365
+              "default": 365,
+              "description": "Number of days to retain audit logs"
             },
             "immutable": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Prevent modification or deletion of audit logs"
             },
             "signLogs": {
               "type": "boolean",
-              "default": false
+              "default": false,
+              "description": "Cryptographically sign log entries for tamper detection"
             },
             "events": {
               "type": "array",
@@ -183,19 +215,22 @@
                   "logout",
                   "failed-login"
                 ]
-              }
+              },
+              "description": "Event types to capture in the audit log"
             }
           },
           "required": [
             "events"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Audit log configuration"
         }
       },
       "required": [
         "auditLog"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Unified compliance configuration spanning GDPR, HIPAA, and PCI-DSS"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

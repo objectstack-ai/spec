@@ -14,14 +14,17 @@
           "description": "Human readable name for the migration"
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "description": "Detailed description of what this migration does"
         },
         "author": {
-          "type": "string"
+          "type": "string",
+          "description": "Author who created this migration"
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when the migration was created"
         },
         "dependencies": {
           "type": "array",
@@ -40,8 +43,10 @@
             "required": [
               "migrationId"
             ],
-            "additionalProperties": false
-          }
+            "additionalProperties": false,
+            "description": "Dependency reference to another migration that must run first"
+          },
+          "description": "Migrations that must run before this one"
         },
         "operations": {
           "type": "array",
@@ -681,8 +686,8 @@
                               "aes-256-cbc",
                               "chacha20-poly1305"
                             ],
-                            "default": "aes-256-gcm",
-                            "description": "Encryption algorithm"
+                            "description": "Encryption algorithm",
+                            "default": "aes-256-gcm"
                           },
                           "keyManagement": {
                             "type": "object",
@@ -769,7 +774,8 @@
                         "type": "object",
                         "properties": {
                           "field": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Field name to apply masking to"
                           },
                           "strategy": {
                             "type": "string",
@@ -781,7 +787,8 @@
                               "randomize",
                               "nullify",
                               "substitute"
-                            ]
+                            ],
+                            "description": "Masking strategy to use"
                           },
                           "pattern": {
                             "type": "string",
@@ -789,11 +796,13 @@
                           },
                           "preserveFormat": {
                             "type": "boolean",
-                            "default": true
+                            "default": true,
+                            "description": "Keep the original data format after masking"
                           },
                           "preserveLength": {
                             "type": "boolean",
-                            "default": true
+                            "default": true,
+                            "description": "Keep the original data length after masking"
                           },
                           "roles": {
                             "type": "array",
@@ -931,7 +940,7 @@
                       "encryption": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Deprecated: Use encryptionConfig for enhanced encryption features. Simple flag for backward compatibility."
+                        "description": "DEPRECATED: Use `encryptionConfig` for enhanced encryption features. Scheduled for removal in v2.0.0"
                       },
                       "index": {
                         "type": "boolean",
@@ -947,7 +956,8 @@
                     "required": [
                       "type"
                     ],
-                    "additionalProperties": false
+                    "additionalProperties": false,
+                    "description": "Full field definition to add"
                   }
                 },
                 "required": [
@@ -956,7 +966,8 @@
                   "fieldName",
                   "field"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Add a new field to an existing object"
               },
               {
                 "type": "object",
@@ -985,7 +996,8 @@
                   "fieldName",
                   "changes"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Modify properties of an existing field"
               },
               {
                 "type": "object",
@@ -1008,7 +1020,8 @@
                   "objectName",
                   "fieldName"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Remove a field from an existing object"
               },
               {
                 "type": "object",
@@ -1693,8 +1706,8 @@
                                     "aes-256-cbc",
                                     "chacha20-poly1305"
                                   ],
-                                  "default": "aes-256-gcm",
-                                  "description": "Encryption algorithm"
+                                  "description": "Encryption algorithm",
+                                  "default": "aes-256-gcm"
                                 },
                                 "keyManagement": {
                                   "type": "object",
@@ -1781,7 +1794,8 @@
                               "type": "object",
                               "properties": {
                                 "field": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "Field name to apply masking to"
                                 },
                                 "strategy": {
                                   "type": "string",
@@ -1793,7 +1807,8 @@
                                     "randomize",
                                     "nullify",
                                     "substitute"
-                                  ]
+                                  ],
+                                  "description": "Masking strategy to use"
                                 },
                                 "pattern": {
                                   "type": "string",
@@ -1801,11 +1816,13 @@
                                 },
                                 "preserveFormat": {
                                   "type": "boolean",
-                                  "default": true
+                                  "default": true,
+                                  "description": "Keep the original data format after masking"
                                 },
                                 "preserveLength": {
                                   "type": "boolean",
-                                  "default": true
+                                  "default": true,
+                                  "description": "Keep the original data length after masking"
                                 },
                                 "roles": {
                                   "type": "array",
@@ -1943,7 +1960,7 @@
                             "encryption": {
                               "type": "boolean",
                               "default": false,
-                              "description": "Deprecated: Use encryptionConfig for enhanced encryption features. Simple flag for backward compatibility."
+                              "description": "DEPRECATED: Use `encryptionConfig` for enhanced encryption features. Scheduled for removal in v2.0.0"
                             },
                             "index": {
                               "type": "boolean",
@@ -4760,7 +4777,8 @@
                   "type",
                   "object"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Create a new object"
               },
               {
                 "type": "object",
@@ -4783,7 +4801,8 @@
                   "oldName",
                   "newName"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Rename an existing object"
               },
               {
                 "type": "object",
@@ -4801,7 +4820,8 @@
                   "type",
                   "objectName"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Delete an existing object"
               },
               {
                 "type": "object",
@@ -4823,10 +4843,12 @@
                   "type",
                   "sql"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Execute a raw SQL statement"
               }
             ]
-          }
+          },
+          "description": "Ordered list of atomic migration operations"
         },
         "rollback": {
           "type": "array",
@@ -5466,8 +5488,8 @@
                               "aes-256-cbc",
                               "chacha20-poly1305"
                             ],
-                            "default": "aes-256-gcm",
-                            "description": "Encryption algorithm"
+                            "description": "Encryption algorithm",
+                            "default": "aes-256-gcm"
                           },
                           "keyManagement": {
                             "type": "object",
@@ -5554,7 +5576,8 @@
                         "type": "object",
                         "properties": {
                           "field": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Field name to apply masking to"
                           },
                           "strategy": {
                             "type": "string",
@@ -5566,7 +5589,8 @@
                               "randomize",
                               "nullify",
                               "substitute"
-                            ]
+                            ],
+                            "description": "Masking strategy to use"
                           },
                           "pattern": {
                             "type": "string",
@@ -5574,11 +5598,13 @@
                           },
                           "preserveFormat": {
                             "type": "boolean",
-                            "default": true
+                            "default": true,
+                            "description": "Keep the original data format after masking"
                           },
                           "preserveLength": {
                             "type": "boolean",
-                            "default": true
+                            "default": true,
+                            "description": "Keep the original data length after masking"
                           },
                           "roles": {
                             "type": "array",
@@ -5716,7 +5742,7 @@
                       "encryption": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Deprecated: Use encryptionConfig for enhanced encryption features. Simple flag for backward compatibility."
+                        "description": "DEPRECATED: Use `encryptionConfig` for enhanced encryption features. Scheduled for removal in v2.0.0"
                       },
                       "index": {
                         "type": "boolean",
@@ -5732,7 +5758,8 @@
                     "required": [
                       "type"
                     ],
-                    "additionalProperties": false
+                    "additionalProperties": false,
+                    "description": "Full field definition to add"
                   }
                 },
                 "required": [
@@ -5741,7 +5768,8 @@
                   "fieldName",
                   "field"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Add a new field to an existing object"
               },
               {
                 "type": "object",
@@ -5770,7 +5798,8 @@
                   "fieldName",
                   "changes"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Modify properties of an existing field"
               },
               {
                 "type": "object",
@@ -5793,7 +5822,8 @@
                   "objectName",
                   "fieldName"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Remove a field from an existing object"
               },
               {
                 "type": "object",
@@ -6478,8 +6508,8 @@
                                     "aes-256-cbc",
                                     "chacha20-poly1305"
                                   ],
-                                  "default": "aes-256-gcm",
-                                  "description": "Encryption algorithm"
+                                  "description": "Encryption algorithm",
+                                  "default": "aes-256-gcm"
                                 },
                                 "keyManagement": {
                                   "type": "object",
@@ -6566,7 +6596,8 @@
                               "type": "object",
                               "properties": {
                                 "field": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "Field name to apply masking to"
                                 },
                                 "strategy": {
                                   "type": "string",
@@ -6578,7 +6609,8 @@
                                     "randomize",
                                     "nullify",
                                     "substitute"
-                                  ]
+                                  ],
+                                  "description": "Masking strategy to use"
                                 },
                                 "pattern": {
                                   "type": "string",
@@ -6586,11 +6618,13 @@
                                 },
                                 "preserveFormat": {
                                   "type": "boolean",
-                                  "default": true
+                                  "default": true,
+                                  "description": "Keep the original data format after masking"
                                 },
                                 "preserveLength": {
                                   "type": "boolean",
-                                  "default": true
+                                  "default": true,
+                                  "description": "Keep the original data length after masking"
                                 },
                                 "roles": {
                                   "type": "array",
@@ -6728,7 +6762,7 @@
                             "encryption": {
                               "type": "boolean",
                               "default": false,
-                              "description": "Deprecated: Use encryptionConfig for enhanced encryption features. Simple flag for backward compatibility."
+                              "description": "DEPRECATED: Use `encryptionConfig` for enhanced encryption features. Scheduled for removal in v2.0.0"
                             },
                             "index": {
                               "type": "boolean",
@@ -9545,7 +9579,8 @@
                   "type",
                   "object"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Create a new object"
               },
               {
                 "type": "object",
@@ -9568,7 +9603,8 @@
                   "oldName",
                   "newName"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Rename an existing object"
               },
               {
                 "type": "object",
@@ -9586,7 +9622,8 @@
                   "type",
                   "objectName"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Delete an existing object"
               },
               {
                 "type": "object",
@@ -9608,10 +9645,12 @@
                   "type",
                   "sql"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "Execute a raw SQL statement"
               }
             ]
-          }
+          },
+          "description": "Operations to reverse this migration"
         }
       },
       "required": [
@@ -9619,7 +9658,8 @@
         "name",
         "operations"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A versioned set of atomic schema migration operations"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

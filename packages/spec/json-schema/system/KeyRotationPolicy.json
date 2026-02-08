@@ -26,7 +26,8 @@
           "description": "Automatically rotate without manual approval"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Policy for automatic encryption key rotation"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

@@ -28,7 +28,8 @@
         "fieldName",
         "changes"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Modify properties of an existing field"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

@@ -2,7 +2,8 @@
   "$ref": "#/definitions/OpsFilePath",
   "definitions": {
     "OpsFilePath": {
-      "type": "string"
+      "type": "string",
+      "description": "Validates a file path against OPS naming conventions"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

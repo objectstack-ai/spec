@@ -46,8 +46,8 @@
                   "ttl",
                   "adaptive"
                 ],
-                "default": "lru",
-                "description": "Eviction strategy"
+                "description": "Eviction strategy",
+                "default": "lru"
               },
               "warmup": {
                 "type": "boolean",
@@ -59,7 +59,8 @@
               "name",
               "type"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "description": "Configuration for a single cache tier in the hierarchy"
           },
           "description": "Ordered cache tier hierarchy"
         },
@@ -104,7 +105,8 @@
               "trigger",
               "scope"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "description": "Rule defining when and how cached entries are invalidated"
           },
           "description": "Cache invalidation rules"
         },
@@ -128,7 +130,8 @@
         "tiers",
         "invalidation"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Top-level application cache configuration"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

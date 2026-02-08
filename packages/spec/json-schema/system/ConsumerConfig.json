@@ -5,7 +5,8 @@
       "type": "object",
       "properties": {
         "groupId": {
-          "type": "string"
+          "type": "string",
+          "description": "Consumer group identifier"
         },
         "autoOffsetReset": {
           "type": "string",
@@ -13,21 +14,25 @@
             "earliest",
             "latest"
           ],
-          "default": "latest"
+          "default": "latest",
+          "description": "Where to start reading when no offset exists"
         },
         "enableAutoCommit": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "description": "Automatically commit consumed offsets"
         },
         "maxPollRecords": {
           "type": "number",
-          "default": 500
+          "default": 500,
+          "description": "Maximum records returned per poll"
         }
       },
       "required": [
         "groupId"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Consumer group configuration for topic consumption"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"

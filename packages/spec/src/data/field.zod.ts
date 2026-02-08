@@ -458,7 +458,8 @@ export const FieldSchema = z.object({
   trackFeedHistory: z.boolean().optional().describe('Track field changes in Chatter/activity feed (Salesforce pattern)'),
   caseSensitive: z.boolean().optional().describe('Whether text comparisons are case-sensitive'),
   autonumberFormat: z.string().optional().describe('Auto-number display format pattern (e.g., "CASE-{0000}")'),
-  encryption: z.boolean().default(false).describe('Deprecated: Use encryptionConfig for enhanced encryption features. Simple flag for backward compatibility.'),
+  /** @deprecated Use `encryptionConfig` instead. Will be removed in v2.0.0 */
+  encryption: z.boolean().default(false).describe('DEPRECATED: Use `encryptionConfig` for enhanced encryption features. Scheduled for removal in v2.0.0'),
   
   /** Indexing */
   index: z.boolean().default(false).describe('Create standard database index'),

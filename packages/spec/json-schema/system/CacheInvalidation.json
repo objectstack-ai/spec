@@ -40,7 +40,8 @@
         "trigger",
         "scope"
       ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Rule defining when and how cached entries are invalidated"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
