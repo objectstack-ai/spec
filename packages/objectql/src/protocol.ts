@@ -43,7 +43,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
                 search: false,
                 websockets: false,
                 files: true,
-                analytics: false,
+                analytics: true,
                 ai: false,
                 workflow: false,
                 notifications: false,
@@ -394,12 +394,177 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         } as BatchUpdateResponse;
     }
 
-    async analyticsQuery(_request: any): Promise<any> {
-        throw new Error('analyticsQuery requires plugin-analytics service. Install and register a plugin that provides the "analytics" service.');
+    async analyticsQuery(request: any): Promise<any> {
+        // Map AnalyticsQuery (cube-style) to engine aggregation.
+        // cube name maps to object name; measures → aggregations; dimensions → groupBy.
+        const { query, cube } = request;
+        const object = cube;
+
+        // Build groupBy from dimensions
+        const groupBy = query.dimensions || [];
+
+        // Build aggregations from measures
+        // Measures can be simple field names like "count" or "field_name.sum"
+        // Or cube-defined measure names. We support: field.function or just function(field).
+        const aggregations: Array<{ field: string; method: string; alias: string }> = [];
+        if (query.measures) {
+            for (const measure of query.measures) {
+                // Support formats: "count", "amount.sum", "revenue.avg"
+                if (measure === 'count' || measure === 'count_all') {
+                    aggregations.push({ field: '*', method: 'count', alias: 'count' });
+                } else if (measure.includes('.')) {
+                    const [field, method] = measure.split('.');
+                    aggregations.push({ field, method, alias: `${field}_${method}` });
+                } else {
+                    // Treat as count of the field
+                    aggregations.push({ field: measure, method: 'sum', alias: measure });
+                }
+            }
+        }
+
+        // Build filter from analytics filters
+        let filter: any = undefined;
+        if (query.filters && query.filters.length > 0) {
+            const conditions: any[] = query.filters.map((f: any) => {
+                const op = this.mapAnalyticsOperator(f.operator);
+                if (f.values && f.values.length === 1) {
+                    return { [f.member]: { [op]: f.values[0] } };
+                } else if (f.values && f.values.length > 1) {
+                    return { [f.member]: { $in: f.values } };
+                }
+                return { [f.member]: { [op]: true } };
+            });
+            filter = conditions.length === 1 ? conditions[0] : { $and: conditions };
+        }
+
+        // Execute via engine.aggregate (which delegates to driver.find with groupBy/aggregations)
+        const rows = await this.engine.aggregate(object, {
+            filter,
+            groupBy: groupBy.length > 0 ? groupBy : undefined,
+            aggregations: aggregations.length > 0
+                ? aggregations.map(a => ({ field: a.field, method: a.method as any, alias: a.alias }))
+                : [{ field: '*', method: 'count' as any, alias: 'count' }],
+        });
+
+        // Build field metadata
+        const fields = [
+            ...groupBy.map((d: string) => ({ name: d, type: 'string' })),
+            ...aggregations.map(a => ({ name: a.alias, type: 'number' })),
+        ];
+
+        return {
+            success: true,
+            data: {
+                rows,
+                fields,
+            },
+        };
     }
 
-    async getAnalyticsMeta(_request: any): Promise<any> {
-        throw new Error('getAnalyticsMeta requires plugin-analytics service. Install and register a plugin that provides the "analytics" service.');
+    async getAnalyticsMeta(request: any): Promise<any> {
+        // Auto-generate cube metadata from registered objects in SchemaRegistry.
+        // Each object becomes a cube; number fields → measures; other fields → dimensions.
+        const objects = SchemaRegistry.listItems('object');
+        const cubeFilter = request?.cube;
+
+        const cubes: any[] = [];
+        for (const obj of objects) {
+            const schema = obj as any;
+            if (cubeFilter && schema.name !== cubeFilter) continue;
+
+            const measures: Record<string, any> = {};
+            const dimensions: Record<string, any> = {};
+            const fields = schema.fields || {};
+
+            // Always add a count measure
+            measures['count'] = {
+                name: 'count',
+                label: 'Count',
+                type: 'count',
+                sql: '*',
+            };
+
+            for (const [fieldName, fieldDef] of Object.entries(fields)) {
+                const fd = fieldDef as any;
+                const fieldType = fd.type || 'text';
+
+                if (['number', 'currency', 'percent'].includes(fieldType)) {
+                    // Numeric fields become both measures and dimensions
+                    measures[`${fieldName}_sum`] = {
+                        name: `${fieldName}_sum`,
+                        label: `${fd.label || fieldName} (Sum)`,
+                        type: 'sum',
+                        sql: fieldName,
+                    };
+                    measures[`${fieldName}_avg`] = {
+                        name: `${fieldName}_avg`,
+                        label: `${fd.label || fieldName} (Avg)`,
+                        type: 'avg',
+                        sql: fieldName,
+                    };
+                    dimensions[fieldName] = {
+                        name: fieldName,
+                        label: fd.label || fieldName,
+                        type: 'number',
+                        sql: fieldName,
+                    };
+                } else if (['date', 'datetime'].includes(fieldType)) {
+                    dimensions[fieldName] = {
+                        name: fieldName,
+                        label: fd.label || fieldName,
+                        type: 'time',
+                        sql: fieldName,
+                        granularities: ['day', 'week', 'month', 'quarter', 'year'],
+                    };
+                } else if (['boolean'].includes(fieldType)) {
+                    dimensions[fieldName] = {
+                        name: fieldName,
+                        label: fd.label || fieldName,
+                        type: 'boolean',
+                        sql: fieldName,
+                    };
+                } else {
+                    // text, select, lookup, etc. → dimension
+                    dimensions[fieldName] = {
+                        name: fieldName,
+                        label: fd.label || fieldName,
+                        type: 'string',
+                        sql: fieldName,
+                    };
+                }
+            }
+
+            cubes.push({
+                name: schema.name,
+                title: schema.label || schema.name,
+                description: schema.description,
+                sql: schema.name,
+                measures,
+                dimensions,
+                public: true,
+            });
+        }
+
+        return {
+            success: true,
+            data: { cubes },
+        };
+    }
+
+    private mapAnalyticsOperator(op: string): string {
+        const map: Record<string, string> = {
+            equals: '$eq',
+            notEquals: '$ne',
+            contains: '$contains',
+            notContains: '$notContains',
+            gt: '$gt',
+            gte: '$gte',
+            lt: '$lt',
+            lte: '$lte',
+            set: '$ne',
+            notSet: '$eq',
+        };
+        return map[op] || '$eq';
     }
 
     async triggerAutomation(_request: any): Promise<any> {

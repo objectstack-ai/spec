@@ -608,10 +608,22 @@ export class ObjectQL implements IDataEngine {
       object = this.resolveObjectName(object);
       const driver = this.getDriver(object);
       this.logger.debug(`Aggregate on ${object} using ${driver.name}`, query);
-      // Driver needs support for raw aggregation or mapped aggregation
-      // For now, if driver supports 'execute', we might pass it down, or we need to add 'aggregate' to DriverInterface
-      // In this version, we'll assume driver might handle it via special 'find' or throw not implemented
-      throw new Error('Aggregate not yet fully implemented in ObjectQL->Driver mapping');
+
+      // Build a QueryAST with groupBy and aggregations, delegate to driver.find()
+      // Drivers that support aggregation (e.g. InMemoryDriver) handle groupBy/aggregations
+      // in their find() implementation via performAggregation().
+      const ast: QueryAST = {
+          object,
+          where: query.filter,
+          groupBy: query.groupBy,
+          aggregations: query.aggregations?.map(agg => ({
+              function: agg.method,
+              field: agg.field,
+              alias: agg.alias || `${agg.method}_${agg.field || 'all'}`,
+          })),
+      };
+
+      return driver.find(object, ast);
   }
   
   async execute(command: any, options?: Record<string, any>): Promise<any> {
