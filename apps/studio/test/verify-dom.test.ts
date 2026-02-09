@@ -27,7 +27,7 @@ describe('DOM Simulation', () => {
             fieldCount: Object.keys(def.fields || {}).length
         });
         
-        expect(def.name).toBe('todo__task');
+        expect(def.name).toBe('task');
         expect(Object.keys(def.fields).length).toBeGreaterThan(0);
 
         // 2. Fetch Data (short name resolves via engine.resolveObjectName)
