@@ -9,18 +9,15 @@
           "description": "Target Space ID"
         },
         "planCode": {
-          "type": "string",
-          "description": "Reference to the subscription plan"
+          "type": "string"
         },
         "issuedAt": {
           "type": "string",
-          "format": "date-time",
-          "description": "License issue date (ISO 8601)"
+          "format": "date-time"
         },
         "expiresAt": {
           "type": "string",
-          "format": "date-time",
-          "description": "License expiration date (null = perpetual)"
+          "format": "date-time"
         },
         "status": {
           "type": "string",
@@ -29,22 +26,19 @@
             "expired",
             "suspended",
             "trial"
-          ],
-          "description": "Current license status"
+          ]
         },
         "customFeatures": {
           "type": "array",
           "items": {
             "type": "string"
-          },
-          "description": "Additional features enabled beyond the plan"
+          }
         },
         "customLimits": {
           "type": "object",
           "additionalProperties": {
             "type": "number"
-          },
-          "description": "Custom limit overrides for specific metrics"
+          }
         },
         "plugins": {
           "type": "array",
@@ -55,7 +49,7 @@
         },
         "signature": {
           "type": "string",
-          "description": "Cryptographic signature of the license (JWT)"
+          "description": "Cryptographic signature of the license"
         }
       },
       "required": [

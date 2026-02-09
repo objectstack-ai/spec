@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 /** Sales Assistant — helps reps with lead qualification and opportunity management */
 export const SalesAssistantAgent = {
   name: 'sales_assistant',

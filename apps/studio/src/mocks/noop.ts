@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 // No-op for browser mocks
 export default {};
 export const watch = () => ({ on: () => {}, close: () => {} });

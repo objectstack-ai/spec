@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 /** Email Campaign Agent — creates and optimizes email campaigns */
 export const EmailCampaignAgent = {
   name: 'email_campaign',

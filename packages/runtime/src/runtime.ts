@@ -1,5 +1,6 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { ObjectKernel, Plugin, IHttpServer, ObjectKernelConfig } from '@objectstack/core';
-import { createApiRegistryPlugin, ApiRegistryConfig } from './api-registry-plugin.js';
 
 export interface RuntimeConfig {
     /**
@@ -8,11 +9,6 @@ export interface RuntimeConfig {
      * If not provided, Runtime expects a server plugin (like HonoServerPlugin) to be registered manually.
      */
     server?: IHttpServer;
-    
-    /**
-     * API Registry Configuration
-     */
-    api?: ApiRegistryConfig;
 
     /**
      * Kernel Configuration
@@ -26,8 +22,13 @@ export interface RuntimeConfig {
  * High-level entry point for bootstrapping an ObjectStack application.
  * Wraps ObjectKernel and provides standard orchestration for:
  * - HTTP Server binding
- * - API Registry (REST Routes)
  * - Plugin Management
+ * 
+ * REST API is opt-in — register it explicitly:
+ * ```ts
+ * import { createRestApiPlugin } from '@objectstack/rest';
+ * runtime.use(createRestApiPlugin());
+ * ```
  */
 export class Runtime {
     readonly kernel: ObjectKernel;
@@ -37,17 +38,8 @@ export class Runtime {
         
         // If external server provided, register it immediately
         if (config.server) {
-             // If the provided server is not already an HttpServer wrapper, wrap it?
-             // Since IHttpServer is the interface, we assume it complies.
-             // But HttpServer class in runtime is an adapter.
-             // If user passes raw Hono, it won't work unless they wrapped it.
-             // We'll assume they pass a compliant IHttpServer.
              this.kernel.registerService('http.server', config.server);
         }
-        
-        // Register API Registry by default
-        // This plugin is passive (wait for services) so it's safe to add early.
-        this.kernel.use(createApiRegistryPlugin(config.api));
     }
     
     /**

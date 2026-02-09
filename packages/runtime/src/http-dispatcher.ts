@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { ObjectKernel, getEnv } from '@objectstack/core';
 import { CoreServiceName } from '@objectstack/spec/system';
 
@@ -16,6 +18,14 @@ export interface HttpDispatcherResult {
     result?: any; // For flexible return types or direct response objects (Response/NextResponse)
 }
 
+/**
+ * @deprecated Use `createDispatcherPlugin()` from `@objectstack/runtime` instead.
+ * This class will be removed in v2. Prefer the plugin-based approach:
+ * ```ts
+ * import { createDispatcherPlugin } from '@objectstack/runtime';
+ * kernel.use(createDispatcherPlugin({ prefix: '/api/v1' }));
+ * ```
+ */
 export class HttpDispatcher {
     private kernel: any; // Casting to any to access dynamic props like broker, services, graphql
 
@@ -50,25 +60,49 @@ export class HttpDispatcher {
     getDiscoveryInfo(prefix: string) {
         const services = this.getServicesMap();
         
-        const hasGraphQL = !!(services[CoreServiceName.enum.graphql] || this.kernel.graphql);
-        const hasSearch = !!services[CoreServiceName.enum.search];
-        const hasWebSockets = !!services[CoreServiceName.enum.realtime];
-        const hasFiles = !!(services[CoreServiceName.enum['file-storage']] || services['storage']?.supportsFiles);
-        const hasAnalytics = !!services[CoreServiceName.enum.analytics];
-        const hasHub = !!services[CoreServiceName.enum.hub];
+        // All services are plugin-provided — check if a plugin has registered them
+        const hasAuth         = !!services[CoreServiceName.enum.auth];
+        const hasGraphQL      = !!(services[CoreServiceName.enum.graphql] || this.kernel.graphql);
+        const hasSearch       = !!services[CoreServiceName.enum.search];
+        const hasWebSockets   = !!services[CoreServiceName.enum.realtime];
+        const hasFiles        = !!(services[CoreServiceName.enum['file-storage']] || services['storage']?.supportsFiles);
+        const hasAnalytics    = !!services[CoreServiceName.enum.analytics];
+        const hasWorkflow     = !!services[CoreServiceName.enum.workflow];
+        const hasAi           = !!services[CoreServiceName.enum.ai];
+        const hasNotification = !!services[CoreServiceName.enum.notification];
+        const hasI18n         = !!services[CoreServiceName.enum.i18n];
+        const hasUi           = !!services[CoreServiceName.enum.ui];
+        const hasAutomation   = !!services[CoreServiceName.enum.automation];
+        const hasCache        = !!services[CoreServiceName.enum.cache];
+        const hasQueue        = !!services[CoreServiceName.enum.queue];
+        const hasJob          = !!services[CoreServiceName.enum.job];
 
+        // Routes are only exposed when a plugin provides the service
         const routes = {
-                data: `${prefix}/data`,
-                metadata: `${prefix}/meta`,
-                packages: `${prefix}/packages`,
-                auth: `${prefix}/auth`,
-                ui: `${prefix}/ui`,
-                graphql: hasGraphQL ? `${prefix}/graphql` : undefined,
-                storage: hasFiles ? `${prefix}/storage` : undefined,
-                analytics: hasAnalytics ? `${prefix}/analytics` : undefined,
-                hub: hasHub ? `${prefix}/hub` : undefined,
-                automation: `${prefix}/automation`, 
+                data:          `${prefix}/data`,
+                metadata:      `${prefix}/meta`,
+                packages:      `${prefix}/packages`,
+                auth:          hasAuth ? `${prefix}/auth` : undefined,
+                ui:            hasUi ? `${prefix}/ui` : undefined,
+                graphql:       hasGraphQL ? `${prefix}/graphql` : undefined,
+                storage:       hasFiles ? `${prefix}/storage` : undefined,
+                analytics:     hasAnalytics ? `${prefix}/analytics` : undefined,
+                automation:    hasAutomation ? `${prefix}/automation` : undefined,
+                workflow:      hasWorkflow ? `${prefix}/workflow` : undefined,
+                realtime:      hasWebSockets ? `${prefix}/realtime` : undefined,
+                notifications: hasNotification ? `${prefix}/notifications` : undefined,
+                ai:            hasAi ? `${prefix}/ai` : undefined,
+                i18n:          hasI18n ? `${prefix}/i18n` : undefined,
         };
+
+        // Build per-service status map
+        const svcAvailable = (route?: string, provider?: string) => ({
+            enabled: true, status: 'available' as const, route, provider,
+        });
+        const svcUnavailable = (name: string) => ({
+            enabled: false, status: 'unavailable' as const,
+            message: `Install a ${name} plugin to enable`,
+        });
 
         return {
             name: 'ObjectOS',
@@ -82,7 +116,31 @@ export class HttpDispatcher {
                 websockets: hasWebSockets,
                 files: hasFiles,
                 analytics: hasAnalytics,
-                hub: hasHub,
+                ai: hasAi,
+                workflow: hasWorkflow,
+                notifications: hasNotification,
+                i18n: hasI18n,
+            },
+            services: {
+                // Kernel-provided (always available via protocol implementation)
+                metadata:       { enabled: true, status: 'degraded' as const, route: routes.metadata, provider: 'kernel', message: 'In-memory registry; DB persistence pending' },
+                data:           svcAvailable(routes.data, 'kernel'),
+                // Plugin-provided — only available when a plugin registers the service
+                auth:           hasAuth ? svcAvailable(routes.auth) : svcUnavailable('auth'),
+                automation:     hasAutomation ? svcAvailable(routes.automation) : svcUnavailable('automation'),
+                analytics:      hasAnalytics ? svcAvailable(routes.analytics) : svcUnavailable('analytics'),
+                cache:          hasCache ? svcAvailable() : svcUnavailable('cache'),
+                queue:          hasQueue ? svcAvailable() : svcUnavailable('queue'),
+                job:            hasJob ? svcAvailable() : svcUnavailable('job'),
+                ui:             hasUi ? svcAvailable(routes.ui) : svcUnavailable('ui'),
+                workflow:       hasWorkflow ? svcAvailable(routes.workflow) : svcUnavailable('workflow'),
+                realtime:       hasWebSockets ? svcAvailable(routes.realtime) : svcUnavailable('realtime'),
+                notification:   hasNotification ? svcAvailable(routes.notifications) : svcUnavailable('notification'),
+                ai:             hasAi ? svcAvailable(routes.ai) : svcUnavailable('ai'),
+                i18n:           hasI18n ? svcAvailable(routes.i18n) : svcUnavailable('i18n'),
+                graphql:        hasGraphQL ? svcAvailable(routes.graphql) : svcUnavailable('graphql'),
+                'file-storage': hasFiles ? svcAvailable(routes.storage) : svcUnavailable('file-storage'),
+                search:         hasSearch ? svcAvailable() : svcUnavailable('search'),
             },
             locale: {
                 default: 'en',
@@ -526,81 +584,6 @@ export class HttpDispatcher {
     }
 
     /**
-     * Handles Hub requests
-     * path: sub-path after /hub/
-     */
-    async handleHub(path: string, method: string, body: any, query: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
-        const hubService = this.getService(CoreServiceName.enum.hub);
-        if (!hubService) return { handled: false };
-
-        const m = method.toUpperCase();
-        const parts = path.replace(/^\/+/, '').split('/');
-        
-        // Resource-based routing: /hub/:resource/:id
-        if (parts.length > 0) {
-            const resource = parts[0]; // spaces, plugins, etc.
-            
-            // Allow mapping "spaces" -> "createSpace", "listSpaces" etc.
-            // Convention: 
-            // GET /spaces -> listSpaces
-            // POST /spaces -> createSpace
-            // GET /spaces/:id -> getSpace
-            // PATCH /spaces/:id -> updateSpace
-            // DELETE /spaces/:id -> deleteSpace
-            
-            const actionBase = resource.endsWith('s') ? resource.slice(0, -1) : resource; // space
-            const id = parts[1];
-
-            try {
-                if (parts.length === 1) {
-                    // Collection Operations
-                    if (m === 'GET') {
-                        const capitalizedAction = 'list' + this.capitalize(resource); // listSpaces
-                        if (typeof hubService[capitalizedAction] === 'function') {
-                            const result = await hubService[capitalizedAction](query, { request: context.request });
-                            return { handled: true, response: this.success(result) };
-                        }
-                    }
-                    if (m === 'POST') {
-                        const capitalizedAction = 'create' + this.capitalize(actionBase); // createSpace
-                        if (typeof hubService[capitalizedAction] === 'function') {
-                             const result = await hubService[capitalizedAction](body, { request: context.request });
-                             return { handled: true, response: this.success(result) };
-                        }
-                    }
-                } else if (parts.length === 2) {
-                    // Item Operations
-                     if (m === 'GET') {
-                        const capitalizedAction = 'get' + this.capitalize(actionBase); // getSpace
-                        if (typeof hubService[capitalizedAction] === 'function') {
-                             const result = await hubService[capitalizedAction](id, { request: context.request });
-                             return { handled: true, response: this.success(result) };
-                        }
-                    }
-                     if (m === 'PATCH' || m === 'PUT') {
-                        const capitalizedAction = 'update' + this.capitalize(actionBase); // updateSpace
-                        if (typeof hubService[capitalizedAction] === 'function') {
-                             const result = await hubService[capitalizedAction](id, body, { request: context.request });
-                             return { handled: true, response: this.success(result) };
-                        }
-                    }
-                    if (m === 'DELETE') {
-                        const capitalizedAction = 'delete' + this.capitalize(actionBase); // deleteSpace
-                        if (typeof hubService[capitalizedAction] === 'function') {
-                             const result = await hubService[capitalizedAction](id, { request: context.request });
-                             return { handled: true, response: this.success(result) };
-                        }
-                    }
-                }
-            } catch(e: any) {
-                return { handled: true, response: this.error(e.message, 500) };
-            }
-        }
-        
-        return { handled: false };
-    }
-
-    /**
      * Handles Storage requests
      * path: sub-path after /storage/
      */
@@ -801,10 +784,6 @@ export class HttpDispatcher {
         
         if (cleanPath.startsWith('/analytics')) {
              return this.handleAnalytics(cleanPath.substring(10), method, body, context);
-        }
-
-        if (cleanPath.startsWith('/hub')) {
-             return this.handleHub(cleanPath.substring(4), method, body, query, context);
         }
 
         if (cleanPath.startsWith('/packages')) {

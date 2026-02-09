@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 export const MarketingUserProfile = {
   name: 'marketing_user',
   label: 'Marketing User',

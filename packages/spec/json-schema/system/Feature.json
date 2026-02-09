@@ -10,12 +10,10 @@
           "description": "Feature code (e.g. core.api_access)"
         },
         "label": {
-          "type": "string",
-          "description": "Human-readable feature name"
+          "type": "string"
         },
         "description": {
-          "type": "string",
-          "description": "Description of the feature"
+          "type": "string"
         },
         "type": {
           "type": "string",
@@ -24,7 +22,7 @@
             "counter",
             "gauge"
           ],
-          "description": "Type of metric (boolean flag, counter, or gauge)",
+          "description": "License metric type",
           "default": "boolean"
         },
         "unit": {
@@ -34,15 +32,13 @@
             "bytes",
             "seconds",
             "percent"
-          ],
-          "description": "Unit of measurement for counter/gauge metrics"
+          ]
         },
         "requires": {
           "type": "array",
           "items": {
             "type": "string"
-          },
-          "description": "List of prerequisite feature codes"
+          }
         }
       },
       "required": [

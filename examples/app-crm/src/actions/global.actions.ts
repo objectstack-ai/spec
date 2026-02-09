@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import type { Action } from '@objectstack/spec/ui';
 
 /** Log a Call */

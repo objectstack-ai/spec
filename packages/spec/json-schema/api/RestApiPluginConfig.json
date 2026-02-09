@@ -48,8 +48,7 @@
                   "realtime",
                   "notification",
                   "ai",
-                  "i18n",
-                  "hub"
+                  "i18n"
                 ],
                 "description": "Primary category for this route group"
               },
@@ -101,8 +100,7 @@
                         "realtime",
                         "notification",
                         "ai",
-                        "i18n",
-                        "hub"
+                        "i18n"
                       ],
                       "description": "Route category"
                     },

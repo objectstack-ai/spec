@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { http, HttpResponse, passthrough } from 'msw';
 import { setupWorker } from 'msw/browser';
 import { 

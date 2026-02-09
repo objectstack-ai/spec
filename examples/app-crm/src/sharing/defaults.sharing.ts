@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 /**
  * Organization-Wide Defaults (OWD)
  * Define the baseline access level for each object.

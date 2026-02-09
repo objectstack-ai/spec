@@ -16,8 +16,7 @@
         "realtime",
         "notification",
         "ai",
-        "i18n",
-        "hub"
+        "i18n"
       ]
     }
   },

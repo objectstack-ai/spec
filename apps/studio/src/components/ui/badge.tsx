@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 

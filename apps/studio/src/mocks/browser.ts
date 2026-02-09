@@ -1,16 +1,16 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 /**
  * MSW Browser Worker Setup via ObjectStack Service
  * 
  * This creates a complete ObjectStack environment in the browser using the In-Memory Driver
  * and the MSW Plugin which automatically exposes the API.
  * 
- * NOTE: The console does NOT hardcode a list of app packages. The app list is
- * fetched dynamically from the server API via `GET /api/v1/meta/apps`.
- * The imports here are only used to boot the in-browser kernel (MSW mode).
+ * App configs are loaded dynamically from objectstack.config.ts at the project root.
+ * The UI itself fetches apps via `GET /api/v1/meta/apps` — not from these imports.
  */
 import { ObjectKernel } from '@objectstack/runtime';
-import todoConfig from '@example/app-todo/objectstack.config';
-import crmConfig from '@example/app-crm/objectstack.config';
+import studioConfig from '../../objectstack.config';
 import { createKernel } from './createKernel';
 
 let kernel: ObjectKernel | null = null;
@@ -41,12 +41,11 @@ function resolveConfig(raw: any) {
 }
 
 /**
- * App configs used ONLY for kernel bootstrapping in MSW (browser) mode.
+ * Boot config loaded dynamically from objectstack.config.ts.
  * The UI never reads this directly — it discovers apps via the meta API.
  */
 const bootConfigs = [
-  resolveConfig(todoConfig),
-  resolveConfig(crmConfig),
+  resolveConfig(studioConfig),
 ];
 
 export async function startMockServer() {
@@ -54,7 +53,7 @@ export async function startMockServer() {
 
   console.log('[MSW] Starting ObjectStack Runtime (Browser Mode)...');
 
-  // Use shared factory with multi-app support
+  // Use shared factory — app list comes from objectstack.config.ts
   kernel = await createKernel({
     appConfigs: bootConfigs,
     enableBrowser: true

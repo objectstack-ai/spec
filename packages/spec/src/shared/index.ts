@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 /**
  * Shared Schemas and Utilities
  * Common schemas used across multiple modules

@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { type ObjectKernel, HttpDispatcher, HttpDispatcherResult } from '@objectstack/runtime';
@@ -8,8 +10,22 @@ export interface ObjectStackHonoOptions {
 }
 
 /**
- * Creates a Hono application tailored for ObjectStack
- * Fully compliant with @objectstack/spec
+ * @deprecated Use `HonoServerPlugin` + `createRestApiPlugin()` + `createDispatcherPlugin()` instead.
+ * This function bundles all routes into a single Hono app using the legacy HttpDispatcher.
+ * The plugin-based approach provides better modularity and separation of concerns.
+ *
+ * Migration:
+ * ```ts
+ * // Before:
+ * const app = createHonoApp({ kernel, prefix: '/api/v1' });
+ *
+ * // After:
+ * import { createRestApiPlugin } from '@objectstack/rest';
+ * import { createDispatcherPlugin } from '@objectstack/runtime';
+ * kernel.use(new HonoServerPlugin({ port: 3000 }));
+ * kernel.use(createRestApiPlugin());
+ * kernel.use(createDispatcherPlugin({ prefix: '/api/v1' }));
+ * ```
  */
 export function createHonoApp(options: ObjectStackHonoOptions) {
   const app = new Hono();
@@ -128,25 +144,6 @@ export function createHonoApp(options: ObjectStackHonoOptions) {
       }
 
       const result = await dispatcher.handleAnalytics(path, method, body, { request: c.req.raw });
-      return normalizeResponse(c, result);
-    } catch (err: any) {
-      return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);
-    }
-  });
-
-  // --- 6. Hub Endpoints ---
-  app.all(`${prefix}/hub*`, async (c) => {
-    try {
-      const path = c.req.path.substring(c.req.path.indexOf('/hub') + 4);
-      const method = c.req.method;
-      
-      let body = {};
-      if (method === 'POST' || method === 'PATCH' || method === 'PUT') {
-          body = await c.req.json().catch(() => ({}));
-      }
-      const query = c.req.query();
-
-      const result = await dispatcher.handleHub(path, method, body, query, { request: c.req.raw });
       return normalizeResponse(c, result);
     } catch (err: any) {
       return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);

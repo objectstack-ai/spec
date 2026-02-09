@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { QueryAST, QueryInput } from '@objectstack/spec/data';
 import { DriverOptions } from '@objectstack/spec/data';
 import { DriverInterface, Logger, createLogger } from '@objectstack/core';

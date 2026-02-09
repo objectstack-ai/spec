@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 /** Customer Service Agent — assists with case triage and resolution */
 export const ServiceAgent = {
   name: 'service_agent',

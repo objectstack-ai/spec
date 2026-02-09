@@ -25,9 +25,9 @@ describe('Metadata Service Integration', () => {
         expect(Array.isArray(objects)).toBe(true);
         expect(objects.length).toBeGreaterThan(0);
         
-        // FQN uses double underscore: todo__task
-        const todoTask = objects.find((o: any) => o.name === 'todo__task');
-        expect(todoTask).toBeDefined();
+        // Object name without namespace prefix (studio config has no namespace)
+        const task = objects.find((o: any) => o.name === 'task');
+        expect(task).toBeDefined();
     });
 
     it('should fetch object details via client.meta.getItem("object", ...)', async () => {
@@ -37,7 +37,7 @@ describe('Metadata Service Integration', () => {
         const def = response.data || response;
         
         expect(def).toBeDefined();
-        expect(def.name).toBe('todo__task');
+        expect(def.name).toBe('task');
         expect(def.fields).toBeDefined();
         
         // Check if fields are parsed correctly (client might return Map or Object depending on version)

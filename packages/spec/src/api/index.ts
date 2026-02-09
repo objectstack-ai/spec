@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 /**
  * API Protocol Exports
  * 
@@ -7,7 +9,6 @@
  * - OData v4 compatibility
  * - Batch operations
  * - Metadata caching
- * - Hub Management APIs
  * - HttpDispatcher routing
  * - API versioning
  */

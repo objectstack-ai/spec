@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 /**
  * Runtime interfaces for ObjectStack plugins.
  * These define the contract that every plugin must implement to be loaded by ObjectOS.

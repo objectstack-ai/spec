@@ -1,0 +1,41 @@
+{
+  "$ref": "#/definitions/ServiceInfo",
+  "definitions": {
+    "ServiceInfo": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "available",
+            "unavailable",
+            "degraded",
+            "stub"
+          ],
+          "description": "available = fully operational, unavailable = not installed, degraded = partial, stub = placeholder that throws"
+        },
+        "route": {
+          "type": "string",
+          "description": "e.g. /api/v1/analytics"
+        },
+        "provider": {
+          "type": "string",
+          "description": "e.g. \"objectql\", \"plugin-redis\", \"driver-memory\""
+        },
+        "message": {
+          "type": "string",
+          "description": "e.g. \"Install plugin-workflow to enable\""
+        }
+      },
+      "required": [
+        "enabled",
+        "status"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

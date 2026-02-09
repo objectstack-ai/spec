@@ -42,11 +42,6 @@
               "default": "/analytics",
               "description": "Analytics Protocol"
             },
-            "hub": {
-              "type": "string",
-              "default": "/hub",
-              "description": "Hub Management Protocol"
-            },
             "graphql": {
               "type": "string",
               "default": "/graphql",
@@ -96,7 +91,6 @@
             "automation": "/automation",
             "storage": "/storage",
             "analytics": "/analytics",
-            "hub": "/hub",
             "graphql": "/graphql",
             "ui": "/ui",
             "workflow": "/workflow",

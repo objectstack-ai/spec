@@ -1,21 +1,23 @@
 ---
 title: Client SDK
-description: The official TypeScript client for ObjectStack.
+description: The official TypeScript client for ObjectStack — auto-discovery, typed metadata, CRUD, batch operations, and service-aware feature detection.
 ---
 
 # Client SDK
 
-The `@objectstack/client` is the official TypeScript client for ObjectStack. It provides a typed, protocol-aware interface to interact with your ObjectStack Server.
+The `@objectstack/client` is the official TypeScript client for ObjectStack. It provides a typed, protocol-aware interface that automatically adapts to your server's available services.
 
 ## Features
 
-- **Auto-Discovery**: Connects to your ObjectStack server and automatically configures API endpoints.
-- **Typed Metadata**: Retrieve Object and View definitions with full type support.
-- **Metadata Caching**: ETag-based conditional requests for efficient metadata caching.
-- **Unified Data Access**: Simple CRUD operations for any object in your schema.
-- **Batch Operations**: Efficient bulk create/update/delete with transaction support.
-- **View Storage**: Save, load, and share custom UI view configurations.
-- **Standardized Errors**: Machine-readable error codes with retry guidance.
+- **Auto-Discovery**: Connects to your ObjectStack server and discovers available services, routes, and capabilities
+- **Service-Aware**: Checks `discovery.services` to determine which features are available before calling them
+- **Typed Metadata**: Retrieve Object and View definitions with full type support
+- **Metadata Caching**: ETag-based conditional requests for efficient metadata caching
+- **Unified Data Access**: Simple CRUD operations for any object in your schema
+- **Batch Operations**: Efficient bulk create/update/upsert/delete with transaction support
+- **Query Builder**: Programmatic query construction with `createQuery()` and `createFilter()`
+- **Standardized Errors**: Machine-readable error codes with retry guidance
+- **100% Protocol Compliant**: Implements all 13 API namespaces and 95+ methods defined in `@objectstack/spec`
 
 ## Installation
 
@@ -23,169 +25,465 @@ The `@objectstack/client` is the official TypeScript client for ObjectStack. It 
 pnpm add @objectstack/client
 ```
 
-## Usage
+## Quick Start
 
 ```typescript
 import { ObjectStackClient } from '@objectstack/client';
 
-// 1. Initialize
 const client = new ObjectStackClient({
-  baseUrl: 'http://localhost:3004', // Your ObjectStack Server URL
-  token: 'optional-auth-token'
+  baseUrl: 'http://localhost:3004',
 });
 
 async function main() {
-  // 2. Connect (Fetches system capabilities)
+  // 1. Connect — fetches discovery manifest
   await client.connect();
 
-  // 3. Metadata Access
-  const todoSchema = await client.meta.getObject('todo_task');
-  console.log('Fields:', todoSchema.fields);
+  // 2. Check available services
+  console.log('Services:', client.discovery?.services);
+  // → { metadata: { enabled: true, status: 'degraded' }, data: { enabled: true, status: 'available' }, auth: { enabled: false, ... } }
 
-  // 4. Advanced Query
-  const tasks = await client.data.find<{ subject: string; priority: number }>('todo_task', {
-    select: ['subject', 'priority'], // Field Selection
-    filters: ['priority', '>=', 2],  // ObjectStack Filter AST
-    sort: ['-priority'],             // Sorting
+  // 3. Query data
+  const tasks = await client.data.find('todo_task', {
+    select: ['subject', 'priority'],
+    filters: ['priority', '>=', 2],
+    sort: ['-priority'],
     top: 10
   });
-  
-  // 5. Create Data
+
+  // 4. Create a record
   const newTask = await client.data.create('todo_task', {
     subject: 'New Task',
     priority: 1
   });
 
-  // 6. Batch Operations (New!)
-  const batchResult = await client.data.batch('todo_task', {
+  // 5. Batch operations
+  const result = await client.data.batch('todo_task', {
     operation: 'update',
     records: [
       { id: '1', data: { status: 'active' } },
       { id: '2', data: { status: 'active' } }
     ],
-    options: {
-      atomic: true,        // Rollback on any failure
-      returnRecords: true  // Include full records in response
-    }
+    options: { atomic: true, returnRecords: true }
   });
-  console.log(`Updated ${batchResult.succeeded} records`);
-
-  // 7. Metadata Caching (New!)
-  const cachedObject = await client.meta.getCached('todo_task', {
-    ifNoneMatch: '"686897696a7c876b7e"'  // ETag from previous request
-  });
-  if (cachedObject.notModified) {
-    console.log('Using cached metadata');
-  }
-
-  // 8. View Storage (New!)
-  const view = await client.views.create({
-    name: 'active_tasks',
-    label: 'Active Tasks',
-    object: 'todo_task',
-    type: 'list',
-    visibility: 'public',
-    query: {
-      object: 'todo_task',
-      where: { status: 'active' },
-      orderBy: [{ field: 'priority', order: 'desc' }],
-      limit: 50
-    },
-    layout: {
-      columns: [
-        { field: 'subject', label: 'Task', width: 200 },
-        { field: 'priority', label: 'Priority', width: 100 }
-      ]
-    }
-  });
+  console.log(`Updated ${result.succeeded} records`);
 }
 ```
 
-## API Reference
+---
 
-### Initialization
+## Auto-Discovery
+
+When you call `client.connect()`, the client:
+
+1. Fetches `/.well-known/objectstack` (or falls back to `/api/v1`)
+2. Parses the discovery response including `routes`, `features`, and `services`
+3. Configures all API route paths dynamically
+
 ```typescript
-const client = new ObjectStackClient(config: ClientConfig);
+await client.connect();
+
+// Discovery result is available
+const discovery = client.discovery;
+console.log(discovery.version);      // "1.0.0"
+console.log(discovery.environment);  // "development"
+
+// Check if a service is available before using it
+if (discovery.services?.auth?.enabled) {
+  // Auth plugin is installed — login is available
+  await client.auth.login({ username: 'admin', password: 'secret' });
+} else {
+  console.log(discovery.services?.auth?.message);
+  // → "Install an auth plugin to enable"
+}
 ```
-- `config.baseUrl`: URL of the ObjectStack Server.
-- `config.token`: (Optional) Bearer token for authentication.
-- `config.fetch`: (Optional) Custom fetch implementation.
 
-### `client.connect()`
-Initializes the client by fetching the system discovery manifest from `/api/v1`. This maps dynamic routes for metadata, data, and UI services.
+<Callout type="info">
+**Plugin-driven services**: Auth, workflow, automation, AI, and other services are only available when the corresponding plugin is installed. Always check `discovery.services` before calling plugin-provided API methods.
+</Callout>
 
-### `client.meta`
-- `getObject(name: string)`: Get object schema.
-- `getCached(name: string, options?)`: Get object schema with ETag-based caching.
-- `getView(name: string)`: Get view configuration (e.g. for automatic UI generation).
+---
 
-### `client.data`
-- `find<T>(object, options)`: Advanced query with filtering, sorting, selection.
-- `get<T>(object, id)`: Get single record by ID.
-- `query<T>(object, ast)`: Execute complex query using full AST (support for Joins, Aggregations).
-- `create<T>(object, data)`: Create record.
-- `batch(object, request)`: **Recommended** - Execute batch operations (create/update/upsert/delete) with full control.
-- `createMany<T>(object, data[])`: Batch create records (convenience method).
-- `update<T>(object, id, data)`: Update record.
-- `updateMany<T>(object, records[], options?)`: Batch update records (convenience method).
-- `delete(object, id)`: Delete record.
-- `deleteMany(object, ids[], options?)`: Batch delete records (convenience method).
+## Protocol Coverage
 
-### `client.views` (New!)
-- `create(request)`: Create a new saved view.
-- `get(id)`: Get a saved view by ID.
-- `list(request?)`: List saved views with optional filters.
-- `update(request)`: Update an existing view.
-- `delete(id)`: Delete a saved view.
-- `share(id, userIds[])`: Share a view with users/teams.
-- `setDefault(id, object)`: Set a view as default for an object.
+The `@objectstack/client` SDK aims to implement the ObjectStack API protocol specification. It covers all 13 API namespaces defined in `@objectstack/spec`:
 
-### Query Options (`QueryOptions`)
-The `find` method accepts an options object to control the query:
+| Namespace | Status | Methods | Purpose |
+|:----------|:------:|:--------|:--------|
+| **discovery** | ✅ | 1 | API version & capabilities detection |
+| **meta** | ✅ | 7 | Metadata operations (objects, views, plugins) |
+| **data** | ✅ | 10 | CRUD & query operations |
+| **auth** | ✅ | 5 | Authentication & user management |
+| **packages** | ✅ | 6 | Plugin/package lifecycle management |
+| **views** | ✅ | 5 | UI view definitions |
+| **workflow** | ✅ | 5 | Workflow state transitions |
+| **analytics** | ✅ | 2 | Analytics queries |
+| **automation** | ✅ | 1 | Automation triggers |
+| **i18n** | ✅ | 3 | Internationalization |
+| **notifications** | ✅ | 7 | Push notifications |
+| **realtime** | ✅ | 6 | WebSocket subscriptions |
+| **ai** | ✅ | 4 | AI services (NLQ, chat, insights) |
+
+<Callout type="info">
+**Protocol compliance & verification**: See [`CLIENT_SPEC_COMPLIANCE.md`](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SPEC_COMPLIANCE.md) for detailed method-by-method verification and [`CLIENT_SERVER_INTEGRATION_TESTS.md`](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SERVER_INTEGRATION_TESTS.md) for comprehensive integration test specifications.
+</Callout>
+
+---
+
+## API Namespaces
+
+### `client.meta` — Metadata
+
+```typescript
+// Get object schema
+const accountSchema = await client.meta.getObject('account');
+console.log(accountSchema.fields);
+
+// List all metadata types
+const types = await client.meta.getTypes();
+// → { types: ['object', 'view', 'plugin', ...] }
+
+// Get with ETag caching
+const cached = await client.meta.getCached('account', {
+  ifNoneMatch: '"686897696a7c876b7e"'
+});
+if (cached.notModified) {
+  console.log('Using cached metadata');
+}
+
+// Get auto-generated view
+const listView = await client.meta.getView('account', 'list');
+```
+
+### `client.data` — CRUD & Batch
+
+```typescript
+// Find with query options
+const accounts = await client.data.find('account', {
+  select: ['name', 'industry', 'revenue'],
+  filters: ['industry', '=', 'Technology'],
+  sort: ['-revenue'],
+  top: 20,
+  skip: 0,
+});
+
+// Get by ID
+const account = await client.data.get('account', '123');
+
+// Create
+const created = await client.data.create('account', {
+  name: 'Acme Corp',
+  industry: 'Technology',
+});
+
+// Update (partial)
+const updated = await client.data.update('account', '123', {
+  industry: 'Healthcare',
+});
+
+// Delete
+await client.data.delete('account', '123');
+
+// Batch operation (recommended for bulk)
+const batchResult = await client.data.batch('account', {
+  operation: 'upsert',
+  records: [
+    { id: '1', data: { name: 'Acme', status: 'active' } },
+    { id: '2', data: { name: 'Beta', status: 'active' } },
+  ],
+  options: {
+    atomic: true,
+    returnRecords: true,
+    continueOnError: false,
+    validateOnly: false,
+  },
+});
+
+// Convenience bulk methods
+await client.data.createMany('account', [{ name: 'A' }, { name: 'B' }]);
+await client.data.updateMany('account', [
+  { id: '1', data: { status: 'closed' } },
+  { id: '2', data: { status: 'closed' } },
+]);
+await client.data.deleteMany('account', ['1', '2', '3']);
+```
+
+### `client.analytics` — BI Queries
+
+```typescript
+// Semantic analytics query (cube-style)
+const result = await client.analytics.query({
+  cube: 'account',
+  measures: ['revenue.sum', 'count'],
+  dimensions: ['industry'],
+  filters: [{ member: 'status', operator: 'equals', values: ['active'] }],
+  limit: 100,
+});
+
+// Get cube metadata
+const meta = await client.analytics.getMeta();
+```
+
+### `client.packages` — Package Management
+
+```typescript
+const packages = await client.packages.list();
+await client.packages.install({ manifest: { name: 'plugin-auth', version: '1.0.0' } });
+await client.packages.enable('plugin-auth');
+await client.packages.disable('plugin-auth');
+await client.packages.uninstall('plugin-auth');
+```
+
+### Additional Namespaces
+
+The client also provides full implementations for:
+
+```typescript
+// Auth — User authentication and session management
+await client.auth.login({ email: 'user@example.com', password: 'pass' });
+await client.auth.register({ email: 'new@example.com', password: 'pass' });
+await client.auth.me();
+await client.auth.logout();
+await client.auth.refreshToken('refresh-token-string');
+
+// Permissions — Access control checks
+await client.permissions.check({ object: 'account', action: 'create' });
+await client.permissions.getObjectPermissions('account');
+await client.permissions.getEffectivePermissions();
+
+// Workflow — State machine management
+await client.workflow.getConfig('approval');
+await client.workflow.getState('approval', recordId);
+await client.workflow.transition({ object: 'approval', recordId, transition: 'submit' });
+await client.workflow.approve({ object: 'approval', recordId });
+await client.workflow.reject({ object: 'approval', recordId, reason: 'Incomplete' });
+
+// Realtime — WebSocket subscriptions
+await client.realtime.connect({ protocol: 'websocket' });
+await client.realtime.subscribe({ channel: 'account', event: 'update' });
+await client.realtime.setPresence({ status: 'online' });
+await client.realtime.disconnect();
+
+// Notifications — Push notification management
+await client.notifications.registerDevice({ token: 'device-token', platform: 'ios' });
+await client.notifications.list({ unreadOnly: true });
+await client.notifications.markRead(['notif-1', 'notif-2']);
+await client.notifications.markAllRead();
+
+// AI — AI-powered features
+await client.ai.nlq({ query: 'Show me all active accounts' });
+await client.ai.chat({ message: 'Summarize this project', context: projectId });
+await client.ai.suggest({ object: 'account', field: 'industry' });
+await client.ai.insights({ object: 'sales', recordId: dealId });
+
+// i18n — Internationalization
+await client.i18n.getLocales();
+await client.i18n.getTranslations('zh-CN');
+await client.i18n.getFieldLabels('account', 'zh-CN');
+
+// Automation — Trigger workflows and automations
+await client.automation.trigger('send_welcome_email', { userId });
+
+// Storage — File upload and management
+await client.storage.upload(fileData, 'user');
+await client.storage.getDownloadUrl('file-123');
+
+// Views — UI view management
+await client.views.list('account');
+await client.views.get('account', viewId);
+await client.views.create('account', { name: 'my_view', ... });
+await client.views.update('account', viewId, { ... });
+await client.views.delete('account', viewId);
+```
+
+<Callout type="info">
+**Service availability**: Optional services (workflow, ai, etc.) are only available when the corresponding plugin is installed on the server. Always check `client.discovery?.services` to verify service availability before calling these methods.
+</Callout>
+
+---
+
+## Query Builder
+
+Build complex queries programmatically:
+
+```typescript
+import { createQuery, createFilter } from '@objectstack/client';
+
+const query = createQuery('account')
+  .select(['name', 'industry', 'revenue'])
+  .where(
+    createFilter()
+      .and('industry', '=', 'Technology')
+      .and('revenue', '>', 10000)
+      .build()
+  )
+  .orderBy('-revenue')
+  .limit(50)
+  .build();
+
+const results = await client.data.query('account', query);
+```
+
+---
+
+## Query Options
+
+The `find` method accepts an options object:
 
 | Property | Type | Description | Example |
-| :--- | :--- | :--- | :--- |
+|:---------|:-----|:------------|:--------|
 | `select` | `string[]` | Fields to retrieve | `['name', 'email']` |
-| `filters` | `Map` or `AST` | Filtering criteria | `['status', '=', 'active']` |
+| `filters` | `Map` or `AST` | Filter criteria | `['status', '=', 'active']` |
 | `sort` | `string` or `string[]` | Sort order | `['-created_at']` |
 | `top` | `number` | Limit records | `20` |
-| `skip` | `number` | Offset (Pagination) | `0` |
+| `skip` | `number` | Offset for pagination | `0` |
 
 ### Batch Options
-Batch operations support the following options:
-- `atomic`: If true, rollback entire batch on any failure (default: true).
-- `returnRecords`: If true, return full record data in response (default: false).
-- `continueOnError`: If true (and atomic=false), continue processing remaining records after errors.
-- `validateOnly`: If true, validate records without persisting changes (dry-run mode).
 
-### Error Handling
-The client provides standardized error handling with machine-readable error codes:
+| Property | Type | Default | Description |
+|:---------|:-----|:--------|:------------|
+| `atomic` | `boolean` | `true` | Rollback entire batch on any failure |
+| `returnRecords` | `boolean` | `false` | Include full records in response |
+| `continueOnError` | `boolean` | `false` | Continue after errors (when atomic=false) |
+| `validateOnly` | `boolean` | `false` | Dry-run mode — validate without persisting |
+
+---
+
+## Error Handling
+
+All errors follow a standardized format:
 
 ```typescript
 try {
   await client.data.create('todo_task', { subject: '' });
 } catch (error) {
-  console.error('Error code:', error.code);        // e.g., 'validation_error'
-  console.error('Category:', error.category);      // e.g., 'validation'
-  console.error('HTTP status:', error.httpStatus); // e.g., 400
-  console.error('Retryable:', error.retryable);    // e.g., false
-  console.error('Details:', error.details);        // Additional error info
+  console.error(error.code);       // 'validation_error'
+  console.error(error.category);   // 'validation'
+  console.error(error.httpStatus); // 400
+  console.error(error.retryable);  // false
+  console.error(error.details);    // { ... }
 }
 ```
 
-Common error codes:
-- `validation_error`: Input validation failed
-- `unauthenticated`: Authentication required
-- `permission_denied`: Insufficient permissions
-- `resource_not_found`: Resource does not exist
-- `rate_limit_exceeded`: Too many requests
+### Error Codes
+
+| Code | HTTP | Category | Retryable | Description |
+|:-----|:-----|:---------|:----------|:------------|
+| `validation_error` | 400 | validation | No | Input validation failed |
+| `invalid_query` | 400 | validation | No | Malformed query expression |
+| `unauthenticated` | 401 | auth | No | Authentication required |
+| `permission_denied` | 403 | auth | No | Insufficient permissions |
+| `resource_not_found` | 404 | request | No | Resource does not exist |
+| `rate_limit_exceeded` | 429 | rate_limit | Yes | Too many requests |
+| `internal_error` | 500 | server | Yes | Unexpected server error |
+| `service_unavailable` | 503 | server | Yes | Service temporarily unavailable |
+| `not_implemented` | 501 | server | No | Service not installed (plugin missing) |
+
+---
+
+## Configuration
+
+```typescript
+interface ClientConfig {
+  /** ObjectStack server URL */
+  baseUrl: string;
+  /** Bearer token for authentication (if auth plugin installed) */
+  token?: string;
+  /** Custom fetch implementation (e.g. for SSR or testing) */
+  fetch?: typeof fetch;
+  /** Request timeout in ms (default: 30000) */
+  timeout?: number;
+}
+```
+
+---
 
 ## React Hooks
 
-For React applications, use `@objectstack/client-react` which provides hooks for data fetching and mutations:
+For React applications, use `@objectstack/client-react`:
 
 ```bash
 pnpm add @objectstack/client-react
 ```
 
-See the [React Hooks documentation](./react-hooks) for detailed usage.
+```typescript
+import { useObjectStack, useFind, useGet } from '@objectstack/client-react';
+
+function AccountList() {
+  const { data: accounts, loading } = useFind('account', {
+    filters: ['status', '=', 'active'],
+    sort: ['-created_at'],
+    top: 20,
+  });
+
+  if (loading) return <div>Loading...</div>;
+  return accounts.map(a => <div key={a.id}>{a.name}</div>);
+}
+```
+
+---
+
+## Testing
+
+The client SDK includes comprehensive unit and integration tests to ensure reliability and protocol compliance.
+
+### Unit Tests
+
+```bash
+cd packages/client
+pnpm test
+```
+
+Unit tests use mocks to verify client behavior without requiring a server.
+
+### Integration Tests
+
+**Note:** Integration tests require a running ObjectStack server. The server is provided by a separate repository and must be set up independently.
+
+```bash
+# Prerequisite: Start an ObjectStack server with test data
+# For example, using the reference server repository
+# Follow the server repository's documentation for local setup
+
+# From this repository, run the integration test script
+cd packages/client
+pnpm test:integration
+```
+
+Integration tests verify end-to-end communication with a live ObjectStack server across all 13 API namespaces.
+
+<Callout type="info">
+**Test coverage**: Integration test specifications cover discovery/connection, authentication, metadata operations, CRUD operations (basic, batch, advanced queries), permissions, workflow, realtime, notifications, AI services, i18n, analytics, packages, views, storage, and automation.
+</Callout>
+
+---
+
+## Protocol Compliance Documentation
+
+For detailed information about the client's protocol implementation:
+
+- **[Protocol Compliance Matrix](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SPEC_COMPLIANCE.md)** — Method-by-method verification of all 95+ API methods across 13 namespaces
+- **[Integration Test Specifications](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SERVER_INTEGRATION_TESTS.md)** — Comprehensive test cases for client-server communication
+- **[Quick Reference Guide](https://github.com/objectstack-ai/spec/blob/main/packages/client/QUICK_REFERENCE.md)** — Developer navigation and API reference
+- **[中文合规性报告](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SPEC_COMPLIANCE_CN.md)** — Chinese language compliance verification report
+
+---
+
+## Next Steps
+
+<Cards>
+  <Card 
+    href="./api-reference" 
+    title="API Reference"
+    description="Complete REST endpoint documentation"
+  />
+  <Card 
+    href="./kernel-services" 
+    title="Kernel Services"
+    description="Service checklist and plugin development guide"
+  />
+  <Card 
+    href="../references/api/protocol" 
+    title="Protocol Types"
+    description="All 57 Zod protocol schemas"
+  />
+</Cards>

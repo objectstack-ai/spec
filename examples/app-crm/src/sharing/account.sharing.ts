@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 /** Share accounts with sales managers/directors based on customer status */
 export const AccountTeamSharingRule = {
   name: 'account_team_sharing',

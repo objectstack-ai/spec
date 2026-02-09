@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { z } from 'zod';
 
 // Service method interfaces use z.function() instead of z.any() for type safety.

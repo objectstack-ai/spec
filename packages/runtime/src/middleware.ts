@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { Middleware, IHttpRequest, IHttpResponse } from '@objectstack/core';
 import { MiddlewareConfig, MiddlewareType } from '@objectstack/spec/system';
 

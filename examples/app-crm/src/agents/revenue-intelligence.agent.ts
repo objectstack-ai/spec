@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 /** Revenue Intelligence Agent — analyzes pipeline and provides revenue insights */
 export const RevenueIntelligenceAgent = {
   name: 'revenue_intelligence',

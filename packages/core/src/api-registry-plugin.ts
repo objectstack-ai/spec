@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import type { Plugin, PluginContext } from './types.js';
 import { ApiRegistry } from './api-registry.js';
 import type { ConflictResolutionStrategy } from '@objectstack/spec/api';

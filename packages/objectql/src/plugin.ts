@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { ObjectQL } from './engine.js';
 import { ObjectStackProtocolImplementation } from './protocol.js';
 import { Plugin, PluginContext } from '@objectstack/core';

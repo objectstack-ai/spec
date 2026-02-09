@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { z } from 'zod';
 import { CorsConfigSchema, StaticMountSchema, HttpMethod } from '../shared/http.zod';
 
@@ -86,7 +88,6 @@ export const RouterConfigSchema = z.object({
     automation: z.string().default('/automation').describe('Automation Protocol'),
     storage: z.string().default('/storage').describe('Storage Protocol'),
     analytics: z.string().default('/analytics').describe('Analytics Protocol'),
-    hub: z.string().default('/hub').describe('Hub Management Protocol'),
     graphql: z.string().default('/graphql').describe('GraphQL Endpoint'),
     ui: z.string().default('/ui').describe('UI Metadata Protocol (Views, Layouts)'),
     workflow: z.string().default('/workflow').describe('Workflow Engine Protocol'),
@@ -102,7 +103,6 @@ export const RouterConfigSchema = z.object({
     automation: '/automation',
     storage: '/storage',
     analytics: '/analytics',
-    hub: '/hub',
     graphql: '/graphql',
     ui: '/ui',
     workflow: '/workflow',

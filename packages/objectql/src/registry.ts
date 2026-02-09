@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { ServiceObject, ObjectSchema, ObjectOwnership } from '@objectstack/spec/data';
 import { ObjectStackManifest, ManifestSchema, InstalledPackage, InstalledPackageSchema } from '@objectstack/spec/kernel';
 import { AppSchema } from '@objectstack/spec/ui';

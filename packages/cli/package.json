@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/cli",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Command Line Interface for ObjectStack Protocol",
   "main": "dist/index.js",
   "bin": {
@@ -27,6 +27,7 @@
     "@objectstack/driver-memory": "workspace:^",
     "@objectstack/objectql": "workspace:^",
     "@objectstack/plugin-hono-server": "workspace:*",
+    "@objectstack/rest": "workspace:*",
     "@objectstack/runtime": "workspace:^",
     "@objectstack/spec": "workspace:*",
     "bundle-require": "^5.1.0",
@@ -36,7 +37,7 @@
     "zod": "^3.24.1"
   },
   "peerDependencies": {
-    "@objectstack/core": "^1.0.12"
+    "@objectstack/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.1.0",

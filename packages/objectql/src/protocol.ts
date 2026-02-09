@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { ObjectStackProtocol } from '@objectstack/spec/api';
 import { IDataEngine } from '@objectstack/core';
 import type { 
@@ -32,7 +34,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         this.engine = engine;
     }
 
-    async getDiscovery(_request: {}) {
+    async getDiscovery() {
         return {
             version: '1.0',
             apiName: 'ObjectStack API',
@@ -40,30 +42,56 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
                 graphql: false,
                 search: false,
                 websockets: false,
-                files: true,
-                analytics: false,
-                hub: false
+                files: false,
+                analytics: true,
+                ai: false,
+                workflow: false,
+                notifications: false,
+                i18n: false,
             },
             endpoints: {
                 data: '/api/data',
                 metadata: '/api/meta',
-                auth: '/api/auth'
-            }
+                analytics: '/api/analytics',
+            },
+            services: {
+                // --- Kernel-provided (objectql is an example kernel implementation) ---
+                metadata:  { enabled: true, status: 'degraded' as const, route: '/api/meta', provider: 'objectql', message: 'In-memory registry only; DB persistence not yet implemented' },
+                data:      { enabled: true, status: 'available' as const, route: '/api/data', provider: 'objectql' },
+                analytics: { enabled: true, status: 'available' as const, route: '/api/analytics', provider: 'objectql' },
+                // --- Plugin-provided (kernel does NOT handle these) ---
+                auth:         { enabled: false, status: 'unavailable' as const, message: 'Install an auth plugin (e.g. plugin-auth) to enable' },
+                automation:   { enabled: false, status: 'unavailable' as const, message: 'Install an automation plugin (e.g. plugin-automation) to enable' },
+                // --- Core infrastructure (plugin-provided) ---
+                cache:        { enabled: false, status: 'unavailable' as const, message: 'Install a cache plugin (e.g. plugin-redis) to enable' },
+                queue:        { enabled: false, status: 'unavailable' as const, message: 'Install a queue plugin (e.g. plugin-bullmq) to enable' },
+                job:          { enabled: false, status: 'unavailable' as const, message: 'Install a job scheduler plugin to enable' },
+                // --- Optional services (all plugin-provided) ---
+                ui:             { enabled: false, status: 'unavailable' as const, message: 'Install a UI plugin to enable' },
+                workflow:       { enabled: false, status: 'unavailable' as const, message: 'Install a workflow plugin to enable' },
+                realtime:       { enabled: false, status: 'unavailable' as const, message: 'Install a realtime plugin to enable' },
+                notification:   { enabled: false, status: 'unavailable' as const, message: 'Install a notification plugin to enable' },
+                ai:             { enabled: false, status: 'unavailable' as const, message: 'Install an AI plugin to enable' },
+                i18n:           { enabled: false, status: 'unavailable' as const, message: 'Install an i18n plugin to enable' },
+                graphql:        { enabled: false, status: 'unavailable' as const, message: 'Install a GraphQL plugin to enable' },
+                'file-storage': { enabled: false, status: 'unavailable' as const, message: 'Install a file-storage plugin to enable' },
+                search:         { enabled: false, status: 'unavailable' as const, message: 'Install a search plugin to enable' },
+            },
         };
     }
 
-    async getMetaTypes(_request: {}) {
+    async getMetaTypes() {
         return {
             types: SchemaRegistry.getRegisteredTypes()
         };
     }
 
-    async getMetaItems(request: { type: string; packageId?: string }) {
-        let items = SchemaRegistry.listItems(request.type, request.packageId);
+    async getMetaItems(request: { type: string }) {
+        let items = SchemaRegistry.listItems(request.type);
         // Normalize singular/plural: REST uses singular ('app') but registry may store as plural ('apps')
         if (items.length === 0) {
             const alt = request.type.endsWith('s') ? request.type.slice(0, -1) : request.type + 's';
-            items = SchemaRegistry.listItems(alt, request.packageId);
+            items = SchemaRegistry.listItems(alt);
         }
         return {
             type: request.type,
@@ -270,12 +298,84 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
     // Batch Operations
     // ==========================================
 
-    async batchData(_request: { object: string, request: BatchUpdateRequest }): Promise<BatchUpdateResponse> {
-        // Map high-level batch request to DataEngine batch if available
-        // Or implement loop here.
-        // For now, let's just fail or implement basic loop to satisfying interface
-        // since full batch mapping requires careful type handling.
-        throw new Error('Batch operations not yet fully implemented in protocol adapter');
+    async batchData(request: { object: string, request: BatchUpdateRequest }): Promise<BatchUpdateResponse> {
+        const { object, request: batchReq } = request;
+        const { operation, records, options } = batchReq;
+        const results: Array<{ id?: string; success: boolean; error?: string; record?: any }> = [];
+        let succeeded = 0;
+        let failed = 0;
+
+        for (const record of records) {
+            try {
+                switch (operation) {
+                    case 'create': {
+                        const created = await this.engine.insert(object, record.data || record);
+                        results.push({ id: created._id || created.id, success: true, record: created });
+                        succeeded++;
+                        break;
+                    }
+                    case 'update': {
+                        if (!record.id) throw new Error('Record id is required for update');
+                        const updated = await this.engine.update(object, record.data || {}, { filter: { _id: record.id } });
+                        results.push({ id: record.id, success: true, record: updated });
+                        succeeded++;
+                        break;
+                    }
+                    case 'upsert': {
+                        // Try update first, then create if not found
+                        if (record.id) {
+                            try {
+                                const existing = await this.engine.findOne(object, { filter: { _id: record.id } });
+                                if (existing) {
+                                    const updated = await this.engine.update(object, record.data || {}, { filter: { _id: record.id } });
+                                    results.push({ id: record.id, success: true, record: updated });
+                                } else {
+                                    const created = await this.engine.insert(object, { _id: record.id, ...(record.data || {}) });
+                                    results.push({ id: created._id || created.id, success: true, record: created });
+                                }
+                            } catch {
+                                const created = await this.engine.insert(object, { _id: record.id, ...(record.data || {}) });
+                                results.push({ id: created._id || created.id, success: true, record: created });
+                            }
+                        } else {
+                            const created = await this.engine.insert(object, record.data || record);
+                            results.push({ id: created._id || created.id, success: true, record: created });
+                        }
+                        succeeded++;
+                        break;
+                    }
+                    case 'delete': {
+                        if (!record.id) throw new Error('Record id is required for delete');
+                        await this.engine.delete(object, { filter: { _id: record.id } });
+                        results.push({ id: record.id, success: true });
+                        succeeded++;
+                        break;
+                    }
+                    default:
+                        results.push({ id: record.id, success: false, error: `Unknown operation: ${operation}` });
+                        failed++;
+                }
+            } catch (err: any) {
+                results.push({ id: record.id, success: false, error: err.message });
+                failed++;
+                if (options?.atomic) {
+                    // Abort remaining operations on first failure in atomic mode
+                    break;
+                }
+                if (!options?.continueOnError) {
+                    break;
+                }
+            }
+        }
+
+        return {
+            success: failed === 0,
+            operation,
+            total: records.length,
+            succeeded,
+            failed,
+            results: options?.returnRecords !== false ? results : results.map(r => ({ id: r.id, success: r.success, error: r.error })),
+        } as BatchUpdateResponse;
     }
     
     async createManyData(request: { object: string, records: any[] }): Promise<any> {
@@ -287,33 +387,211 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         };
     }
     
-    async updateManyData(_request: UpdateManyDataRequest): Promise<any> {
-        // TODO: Implement proper updateMany in DataEngine
-        throw new Error('updateManyData not implemented');
+    async updateManyData(request: UpdateManyDataRequest): Promise<BatchUpdateResponse> {
+        const { object, records, options } = request;
+        const results: Array<{ id?: string; success: boolean; error?: string; record?: any }> = [];
+        let succeeded = 0;
+        let failed = 0;
+
+        for (const record of records) {
+            try {
+                const updated = await this.engine.update(object, record.data, { filter: { _id: record.id } });
+                results.push({ id: record.id, success: true, record: updated });
+                succeeded++;
+            } catch (err: any) {
+                results.push({ id: record.id, success: false, error: err.message });
+                failed++;
+                if (!options?.continueOnError) {
+                    break;
+                }
+            }
+        }
+
+        return {
+            success: failed === 0,
+            operation: 'update',
+            total: records.length,
+            succeeded,
+            failed,
+            results,
+        } as BatchUpdateResponse;
     }
 
-    async analyticsQuery(_request: any): Promise<any> {
-        throw new Error('analyticsQuery not implemented');
+    async analyticsQuery(request: any): Promise<any> {
+        // Map AnalyticsQuery (cube-style) to engine aggregation.
+        // cube name maps to object name; measures → aggregations; dimensions → groupBy.
+        const { query, cube } = request;
+        const object = cube;
+
+        // Build groupBy from dimensions
+        const groupBy = query.dimensions || [];
+
+        // Build aggregations from measures
+        // Measures can be simple field names like "count" or "field_name.sum"
+        // Or cube-defined measure names. We support: field.function or just function(field).
+        const aggregations: Array<{ field: string; method: string; alias: string }> = [];
+        if (query.measures) {
+            for (const measure of query.measures) {
+                // Support formats: "count", "amount.sum", "revenue.avg"
+                if (measure === 'count' || measure === 'count_all') {
+                    aggregations.push({ field: '*', method: 'count', alias: 'count' });
+                } else if (measure.includes('.')) {
+                    const [field, method] = measure.split('.');
+                    aggregations.push({ field, method, alias: `${field}_${method}` });
+                } else {
+                    // Treat as count of the field
+                    aggregations.push({ field: measure, method: 'sum', alias: measure });
+                }
+            }
+        }
+
+        // Build filter from analytics filters
+        let filter: any = undefined;
+        if (query.filters && query.filters.length > 0) {
+            const conditions: any[] = query.filters.map((f: any) => {
+                const op = this.mapAnalyticsOperator(f.operator);
+                if (f.values && f.values.length === 1) {
+                    return { [f.member]: { [op]: f.values[0] } };
+                } else if (f.values && f.values.length > 1) {
+                    return { [f.member]: { $in: f.values } };
+                }
+                return { [f.member]: { [op]: true } };
+            });
+            filter = conditions.length === 1 ? conditions[0] : { $and: conditions };
+        }
+
+        // Execute via engine.aggregate (which delegates to driver.find with groupBy/aggregations)
+        const rows = await this.engine.aggregate(object, {
+            filter,
+            groupBy: groupBy.length > 0 ? groupBy : undefined,
+            aggregations: aggregations.length > 0
+                ? aggregations.map(a => ({ field: a.field, method: a.method as any, alias: a.alias }))
+                : [{ field: '*', method: 'count' as any, alias: 'count' }],
+        });
+
+        // Build field metadata
+        const fields = [
+            ...groupBy.map((d: string) => ({ name: d, type: 'string' })),
+            ...aggregations.map(a => ({ name: a.alias, type: 'number' })),
+        ];
+
+        return {
+            success: true,
+            data: {
+                rows,
+                fields,
+            },
+        };
     }
 
-    async getAnalyticsMeta(_request: any): Promise<any> {
-        throw new Error('getAnalyticsMeta not implemented');
+    async getAnalyticsMeta(request: any): Promise<any> {
+        // Auto-generate cube metadata from registered objects in SchemaRegistry.
+        // Each object becomes a cube; number fields → measures; other fields → dimensions.
+        const objects = SchemaRegistry.listItems('object');
+        const cubeFilter = request?.cube;
+
+        const cubes: any[] = [];
+        for (const obj of objects) {
+            const schema = obj as any;
+            if (cubeFilter && schema.name !== cubeFilter) continue;
+
+            const measures: Record<string, any> = {};
+            const dimensions: Record<string, any> = {};
+            const fields = schema.fields || {};
+
+            // Always add a count measure
+            measures['count'] = {
+                name: 'count',
+                label: 'Count',
+                type: 'count',
+                sql: '*',
+            };
+
+            for (const [fieldName, fieldDef] of Object.entries(fields)) {
+                const fd = fieldDef as any;
+                const fieldType = fd.type || 'text';
+
+                if (['number', 'currency', 'percent'].includes(fieldType)) {
+                    // Numeric fields become both measures and dimensions
+                    measures[`${fieldName}_sum`] = {
+                        name: `${fieldName}_sum`,
+                        label: `${fd.label || fieldName} (Sum)`,
+                        type: 'sum',
+                        sql: fieldName,
+                    };
+                    measures[`${fieldName}_avg`] = {
+                        name: `${fieldName}_avg`,
+                        label: `${fd.label || fieldName} (Avg)`,
+                        type: 'avg',
+                        sql: fieldName,
+                    };
+                    dimensions[fieldName] = {
+                        name: fieldName,
+                        label: fd.label || fieldName,
+                        type: 'number',
+                        sql: fieldName,
+                    };
+                } else if (['date', 'datetime'].includes(fieldType)) {
+                    dimensions[fieldName] = {
+                        name: fieldName,
+                        label: fd.label || fieldName,
+                        type: 'time',
+                        sql: fieldName,
+                        granularities: ['day', 'week', 'month', 'quarter', 'year'],
+                    };
+                } else if (['boolean'].includes(fieldType)) {
+                    dimensions[fieldName] = {
+                        name: fieldName,
+                        label: fd.label || fieldName,
+                        type: 'boolean',
+                        sql: fieldName,
+                    };
+                } else {
+                    // text, select, lookup, etc. → dimension
+                    dimensions[fieldName] = {
+                        name: fieldName,
+                        label: fd.label || fieldName,
+                        type: 'string',
+                        sql: fieldName,
+                    };
+                }
+            }
+
+            cubes.push({
+                name: schema.name,
+                title: schema.label || schema.name,
+                description: schema.description,
+                sql: schema.name,
+                measures,
+                dimensions,
+                public: true,
+            });
+        }
+
+        return {
+            success: true,
+            data: { cubes },
+        };
+    }
+
+    private mapAnalyticsOperator(op: string): string {
+        const map: Record<string, string> = {
+            equals: '$eq',
+            notEquals: '$ne',
+            contains: '$contains',
+            notContains: '$notContains',
+            gt: '$gt',
+            gte: '$gte',
+            lt: '$lt',
+            lte: '$lte',
+            set: '$ne',
+            notSet: '$eq',
+        };
+        return map[op] || '$eq';
     }
 
     async triggerAutomation(_request: any): Promise<any> {
-        throw new Error('triggerAutomation not implemented');
-    }
-
-    async listSpaces(_request: any): Promise<any> {
-        throw new Error('listSpaces not implemented');
-    }
-
-    async createSpace(_request: any): Promise<any> {
-        throw new Error('createSpace not implemented');
-    }
-
-    async installPlugin(_request: any): Promise<any> {
-        throw new Error('installPlugin not implemented');
+        throw new Error('triggerAutomation requires plugin-automation service. Install and register a plugin that provides the "automation" service.');
     }
 
     async deleteManyData(request: DeleteManyDataRequest): Promise<any> {

@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { App } from '@objectstack/spec/ui';
 
 export const CrmApp = App.create({

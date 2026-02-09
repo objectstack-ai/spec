@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { z } from 'zod';
 import { AnalyticsQuerySchema, CubeSchema } from '../data/analytics.zod';
 import { BaseResponseSchema } from './contract.zod';

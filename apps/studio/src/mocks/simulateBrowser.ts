@@ -1,8 +1,10 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { createKernel } from './createKernel';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 import { ObjectStackClient } from '@objectstack/client';
-import todoConfig from '@example/app-todo/objectstack.config';
+import studioConfig from '../../objectstack.config';
 
 /**
  * Creates a Realistic Browser Simulation
@@ -14,8 +16,8 @@ import todoConfig from '@example/app-todo/objectstack.config';
  * 4. Returns a ready-to-use Client
  */
 export async function simulateBrowser() {
-    // 1. Boot Kernel (Headless Mode)
-    const appConfig = (todoConfig as any).default || todoConfig;
+    // 1. Boot Kernel (Headless Mode) — config loaded from objectstack.config.ts
+    const appConfig = (studioConfig as any).default || studioConfig;
     const kernel = await createKernel({
         appConfig,
         enableBrowser: false // Disable the built-in browser MSW worker

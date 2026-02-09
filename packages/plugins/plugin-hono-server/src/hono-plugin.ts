@@ -1,13 +1,10 @@
-import { Plugin, PluginContext, IHttpServer, ApiRegistry } from '@objectstack/core';
-import { ObjectStackProtocol } from '@objectstack/spec/api';
-import { 
-    ApiRegistryEntryInput,
-    ApiEndpointRegistrationInput,
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+import { Plugin, PluginContext, IHttpServer } from '@objectstack/core';
+import {
     RestServerConfig,
 } from '@objectstack/spec/api';
 import { HonoHttpServer } from './adapter';
-import { createHonoApp } from '@objectstack/hono';
-import { HttpDispatcher } from '@objectstack/runtime';
 import { serveStatic } from '@hono/node-server/serve-static';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -54,7 +51,11 @@ export interface HonoPluginOptions {
  * Hono Server Plugin
  * 
  * Provides HTTP server capabilities using Hono framework.
- * Registers routes for ObjectStack Runtime Protocol.
+ * Registers the IHttpServer service so other plugins can register routes.
+ * 
+ * Route registration is handled by plugins:
+ * - `@objectstack/rest` → CRUD, metadata, discovery, UI, batch
+ * - `createDispatcherPlugin()` → auth, graphql, analytics, packages, etc.
  */
 export class HonoServerPlugin implements Plugin {
     name = 'com.objectstack.server.hono';
@@ -99,40 +100,10 @@ export class HonoServerPlugin implements Plugin {
     }
 
     /**
-     * Start phase - Bind routes and start listening
+     * Start phase - Configure static files and start listening
      */
     start = async (ctx: PluginContext) => {
         ctx.logger.debug('Starting Hono server plugin');
-        
-        // Use Standard ObjectStack Runtime Hono App
-        try {
-            const kernel = ctx.getKernel();
-            const config = this.options.restConfig || {};
-            // Calculate prefix similar to before
-            const apiVersion = config.api?.version || 'v1';
-            const basePath = config.api?.basePath || '/api';
-            const apiPath = config.api?.apiPath || `${basePath}/${apiVersion}`;
-            
-            const app = createHonoApp({ 
-                kernel,
-                prefix: apiPath // Use the calculated path
-            });
-            
-            ctx.logger.debug('Mounting ObjectStack Runtime App', { prefix: apiPath });
-            // Use the mount method we added to HonoHttpServer
-            this.server.mount('/', app as any);
-
-            // Register Standard Discovery Endpoint
-            const rawApp = this.server.getRawApp();
-            const dispatcher = new HttpDispatcher(kernel);
-            rawApp.get('/.well-known/objectstack', (c) => {
-                return c.json({ data: dispatcher.getDiscoveryInfo(apiPath) });
-            });
-            ctx.logger.debug('Registered standard discovery endpoint', { path: '/.well-known/objectstack', target: apiPath });
-
-        } catch (e: any) {
-             ctx.logger.error('Failed to create standard Hono app', e);
-        }
 
         // Configure Static Files & SPA Fallback
         const mounts: StaticMount[] = this.options.staticMounts || [];

@@ -120,7 +120,7 @@ describe('DispatcherConfigSchema', () => {
 
 describe('DEFAULT_DISPATCHER_ROUTES', () => {
   it('should have routes for all protocol namespaces', () => {
-    expect(DEFAULT_DISPATCHER_ROUTES.length).toBeGreaterThanOrEqual(14);
+    expect(DEFAULT_DISPATCHER_ROUTES.length).toBeGreaterThanOrEqual(13);
   });
 
   it('should include required services', () => {
@@ -140,7 +140,6 @@ describe('DEFAULT_DISPATCHER_ROUTES', () => {
     expect(services).toContain('notification');
     expect(services).toContain('analytics');
     expect(services).toContain('automation');
-    expect(services).toContain('hub');
   });
 
   it('should have discovery as public route', () => {

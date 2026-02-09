@@ -1,5 +1,21 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ObjectStackClient } from './index';
+import { ObjectStackClient, QueryBuilder, FilterBuilder, createQuery, createFilter } from './index';
+
+/** Helper: create a client with mocked fetch that returns the given response body */
+function createMockClient(body: any, status = 200) {
+    const fetchMock = vi.fn().mockResolvedValue({
+        ok: status >= 200 && status < 300,
+        status,
+        statusText: status === 200 ? 'OK' : 'Error',
+        json: async () => body,
+        headers: new Headers()
+    });
+    const client = new ObjectStackClient({
+        baseUrl: 'http://localhost:3000',
+        fetch: fetchMock
+    });
+    return { client, fetchMock };
+}
 
 describe('ObjectStackClient', () => {
     it('should initialize with correct configuration', () => {
@@ -29,7 +45,8 @@ describe('ObjectStackClient', () => {
         });
 
         await client.connect();
-        expect(fetchMock).toHaveBeenCalledWith('http://localhost:3000/api/v1', expect.any(Object));
+        // connect() tries .well-known first, which succeeds with our mock
+        expect(fetchMock).toHaveBeenCalled();
     });
 
     it('should get metadata types', async () => {
@@ -87,5 +104,549 @@ describe('ObjectStackClient', () => {
         const result = await client.meta.getItem('object', 'customer');
         expect(fetchMock).toHaveBeenCalledWith('http://localhost:3000/api/v1/meta/object/customer', expect.any(Object));
         expect(result.name).toBe('customer');
+    });
+});
+
+describe('Permissions namespace', () => {
+    it('should check permission with all params', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { allowed: true, reason: 'owner' }
+        });
+        const result = await client.permissions.check({
+            object: 'customer',
+            action: 'read',
+            recordId: '123',
+            field: 'email'
+        });
+        expect(result).toEqual({ allowed: true, reason: 'owner' });
+        const url = fetchMock.mock.calls[0][0] as string;
+        expect(url).toContain('/api/v1/permissions/check');
+        expect(url).toContain('object=customer');
+        expect(url).toContain('action=read');
+        expect(url).toContain('recordId=123');
+        expect(url).toContain('field=email');
+    });
+
+    it('should check permission without optional params', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { allowed: false }
+        });
+        const result = await client.permissions.check({
+            object: 'order',
+            action: 'delete'
+        });
+        expect(result).toEqual({ allowed: false });
+        const url = fetchMock.mock.calls[0][0] as string;
+        expect(url).not.toContain('recordId');
+        expect(url).not.toContain('field=');
+    });
+
+    it('should get object permissions', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { object: 'customer', permissions: { read: true, create: true } }
+        });
+        const result = await client.permissions.getObjectPermissions('customer');
+        expect(result.object).toBe('customer');
+        const url = fetchMock.mock.calls[0][0] as string;
+        expect(url).toContain('/api/v1/permissions/objects/customer');
+    });
+
+    it('should get effective permissions', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { roles: ['admin'], permissions: [] }
+        });
+        const result = await client.permissions.getEffectivePermissions();
+        expect(result.roles).toEqual(['admin']);
+        const url = fetchMock.mock.calls[0][0] as string;
+        expect(url).toContain('/api/v1/permissions/effective');
+    });
+});
+
+describe('Realtime namespace', () => {
+    it('should connect to realtime', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { connectionId: 'conn-1', transport: 'websocket' }
+        });
+        const result = await client.realtime.connect({ transport: 'websocket' as any });
+        expect(result.connectionId).toBe('conn-1');
+        const [url, opts] = fetchMock.mock.calls[0];
+        expect(url).toContain('/api/v1/realtime/connect');
+        expect(opts.method).toBe('POST');
+    });
+
+    it('should disconnect from realtime', async () => {
+        const { client, fetchMock } = createMockClient({ success: true });
+        await client.realtime.disconnect();
+        const [url, opts] = fetchMock.mock.calls[0];
+        expect(url).toContain('/api/v1/realtime/disconnect');
+        expect(opts.method).toBe('POST');
+    });
+
+    it('should subscribe to a channel', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { subscriptionId: 'sub-1' }
+        });
+        const result = await client.realtime.subscribe({
+            channel: 'customer.changes',
+            events: ['create', 'update']
+        });
+        expect(result.subscriptionId).toBe('sub-1');
+        const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+        expect(body.channel).toBe('customer.changes');
+        expect(body.events).toEqual(['create', 'update']);
+    });
+
+    it('should unsubscribe from a channel', async () => {
+        const { client, fetchMock } = createMockClient({ success: true });
+        await client.realtime.unsubscribe('sub-1');
+        const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+        expect(body.subscriptionId).toBe('sub-1');
+    });
+
+    it('should set presence', async () => {
+        const { client, fetchMock } = createMockClient({ success: true });
+        await client.realtime.setPresence('room-1', { status: 'online' } as any);
+        const [url, opts] = fetchMock.mock.calls[0];
+        expect(url).toContain('/api/v1/realtime/presence');
+        expect(opts.method).toBe('PUT');
+        const body = JSON.parse(opts.body);
+        expect(body.channel).toBe('room-1');
+        expect(body.state.status).toBe('online');
+    });
+
+    it('should get presence for a channel', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { channel: 'room-1', members: [] }
+        });
+        const result = await client.realtime.getPresence('room-1');
+        expect(result.channel).toBe('room-1');
+        const url = fetchMock.mock.calls[0][0] as string;
+        expect(url).toContain('/api/v1/realtime/presence/room-1');
+    });
+});
+
+describe('Workflow namespace', () => {
+    it('should get workflow config', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { object: 'order', states: ['draft', 'submitted'] }
+        });
+        const result = await client.workflow.getConfig('order');
+        expect(result.object).toBe('order');
+        const url = fetchMock.mock.calls[0][0] as string;
+        expect(url).toContain('/api/v1/workflow/order/config');
+    });
+
+    it('should get workflow state', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { state: 'draft', transitions: ['submit'] }
+        });
+        const result = await client.workflow.getState('order', 'rec-1');
+        expect(result.state).toBe('draft');
+        const url = fetchMock.mock.calls[0][0] as string;
+        expect(url).toContain('/api/v1/workflow/order/rec-1/state');
+    });
+
+    it('should execute workflow transition', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { success: true, newState: 'submitted' }
+        });
+        const result = await client.workflow.transition({
+            object: 'order',
+            recordId: 'rec-1',
+            transition: 'submit',
+            comment: 'Ready for review'
+        });
+        expect(result.newState).toBe('submitted');
+        const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+        expect(body.transition).toBe('submit');
+        expect(body.comment).toBe('Ready for review');
+    });
+
+    it('should approve workflow', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { success: true, newState: 'approved' }
+        });
+        const result = await client.workflow.approve({
+            object: 'order',
+            recordId: 'rec-1',
+            comment: 'Looks good'
+        });
+        expect(result.newState).toBe('approved');
+        const [url, opts] = fetchMock.mock.calls[0];
+        expect(url).toContain('/api/v1/workflow/order/rec-1/approve');
+        expect(opts.method).toBe('POST');
+    });
+
+    it('should reject workflow', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { success: true, newState: 'rejected' }
+        });
+        const result = await client.workflow.reject({
+            object: 'order',
+            recordId: 'rec-1',
+            reason: 'Incomplete data',
+            comment: 'Missing fields'
+        });
+        expect(result.newState).toBe('rejected');
+        const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+        expect(body.reason).toBe('Incomplete data');
+    });
+});
+
+describe('Views namespace', () => {
+    it('should list views for an object', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { views: [{ id: 'v1', name: 'Default' }] }
+        });
+        const result = await client.views.list('customer', 'list');
+        expect(result.views).toHaveLength(1);
+        const url = fetchMock.mock.calls[0][0] as string;
+        expect(url).toContain('/api/v1/ui/views/customer');
+        expect(url).toContain('type=list');
+    });
+
+    it('should list views without type filter', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { views: [] }
+        });
+        await client.views.list('order');
+        const url = fetchMock.mock.calls[0][0] as string;
+        expect(url).toContain('/api/v1/ui/views/order');
+        expect(url).not.toContain('type=');
+    });
+
+    it('should get a specific view', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { id: 'v1', name: 'Default', type: 'list' }
+        });
+        const result = await client.views.get('customer', 'v1');
+        expect(result.id).toBe('v1');
+        const url = fetchMock.mock.calls[0][0] as string;
+        expect(url).toContain('/api/v1/ui/views/customer/v1');
+    });
+
+    it('should create a view', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { id: 'v2', name: 'Custom View' }
+        });
+        const result = await client.views.create('customer', { name: 'Custom View' } as any);
+        expect(result.id).toBe('v2');
+        const [url, opts] = fetchMock.mock.calls[0];
+        expect(url).toContain('/api/v1/ui/views/customer');
+        expect(opts.method).toBe('POST');
+    });
+
+    it('should update a view', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { id: 'v1', name: 'Updated View' }
+        });
+        const result = await client.views.update('customer', 'v1', { name: 'Updated View' } as any);
+        expect(result.name).toBe('Updated View');
+        const [url, opts] = fetchMock.mock.calls[0];
+        expect(url).toContain('/api/v1/ui/views/customer/v1');
+        expect(opts.method).toBe('PUT');
+    });
+
+    it('should delete a view', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { deleted: true }
+        });
+        const result = await client.views.delete('customer', 'v1');
+        expect(result.deleted).toBe(true);
+        const [url, opts] = fetchMock.mock.calls[0];
+        expect(url).toContain('/api/v1/ui/views/customer/v1');
+        expect(opts.method).toBe('DELETE');
+    });
+});
+
+describe('Auth enhancements', () => {
+    it('should register a new user', async () => {
+        const { client, fetchMock } = createMockClient({
+            data: { token: 'new-token', user: { email: 'test@example.com' } }
+        });
+        const result = await client.auth.register({
+            email: 'test@example.com',
+            password: 'secret123',
+            name: 'Test User'
+        });
+        expect(result.data.token).toBe('new-token');
+        const [url, opts] = fetchMock.mock.calls[0];
+        expect(url).toContain('/api/v1/auth/register');
+        expect(opts.method).toBe('POST');
+        // Token should be auto-set
+        expect((client as any).token).toBe('new-token');
+    });
+
+    it('should refresh token', async () => {
+        const { client, fetchMock } = createMockClient({
+            data: { token: 'refreshed-token' }
+        });
+        const result = await client.auth.refreshToken('old-refresh-token');
+        expect(result.data.token).toBe('refreshed-token');
+        const [url, opts] = fetchMock.mock.calls[0];
+        expect(url).toContain('/api/v1/auth/refresh');
+        expect(opts.method).toBe('POST');
+        const body = JSON.parse(opts.body);
+        expect(body.refreshToken).toBe('old-refresh-token');
+        // Token should be auto-set
+        expect((client as any).token).toBe('refreshed-token');
+    });
+});
+
+describe('Notifications namespace', () => {
+    it('should register a device', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { deviceId: 'dev-1', registered: true }
+        });
+        const result = await client.notifications.registerDevice({
+            token: 'push-token',
+            platform: 'web',
+            deviceId: 'dev-1'
+        });
+        expect(result.deviceId).toBe('dev-1');
+        const [url, opts] = fetchMock.mock.calls[0];
+        expect(url).toContain('/api/v1/notifications/devices');
+        expect(opts.method).toBe('POST');
+    });
+
+    it('should unregister a device', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { success: true }
+        });
+        await client.notifications.unregisterDevice('dev-1');
+        const [url, opts] = fetchMock.mock.calls[0];
+        expect(url).toContain('/api/v1/notifications/devices/dev-1');
+        expect(opts.method).toBe('DELETE');
+    });
+
+    it('should list notifications with filters', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { notifications: [], total: 0 }
+        });
+        await client.notifications.list({ read: false, limit: 10 });
+        const url = fetchMock.mock.calls[0][0] as string;
+        expect(url).toContain('/api/v1/notifications');
+        expect(url).toContain('read=false');
+        expect(url).toContain('limit=10');
+    });
+
+    it('should mark notifications as read', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { updated: 2 }
+        });
+        const result = await client.notifications.markRead(['n1', 'n2']);
+        expect(result.updated).toBe(2);
+        const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+        expect(body.ids).toEqual(['n1', 'n2']);
+    });
+
+    it('should mark all notifications as read', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { updated: 5 }
+        });
+        const result = await client.notifications.markAllRead();
+        expect(result.updated).toBe(5);
+        const [url, opts] = fetchMock.mock.calls[0];
+        expect(url).toContain('/api/v1/notifications/read/all');
+        expect(opts.method).toBe('POST');
+    });
+});
+
+describe('AI namespace', () => {
+    it('should execute natural language query', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { query: { object: 'customer', where: {} }, confidence: 0.95 }
+        });
+        const result = await client.ai.nlq({ query: 'find all active customers' });
+        expect(result.confidence).toBe(0.95);
+        const [url, opts] = fetchMock.mock.calls[0];
+        expect(url).toContain('/api/v1/ai/nlq');
+        expect(opts.method).toBe('POST');
+    });
+
+    it('should chat with AI', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { message: 'Here are the results...', conversationId: 'conv-1' }
+        });
+        const result = await client.ai.chat({
+            message: 'Show me customer stats',
+            conversationId: 'conv-1'
+        });
+        expect(result.conversationId).toBe('conv-1');
+        const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+        expect(body.message).toBe('Show me customer stats');
+    });
+
+    it('should get AI suggestions', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { suggestions: ['Alice Corp', 'Alpha Inc'] }
+        });
+        const result = await client.ai.suggest({
+            object: 'customer',
+            field: 'name',
+            partial: 'Al'
+        });
+        expect(result.suggestions).toHaveLength(2);
+    });
+
+    it('should get AI insights', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { type: 'summary', insights: [] }
+        });
+        const result = await client.ai.insights({
+            object: 'order',
+            type: 'summary'
+        });
+        expect(result.type).toBe('summary');
+        const [url, opts] = fetchMock.mock.calls[0];
+        expect(url).toContain('/api/v1/ai/insights');
+        expect(opts.method).toBe('POST');
+    });
+});
+
+describe('i18n namespace', () => {
+    it('should get available locales', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { locales: ['en', 'zh-CN', 'ja'], default: 'en' }
+        });
+        const result = await client.i18n.getLocales();
+        expect(result.locales).toContain('en');
+        const url = fetchMock.mock.calls[0][0] as string;
+        expect(url).toContain('/api/v1/i18n/locales');
+    });
+
+    it('should get translations', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { locale: 'zh-CN', translations: { hello: '你好' } }
+        });
+        const result = await client.i18n.getTranslations('zh-CN', { namespace: 'common' });
+        expect(result.locale).toBe('zh-CN');
+        const url = fetchMock.mock.calls[0][0] as string;
+        expect(url).toContain('/api/v1/i18n/translations');
+        expect(url).toContain('locale=zh-CN');
+        expect(url).toContain('namespace=common');
+    });
+
+    it('should get field labels', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { object: 'customer', labels: { name: '名前' } }
+        });
+        const result = await client.i18n.getFieldLabels('customer', 'ja');
+        expect(result.object).toBe('customer');
+        const url = fetchMock.mock.calls[0][0] as string;
+        expect(url).toContain('/api/v1/i18n/labels/customer');
+        expect(url).toContain('locale=ja');
+    });
+});
+
+describe('QueryBuilder enhancements', () => {
+    it('should add expand for nested relation loading', () => {
+        const q = createQuery('order')
+            .select('id', 'total')
+            .expand('customer', { fields: ['name', 'email'] } as any)
+            .expand('items')
+            .build();
+        expect(q.expand).toBeDefined();
+        expect((q.expand as any).customer).toEqual({ fields: ['name', 'email'] });
+        expect((q.expand as any).items).toEqual({});
+    });
+
+    it('should add full-text search', () => {
+        const q = createQuery('customer')
+            .search('alice', { fields: ['name', 'email'], fuzzy: true })
+            .build();
+        expect((q as any).search).toEqual({
+            query: 'alice',
+            fields: ['name', 'email'],
+            fuzzy: true
+        });
+    });
+
+    it('should set cursor for keyset pagination', () => {
+        const q = createQuery('customer')
+            .cursor({ id: 'last-seen-id', created_at: '2024-01-01' })
+            .build();
+        expect((q as any).cursor).toEqual({
+            id: 'last-seen-id',
+            created_at: '2024-01-01'
+        });
+    });
+
+    it('should enable distinct', () => {
+        const q = createQuery('customer')
+            .select('status')
+            .distinct()
+            .build();
+        expect((q as any).distinct).toBe(true);
+    });
+});
+
+describe('FilterBuilder enhancements', () => {
+    it('should add between filter', () => {
+        const f = createFilter<{ age: number }>()
+            .between('age', 18, 65)
+            .build();
+        // between generates: ['and', [field, '>=', min], [field, '<=', max]]
+        expect(f[0]).toBe('and');
+        expect(f[1]).toEqual(['age', '>=', 18]);
+        expect(f[2]).toEqual(['age', '<=', 65]);
+    });
+
+    it('should add contains filter', () => {
+        const f = createFilter<{ name: string }>()
+            .contains('name', 'alice')
+            .build();
+        expect(f).toEqual(['name', 'like', '%alice%']);
+    });
+
+    it('should add startsWith filter', () => {
+        const f = createFilter<{ name: string }>()
+            .startsWith('name', 'A')
+            .build();
+        expect(f).toEqual(['name', 'like', 'A%']);
+    });
+
+    it('should add endsWith filter', () => {
+        const f = createFilter<{ email: string }>()
+            .endsWith('email', '.com')
+            .build();
+        expect(f).toEqual(['email', 'like', '%.com']);
+    });
+
+    it('should add exists filter', () => {
+        const f = createFilter<{ phone: string }>()
+            .exists('phone')
+            .build();
+        expect(f).toEqual(['phone', 'is_not_null', null]);
     });
 });

@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 /**
  * Type-Safe Query Builder
  * 
@@ -100,6 +102,46 @@ export class FilterBuilder<T = any> {
    * IS NOT NULL filter: field IS NOT NULL
    */
   isNotNull<K extends keyof T>(field: K): this {
+    this.conditions.push([field as string, 'is_not_null', null]);
+    return this;
+  }
+
+  /**
+   * BETWEEN filter: field BETWEEN min AND max
+   */
+  between<K extends keyof T>(field: K, min: T[K], max: T[K]): this {
+    this.conditions.push(['and', [field as string, '>=', min], [field as string, '<=', max]] as FilterCondition);
+    return this;
+  }
+
+  /**
+   * CONTAINS filter: field contains value (case-insensitive LIKE %value%)
+   */
+  contains<K extends keyof T>(field: K, value: string): this {
+    this.conditions.push([field as string, 'like', `%${value}%`]);
+    return this;
+  }
+
+  /**
+   * STARTS WITH filter: field starts with value (LIKE value%)
+   */
+  startsWith<K extends keyof T>(field: K, value: string): this {
+    this.conditions.push([field as string, 'like', `${value}%`]);
+    return this;
+  }
+
+  /**
+   * ENDS WITH filter: field ends with value (LIKE %value)
+   */
+  endsWith<K extends keyof T>(field: K, value: string): this {
+    this.conditions.push([field as string, 'like', `%${value}`]);
+    return this;
+  }
+
+  /**
+   * EXISTS filter: field is not null (alias for isNotNull)
+   */
+  exists<K extends keyof T>(field: K): this {
     this.conditions.push([field as string, 'is_not_null', null]);
     return this;
   }
@@ -215,6 +257,41 @@ export class QueryBuilder<T = any> {
    */
   groupBy<K extends keyof T>(...fields: K[]): this {
     this.query.groupBy = fields as string[];
+    return this;
+  }
+
+  /**
+   * Expand (eager-load) a related object with an optional sub-query
+   */
+  expand(relation: string, subQuery?: Partial<QueryAST>): this {
+    if (!this.query.expand) {
+      this.query.expand = {};
+    }
+    (this.query.expand as Record<string, any>)[relation] = subQuery || {};
+    return this;
+  }
+
+  /**
+   * Add full-text search
+   */
+  search(query: string, options?: { fields?: string[]; fuzzy?: boolean }): this {
+    (this.query as any).search = { query, ...options };
+    return this;
+  }
+
+  /**
+   * Set cursor for keyset pagination
+   */
+  cursor(cursor: Record<string, any>): this {
+    (this.query as any).cursor = cursor;
+    return this;
+  }
+
+  /**
+   * Enable SELECT DISTINCT
+   */
+  distinct(): this {
+    (this.query as any).distinct = true;
     return this;
   }
 

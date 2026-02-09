@@ -1,0 +1,349 @@
+---
+title: Kernel Services Checklist
+description: Complete inventory of ObjectStack kernel services with protocol methods, implementation status, and development requirements.
+---
+
+# Kernel Services Checklist
+
+The ObjectStack protocol defines **17 kernel services** registered via the `CoreServiceName` enum. Each service maps to a set of protocol methods (57 total), governed by the `ObjectStackProtocol` interface.
+
+**Key architecture principle**: The kernel itself only provides **data** and **metadata** (framework). Everything else — including **auth** and **automation** — is delivered by **plugins**. The current `@objectstack/objectql` package is an example kernel implementation to get the basic API running; production kernels will be rebuilt as new plugins.
+
+<Callout type="info">
+**Last Updated**: February 2026
+
+- ✅ Implemented — 18 protocol methods (kernel-provided)
+- ⚠️ Framework — metadata (in-memory registry, DB persistence pending)
+- ❌ Plugin Required — 39 protocol methods (to be delivered by plugins)
+</Callout>
+
+---
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     Kernel Layer                         │
+│  ┌──────────────────┐  ┌──────────────────────────────┐ │
+│  │  metadata (⚠️)   │  │  data + analytics (✅)       │ │
+│  │  In-memory only   │  │  ObjectQL example kernel     │ │
+│  │  DB persistence   │  │  Will be rebuilt as plugins  │ │
+│  │  pending          │  │                              │ │
+│  └──────────────────┘  └──────────────────────────────┘ │
+├─────────────────────────────────────────────────────────┤
+│                    Plugin Layer                           │
+│  All other services: auth, automation, workflow, ui,     │
+│  realtime, notification, ai, i18n, graphql, search,     │
+│  file-storage, cache, queue, job                         │
+│                                                          │
+│  Discovery API reports: enabled/unavailable/degraded     │
+│  per service so clients adapt their UI accordingly       │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Service Overview
+
+| # | Service Name | Criticality | Methods | Status | Provider |
+|:--|:-------------|:------------|:--------|:-------|:---------|
+| 1 | **metadata** | `required` | 7 | ⚠️ Framework | Kernel (in-memory) |
+| 2 | **data** | `required` | 9 | ✅ Implemented | `@objectstack/objectql` |
+| 3 | **analytics** | `optional` | 2 | ✅ Implemented | `@objectstack/objectql` |
+| 4 | **auth** | `required` | — | ❌ Plugin Required | TBD plugin |
+| 5 | **ui** | `optional` | 5 | ❌ Plugin Required | TBD plugin |
+| 6 | **workflow** | `optional` | 5 | ❌ Plugin Required | TBD plugin |
+| 7 | **automation** | `optional` | 1 | ❌ Plugin Required | TBD plugin |
+| 8 | **realtime** | `optional` | 6 | ❌ Plugin Required | TBD plugin |
+| 9 | **notification** | `optional` | 7 | ❌ Plugin Required | TBD plugin |
+| 10 | **ai** | `optional` | 4 | ❌ Plugin Required | TBD plugin |
+| 11 | **i18n** | `optional` | 3 | ❌ Plugin Required | TBD plugin |
+| 12 | **file-storage** | `optional` | — | ❌ Plugin Required | TBD plugin |
+| 13 | **search** | `optional` | — | ❌ Plugin Required | TBD plugin |
+| 14 | **cache** | `core` | — | ❌ Plugin Required | TBD plugin |
+| 15 | **queue** | `core` | — | ❌ Plugin Required | TBD plugin |
+| 16 | **job** | `core` | — | ❌ Plugin Required | TBD plugin |
+| 17 | **graphql** | `optional` | — | ❌ Plugin Required | TBD plugin |
+
+<Callout type="warn">
+**Criticality Levels**
+- **required**: System cannot start without this service
+- **core**: Falls back to in-memory implementation with a warning if missing
+- **optional**: Feature disabled; API returns `501 Not Implemented` if missing
+</Callout>
+
+---
+
+## 1. metadata Service ⚠️ Framework
+
+**Service Name**: `metadata` · **Criticality**: `required`  
+**Implementation**: Kernel — `SchemaRegistry` (in-memory)  
+**Route Mounts**: `/api/v1/meta`, `/api/v1`, `/api/v1/packages`
+
+### Protocol Methods
+
+| Method | Signature | Status |
+|:-------|:----------|:------:|
+| `getDiscovery` | `GetDiscoveryRequest → GetDiscoveryResponse` | ✅ |
+| `getMetaTypes` | `GetMetaTypesRequest → GetMetaTypesResponse` | ✅ |
+| `getMetaItems` | `GetMetaItemsRequest → GetMetaItemsResponse` | ✅ |
+| `getMetaItem` | `GetMetaItemRequest → GetMetaItemResponse` | ✅ |
+| `saveMetaItem` | `SaveMetaItemRequest → SaveMetaItemResponse` | ✅ |
+| `getMetaItemCached` | `GetMetaItemCachedRequest → GetMetaItemCachedResponse` | ✅ |
+| `getUiView` | `GetUiViewRequest → GetUiViewResponse` | ✅ |
+
+### Current Limitations
+
+The metadata service is a **framework** — it works with an in-memory `SchemaRegistry` loaded from YAML/TS config files at startup.
+
+| Gap | Description | Priority |
+|:----|:------------|:--------:|
+| **DB Persistence** | Metadata is only in memory; no save-to-database path exists | P0 |
+| **Multi-instance Sync** | No mechanism to share metadata changes across instances | P1 |
+| **Migration / Versioning** | No schema diff or migration tooling | P1 |
+| **Hot Reload** | Metadata changes require restart | P2 |
+
+### Discovery: Per-Service Status
+
+The discovery endpoint returns a `services` map so clients know what is available:
+
+```json
+{
+  "services": {
+    "metadata": {
+      "enabled": true, "status": "degraded",
+      "route": "/api/v1/meta", "provider": "kernel",
+      "message": "In-memory registry; DB persistence pending"
+    },
+    "data": {
+      "enabled": true, "status": "available",
+      "route": "/api/v1/data", "provider": "kernel"
+    },
+    "auth": {
+      "enabled": false, "status": "unavailable",
+      "message": "Install an auth plugin to enable"
+    }
+  }
+}
+```
+
+---
+
+## 2. data Service ✅ Implemented
+
+**Service Name**: `data` · **Criticality**: `required`  
+**Implementation**: `@objectstack/objectql` → `ObjectQL` (IDataEngine)  
+**Route Mount**: `/api/v1/data`
+
+<Callout type="info">
+`@objectstack/objectql` is an **example kernel implementation** to get the basic data API running. Future production kernels will be developed as separate plugins.
+</Callout>
+
+### Protocol Methods
+
+| Method | Signature | Status |
+|:-------|:----------|:------:|
+| `findData` | `FindDataRequest → FindDataResponse` | ✅ |
+| `getData` | `GetDataRequest → GetDataResponse` | ✅ |
+| `createData` | `CreateDataRequest → CreateDataResponse` | ✅ |
+| `updateData` | `UpdateDataRequest → UpdateDataResponse` | ✅ |
+| `deleteData` | `DeleteDataRequest → DeleteDataResponse` | ✅ |
+| `batchData` | `BatchDataRequest → BatchDataResponse` | ✅ |
+| `createManyData` | `CreateManyDataRequest → CreateManyDataResponse` | ✅ |
+| `updateManyData` | `UpdateManyDataRequest → UpdateManyDataResponse` | ✅ |
+| `deleteManyData` | `DeleteManyDataRequest → DeleteManyDataResponse` | ✅ |
+
+### Driver Support
+
+| Driver | Package | CRUD | Aggregation | Ready |
+|:-------|:--------|:----:|:-----------:|:-----:|
+| InMemory | `@objectstack/driver-memory` | ✅ | ✅ | Dev/Test |
+| PostgreSQL | TBD | — | — | — |
+| MySQL | TBD | — | — | — |
+| MongoDB | TBD | — | — | — |
+| SQLite | TBD | — | — | — |
+
+---
+
+## 3. analytics Service ✅ Implemented
+
+**Service Name**: `analytics` · **Criticality**: `optional`  
+**Implementation**: `@objectstack/objectql` (driver-level capability)  
+**Route Mount**: `/api/v1/analytics`
+
+### Protocol Methods
+
+| Method | Signature | Status |
+|:-------|:----------|:------:|
+| `analyticsQuery` | `AnalyticsQueryRequest → AnalyticsResultResponse` | ✅ |
+| `getAnalyticsMeta` | `GetAnalyticsMetaRequest → AnalyticsMetadataResponse` | ✅ |
+
+### Features
+
+- Cube semantic queries: measures / dimensions / filters → ObjectQL aggregation
+- Auto-generated metadata from SchemaRegistry (numeric → sum/avg, date → time dimensions)
+
+---
+
+## 4. auth Service ❌ Plugin Required
+
+**Service Name**: `auth` · **Criticality**: `required`  
+**Route Mount**: `/api/v1/auth` — only exposed when a plugin registers the auth service
+
+<Callout type="warn">
+**The kernel does NOT handle auth.** Install an auth plugin to enable authentication. Without it, the discovery response shows `auth: { enabled: false, status: "unavailable" }`.
+</Callout>
+
+### Plugin Requirements
+
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **Identity Provider** | JWT issuance/verification, session management | P0 |
+| **User CRUD** | Create / read / update / delete users | P0 |
+| **Role Management** | Role definitions, role-user associations | P0 |
+| **OAuth2 / OIDC** | Third-party login (Google, GitHub, etc.) | P1 |
+| **Multi-tenancy** | Space / Tenant isolation | P1 |
+| **SCIM** | Enterprise user provisioning protocol | P2 |
+
+### Spec Files: `identity.zod.ts`, `role.zod.ts`, `organization.zod.ts`, `auth-config.zod.ts`, `tenant.zod.ts`
+
+---
+
+## 5–7. Business Services ❌ Plugin Required
+
+### 5. ui Service — 5 methods
+`listViews`, `getView`, `createView`, `updateView`, `deleteView`  
+View CRUD, layout engine, action registry, permission filtering.
+
+### 6. workflow Service — 5 methods
+`getWorkflowConfig`, `getWorkflowState`, `workflowTransition`, `workflowApprove`, `workflowReject`  
+State machine engine, approval processes, audit trail.
+
+### 7. automation Service — 1 method
+`triggerAutomation`  
+Trigger engine, event triggers from ObjectQL hooks, flow executor, scheduled triggers.
+
+---
+
+## 8–11. Communication Services ❌ Plugin Required
+
+### 8. realtime — 6 methods
+`realtimeConnect`, `realtimeDisconnect`, `realtimeSubscribe`, `realtimeUnsubscribe`, `setPresence`, `getPresence`
+
+### 9. notification — 7 methods
+`registerDevice`, `unregisterDevice`, `getNotificationPreferences`, `updateNotificationPreferences`, `listNotifications`, `markNotificationsRead`, `markAllNotificationsRead`
+
+### 10. ai — 4 methods
+`aiNlq`, `aiChat`, `aiSuggest`, `aiInsights`
+
+### 11. i18n — 3 methods
+`getLocales`, `getTranslations`, `getFieldLabels`
+
+---
+
+## 12–17. Infrastructure Services ❌ Plugin Required
+
+| Service | Description |
+|:--------|:------------|
+| **file-storage** | Unified upload/download/delete. Drivers: local FS, S3, MinIO. |
+| **search** | Full-text search. Drivers: in-memory, Elasticsearch, Meilisearch. |
+| **cache** | General-purpose cache. Drivers: in-memory LRU, Redis. |
+| **queue** | Message queue. Drivers: in-memory, BullMQ / Redis Streams. |
+| **job** | Scheduled task execution. Cron-based, concurrency control. |
+| **graphql** | Auto-generate GraphQL schema from Object metadata. |
+
+---
+
+## Recommended Development Phases
+
+### Phase 1: Foundation (P0)
+
+| Plugin | Description |
+|:-------|:------------|
+| **plugin-auth** | Identity engine — JWT, sessions, user CRUD, roles |
+| **plugin-ui** | View CRUD — core low-code capability |
+| **plugin-cache** | General-purpose cache — performance infrastructure |
+| **Metadata DB** | Solve metadata persistence (SchemaRegistry → database) |
+
+### Phase 2: Business Engine (P1)
+
+| Plugin | Description |
+|:-------|:------------|
+| **plugin-workflow** | State machine + approval process |
+| **plugin-automation** | Triggers + flow orchestration |
+| **plugin-i18n** | Internationalization |
+| **plugin-storage** | File storage (local + S3) |
+| **DB drivers** | PostgreSQL, MySQL, MongoDB, SQLite |
+
+### Phase 3: Advanced Capabilities (P2)
+
+| Plugin | Description |
+|:-------|:------------|
+| **plugin-realtime** | WebSocket / SSE real-time push |
+| **plugin-notification** | Notification engine |
+| **plugin-ai** | NLQ, chat, suggestions, insights |
+| **plugin-graphql** | GraphQL API endpoint |
+| **plugin-search** | Full-text search |
+| **plugin-job** | Scheduled tasks |
+| **plugin-queue** | Message queue |
+
+---
+
+## Plugin Implementation Pattern
+
+```typescript
+import type { Plugin } from '@objectstack/core';
+
+export const authPlugin: Plugin = {
+  name: 'plugin-auth',
+  provides: ['auth'], // CoreServiceName value
+  
+  async init(ctx) {
+    const engine = ctx.getService<IDataEngine>('data');
+    const authService = new AuthServiceImpl(engine);
+    ctx.registerService('auth', authService);
+  },
+  
+  async start(ctx) {
+    const auth = ctx.getService<IAuthService>('auth');
+    await auth.onReady();
+  },
+  
+  async stop(ctx) {
+    const auth = ctx.getService<IAuthService>('auth');
+    await auth.shutdown();
+  },
+};
+```
+
+When a plugin registers a service, the discovery endpoint automatically updates:
+- `services.auth.enabled` → `true`, `status` → `"available"`, `route` → `"/api/v1/auth"`
+- `routes.auth` → `"/api/v1/auth"` appears in routes
+- `features` capability flags update accordingly
+
+---
+
+## Next Steps
+
+<Cards>
+  <Card 
+    href="./api-reference" 
+    title="API Reference"
+    description="Complete REST API endpoint documentation"
+  />
+  <Card 
+    href="./client-sdk" 
+    title="Client SDK"
+    description="TypeScript client for ObjectStack"
+  />
+  <Card 
+    href="../concepts/implementation-status" 
+    title="Implementation Status"
+    description="Full protocol implementation matrix"
+  />
+  <Card 
+    href="https://github.com/objectstack-ai/spec" 
+    title="Contribute"
+    description="Help build plugins on GitHub"
+  />
+</Cards>

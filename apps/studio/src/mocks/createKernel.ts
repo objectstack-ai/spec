@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
 import { ObjectQLPlugin, SchemaRegistry } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';

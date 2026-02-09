@@ -1,24 +1,31 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { Plugin, PluginContext, IHttpServer } from '@objectstack/core';
 import { RestServer } from './rest-server.js';
 import { ObjectStackProtocol, RestServerConfig } from '@objectstack/spec/api';
 
-export interface ApiRegistryConfig {
+export interface RestApiPluginConfig {
     serverServiceName?: string;
     protocolServiceName?: string;
     api?: RestServerConfig;
 }
 
 /**
- * ApiRegistryPlugin
+ * @deprecated Use {@link RestApiPluginConfig} instead
+ */
+export type ApiRegistryConfig = RestApiPluginConfig;
+
+/**
+ * REST API Plugin
  * 
  * Responsibilities:
  * 1. Consumes 'http.server' (or configured service)
  * 2. Consumes 'protocol' (ObjectStackProtocol)
  * 3. Instantiates RestServer to auto-generate routes
  */
-export function createApiRegistryPlugin(config: ApiRegistryConfig = {}): Plugin {
+export function createRestApiPlugin(config: RestApiPluginConfig = {}): Plugin {
     return {
-        name: 'com.objectstack.runtime.api-registry',
+        name: 'com.objectstack.rest.api',
         version: '1.0.0',
         
         init: async (_ctx: PluginContext) => {
@@ -45,12 +52,12 @@ export function createApiRegistryPlugin(config: ApiRegistryConfig = {}): Plugin 
             }
             
             if (!server) {
-                ctx.logger.warn(`ApiRegistryPlugin: HTTP Server service '${serverService}' not found. REST routes skipped.`);
+                ctx.logger.warn(`RestApiPlugin: HTTP Server service '${serverService}' not found. REST routes skipped.`);
                 return;
             }
             
             if (!protocol) {
-                ctx.logger.warn(`ApiRegistryPlugin: Protocol service '${protocolService}' not found. REST routes skipped.`);
+                ctx.logger.warn(`RestApiPlugin: Protocol service '${protocolService}' not found. REST routes skipped.`);
                 return;
             }
             
@@ -68,3 +75,8 @@ export function createApiRegistryPlugin(config: ApiRegistryConfig = {}): Plugin 
         }
     };
 }
+
+/**
+ * @deprecated Use {@link createRestApiPlugin} instead
+ */
+export const createApiRegistryPlugin = createRestApiPlugin;

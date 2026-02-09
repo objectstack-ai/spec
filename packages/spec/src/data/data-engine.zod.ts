@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { z } from 'zod';
 import { FilterConditionSchema } from './filter.zod';
 import { SortNodeSchema } from './query.zod';

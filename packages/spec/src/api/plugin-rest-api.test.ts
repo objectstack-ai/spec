@@ -21,7 +21,6 @@ import {
   DEFAULT_AI_ROUTES,
   DEFAULT_I18N_ROUTES,
   DEFAULT_ANALYTICS_ROUTES,
-  DEFAULT_HUB_ROUTES,
   DEFAULT_AUTOMATION_ROUTES,
   getDefaultRouteRegistrations,
 } from './plugin-rest-api.zod';
@@ -607,21 +606,6 @@ describe('plugin-rest-api.zod', () => {
       expect(queryEndpoint?.timeout).toBe(120000);
     });
 
-    it('should validate DEFAULT_HUB_ROUTES', () => {
-      expect(DEFAULT_HUB_ROUTES.prefix).toBe('/api/v1/hub');
-      expect(DEFAULT_HUB_ROUTES.service).toBe('hub');
-      expect(DEFAULT_HUB_ROUTES.category).toBe('hub');
-      expect(DEFAULT_HUB_ROUTES.methods).toContain('listSpaces');
-      expect(DEFAULT_HUB_ROUTES.methods).toContain('createSpace');
-      expect(DEFAULT_HUB_ROUTES.methods).toContain('installPlugin');
-      expect(DEFAULT_HUB_ROUTES.methods).toContain('listPackages');
-      expect(DEFAULT_HUB_ROUTES.methods).toContain('installPackage');
-      expect(DEFAULT_HUB_ROUTES.methods).toContain('uninstallPackage');
-      expect(DEFAULT_HUB_ROUTES.methods).toContain('enablePackage');
-      expect(DEFAULT_HUB_ROUTES.methods).toContain('disablePackage');
-      expect(DEFAULT_HUB_ROUTES.endpoints).toHaveLength(9);
-    });
-
     it('should validate DEFAULT_AUTOMATION_ROUTES', () => {
       expect(DEFAULT_AUTOMATION_ROUTES.prefix).toBe('/api/v1/automation');
       expect(DEFAULT_AUTOMATION_ROUTES.service).toBe('automation');
@@ -632,10 +616,10 @@ describe('plugin-rest-api.zod', () => {
       expect(DEFAULT_AUTOMATION_ROUTES.endpoints?.[0].timeout).toBe(120000);
     });
 
-    it('should return all 14 default registrations', () => {
+    it('should return all 13 default registrations', () => {
       const registrations = getDefaultRouteRegistrations();
       
-      expect(registrations).toHaveLength(14);
+      expect(registrations).toHaveLength(13);
       expect(registrations[0]).toBe(DEFAULT_DISCOVERY_ROUTES);
       expect(registrations[1]).toBe(DEFAULT_METADATA_ROUTES);
       expect(registrations[2]).toBe(DEFAULT_DATA_CRUD_ROUTES);
@@ -648,8 +632,7 @@ describe('plugin-rest-api.zod', () => {
       expect(registrations[9]).toBe(DEFAULT_AI_ROUTES);
       expect(registrations[10]).toBe(DEFAULT_I18N_ROUTES);
       expect(registrations[11]).toBe(DEFAULT_ANALYTICS_ROUTES);
-      expect(registrations[12]).toBe(DEFAULT_HUB_ROUTES);
-      expect(registrations[13]).toBe(DEFAULT_AUTOMATION_ROUTES);
+      expect(registrations[12]).toBe(DEFAULT_AUTOMATION_ROUTES);
     });
 
     it('should cover all protocol categories', () => {
@@ -668,7 +651,6 @@ describe('plugin-rest-api.zod', () => {
       expect(categories).toContain('ai');
       expect(categories).toContain('i18n');
       expect(categories).toContain('analytics');
-      expect(categories).toContain('hub');
       expect(categories).toContain('automation');
     });
   });

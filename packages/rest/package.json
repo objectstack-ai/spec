@@ -1,0 +1,30 @@
+{
+  "name": "@objectstack/rest",
+  "version": "2.0.0",
+  "license": "Apache-2.0",
+  "description": "ObjectStack REST API Server - automatic REST endpoint generation from protocol",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup --config ../../tsup.config.ts",
+    "dev": "tsc -w",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@objectstack/core": "workspace:*",
+    "@objectstack/spec": "workspace:*",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.18"
+  }
+}

@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';

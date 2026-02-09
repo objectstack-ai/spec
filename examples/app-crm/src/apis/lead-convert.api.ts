@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { ApiEndpoint } from '@objectstack/spec/api';
 
 /** POST /api/v1/crm/leads/convert */

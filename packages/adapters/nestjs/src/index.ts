@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { DynamicModule, Module, Global, Inject, Provider, Controller, Post, Get, Body, Query, Req, Res, All, createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { ObjectKernel, HttpDispatcher, HttpDispatcherResult } from '@objectstack/runtime';

@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { createRequire } from 'module';
 import { Command } from 'commander';
 import chalk from 'chalk';

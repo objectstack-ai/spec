@@ -3,9 +3,11 @@ import {
   DiscoverySchema,
   ApiRoutesSchema,
   ApiCapabilitiesSchema,
+  ServiceInfoSchema,
   type DiscoveryResponse,
   type ApiRoutes,
   type ApiCapabilities,
+  type ServiceInfo,
 } from './discovery.zod';
 
 describe('ApiCapabilitiesSchema', () => {
@@ -99,20 +101,27 @@ describe('ApiRoutesSchema', () => {
   });
 
   it('should reject routes without required fields', () => {
+    // data is required
     expect(() => ApiRoutesSchema.parse({
       metadata: '/api/v1/meta',
       auth: '/api/v1/auth',
     })).toThrow();
 
+    // metadata is required
     expect(() => ApiRoutesSchema.parse({
       data: '/api/v1/data',
       auth: '/api/v1/auth',
     })).toThrow();
+  });
 
-    expect(() => ApiRoutesSchema.parse({
+  it('should accept routes without auth (auth is plugin-provided)', () => {
+    const routes = ApiRoutesSchema.parse({
       data: '/api/v1/data',
       metadata: '/api/v1/meta',
-    })).toThrow();
+    });
+
+    expect(routes.data).toBe('/api/v1/data');
+    expect(routes.auth).toBeUndefined();
   });
 });
 
@@ -430,5 +439,127 @@ describe('DiscoverySchema', () => {
         timezone: 'UTC',
       },
     })).toThrow();
+  });
+});
+
+describe('ServiceInfoSchema', () => {
+  it('should accept an available service', () => {
+    const info: ServiceInfo = {
+      enabled: true,
+      status: 'available',
+      route: '/api/v1/data',
+      provider: 'objectql',
+    };
+    expect(() => ServiceInfoSchema.parse(info)).not.toThrow();
+  });
+
+  it('should accept an unavailable service with message', () => {
+    const info = ServiceInfoSchema.parse({
+      enabled: false,
+      status: 'unavailable',
+      message: 'Install plugin-workflow to enable',
+    });
+    expect(info.enabled).toBe(false);
+    expect(info.route).toBeUndefined();
+    expect(info.message).toBe('Install plugin-workflow to enable');
+  });
+
+  it('should accept a stub service', () => {
+    const info = ServiceInfoSchema.parse({
+      enabled: false,
+      status: 'stub',
+      route: '/api/v1/automation',
+      message: 'Install plugin-automation to enable',
+    });
+    expect(info.status).toBe('stub');
+  });
+
+  it('should accept a degraded service', () => {
+    const info = ServiceInfoSchema.parse({
+      enabled: true,
+      status: 'degraded',
+      provider: 'objectql',
+      message: 'HTTP ETag caching only',
+    });
+    expect(info.status).toBe('degraded');
+    expect(info.enabled).toBe(true);
+  });
+
+  it('should reject invalid status', () => {
+    expect(() => ServiceInfoSchema.parse({
+      enabled: true,
+      status: 'unknown',
+    })).toThrow();
+  });
+});
+
+describe('DiscoverySchema with services', () => {
+  const baseDiscovery = {
+    name: 'ObjectStack',
+    version: '1.0.0',
+    environment: 'production' as const,
+    routes: {
+      data: '/api/v1/data',
+      metadata: '/api/v1/meta',
+      auth: '/api/v1/auth',
+    },
+    features: {
+      graphql: false,
+      search: false,
+      websockets: false,
+      files: true,
+    },
+    locale: {
+      default: 'en-US',
+      supported: ['en-US'],
+      timezone: 'UTC',
+    },
+  };
+
+  it('should accept discovery without services (backward compat)', () => {
+    expect(() => DiscoverySchema.parse(baseDiscovery)).not.toThrow();
+  });
+
+  it('should accept discovery with services map', () => {
+    const discovery = DiscoverySchema.parse({
+      ...baseDiscovery,
+      services: {
+        metadata: { enabled: true, status: 'available', route: '/api/v1/meta', provider: 'objectql' },
+        data: { enabled: true, status: 'available', route: '/api/v1/data', provider: 'objectql' },
+        auth: { enabled: true, status: 'available', route: '/api/v1/auth' },
+        workflow: { enabled: false, status: 'unavailable', message: 'Not installed' },
+        analytics: { enabled: false, status: 'stub', message: 'Install plugin' },
+      },
+    });
+
+    expect(discovery.services).toBeDefined();
+    expect(discovery.services!['metadata'].enabled).toBe(true);
+    expect(discovery.services!['metadata'].status).toBe('available');
+    expect(discovery.services!['workflow'].enabled).toBe(false);
+    expect(discovery.services!['analytics'].status).toBe('stub');
+  });
+
+  it('should allow clients to enumerate available vs unavailable services', () => {
+    const discovery = DiscoverySchema.parse({
+      ...baseDiscovery,
+      services: {
+        metadata: { enabled: true, status: 'available' },
+        data: { enabled: true, status: 'available' },
+        auth: { enabled: true, status: 'available' },
+        cache: { enabled: true, status: 'degraded', message: 'ETag only' },
+        workflow: { enabled: false, status: 'unavailable' },
+        ai: { enabled: false, status: 'unavailable' },
+      },
+    });
+
+    const available = Object.entries(discovery.services!)
+      .filter(([, s]) => s.enabled)
+      .map(([name]) => name);
+    const unavailable = Object.entries(discovery.services!)
+      .filter(([, s]) => !s.enabled)
+      .map(([name]) => name);
+
+    expect(available).toEqual(['metadata', 'data', 'auth', 'cache']);
+    expect(unavailable).toEqual(['workflow', 'ai']);
   });
 });

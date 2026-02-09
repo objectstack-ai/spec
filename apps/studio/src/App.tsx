@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { useState, useEffect, useCallback } from 'react';
 import { ObjectStackClient } from '@objectstack/client';
 import { ObjectStackProvider } from '@objectstack/client-react';
