@@ -343,6 +343,16 @@
               "type": "boolean",
               "default": false
             },
+            "environment": {
+              "type": "string",
+              "enum": [
+                "development",
+                "staging",
+                "production"
+              ],
+              "default": "development",
+              "description": "Target environment controlling safety level"
+            },
             "strategy": {
               "type": "string",
               "enum": [
@@ -402,6 +412,51 @@
                 "onError": {
                   "type": "string",
                   "description": "Function to call on reload error"
+                }
+              },
+              "additionalProperties": false
+            },
+            "productionSafety": {
+              "type": "object",
+              "properties": {
+                "healthValidation": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Run health checks after reload before accepting traffic"
+                },
+                "rollbackOnFailure": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Auto-rollback if reloaded plugin fails health check"
+                },
+                "healthTimeout": {
+                  "type": "integer",
+                  "minimum": 1000,
+                  "default": 30000,
+                  "description": "Health check timeout after reload in ms"
+                },
+                "drainConnections": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Gracefully drain active requests before reloading"
+                },
+                "drainTimeout": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 15000,
+                  "description": "Max wait time for connection draining in ms"
+                },
+                "maxConcurrentReloads": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 1,
+                  "description": "Limit concurrent reloads to prevent system instability"
+                },
+                "minReloadInterval": {
+                  "type": "integer",
+                  "minimum": 1000,
+                  "default": 5000,
+                  "description": "Cooldown period between reloads of the same plugin"
                 }
               },
               "additionalProperties": false
@@ -488,6 +543,16 @@
               "type": "boolean",
               "default": false
             },
+            "scope": {
+              "type": "string",
+              "enum": [
+                "automation-only",
+                "untrusted-only",
+                "all-plugins"
+              ],
+              "default": "automation-only",
+              "description": "Which plugins are subject to isolation"
+            },
             "isolationLevel": {
               "type": "string",
               "enum": [
@@ -554,6 +619,47 @@
                   "items": {
                     "type": "string"
                   }
+                }
+              },
+              "additionalProperties": false
+            },
+            "ipc": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Allow sandboxed plugins to communicate via IPC"
+                },
+                "transport": {
+                  "type": "string",
+                  "enum": [
+                    "message-port",
+                    "unix-socket",
+                    "tcp",
+                    "memory"
+                  ],
+                  "default": "message-port",
+                  "description": "IPC transport for cross-boundary communication"
+                },
+                "maxMessageSize": {
+                  "type": "integer",
+                  "minimum": 1024,
+                  "default": 1048576,
+                  "description": "Maximum IPC message size in bytes (default 1MB)"
+                },
+                "timeout": {
+                  "type": "integer",
+                  "minimum": 100,
+                  "default": 30000,
+                  "description": "IPC message response timeout in ms"
+                },
+                "allowedServices": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Service names the sandboxed plugin may invoke via IPC"
                 }
               },
               "additionalProperties": false

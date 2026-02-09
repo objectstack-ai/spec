@@ -51,6 +51,41 @@
               "type": "string",
               "default": "/graphql",
               "description": "GraphQL Endpoint"
+            },
+            "ui": {
+              "type": "string",
+              "default": "/ui",
+              "description": "UI Metadata Protocol (Views, Layouts)"
+            },
+            "workflow": {
+              "type": "string",
+              "default": "/workflow",
+              "description": "Workflow Engine Protocol"
+            },
+            "realtime": {
+              "type": "string",
+              "default": "/realtime",
+              "description": "Realtime/WebSocket Protocol"
+            },
+            "notifications": {
+              "type": "string",
+              "default": "/notifications",
+              "description": "Notification Protocol"
+            },
+            "ai": {
+              "type": "string",
+              "default": "/ai",
+              "description": "AI Engine Protocol (NLQ, Chat, Suggest)"
+            },
+            "i18n": {
+              "type": "string",
+              "default": "/i18n",
+              "description": "Internationalization Protocol"
+            },
+            "packages": {
+              "type": "string",
+              "default": "/packages",
+              "description": "Package Management Protocol"
             }
           },
           "additionalProperties": false,
@@ -62,7 +97,14 @@
             "storage": "/storage",
             "analytics": "/analytics",
             "hub": "/hub",
-            "graphql": "/graphql"
+            "graphql": "/graphql",
+            "ui": "/ui",
+            "workflow": "/workflow",
+            "realtime": "/realtime",
+            "notifications": "/notifications",
+            "ai": "/ai",
+            "i18n": "/i18n",
+            "packages": "/packages"
           }
         },
         "cors": {

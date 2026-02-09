@@ -1,0 +1,101 @@
+{
+  "$ref": "#/definitions/PluginQualityMetrics",
+  "definitions": {
+    "PluginQualityMetrics": {
+      "type": "object",
+      "properties": {
+        "testCoverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "documentationScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "codeQuality": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "securityScan": {
+          "type": "object",
+          "properties": {
+            "lastScanDate": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "vulnerabilities": {
+              "type": "object",
+              "properties": {
+                "critical": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0
+                },
+                "high": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0
+                },
+                "medium": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0
+                },
+                "low": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0
+                }
+              },
+              "additionalProperties": false
+            },
+            "passed": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "conformanceTests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "protocolId": {
+                "type": "string",
+                "description": "Protocol being tested"
+              },
+              "passed": {
+                "type": "boolean"
+              },
+              "totalTests": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "passedTests": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "lastRunDate": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "protocolId",
+              "passed",
+              "totalTests",
+              "passedTests"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

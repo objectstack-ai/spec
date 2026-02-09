@@ -8,6 +8,16 @@
           "type": "boolean",
           "default": false
         },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "automation-only",
+            "untrusted-only",
+            "all-plugins"
+          ],
+          "default": "automation-only",
+          "description": "Which plugins are subject to isolation"
+        },
         "isolationLevel": {
           "type": "string",
           "enum": [
@@ -74,6 +84,47 @@
               "items": {
                 "type": "string"
               }
+            }
+          },
+          "additionalProperties": false
+        },
+        "ipc": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Allow sandboxed plugins to communicate via IPC"
+            },
+            "transport": {
+              "type": "string",
+              "enum": [
+                "message-port",
+                "unix-socket",
+                "tcp",
+                "memory"
+              ],
+              "default": "message-port",
+              "description": "IPC transport for cross-boundary communication"
+            },
+            "maxMessageSize": {
+              "type": "integer",
+              "minimum": 1024,
+              "default": 1048576,
+              "description": "Maximum IPC message size in bytes (default 1MB)"
+            },
+            "timeout": {
+              "type": "integer",
+              "minimum": 100,
+              "default": 30000,
+              "description": "IPC message response timeout in ms"
+            },
+            "allowedServices": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Service names the sandboxed plugin may invoke via IPC"
             }
           },
           "additionalProperties": false

@@ -1,0 +1,40 @@
+{
+  "$ref": "#/definitions/PluginSource",
+  "definitions": {
+    "PluginSource": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "npm",
+            "local",
+            "url",
+            "registry",
+            "git"
+          ],
+          "description": "Plugin source type"
+        },
+        "location": {
+          "type": "string",
+          "description": "Package name, file path, URL, or git repository"
+        },
+        "version": {
+          "type": "string",
+          "description": "Semver version range (e.g., \"^1.0.0\")"
+        },
+        "integrity": {
+          "type": "string",
+          "description": "Subresource Integrity hash (e.g., \"sha384-...\")"
+        }
+      },
+      "required": [
+        "type",
+        "location"
+      ],
+      "additionalProperties": false,
+      "description": "Plugin source location for dynamic resolution"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

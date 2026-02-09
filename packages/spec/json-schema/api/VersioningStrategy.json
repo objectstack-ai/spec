@@ -1,0 +1,15 @@
+{
+  "$ref": "#/definitions/VersioningStrategy",
+  "definitions": {
+    "VersioningStrategy": {
+      "type": "string",
+      "enum": [
+        "urlPath",
+        "header",
+        "queryParam",
+        "dateBased"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
