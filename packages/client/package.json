@@ -14,7 +14,8 @@
   },
   "scripts": {
     "build": "tsup --config ../../tsup.config.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
     "@objectstack/core": "workspace:*",

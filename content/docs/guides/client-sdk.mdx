@@ -17,6 +17,7 @@ The `@objectstack/client` is the official TypeScript client for ObjectStack. It 
 - **Batch Operations**: Efficient bulk create/update/upsert/delete with transaction support
 - **Query Builder**: Programmatic query construction with `createQuery()` and `createFilter()`
 - **Standardized Errors**: Machine-readable error codes with retry guidance
+- **100% Protocol Compliant**: Implements all 13 API namespaces and 95+ methods defined in `@objectstack/spec`
 
 ## Installation
 
@@ -98,6 +99,32 @@ if (discovery.services?.auth?.enabled) {
 
 <Callout type="info">
 **Plugin-driven services**: Auth, workflow, automation, AI, and other services are only available when the corresponding plugin is installed. Always check `discovery.services` before calling plugin-provided API methods.
+</Callout>
+
+---
+
+## Protocol Coverage
+
+The `@objectstack/client` SDK aims to implement the ObjectStack API protocol specification. It covers all 13 API namespaces defined in `@objectstack/spec`:
+
+| Namespace | Status | Methods | Purpose |
+|:----------|:------:|:--------|:--------|
+| **discovery** | ✅ | 1 | API version & capabilities detection |
+| **meta** | ✅ | 7 | Metadata operations (objects, views, plugins) |
+| **data** | ✅ | 10 | CRUD & query operations |
+| **auth** | ✅ | 5 | Authentication & user management |
+| **packages** | ✅ | 6 | Plugin/package lifecycle management |
+| **views** | ✅ | 5 | UI view definitions |
+| **workflow** | ✅ | 5 | Workflow state transitions |
+| **analytics** | ✅ | 2 | Analytics queries |
+| **automation** | ✅ | 1 | Automation triggers |
+| **i18n** | ✅ | 3 | Internationalization |
+| **notifications** | ✅ | 7 | Push notifications |
+| **realtime** | ✅ | 6 | WebSocket subscriptions |
+| **ai** | ✅ | 4 | AI services (NLQ, chat, insights) |
+
+<Callout type="info">
+**Protocol compliance & verification**: See [`CLIENT_SPEC_COMPLIANCE.md`](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SPEC_COMPLIANCE.md) for detailed method-by-method verification and [`CLIENT_SERVER_INTEGRATION_TESTS.md`](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SERVER_INTEGRATION_TESTS.md) for comprehensive integration test specifications.
 </Callout>
 
 ---
@@ -205,6 +232,72 @@ await client.packages.enable('plugin-auth');
 await client.packages.disable('plugin-auth');
 await client.packages.uninstall('plugin-auth');
 ```
+
+### Additional Namespaces
+
+The client also provides full implementations for:
+
+```typescript
+// Auth — User authentication and session management
+await client.auth.login({ email: 'user@example.com', password: 'pass' });
+await client.auth.register({ email: 'new@example.com', password: 'pass' });
+await client.auth.me();
+await client.auth.logout();
+await client.auth.refreshToken('refresh-token-string');
+
+// Permissions — Access control checks
+await client.permissions.check({ object: 'account', action: 'create' });
+await client.permissions.getObjectPermissions('account');
+await client.permissions.getEffectivePermissions();
+
+// Workflow — State machine management
+await client.workflow.getConfig('approval');
+await client.workflow.getState('approval', recordId);
+await client.workflow.transition({ object: 'approval', recordId, transition: 'submit' });
+await client.workflow.approve({ object: 'approval', recordId });
+await client.workflow.reject({ object: 'approval', recordId, reason: 'Incomplete' });
+
+// Realtime — WebSocket subscriptions
+await client.realtime.connect({ protocol: 'websocket' });
+await client.realtime.subscribe({ channel: 'account', event: 'update' });
+await client.realtime.setPresence({ status: 'online' });
+await client.realtime.disconnect();
+
+// Notifications — Push notification management
+await client.notifications.registerDevice({ token: 'device-token', platform: 'ios' });
+await client.notifications.list({ unreadOnly: true });
+await client.notifications.markRead(['notif-1', 'notif-2']);
+await client.notifications.markAllRead();
+
+// AI — AI-powered features
+await client.ai.nlq({ query: 'Show me all active accounts' });
+await client.ai.chat({ message: 'Summarize this project', context: projectId });
+await client.ai.suggest({ object: 'account', field: 'industry' });
+await client.ai.insights({ object: 'sales', recordId: dealId });
+
+// i18n — Internationalization
+await client.i18n.getLocales();
+await client.i18n.getTranslations('zh-CN');
+await client.i18n.getFieldLabels('account', 'zh-CN');
+
+// Automation — Trigger workflows and automations
+await client.automation.trigger('send_welcome_email', { userId });
+
+// Storage — File upload and management
+await client.storage.upload(fileData, 'user');
+await client.storage.getDownloadUrl('file-123');
+
+// Views — UI view management
+await client.views.list('account');
+await client.views.get('account', viewId);
+await client.views.create('account', { name: 'my_view', ... });
+await client.views.update('account', viewId, { ... });
+await client.views.delete('account', viewId);
+```
+
+<Callout type="info">
+**Service availability**: Optional services (workflow, ai, etc.) are only available when the corresponding plugin is installed on the server. Always check `client.discovery?.services` to verify service availability before calling these methods.
+</Callout>
 
 ---
 
@@ -326,6 +419,52 @@ function AccountList() {
   return accounts.map(a => <div key={a.id}>{a.name}</div>);
 }
 ```
+
+---
+
+## Testing
+
+The client SDK includes comprehensive unit and integration tests to ensure reliability and protocol compliance.
+
+### Unit Tests
+
+```bash
+cd packages/client
+pnpm test
+```
+
+Unit tests use mocks to verify client behavior without requiring a server.
+
+### Integration Tests
+
+**Note:** Integration tests require a running ObjectStack server. The server is provided by a separate repository and must be set up independently.
+
+```bash
+# Prerequisite: Start an ObjectStack server with test data
+# For example, using the reference server repository
+# Follow the server repository's documentation for local setup
+
+# From this repository, run the integration test script
+cd packages/client
+pnpm test:integration
+```
+
+Integration tests verify end-to-end communication with a live ObjectStack server across all 13 API namespaces.
+
+<Callout type="info">
+**Test coverage**: Integration test specifications cover discovery/connection, authentication, metadata operations, CRUD operations (basic, batch, advanced queries), permissions, workflow, realtime, notifications, AI services, i18n, analytics, packages, views, storage, and automation.
+</Callout>
+
+---
+
+## Protocol Compliance Documentation
+
+For detailed information about the client's protocol implementation:
+
+- **[Protocol Compliance Matrix](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SPEC_COMPLIANCE.md)** — Method-by-method verification of all 95+ API methods across 13 namespaces
+- **[Integration Test Specifications](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SERVER_INTEGRATION_TESTS.md)** — Comprehensive test cases for client-server communication
+- **[Quick Reference Guide](https://github.com/objectstack-ai/spec/blob/main/packages/client/QUICK_REFERENCE.md)** — Developer navigation and API reference
+- **[中文合规性报告](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SPEC_COMPLIANCE_CN.md)** — Chinese language compliance verification report
 
 ---
 

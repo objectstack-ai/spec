@@ -613,12 +613,10 @@ export class ObjectStackClient {
      */
     check: async (request: CheckPermissionRequest): Promise<CheckPermissionResponse> => {
       const route = this.getRoute('permissions');
-      const params = new URLSearchParams();
-      params.set('object', request.object);
-      params.set('action', request.action);
-      if (request.recordId) params.set('recordId', request.recordId);
-      if (request.field) params.set('field', request.field);
-      const res = await this.fetch(`${this.baseUrl}${route}/check?${params.toString()}`);
+      const res = await this.fetch(`${this.baseUrl}${route}/check`, {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
       return this.unwrapResponse<CheckPermissionResponse>(res);
     },
 
@@ -627,7 +625,7 @@ export class ObjectStackClient {
      */
     getObjectPermissions: async (object: string): Promise<GetObjectPermissionsResponse> => {
       const route = this.getRoute('permissions');
-      const res = await this.fetch(`${this.baseUrl}${route}/objects/${encodeURIComponent(object)}`);
+      const res = await this.fetch(`${this.baseUrl}${route}/permissions/${encodeURIComponent(object)}`);
       return this.unwrapResponse<GetObjectPermissionsResponse>(res);
     },
 
@@ -636,7 +634,7 @@ export class ObjectStackClient {
      */
     getEffectivePermissions: async (): Promise<GetEffectivePermissionsResponse> => {
       const route = this.getRoute('permissions');
-      const res = await this.fetch(`${this.baseUrl}${route}/effective`);
+      const res = await this.fetch(`${this.baseUrl}${route}/permissions/effective`);
       return this.unwrapResponse<GetEffectivePermissionsResponse>(res);
     }
   };
@@ -1288,7 +1286,7 @@ export class ObjectStackClient {
       storage: '/api/v1/storage',
       automation: '/api/v1/automation',
       packages: '/api/v1/packages',
-      permissions: '/api/v1/permissions',
+      permissions: '/api/v1/auth', // Permission endpoints are under /api/v1/auth per spec
       realtime: '/api/v1/realtime',
       workflow: '/api/v1/workflow',
       views: '/api/v1/ui/views',
