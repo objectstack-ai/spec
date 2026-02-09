@@ -48,6 +48,9 @@ import {
   RegisterDeviceRequest,
   RegisterDeviceResponse,
   UnregisterDeviceResponse,
+  GetNotificationPreferencesResponse,
+  UpdateNotificationPreferencesRequest,
+  UpdateNotificationPreferencesResponse,
   ListNotificationsResponse,
   MarkNotificationsReadResponse,
   MarkAllNotificationsReadResponse,
@@ -899,22 +902,22 @@ export class ObjectStackClient {
     /**
      * Get notification preferences for the current user
      */
-    getPreferences: async () => {
+    getPreferences: async (): Promise<GetNotificationPreferencesResponse> => {
       const route = this.getRoute('notifications');
       const res = await this.fetch(`${this.baseUrl}${route}/preferences`);
-      return this.unwrapResponse(res);
+      return this.unwrapResponse<GetNotificationPreferencesResponse>(res);
     },
 
     /**
      * Update notification preferences
      */
-    updatePreferences: async (preferences: Record<string, any>) => {
+    updatePreferences: async (preferences: UpdateNotificationPreferencesRequest['preferences']): Promise<UpdateNotificationPreferencesResponse> => {
       const route = this.getRoute('notifications');
       const res = await this.fetch(`${this.baseUrl}${route}/preferences`, {
         method: 'PUT',
         body: JSON.stringify({ preferences })
       });
-      return this.unwrapResponse(res);
+      return this.unwrapResponse<UpdateNotificationPreferencesResponse>(res);
     },
 
     /**
