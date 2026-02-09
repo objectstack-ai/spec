@@ -45,7 +45,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuBadge,
   SidebarMenuSkeleton,
   SidebarHeader,
   SidebarSeparator,
@@ -239,7 +238,7 @@ export function AppSidebar({
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <SelectedPkgIcon className="h-4 w-4" />
               </div>
-              <div className="flex flex-1 flex-col gap-0.5 leading-none overflow-hidden">
+              <div className="flex flex-1 min-w-0 flex-col gap-0.5 leading-none overflow-hidden">
                 <span className="truncate font-semibold text-sm">
                   {selectedPackage ? (selectedPackage.manifest?.name || selectedPackage.manifest?.id) : 'ObjectStack'}
                 </span>
@@ -327,8 +326,8 @@ export function AppSidebar({
             <SidebarGroup key={group.key}>
               <SidebarGroupLabel>
                 <group.icon className="mr-1.5 h-3.5 w-3.5" />
-                {group.label}
-                <SidebarMenuBadge>{group.totalItems}</SidebarMenuBadge>
+                <span className="flex-1 min-w-0 truncate">{group.label}</span>
+                <span className="shrink-0 text-xs tabular-nums text-sidebar-foreground/50">{group.totalItems}</span>
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -350,9 +349,9 @@ export function AppSidebar({
                           <CollapsibleTrigger asChild>
                             <SidebarMenuButton tooltip={`${typeLabel} (${items.length})`}>
                               <TypeIcon className="h-4 w-4" />
-                              <span className="truncate">{typeLabel}</span>
-                              <SidebarMenuBadge>{items.length}</SidebarMenuBadge>
-                              <ChevronRight className={`ml-auto h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
+                              <span className="flex-1 min-w-0 truncate">{typeLabel}</span>
+                              <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{items.length}</span>
+                              <ChevronRight className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
                             </SidebarMenuButton>
                           </CollapsibleTrigger>
                           <CollapsibleContent>
