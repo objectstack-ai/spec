@@ -1,5 +1,75 @@
 # Release Notes
 
+## v1.2.0 - Studio DX, REST Extraction, Dispatcher Plugin (2026-02-09)
+
+### 📦 Released Packages
+
+All packages updated to **1.2.0**:
+
+- **@objectstack/spec** — Core protocol definitions
+- **@objectstack/cli** — CLI toolchain
+- **@objectstack/core** — Kernel runtime
+- **@objectstack/runtime** — High-level Runtime
+- **@objectstack/rest** — REST API plugin (new)
+- **@objectstack/client** / **@objectstack/client-react** — Client libraries
+- **@objectstack/plugin-hono-server** — Hono HTTP server plugin
+- **@objectstack/hono** — Hono adapter
+- **@objectstack/objectql** — ObjectQL query engine
+- **@objectstack/metadata** — Metadata services
+- **@objectstack/driver-memory** — In-memory driver
+
+### ✨ New Features
+
+- **`@objectstack/rest`** — New dedicated package for REST API server, route management, `createRestApiPlugin()`.
+- **Dispatcher Plugin** (`@objectstack/runtime`) — Structured route management for auth, GraphQL, analytics, packages, hub, storage, automation via `createDispatcherPlugin()`.
+- **Dev Mode Studio UI** (`@objectstack/cli`) — `objectstack serve --dev` auto-enables Studio UI at `/_studio/`. Root `/` redirects to Studio in dev mode. Use `--no-ui` to disable.
+- **Interactive API Console** (`@objectstack/studio`) — Live request builder in Object Explorer: select endpoint → edit URL/body → Send → view formatted response with status, timing, and history.
+- **Studio Plugin System** (`@objectstack/spec`) — `Studio.PluginManifest` schema for extensible Studio UI plugins.
+- **MCP Protocol** (`@objectstack/spec`) — Model Context Protocol schemas for AI tools, resources, prompts, transport.
+- **API Versioning** (`@objectstack/spec`) — Schema for multiple versioning strategies (URL path, header, query).
+- **Kernel Hot Reload** (`@objectstack/core`) — Production hot reload with full plugin isolation and dynamic loading.
+- **Schema Annotations** (`@objectstack/spec`) — `.describe()` on all Zod fields for JSON Schema / IDE docs.
+
+### ⚠️ Migration Guide (from 1.1.0)
+
+#### RuntimeConfig.api removed
+
+```ts
+// Before (1.1.0) — implicit
+const runtime = new Runtime({ api: { basePath: '/api/v1' } });
+
+// After (1.2.0) — explicit
+import { createRestApiPlugin } from '@objectstack/rest';
+const runtime = new Runtime();
+runtime.use(createRestApiPlugin({ basePath: '/api/v1' }));
+```
+
+#### z.any() → z.unknown() (~30 fields)
+
+Fields like `metadata`, `defaultValue`, `filters`, `config`, `data` now use `z.unknown()`. Add type narrowing:
+
+```ts
+const meta = record.metadata as Record<string, string>;
+```
+
+#### Hub schemas relocated
+
+- `hub/composer.zod.ts`, `hub/marketplace.zod.ts`, `hub/space.zod.ts`, `hub/hub-federation.zod.ts` — removed
+- `hub/plugin-registry` → `kernel/plugin-registry`, `hub/license` → `system/license`, `hub/tenant` → `system/tenant`
+- Barrel imports via `Hub.*` still work. Direct path imports need updating.
+
+#### MetricType renamed
+
+- `MetricType` (analytics) → `AggregationMetricType`
+- `MetricType` (licensing) → `LicenseMetricType`
+
+#### Deprecations
+
+- `HttpDispatcher` → `createDispatcherPlugin()`
+- `createHonoApp` → `HonoServerPlugin`
+
+---
+
 ## v0.4.1 - Version Synchronization (2026-01-27)
 
 ### 📦 Released Packages

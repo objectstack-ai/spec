@@ -1,9 +1,11 @@
 {
   "name": "@objectstack/studio",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "ObjectStack Studio - A metadata-driven admin interface for managing data and configuration",
-  "private": true,
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "msw:init": "msw init -y public",
     "dev": "pnpm msw:init && vite",
