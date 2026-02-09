@@ -1,5 +1,12 @@
 # @objectstack/spec
 
+## 2.0.0
+
+### Minor Changes
+
+- 38e5dd5: feat: Studio DX, REST extraction, Dispatcher plugin
+- 38e5dd5: test minor bump
+
 ## 1.0.12
 
 ### Patch Changes

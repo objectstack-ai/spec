@@ -1,5 +1,14 @@
 # @objectstack/rest
 
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies [38e5dd5]
+- Updated dependencies [38e5dd5]
+  - @objectstack/spec@2.0.0
+  - @objectstack/core@2.0.0
+
 ## 1.1.1
 
 ### Patch Changes
