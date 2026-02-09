@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { useState, useCallback } from 'react';
 import { useClient } from '@objectstack/client-react';
 import { Badge } from '@/components/ui/badge';

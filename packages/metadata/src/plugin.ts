@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { Plugin, PluginContext } from '@objectstack/core';
 import { NodeMetadataManager } from './node-metadata-manager.js';
 import { ObjectStackDefinitionSchema } from '@objectstack/spec';

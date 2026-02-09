@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 /**
  * Package conventions and directory structure constants.
  * These define the "Law of Location" - where things must be in ObjectStack packages.

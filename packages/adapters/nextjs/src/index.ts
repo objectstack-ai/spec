@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { NextRequest, NextResponse } from 'next/server';
 import { type ObjectKernel, HttpDispatcher, HttpDispatcherResult } from '@objectstack/runtime';
 

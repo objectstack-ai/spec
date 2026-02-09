@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { z } from 'zod';
 import { WebhookSchema } from '../automation/webhook.zod';
 import { ConnectorAuthConfigSchema } from '../shared/connector-auth.zod';

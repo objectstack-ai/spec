@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 /** CRM Role Hierarchy */
 export const RoleHierarchy = {
   name: 'crm_role_hierarchy',

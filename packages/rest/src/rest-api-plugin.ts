@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { Plugin, PluginContext, IHttpServer } from '@objectstack/core';
 import { RestServer } from './rest-server.js';
 import { ObjectStackProtocol, RestServerConfig } from '@objectstack/spec/api';

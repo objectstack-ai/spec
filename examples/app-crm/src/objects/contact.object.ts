@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { ObjectSchema, Field } from '@objectstack/spec/data';
 
 export const Contact = ObjectSchema.create({

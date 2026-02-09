@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { ObjectKernel, getEnv } from '@objectstack/core';
 import { CoreServiceName } from '@objectstack/spec/system';
 

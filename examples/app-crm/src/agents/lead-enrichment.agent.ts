@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 /** Lead Enrichment Agent — automatically enriches lead data from external sources */
 export const LeadEnrichmentAgent = {
   name: 'lead_enrichment',

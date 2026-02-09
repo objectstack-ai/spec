@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 "use client"
 
 import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"

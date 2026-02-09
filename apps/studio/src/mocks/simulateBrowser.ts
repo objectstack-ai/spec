@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { createKernel } from './createKernel';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';

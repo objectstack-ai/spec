@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { z } from 'zod';
 import { ViewSchema } from '../ui/view.zod';
 import { ApiCapabilitiesSchema, ApiRoutesSchema } from './discovery.zod';

@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { useState, useEffect } from 'react';
 import { useClient } from '@objectstack/client-react';
 import { Button } from "@/components/ui/button";

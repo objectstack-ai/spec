@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 export const SystemAdminProfile = {
   name: 'system_admin',
   label: 'System Administrator',

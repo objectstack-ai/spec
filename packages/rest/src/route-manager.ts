@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { RouteHandler, IHttpServer } from '@objectstack/core';
 import { System, Shared } from '@objectstack/spec';
 import { z } from 'zod';

@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import type { Plugin, PluginContext } from './types.js';
 import type { Logger } from '@objectstack/spec/contracts';
 import type { IServiceRegistry } from '@objectstack/spec/contracts';

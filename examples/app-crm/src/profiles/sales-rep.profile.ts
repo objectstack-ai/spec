@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 export const SalesRepProfile = {
   name: 'sales_rep',
   label: 'Sales Representative',

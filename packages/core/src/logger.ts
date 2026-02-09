@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import type { LoggerConfig, LogLevel } from '@objectstack/spec/system';
 import type { Logger } from '@objectstack/spec/contracts';
 import { isNode } from './utils/env.js';

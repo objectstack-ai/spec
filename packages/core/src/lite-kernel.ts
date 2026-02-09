@@ -1,3 +1,5 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
 import { Plugin } from './types.js';
 import { createLogger, ObjectLogger } from './logger.js';
 import type { LoggerConfig } from '@objectstack/spec/system';
