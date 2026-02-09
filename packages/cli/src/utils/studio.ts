@@ -240,7 +240,7 @@ export function createStudioProxyPlugin(vitePort: number) {
  * Uses Node.js built-in fs for static file serving to avoid external
  * bundling dependencies.
  */
-export function createStudioStaticPlugin(distPath: string) {
+export function createStudioStaticPlugin(distPath: string, options?: { isDev?: boolean }) {
   return {
     name: 'com.objectstack.studio-static',
 
@@ -271,8 +271,11 @@ export function createStudioStaticPlugin(distPath: string) {
         `$1="${STUDIO_PATH}/`,
       );
 
-      // Redirect root and bare path to Studio
-      app.get('/', (c: any) => c.redirect(`${STUDIO_PATH}/`));
+      // In dev mode, redirect root to Studio for convenience
+      if (options?.isDev) {
+        app.get('/', (c: any) => c.redirect(`${STUDIO_PATH}/`));
+      }
+      // Redirect bare path
       app.get(STUDIO_PATH, (c: any) => c.redirect(`${STUDIO_PATH}/`));
 
       // Serve static files with SPA fallback

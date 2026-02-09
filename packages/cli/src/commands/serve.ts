@@ -255,7 +255,7 @@ export const serveCommand = new Command('serve')
           console.warn(chalk.yellow(`  ⚠ @objectstack/studio not found — skipping UI`));
         } else if (hasStudioDist(studioPath)) {
           const distPath = path.join(studioPath, 'dist');
-          await kernel.use(createStudioStaticPlugin(distPath));
+          await kernel.use(createStudioStaticPlugin(distPath, { isDev }));
           trackPlugin('StudioUI');
         } else {
           console.warn(chalk.yellow(`  ⚠ Studio dist not found — run "pnpm --filter @objectstack/studio build" first`));
