@@ -1,42 +1,7 @@
 {
   "$ref": "#/definitions/MetadataSaveResult",
   "definitions": {
-    "MetadataSaveResult": {
-      "type": "object",
-      "properties": {
-        "success": {
-          "type": "boolean",
-          "description": "Save successful"
-        },
-        "path": {
-          "type": "string",
-          "description": "Output path"
-        },
-        "etag": {
-          "type": "string",
-          "description": "Generated entity tag"
-        },
-        "size": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "File size"
-        },
-        "saveTime": {
-          "type": "number",
-          "minimum": 0,
-          "description": "Save duration in ms"
-        },
-        "backupPath": {
-          "type": "string",
-          "description": "Backup file path"
-        }
-      },
-      "required": [
-        "success",
-        "path"
-      ],
-      "additionalProperties": false
-    }
+    "MetadataSaveResult": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

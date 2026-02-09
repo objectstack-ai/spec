@@ -1,27 +1,7 @@
 {
   "$ref": "#/definitions/GetMetaItemResponse",
   "definitions": {
-    "GetMetaItemResponse": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "description": "Metadata type name"
-        },
-        "name": {
-          "type": "string",
-          "description": "Item name"
-        },
-        "item": {
-          "description": "Metadata item definition"
-        }
-      },
-      "required": [
-        "type",
-        "name"
-      ],
-      "additionalProperties": false
-    }
+    "GetMetaItemResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

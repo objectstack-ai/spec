@@ -1,55 +1,7 @@
 {
   "$ref": "#/definitions/MetadataLoadOptions",
   "definitions": {
-    "MetadataLoadOptions": {
-      "type": "object",
-      "properties": {
-        "scope": {
-          "type": "string",
-          "enum": [
-            "system",
-            "platform",
-            "user"
-          ]
-        },
-        "namespace": {
-          "type": "string"
-        },
-        "raw": {
-          "type": "boolean",
-          "description": "Return raw file content instead of parsed JSON"
-        },
-        "cache": {
-          "type": "boolean"
-        },
-        "useCache": {
-          "type": "boolean"
-        },
-        "validate": {
-          "type": "boolean"
-        },
-        "ifNoneMatch": {
-          "type": "string"
-        },
-        "recursive": {
-          "type": "boolean"
-        },
-        "limit": {
-          "type": "number"
-        },
-        "patterns": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "loader": {
-          "type": "string",
-          "description": "Specific loader to use (e.g. filesystem, database)"
-        }
-      },
-      "additionalProperties": false
-    }
+    "MetadataLoadOptions": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

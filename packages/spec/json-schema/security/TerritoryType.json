@@ -1,15 +1,7 @@
 {
   "$ref": "#/definitions/TerritoryType",
   "definitions": {
-    "TerritoryType": {
-      "type": "string",
-      "enum": [
-        "geography",
-        "industry",
-        "named_account",
-        "product_line"
-      ]
-    }
+    "TerritoryType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

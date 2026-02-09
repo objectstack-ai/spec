@@ -1,70 +1,7 @@
 {
   "$ref": "#/definitions/PluginPerformanceMonitoring",
   "definitions": {
-    "PluginPerformanceMonitoring": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": false
-        },
-        "metrics": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "load-time",
-              "init-time",
-              "memory-usage",
-              "cpu-usage",
-              "api-calls",
-              "error-rate",
-              "cache-hit-rate"
-            ]
-          }
-        },
-        "samplingRate": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1,
-          "default": 1
-        },
-        "reportingInterval": {
-          "type": "integer",
-          "minimum": 1,
-          "default": 60
-        },
-        "budgets": {
-          "type": "object",
-          "properties": {
-            "maxLoadTimeMs": {
-              "type": "integer",
-              "minimum": 0
-            },
-            "maxInitTimeMs": {
-              "type": "integer",
-              "minimum": 0
-            },
-            "maxMemoryMB": {
-              "type": "integer",
-              "minimum": 0
-            }
-          },
-          "additionalProperties": false
-        },
-        "onBudgetViolation": {
-          "type": "string",
-          "enum": [
-            "warn",
-            "error",
-            "ignore"
-          ],
-          "default": "warn"
-        }
-      },
-      "additionalProperties": false,
-      "description": "Plugin performance monitoring configuration"
-    }
+    "PluginPerformanceMonitoring": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

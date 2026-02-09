@@ -1,17 +1,7 @@
 {
   "$ref": "#/definitions/OperationType",
   "definitions": {
-    "OperationType": {
-      "type": "string",
-      "enum": [
-        "read",
-        "write",
-        "delete",
-        "search",
-        "trigger",
-        "action"
-      ]
-    }
+    "OperationType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

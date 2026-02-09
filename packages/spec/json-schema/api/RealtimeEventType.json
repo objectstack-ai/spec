@@ -1,15 +1,7 @@
 {
   "$ref": "#/definitions/RealtimeEventType",
   "definitions": {
-    "RealtimeEventType": {
-      "type": "string",
-      "enum": [
-        "record.created",
-        "record.updated",
-        "record.deleted",
-        "field.changed"
-      ]
-    }
+    "RealtimeEventType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

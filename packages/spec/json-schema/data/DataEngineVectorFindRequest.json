@@ -1,74 +1,7 @@
 {
   "$ref": "#/definitions/DataEngineVectorFindRequest",
   "definitions": {
-    "DataEngineVectorFindRequest": {
-      "type": "object",
-      "properties": {
-        "method": {
-          "type": "string",
-          "const": "vectorFind"
-        },
-        "object": {
-          "type": "string"
-        },
-        "vector": {
-          "type": "array",
-          "items": {
-            "type": "number"
-          }
-        },
-        "filter": {
-          "anyOf": [
-            {
-              "type": "object",
-              "additionalProperties": {}
-            },
-            {
-              "allOf": [
-                {
-                  "type": "object",
-                  "additionalProperties": {}
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "$and": {
-                      "type": "array",
-                      "items": {}
-                    },
-                    "$or": {
-                      "type": "array",
-                      "items": {}
-                    },
-                    "$not": {}
-                  }
-                }
-              ]
-            }
-          ],
-          "description": "Data Engine query filter conditions"
-        },
-        "select": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "limit": {
-          "type": "integer",
-          "default": 5
-        },
-        "threshold": {
-          "type": "number"
-        }
-      },
-      "required": [
-        "method",
-        "object",
-        "vector"
-      ],
-      "additionalProperties": false
-    }
+    "DataEngineVectorFindRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

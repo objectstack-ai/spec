@@ -1,46 +1,7 @@
 {
   "$ref": "#/definitions/NavigationConfig",
   "definitions": {
-    "NavigationConfig": {
-      "type": "object",
-      "properties": {
-        "mode": {
-          "type": "string",
-          "enum": [
-            "page",
-            "drawer",
-            "modal",
-            "split",
-            "popover",
-            "new_window",
-            "none"
-          ],
-          "default": "page"
-        },
-        "view": {
-          "type": "string",
-          "description": "Name of the form view to use for details (e.g. \"summary_view\", \"edit_form\")"
-        },
-        "preventNavigation": {
-          "type": "boolean",
-          "default": false,
-          "description": "Disable standard navigation entirely"
-        },
-        "openNewTab": {
-          "type": "boolean",
-          "default": false,
-          "description": "Force open in new tab (applies to page mode)"
-        },
-        "width": {
-          "type": [
-            "string",
-            "number"
-          ],
-          "description": "Width of the drawer/modal (e.g. \"600px\", \"50%\")"
-        }
-      },
-      "additionalProperties": false
-    }
+    "NavigationConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

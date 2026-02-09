@@ -1,68 +1,7 @@
 {
   "$ref": "#/definitions/LifecyclePolicyRule",
   "definitions": {
-    "LifecyclePolicyRule": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "minLength": 2,
-          "pattern": "^[a-z][a-z0-9_.]*$",
-          "description": "Rule identifier"
-        },
-        "enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable this rule"
-        },
-        "action": {
-          "type": "string",
-          "enum": [
-            "transition",
-            "delete",
-            "abort"
-          ],
-          "description": "Action to perform"
-        },
-        "prefix": {
-          "type": "string",
-          "description": "Object key prefix filter (e.g., \"uploads/\")"
-        },
-        "tags": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Object tag filters"
-        },
-        "daysAfterCreation": {
-          "type": "number",
-          "minimum": 0,
-          "description": "Days after object creation"
-        },
-        "daysAfterModification": {
-          "type": "number",
-          "minimum": 0,
-          "description": "Days after last modification"
-        },
-        "targetStorageClass": {
-          "type": "string",
-          "enum": [
-            "standard",
-            "intelligent",
-            "infrequent_access",
-            "glacier",
-            "deep_archive"
-          ],
-          "description": "Target storage class for transition action"
-        }
-      },
-      "required": [
-        "id",
-        "action"
-      ],
-      "additionalProperties": false
-    }
+    "LifecyclePolicyRule": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

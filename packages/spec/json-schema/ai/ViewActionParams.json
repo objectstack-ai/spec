@@ -1,74 +1,7 @@
 {
   "$ref": "#/definitions/ViewActionParams",
   "definitions": {
-    "ViewActionParams": {
-      "type": "object",
-      "properties": {
-        "viewMode": {
-          "type": "string",
-          "enum": [
-            "list",
-            "kanban",
-            "calendar",
-            "gantt",
-            "pivot"
-          ]
-        },
-        "filters": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Filter conditions"
-        },
-        "sort": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "field": {
-                "type": "string"
-              },
-              "order": {
-                "type": "string",
-                "enum": [
-                  "asc",
-                  "desc"
-                ]
-              }
-            },
-            "required": [
-              "field",
-              "order"
-            ],
-            "additionalProperties": false
-          }
-        },
-        "groupBy": {
-          "type": "string",
-          "description": "Field to group by"
-        },
-        "columns": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Columns to show/hide"
-        },
-        "recordId": {
-          "type": "string",
-          "description": "Record to expand/collapse"
-        },
-        "exportFormat": {
-          "type": "string",
-          "enum": [
-            "csv",
-            "xlsx",
-            "pdf",
-            "json"
-          ]
-        }
-      },
-      "additionalProperties": false
-    }
+    "ViewActionParams": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

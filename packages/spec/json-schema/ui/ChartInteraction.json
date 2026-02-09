@@ -1,28 +1,7 @@
 {
   "$ref": "#/definitions/ChartInteraction",
   "definitions": {
-    "ChartInteraction": {
-      "type": "object",
-      "properties": {
-        "tooltips": {
-          "type": "boolean",
-          "default": true
-        },
-        "zoom": {
-          "type": "boolean",
-          "default": false
-        },
-        "brush": {
-          "type": "boolean",
-          "default": false
-        },
-        "clickAction": {
-          "type": "string",
-          "description": "Action ID to trigger on click"
-        }
-      },
-      "additionalProperties": false
-    }
+    "ChartInteraction": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

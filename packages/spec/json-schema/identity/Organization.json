@@ -1,52 +1,7 @@
 {
   "$ref": "#/definitions/Organization",
   "definitions": {
-    "Organization": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique organization identifier"
-        },
-        "name": {
-          "type": "string",
-          "description": "Organization display name"
-        },
-        "slug": {
-          "type": "string",
-          "pattern": "^[a-z0-9_-]+$",
-          "description": "Unique URL-friendly slug (lowercase alphanumeric, hyphens, underscores)"
-        },
-        "logo": {
-          "type": "string",
-          "format": "uri",
-          "description": "Organization logo URL"
-        },
-        "metadata": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Custom metadata"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Organization creation timestamp"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Last update timestamp"
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "slug",
-        "createdAt",
-        "updatedAt"
-      ],
-      "additionalProperties": false
-    }
+    "Organization": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

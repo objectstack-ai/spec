@@ -1,15 +1,7 @@
 {
   "$ref": "#/definitions/ChangeType",
   "definitions": {
-    "ChangeType": {
-      "type": "string",
-      "enum": [
-        "standard",
-        "normal",
-        "emergency",
-        "major"
-      ]
-    }
+    "ChangeType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

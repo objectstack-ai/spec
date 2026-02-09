@@ -1,44 +1,7 @@
 {
   "$ref": "#/definitions/ApiMetadata",
   "definitions": {
-    "ApiMetadata": {
-      "type": "object",
-      "properties": {
-        "owner": {
-          "type": "string",
-          "description": "Owner team or person"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "active",
-            "deprecated",
-            "experimental",
-            "beta"
-          ],
-          "default": "active",
-          "description": "API lifecycle status"
-        },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [],
-          "description": "Classification tags"
-        },
-        "pluginSource": {
-          "type": "string",
-          "description": "Source plugin name"
-        },
-        "custom": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Custom metadata fields"
-        }
-      },
-      "additionalProperties": false
-    }
+    "ApiMetadata": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

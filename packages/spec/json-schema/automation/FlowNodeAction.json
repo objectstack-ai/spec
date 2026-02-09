@@ -1,26 +1,7 @@
 {
   "$ref": "#/definitions/FlowNodeAction",
   "definitions": {
-    "FlowNodeAction": {
-      "type": "string",
-      "enum": [
-        "start",
-        "end",
-        "decision",
-        "assignment",
-        "loop",
-        "create_record",
-        "update_record",
-        "delete_record",
-        "get_record",
-        "http_request",
-        "script",
-        "screen",
-        "wait",
-        "subflow",
-        "connector_action"
-      ]
-    }
+    "FlowNodeAction": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

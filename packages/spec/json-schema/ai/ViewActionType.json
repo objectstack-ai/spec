@@ -1,21 +1,7 @@
 {
   "$ref": "#/definitions/ViewActionType",
   "definitions": {
-    "ViewActionType": {
-      "type": "string",
-      "enum": [
-        "change_view_mode",
-        "apply_filter",
-        "clear_filter",
-        "apply_sort",
-        "change_grouping",
-        "show_columns",
-        "expand_record",
-        "collapse_record",
-        "refresh_view",
-        "export_data"
-      ]
-    }
+    "ViewActionType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

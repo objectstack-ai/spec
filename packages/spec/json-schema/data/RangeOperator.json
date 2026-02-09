@@ -1,67 +1,7 @@
 {
   "$ref": "#/definitions/RangeOperator",
   "definitions": {
-    "RangeOperator": {
-      "type": "object",
-      "properties": {
-        "$between": {
-          "type": "array",
-          "minItems": 2,
-          "maxItems": 2,
-          "items": [
-            {
-              "anyOf": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "$field": {
-                      "type": "string",
-                      "description": "Field Reference/Column Name"
-                    }
-                  },
-                  "required": [
-                    "$field"
-                  ],
-                  "additionalProperties": false
-                }
-              ]
-            },
-            {
-              "anyOf": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "$field": {
-                      "type": "string",
-                      "description": "Field Reference/Column Name"
-                    }
-                  },
-                  "required": [
-                    "$field"
-                  ],
-                  "additionalProperties": false
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "additionalProperties": false
-    }
+    "RangeOperator": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,36 +1,7 @@
 {
   "$ref": "#/definitions/AuthProviderConfig",
   "definitions": {
-    "AuthProviderConfig": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Provider ID (github, google)"
-        },
-        "clientId": {
-          "type": "string",
-          "description": "OAuth Client ID"
-        },
-        "clientSecret": {
-          "type": "string",
-          "description": "OAuth Client Secret"
-        },
-        "scope": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Requested permissions"
-        }
-      },
-      "required": [
-        "id",
-        "clientId",
-        "clientSecret"
-      ],
-      "additionalProperties": false
-    }
+    "AuthProviderConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

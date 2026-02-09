@@ -1,30 +1,7 @@
 {
   "$ref": "#/definitions/CounterOperation",
   "definitions": {
-    "CounterOperation": {
-      "type": "object",
-      "properties": {
-        "replicaId": {
-          "type": "string",
-          "description": "Replica identifier"
-        },
-        "delta": {
-          "type": "integer",
-          "description": "Change amount (positive for increment, negative for decrement)"
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time",
-          "description": "ISO 8601 datetime of operation"
-        }
-      },
-      "required": [
-        "replicaId",
-        "delta",
-        "timestamp"
-      ],
-      "additionalProperties": false
-    }
+    "CounterOperation": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

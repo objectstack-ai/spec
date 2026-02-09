@@ -1,36 +1,7 @@
 {
   "$ref": "#/definitions/SCIMGroupReference",
   "definitions": {
-    "SCIMGroupReference": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "type": "string",
-          "description": "Group ID"
-        },
-        "$ref": {
-          "type": "string",
-          "format": "uri",
-          "description": "URI reference to the group"
-        },
-        "display": {
-          "type": "string",
-          "description": "Group display name"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "direct",
-            "indirect"
-          ],
-          "description": "Membership type"
-        }
-      },
-      "required": [
-        "value"
-      ],
-      "additionalProperties": false
-    }
+    "SCIMGroupReference": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

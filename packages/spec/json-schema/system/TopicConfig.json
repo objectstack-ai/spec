@@ -1,45 +1,7 @@
 {
   "$ref": "#/definitions/TopicConfig",
   "definitions": {
-    "TopicConfig": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Topic name identifier"
-        },
-        "partitions": {
-          "type": "number",
-          "default": 1,
-          "description": "Number of partitions for parallel consumption"
-        },
-        "replicationFactor": {
-          "type": "number",
-          "default": 1,
-          "description": "Number of replicas for fault tolerance"
-        },
-        "retentionMs": {
-          "type": "number",
-          "description": "Message retention period in milliseconds"
-        },
-        "compressionType": {
-          "type": "string",
-          "enum": [
-            "none",
-            "gzip",
-            "snappy",
-            "lz4"
-          ],
-          "default": "none",
-          "description": "Message compression algorithm"
-        }
-      },
-      "required": [
-        "name"
-      ],
-      "additionalProperties": false,
-      "description": "Configuration for a message queue topic"
-    }
+    "TopicConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

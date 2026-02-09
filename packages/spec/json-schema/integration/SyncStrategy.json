@@ -1,16 +1,7 @@
 {
   "$ref": "#/definitions/SyncStrategy",
   "definitions": {
-    "SyncStrategy": {
-      "type": "string",
-      "enum": [
-        "full",
-        "incremental",
-        "upsert",
-        "append_only"
-      ],
-      "description": "Synchronization strategy"
-    }
+    "SyncStrategy": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,46 +1,7 @@
 {
   "$ref": "#/definitions/TaskRetryPolicy",
   "definitions": {
-    "TaskRetryPolicy": {
-      "type": "object",
-      "properties": {
-        "maxRetries": {
-          "type": "integer",
-          "minimum": 0,
-          "default": 3,
-          "description": "Maximum retry attempts"
-        },
-        "backoffStrategy": {
-          "type": "string",
-          "enum": [
-            "fixed",
-            "linear",
-            "exponential"
-          ],
-          "default": "exponential",
-          "description": "Backoff strategy between retries"
-        },
-        "initialDelayMs": {
-          "type": "integer",
-          "exclusiveMinimum": 0,
-          "default": 1000,
-          "description": "Initial retry delay in milliseconds"
-        },
-        "maxDelayMs": {
-          "type": "integer",
-          "exclusiveMinimum": 0,
-          "default": 60000,
-          "description": "Maximum retry delay in milliseconds"
-        },
-        "backoffMultiplier": {
-          "type": "number",
-          "exclusiveMinimum": 0,
-          "default": 2,
-          "description": "Multiplier for exponential backoff"
-        }
-      },
-      "additionalProperties": false
-    }
+    "TaskRetryPolicy": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,17 +1,7 @@
 {
   "$ref": "#/definitions/CacheStrategy",
   "definitions": {
-    "CacheStrategy": {
-      "type": "string",
-      "enum": [
-        "lru",
-        "lfu",
-        "fifo",
-        "ttl",
-        "adaptive"
-      ],
-      "description": "Cache eviction strategy"
-    }
+    "CacheStrategy": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

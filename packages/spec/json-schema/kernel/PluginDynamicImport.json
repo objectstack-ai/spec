@@ -1,69 +1,7 @@
 {
   "$ref": "#/definitions/PluginDynamicImport",
   "definitions": {
-    "PluginDynamicImport": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": true
-        },
-        "mode": {
-          "type": "string",
-          "enum": [
-            "async",
-            "sync",
-            "eager",
-            "lazy"
-          ],
-          "default": "async"
-        },
-        "prefetch": {
-          "type": "boolean",
-          "default": false,
-          "description": "Prefetch module in idle time"
-        },
-        "preload": {
-          "type": "boolean",
-          "default": false,
-          "description": "Preload module in parallel with parent"
-        },
-        "webpackChunkName": {
-          "type": "string",
-          "description": "Custom chunk name for webpack"
-        },
-        "timeout": {
-          "type": "integer",
-          "minimum": 100,
-          "default": 30000,
-          "description": "Dynamic import timeout (ms)"
-        },
-        "retry": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": true
-            },
-            "maxAttempts": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 10,
-              "default": 3
-            },
-            "backoffMs": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 1000,
-              "description": "Exponential backoff base delay"
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false,
-      "description": "Plugin dynamic import configuration"
-    }
+    "PluginDynamicImport": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

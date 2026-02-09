@@ -1,62 +1,7 @@
 {
   "$ref": "#/definitions/MaskingRule",
   "definitions": {
-    "MaskingRule": {
-      "type": "object",
-      "properties": {
-        "field": {
-          "type": "string",
-          "description": "Field name to apply masking to"
-        },
-        "strategy": {
-          "type": "string",
-          "enum": [
-            "redact",
-            "partial",
-            "hash",
-            "tokenize",
-            "randomize",
-            "nullify",
-            "substitute"
-          ],
-          "description": "Masking strategy to use"
-        },
-        "pattern": {
-          "type": "string",
-          "description": "Regex pattern for partial masking"
-        },
-        "preserveFormat": {
-          "type": "boolean",
-          "default": true,
-          "description": "Keep the original data format after masking"
-        },
-        "preserveLength": {
-          "type": "boolean",
-          "default": true,
-          "description": "Keep the original data length after masking"
-        },
-        "roles": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Roles that see masked data"
-        },
-        "exemptRoles": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Roles that see unmasked data"
-        }
-      },
-      "required": [
-        "field",
-        "strategy"
-      ],
-      "additionalProperties": false,
-      "description": "Masking rule for a single field"
-    }
+    "MaskingRule": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

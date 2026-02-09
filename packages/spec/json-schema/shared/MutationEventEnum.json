@@ -1,16 +1,7 @@
 {
   "$ref": "#/definitions/MutationEventEnum",
   "definitions": {
-    "MutationEventEnum": {
-      "type": "string",
-      "enum": [
-        "insert",
-        "update",
-        "delete",
-        "upsert"
-      ],
-      "description": "Data mutation event types"
-    }
+    "MutationEventEnum": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

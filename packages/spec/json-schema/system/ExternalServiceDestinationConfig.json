@@ -1,51 +1,7 @@
 {
   "$ref": "#/definitions/ExternalServiceDestinationConfig",
   "definitions": {
-    "ExternalServiceDestinationConfig": {
-      "type": "object",
-      "properties": {
-        "endpoint": {
-          "type": "string",
-          "format": "uri"
-        },
-        "region": {
-          "type": "string"
-        },
-        "credentials": {
-          "type": "object",
-          "properties": {
-            "accessKeyId": {
-              "type": "string"
-            },
-            "secretAccessKey": {
-              "type": "string"
-            },
-            "apiKey": {
-              "type": "string"
-            },
-            "projectId": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        },
-        "logGroup": {
-          "type": "string"
-        },
-        "logStream": {
-          "type": "string"
-        },
-        "index": {
-          "type": "string"
-        },
-        "config": {
-          "type": "object",
-          "additionalProperties": {}
-        }
-      },
-      "additionalProperties": false,
-      "description": "External service destination configuration"
-    }
+    "ExternalServiceDestinationConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

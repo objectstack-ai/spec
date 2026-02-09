@@ -1,17 +1,7 @@
 {
   "$ref": "#/definitions/StorageClass",
   "definitions": {
-    "StorageClass": {
-      "type": "string",
-      "enum": [
-        "standard",
-        "intelligent",
-        "infrequent_access",
-        "glacier",
-        "deep_archive"
-      ],
-      "description": "Storage class/tier for cost optimization"
-    }
+    "StorageClass": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

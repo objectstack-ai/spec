@@ -1,28 +1,7 @@
 {
   "$ref": "#/definitions/AiChatRequest",
   "definitions": {
-    "AiChatRequest": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string",
-          "description": "User message"
-        },
-        "conversationId": {
-          "type": "string",
-          "description": "Conversation ID for context"
-        },
-        "context": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Additional context data"
-        }
-      },
-      "required": [
-        "message"
-      ],
-      "additionalProperties": false
-    }
+    "AiChatRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

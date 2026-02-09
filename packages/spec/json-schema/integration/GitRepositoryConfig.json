@@ -1,44 +1,7 @@
 {
   "$ref": "#/definitions/GitRepositoryConfig",
   "definitions": {
-    "GitRepositoryConfig": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "github",
-            "gitlab",
-            "bitbucket"
-          ],
-          "description": "Git provider"
-        },
-        "repo": {
-          "type": "string",
-          "description": "Repository identifier (e.g., owner/repo)"
-        },
-        "productionBranch": {
-          "type": "string",
-          "default": "main",
-          "description": "Production branch name"
-        },
-        "autoDeployProduction": {
-          "type": "boolean",
-          "default": true,
-          "description": "Auto-deploy production branch"
-        },
-        "autoDeployPreview": {
-          "type": "boolean",
-          "default": true,
-          "description": "Auto-deploy preview branches"
-        }
-      },
-      "required": [
-        "type",
-        "repo"
-      ],
-      "additionalProperties": false
-    }
+    "GitRepositoryConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

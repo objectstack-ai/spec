@@ -1,45 +1,7 @@
 {
   "$ref": "#/definitions/AiSuggestResponse",
   "definitions": {
-    "AiSuggestResponse": {
-      "type": "object",
-      "properties": {
-        "suggestions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "value": {
-                "description": "Suggested value"
-              },
-              "label": {
-                "type": "string",
-                "description": "Display label"
-              },
-              "confidence": {
-                "type": "number",
-                "minimum": 0,
-                "maximum": 1,
-                "description": "Confidence score (0-1)"
-              },
-              "reason": {
-                "type": "string",
-                "description": "Reason for this suggestion"
-              }
-            },
-            "required": [
-              "label"
-            ],
-            "additionalProperties": false
-          },
-          "description": "Suggested values"
-        }
-      },
-      "required": [
-        "suggestions"
-      ],
-      "additionalProperties": false
-    }
+    "AiSuggestResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

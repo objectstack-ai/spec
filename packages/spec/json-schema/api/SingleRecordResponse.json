@@ -1,77 +1,7 @@
 {
   "$ref": "#/definitions/SingleRecordResponse",
   "definitions": {
-    "SingleRecordResponse": {
-      "type": "object",
-      "properties": {
-        "success": {
-          "type": "boolean",
-          "description": "Operation success status"
-        },
-        "error": {
-          "type": "object",
-          "properties": {
-            "code": {
-              "type": "string",
-              "description": "Error code (e.g. validation_error)"
-            },
-            "message": {
-              "type": "string",
-              "description": "Readable error message"
-            },
-            "category": {
-              "type": "string",
-              "description": "Error category (e.g. validation, authorization)"
-            },
-            "details": {
-              "description": "Additional error context (e.g. field validation errors)"
-            },
-            "requestId": {
-              "type": "string",
-              "description": "Request ID for tracking"
-            }
-          },
-          "required": [
-            "code",
-            "message"
-          ],
-          "additionalProperties": false,
-          "description": "Error details if success is false"
-        },
-        "meta": {
-          "type": "object",
-          "properties": {
-            "timestamp": {
-              "type": "string"
-            },
-            "duration": {
-              "type": "number"
-            },
-            "requestId": {
-              "type": "string"
-            },
-            "traceId": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "timestamp"
-          ],
-          "additionalProperties": false,
-          "description": "Response metadata"
-        },
-        "data": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "The requested or modified record"
-        }
-      },
-      "required": [
-        "success",
-        "data"
-      ],
-      "additionalProperties": false
-    }
+    "SingleRecordResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

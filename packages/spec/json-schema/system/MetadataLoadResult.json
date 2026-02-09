@@ -1,78 +1,7 @@
 {
   "$ref": "#/definitions/MetadataLoadResult",
   "definitions": {
-    "MetadataLoadResult": {
-      "type": "object",
-      "properties": {
-        "data": {},
-        "stats": {
-          "type": "object",
-          "properties": {
-            "path": {
-              "type": "string"
-            },
-            "size": {
-              "type": "number"
-            },
-            "mtime": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "hash": {
-              "type": "string"
-            },
-            "etag": {
-              "type": "string"
-            },
-            "modifiedAt": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "format": {
-              "type": "string",
-              "enum": [
-                "json",
-                "yaml",
-                "yml",
-                "ts",
-                "js",
-                "typescript",
-                "javascript"
-              ]
-            }
-          },
-          "additionalProperties": false
-        },
-        "format": {
-          "type": "string",
-          "enum": [
-            "json",
-            "yaml",
-            "yml",
-            "ts",
-            "js",
-            "typescript",
-            "javascript"
-          ]
-        },
-        "source": {
-          "type": "string"
-        },
-        "fromCache": {
-          "type": "boolean"
-        },
-        "etag": {
-          "type": "string"
-        },
-        "notModified": {
-          "type": "boolean"
-        },
-        "loadTime": {
-          "type": "number"
-        }
-      },
-      "additionalProperties": false
-    }
+    "MetadataLoadResult": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

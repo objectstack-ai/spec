@@ -1,24 +1,7 @@
 {
   "$ref": "#/definitions/MigrationDependency",
   "definitions": {
-    "MigrationDependency": {
-      "type": "object",
-      "properties": {
-        "migrationId": {
-          "type": "string",
-          "description": "ID of the migration this depends on"
-        },
-        "package": {
-          "type": "string",
-          "description": "Package that owns the dependency migration"
-        }
-      },
-      "required": [
-        "migrationId"
-      ],
-      "additionalProperties": false,
-      "description": "Dependency reference to another migration that must run first"
-    }
+    "MigrationDependency": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

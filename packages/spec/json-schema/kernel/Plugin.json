@@ -1,60 +1,7 @@
 {
   "$ref": "#/definitions/Plugin",
   "definitions": {
-    "Plugin": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "minLength": 1,
-          "description": "Unique Plugin ID (e.g. com.example.crm)"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "standard",
-            "ui",
-            "driver",
-            "server",
-            "app",
-            "theme",
-            "agent",
-            "objectql"
-          ],
-          "default": "standard",
-          "description": "Plugin Type categorization for runtime behavior"
-        },
-        "staticPath": {
-          "type": "string",
-          "description": "Absolute path to static assets (Required for type=\"ui-plugin\")"
-        },
-        "slug": {
-          "type": "string",
-          "pattern": "^[a-z0-9-_]+$",
-          "description": "URL path segment (Required for type=\"ui-plugin\")"
-        },
-        "default": {
-          "type": "boolean",
-          "description": "Serve at root path (Only one \"ui-plugin\" can be default)"
-        },
-        "version": {
-          "type": "string",
-          "pattern": "^\\d+\\.\\d+\\.\\d+$",
-          "description": "Semantic Version"
-        },
-        "description": {
-          "type": "string"
-        },
-        "author": {
-          "type": "string"
-        },
-        "homepage": {
-          "type": "string",
-          "format": "uri"
-        }
-      },
-      "additionalProperties": false
-    }
+    "Plugin": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

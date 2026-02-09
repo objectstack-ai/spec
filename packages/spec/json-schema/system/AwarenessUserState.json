@@ -1,77 +1,7 @@
 {
   "$ref": "#/definitions/AwarenessUserState",
   "definitions": {
-    "AwarenessUserState": {
-      "type": "object",
-      "properties": {
-        "userId": {
-          "type": "string",
-          "description": "User identifier"
-        },
-        "sessionId": {
-          "type": "string",
-          "format": "uuid",
-          "description": "Session identifier"
-        },
-        "userName": {
-          "type": "string",
-          "description": "Display name"
-        },
-        "userAvatar": {
-          "type": "string",
-          "description": "User avatar URL"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "active",
-            "idle",
-            "viewing",
-            "disconnected"
-          ],
-          "description": "Current activity status"
-        },
-        "currentDocument": {
-          "type": "string",
-          "description": "Document ID user is currently editing"
-        },
-        "currentView": {
-          "type": "string",
-          "description": "Current view/page user is on"
-        },
-        "lastActivity": {
-          "type": "string",
-          "format": "date-time",
-          "description": "ISO 8601 datetime of last activity"
-        },
-        "joinedAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "ISO 8601 datetime when user joined session"
-        },
-        "permissions": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "User permissions in this session"
-        },
-        "metadata": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Additional user state metadata"
-        }
-      },
-      "required": [
-        "userId",
-        "sessionId",
-        "userName",
-        "status",
-        "lastActivity",
-        "joinedAt"
-      ],
-      "additionalProperties": false
-    }
+    "AwarenessUserState": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

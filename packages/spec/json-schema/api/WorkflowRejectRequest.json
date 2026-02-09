@@ -1,33 +1,7 @@
 {
   "$ref": "#/definitions/WorkflowRejectRequest",
   "definitions": {
-    "WorkflowRejectRequest": {
-      "type": "object",
-      "properties": {
-        "object": {
-          "type": "string",
-          "description": "Object name"
-        },
-        "recordId": {
-          "type": "string",
-          "description": "Record ID"
-        },
-        "reason": {
-          "type": "string",
-          "description": "Rejection reason"
-        },
-        "comment": {
-          "type": "string",
-          "description": "Additional comment"
-        }
-      },
-      "required": [
-        "object",
-        "recordId",
-        "reason"
-      ],
-      "additionalProperties": false
-    }
+    "WorkflowRejectRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

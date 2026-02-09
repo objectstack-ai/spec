@@ -1,53 +1,7 @@
 {
   "$ref": "#/definitions/AiInsightsResponse",
   "definitions": {
-    "AiInsightsResponse": {
-      "type": "object",
-      "properties": {
-        "insights": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "description": "Insight type"
-              },
-              "title": {
-                "type": "string",
-                "description": "Insight title"
-              },
-              "description": {
-                "type": "string",
-                "description": "Detailed description"
-              },
-              "confidence": {
-                "type": "number",
-                "minimum": 0,
-                "maximum": 1,
-                "description": "Confidence score (0-1)"
-              },
-              "data": {
-                "type": "object",
-                "additionalProperties": {},
-                "description": "Supporting data"
-              }
-            },
-            "required": [
-              "type",
-              "title",
-              "description"
-            ],
-            "additionalProperties": false
-          },
-          "description": "Generated insights"
-        }
-      },
-      "required": [
-        "insights"
-      ],
-      "additionalProperties": false
-    }
+    "AiInsightsResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,37 +1,7 @@
 {
   "$ref": "#/definitions/DlqConfig",
   "definitions": {
-    "DlqConfig": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable DLQ"
-        },
-        "queueName": {
-          "type": "string",
-          "description": "Dead letter queue/topic name"
-        },
-        "maxRetries": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100,
-          "default": 3,
-          "description": "Max retries before DLQ"
-        },
-        "retryDelayMs": {
-          "type": "number",
-          "minimum": 0,
-          "default": 60000,
-          "description": "Retry delay in ms"
-        }
-      },
-      "required": [
-        "queueName"
-      ],
-      "additionalProperties": false
-    }
+    "DlqConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

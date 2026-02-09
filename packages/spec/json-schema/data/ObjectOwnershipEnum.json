@@ -1,13 +1,7 @@
 {
   "$ref": "#/definitions/ObjectOwnershipEnum",
   "definitions": {
-    "ObjectOwnershipEnum": {
-      "type": "string",
-      "enum": [
-        "own",
-        "extend"
-      ]
-    }
+    "ObjectOwnershipEnum": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

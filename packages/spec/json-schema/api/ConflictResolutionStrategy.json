@@ -1,15 +1,7 @@
 {
   "$ref": "#/definitions/ConflictResolutionStrategy",
   "definitions": {
-    "ConflictResolutionStrategy": {
-      "type": "string",
-      "enum": [
-        "error",
-        "priority",
-        "first-wins",
-        "last-wins"
-      ]
-    }
+    "ConflictResolutionStrategy": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

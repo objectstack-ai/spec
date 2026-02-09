@@ -1,21 +1,7 @@
 {
   "$ref": "#/definitions/SaveMetaItemResponse",
   "definitions": {
-    "SaveMetaItemResponse": {
-      "type": "object",
-      "properties": {
-        "success": {
-          "type": "boolean"
-        },
-        "message": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "success"
-      ],
-      "additionalProperties": false
-    }
+    "SaveMetaItemResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

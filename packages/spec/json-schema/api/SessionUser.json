@@ -1,72 +1,7 @@
 {
   "$ref": "#/definitions/SessionUser",
   "definitions": {
-    "SessionUser": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "User ID"
-        },
-        "email": {
-          "type": "string",
-          "format": "email",
-          "description": "Email address"
-        },
-        "emailVerified": {
-          "type": "boolean",
-          "default": false,
-          "description": "Is email verified?"
-        },
-        "name": {
-          "type": "string",
-          "description": "Display name"
-        },
-        "image": {
-          "type": "string",
-          "description": "Avatar URL"
-        },
-        "username": {
-          "type": "string",
-          "description": "Username (optional)"
-        },
-        "roles": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [],
-          "description": "Assigned role IDs"
-        },
-        "tenantId": {
-          "type": "string",
-          "description": "Current tenant ID"
-        },
-        "language": {
-          "type": "string",
-          "default": "en",
-          "description": "Preferred language"
-        },
-        "timezone": {
-          "type": "string",
-          "description": "Preferred timezone"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "email",
-        "name"
-      ],
-      "additionalProperties": false
-    }
+    "SessionUser": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

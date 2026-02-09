@@ -1,74 +1,7 @@
 {
   "$ref": "#/definitions/RowLevelIsolationStrategy",
   "definitions": {
-    "RowLevelIsolationStrategy": {
-      "type": "object",
-      "properties": {
-        "strategy": {
-          "type": "string",
-          "const": "shared_schema",
-          "description": "Row-level isolation strategy"
-        },
-        "database": {
-          "type": "object",
-          "properties": {
-            "enableRLS": {
-              "type": "boolean",
-              "default": true,
-              "description": "Enable PostgreSQL Row-Level Security"
-            },
-            "contextMethod": {
-              "type": "string",
-              "enum": [
-                "session_variable",
-                "search_path",
-                "application_name"
-              ],
-              "default": "session_variable",
-              "description": "How to set tenant context"
-            },
-            "contextVariable": {
-              "type": "string",
-              "default": "app.current_tenant",
-              "description": "Session variable name"
-            },
-            "applicationValidation": {
-              "type": "boolean",
-              "default": true,
-              "description": "Application-level tenant validation"
-            }
-          },
-          "additionalProperties": false,
-          "description": "Database configuration"
-        },
-        "performance": {
-          "type": "object",
-          "properties": {
-            "usePartialIndexes": {
-              "type": "boolean",
-              "default": true,
-              "description": "Use partial indexes per tenant"
-            },
-            "usePartitioning": {
-              "type": "boolean",
-              "default": false,
-              "description": "Use table partitioning by tenant_id"
-            },
-            "poolSizePerTenant": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
-              "description": "Connection pool size per tenant"
-            }
-          },
-          "additionalProperties": false,
-          "description": "Performance settings"
-        }
-      },
-      "required": [
-        "strategy"
-      ],
-      "additionalProperties": false
-    }
+    "RowLevelIsolationStrategy": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

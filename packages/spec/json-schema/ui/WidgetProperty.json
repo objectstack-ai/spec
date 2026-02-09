@@ -1,58 +1,7 @@
 {
   "$ref": "#/definitions/WidgetProperty",
   "definitions": {
-    "WidgetProperty": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Property name (camelCase)"
-        },
-        "label": {
-          "type": "string",
-          "description": "Human-readable label"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "string",
-            "number",
-            "boolean",
-            "array",
-            "object",
-            "function",
-            "any"
-          ],
-          "description": "TypeScript type"
-        },
-        "required": {
-          "type": "boolean",
-          "default": false,
-          "description": "Whether property is required"
-        },
-        "default": {
-          "description": "Default value"
-        },
-        "description": {
-          "type": "string",
-          "description": "Property description"
-        },
-        "validation": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Validation rules"
-        },
-        "category": {
-          "type": "string",
-          "description": "Property category"
-        }
-      },
-      "required": [
-        "name",
-        "type"
-      ],
-      "additionalProperties": false
-    }
+    "WidgetProperty": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

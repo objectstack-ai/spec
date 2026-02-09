@@ -1,51 +1,7 @@
 {
   "$ref": "#/definitions/GitHubPullRequestConfig",
   "definitions": {
-    "GitHubPullRequestConfig": {
-      "type": "object",
-      "properties": {
-        "titleTemplate": {
-          "type": "string",
-          "description": "PR title template"
-        },
-        "bodyTemplate": {
-          "type": "string",
-          "description": "PR body template"
-        },
-        "defaultReviewers": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Default reviewers (usernames)"
-        },
-        "defaultAssignees": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Default assignees (usernames)"
-        },
-        "defaultLabels": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Default labels"
-        },
-        "draftByDefault": {
-          "type": "boolean",
-          "default": false,
-          "description": "Create draft PRs by default"
-        },
-        "deleteHeadBranch": {
-          "type": "boolean",
-          "default": true,
-          "description": "Delete head branch after merge"
-        }
-      },
-      "additionalProperties": false
-    }
+    "GitHubPullRequestConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

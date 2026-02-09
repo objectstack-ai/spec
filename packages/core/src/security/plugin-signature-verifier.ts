@@ -336,14 +336,55 @@ export class PluginSignatureVerifier {
   }
   
   private async verifyCryptoSignatureBrowser(
-    _data: string,
-    _signature: string,
-    _publicKey: string
+    data: string,
+    signature: string,
+    publicKey: string
   ): Promise<boolean> {
-    // Browser implementation using SubtleCrypto
-    // TODO: Implement SubtleCrypto-based verification
-    this.logger.warn('Browser signature verification not yet implemented');
-    return false;
+    try {
+      const subtle = globalThis.crypto?.subtle;
+      if (!subtle) {
+        this.logger.error('SubtleCrypto not available in this environment');
+        return false;
+      }
+
+      // Decode PEM public key to raw DER bytes
+      const pemBody = publicKey
+        .replace(/-----BEGIN PUBLIC KEY-----/, '')
+        .replace(/-----END PUBLIC KEY-----/, '')
+        .replace(/\s/g, '');
+      const keyBytes = Uint8Array.from(atob(pemBody), c => c.charCodeAt(0));
+
+      // Configure algorithms based on RS256 or ES256
+      let importAlgorithm: RsaHashedImportParams | EcKeyImportParams;
+      let verifyAlgorithm: AlgorithmIdentifier | EcdsaParams;
+
+      if (this.config.algorithm === 'ES256') {
+        importAlgorithm = { name: 'ECDSA', namedCurve: 'P-256' };
+        verifyAlgorithm = { name: 'ECDSA', hash: 'SHA-256' };
+      } else {
+        importAlgorithm = { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' };
+        verifyAlgorithm = { name: 'RSASSA-PKCS1-v1_5' };
+      }
+
+      const cryptoKey = await subtle.importKey(
+        'spki',
+        keyBytes,
+        importAlgorithm,
+        false,
+        ['verify']
+      );
+
+      // Decode base64 signature to ArrayBuffer
+      const signatureBytes = Uint8Array.from(atob(signature), c => c.charCodeAt(0));
+
+      // Encode data to ArrayBuffer
+      const dataBytes = new TextEncoder().encode(data);
+
+      return await subtle.verify(verifyAlgorithm, cryptoKey, signatureBytes, dataBytes);
+    } catch (error) {
+      this.logger.error('Browser signature verification failed', error as Error);
+      return false;
+    }
   }
   
   private validateConfig(): void {

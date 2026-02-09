@@ -1,15 +1,7 @@
 {
   "$ref": "#/definitions/RegistrySyncPolicy",
   "definitions": {
-    "RegistrySyncPolicy": {
-      "type": "string",
-      "enum": [
-        "manual",
-        "auto",
-        "proxy"
-      ],
-      "description": "Registry synchronization strategy"
-    }
+    "RegistrySyncPolicy": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

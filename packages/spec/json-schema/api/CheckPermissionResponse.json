@@ -1,23 +1,7 @@
 {
   "$ref": "#/definitions/CheckPermissionResponse",
   "definitions": {
-    "CheckPermissionResponse": {
-      "type": "object",
-      "properties": {
-        "allowed": {
-          "type": "boolean",
-          "description": "Whether the action is permitted"
-        },
-        "reason": {
-          "type": "string",
-          "description": "Reason if denied"
-        }
-      },
-      "required": [
-        "allowed"
-      ],
-      "additionalProperties": false
-    }
+    "CheckPermissionResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

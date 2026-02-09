@@ -1,70 +1,7 @@
 {
   "$ref": "#/definitions/UpdateNotificationPreferencesRequest",
   "definitions": {
-    "UpdateNotificationPreferencesRequest": {
-      "type": "object",
-      "properties": {
-        "preferences": {
-          "type": "object",
-          "properties": {
-            "email": {
-              "type": "boolean",
-              "default": true,
-              "description": "Receive email notifications"
-            },
-            "push": {
-              "type": "boolean",
-              "default": true,
-              "description": "Receive push notifications"
-            },
-            "inApp": {
-              "type": "boolean",
-              "default": true,
-              "description": "Receive in-app notifications"
-            },
-            "digest": {
-              "type": "string",
-              "enum": [
-                "none",
-                "daily",
-                "weekly"
-              ],
-              "default": "none",
-              "description": "Email digest frequency"
-            },
-            "channels": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "object",
-                "properties": {
-                  "enabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Whether this channel is enabled"
-                  },
-                  "email": {
-                    "type": "boolean",
-                    "description": "Override email setting"
-                  },
-                  "push": {
-                    "type": "boolean",
-                    "description": "Override push setting"
-                  }
-                },
-                "additionalProperties": false
-              },
-              "description": "Per-channel notification preferences"
-            }
-          },
-          "additionalProperties": false,
-          "description": "Preferences to update"
-        }
-      },
-      "required": [
-        "preferences"
-      ],
-      "additionalProperties": false
-    }
+    "UpdateNotificationPreferencesRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

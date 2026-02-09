@@ -1,75 +1,7 @@
 {
   "$ref": "#/definitions/MCPToolParameter",
   "definitions": {
-    "MCPToolParameter": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Parameter name"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "string",
-            "number",
-            "boolean",
-            "object",
-            "array"
-          ]
-        },
-        "description": {
-          "type": "string",
-          "description": "Parameter description for AI consumption"
-        },
-        "required": {
-          "type": "boolean",
-          "default": false
-        },
-        "default": {},
-        "enum": {
-          "type": "array",
-          "items": {},
-          "description": "Allowed values"
-        },
-        "pattern": {
-          "type": "string",
-          "description": "Regex validation pattern (for strings)"
-        },
-        "minimum": {
-          "type": "number",
-          "description": "Minimum value (for numbers)"
-        },
-        "maximum": {
-          "type": "number",
-          "description": "Maximum value (for numbers)"
-        },
-        "minLength": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Minimum length (for strings/arrays)"
-        },
-        "maxLength": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Maximum length (for strings/arrays)"
-        },
-        "properties": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Properties for object types"
-        },
-        "items": {
-          "description": "Item schema for array types"
-        }
-      },
-      "required": [
-        "name",
-        "type",
-        "description"
-      ],
-      "additionalProperties": false
-    }
+    "MCPToolParameter": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

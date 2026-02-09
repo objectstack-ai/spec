@@ -1,57 +1,7 @@
 {
   "$ref": "#/definitions/MCPToolCallResponse",
   "definitions": {
-    "MCPToolCallResponse": {
-      "type": "object",
-      "properties": {
-        "toolName": {
-          "type": "string"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "success",
-            "error",
-            "timeout",
-            "cancelled"
-          ]
-        },
-        "result": {
-          "description": "Tool execution result"
-        },
-        "error": {
-          "type": "object",
-          "properties": {
-            "code": {
-              "type": "string"
-            },
-            "message": {
-              "type": "string"
-            },
-            "details": {}
-          },
-          "required": [
-            "code",
-            "message"
-          ],
-          "additionalProperties": false
-        },
-        "executionTime": {
-          "type": "number",
-          "minimum": 0,
-          "description": "Execution time in milliseconds"
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "toolName",
-        "status"
-      ],
-      "additionalProperties": false
-    }
+    "MCPToolCallResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,34 +1,7 @@
 {
   "$ref": "#/definitions/SelectOption",
   "definitions": {
-    "SelectOption": {
-      "type": "object",
-      "properties": {
-        "label": {
-          "type": "string",
-          "description": "Display label (human-readable, any case allowed)"
-        },
-        "value": {
-          "type": "string",
-          "minLength": 2,
-          "pattern": "^[a-z][a-z0-9_.]*$",
-          "description": "Stored value (lowercase machine identifier)"
-        },
-        "color": {
-          "type": "string",
-          "description": "Color code for badges/charts"
-        },
-        "default": {
-          "type": "boolean",
-          "description": "Is default option"
-        }
-      },
-      "required": [
-        "label",
-        "value"
-      ],
-      "additionalProperties": false
-    }
+    "SelectOption": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

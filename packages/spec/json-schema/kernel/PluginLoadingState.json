@@ -1,56 +1,7 @@
 {
   "$ref": "#/definitions/PluginLoadingState",
   "definitions": {
-    "PluginLoadingState": {
-      "type": "object",
-      "properties": {
-        "pluginId": {
-          "type": "string"
-        },
-        "state": {
-          "type": "string",
-          "enum": [
-            "pending",
-            "loading",
-            "loaded",
-            "initializing",
-            "ready",
-            "failed",
-            "reloading",
-            "unloading",
-            "unloaded"
-          ]
-        },
-        "progress": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100,
-          "default": 0
-        },
-        "startedAt": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "completedAt": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "lastError": {
-          "type": "string"
-        },
-        "retryCount": {
-          "type": "integer",
-          "minimum": 0,
-          "default": 0
-        }
-      },
-      "required": [
-        "pluginId",
-        "state"
-      ],
-      "additionalProperties": false,
-      "description": "Plugin loading state"
-    }
+    "PluginLoadingState": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

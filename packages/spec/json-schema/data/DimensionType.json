@@ -1,16 +1,7 @@
 {
   "$ref": "#/definitions/DimensionType",
   "definitions": {
-    "DimensionType": {
-      "type": "string",
-      "enum": [
-        "string",
-        "number",
-        "boolean",
-        "time",
-        "geo"
-      ]
-    }
+    "DimensionType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,57 +1,7 @@
 {
   "$ref": "#/definitions/CacheTier",
   "definitions": {
-    "CacheTier": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Unique cache tier name"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "memory",
-            "redis",
-            "memcached",
-            "cdn"
-          ],
-          "description": "Cache backend type"
-        },
-        "maxSize": {
-          "type": "number",
-          "description": "Max size in MB"
-        },
-        "ttl": {
-          "type": "number",
-          "default": 300,
-          "description": "Default TTL in seconds"
-        },
-        "strategy": {
-          "type": "string",
-          "enum": [
-            "lru",
-            "lfu",
-            "fifo",
-            "ttl",
-            "adaptive"
-          ],
-          "description": "Eviction strategy",
-          "default": "lru"
-        },
-        "warmup": {
-          "type": "boolean",
-          "default": false,
-          "description": "Pre-populate cache on startup"
-        }
-      },
-      "required": [
-        "name",
-        "type"
-      ],
-      "additionalProperties": false,
-      "description": "Configuration for a single cache tier in the hierarchy"
-    }
+    "CacheTier": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

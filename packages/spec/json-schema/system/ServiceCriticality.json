@@ -1,14 +1,7 @@
 {
   "$ref": "#/definitions/ServiceCriticality",
   "definitions": {
-    "ServiceCriticality": {
-      "type": "string",
-      "enum": [
-        "required",
-        "core",
-        "optional"
-      ]
-    }
+    "ServiceCriticality": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,78 +1,7 @@
 {
   "$ref": "#/definitions/DocumentTemplate",
   "definitions": {
-    "DocumentTemplate": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Template ID"
-        },
-        "name": {
-          "type": "string",
-          "description": "Template name"
-        },
-        "description": {
-          "type": "string",
-          "description": "Template description"
-        },
-        "fileUrl": {
-          "type": "string",
-          "format": "uri",
-          "description": "Template file URL"
-        },
-        "fileType": {
-          "type": "string",
-          "description": "File MIME type"
-        },
-        "placeholders": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "key": {
-                "type": "string",
-                "description": "Placeholder key"
-              },
-              "label": {
-                "type": "string",
-                "description": "Placeholder label"
-              },
-              "type": {
-                "type": "string",
-                "enum": [
-                  "text",
-                  "number",
-                  "date",
-                  "image"
-                ],
-                "description": "Placeholder type"
-              },
-              "required": {
-                "type": "boolean",
-                "default": false,
-                "description": "Is required"
-              }
-            },
-            "required": [
-              "key",
-              "label",
-              "type"
-            ],
-            "additionalProperties": false
-          },
-          "description": "Template placeholders"
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "fileUrl",
-        "fileType",
-        "placeholders"
-      ],
-      "additionalProperties": false
-    }
+    "DocumentTemplate": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

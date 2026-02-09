@@ -1,48 +1,7 @@
 {
   "$ref": "#/definitions/CacheInvalidation",
   "definitions": {
-    "CacheInvalidation": {
-      "type": "object",
-      "properties": {
-        "trigger": {
-          "type": "string",
-          "enum": [
-            "create",
-            "update",
-            "delete",
-            "manual"
-          ],
-          "description": "Event that triggers invalidation"
-        },
-        "scope": {
-          "type": "string",
-          "enum": [
-            "key",
-            "pattern",
-            "tag",
-            "all"
-          ],
-          "description": "Invalidation scope"
-        },
-        "pattern": {
-          "type": "string",
-          "description": "Key pattern for pattern-based invalidation"
-        },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Cache tags to invalidate"
-        }
-      },
-      "required": [
-        "trigger",
-        "scope"
-      ],
-      "additionalProperties": false,
-      "description": "Rule defining when and how cached entries are invalidated"
-    }
+    "CacheInvalidation": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

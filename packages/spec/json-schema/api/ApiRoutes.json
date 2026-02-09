@@ -1,72 +1,7 @@
 {
   "$ref": "#/definitions/ApiRoutes",
   "definitions": {
-    "ApiRoutes": {
-      "type": "object",
-      "properties": {
-        "data": {
-          "type": "string",
-          "description": "e.g. /api/v1/data"
-        },
-        "metadata": {
-          "type": "string",
-          "description": "e.g. /api/v1/meta"
-        },
-        "ui": {
-          "type": "string",
-          "description": "e.g. /api/v1/ui"
-        },
-        "auth": {
-          "type": "string",
-          "description": "e.g. /api/v1/auth"
-        },
-        "automation": {
-          "type": "string",
-          "description": "e.g. /api/v1/automation"
-        },
-        "storage": {
-          "type": "string",
-          "description": "e.g. /api/v1/storage"
-        },
-        "analytics": {
-          "type": "string",
-          "description": "e.g. /api/v1/analytics"
-        },
-        "graphql": {
-          "type": "string",
-          "description": "e.g. /graphql"
-        },
-        "packages": {
-          "type": "string",
-          "description": "e.g. /api/v1/packages"
-        },
-        "workflow": {
-          "type": "string",
-          "description": "e.g. /api/v1/workflow"
-        },
-        "realtime": {
-          "type": "string",
-          "description": "e.g. /api/v1/realtime"
-        },
-        "notifications": {
-          "type": "string",
-          "description": "e.g. /api/v1/notifications"
-        },
-        "ai": {
-          "type": "string",
-          "description": "e.g. /api/v1/ai"
-        },
-        "i18n": {
-          "type": "string",
-          "description": "e.g. /api/v1/i18n"
-        }
-      },
-      "required": [
-        "data",
-        "metadata"
-      ],
-      "additionalProperties": false
-    }
+    "ApiRoutes": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

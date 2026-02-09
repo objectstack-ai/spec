@@ -1,18 +1,7 @@
 {
   "$ref": "#/definitions/PredictiveModelType",
   "definitions": {
-    "PredictiveModelType": {
-      "type": "string",
-      "enum": [
-        "classification",
-        "regression",
-        "clustering",
-        "forecasting",
-        "anomaly_detection",
-        "recommendation",
-        "ranking"
-      ]
-    }
+    "PredictiveModelType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

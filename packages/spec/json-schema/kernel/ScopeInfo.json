@@ -1,39 +1,7 @@
 {
   "$ref": "#/definitions/ScopeInfo",
   "definitions": {
-    "ScopeInfo": {
-      "type": "object",
-      "properties": {
-        "scopeId": {
-          "type": "string",
-          "description": "Unique scope identifier"
-        },
-        "scopeType": {
-          "type": "string",
-          "description": "Type of scope"
-        },
-        "createdAt": {
-          "type": "integer",
-          "description": "Unix timestamp in milliseconds when scope was created"
-        },
-        "serviceCount": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Number of services registered in this scope"
-        },
-        "metadata": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Scope-specific context metadata"
-        }
-      },
-      "required": [
-        "scopeId",
-        "scopeType",
-        "createdAt"
-      ],
-      "additionalProperties": false
-    }
+    "ScopeInfo": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

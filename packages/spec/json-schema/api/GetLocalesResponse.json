@@ -1,42 +1,7 @@
 {
   "$ref": "#/definitions/GetLocalesResponse",
   "definitions": {
-    "GetLocalesResponse": {
-      "type": "object",
-      "properties": {
-        "locales": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "code": {
-                "type": "string",
-                "description": "BCP-47 locale code (e.g., en-US, zh-CN)"
-              },
-              "label": {
-                "type": "string",
-                "description": "Display name of the locale"
-              },
-              "isDefault": {
-                "type": "boolean",
-                "default": false,
-                "description": "Whether this is the default locale"
-              }
-            },
-            "required": [
-              "code",
-              "label"
-            ],
-            "additionalProperties": false
-          },
-          "description": "Available locales"
-        }
-      },
-      "required": [
-        "locales"
-      ],
-      "additionalProperties": false
-    }
+    "GetLocalesResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }
