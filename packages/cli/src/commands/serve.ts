@@ -18,8 +18,6 @@ import {
   STUDIO_PATH,
   resolveStudioPath,
   hasStudioDist,
-  spawnViteDevServer,
-  createStudioProxyPlugin,
   createStudioStaticPlugin,
 } from '../utils/studio.js';
 
@@ -53,7 +51,7 @@ export const serveCommand = new Command('serve')
   .argument('[config]', 'Configuration file path', 'objectstack.config.ts')
   .option('-p, --port <port>', 'Server port', '3000')
   .option('--dev', 'Run in development mode (load devPlugins)')
-  .option('--ui', 'Enable Studio UI at /_studio/')
+  .option('--ui', 'Enable Studio UI at /_studio/ (default: true in dev mode)')
   .option('--no-server', 'Skip starting HTTP server plugin')
   .action(async (configPath, options) => {
     let port = parseInt(options.port);
@@ -246,31 +244,19 @@ export const serveCommand = new Command('serve')
         }
       }
 
-      // ── Studio UI (--ui) ────────────────────────────────────────────
-      // Strategy: always prefer pre-built dist/ if it exists (fast, no
-      // extra process). Only fall back to Vite dev server when dist is
-      // missing AND we're in dev mode.
-      let viteProcess: import('child_process').ChildProcess | null = null;
+      // ── Studio UI ─────────────────────────────────────────────────
+      // In dev mode, Studio UI is enabled by default (use --no-ui to disable).
+      // Always serves the pre-built dist/ — no Vite dev server, no extra port.
+      const enableUI = options.ui ?? isDev;
 
-      if (options.ui) {
+      if (enableUI) {
         const studioPath = resolveStudioPath();
         if (!studioPath) {
           console.warn(chalk.yellow(`  ⚠ @objectstack/studio not found — skipping UI`));
         } else if (hasStudioDist(studioPath)) {
-          // Serve pre-built static files (works in both dev & production)
           const distPath = path.join(studioPath, 'dist');
           await kernel.use(createStudioStaticPlugin(distPath));
           trackPlugin('StudioUI');
-        } else if (isDev) {
-          // Fallback: dist not built yet → spawn Vite dev server
-          try {
-            const result = await spawnViteDevServer(studioPath, { serverPort: port });
-            viteProcess = result.process;
-            await kernel.use(createStudioProxyPlugin(result.port));
-            trackPlugin('StudioUI');
-          } catch (e: any) {
-            console.warn(chalk.yellow(`  ⚠ Studio UI failed to start: ${e.message}`));
-          }
         } else {
           console.warn(chalk.yellow(`  ⚠ Studio dist not found — run "pnpm --filter @objectstack/studio build" first`));
         }
@@ -290,17 +276,13 @@ export const serveCommand = new Command('serve')
         isDev,
         pluginCount: loadedPlugins.length,
         pluginNames: loadedPlugins,
-        uiEnabled: !!options.ui,
+        uiEnabled: enableUI,
         studioPath: STUDIO_PATH,
       });
 
       // Keep process alive
       process.on('SIGINT', async () => {
         console.warn(chalk.yellow(`\n\n⏹  Stopping server...`));
-        if (viteProcess) {
-          viteProcess.kill();
-          viteProcess = null;
-        }
         await runtime.getKernel().shutdown();
         console.log(chalk.green(`✅ Server stopped`));
         process.exit(0);
