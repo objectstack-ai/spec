@@ -132,7 +132,6 @@ export type SSLConfig = z.infer<typeof SSLConfigSchema>;
  *     jsonFields: true,
  *     arrayFields: true,
  *     vectorSearch: true,
- *     geoSpatial: false,
  *     schemaSync: true,
  *     migrations: true,
  *     indexes: true,
