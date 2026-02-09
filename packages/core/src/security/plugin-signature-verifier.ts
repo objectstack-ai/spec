@@ -355,8 +355,8 @@ export class PluginSignatureVerifier {
       const keyBytes = Uint8Array.from(atob(pemBody), c => c.charCodeAt(0));
 
       // Configure algorithms based on RS256 or ES256
-      let importAlgorithm: RsaHashedImportParams | EcKeyImportParams;
-      let verifyAlgorithm: AlgorithmIdentifier | EcdsaParams;
+      let importAlgorithm: { name: string; hash?: string; namedCurve?: string };
+      let verifyAlgorithm: { name: string; hash?: string };
 
       if (this.config.algorithm === 'ES256') {
         importAlgorithm = { name: 'ECDSA', namedCurve: 'P-256' };

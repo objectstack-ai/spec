@@ -524,7 +524,7 @@ export type QueryInput = z.input<typeof BaseQuerySchema> & {
   expand?: Record<string, QueryInput>;
 };
 
-export const QuerySchema: z.ZodType<QueryAST, z.ZodTypeDef, QueryInput> = BaseQuerySchema.extend({
+export const QuerySchema: z.ZodType<QueryAST> = BaseQuerySchema.extend({
   expand: z.lazy(() => z.record(z.string(), QuerySchema)).optional().describe('Recursive relation loading (nested queries)'),
 });
 

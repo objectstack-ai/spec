@@ -199,7 +199,7 @@ export type FilterGroup = {
   filters: (z.infer<typeof FilterExpressionSchema> | FilterGroup)[];
 };
 
-export const FilterGroupSchema: z.ZodType<FilterGroup, z.ZodTypeDef, any> = z.object({
+export const FilterGroupSchema: z.ZodType<FilterGroup> = z.object({
   logic: z.enum(['and', 'or']).default('and'),
   filters: z.array(z.union([FilterExpressionSchema, z.lazy(() => FilterGroupSchema)])),
 });
