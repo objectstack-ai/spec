@@ -41,9 +41,10 @@ This matrix is generated from actual codebase analysis and represents the curren
 | **Events** | ✅ | ❌ | ❌ | ✅ Full |
 
 **Notes:**
-- Core package provides complete kernel implementation
+- Core package provides complete microkernel implementation
 - Plugin system supports lifecycle hooks, dependency resolution, and service injection
 - Event bus enables inter-plugin communication
+- ObjectQL serves as the **example kernel** — a reference implementation that will be modularized into plugins
 
 ### Data Infrastructure
 
@@ -60,6 +61,16 @@ This matrix is generated from actual codebase analysis and represents the curren
 - Memory driver is reference implementation (basic CRUD only)
 - Advanced query features (aggregations, window functions) require production drivers
 - Memory driver supports aggregations (groupBy, count, sum, avg, min, max)
+
+### Metadata Framework
+
+<Callout type="info">
+**Degraded Status** — Metadata is an in-memory registry framework. Database persistence for metadata storage is not yet implemented. Discovery reports this service as `degraded`.
+</Callout>
+
+- Metadata API (list types, list items, get item) is fully functional
+- Metadata is loaded from config files at startup and held in memory
+- Future: metadata persistence to database for runtime modifications
 
 ### System Services
 
@@ -211,49 +222,59 @@ This matrix is generated from actual codebase analysis and represents the curren
 
 ## Automation Layer
 
-| Protocol | @objectstack/spec | @objectstack/objectql | Status |
-|:---------|:-----------------:|:---------------------:|:------:|
-| **Flow** | ✅ | ❌ | ❌ Spec only |
-| **Workflow** | ✅ | ❌ | ❌ Spec only |
-| **Approval** | ✅ | ❌ | ❌ Spec only |
-| **Webhook** | ✅ | ❌ | ❌ Spec only |
-| **ETL** | ✅ | ❌ | ❌ Spec only |
-| **Sync** | ✅ | ❌ | ❌ Spec only |
-| **Trigger Registry** | ✅ | ❌ | ❌ Spec only |
+<Callout type="warn">
+**Plugin-Provided Service** — The kernel does NOT include an automation engine. Flow, workflow, and approval services must be provided by plugins (e.g., `@objectstack/plugin-automation`).
+</Callout>
+
+| Protocol | @objectstack/spec | Kernel | Plugin Required | Status |
+|:---------|:-----------------:|:------:|:---------------:|:------:|
+| **Flow** | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Workflow** | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Approval** | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Webhook** | ✅ | ❌ | ✅ | 📋 Plugin |
+| **ETL** | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Sync** | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Trigger Registry** | ✅ | ❌ | ✅ | 📋 Plugin |
 
 **Notes:**
-- Hook system is implemented in ObjectQL (beforeFind, afterInsert, etc.)
-- Full workflow/automation engine not yet implemented
-- Protocols are complete and ready for implementation
+- Hook system is implemented in ObjectQL (beforeFind, afterInsert, etc.) — this is data-layer eventing, not workflow automation
+- Full workflow/automation engine will be provided by plugins
+- Protocols are complete and ready for plugin implementation
+- Discovery API reports automation service as `unavailable` until a plugin is registered
 
 ---
 
 ## Security Layer
 
+<Callout type="warn">
+**Plugin-Provided Service** — The kernel does NOT handle authentication or authorization. Security services must be provided by plugins (e.g., `@objectstack/plugin-auth`). The Discovery API reports auth as `unavailable` until a plugin is registered.
+</Callout>
+
 ### Authentication
 
-| Protocol | @objectstack/spec | Implementation | Status |
-|:---------|:-----------------:|:-------------:|:------:|
-| **Identity** | ✅ | ❌ | ❌ Spec only |
-| **Auth Config** | ✅ | ❌ | ❌ Spec only |
-| **Role** | ✅ | ❌ | ❌ Spec only |
-| **Organization** | ✅ | ❌ | ❌ Spec only |
-| **Policy** | ✅ | ❌ | ❌ Spec only |
-| **SCIM** | ✅ | ❌ | ❌ Spec only |
+| Protocol | @objectstack/spec | Kernel | Plugin Required | Status |
+|:---------|:-----------------:|:------:|:---------------:|:------:|
+| **Identity** | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Auth Config** | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Role** | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Organization** | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Policy** | ✅ | ❌ | ✅ | 📋 Plugin |
+| **SCIM** | ✅ | ❌ | ✅ | 📋 Plugin |
 
 ### Authorization
 
-| Protocol | @objectstack/spec | Implementation | Status |
-|:---------|:-----------------:|:-------------:|:------:|
-| **Permission** | ✅ | ❌ | ❌ Spec only |
-| **Sharing** | ✅ | ❌ | ❌ Spec only |
-| **RLS** | ✅ | ❌ | ❌ Spec only |
-| **Territory** | ✅ | ❌ | ❌ Spec only |
+| Protocol | @objectstack/spec | Kernel | Plugin Required | Status |
+|:---------|:-----------------:|:------:|:---------------:|:------:|
+| **Permission** | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Sharing** | ✅ | ❌ | ✅ | 📋 Plugin |
+| **RLS** | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Territory** | ✅ | ❌ | ✅ | 📋 Plugin |
 
 **Notes:**
-- Complete security protocols defined
-- Client SDK supports bearer token authentication
-- Fine-grained authorization not yet implemented
+- Complete security protocols defined in spec — ready for plugin implementation
+- Client SDK supports bearer token header — but token validation requires an auth plugin
+- Auth route (`/auth/*`) only appears in Discovery when an auth plugin is registered
+- Fine-grained authorization (RLS, sharing, territory) requires dedicated plugins
 
 ---
 
@@ -360,17 +381,18 @@ This matrix is generated from actual codebase analysis and represents the curren
 - [ ] Dashboard Renderer
 - [ ] Theme Engine
 
-### Phase 8: Automation 📋 **PLANNED**
-- [ ] Workflow Engine
-- [ ] Flow Builder
-- [ ] Approval Processes
-- [ ] ETL Pipelines
+### Phase 8: Automation (Plugin) 📋 **PLANNED**
+- [ ] Workflow Engine Plugin
+- [ ] Flow Builder Plugin
+- [ ] Approval Process Plugin
+- [ ] ETL Pipeline Plugin
+- [ ] Trigger Registry Plugin
 
-### Phase 9: Security 📋 **PLANNED**
-- [ ] Authentication System
-- [ ] Authorization Engine
-- [ ] Row-Level Security
-- [ ] Multi-tenancy
+### Phase 9: Security (Plugin) 📋 **PLANNED**
+- [ ] Authentication Plugin
+- [ ] Authorization Plugin
+- [ ] Row-Level Security Plugin
+- [ ] Multi-tenancy Plugin
 
 ### Phase 10: AI Integration 📋 **PLANNED**
 - [ ] Agent Framework
@@ -390,9 +412,9 @@ This matrix is generated from actual codebase analysis and represents the curren
 | **UI** | 10 | 0 | 0 | 10 |
 | **API** | 14 | 11 | 1 | 2 |
 | **System** | 39 | 8 | 1 | 30 |
-| **Auth** | 6 | 0 | 0 | 6 |
-| **Permission** | 4 | 0 | 0 | 4 |
-| **Automation** | 7 | 1 | 0 | 6 |
+| **Auth** (plugin) | 6 | 0 | 0 | 6 |
+| **Permission** (plugin) | 4 | 0 | 0 | 4 |
+| **Automation** (plugin) | 7 | 1 | 0 | 6 |
 | **AI** | 12 | 0 | 0 | 12 |
 | **Integration** | 7 | 0 | 0 | 7 |
 | **QA** | 1 | 1 | 0 | 0 |
@@ -413,12 +435,12 @@ This matrix is generated from actual codebase analysis and represents the curren
 | **Query Engine** | ⚠️ | Partial (depends on driver) |
 | **REST API** | ✅ | Yes |
 | **Client SDKs** | ✅ | Yes |
-| **Metadata System** | ✅ | Yes |
+| **Metadata System** | ⚠️ | Partial (in-memory only, DB persistence pending) |
 | **HTTP Caching** | ✅ | Yes |
 | **Testing Tools** | ✅ | Yes |
 | **UI Rendering** | ❌ | No |
-| **Workflows** | ❌ | No |
-| **Security** | ❌ | No |
+| **Workflows** | ❌ | No (plugin required) |
+| **Security** | ❌ | No (plugin required) |
 | **AI Features** | ❌ | No |
 
 ---

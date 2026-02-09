@@ -1,45 +1,69 @@
 ---
 title: Kernel Services Checklist
-description: Complete inventory of ObjectStack kernel services with protocol methods, implementation status, and development requirements
+description: Complete inventory of ObjectStack kernel services with protocol methods, implementation status, and development requirements.
 ---
 
 # Kernel Services Checklist
 
-The ObjectStack protocol defines **17 kernel services** registered via the `CoreServiceName` enum into the microkernel's Service Registry. Each service maps to a set of protocol methods (57 total), governed by the `ObjectStackProtocol` interface.
+The ObjectStack protocol defines **17 kernel services** registered via the `CoreServiceName` enum. Each service maps to a set of protocol methods (57 total), governed by the `ObjectStackProtocol` interface.
 
-This document provides a comprehensive development checklist for all kernel services, detailing what each service must implement.
+**Key architecture principle**: The kernel itself only provides **data** and **metadata** (framework). Everything else — including **auth** and **automation** — is delivered by **plugins**. The current `@objectstack/objectql` package is an example kernel implementation to get the basic API running; production kernels will be rebuilt as new plugins.
 
 <Callout type="info">
 **Last Updated**: February 2026
 
-- ✅ Implemented — 19 protocol methods
-- 🚧 Stub — 1 (throws error)
-- ❌ Not Implemented — 37 protocol methods
+- ✅ Implemented — 18 protocol methods (kernel-provided)
+- ⚠️ Framework — metadata (in-memory registry, DB persistence pending)
+- ❌ Plugin Required — 39 protocol methods (to be delivered by plugins)
 </Callout>
+
+---
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     Kernel Layer                         │
+│  ┌──────────────────┐  ┌──────────────────────────────┐ │
+│  │  metadata (⚠️)   │  │  data + analytics (✅)       │ │
+│  │  In-memory only   │  │  ObjectQL example kernel     │ │
+│  │  DB persistence   │  │  Will be rebuilt as plugins  │ │
+│  │  pending          │  │                              │ │
+│  └──────────────────┘  └──────────────────────────────┘ │
+├─────────────────────────────────────────────────────────┤
+│                    Plugin Layer                           │
+│  All other services: auth, automation, workflow, ui,     │
+│  realtime, notification, ai, i18n, graphql, search,     │
+│  file-storage, cache, queue, job                         │
+│                                                          │
+│  Discovery API reports: enabled/unavailable/degraded     │
+│  per service so clients adapt their UI accordingly       │
+└─────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## Service Overview
 
-| # | Service Name | Criticality | Methods | Status | Package |
-|:--|:-------------|:------------|:--------|:-------|:--------|
-| 1 | **metadata** | `required` | 7 | ✅ Complete | `@objectstack/objectql` |
-| 2 | **data** | `required` | 9 | ✅ Complete | `@objectstack/objectql` |
-| 3 | **auth** | `required` | — | ⚠️ Passthrough | `@objectstack/runtime` |
-| 4 | **analytics** | `optional` | 2 | ✅ Complete | `@objectstack/objectql` |
-| 5 | **ui** | `optional` | 5 | ❌ Not Implemented | TBD |
-| 6 | **workflow** | `optional` | 5 | ❌ Not Implemented | TBD |
-| 7 | **automation** | `optional` | 1 | 🚧 Stub | TBD |
-| 8 | **realtime** | `optional` | 6 | ❌ Not Implemented | TBD |
-| 9 | **notification** | `optional` | 7 | ❌ Not Implemented | TBD |
-| 10 | **ai** | `optional` | 4 | ❌ Not Implemented | TBD |
-| 11 | **i18n** | `optional` | 3 | ❌ Not Implemented | TBD |
-| 12 | **file-storage** | `optional` | — | ❌ Not Implemented | TBD |
-| 13 | **search** | `optional` | — | ❌ Not Implemented | TBD |
-| 14 | **cache** | `core` | — | ⚠️ HTTP Cache Only | `@objectstack/objectql` |
-| 15 | **queue** | `core` | — | ❌ Not Implemented | TBD |
-| 16 | **job** | `core` | — | ❌ Not Implemented | TBD |
-| 17 | **graphql** | `optional` | — | ❌ Not Implemented | TBD |
+| # | Service Name | Criticality | Methods | Status | Provider |
+|:--|:-------------|:------------|:--------|:-------|:---------|
+| 1 | **metadata** | `required` | 7 | ⚠️ Framework | Kernel (in-memory) |
+| 2 | **data** | `required` | 9 | ✅ Implemented | `@objectstack/objectql` |
+| 3 | **analytics** | `optional` | 2 | ✅ Implemented | `@objectstack/objectql` |
+| 4 | **auth** | `required` | — | ❌ Plugin Required | TBD plugin |
+| 5 | **ui** | `optional` | 5 | ❌ Plugin Required | TBD plugin |
+| 6 | **workflow** | `optional` | 5 | ❌ Plugin Required | TBD plugin |
+| 7 | **automation** | `optional` | 1 | ❌ Plugin Required | TBD plugin |
+| 8 | **realtime** | `optional` | 6 | ❌ Plugin Required | TBD plugin |
+| 9 | **notification** | `optional` | 7 | ❌ Plugin Required | TBD plugin |
+| 10 | **ai** | `optional` | 4 | ❌ Plugin Required | TBD plugin |
+| 11 | **i18n** | `optional` | 3 | ❌ Plugin Required | TBD plugin |
+| 12 | **file-storage** | `optional` | — | ❌ Plugin Required | TBD plugin |
+| 13 | **search** | `optional` | — | ❌ Plugin Required | TBD plugin |
+| 14 | **cache** | `core` | — | ❌ Plugin Required | TBD plugin |
+| 15 | **queue** | `core` | — | ❌ Plugin Required | TBD plugin |
+| 16 | **job** | `core` | — | ❌ Plugin Required | TBD plugin |
+| 17 | **graphql** | `optional` | — | ❌ Plugin Required | TBD plugin |
 
 <Callout type="warn">
 **Criticality Levels**
@@ -50,11 +74,11 @@ This document provides a comprehensive development checklist for all kernel serv
 
 ---
 
-## 1. metadata Service ✅ Complete
+## 1. metadata Service ⚠️ Framework
 
 **Service Name**: `metadata` · **Criticality**: `required`  
-**Implementation**: `@objectstack/objectql` → `ObjectStackProtocolImplementation`  
-**Route Mounts**: `/api/v1/meta`, `/api/v1/discovery`, `/api/v1/packages`
+**Implementation**: Kernel — `SchemaRegistry` (in-memory)  
+**Route Mounts**: `/api/v1/meta`, `/api/v1`, `/api/v1/packages`
 
 ### Protocol Methods
 
@@ -68,20 +92,52 @@ This document provides a comprehensive development checklist for all kernel serv
 | `getMetaItemCached` | `GetMetaItemCachedRequest → GetMetaItemCachedResponse` | ✅ |
 | `getUiView` | `GetUiViewRequest → GetUiViewResponse` | ✅ |
 
-### Implementation Details
+### Current Limitations
 
-- **Discovery**: Returns API version, base path, route mounts, and capability flags
-- **Metadata CRUD**: Delegates to `SchemaRegistry` for type registration and queries
-- **ETag Caching**: Browser-compatible caching via `simpleHash()`
-- **Auto-generated UI Views**: Generates ListView / FormView from Object Schema fields
+The metadata service is a **framework** — it works with an in-memory `SchemaRegistry` loaded from YAML/TS config files at startup.
+
+| Gap | Description | Priority |
+|:----|:------------|:--------:|
+| **DB Persistence** | Metadata is only in memory; no save-to-database path exists | P0 |
+| **Multi-instance Sync** | No mechanism to share metadata changes across instances | P1 |
+| **Migration / Versioning** | No schema diff or migration tooling | P1 |
+| **Hot Reload** | Metadata changes require restart | P2 |
+
+### Discovery: Per-Service Status
+
+The discovery endpoint returns a `services` map so clients know what is available:
+
+```json
+{
+  "services": {
+    "metadata": {
+      "enabled": true, "status": "degraded",
+      "route": "/api/v1/meta", "provider": "kernel",
+      "message": "In-memory registry; DB persistence pending"
+    },
+    "data": {
+      "enabled": true, "status": "available",
+      "route": "/api/v1/data", "provider": "kernel"
+    },
+    "auth": {
+      "enabled": false, "status": "unavailable",
+      "message": "Install an auth plugin to enable"
+    }
+  }
+}
+```
 
 ---
 
-## 2. data Service ✅ Complete
+## 2. data Service ✅ Implemented
 
 **Service Name**: `data` · **Criticality**: `required`  
-**Implementation**: `@objectstack/objectql` → `ObjectQL` (IDataEngine) + `ObjectStackProtocolImplementation`  
+**Implementation**: `@objectstack/objectql` → `ObjectQL` (IDataEngine)  
 **Route Mount**: `/api/v1/data`
+
+<Callout type="info">
+`@objectstack/objectql` is an **example kernel implementation** to get the basic data API running. Future production kernels will be developed as separate plugins.
+</Callout>
 
 ### Protocol Methods
 
@@ -97,19 +153,11 @@ This document provides a comprehensive development checklist for all kernel serv
 | `updateManyData` | `UpdateManyDataRequest → UpdateManyDataResponse` | ✅ |
 | `deleteManyData` | `DeleteManyDataRequest → DeleteManyDataResponse` | ✅ |
 
-### Implementation Details
+### Driver Support
 
-- **CRUD**: Delegates to `ObjectQL.find()` / `insert()` / `update()` / `delete()` → Driver layer
-- **Batch**: `batchData()` supports mixed `create`/`update`/`upsert`/`delete` operations with `atomic` and `continueOnError` options
-- **Bulk**: `createManyData` for batch inserts, `updateManyData` with per-record error collection, `deleteManyData` via `$in` filter
-- **Hook System**: Full lifecycle hooks (`beforeFind`, `afterInsert`, etc.)
-- **Aggregation**: `engine.aggregate()` maps `DataEngineAggregateOptions` to `QueryAST` (groupBy + aggregations) and delegates to the driver
-
-### Driver Implementations
-
-| Driver | Package | CRUD | Aggregation | Production Ready |
-|:-------|:--------|:----:|:-----------:|:----------------:|
-| InMemory | `@objectstack/driver-memory` | ✅ | ✅ | Dev / Test |
+| Driver | Package | CRUD | Aggregation | Ready |
+|:-------|:--------|:----:|:-----------:|:-----:|
+| InMemory | `@objectstack/driver-memory` | ✅ | ✅ | Dev/Test |
 | PostgreSQL | TBD | — | — | — |
 | MySQL | TBD | — | — | — |
 | MongoDB | TBD | — | — | — |
@@ -117,18 +165,36 @@ This document provides a comprehensive development checklist for all kernel serv
 
 ---
 
-## 3. auth Service ⚠️ Passthrough
+## 3. analytics Service ✅ Implemented
+
+**Service Name**: `analytics` · **Criticality**: `optional`  
+**Implementation**: `@objectstack/objectql` (driver-level capability)  
+**Route Mount**: `/api/v1/analytics`
+
+### Protocol Methods
+
+| Method | Signature | Status |
+|:-------|:----------|:------:|
+| `analyticsQuery` | `AnalyticsQueryRequest → AnalyticsResultResponse` | ✅ |
+| `getAnalyticsMeta` | `GetAnalyticsMetaRequest → AnalyticsMetadataResponse` | ✅ |
+
+### Features
+
+- Cube semantic queries: measures / dimensions / filters → ObjectQL aggregation
+- Auto-generated metadata from SchemaRegistry (numeric → sum/avg, date → time dimensions)
+
+---
+
+## 4. auth Service ❌ Plugin Required
 
 **Service Name**: `auth` · **Criticality**: `required`  
-**Route Mount**: `/api/v1/auth`
+**Route Mount**: `/api/v1/auth` — only exposed when a plugin registers the auth service
 
-### Current State
+<Callout type="warn">
+**The kernel does NOT handle auth.** Install an auth plugin to enable authentication. Without it, the discovery response shows `auth: { enabled: false, status: "unavailable" }`.
+</Callout>
 
-- HTTP Dispatcher routes defined; authentication middleware passthrough implemented
-- Client SDK exposes `login`/`logout`/`register`/`refreshToken`/`me`
-- **Needs development**: A complete identity & authentication engine
-
-### Development Requirements
+### Plugin Requirements
 
 | Module | Description | Priority |
 |:-------|:------------|:--------:|
@@ -139,527 +205,121 @@ This document provides a comprehensive development checklist for all kernel serv
 | **Multi-tenancy** | Space / Tenant isolation | P1 |
 | **SCIM** | Enterprise user provisioning protocol | P2 |
 
-### Related Spec Files
-
-- `src/identity/identity.zod.ts` — User / Identity schema
-- `src/identity/role.zod.ts` — Role schema
-- `src/identity/organization.zod.ts` — Organization schema
-- `src/system/auth-config.zod.ts` — Auth configuration
-- `src/system/tenant.zod.ts` — Multi-tenancy
+### Spec Files: `identity.zod.ts`, `role.zod.ts`, `organization.zod.ts`, `auth-config.zod.ts`, `tenant.zod.ts`
 
 ---
 
-## 4. analytics Service ✅ Complete
+## 5–7. Business Services ❌ Plugin Required
 
-**Service Name**: `analytics` · **Criticality**: `optional`  
-**Implementation**: `@objectstack/objectql` (driver-level capability, not a standalone plugin)  
-**Route Mount**: `/api/v1/analytics`
+### 5. ui Service — 5 methods
+`listViews`, `getView`, `createView`, `updateView`, `deleteView`  
+View CRUD, layout engine, action registry, permission filtering.
 
-### Protocol Methods
+### 6. workflow Service — 5 methods
+`getWorkflowConfig`, `getWorkflowState`, `workflowTransition`, `workflowApprove`, `workflowReject`  
+State machine engine, approval processes, audit trail.
 
-| Method | Signature | Status |
-|:-------|:----------|:------:|
-| `analyticsQuery` | `AnalyticsQueryRequest → AnalyticsResultResponse` | ✅ |
-| `getAnalyticsMeta` | `GetAnalyticsMetaRequest → AnalyticsMetadataResponse` | ✅ |
-
-### Implementation Details
-
-- **Cube Semantic Queries**: Maps AnalyticsQuery (measures / dimensions / filters) to ObjectQL aggregation
-  - `cube` → object name
-  - `dimensions` → `groupBy`
-  - `measures` → `aggregations` (supports `count`, `field.sum`, `field.avg`, etc.)
-  - `filters` → driver-level where conditions
-- **Auto-generated Metadata**: Generates Cube metadata from SchemaRegistry objects
-  - Numeric fields → sum/avg measures + number dimensions
-  - Date fields → time dimensions (day/week/month/quarter/year)
-  - Text fields → string dimensions
+### 7. automation Service — 1 method
+`triggerAutomation`  
+Trigger engine, event triggers from ObjectQL hooks, flow executor, scheduled triggers.
 
 ---
 
-## 5. ui Service ❌ Not Implemented
+## 8–11. Communication Services ❌ Plugin Required
 
-**Service Name**: `ui` · **Criticality**: `optional`  
-**Route Mount**: `/api/v1/ui`
+### 8. realtime — 6 methods
+`realtimeConnect`, `realtimeDisconnect`, `realtimeSubscribe`, `realtimeUnsubscribe`, `setPresence`, `getPresence`
 
-### Protocol Methods to Implement
+### 9. notification — 7 methods
+`registerDevice`, `unregisterDevice`, `getNotificationPreferences`, `updateNotificationPreferences`, `listNotifications`, `markNotificationsRead`, `markAllNotificationsRead`
 
-| Method | Signature | Description |
-|:-------|:----------|:------------|
-| `listViews` | `ListViewsRequest → ListViewsResponse` | List all views for an object |
-| `getView` | `GetViewRequest → GetViewResponse` | Get a single view definition |
-| `createView` | `CreateViewRequest → CreateViewResponse` | Create a custom view |
-| `updateView` | `UpdateViewRequest → UpdateViewResponse` | Update a view configuration |
-| `deleteView` | `DeleteViewRequest → DeleteViewResponse` | Delete a view |
+### 10. ai — 4 methods
+`aiNlq`, `aiChat`, `aiSuggest`, `aiInsights`
 
-### Development Requirements
-
-| Module | Description | Priority |
-|:-------|:------------|:--------:|
-| **View CRUD** | Store view definitions in SchemaRegistry; support ListView / FormView / KanbanView | P0 |
-| **View Merging** | Merge Object Schema default views with custom view overrides | P1 |
-| **Layout Engine** | Parse Layout DSL (tabs / sections / columns) | P1 |
-| **Action Registry** | Action button definitions and execution binding on views | P2 |
-| **Permission Filtering** | Filter views and field visibility by user role | P2 |
-
-### Related Spec Files
-
-- `src/ui/view.zod.ts` — View schema (grid / kanban / calendar / gantt / form / wizard)
-- `src/ui/app.zod.ts` — App navigation schema
-- `src/ui/action.zod.ts` — Action schema
-- `src/ui/dashboard.zod.ts` — Dashboard schema
-- `src/ui/page.zod.ts` — Page schema
+### 11. i18n — 3 methods
+`getLocales`, `getTranslations`, `getFieldLabels`
 
 ---
 
-## 6. workflow Service ❌ Not Implemented
-
-**Service Name**: `workflow` · **Criticality**: `optional`  
-**Route Mount**: `/api/v1/workflow`
-
-### Protocol Methods to Implement
-
-| Method | Signature | Description |
-|:-------|:----------|:------------|
-| `getWorkflowConfig` | `GetWorkflowConfigRequest → GetWorkflowConfigResponse` | Get workflow configuration |
-| `getWorkflowState` | `GetWorkflowStateRequest → GetWorkflowStateResponse` | Get a record's workflow state |
-| `workflowTransition` | `WorkflowTransitionRequest → WorkflowTransitionResponse` | Execute a state transition |
-| `workflowApprove` | `WorkflowApproveRequest → WorkflowApproveResponse` | Approve a workflow step |
-| `workflowReject` | `WorkflowRejectRequest → WorkflowRejectResponse` | Reject a workflow step |
-
-### Development Requirements
-
-| Module | Description | Priority |
-|:-------|:------------|:--------:|
-| **State Machine Engine** | Implement state definitions and transition rules via `StateMachineSchema` | P0 |
-| **Approval Process** | Serial/parallel approval nodes, multi-level approval, delegation | P0 |
-| **Workflow Configuration** | Load workflow metadata from SchemaRegistry | P1 |
-| **Audit History** | State change audit trail | P1 |
-| **Conditional Guards** | Transition condition expressions (permission checks, field conditions) | P1 |
-| **Notification Integration** | Trigger notifications on state changes (depends on notification service) | P2 |
-
-### Related Spec Files
-
-- `src/automation/workflow.zod.ts` — Workflow / state machine schema
-- `src/automation/flow.zod.ts` — Flow orchestration schema
-
----
-
-## 7. automation Service 🚧 Stub
-
-**Service Name**: `automation` · **Criticality**: `optional`  
-**Route Mount**: `/api/v1/automation`
-
-### Protocol Methods to Implement
-
-| Method | Signature | Current State |
-|:-------|:----------|:--------------|
-| `triggerAutomation` | `AutomationTriggerRequest → AutomationTriggerResponse` | 🚧 Throws `requires plugin-automation` |
-
-### Development Requirements
-
-| Module | Description | Priority |
-|:-------|:------------|:--------:|
-| **Trigger Engine** | Accept `triggerAutomation` requests and route to appropriate handlers | P0 |
-| **Event Triggers** | Listen to ObjectQL Hook events (afterInsert/afterUpdate) to auto-trigger flows | P0 |
-| **Flow Executor** | Execute FlowSchema nodes (decision / assignment / loop / action) | P1 |
-| **Scheduled Triggers** | Cron-based schedule triggers | P1 |
-| **Inbound Webhooks** | Accept external HTTP events as trigger sources | P2 |
-| **ETL Pipelines** | Data extract / transform / load pipelines | P2 |
-
-### Related Spec Files
-
-- `src/automation/trigger-registry.zod.ts` — Trigger registry schema
-- `src/automation/flow.zod.ts` — Flow orchestration schema (autolaunched / screen / schedule)
-- `src/automation/workflow.zod.ts` — Workflow approval schema
-
----
-
-## 8. realtime Service ❌ Not Implemented
-
-**Service Name**: `realtime` · **Criticality**: `optional`  
-**Route Mount**: `/api/v1/realtime`
-
-### Protocol Methods to Implement
-
-| Method | Signature | Description |
-|:-------|:----------|:------------|
-| `realtimeConnect` | `RealtimeConnectRequest → RealtimeConnectResponse` | Establish connection |
-| `realtimeDisconnect` | `RealtimeDisconnectRequest → RealtimeDisconnectResponse` | Disconnect |
-| `realtimeSubscribe` | `RealtimeSubscribeRequest → RealtimeSubscribeResponse` | Subscribe to data changes |
-| `realtimeUnsubscribe` | `RealtimeUnsubscribeRequest → RealtimeUnsubscribeResponse` | Unsubscribe |
-| `setPresence` | `SetPresenceRequest → SetPresenceResponse` | Set online presence |
-| `getPresence` | `GetPresenceRequest → GetPresenceResponse` | Query online presence |
-
-### Development Requirements
-
-| Module | Description | Priority |
-|:-------|:------------|:--------:|
-| **WebSocket Server** | Manage connection lifecycle via Hono or a standalone WS server | P0 |
-| **Subscription Manager** | Track client subscriptions per object/record and push changes | P0 |
-| **Change Broadcasting** | Hook into ObjectQL afterInsert/afterUpdate/afterDelete for push events | P0 |
-| **Channel Isolation** | Isolate messages by object, record, or custom channel | P1 |
-| **Presence** | User online status tracking with heartbeat detection | P1 |
-| **SSE Fallback** | Server-Sent Events fallback when WebSocket is unavailable | P2 |
-
-### Related Spec Files
-
-- `src/api/realtime.zod.ts` — Realtime protocol schema
-- `src/api/websocket.zod.ts` — WebSocket message format
-
----
-
-## 9. notification Service ❌ Not Implemented
-
-**Service Name**: `notification` · **Criticality**: `optional`  
-**Route Mount**: `/api/v1/notifications`
-
-### Protocol Methods to Implement
-
-| Method | Signature | Description |
-|:-------|:----------|:------------|
-| `registerDevice` | `RegisterDeviceRequest → RegisterDeviceResponse` | Register a push device token |
-| `unregisterDevice` | `UnregisterDeviceRequest → UnregisterDeviceResponse` | Unregister a device |
-| `getNotificationPreferences` | `GetNotificationPreferencesRequest → GetNotificationPreferencesResponse` | Get notification preferences |
-| `updateNotificationPreferences` | `UpdateNotificationPreferencesRequest → UpdateNotificationPreferencesResponse` | Update preferences |
-| `listNotifications` | `ListNotificationsRequest → ListNotificationsResponse` | List user notifications |
-| `markNotificationsRead` | `MarkNotificationsReadRequest → MarkNotificationsReadResponse` | Mark as read |
-| `markAllNotificationsRead` | `MarkAllNotificationsReadRequest → MarkAllNotificationsReadResponse` | Mark all as read |
-
-### Development Requirements
-
-| Module | Description | Priority |
-|:-------|:------------|:--------:|
-| **Notification Storage** | Store notification records (object + driver) | P0 |
-| **Notification Query** | Paginated query by user / type / read status | P0 |
-| **Preference Management** | Per-type channel configuration (email / push / in-app) | P1 |
-| **Device Management** | Register/unregister push tokens (FCM / APNs) | P1 |
-| **Dispatch Engine** | Notification routing (in-app → storage, email → SMTP, push → push service) | P1 |
-| **Template System** | Notification content templates with variable substitution | P2 |
-
-### Related Spec Files
-
-- `src/system/notification.zod.ts` — Notification schema
-
----
-
-## 10. ai Service ❌ Not Implemented
-
-**Service Name**: `ai` · **Criticality**: `optional`  
-**Route Mount**: `/api/v1/ai`
-
-### Protocol Methods to Implement
-
-| Method | Signature | Description |
-|:-------|:----------|:------------|
-| `aiNlq` | `AiNlqRequest → AiNlqResponse` | Natural Language Query (NLQ → QueryAST) |
-| `aiChat` | `AiChatRequest → AiChatResponse` | Context-aware AI chat |
-| `aiSuggest` | `AiSuggestRequest → AiSuggestResponse` | Field value suggestions / autocomplete |
-| `aiInsights` | `AiInsightsRequest → AiInsightsResponse` | Data insight generation |
-
-### Development Requirements
-
-| Module | Description | Priority |
-|:-------|:------------|:--------:|
-| **Model Registry** | LLM provider configuration and routing (OpenAI / Anthropic / local models) | P0 |
-| **NLQ Engine** | Natural language → QueryAST conversion using Schema metadata for context | P0 |
-| **Agent Framework** | Execute agents via AgentSchema (role / instructions / tools) | P1 |
-| **Conversation Manager** | Session persistence, context window management | P1 |
-| **RAG Pipeline** | Knowledge base indexing + retrieval-augmented generation | P2 |
-| **Data Insights** | Generate natural language summaries from analytics results | P2 |
-
-### Related Spec Files
-
-- `src/ai/agent.zod.ts` — Agent schema
-- `src/ai/model-registry.zod.ts` — Model configuration
-- `src/ai/rag-pipeline.zod.ts` — RAG pipeline
-- `src/api/analytics.zod.ts` — NLQ request/response
-
----
-
-## 11. i18n Service ❌ Not Implemented
-
-**Service Name**: `i18n` · **Criticality**: `optional`  
-**Route Mount**: `/api/v1/i18n`
-
-### Protocol Methods to Implement
-
-| Method | Signature | Description |
-|:-------|:----------|:------------|
-| `getLocales` | `GetLocalesRequest → GetLocalesResponse` | Get supported locales |
-| `getTranslations` | `GetTranslationsRequest → GetTranslationsResponse` | Get translation bundles |
-| `getFieldLabels` | `GetFieldLabelsRequest → GetFieldLabelsResponse` | Get field label translations |
-
-### Development Requirements
-
-| Module | Description | Priority |
-|:-------|:------------|:--------:|
-| **Translation Storage** | Load Translation metadata from SchemaRegistry or files | P0 |
-| **Bundle Query** | Return key-value pairs by locale + namespace | P0 |
-| **Field Labels** | Auto-generate multilingual labels from Object Schema `label` fields | P1 |
-| **Lazy Loading** | On-demand bundle loading to reduce initialization size | P2 |
-| **Translation Overrides** | Allow plugins to override built-in translations | P2 |
-
-### Related Spec Files
-
-- `src/system/translation.zod.ts` — Translation schema
-
----
-
-## 12. file-storage Service ❌ Not Implemented
-
-**Service Name**: `file-storage` · **Criticality**: `optional`  
-**Route Mount**: `/api/v1/storage`
-
-### Development Requirements
-
-| Module | Description | Priority |
-|:-------|:------------|:--------:|
-| **Storage Interface** | Unified upload/download/delete API (`IStorageProvider`) | P0 |
-| **Local Storage** | Filesystem driver for development | P0 |
-| **S3 Driver** | AWS S3 / MinIO compatible object storage | P1 |
-| **Metadata Binding** | Bind files to record fields (file/image field types) | P1 |
-| **Access Control** | Signed URLs, permission checks | P2 |
-
-### Related Spec Files
-
-- `src/integration/object-storage.zod.ts` — Object storage schema
-
----
-
-## 13. search Service ❌ Not Implemented
-
-**Service Name**: `search` · **Criticality**: `optional`
-
-### Development Requirements
-
-| Module | Description | Priority |
-|:-------|:------------|:--------:|
-| **Search Interface** | Unified full-text search API (`ISearchEngine`) | P0 |
-| **In-Memory Search** | Simple match search using the InMemory Driver | P0 |
-| **Elasticsearch Driver** | Full-text search engine integration | P1 |
-| **Index Management** | Auto-index searchable fields | P1 |
-| **Search Suggestions** | Typeahead / autocomplete | P2 |
-
-### Related Spec Files
-
-- `src/data/search-engine.zod.ts` — Search engine schema
-
----
-
-## 14. cache Service ⚠️ Partial
-
-**Service Name**: `cache` · **Criticality**: `core`
-
-### Current State
-
-- HTTP ETag caching implemented in `getMetaItemCached()`
-- General-purpose in-memory cache not yet implemented
-
-### Development Requirements
-
-| Module | Description | Priority |
-|:-------|:------------|:--------:|
-| **Cache Interface** | Unified `ICacheProvider` (get/set/del/has/ttl) | P0 |
-| **In-Memory Cache** | LRU / TTL in-memory cache implementation | P0 |
-| **Redis Driver** | Redis cache driver | P1 |
-| **Query Cache** | Auto-cache ObjectQL query results + invalidation strategy | P1 |
-| **Schema Cache** | Cache SchemaRegistry parse results | P2 |
-
-### Related Spec Files
-
-- `src/system/cache.zod.ts` — Cache configuration schema
-
----
-
-## 15. queue Service ❌ Not Implemented
-
-**Service Name**: `queue` · **Criticality**: `core`
-
-### Development Requirements
-
-| Module | Description | Priority |
-|:-------|:------------|:--------:|
-| **Queue Interface** | Unified `IQueueProvider` (enqueue/dequeue/ack) | P0 |
-| **In-Memory Queue** | Simple queue based on Array/EventEmitter | P0 |
-| **Redis Queue** | BullMQ / Redis Streams driver | P1 |
-| **Message Retry** | Failed message retry, dead letter queue | P1 |
-
-### Related Spec Files
-
-- `src/integration/message-queue.zod.ts` — Message queue schema
-
----
-
-## 16. job Service ❌ Not Implemented
-
-**Service Name**: `job` · **Criticality**: `core`
-
-### Development Requirements
-
-| Module | Description | Priority |
-|:-------|:------------|:--------:|
-| **Task Scheduler** | Cron-based scheduled task execution | P0 |
-| **Task Registration** | Plugins register tasks (name / schedule / handler) | P0 |
-| **Task Status** | Execution history, success/failure records | P1 |
-| **Concurrency Control** | Task locking, prevent duplicate execution | P1 |
-| **Worker Pool** | Execute long-running tasks in isolated Workers | P2 |
-
-### Related Spec Files
-
-- `src/system/job.zod.ts` — Job scheduler schema
-- `src/system/worker.zod.ts` — Worker schema
-
----
-
-## 17. graphql Service ❌ Not Implemented
-
-**Service Name**: `graphql` · **Criticality**: `optional`  
-**Route Mount**: `/api/v1/graphql`
-
-### Development Requirements
-
-| Module | Description | Priority |
-|:-------|:------------|:--------:|
-| **Schema Auto-generation** | Generate GraphQL Schema (types / queries / mutations) from Object metadata | P0 |
-| **Query Resolution** | GraphQL Query → ObjectQL QueryAST mapping | P0 |
-| **Mutation Mapping** | GraphQL Mutation → ObjectQL insert/update/delete | P1 |
-| **Relationship Resolution** | Resolve lookup/master_detail fields via GraphQL association resolvers (DataLoader) | P1 |
-| **Subscription** | Combine with the realtime service for GraphQL Subscriptions | P2 |
-
-### Related Spec Files
-
-- `src/api/graphql.zod.ts` — GraphQL endpoint configuration
-
----
-
-## Service Dependency Graph
-
-```
-┌──────────────────────────────────────────────────────┐
-│                  Required Services                    │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐           │
-│  │ metadata │  │   data   │  │   auth   │           │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘           │
-│       │              │              │                 │
-├───────┼──────────────┼──────────────┼─────────────────┤
-│       │         Core Services       │                 │
-│  ┌────┴─────┐  ┌──────────┐  ┌─────┴────┐           │
-│  │  cache   │  │  queue   │  │   job    │           │
-│  └──────────┘  └──────────┘  └──────────┘           │
-│                                                      │
-├──────────────────────────────────────────────────────┤
-│                  Optional Services                    │
-│  ┌───────────┐ ┌──────────┐ ┌──────────┐            │
-│  │ analytics │ │    ui    │ │ workflow │            │
-│  │    ✅     │ │    ❌    │ │    ❌    │            │
-│  └───────────┘ └──────────┘ └──────────┘            │
-│  ┌───────────┐ ┌──────────┐ ┌──────────┐            │
-│  │automation │ │ realtime │ │notification│           │
-│  │    🚧     │ │    ❌    │ │    ❌    │            │
-│  └───────────┘ └──────────┘ └──────────┘            │
-│  ┌───────────┐ ┌──────────┐ ┌──────────┐            │
-│  │    ai     │ │   i18n   │ │ graphql  │            │
-│  │    ❌     │ │    ❌    │ │    ❌    │            │
-│  └───────────┘ └──────────┘ └──────────┘            │
-│  ┌───────────┐ ┌──────────┐                          │
-│  │file-storage│ │  search  │                          │
-│  │    ❌     │ │    ❌    │                          │
-│  └───────────┘ └──────────┘                          │
-└──────────────────────────────────────────────────────┘
-```
+## 12–17. Infrastructure Services ❌ Plugin Required
+
+| Service | Description |
+|:--------|:------------|
+| **file-storage** | Unified upload/download/delete. Drivers: local FS, S3, MinIO. |
+| **search** | Full-text search. Drivers: in-memory, Elasticsearch, Meilisearch. |
+| **cache** | General-purpose cache. Drivers: in-memory LRU, Redis. |
+| **queue** | Message queue. Drivers: in-memory, BullMQ / Redis Streams. |
+| **job** | Scheduled task execution. Cron-based, concurrency control. |
+| **graphql** | Auto-generate GraphQL schema from Object metadata. |
 
 ---
 
 ## Recommended Development Phases
 
-### Phase 1: Kernel Hardening (P0)
+### Phase 1: Foundation (P0)
 
-| Service | Methods | Description |
-|:--------|:-------:|:------------|
-| **auth** | — | Identity & authentication engine — system requirement, currently passthrough only |
-| **ui** | 5 | View CRUD — core capability of a low-code platform |
-| **cache** | — | General-purpose cache — performance infrastructure |
+| Plugin | Description |
+|:-------|:------------|
+| **plugin-auth** | Identity engine — JWT, sessions, user CRUD, roles |
+| **plugin-ui** | View CRUD — core low-code capability |
+| **plugin-cache** | General-purpose cache — performance infrastructure |
+| **Metadata DB** | Solve metadata persistence (SchemaRegistry → database) |
 
 ### Phase 2: Business Engine (P1)
 
-| Service | Methods | Description |
-|:--------|:-------:|:------------|
-| **workflow** | 5 | State machine + approval process — enterprise application core |
-| **automation** | 1+ | Triggers + flow orchestration — automation foundation |
-| **i18n** | 3 | Internationalization — multi-language support |
-| **file-storage** | — | File storage — common business requirement |
+| Plugin | Description |
+|:-------|:------------|
+| **plugin-workflow** | State machine + approval process |
+| **plugin-automation** | Triggers + flow orchestration |
+| **plugin-i18n** | Internationalization |
+| **plugin-storage** | File storage (local + S3) |
+| **DB drivers** | PostgreSQL, MySQL, MongoDB, SQLite |
 
 ### Phase 3: Advanced Capabilities (P2)
 
-| Service | Methods | Description |
-|:--------|:-------:|:------------|
-| **realtime** | 6 | WebSocket real-time push |
-| **notification** | 7 | Notification engine |
-| **ai** | 4 | AI capabilities |
-| **graphql** | — | GraphQL API endpoint |
-| **search** | — | Full-text search |
-| **job** | — | Scheduled tasks |
-| **queue** | — | Message queue |
+| Plugin | Description |
+|:-------|:------------|
+| **plugin-realtime** | WebSocket / SSE real-time push |
+| **plugin-notification** | Notification engine |
+| **plugin-ai** | NLQ, chat, suggestions, insights |
+| **plugin-graphql** | GraphQL API endpoint |
+| **plugin-search** | Full-text search |
+| **plugin-job** | Scheduled tasks |
+| **plugin-queue** | Message queue |
 
 ---
 
-## Implementation Guide
-
-### Adding a New Kernel Service
-
-Each kernel service should follow this plugin pattern:
+## Plugin Implementation Pattern
 
 ```typescript
 import type { Plugin } from '@objectstack/core';
 
-export const myServicePlugin: Plugin = {
-  name: 'my-service',
-  provides: ['my-service'], // Value from CoreServiceName
+export const authPlugin: Plugin = {
+  name: 'plugin-auth',
+  provides: ['auth'], // CoreServiceName value
   
   async init(ctx) {
     const engine = ctx.getService<IDataEngine>('data');
-    const service = new MyServiceImpl(engine);
-    ctx.registerService('my-service', service);
+    const authService = new AuthServiceImpl(engine);
+    ctx.registerService('auth', authService);
   },
   
   async start(ctx) {
-    const service = ctx.getService<IMyService>('my-service');
-    await service.onReady();
+    const auth = ctx.getService<IAuthService>('auth');
+    await auth.onReady();
   },
   
   async stop(ctx) {
-    const service = ctx.getService<IMyService>('my-service');
-    await service.shutdown();
+    const auth = ctx.getService<IAuthService>('auth');
+    await auth.shutdown();
   },
 };
 ```
 
-### Implementing Protocol Methods
-
-Add protocol methods in `ObjectStackProtocolImplementation`:
-
-```typescript
-// packages/objectql/src/protocol.ts
-async listViews(request: ListViewsRequest): Promise<ListViewsResponse> {
-    const views = SchemaRegistry.listItems('view');
-    return {
-        success: true,
-        data: views.filter(v => v.object === request.object),
-    };
-}
-```
-
-### Automatic REST Route Registration
-
-The REST layer auto-generates HTTP endpoints for implemented protocol methods:
-
-```
-GET    /api/v1/ui/views?object=account  → listViews
-GET    /api/v1/ui/views/:name           → getView
-POST   /api/v1/ui/views                 → createView
-PATCH  /api/v1/ui/views/:name           → updateView
-DELETE /api/v1/ui/views/:name           → deleteView
-```
+When a plugin registers a service, the discovery endpoint automatically updates:
+- `services.auth.enabled` → `true`, `status` → `"available"`, `route` → `"/api/v1/auth"`
+- `routes.auth` → `"/api/v1/auth"` appears in routes
+- `features` capability flags update accordingly
 
 ---
 
@@ -667,23 +327,23 @@ DELETE /api/v1/ui/views/:name           → deleteView
 
 <Cards>
   <Card 
+    href="./api-reference" 
+    title="API Reference"
+    description="Complete REST API endpoint documentation"
+  />
+  <Card 
+    href="./client-sdk" 
+    title="Client SDK"
+    description="TypeScript client for ObjectStack"
+  />
+  <Card 
     href="../concepts/implementation-status" 
-    title="Implementation Status Matrix"
-    description="Full protocol implementation status across all packages"
-  />
-  <Card 
-    href="../concepts/core/services" 
-    title="Service Registry"
-    description="Microkernel service registration and dependency injection"
-  />
-  <Card 
-    href="../../references/kernel" 
-    title="Kernel Protocol Reference"
-    description="All kernel-level Zod schema definitions"
+    title="Implementation Status"
+    description="Full protocol implementation matrix"
   />
   <Card 
     href="https://github.com/objectstack-ai/spec" 
     title="Contribute"
-    description="Help implement missing services on GitHub"
+    description="Help build plugins on GitHub"
   />
 </Cards>
