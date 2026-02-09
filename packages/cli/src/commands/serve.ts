@@ -226,6 +226,15 @@ export const serveCommand = new Command('serve')
         } catch (e: any) {
           console.warn(chalk.yellow(`  ⚠ HTTP server plugin not available: ${e.message}`));
         }
+
+        // Register REST API plugin (consumes http.server + protocol services)
+        try {
+          const { createRestApiPlugin } = await import('@objectstack/rest');
+          await kernel.use(createRestApiPlugin());
+          trackPlugin('RestAPI');
+        } catch (e: any) {
+          // @objectstack/rest is optional
+        }
       }
 
       // ── Studio UI (--ui) ────────────────────────────────────────────

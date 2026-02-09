@@ -27,6 +27,7 @@
     "@objectstack/driver-memory": "workspace:^",
     "@objectstack/objectql": "workspace:^",
     "@objectstack/plugin-hono-server": "workspace:*",
+    "@objectstack/rest": "workspace:*",
     "@objectstack/runtime": "workspace:^",
     "@objectstack/spec": "workspace:*",
     "bundle-require": "^5.1.0",

@@ -24,11 +24,11 @@ describe('Runtime', () => {
         expect(runtime.getKernel()).toBeDefined();
     });
 
-    it('should register api registry plugin by default', () => {
+    it('should not auto-register any plugins', () => {
         const runtime = new Runtime();
         const kernel = runtime.getKernel();
-        // Check if use was called (at least once for api registry)
-        expect(kernel.use).toHaveBeenCalled();
+        // Runtime is a clean slate — no plugins auto-registered
+        expect(kernel.use).not.toHaveBeenCalled();
     });
 
     it('should register external http server if provided', () => {
