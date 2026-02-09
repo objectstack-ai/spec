@@ -59,6 +59,7 @@ This matrix is generated from actual codebase analysis and represents the curren
 - ObjectQL implements complete IDataEngine interface
 - Memory driver is reference implementation (basic CRUD only)
 - Advanced query features (aggregations, window functions) require production drivers
+- Memory driver supports aggregations (groupBy, count, sum, avg, min, max)
 
 ### System Services
 
@@ -119,7 +120,7 @@ This matrix is generated from actual codebase analysis and represents the curren
 | **Query AST** | ✅ | ✅ | ⚠️ | ✅ Full |
 | **Query Builder** | ❌ | ✅ | ❌ | ✅ Client |
 | **Filter Operators** | ✅ | ✅ | ⚠️ | ⚠️ Partial |
-| **Aggregations** | ✅ | ✅ | ❌ | ⚠️ Spec only |
+| **Aggregations** | ✅ | ✅ | ✅ | ✅ Full |
 | **Joins** | ✅ | ✅ | ❌ | ⚠️ Spec only |
 | **Sorting** | ✅ | ✅ | ❌ | ⚠️ Spec only |
 | **Pagination** | ✅ | ✅ | ✅ | ✅ Full |
@@ -173,6 +174,7 @@ This matrix is generated from actual codebase analysis and represents the curren
 
 | Protocol | Implementation | Status | Notes |
 |:---------|:-------------:|:------:|:------|
+| **Analytics** | ✅ | ✅ | Protocol implemented in ObjectQL (driver-level aggregation) |
 | **OData** | ❌ | 📋 | Protocol defined, not implemented |
 | **GraphQL** | ❌ | 📋 | Protocol defined, not implemented |
 | **Realtime** | ❌ | 📋 | Protocol defined, not implemented |
@@ -292,21 +294,6 @@ This matrix is generated from actual codebase analysis and represents the curren
 
 ---
 
-## Hub & Marketplace
-
-| Protocol | @objectstack/spec | Implementation | Status |
-|:---------|:-----------------:|:-------------:|:------:|
-| **Marketplace** | ✅ | ❌ | ❌ Spec only |
-| **Plugin Registry** | ✅ | ❌ | ❌ Spec only |
-| **Composer** | ✅ | ❌ | ❌ Spec only |
-| **License** | ✅ | ❌ | ❌ Spec only |
-| **Tenant** | ✅ | ❌ | ❌ Spec only |
-| **Space** | ✅ | ❌ | ❌ Spec only |
-| **Hub Federation** | ✅ | ❌ | ❌ Spec only |
-| **Plugin Security** | ✅ | ⚠️ | ⚠️ Partial validation |
-
----
-
 ## QA & Testing
 
 | Protocol | @objectstack/spec | @objectstack/core | @objectstack/plugin-msw | Status |
@@ -399,24 +386,23 @@ This matrix is generated from actual codebase analysis and represents the curren
 
 | Category | Total Protocols | Fully Implemented | Partially Implemented | Not Implemented |
 |:---------|:---------------:|:-----------------:|:---------------------:|:---------------:|
-| **Data** | 16 | 6 | 3 | 7 |
+| **Data** | 16 | 7 | 3 | 6 |
 | **UI** | 10 | 0 | 0 | 10 |
-| **API** | 13 | 10 | 1 | 2 |
+| **API** | 14 | 11 | 1 | 2 |
 | **System** | 39 | 8 | 1 | 30 |
 | **Auth** | 6 | 0 | 0 | 6 |
 | **Permission** | 4 | 0 | 0 | 4 |
 | **Automation** | 7 | 1 | 0 | 6 |
 | **AI** | 12 | 0 | 0 | 12 |
 | **Integration** | 7 | 0 | 0 | 7 |
-| **Hub** | 8 | 0 | 1 | 7 |
 | **QA** | 1 | 1 | 0 | 0 |
-| **TOTAL** | **123** | **26** | **6** | **91** |
+| **TOTAL** | **116** | **28** | **5** | **83** |
 
 ### Implementation Coverage
 
-- **Fully Implemented**: 21.1% (26/123)
-- **Partially Implemented**: 4.9% (6/123)
-- **Not Implemented**: 74.0% (91/123)
+- **Fully Implemented**: 24.1% (28/116)
+- **Partially Implemented**: 4.3% (5/116)
+- **Not Implemented**: 71.6% (83/116)
 
 ### Core Functionality Status
 
