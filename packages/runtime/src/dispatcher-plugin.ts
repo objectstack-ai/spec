@@ -53,7 +53,7 @@ function errorResponse(err: any, res: any): void {
  *   - /graphql   (GraphQL)
  *   - /analytics (BI queries)
  *   - /packages  (package management)
- *   - /hub       (multi-tenant hub)
+
  *   - /storage   (file storage)
  *   - /automation (triggers)
  *
@@ -188,61 +188,6 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
             server.patch(`${prefix}/packages/:id/disable`, async (req: any, res: any) => {
                 try {
                     const result = await dispatcher.handlePackages(`/${req.params.id}/disable`, 'PATCH', {}, {}, { request: req });
-                    sendResult(result, res);
-                } catch (err: any) {
-                    errorResponse(err, res);
-                }
-            });
-
-            // ── Hub ─────────────────────────────────────────────────────
-            server.get(`${prefix}/hub/:resource`, async (req: any, res: any) => {
-                try {
-                    const result = await dispatcher.handleHub(`/${req.params.resource}`, 'GET', {}, req.query, { request: req });
-                    sendResult(result, res);
-                } catch (err: any) {
-                    errorResponse(err, res);
-                }
-            });
-
-            server.post(`${prefix}/hub/:resource`, async (req: any, res: any) => {
-                try {
-                    const result = await dispatcher.handleHub(`/${req.params.resource}`, 'POST', req.body, {}, { request: req });
-                    sendResult(result, res);
-                } catch (err: any) {
-                    errorResponse(err, res);
-                }
-            });
-
-            server.get(`${prefix}/hub/:resource/:id`, async (req: any, res: any) => {
-                try {
-                    const result = await dispatcher.handleHub(`/${req.params.resource}/${req.params.id}`, 'GET', {}, req.query, { request: req });
-                    sendResult(result, res);
-                } catch (err: any) {
-                    errorResponse(err, res);
-                }
-            });
-
-            server.patch(`${prefix}/hub/:resource/:id`, async (req: any, res: any) => {
-                try {
-                    const result = await dispatcher.handleHub(`/${req.params.resource}/${req.params.id}`, 'PATCH', req.body, {}, { request: req });
-                    sendResult(result, res);
-                } catch (err: any) {
-                    errorResponse(err, res);
-                }
-            });
-
-            server.put(`${prefix}/hub/:resource/:id`, async (req: any, res: any) => {
-                try {
-                    const result = await dispatcher.handleHub(`/${req.params.resource}/${req.params.id}`, 'PUT', req.body, {}, { request: req });
-                    sendResult(result, res);
-                } catch (err: any) {
-                    errorResponse(err, res);
-                }
-            });
-
-            server.delete(`${prefix}/hub/:resource/:id`, async (req: any, res: any) => {
-                try {
-                    const result = await dispatcher.handleHub(`/${req.params.resource}/${req.params.id}`, 'DELETE', {}, {}, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);

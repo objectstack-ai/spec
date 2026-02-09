@@ -12,8 +12,6 @@ import {
   GetAnalyticsMetaRequestSchema, 
   AnalyticsMetadataResponseSchema 
 } from './analytics.zod';
-// Hub management types (marketplace, spaces, etc.) have been migrated to the cloud project.
-// listSpaces, createSpace, installPlugin operations are defined in the cloud API layer.
 import { RealtimePresenceSchema, TransportProtocol } from './realtime.zod';
 import { ObjectPermissionSchema, FieldPermissionSchema } from '../security/permission.zod';
 import { WorkflowRuleSchema } from '../automation/workflow.zod';

@@ -65,7 +65,6 @@ export class HttpDispatcher {
         const hasWebSockets = !!services[CoreServiceName.enum.realtime];
         const hasFiles = !!(services[CoreServiceName.enum['file-storage']] || services['storage']?.supportsFiles);
         const hasAnalytics = !!services[CoreServiceName.enum.analytics];
-        const hasHub = !!services[CoreServiceName.enum.hub];
 
         const routes = {
                 data: `${prefix}/data`,
@@ -76,7 +75,6 @@ export class HttpDispatcher {
                 graphql: hasGraphQL ? `${prefix}/graphql` : undefined,
                 storage: hasFiles ? `${prefix}/storage` : undefined,
                 analytics: hasAnalytics ? `${prefix}/analytics` : undefined,
-                hub: hasHub ? `${prefix}/hub` : undefined,
                 automation: `${prefix}/automation`, 
         };
 
@@ -92,7 +90,6 @@ export class HttpDispatcher {
                 websockets: hasWebSockets,
                 files: hasFiles,
                 analytics: hasAnalytics,
-                hub: hasHub,
             },
             locale: {
                 default: 'en',
@@ -536,81 +533,6 @@ export class HttpDispatcher {
     }
 
     /**
-     * Handles Hub requests
-     * path: sub-path after /hub/
-     */
-    async handleHub(path: string, method: string, body: any, query: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
-        const hubService = this.getService(CoreServiceName.enum.hub);
-        if (!hubService) return { handled: false };
-
-        const m = method.toUpperCase();
-        const parts = path.replace(/^\/+/, '').split('/');
-        
-        // Resource-based routing: /hub/:resource/:id
-        if (parts.length > 0) {
-            const resource = parts[0]; // spaces, plugins, etc.
-            
-            // Allow mapping "spaces" -> "createSpace", "listSpaces" etc.
-            // Convention: 
-            // GET /spaces -> listSpaces
-            // POST /spaces -> createSpace
-            // GET /spaces/:id -> getSpace
-            // PATCH /spaces/:id -> updateSpace
-            // DELETE /spaces/:id -> deleteSpace
-            
-            const actionBase = resource.endsWith('s') ? resource.slice(0, -1) : resource; // space
-            const id = parts[1];
-
-            try {
-                if (parts.length === 1) {
-                    // Collection Operations
-                    if (m === 'GET') {
-                        const capitalizedAction = 'list' + this.capitalize(resource); // listSpaces
-                        if (typeof hubService[capitalizedAction] === 'function') {
-                            const result = await hubService[capitalizedAction](query, { request: context.request });
-                            return { handled: true, response: this.success(result) };
-                        }
-                    }
-                    if (m === 'POST') {
-                        const capitalizedAction = 'create' + this.capitalize(actionBase); // createSpace
-                        if (typeof hubService[capitalizedAction] === 'function') {
-                             const result = await hubService[capitalizedAction](body, { request: context.request });
-                             return { handled: true, response: this.success(result) };
-                        }
-                    }
-                } else if (parts.length === 2) {
-                    // Item Operations
-                     if (m === 'GET') {
-                        const capitalizedAction = 'get' + this.capitalize(actionBase); // getSpace
-                        if (typeof hubService[capitalizedAction] === 'function') {
-                             const result = await hubService[capitalizedAction](id, { request: context.request });
-                             return { handled: true, response: this.success(result) };
-                        }
-                    }
-                     if (m === 'PATCH' || m === 'PUT') {
-                        const capitalizedAction = 'update' + this.capitalize(actionBase); // updateSpace
-                        if (typeof hubService[capitalizedAction] === 'function') {
-                             const result = await hubService[capitalizedAction](id, body, { request: context.request });
-                             return { handled: true, response: this.success(result) };
-                        }
-                    }
-                    if (m === 'DELETE') {
-                        const capitalizedAction = 'delete' + this.capitalize(actionBase); // deleteSpace
-                        if (typeof hubService[capitalizedAction] === 'function') {
-                             const result = await hubService[capitalizedAction](id, { request: context.request });
-                             return { handled: true, response: this.success(result) };
-                        }
-                    }
-                }
-            } catch(e: any) {
-                return { handled: true, response: this.error(e.message, 500) };
-            }
-        }
-        
-        return { handled: false };
-    }
-
-    /**
      * Handles Storage requests
      * path: sub-path after /storage/
      */
@@ -811,10 +733,6 @@ export class HttpDispatcher {
         
         if (cleanPath.startsWith('/analytics')) {
              return this.handleAnalytics(cleanPath.substring(10), method, body, context);
-        }
-
-        if (cleanPath.startsWith('/hub')) {
-             return this.handleHub(cleanPath.substring(4), method, body, query, context);
         }
 
         if (cleanPath.startsWith('/packages')) {

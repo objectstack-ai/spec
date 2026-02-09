@@ -385,37 +385,6 @@ export class ObjectStackClient {
   };
 
   /**
-   * Hub Management Services
-   */
-  hub = {
-    spaces: {
-        list: async () => {
-            const route = this.getRoute('hub');
-            const res = await this.fetch(`${this.baseUrl}${route}/spaces`);
-            return res.json();
-        },
-        create: async (payload: any) => {
-            const route = this.getRoute('hub');
-            const res = await this.fetch(`${this.baseUrl}${route}/spaces`, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-            return res.json();
-        }
-    },
-    plugins: {
-        install: async (pkg: string, version?: string) => {
-            const route = this.getRoute('hub');
-            const res = await this.fetch(`${this.baseUrl}${route}/plugins/install`, {
-                method: 'POST',
-                body: JSON.stringify({ pkg, version })
-            });
-            return res.json();
-        }
-    }
-  };
-
-  /**
    * Package Management Services
    * 
    * Manages the lifecycle of installed packages.
@@ -1302,7 +1271,7 @@ export class ObjectStackClient {
    * Get the conventional route path for a given API endpoint type
    * ObjectStack uses standard conventions: /api/v1/data, /api/v1/meta, /api/v1/ui
    */
-  private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth' | 'analytics' | 'hub' | 'storage' | 'automation' | 'packages' | 'permissions' | 'realtime' | 'workflow' | 'views' | 'notifications' | 'ai' | 'i18n'): string {
+  private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth' | 'analytics' | 'storage' | 'automation' | 'packages' | 'permissions' | 'realtime' | 'workflow' | 'views' | 'notifications' | 'ai' | 'i18n'): string {
     // 1. Use discovered routes if available
     // Note: Spec uses 'endpoints', mapped dynamically
     if (this.discoveryInfo?.endpoints && (this.discoveryInfo.endpoints as any)[type]) {
@@ -1316,7 +1285,6 @@ export class ObjectStackClient {
       ui: '/api/v1/ui',
       auth: '/api/v1/auth',
       analytics: '/api/v1/analytics',
-      hub: '/api/v1/hub',
       storage: '/api/v1/storage',
       automation: '/api/v1/automation',
       packages: '/api/v1/packages',

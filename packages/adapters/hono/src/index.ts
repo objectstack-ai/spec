@@ -150,25 +150,6 @@ export function createHonoApp(options: ObjectStackHonoOptions) {
     }
   });
 
-  // --- 6. Hub Endpoints ---
-  app.all(`${prefix}/hub*`, async (c) => {
-    try {
-      const path = c.req.path.substring(c.req.path.indexOf('/hub') + 4);
-      const method = c.req.method;
-      
-      let body = {};
-      if (method === 'POST' || method === 'PATCH' || method === 'PUT') {
-          body = await c.req.json().catch(() => ({}));
-      }
-      const query = c.req.query();
-
-      const result = await dispatcher.handleHub(path, method, body, query, { request: c.req.raw });
-      return normalizeResponse(c, result);
-    } catch (err: any) {
-      return c.json({ success: false, error: { message: err.message, code: err.statusCode || 500 } }, err.statusCode || 500);
-    }
-  });
-
   // --- 7. Automation Endpoints ---
   app.all(`${prefix}/automation*`, async (c) => {
       try {

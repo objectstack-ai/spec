@@ -86,7 +86,6 @@ export const RestApiRouteCategory = z.enum([
   'notification', // Notification management
   'ai',           // AI operations (NLQ, chat)
   'i18n',         // Internationalization
-  'hub',          // Hub and package management
 ]);
 
 export type RestApiRouteCategory = z.infer<typeof RestApiRouteCategory>;
@@ -1581,151 +1580,6 @@ export const DEFAULT_ANALYTICS_ROUTES: RestApiRouteRegistration = {
 };
 
 // ==========================================
-// Hub / Package Management Routes
-// ==========================================
-
-/**
- * Default Hub Routes
- * Standard routes for hub management and package lifecycle
- */
-export const DEFAULT_HUB_ROUTES: RestApiRouteRegistration = {
-  prefix: '/api/v1/hub',
-  service: 'hub',
-  category: 'hub',
-  methods: [
-    'listSpaces', 'createSpace', 'installPlugin',
-    'listPackages', 'getPackage', 'installPackage', 'uninstallPackage',
-    'enablePackage', 'disablePackage',
-  ],
-  authRequired: true,
-  endpoints: [
-    {
-      method: 'GET',
-      path: '/spaces',
-      handler: 'listSpaces',
-      category: 'hub',
-      public: false,
-      summary: 'List spaces',
-      description: 'Returns all hub spaces accessible to the current user',
-      tags: ['Hub'],
-      cacheable: true,
-      cacheTtl: 300,
-    },
-    {
-      method: 'POST',
-      path: '/spaces',
-      handler: 'createSpace',
-      category: 'hub',
-      public: false,
-      summary: 'Create space',
-      description: 'Creates a new hub space',
-      tags: ['Hub'],
-      requestSchema: 'CreateSpaceRequestSchema',
-      responseSchema: 'SpaceResponseSchema',
-      permissions: ['hub.space.create'],
-      cacheable: false,
-    },
-    {
-      method: 'POST',
-      path: '/plugins/install',
-      handler: 'installPlugin',
-      category: 'hub',
-      public: false,
-      summary: 'Install plugin into space',
-      description: 'Installs a plugin into the current space',
-      tags: ['Hub'],
-      requestSchema: 'InstallPluginRequestSchema',
-      responseSchema: 'InstallPluginResponseSchema',
-      permissions: ['hub.plugin.install'],
-      cacheable: false,
-    },
-    {
-      method: 'GET',
-      path: '/packages',
-      handler: 'listPackages',
-      category: 'hub',
-      public: false,
-      summary: 'List installed packages',
-      description: 'Returns all installed packages with optional status filter',
-      tags: ['Hub', 'Packages'],
-      responseSchema: 'ListPackagesResponseSchema',
-      cacheable: false,
-    },
-    {
-      method: 'GET',
-      path: '/packages/:id',
-      handler: 'getPackage',
-      category: 'hub',
-      public: false,
-      summary: 'Get package details',
-      description: 'Returns details of a specific installed package',
-      tags: ['Hub', 'Packages'],
-      responseSchema: 'GetPackageResponseSchema',
-      cacheable: false,
-    },
-    {
-      method: 'POST',
-      path: '/packages',
-      handler: 'installPackage',
-      category: 'hub',
-      public: false,
-      summary: 'Install package',
-      description: 'Installs a new package from manifest or registry',
-      tags: ['Hub', 'Packages'],
-      requestSchema: 'InstallPackageRequestSchema',
-      responseSchema: 'InstallPackageResponseSchema',
-      permissions: ['hub.package.install'],
-      cacheable: false,
-    },
-    {
-      method: 'DELETE',
-      path: '/packages/:id',
-      handler: 'uninstallPackage',
-      category: 'hub',
-      public: false,
-      summary: 'Uninstall package',
-      description: 'Removes an installed package',
-      tags: ['Hub', 'Packages'],
-      responseSchema: 'UninstallPackageResponseSchema',
-      permissions: ['hub.package.uninstall'],
-      cacheable: false,
-    },
-    {
-      method: 'POST',
-      path: '/packages/:id/enable',
-      handler: 'enablePackage',
-      category: 'hub',
-      public: false,
-      summary: 'Enable package',
-      description: 'Enables a disabled package',
-      tags: ['Hub', 'Packages'],
-      responseSchema: 'EnablePackageResponseSchema',
-      permissions: ['hub.package.manage'],
-      cacheable: false,
-    },
-    {
-      method: 'POST',
-      path: '/packages/:id/disable',
-      handler: 'disablePackage',
-      category: 'hub',
-      public: false,
-      summary: 'Disable package',
-      description: 'Disables an installed package without removing it',
-      tags: ['Hub', 'Packages'],
-      responseSchema: 'DisablePackageResponseSchema',
-      permissions: ['hub.package.manage'],
-      cacheable: false,
-    },
-  ],
-  middleware: [
-    { name: 'auth', type: 'authentication', enabled: true, order: 10 },
-    { name: 'validation', type: 'validation', enabled: true, order: 20 },
-    { name: 'response_envelope', type: 'transformation', enabled: true, order: 100 },
-    { name: 'error_handler', type: 'error', enabled: true, order: 200 },
-  ],
-};
-
-// ==========================================
 // Automation Routes
 // ==========================================
 
@@ -1799,8 +1653,7 @@ export const RestApiRouteRegistration = Object.assign(RestApiRouteRegistrationSc
  * 10. AI - NLQ, chat, suggestions, insights
  * 11. i18n - Locales and translations
  * 12. Analytics - BI queries and metadata
- * 13. Hub - Space and package management
- * 14. Automation - Trigger flows and scripts
+ * 13. Automation - Trigger flows and scripts
  */
 export function getDefaultRouteRegistrations(): RestApiRouteRegistration[] {
   return [
@@ -1816,7 +1669,6 @@ export function getDefaultRouteRegistrations(): RestApiRouteRegistration[] {
     DEFAULT_AI_ROUTES,
     DEFAULT_I18N_ROUTES,
     DEFAULT_ANALYTICS_ROUTES,
-    DEFAULT_HUB_ROUTES,
     DEFAULT_AUTOMATION_ROUTES,
   ];
 }

@@ -44,7 +44,6 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
                 websockets: false,
                 files: true,
                 analytics: false,
-                hub: false,
                 ai: false,
                 workflow: false,
                 notifications: false,
@@ -276,12 +275,84 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
     // Batch Operations
     // ==========================================
 
-    async batchData(_request: { object: string, request: BatchUpdateRequest }): Promise<BatchUpdateResponse> {
-        // Map high-level batch request to DataEngine batch if available
-        // Or implement loop here.
-        // For now, let's just fail or implement basic loop to satisfying interface
-        // since full batch mapping requires careful type handling.
-        throw new Error('Batch operations not yet fully implemented in protocol adapter');
+    async batchData(request: { object: string, request: BatchUpdateRequest }): Promise<BatchUpdateResponse> {
+        const { object, request: batchReq } = request;
+        const { operation, records, options } = batchReq;
+        const results: Array<{ id?: string; success: boolean; error?: string; record?: any }> = [];
+        let succeeded = 0;
+        let failed = 0;
+
+        for (const record of records) {
+            try {
+                switch (operation) {
+                    case 'create': {
+                        const created = await this.engine.insert(object, record.data || record);
+                        results.push({ id: created._id || created.id, success: true, record: created });
+                        succeeded++;
+                        break;
+                    }
+                    case 'update': {
+                        if (!record.id) throw new Error('Record id is required for update');
+                        const updated = await this.engine.update(object, record.data || {}, { filter: { _id: record.id } });
+                        results.push({ id: record.id, success: true, record: updated });
+                        succeeded++;
+                        break;
+                    }
+                    case 'upsert': {
+                        // Try update first, then create if not found
+                        if (record.id) {
+                            try {
+                                const existing = await this.engine.findOne(object, { filter: { _id: record.id } });
+                                if (existing) {
+                                    const updated = await this.engine.update(object, record.data || {}, { filter: { _id: record.id } });
+                                    results.push({ id: record.id, success: true, record: updated });
+                                } else {
+                                    const created = await this.engine.insert(object, { _id: record.id, ...(record.data || {}) });
+                                    results.push({ id: created._id || created.id, success: true, record: created });
+                                }
+                            } catch {
+                                const created = await this.engine.insert(object, { _id: record.id, ...(record.data || {}) });
+                                results.push({ id: created._id || created.id, success: true, record: created });
+                            }
+                        } else {
+                            const created = await this.engine.insert(object, record.data || record);
+                            results.push({ id: created._id || created.id, success: true, record: created });
+                        }
+                        succeeded++;
+                        break;
+                    }
+                    case 'delete': {
+                        if (!record.id) throw new Error('Record id is required for delete');
+                        await this.engine.delete(object, { filter: { _id: record.id } });
+                        results.push({ id: record.id, success: true });
+                        succeeded++;
+                        break;
+                    }
+                    default:
+                        results.push({ id: record.id, success: false, error: `Unknown operation: ${operation}` });
+                        failed++;
+                }
+            } catch (err: any) {
+                results.push({ id: record.id, success: false, error: err.message });
+                failed++;
+                if (options?.atomic) {
+                    // Abort remaining operations on first failure in atomic mode
+                    break;
+                }
+                if (!options?.continueOnError) {
+                    break;
+                }
+            }
+        }
+
+        return {
+            success: failed === 0,
+            operation,
+            total: records.length,
+            succeeded,
+            failed,
+            results: options?.returnRecords !== false ? results : results.map(r => ({ id: r.id, success: r.success, error: r.error })),
+        } as BatchUpdateResponse;
     }
     
     async createManyData(request: { object: string, records: any[] }): Promise<any> {
@@ -293,33 +364,46 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         };
     }
     
-    async updateManyData(_request: UpdateManyDataRequest): Promise<any> {
-        // TODO: Implement proper updateMany in DataEngine
-        throw new Error('updateManyData not implemented');
+    async updateManyData(request: UpdateManyDataRequest): Promise<BatchUpdateResponse> {
+        const { object, records, options } = request;
+        const results: Array<{ id?: string; success: boolean; error?: string; record?: any }> = [];
+        let succeeded = 0;
+        let failed = 0;
+
+        for (const record of records) {
+            try {
+                const updated = await this.engine.update(object, record.data, { filter: { _id: record.id } });
+                results.push({ id: record.id, success: true, record: updated });
+                succeeded++;
+            } catch (err: any) {
+                results.push({ id: record.id, success: false, error: err.message });
+                failed++;
+                if (!options?.continueOnError) {
+                    break;
+                }
+            }
+        }
+
+        return {
+            success: failed === 0,
+            operation: 'update',
+            total: records.length,
+            succeeded,
+            failed,
+            results,
+        } as BatchUpdateResponse;
     }
 
     async analyticsQuery(_request: any): Promise<any> {
-        throw new Error('analyticsQuery not implemented');
+        throw new Error('analyticsQuery requires plugin-analytics service. Install and register a plugin that provides the "analytics" service.');
     }
 
     async getAnalyticsMeta(_request: any): Promise<any> {
-        throw new Error('getAnalyticsMeta not implemented');
+        throw new Error('getAnalyticsMeta requires plugin-analytics service. Install and register a plugin that provides the "analytics" service.');
     }
 
     async triggerAutomation(_request: any): Promise<any> {
-        throw new Error('triggerAutomation not implemented');
-    }
-
-    async listSpaces(_request: any): Promise<any> {
-        throw new Error('listSpaces not implemented');
-    }
-
-    async createSpace(_request: any): Promise<any> {
-        throw new Error('createSpace not implemented');
-    }
-
-    async installPlugin(_request: any): Promise<any> {
-        throw new Error('installPlugin not implemented');
+        throw new Error('triggerAutomation requires plugin-automation service. Install and register a plugin that provides the "automation" service.');
     }
 
     async deleteManyData(request: DeleteManyDataRequest): Promise<any> {

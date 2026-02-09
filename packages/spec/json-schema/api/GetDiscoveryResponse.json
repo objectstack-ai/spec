@@ -36,11 +36,6 @@
               "default": false,
               "description": "Is the Analytics/BI engine enabled?"
             },
-            "hub": {
-              "type": "boolean",
-              "default": false,
-              "description": "Is Hub management enabled?"
-            },
             "ai": {
               "type": "boolean",
               "default": false,
@@ -95,10 +90,6 @@
             "analytics": {
               "type": "string",
               "description": "e.g. /api/v1/analytics"
-            },
-            "hub": {
-              "type": "string",
-              "description": "e.g. /api/v1/hub"
             },
             "graphql": {
               "type": "string",

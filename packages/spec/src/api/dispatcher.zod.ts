@@ -148,8 +148,7 @@ export const DEFAULT_DISPATCHER_ROUTES: DispatcherRouteInput[] = [
   { prefix: '/api/v1/auth',     service: 'auth',      criticality: 'required' },
   
   // Optional Services (plugin-provided)
-  { prefix: '/api/v1/packages',      service: 'hub' },
-  { prefix: '/api/v1/hub',           service: 'hub' },
+  { prefix: '/api/v1/packages',      service: 'metadata' },
   { prefix: '/api/v1/ui',            service: 'ui' },
   { prefix: '/api/v1/workflow',      service: 'workflow' },
   { prefix: '/api/v1/analytics',     service: 'analytics' },

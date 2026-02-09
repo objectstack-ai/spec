@@ -32,7 +32,6 @@ export const CoreServiceName = z.enum([
   'automation',     // Flow & Script Engine
   'graphql',        // GraphQL API Engine
   'analytics',      // BI & Semantic Layer
-  'hub',            // Multi-tenant & Marketplace Management
   'realtime',       // WebSocket & PubSub
   'job',            // Background Job Manager
   'notification',   // Email/Push/SMS
@@ -74,7 +73,6 @@ export const ServiceRequirementDef = {
   automation: 'optional',
   graphql: 'optional',
   analytics: 'optional',
-  hub: 'optional',
   realtime: 'optional',
   notification: 'optional',
   ai: 'optional',

@@ -9,7 +9,6 @@
  * - OData v4 compatibility
  * - Batch operations
  * - Metadata caching
- * - Hub Management APIs
  * - HttpDispatcher routing
  * - API versioning
  */
