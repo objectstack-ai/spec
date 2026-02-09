@@ -1,5 +1,5 @@
 import { ObjectKernel, Plugin, IHttpServer, ObjectKernelConfig } from '@objectstack/core';
-import { createApiRegistryPlugin, ApiRegistryConfig } from './api-registry-plugin.js';
+import { createRestApiPlugin, RestApiPluginConfig } from '@objectstack/rest';
 
 export interface RuntimeConfig {
     /**
@@ -12,7 +12,7 @@ export interface RuntimeConfig {
     /**
      * API Registry Configuration
      */
-    api?: ApiRegistryConfig;
+    api?: RestApiPluginConfig;
 
     /**
      * Kernel Configuration
@@ -47,7 +47,7 @@ export class Runtime {
         
         // Register API Registry by default
         // This plugin is passive (wait for services) so it's safe to add early.
-        this.kernel.use(createApiRegistryPlugin(config.api));
+        this.kernel.use(createRestApiPlugin(config.api));
     }
     
     /**
