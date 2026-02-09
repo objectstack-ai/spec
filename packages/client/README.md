@@ -11,6 +11,8 @@ The official TypeScript client for ObjectStack.
 - **Batch Operations**: Efficient bulk create/update/delete with transaction support.
 - **View Storage**: Save, load, and share custom UI view configurations.
 - **Standardized Errors**: Machine-readable error codes with retry guidance.
+- **Full Protocol Coverage**: Implements all 13 API namespaces defined in `@objectstack/spec`
+- **95+ Methods**: Complete implementation of discovery, metadata, data, auth, workflow, realtime, AI, and more.
 
 ## 🤖 AI Development Context
 
@@ -218,4 +220,126 @@ const data = await retryableRequest(() =>
   client.data.create('todo_task', { subject: 'Task' })
 );
 ```
+
+## Protocol Compliance
+
+This client is **100% compliant** with the `@objectstack/spec` API protocol specification. It implements all 13 API namespaces:
+
+| Namespace | Purpose | Status |
+|-----------|---------|:------:|
+| `discovery` | API version & capabilities detection | ✅ |
+| `meta` | Metadata operations (objects, plugins, etc.) | ✅ |
+| `data` | CRUD & query operations | ✅ |
+| `auth` | Authentication & user management | ✅ |
+| `packages` | Plugin/package lifecycle management | ✅ |
+| `views` | UI view definitions | ✅ |
+| `workflow` | Workflow state transitions | ✅ |
+| `analytics` | Analytics queries | ✅ |
+| `automation` | Automation triggers | ✅ |
+| `i18n` | Internationalization | ✅ |
+| `notifications` | Push notifications | ✅ |
+| `realtime` | WebSocket subscriptions | ✅ |
+| `ai` | AI services (NLQ, chat, insights) | ✅ |
+
+For detailed compliance verification, see [CLIENT_SPEC_COMPLIANCE.md](./CLIENT_SPEC_COMPLIANCE.md).
+
+## Available Namespaces
+
+### Complete API Coverage
+
+```typescript
+const client = new ObjectStackClient({ baseUrl: 'http://localhost:3000' });
+await client.connect();
+
+// Discovery & Metadata
+await client.meta.getTypes();                    // List metadata types
+await client.meta.getItems('object');            // List all objects
+await client.meta.getItem('object', 'contact');  // Get specific object
+
+// Data Operations
+await client.data.find('contact', { filters: { status: 'active' } });
+await client.data.create('contact', { name: 'John' });
+await client.data.update('contact', id, { status: 'inactive' });
+await client.data.delete('contact', id);
+await client.data.batch('contact', batchRequest);
+
+// Authentication
+await client.auth.login({ email: 'user@example.com', password: 'pass' });
+await client.auth.register({ email: 'new@example.com', password: 'pass' });
+await client.auth.me();
+await client.auth.logout();
+
+// Package Management
+await client.packages.list();
+await client.packages.install({ packageId: '@vendor/plugin' });
+await client.packages.enable('plugin-id');
+
+// Permissions
+await client.permissions.check({ object: 'contact', action: 'create' });
+await client.permissions.getObjectPermissions('contact');
+await client.permissions.getEffectivePermissions('contact');
+
+// Workflow
+await client.workflow.getConfig('approval');
+await client.workflow.getState('approval', recordId);
+await client.workflow.transition({ object: 'approval', recordId, transition: 'submit' });
+await client.workflow.approve({ object: 'approval', recordId });
+await client.workflow.reject({ object: 'approval', recordId, reason: 'Incomplete' });
+
+// Realtime
+await client.realtime.connect({ protocol: 'websocket' });
+await client.realtime.subscribe({ channel: 'contact', event: 'update' });
+await client.realtime.setPresence({ status: 'online' });
+
+// Notifications
+await client.notifications.registerDevice({ token: 'device-token', platform: 'ios' });
+await client.notifications.list({ unreadOnly: true });
+await client.notifications.markRead(['notif-1', 'notif-2']);
+
+// AI Services
+await client.ai.nlq({ query: 'Show me all active contacts' });
+await client.ai.chat({ message: 'Summarize this project', context: projectId });
+await client.ai.suggest({ object: 'contact', field: 'industry' });
+await client.ai.insights({ object: 'sales', recordId: dealId });
+
+// Internationalization
+await client.i18n.getLocales();
+await client.i18n.getTranslations('zh-CN');
+await client.i18n.getFieldLabels('contact', 'zh-CN');
+
+// Analytics
+await client.analytics.query({ object: 'sales', aggregations: ['sum:amount'] });
+await client.analytics.getMeta('sales');
+
+// Automation
+await client.automation.trigger({ trigger: 'send_welcome_email', payload: { userId } });
+
+// File Storage
+await client.storage.upload({ file: fileData, object: 'contact', field: 'avatar' });
+await client.storage.getDownloadUrl({ fileId: 'file-123' });
+```
+
+## Testing
+
+### Unit Tests
+
+```bash
+pnpm test
+```
+
+### Integration Tests
+
+Integration tests verify client-server communication across all protocol methods:
+
+```bash
+# Start test server
+cd ../server
+pnpm dev:test
+
+# Run integration tests
+cd ../client
+pnpm test:integration
+```
+
+See [CLIENT_SERVER_INTEGRATION_TESTS.md](./CLIENT_SERVER_INTEGRATION_TESTS.md) for detailed test specifications.
 
