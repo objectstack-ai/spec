@@ -1,5 +1,19 @@
 # @objectstack/cli
 
+## 2.0.1
+
+### Patch Changes
+
+- Patch release for maintenance and stability improvements
+- Updated dependencies
+  - @objectstack/spec@2.0.1
+  - @objectstack/core@2.0.1
+  - @objectstack/objectql@2.0.1
+  - @objectstack/runtime@2.0.1
+  - @objectstack/rest@2.0.1
+  - @objectstack/driver-memory@2.0.1
+  - @objectstack/plugin-hono-server@2.0.1
+
 ## 2.0.0
 
 ### Patch Changes
