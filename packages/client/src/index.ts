@@ -19,7 +19,53 @@ import {
   GetPresignedUrlRequest,
   PresignedUrlResponse,
   CompleteUploadRequest,
-  FileUploadResponse
+  FileUploadResponse,
+  CheckPermissionRequest,
+  CheckPermissionResponse,
+  GetObjectPermissionsResponse,
+  GetEffectivePermissionsResponse,
+  RealtimeConnectRequest,
+  RealtimeConnectResponse,
+  RealtimeSubscribeRequest,
+  RealtimeSubscribeResponse,
+  SetPresenceRequest,
+  GetPresenceResponse,
+  GetWorkflowConfigResponse,
+  GetWorkflowStateResponse,
+  WorkflowTransitionRequest,
+  WorkflowTransitionResponse,
+  WorkflowApproveRequest,
+  WorkflowApproveResponse,
+  WorkflowRejectRequest,
+  WorkflowRejectResponse,
+  ListViewsResponse,
+  GetViewResponse,
+  CreateViewRequest,
+  CreateViewResponse,
+  UpdateViewRequest,
+  UpdateViewResponse,
+  DeleteViewResponse,
+  RegisterDeviceRequest,
+  RegisterDeviceResponse,
+  UnregisterDeviceResponse,
+  GetNotificationPreferencesResponse,
+  UpdateNotificationPreferencesRequest,
+  UpdateNotificationPreferencesResponse,
+  ListNotificationsResponse,
+  MarkNotificationsReadResponse,
+  MarkAllNotificationsReadResponse,
+  AiNlqRequest,
+  AiNlqResponse,
+  AiChatRequest,
+  AiChatResponse,
+  AiSuggestRequest,
+  AiSuggestResponse,
+  AiInsightsRequest,
+  AiInsightsResponse,
+  GetLocalesResponse,
+  GetTranslationsResponse,
+  GetFieldLabelsResponse,
+  RegisterRequest
 } from '@objectstack/spec/api';
 import { Logger, createLogger } from '@objectstack/core';
 
@@ -488,6 +534,38 @@ export class ObjectStackClient {
         const route = this.getRoute('auth');
         const res = await this.fetch(`${this.baseUrl}${route}/me`);
         return res.json();
+    },
+
+    /**
+     * Register a new user account
+     */
+    register: async (request: RegisterRequest): Promise<SessionResponse> => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/register`, {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
+      const data = await res.json();
+      if (data.data?.token) {
+        this.token = data.data.token;
+      }
+      return data;
+    },
+
+    /**
+     * Refresh an authentication token
+     */
+    refreshToken: async (refreshToken: string): Promise<SessionResponse> => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/refresh`, {
+        method: 'POST',
+        body: JSON.stringify({ refreshToken })
+      });
+      const data = await res.json();
+      if (data.data?.token) {
+        this.token = data.data.token;
+      }
+      return data;
     }
   };
 
@@ -555,6 +633,419 @@ export class ObjectStackClient {
           });
           return res.json();
       }
+  };
+
+  /**
+   * Permissions Services
+   */
+  permissions = {
+    /**
+     * Check if current user has permission for an action on an object
+     */
+    check: async (request: CheckPermissionRequest): Promise<CheckPermissionResponse> => {
+      const route = this.getRoute('permissions');
+      const params = new URLSearchParams();
+      params.set('object', request.object);
+      params.set('action', request.action);
+      if (request.recordId) params.set('recordId', request.recordId);
+      if (request.field) params.set('field', request.field);
+      const res = await this.fetch(`${this.baseUrl}${route}/check?${params.toString()}`);
+      return this.unwrapResponse<CheckPermissionResponse>(res);
+    },
+
+    /**
+     * Get all permissions for a specific object
+     */
+    getObjectPermissions: async (object: string): Promise<GetObjectPermissionsResponse> => {
+      const route = this.getRoute('permissions');
+      const res = await this.fetch(`${this.baseUrl}${route}/objects/${encodeURIComponent(object)}`);
+      return this.unwrapResponse<GetObjectPermissionsResponse>(res);
+    },
+
+    /**
+     * Get effective permissions for the current user
+     */
+    getEffectivePermissions: async (): Promise<GetEffectivePermissionsResponse> => {
+      const route = this.getRoute('permissions');
+      const res = await this.fetch(`${this.baseUrl}${route}/effective`);
+      return this.unwrapResponse<GetEffectivePermissionsResponse>(res);
+    }
+  };
+
+  /**
+   * Realtime Services
+   */
+  realtime = {
+    /**
+     * Establish a realtime connection
+     */
+    connect: async (request?: RealtimeConnectRequest): Promise<RealtimeConnectResponse> => {
+      const route = this.getRoute('realtime');
+      const res = await this.fetch(`${this.baseUrl}${route}/connect`, {
+        method: 'POST',
+        body: JSON.stringify(request || {})
+      });
+      return this.unwrapResponse<RealtimeConnectResponse>(res);
+    },
+
+    /**
+     * Disconnect from realtime services
+     */
+    disconnect: async (): Promise<void> => {
+      const route = this.getRoute('realtime');
+      await this.fetch(`${this.baseUrl}${route}/disconnect`, {
+        method: 'POST'
+      });
+    },
+
+    /**
+     * Subscribe to a channel
+     */
+    subscribe: async (request: RealtimeSubscribeRequest): Promise<RealtimeSubscribeResponse> => {
+      const route = this.getRoute('realtime');
+      const res = await this.fetch(`${this.baseUrl}${route}/subscribe`, {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
+      return this.unwrapResponse<RealtimeSubscribeResponse>(res);
+    },
+
+    /**
+     * Unsubscribe from a channel
+     */
+    unsubscribe: async (subscriptionId: string): Promise<void> => {
+      const route = this.getRoute('realtime');
+      await this.fetch(`${this.baseUrl}${route}/unsubscribe`, {
+        method: 'POST',
+        body: JSON.stringify({ subscriptionId })
+      });
+    },
+
+    /**
+     * Set presence state on a channel
+     */
+    setPresence: async (channel: string, state: SetPresenceRequest['state']): Promise<void> => {
+      const route = this.getRoute('realtime');
+      await this.fetch(`${this.baseUrl}${route}/presence`, {
+        method: 'PUT',
+        body: JSON.stringify({ channel, state })
+      });
+    },
+
+    /**
+     * Get presence information for a channel
+     */
+    getPresence: async (channel: string): Promise<GetPresenceResponse> => {
+      const route = this.getRoute('realtime');
+      const res = await this.fetch(`${this.baseUrl}${route}/presence/${encodeURIComponent(channel)}`);
+      return this.unwrapResponse<GetPresenceResponse>(res);
+    }
+  };
+
+  /**
+   * Workflow Services
+   */
+  workflow = {
+    /**
+     * Get workflow configuration for an object
+     */
+    getConfig: async (object: string): Promise<GetWorkflowConfigResponse> => {
+      const route = this.getRoute('workflow');
+      const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(object)}/config`);
+      return this.unwrapResponse<GetWorkflowConfigResponse>(res);
+    },
+
+    /**
+     * Get current workflow state for a record
+     */
+    getState: async (object: string, recordId: string): Promise<GetWorkflowStateResponse> => {
+      const route = this.getRoute('workflow');
+      const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(object)}/${encodeURIComponent(recordId)}/state`);
+      return this.unwrapResponse<GetWorkflowStateResponse>(res);
+    },
+
+    /**
+     * Execute a workflow state transition
+     */
+    transition: async (request: WorkflowTransitionRequest): Promise<WorkflowTransitionResponse> => {
+      const route = this.getRoute('workflow');
+      const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(request.object)}/${encodeURIComponent(request.recordId)}/transition`, {
+        method: 'POST',
+        body: JSON.stringify({
+          transition: request.transition,
+          comment: request.comment,
+          data: request.data
+        })
+      });
+      return this.unwrapResponse<WorkflowTransitionResponse>(res);
+    },
+
+    /**
+     * Approve a workflow step
+     */
+    approve: async (request: WorkflowApproveRequest): Promise<WorkflowApproveResponse> => {
+      const route = this.getRoute('workflow');
+      const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(request.object)}/${encodeURIComponent(request.recordId)}/approve`, {
+        method: 'POST',
+        body: JSON.stringify({
+          comment: request.comment,
+          data: request.data
+        })
+      });
+      return this.unwrapResponse<WorkflowApproveResponse>(res);
+    },
+
+    /**
+     * Reject a workflow step
+     */
+    reject: async (request: WorkflowRejectRequest): Promise<WorkflowRejectResponse> => {
+      const route = this.getRoute('workflow');
+      const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(request.object)}/${encodeURIComponent(request.recordId)}/reject`, {
+        method: 'POST',
+        body: JSON.stringify({
+          reason: request.reason,
+          comment: request.comment
+        })
+      });
+      return this.unwrapResponse<WorkflowRejectResponse>(res);
+    }
+  };
+
+  /**
+   * Views CRUD Services
+   */
+  views = {
+    /**
+     * List views for an object
+     */
+    list: async (object: string, type?: 'list' | 'form'): Promise<ListViewsResponse> => {
+      const route = this.getRoute('views');
+      const params = new URLSearchParams();
+      if (type) params.set('type', type);
+      const qs = params.toString();
+      const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(object)}${qs ? `?${qs}` : ''}`);
+      return this.unwrapResponse<ListViewsResponse>(res);
+    },
+
+    /**
+     * Get a specific view
+     */
+    get: async (object: string, viewId: string): Promise<GetViewResponse> => {
+      const route = this.getRoute('views');
+      const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(object)}/${encodeURIComponent(viewId)}`);
+      return this.unwrapResponse<GetViewResponse>(res);
+    },
+
+    /**
+     * Create a new view
+     */
+    create: async (object: string, data: CreateViewRequest['data']): Promise<CreateViewResponse> => {
+      const route = this.getRoute('views');
+      const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(object)}`, {
+        method: 'POST',
+        body: JSON.stringify({ object, data })
+      });
+      return this.unwrapResponse<CreateViewResponse>(res);
+    },
+
+    /**
+     * Update an existing view
+     */
+    update: async (object: string, viewId: string, data: UpdateViewRequest['data']): Promise<UpdateViewResponse> => {
+      const route = this.getRoute('views');
+      const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(object)}/${encodeURIComponent(viewId)}`, {
+        method: 'PUT',
+        body: JSON.stringify({ object, viewId, data })
+      });
+      return this.unwrapResponse<UpdateViewResponse>(res);
+    },
+
+    /**
+     * Delete a view
+     */
+    delete: async (object: string, viewId: string): Promise<DeleteViewResponse> => {
+      const route = this.getRoute('views');
+      const res = await this.fetch(`${this.baseUrl}${route}/${encodeURIComponent(object)}/${encodeURIComponent(viewId)}`, {
+        method: 'DELETE'
+      });
+      return this.unwrapResponse<DeleteViewResponse>(res);
+    }
+  };
+
+  /**
+   * Notification Services
+   */
+  notifications = {
+    /**
+     * Register a device for push notifications
+     */
+    registerDevice: async (request: RegisterDeviceRequest): Promise<RegisterDeviceResponse> => {
+      const route = this.getRoute('notifications');
+      const res = await this.fetch(`${this.baseUrl}${route}/devices`, {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
+      return this.unwrapResponse<RegisterDeviceResponse>(res);
+    },
+
+    /**
+     * Unregister a device from push notifications
+     */
+    unregisterDevice: async (deviceId: string): Promise<UnregisterDeviceResponse> => {
+      const route = this.getRoute('notifications');
+      const res = await this.fetch(`${this.baseUrl}${route}/devices/${encodeURIComponent(deviceId)}`, {
+        method: 'DELETE'
+      });
+      return this.unwrapResponse<UnregisterDeviceResponse>(res);
+    },
+
+    /**
+     * Get notification preferences for the current user
+     */
+    getPreferences: async (): Promise<GetNotificationPreferencesResponse> => {
+      const route = this.getRoute('notifications');
+      const res = await this.fetch(`${this.baseUrl}${route}/preferences`);
+      return this.unwrapResponse<GetNotificationPreferencesResponse>(res);
+    },
+
+    /**
+     * Update notification preferences
+     */
+    updatePreferences: async (preferences: UpdateNotificationPreferencesRequest['preferences']): Promise<UpdateNotificationPreferencesResponse> => {
+      const route = this.getRoute('notifications');
+      const res = await this.fetch(`${this.baseUrl}${route}/preferences`, {
+        method: 'PUT',
+        body: JSON.stringify({ preferences })
+      });
+      return this.unwrapResponse<UpdateNotificationPreferencesResponse>(res);
+    },
+
+    /**
+     * List notifications for the current user
+     */
+    list: async (options?: { read?: boolean; type?: string; limit?: number; cursor?: string }): Promise<ListNotificationsResponse> => {
+      const route = this.getRoute('notifications');
+      const params = new URLSearchParams();
+      if (options?.read !== undefined) params.set('read', String(options.read));
+      if (options?.type) params.set('type', options.type);
+      if (options?.limit) params.set('limit', String(options.limit));
+      if (options?.cursor) params.set('cursor', options.cursor);
+      const qs = params.toString();
+      const res = await this.fetch(`${this.baseUrl}${route}${qs ? `?${qs}` : ''}`);
+      return this.unwrapResponse<ListNotificationsResponse>(res);
+    },
+
+    /**
+     * Mark specific notifications as read
+     */
+    markRead: async (ids: string[]): Promise<MarkNotificationsReadResponse> => {
+      const route = this.getRoute('notifications');
+      const res = await this.fetch(`${this.baseUrl}${route}/read`, {
+        method: 'POST',
+        body: JSON.stringify({ ids })
+      });
+      return this.unwrapResponse<MarkNotificationsReadResponse>(res);
+    },
+
+    /**
+     * Mark all notifications as read
+     */
+    markAllRead: async (): Promise<MarkAllNotificationsReadResponse> => {
+      const route = this.getRoute('notifications');
+      const res = await this.fetch(`${this.baseUrl}${route}/read/all`, {
+        method: 'POST'
+      });
+      return this.unwrapResponse<MarkAllNotificationsReadResponse>(res);
+    }
+  };
+
+  /**
+   * AI Services
+   */
+  ai = {
+    /**
+     * Natural language query — converts natural language to structured query
+     */
+    nlq: async (request: AiNlqRequest): Promise<AiNlqResponse> => {
+      const route = this.getRoute('ai');
+      const res = await this.fetch(`${this.baseUrl}${route}/nlq`, {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
+      return this.unwrapResponse<AiNlqResponse>(res);
+    },
+
+    /**
+     * Multi-turn AI chat
+     */
+    chat: async (request: AiChatRequest): Promise<AiChatResponse> => {
+      const route = this.getRoute('ai');
+      const res = await this.fetch(`${this.baseUrl}${route}/chat`, {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
+      return this.unwrapResponse<AiChatResponse>(res);
+    },
+
+    /**
+     * AI-powered field value suggestions
+     */
+    suggest: async (request: AiSuggestRequest): Promise<AiSuggestResponse> => {
+      const route = this.getRoute('ai');
+      const res = await this.fetch(`${this.baseUrl}${route}/suggest`, {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
+      return this.unwrapResponse<AiSuggestResponse>(res);
+    },
+
+    /**
+     * AI-powered data insights
+     */
+    insights: async (request: AiInsightsRequest): Promise<AiInsightsResponse> => {
+      const route = this.getRoute('ai');
+      const res = await this.fetch(`${this.baseUrl}${route}/insights`, {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
+      return this.unwrapResponse<AiInsightsResponse>(res);
+    }
+  };
+
+  /**
+   * Internationalization Services
+   */
+  i18n = {
+    /**
+     * Get available locales
+     */
+    getLocales: async (): Promise<GetLocalesResponse> => {
+      const route = this.getRoute('i18n');
+      const res = await this.fetch(`${this.baseUrl}${route}/locales`);
+      return this.unwrapResponse<GetLocalesResponse>(res);
+    },
+
+    /**
+     * Get translations for a locale
+     */
+    getTranslations: async (locale: string, options?: { namespace?: string; keys?: string[] }): Promise<GetTranslationsResponse> => {
+      const route = this.getRoute('i18n');
+      const params = new URLSearchParams();
+      params.set('locale', locale);
+      if (options?.namespace) params.set('namespace', options.namespace);
+      if (options?.keys) params.set('keys', options.keys.join(','));
+      const res = await this.fetch(`${this.baseUrl}${route}/translations?${params.toString()}`);
+      return this.unwrapResponse<GetTranslationsResponse>(res);
+    },
+
+    /**
+     * Get translated field labels for an object
+     */
+    getFieldLabels: async (object: string, locale: string): Promise<GetFieldLabelsResponse> => {
+      const route = this.getRoute('i18n');
+      const res = await this.fetch(`${this.baseUrl}${route}/labels/${encodeURIComponent(object)}?locale=${encodeURIComponent(locale)}`);
+      return this.unwrapResponse<GetFieldLabelsResponse>(res);
+    }
   };
 
   /**
@@ -811,7 +1302,7 @@ export class ObjectStackClient {
    * Get the conventional route path for a given API endpoint type
    * ObjectStack uses standard conventions: /api/v1/data, /api/v1/meta, /api/v1/ui
    */
-  private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth' | 'analytics' | 'hub' | 'storage' | 'automation' | 'packages'): string {
+  private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth' | 'analytics' | 'hub' | 'storage' | 'automation' | 'packages' | 'permissions' | 'realtime' | 'workflow' | 'views' | 'notifications' | 'ai' | 'i18n'): string {
     // 1. Use discovered routes if available
     // Note: Spec uses 'endpoints', mapped dynamically
     if (this.discoveryInfo?.endpoints && (this.discoveryInfo.endpoints as any)[type]) {
@@ -829,6 +1320,13 @@ export class ObjectStackClient {
       storage: '/api/v1/storage',
       automation: '/api/v1/automation',
       packages: '/api/v1/packages',
+      permissions: '/api/v1/permissions',
+      realtime: '/api/v1/realtime',
+      workflow: '/api/v1/workflow',
+      views: '/api/v1/ui/views',
+      notifications: '/api/v1/notifications',
+      ai: '/api/v1/ai',
+      i18n: '/api/v1/i18n',
     };
     
     return routeMap[type] || `/api/v1/${type}`;
@@ -853,5 +1351,43 @@ export type {
   ErrorCategory,
   GetDiscoveryResponse,
   GetMetaTypesResponse,
-  GetMetaItemsResponse
+  GetMetaItemsResponse,
+  CheckPermissionRequest,
+  CheckPermissionResponse,
+  GetObjectPermissionsResponse,
+  GetEffectivePermissionsResponse,
+  RealtimeConnectRequest,
+  RealtimeConnectResponse,
+  RealtimeSubscribeRequest,
+  RealtimeSubscribeResponse,
+  GetPresenceResponse,
+  GetWorkflowConfigResponse,
+  GetWorkflowStateResponse,
+  WorkflowTransitionRequest,
+  WorkflowTransitionResponse,
+  WorkflowApproveRequest,
+  WorkflowApproveResponse,
+  WorkflowRejectRequest,
+  WorkflowRejectResponse,
+  ListViewsResponse,
+  GetViewResponse,
+  CreateViewResponse,
+  UpdateViewResponse,
+  DeleteViewResponse,
+  RegisterDeviceRequest,
+  RegisterDeviceResponse,
+  ListNotificationsResponse,
+  AiNlqRequest,
+  AiNlqResponse,
+  AiChatRequest,
+  AiChatResponse,
+  AiSuggestRequest,
+  AiSuggestResponse,
+  AiInsightsRequest,
+  AiInsightsResponse,
+  GetLocalesResponse,
+  GetTranslationsResponse,
+  GetFieldLabelsResponse,
+  RegisterRequest,
+  RefreshTokenRequest
 } from '@objectstack/spec/api';
