@@ -6,15 +6,17 @@ This directory contains integration tests that verify `@objectstack/client` agai
 
 ### Prerequisites
 
-1. **Start a test server:**
+**Note:** Integration tests require a running ObjectStack server with test data. The server is provided by a separate repository and must be set up independently.
+
+1. **Start a test server (external dependency):**
    ```bash
-   cd ../../server
-   pnpm dev:test
+   # In the ObjectStack server repository (separate from this package)
+   # Follow that project's documentation for test server setup
+   # Example: cd /path/to/objectstack-server && pnpm dev:test
    ```
 
-2. **Run integration tests:**
+2. **Run integration tests (from this package):**
    ```bash
-   cd ../../client
    pnpm test:integration
    ```
 
@@ -62,9 +64,9 @@ Tests are organized by protocol namespace:
 
 ## CI/CD
 
-Integration tests run automatically in CI when:
-- Pull requests are created
-- Changes are pushed to main branch
-- Manual workflow dispatch
+Integration tests can be run in CI, but require:
+- A running ObjectStack server instance (from separate repository)
+- Test database with sample data
+- Proper environment configuration
 
-See `.github/workflows/client-integration-tests.yml` for the CI configuration.
+See `CLIENT_SERVER_INTEGRATION_TESTS.md` for example CI configuration structure.

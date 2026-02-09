@@ -68,12 +68,14 @@ Runs existing unit tests:
 
 ### Integration Tests (New)
 
-```bash
-# Terminal 1: Start test server
-cd packages/server
-pnpm dev:test
+**Note:** Integration tests require a running ObjectStack server. The server is provided by a separate repository and must be set up independently.
 
-# Terminal 2: Run integration tests
+```bash
+# Start test server (in the ObjectStack server repository)
+# Follow that project's documentation for test server setup
+# Example: cd /path/to/objectstack-server && pnpm dev:test
+
+# Run integration tests (in this repository)
 cd packages/client
 pnpm test:integration
 ```
@@ -93,17 +95,16 @@ Quick reference to all 13 implemented namespaces:
 | **Metadata** | `client.meta.*` | `await client.meta.getItem('object', 'contact')` |
 | **Data** | `client.data.*` | `await client.data.find('contact', { filters: { status: 'active' } })` |
 | **Auth** | `client.auth.*` | `await client.auth.login({ email, password })` |
-| **Packages** | `client.packages.*` | `await client.packages.install({ packageId })` |
-| **Views** | `client.views.*` | `await client.views.list({ object: 'contact' })` |
+| **Packages** | `client.packages.*` | `await client.packages.list()` |
+| **Views** | `client.views.*` | `await client.views.list('contact')` |
 | **Workflow** | `client.workflow.*` | `await client.workflow.transition({ object, recordId, transition })` |
-| **Analytics** | `client.analytics.*` | `await client.analytics.query({ object, aggregations })` |
-| **Automation** | `client.automation.*` | `await client.automation.trigger({ trigger, payload })` |
+| **Analytics** | `client.analytics.*` | `await client.analytics.meta('sales')` |
+| **Automation** | `client.automation.*` | `await client.automation.trigger('name', payload)` |
 | **i18n** | `client.i18n.*` | `await client.i18n.getTranslations('zh-CN')` |
 | **Notifications** | `client.notifications.*` | `await client.notifications.list({ unreadOnly: true })` |
 | **Realtime** | `client.realtime.*` | `await client.realtime.subscribe({ channel, event })` |
 | **AI** | `client.ai.*` | `await client.ai.nlq({ query: 'show active contacts' })` |
-| **Storage** | `client.storage.*` | `await client.storage.upload({ file, object, field })` |
-| **Hub** | `client.hub.*` | `await client.hub.connect()` |
+| **Storage** | `client.storage.*` | `await client.storage.upload(fileData, 'user')` |
 
 ## 🎯 Next Steps for Developers
 

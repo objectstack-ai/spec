@@ -838,20 +838,25 @@ export function expectValidResponse<T>(response: any): asserts response is T {
 
 ### Local Development
 
-```bash
-# Start test server
-cd packages/server
-pnpm dev:test
+**Note:** Integration tests require a running ObjectStack server. The server is provided by a separate repository/package and is not included in this spec repository.
 
-# Run integration tests
+```bash
+# Start test server (in the ObjectStack server repository)
+# Follow the server project's documentation for setup
+# Example: cd /path/to/objectstack-server && pnpm dev:test
+
+# Run integration tests (in this repository)
 cd packages/client
 pnpm test:integration
 ```
 
 ### CI/CD Pipeline
 
+**Note:** The workflow file referenced below is an example. Actual CI implementation will require setting up the test server infrastructure separately.
+
 ```yaml
-# .github/workflows/client-integration-tests.yml
+# Example: .github/workflows/client-integration-tests.yml
+# This workflow would need to be created and configured with proper server setup
 name: Client Integration Tests
 
 on: [push, pull_request]
@@ -883,13 +888,15 @@ jobs:
       - name: Build spec
         run: pnpm --filter @objectstack/spec build
       
+      # Note: Server setup would require additional configuration
+      # This is a placeholder showing the expected structure
       - name: Start test server
-        run: pnpm --filter @objectstack/server dev:test &
+        run: |
+          # Server startup logic would go here
+          # This depends on the ObjectStack server implementation
+          echo "Server setup required"
         env:
-          DATABASE_URL: postgres://postgres:test@localhost:5432/test
-      
-      - name: Wait for server
-        run: npx wait-on http://localhost:3000
+          DATABASE_URL: postgresql://postgres:test@localhost:5432/test
       
       - name: Run integration tests
         run: pnpm --filter @objectstack/client test:integration

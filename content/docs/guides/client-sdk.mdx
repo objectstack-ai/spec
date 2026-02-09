@@ -105,7 +105,7 @@ if (discovery.services?.auth?.enabled) {
 
 ## Protocol Coverage
 
-The `@objectstack/client` SDK is **100% compliant** with the ObjectStack API protocol specification. It implements all 13 API namespaces defined in `@objectstack/spec`:
+The `@objectstack/client` SDK aims to implement the ObjectStack API protocol specification. It covers all 13 API namespaces defined in `@objectstack/spec`:
 
 | Namespace | Status | Methods | Purpose |
 |:----------|:------:|:--------|:--------|
@@ -124,7 +124,7 @@ The `@objectstack/client` SDK is **100% compliant** with the ObjectStack API pro
 | **ai** | ✅ | 4 | AI services (NLQ, chat, insights) |
 
 <Callout type="info">
-**Full compliance verification**: See [`CLIENT_SPEC_COMPLIANCE.md`](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SPEC_COMPLIANCE.md) for detailed method-by-method verification and [`CLIENT_SERVER_INTEGRATION_TESTS.md`](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SERVER_INTEGRATION_TESTS.md) for comprehensive integration test specifications.
+**Protocol compliance & verification**: See [`CLIENT_SPEC_COMPLIANCE.md`](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SPEC_COMPLIANCE.md) for detailed method-by-method verification and [`CLIENT_SERVER_INTEGRATION_TESTS.md`](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SERVER_INTEGRATION_TESTS.md) for comprehensive integration test specifications.
 </Callout>
 
 ---
@@ -243,12 +243,12 @@ await client.auth.login({ email: 'user@example.com', password: 'pass' });
 await client.auth.register({ email: 'new@example.com', password: 'pass' });
 await client.auth.me();
 await client.auth.logout();
-await client.auth.refreshToken({ refreshToken: 'token' });
+await client.auth.refreshToken('refresh-token-string');
 
 // Permissions — Access control checks
 await client.permissions.check({ object: 'account', action: 'create' });
 await client.permissions.getObjectPermissions('account');
-await client.permissions.getEffectivePermissions('account');
+await client.permissions.getEffectivePermissions();
 
 // Workflow — State machine management
 await client.workflow.getConfig('approval');
@@ -281,22 +281,22 @@ await client.i18n.getTranslations('zh-CN');
 await client.i18n.getFieldLabels('account', 'zh-CN');
 
 // Automation — Trigger workflows and automations
-await client.automation.trigger({ trigger: 'send_welcome_email', payload: { userId } });
+await client.automation.trigger('send_welcome_email', { userId });
 
 // Storage — File upload and management
-await client.storage.upload({ file: fileData, object: 'account', field: 'logo' });
-await client.storage.getDownloadUrl({ fileId: 'file-123' });
+await client.storage.upload(fileData, 'user');
+await client.storage.getDownloadUrl('file-123');
 
 // Views — UI view management
-await client.views.list({ object: 'account' });
-await client.views.get(viewId);
-await client.views.create({ name: 'my_view', object: 'account', ... });
-await client.views.update(viewId, { ... });
-await client.views.delete(viewId);
+await client.views.list('account');
+await client.views.get('account', viewId);
+await client.views.create('account', { name: 'my_view', ... });
+await client.views.update('account', viewId, { ... });
+await client.views.delete('account', viewId);
 ```
 
 <Callout type="info">
-**Service availability**: Optional services (auth, workflow, ai, etc.) are only available when the corresponding plugin is installed on the server. Always check `client.discovery?.services` to verify service availability before calling these methods.
+**Service availability**: Optional services (workflow, ai, etc.) are only available when the corresponding plugin is installed on the server. Always check `client.discovery?.services` to verify service availability before calling these methods.
 </Callout>
 
 ---
@@ -437,12 +437,14 @@ Unit tests use mocks to verify client behavior without requiring a server.
 
 ### Integration Tests
 
-```bash
-# Terminal 1: Start test server
-cd packages/server
-pnpm dev:test
+**Note:** Integration tests require a running ObjectStack server. The server is provided by a separate repository and must be set up independently.
 
-# Terminal 2: Run integration tests
+```bash
+# Prerequisite: Start an ObjectStack server with test data
+# For example, using the reference server repository
+# Follow the server repository's documentation for local setup
+
+# From this repository, run the integration test script
 cd packages/client
 pnpm test:integration
 ```

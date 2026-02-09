@@ -223,7 +223,7 @@ const data = await retryableRequest(() =>
 
 ## Protocol Compliance
 
-This client is **100% compliant** with the `@objectstack/spec` API protocol specification. It implements all 13 API namespaces:
+The `@objectstack/client` SDK implements all 13 API namespaces defined in the `@objectstack/spec` protocol specification:
 
 | Namespace | Purpose | Status |
 |-----------|---------|:------:|
@@ -268,16 +268,21 @@ await client.auth.login({ email: 'user@example.com', password: 'pass' });
 await client.auth.register({ email: 'new@example.com', password: 'pass' });
 await client.auth.me();
 await client.auth.logout();
+await client.auth.refreshToken('refresh-token-string');
 
 // Package Management
 await client.packages.list();
-await client.packages.install({ packageId: '@vendor/plugin' });
+await client.packages.install({
+  name: 'vendor_plugin',
+  label: 'Vendor Plugin',
+  version: '1.0.0',
+});
 await client.packages.enable('plugin-id');
 
 // Permissions
 await client.permissions.check({ object: 'contact', action: 'create' });
 await client.permissions.getObjectPermissions('contact');
-await client.permissions.getEffectivePermissions('contact');
+await client.permissions.getEffectivePermissions();
 
 // Workflow
 await client.workflow.getConfig('approval');
@@ -309,14 +314,14 @@ await client.i18n.getFieldLabels('contact', 'zh-CN');
 
 // Analytics
 await client.analytics.query({ object: 'sales', aggregations: ['sum:amount'] });
-await client.analytics.getMeta('sales');
+await client.analytics.meta('sales');
 
 // Automation
-await client.automation.trigger({ trigger: 'send_welcome_email', payload: { userId } });
+await client.automation.trigger('send_welcome_email', { userId });
 
 // File Storage
-await client.storage.upload({ file: fileData, object: 'contact', field: 'avatar' });
-await client.storage.getDownloadUrl({ fileId: 'file-123' });
+await client.storage.upload(fileData, 'user');
+await client.storage.getDownloadUrl('file-123');
 ```
 
 ## Testing
@@ -329,15 +334,15 @@ pnpm test
 
 ### Integration Tests
 
-Integration tests verify client-server communication across all protocol methods:
+**Note:** Integration tests require a running ObjectStack server. The server is provided by a separate repository and must be set up independently.
 
 ```bash
-# Start test server
-cd ../server
-pnpm dev:test
+# Start test server (in the ObjectStack server repository)
+# Follow that project's documentation for test server setup
+# Example: cd /path/to/objectstack-server && pnpm dev:test
 
-# Run integration tests
-cd ../client
+# Run integration tests (in this repository)
+cd packages/client
 pnpm test:integration
 ```
 

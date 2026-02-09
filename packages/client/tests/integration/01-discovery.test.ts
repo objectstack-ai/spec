@@ -7,7 +7,7 @@
  * @see CLIENT_SERVER_INTEGRATION_TESTS.md for full test specification
  */
 
-import { describe, test, expect, beforeAll } from 'vitest';
+import { describe, test, expect } from 'vitest';
 import { ObjectStackClient } from '../../src/index';
 
 const TEST_SERVER_URL = process.env.TEST_SERVER_URL || 'http://localhost:3000';
@@ -58,7 +58,11 @@ describe('Discovery & Connection', () => {
       await client.connect();
       
       // After connection, client should have discovery info
-      // This is tested implicitly by making actual API calls in other test suites
+      expect(client.discovery).toBeDefined();
+      expect(client.discovery?.version).toBeDefined();
+      
+      // Verify that subsequent API calls can be made (routes are resolved)
+      // This implicitly tests route resolution
     });
   });
 });

@@ -129,6 +129,8 @@ Protocol methods defined in `packages/spec/src/api/protocol.zod.ts`:
 **Notes:**
 - Permission endpoints are served under `/api/v1/auth` per spec's `plugin-rest-api.zod.ts`
 - Supports action types: `create`, `read`, `edit`, `delete`, `transfer`, `restore`, `purge`
+- `check()` uses POST method as per spec
+- `getObjectPermissions()` and `getEffectivePermissions()` use GET methods
 
 ---
 
@@ -191,6 +193,7 @@ Protocol methods defined in `packages/spec/src/api/protocol.zod.ts`:
 **Notes:**
 - Schema defined in `packages/client/src/index.ts` (lines 50-59)
 - Allows triggering named automations with arbitrary payloads
+- Method signature: `trigger(triggerName: string, payload: any)`
 
 ---
 
@@ -209,7 +212,7 @@ Protocol methods defined in `packages/spec/src/api/protocol.zod.ts`:
 | Spec Method | Request Schema | Response Schema | Client Method | Status |
 |-------------|----------------|-----------------|---------------|:------:|
 | Analytics Query | `AnalyticsQueryRequestSchema` | `AnalyticsResultResponseSchema` | `analytics.query()` | ✅ |
-| Get Analytics Meta | `GetAnalyticsMetaRequestSchema` | `AnalyticsMetadataResponseSchema` | `analytics.getMeta()` | ✅ |
+| Get Analytics Meta | `GetAnalyticsMetaRequestSchema` | `AnalyticsMetadataResponseSchema` | `analytics.meta(cube)` | ✅ |
 
 ---
 
