@@ -12,7 +12,7 @@
     "clean": "turbo run clean && rm -rf dist",
     "doctor": "pnpm --filter @objectstack/cli build && node packages/cli/bin/objectstack.js doctor",
     "setup": "pnpm install && pnpm --filter @objectstack/spec build",
-    "version": "1.2.0",
+    "version": "changeset version",
     "release": "pnpm run build && changeset publish",
     "docs:dev": "pnpm --filter @objectstack/docs dev",
     "docs:build": "pnpm --filter @objectstack/docs build",
