@@ -1,5 +1,15 @@
 # @objectstack/client-react
 
+## 2.0.1
+
+### Patch Changes
+
+- Patch release for maintenance and stability improvements
+- Updated dependencies
+  - @objectstack/spec@2.0.1
+  - @objectstack/core@2.0.1
+  - @objectstack/client@2.0.1
+
 ## 2.0.0
 
 ### Patch Changes
