@@ -271,7 +271,8 @@ export function createStudioStaticPlugin(distPath: string) {
         `$1="${STUDIO_PATH}/`,
       );
 
-      // Redirect bare path
+      // Redirect root and bare path to Studio
+      app.get('/', (c: any) => c.redirect(`${STUDIO_PATH}/`));
       app.get(STUDIO_PATH, (c: any) => c.redirect(`${STUDIO_PATH}/`));
 
       // Serve static files with SPA fallback
