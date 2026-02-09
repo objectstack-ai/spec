@@ -141,16 +141,17 @@ ObjectStack v2.0.1 has achieved solid protocol-level maturity (B+ → A- grade a
 
 ### Phase 6 Checklist
 
-- [ ] Resolve 6 core security TODOs
-- [ ] Resolve 2 core production TODOs
-- [ ] Resolve 2 ObjectQL TODOs
-- [ ] Resolve 6 driver-memory TODOs (or mark as `@planned` with issue refs)
-- [ ] Resolve 2 client/CLI TODOs
+- [x] Resolve 6 core security TODOs (sandbox path/URL resolution, memory/CPU tracking, signature verification, permission matching)
+- [x] Resolve 2 core production TODOs (crypto hash for checksums, JSON path variable substitution)
+- [x] Resolve 2 ObjectQL TODOs (populate/joins mapping, HTTP query normalization)
+- [x] Resolve 6 driver-memory TODOs (marked as `@planned` with descriptions)
+- [x] Resolve 2 client/CLI TODOs (filter AST detection docs, glob pattern matching)
+- [x] Resolve 1 metadata TODO (deduplication in loadMany)
+- [x] All TODO count → 0
 - [ ] Add REST package tests
 - [ ] Add metadata package tests
 - [ ] Add client-react hook tests
 - [ ] Add adapter package tests
-- [ ] All TODO count → 0
 
 ---
 
