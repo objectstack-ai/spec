@@ -101,20 +101,27 @@ describe('ApiRoutesSchema', () => {
   });
 
   it('should reject routes without required fields', () => {
+    // data is required
     expect(() => ApiRoutesSchema.parse({
       metadata: '/api/v1/meta',
       auth: '/api/v1/auth',
     })).toThrow();
 
+    // metadata is required
     expect(() => ApiRoutesSchema.parse({
       data: '/api/v1/data',
       auth: '/api/v1/auth',
     })).toThrow();
+  });
 
-    expect(() => ApiRoutesSchema.parse({
+  it('should accept routes without auth (auth is plugin-provided)', () => {
+    const routes = ApiRoutesSchema.parse({
       data: '/api/v1/data',
       metadata: '/api/v1/meta',
-    })).toThrow();
+    });
+
+    expect(routes.data).toBe('/api/v1/data');
+    expect(routes.auth).toBeUndefined();
   });
 });
 

@@ -60,44 +60,48 @@ export class HttpDispatcher {
     getDiscoveryInfo(prefix: string) {
         const services = this.getServicesMap();
         
-        const hasGraphQL = !!(services[CoreServiceName.enum.graphql] || this.kernel.graphql);
-        const hasSearch = !!services[CoreServiceName.enum.search];
-        const hasWebSockets = !!services[CoreServiceName.enum.realtime];
-        const hasFiles = !!(services[CoreServiceName.enum['file-storage']] || services['storage']?.supportsFiles);
-        const hasAnalytics = !!services[CoreServiceName.enum.analytics];
-        const hasWorkflow = !!services[CoreServiceName.enum.workflow];
-        const hasAi = !!services[CoreServiceName.enum.ai];
+        // All services are plugin-provided — check if a plugin has registered them
+        const hasAuth         = !!services[CoreServiceName.enum.auth];
+        const hasGraphQL      = !!(services[CoreServiceName.enum.graphql] || this.kernel.graphql);
+        const hasSearch       = !!services[CoreServiceName.enum.search];
+        const hasWebSockets   = !!services[CoreServiceName.enum.realtime];
+        const hasFiles        = !!(services[CoreServiceName.enum['file-storage']] || services['storage']?.supportsFiles);
+        const hasAnalytics    = !!services[CoreServiceName.enum.analytics];
+        const hasWorkflow     = !!services[CoreServiceName.enum.workflow];
+        const hasAi           = !!services[CoreServiceName.enum.ai];
         const hasNotification = !!services[CoreServiceName.enum.notification];
-        const hasI18n = !!services[CoreServiceName.enum.i18n];
-        const hasUi = !!services[CoreServiceName.enum.ui];
-        const hasAutomation = !!services[CoreServiceName.enum.automation];
-        const hasCache = !!services[CoreServiceName.enum.cache];
-        const hasQueue = !!services[CoreServiceName.enum.queue];
-        const hasJob = !!services[CoreServiceName.enum.job];
+        const hasI18n         = !!services[CoreServiceName.enum.i18n];
+        const hasUi           = !!services[CoreServiceName.enum.ui];
+        const hasAutomation   = !!services[CoreServiceName.enum.automation];
+        const hasCache        = !!services[CoreServiceName.enum.cache];
+        const hasQueue        = !!services[CoreServiceName.enum.queue];
+        const hasJob          = !!services[CoreServiceName.enum.job];
 
+        // Routes are only exposed when a plugin provides the service
         const routes = {
-                data: `${prefix}/data`,
-                metadata: `${prefix}/meta`,
-                packages: `${prefix}/packages`,
-                auth: `${prefix}/auth`,
-                ui: hasUi ? `${prefix}/ui` : undefined,
-                graphql: hasGraphQL ? `${prefix}/graphql` : undefined,
-                storage: hasFiles ? `${prefix}/storage` : undefined,
-                analytics: hasAnalytics ? `${prefix}/analytics` : undefined,
-                automation: hasAutomation ? `${prefix}/automation` : undefined,
-                workflow: hasWorkflow ? `${prefix}/workflow` : undefined,
-                realtime: hasWebSockets ? `${prefix}/realtime` : undefined,
+                data:          `${prefix}/data`,
+                metadata:      `${prefix}/meta`,
+                packages:      `${prefix}/packages`,
+                auth:          hasAuth ? `${prefix}/auth` : undefined,
+                ui:            hasUi ? `${prefix}/ui` : undefined,
+                graphql:       hasGraphQL ? `${prefix}/graphql` : undefined,
+                storage:       hasFiles ? `${prefix}/storage` : undefined,
+                analytics:     hasAnalytics ? `${prefix}/analytics` : undefined,
+                automation:    hasAutomation ? `${prefix}/automation` : undefined,
+                workflow:      hasWorkflow ? `${prefix}/workflow` : undefined,
+                realtime:      hasWebSockets ? `${prefix}/realtime` : undefined,
                 notifications: hasNotification ? `${prefix}/notifications` : undefined,
-                ai: hasAi ? `${prefix}/ai` : undefined,
-                i18n: hasI18n ? `${prefix}/i18n` : undefined,
+                ai:            hasAi ? `${prefix}/ai` : undefined,
+                i18n:          hasI18n ? `${prefix}/i18n` : undefined,
         };
 
         // Build per-service status map
-        const svcInfo = (name: string, enabled: boolean, route?: string) => ({
-            enabled,
-            status: enabled ? 'available' as const : 'unavailable' as const,
-            route: enabled ? route : undefined,
-            message: enabled ? undefined : `${name} service not available`,
+        const svcAvailable = (route?: string, provider?: string) => ({
+            enabled: true, status: 'available' as const, route, provider,
+        });
+        const svcUnavailable = (name: string) => ({
+            enabled: false, status: 'unavailable' as const,
+            message: `Install a ${name} plugin to enable`,
         });
 
         return {
@@ -118,23 +122,25 @@ export class HttpDispatcher {
                 i18n: hasI18n,
             },
             services: {
-                metadata:       svcInfo('metadata', true, routes.metadata),
-                data:           svcInfo('data', true, routes.data),
-                auth:           svcInfo('auth', true, routes.auth),
-                cache:          svcInfo('cache', hasCache),
-                queue:          svcInfo('queue', hasQueue),
-                job:            svcInfo('job', hasJob),
-                analytics:      svcInfo('analytics', hasAnalytics, routes.analytics),
-                automation:     svcInfo('automation', hasAutomation, routes.automation),
-                ui:             svcInfo('ui', hasUi, routes.ui),
-                workflow:       svcInfo('workflow', hasWorkflow, routes.workflow),
-                realtime:       svcInfo('realtime', hasWebSockets, routes.realtime),
-                notification:   svcInfo('notification', hasNotification, routes.notifications),
-                ai:             svcInfo('ai', hasAi, routes.ai),
-                i18n:           svcInfo('i18n', hasI18n, routes.i18n),
-                graphql:        svcInfo('graphql', hasGraphQL, routes.graphql),
-                'file-storage': svcInfo('file-storage', hasFiles, routes.storage),
-                search:         svcInfo('search', hasSearch),
+                // Kernel-provided (always available via protocol implementation)
+                metadata:       { enabled: true, status: 'degraded' as const, route: routes.metadata, provider: 'kernel', message: 'In-memory registry; DB persistence pending' },
+                data:           svcAvailable(routes.data, 'kernel'),
+                // Plugin-provided — only available when a plugin registers the service
+                auth:           hasAuth ? svcAvailable(routes.auth) : svcUnavailable('auth'),
+                automation:     hasAutomation ? svcAvailable(routes.automation) : svcUnavailable('automation'),
+                analytics:      hasAnalytics ? svcAvailable(routes.analytics) : svcUnavailable('analytics'),
+                cache:          hasCache ? svcAvailable() : svcUnavailable('cache'),
+                queue:          hasQueue ? svcAvailable() : svcUnavailable('queue'),
+                job:            hasJob ? svcAvailable() : svcUnavailable('job'),
+                ui:             hasUi ? svcAvailable(routes.ui) : svcUnavailable('ui'),
+                workflow:       hasWorkflow ? svcAvailable(routes.workflow) : svcUnavailable('workflow'),
+                realtime:       hasWebSockets ? svcAvailable(routes.realtime) : svcUnavailable('realtime'),
+                notification:   hasNotification ? svcAvailable(routes.notifications) : svcUnavailable('notification'),
+                ai:             hasAi ? svcAvailable(routes.ai) : svcUnavailable('ai'),
+                i18n:           hasI18n ? svcAvailable(routes.i18n) : svcUnavailable('i18n'),
+                graphql:        hasGraphQL ? svcAvailable(routes.graphql) : svcUnavailable('graphql'),
+                'file-storage': hasFiles ? svcAvailable(routes.storage) : svcUnavailable('file-storage'),
+                search:         hasSearch ? svcAvailable() : svcUnavailable('search'),
             },
             locale: {
                 default: 'en',

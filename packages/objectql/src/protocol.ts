@@ -42,7 +42,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
                 graphql: false,
                 search: false,
                 websockets: false,
-                files: true,
+                files: false,
                 analytics: true,
                 ai: false,
                 workflow: false,
@@ -52,32 +52,30 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
             endpoints: {
                 data: '/api/data',
                 metadata: '/api/meta',
-                auth: '/api/auth',
                 analytics: '/api/analytics',
             },
             services: {
-                // Required services
-                metadata: { enabled: true, status: 'available' as const, route: '/api/meta', provider: 'objectql' },
-                data:     { enabled: true, status: 'available' as const, route: '/api/data', provider: 'objectql' },
-                auth:     { enabled: true, status: 'available' as const, route: '/api/auth', provider: 'runtime' },
-                // Core infrastructure
-                cache:    { enabled: true, status: 'degraded' as const, provider: 'objectql', message: 'HTTP ETag caching only; install a cache plugin for full support' },
-                queue:    { enabled: false, status: 'unavailable' as const, message: 'Install a queue plugin (e.g. plugin-bullmq) to enable' },
-                job:      { enabled: false, status: 'unavailable' as const, message: 'Install a job scheduler plugin to enable' },
-                // Optional - implemented
+                // --- Kernel-provided (objectql is an example kernel implementation) ---
+                metadata:  { enabled: true, status: 'degraded' as const, route: '/api/meta', provider: 'objectql', message: 'In-memory registry only; DB persistence not yet implemented' },
+                data:      { enabled: true, status: 'available' as const, route: '/api/data', provider: 'objectql' },
                 analytics: { enabled: true, status: 'available' as const, route: '/api/analytics', provider: 'objectql' },
-                // Optional - stubs
-                automation: { enabled: false, status: 'stub' as const, route: '/api/automation', message: 'Install plugin-automation to enable' },
-                // Optional - not implemented
-                ui:           { enabled: false, status: 'unavailable' as const, message: 'View CRUD service not yet implemented' },
-                workflow:     { enabled: false, status: 'unavailable' as const, message: 'Workflow engine not yet implemented' },
-                realtime:     { enabled: false, status: 'unavailable' as const, message: 'WebSocket/SSE service not yet implemented' },
-                notification: { enabled: false, status: 'unavailable' as const, message: 'Notification service not yet implemented' },
-                ai:           { enabled: false, status: 'unavailable' as const, message: 'AI engine not yet implemented' },
-                i18n:         { enabled: false, status: 'unavailable' as const, message: 'i18n service not yet implemented' },
-                graphql:      { enabled: false, status: 'unavailable' as const, message: 'GraphQL endpoint not yet implemented' },
-                'file-storage': { enabled: false, status: 'unavailable' as const, message: 'File storage service not yet implemented' },
-                search:       { enabled: false, status: 'unavailable' as const, message: 'Search service not yet implemented' },
+                // --- Plugin-provided (kernel does NOT handle these) ---
+                auth:         { enabled: false, status: 'unavailable' as const, message: 'Install an auth plugin (e.g. plugin-auth) to enable' },
+                automation:   { enabled: false, status: 'unavailable' as const, message: 'Install an automation plugin (e.g. plugin-automation) to enable' },
+                // --- Core infrastructure (plugin-provided) ---
+                cache:        { enabled: false, status: 'unavailable' as const, message: 'Install a cache plugin (e.g. plugin-redis) to enable' },
+                queue:        { enabled: false, status: 'unavailable' as const, message: 'Install a queue plugin (e.g. plugin-bullmq) to enable' },
+                job:          { enabled: false, status: 'unavailable' as const, message: 'Install a job scheduler plugin to enable' },
+                // --- Optional services (all plugin-provided) ---
+                ui:             { enabled: false, status: 'unavailable' as const, message: 'Install a UI plugin to enable' },
+                workflow:       { enabled: false, status: 'unavailable' as const, message: 'Install a workflow plugin to enable' },
+                realtime:       { enabled: false, status: 'unavailable' as const, message: 'Install a realtime plugin to enable' },
+                notification:   { enabled: false, status: 'unavailable' as const, message: 'Install a notification plugin to enable' },
+                ai:             { enabled: false, status: 'unavailable' as const, message: 'Install an AI plugin to enable' },
+                i18n:           { enabled: false, status: 'unavailable' as const, message: 'Install an i18n plugin to enable' },
+                graphql:        { enabled: false, status: 'unavailable' as const, message: 'Install a GraphQL plugin to enable' },
+                'file-storage': { enabled: false, status: 'unavailable' as const, message: 'Install a file-storage plugin to enable' },
+                search:         { enabled: false, status: 'unavailable' as const, message: 'Install a search plugin to enable' },
             },
         };
     }

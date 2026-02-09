@@ -63,8 +63,7 @@
       },
       "required": [
         "data",
-        "metadata",
-        "auth"
+        "metadata"
       ],
       "additionalProperties": false
     }

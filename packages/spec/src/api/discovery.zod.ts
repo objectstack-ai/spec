@@ -52,8 +52,8 @@ export const ApiRoutesSchema = z.object({
   /** Base URL for UI Configurations (Views, Menus) */
   ui: z.string().optional().describe('e.g. /api/v1/ui'),
   
-  /** Base URL for Authentication */
-  auth: z.string().describe('e.g. /api/v1/auth'),
+  /** Base URL for Authentication (plugin-provided) */
+  auth: z.string().optional().describe('e.g. /api/v1/auth'),
   
   /** Base URL for Automation (Flows/Scripts) */
   automation: z.string().optional().describe('e.g. /api/v1/automation'),

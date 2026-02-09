@@ -122,8 +122,7 @@
           },
           "required": [
             "data",
-            "metadata",
-            "auth"
+            "metadata"
           ],
           "additionalProperties": false,
           "description": "Available endpoint paths"
