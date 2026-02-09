@@ -196,14 +196,20 @@ The discovery endpoint returns a `services` map so clients know what is availabl
 
 ### Plugin Requirements
 
-| Module | Description | Priority |
-|:-------|:------------|:--------:|
-| **Identity Provider** | JWT issuance/verification, session management | P0 |
-| **User CRUD** | Create / read / update / delete users | P0 |
-| **Role Management** | Role definitions, role-user associations | P0 |
-| **OAuth2 / OIDC** | Third-party login (Google, GitHub, etc.) | P1 |
-| **Multi-tenancy** | Space / Tenant isolation | P1 |
-| **SCIM** | Enterprise user provisioning protocol | P2 |
+The `auth` service covers both **authentication** (identity) and **authorization** (permissions). There is no separate `permission` service in `CoreServiceName`.
+
+| Module | Area | Description | Priority |
+|:-------|:-----|:------------|:--------:|
+| **Identity Provider** | Authentication | JWT issuance/verification, session management | P0 |
+| **User CRUD** | Authentication | Create / read / update / delete users | P0 |
+| **Role Management** | Authentication | Role definitions, role-user associations | P0 |
+| **Permission Engine** | Authorization | Object-level and field-level permissions | P0 |
+| **OAuth2 / OIDC** | Authentication | Third-party login (Google, GitHub, etc.) | P1 |
+| **Sharing Rules** | Authorization | Record-level sharing and visibility | P1 |
+| **Row-Level Security** | Authorization | Automatic query filtering by user context | P1 |
+| **Multi-tenancy** | Authentication | Space / Tenant isolation | P1 |
+| **Territory Management** | Authorization | Data territory assignment and access | P2 |
+| **SCIM** | Authentication | Enterprise user provisioning protocol | P2 |
 
 ### Spec Files: `identity.zod.ts`, `role.zod.ts`, `organization.zod.ts`, `auth-config.zod.ts`, `tenant.zod.ts`
 

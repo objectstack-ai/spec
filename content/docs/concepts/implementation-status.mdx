@@ -250,31 +250,28 @@ This matrix is generated from actual codebase analysis and represents the curren
 **Plugin-Provided Service** — The kernel does NOT handle authentication or authorization. Security services must be provided by plugins (e.g., `@objectstack/plugin-auth`). The Discovery API reports auth as `unavailable` until a plugin is registered.
 </Callout>
 
-### Authentication
+### Auth Service (`plugin-auth`)
 
-| Protocol | @objectstack/spec | Kernel | Plugin Required | Status |
-|:---------|:-----------------:|:------:|:---------------:|:------:|
-| **Identity** | ✅ | ❌ | ✅ | 📋 Plugin |
-| **Auth Config** | ✅ | ❌ | ✅ | 📋 Plugin |
-| **Role** | ✅ | ❌ | ✅ | 📋 Plugin |
-| **Organization** | ✅ | ❌ | ✅ | 📋 Plugin |
-| **Policy** | ✅ | ❌ | ✅ | 📋 Plugin |
-| **SCIM** | ✅ | ❌ | ✅ | 📋 Plugin |
+The `auth` service in `CoreServiceName` covers both **authentication** (identity) and **authorization** (permissions). There is no separate `permission` service — it is part of `auth`.
 
-### Authorization
-
-| Protocol | @objectstack/spec | Kernel | Plugin Required | Status |
-|:---------|:-----------------:|:------:|:---------------:|:------:|
-| **Permission** | ✅ | ❌ | ✅ | 📋 Plugin |
-| **Sharing** | ✅ | ❌ | ✅ | 📋 Plugin |
-| **RLS** | ✅ | ❌ | ✅ | 📋 Plugin |
-| **Territory** | ✅ | ❌ | ✅ | 📋 Plugin |
+| Protocol | Area | @objectstack/spec | Kernel | Plugin Required | Status |
+|:---------|:-----|:-----------------:|:------:|:---------------:|:------:|
+| **Identity** | Authentication | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Auth Config** | Authentication | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Role** | Authentication | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Organization** | Authentication | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Policy** | Authentication | ✅ | ❌ | ✅ | 📋 Plugin |
+| **SCIM** | Authentication | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Permission** | Authorization | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Sharing** | Authorization | ✅ | ❌ | ✅ | 📋 Plugin |
+| **RLS** | Authorization | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Territory** | Authorization | ✅ | ❌ | ✅ | 📋 Plugin |
 
 **Notes:**
-- Complete security protocols defined in spec — ready for plugin implementation
-- Client SDK supports bearer token header — but token validation requires an auth plugin
-- Auth route (`/auth/*`) only appears in Discovery when an auth plugin is registered
-- Fine-grained authorization (RLS, sharing, territory) requires dedicated plugins
+- All security protocols (identity + permission) are delivered by a single `auth` plugin — matching `CoreServiceName`
+- Client SDK supports bearer token header — but token validation requires the auth plugin
+- Auth route (`/auth/*`) only appears in Discovery when the auth plugin is registered
+- Fine-grained authorization (RLS, sharing, territory) is internal to the auth plugin
 
 ---
 
@@ -412,19 +409,18 @@ This matrix is generated from actual codebase analysis and represents the curren
 | **UI** | 10 | 0 | 0 | 10 |
 | **API** | 14 | 11 | 1 | 2 |
 | **System** | 39 | 8 | 1 | 30 |
-| **Auth** (plugin) | 6 | 0 | 0 | 6 |
-| **Permission** (plugin) | 4 | 0 | 0 | 4 |
+| **Auth** (plugin) | 10 | 0 | 0 | 10 |
 | **Automation** (plugin) | 7 | 1 | 0 | 6 |
 | **AI** | 12 | 0 | 0 | 12 |
 | **Integration** | 7 | 0 | 0 | 7 |
 | **QA** | 1 | 1 | 0 | 0 |
-| **TOTAL** | **116** | **28** | **5** | **83** |
+| **TOTAL** | **112** | **28** | **5** | **79** |
 
 ### Implementation Coverage
 
-- **Fully Implemented**: 24.1% (28/116)
-- **Partially Implemented**: 4.3% (5/116)
-- **Not Implemented**: 71.6% (83/116)
+- **Fully Implemented**: 25.0% (28/112)
+- **Partially Implemented**: 4.5% (5/112)
+- **Not Implemented**: 70.5% (79/112)
 
 ### Core Functionality Status
 
