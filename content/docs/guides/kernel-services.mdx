@@ -1,65 +1,65 @@
 ---
-title: 内核服务开发清单
-description: ObjectStack 内核服务完整清单，包含每个服务的协议方法、实现状态及开发要求
+title: Kernel Services Checklist
+description: Complete inventory of ObjectStack kernel services with protocol methods, implementation status, and development requirements
 ---
 
-# 内核服务开发清单
+# Kernel Services Checklist
 
-ObjectStack 协议定义了 **17 项内核服务**，通过 `CoreServiceName` 枚举注册到微内核的 Service Registry 中。每项服务对应一组协议方法（共 **57 个**），由 `ObjectStackProtocol` 接口统一约束。
+The ObjectStack protocol defines **17 kernel services** registered via the `CoreServiceName` enum into the microkernel's Service Registry. Each service maps to a set of protocol methods (57 total), governed by the `ObjectStackProtocol` interface.
 
-本文档列出所有内核服务的开发清单，明确每个服务需要实现的具体内容。
+This document provides a comprehensive development checklist for all kernel services, detailing what each service must implement.
 
 <Callout type="info">
-**最后更新**: 2026 年 2 月
+**Last Updated**: February 2026
 
-- ✅ 已实现 — 19 个协议方法
-- 🚧 存根 — 1 个（抛出错误提示）  
-- ❌ 未实现 — 37 个协议方法
+- ✅ Implemented — 19 protocol methods
+- 🚧 Stub — 1 (throws error)
+- ❌ Not Implemented — 37 protocol methods
 </Callout>
 
 ---
 
-## 服务总览
+## Service Overview
 
-| # | 服务名称 | 临界级别 | 协议方法数 | 实现状态 | 所属包 |
-|:--|:---------|:---------|:----------|:---------|:-------|
-| 1 | **metadata** | `required` | 7 | ✅ 全部完成 | `@objectstack/objectql` |
-| 2 | **data** | `required` | 9 | ✅ 全部完成 | `@objectstack/objectql` |
-| 3 | **auth** | `required` | — | ⚠️ 通道实现 | `@objectstack/runtime` |
-| 4 | **analytics** | `optional` | 2 | ✅ 全部完成 | `@objectstack/objectql` |
-| 5 | **ui** | `optional` | 5 | ❌ 未实现 | 待开发 |
-| 6 | **workflow** | `optional` | 5 | ❌ 未实现 | 待开发 |
-| 7 | **automation** | `optional` | 1 | 🚧 存根 | 待开发 |
-| 8 | **realtime** | `optional` | 6 | ❌ 未实现 | 待开发 |
-| 9 | **notification** | `optional` | 7 | ❌ 未实现 | 待开发 |
-| 10 | **ai** | `optional` | 4 | ❌ 未实现 | 待开发 |
-| 11 | **i18n** | `optional` | 3 | ❌ 未实现 | 待开发 |
-| 12 | **file-storage** | `optional` | — | ❌ 未实现 | 待开发 |
-| 13 | **search** | `optional` | — | ❌ 未实现 | 待开发 |
-| 14 | **cache** | `core` | — | ⚠️ HTTP 缓存已实现 | `@objectstack/objectql` |
-| 15 | **queue** | `core` | — | ❌ 未实现 | 待开发 |
-| 16 | **job** | `core` | — | ❌ 未实现 | 待开发 |
-| 17 | **graphql** | `optional` | — | ❌ 未实现 | 待开发 |
+| # | Service Name | Criticality | Methods | Status | Package |
+|:--|:-------------|:------------|:--------|:-------|:--------|
+| 1 | **metadata** | `required` | 7 | ✅ Complete | `@objectstack/objectql` |
+| 2 | **data** | `required` | 9 | ✅ Complete | `@objectstack/objectql` |
+| 3 | **auth** | `required` | — | ⚠️ Passthrough | `@objectstack/runtime` |
+| 4 | **analytics** | `optional` | 2 | ✅ Complete | `@objectstack/objectql` |
+| 5 | **ui** | `optional` | 5 | ❌ Not Implemented | TBD |
+| 6 | **workflow** | `optional` | 5 | ❌ Not Implemented | TBD |
+| 7 | **automation** | `optional` | 1 | 🚧 Stub | TBD |
+| 8 | **realtime** | `optional` | 6 | ❌ Not Implemented | TBD |
+| 9 | **notification** | `optional` | 7 | ❌ Not Implemented | TBD |
+| 10 | **ai** | `optional` | 4 | ❌ Not Implemented | TBD |
+| 11 | **i18n** | `optional` | 3 | ❌ Not Implemented | TBD |
+| 12 | **file-storage** | `optional` | — | ❌ Not Implemented | TBD |
+| 13 | **search** | `optional` | — | ❌ Not Implemented | TBD |
+| 14 | **cache** | `core` | — | ⚠️ HTTP Cache Only | `@objectstack/objectql` |
+| 15 | **queue** | `core` | — | ❌ Not Implemented | TBD |
+| 16 | **job** | `core` | — | ❌ Not Implemented | TBD |
+| 17 | **graphql** | `optional` | — | ❌ Not Implemented | TBD |
 
 <Callout type="warn">
-**临界级别说明**
-- **required**: 系统启动必须的服务，缺失则无法启动
-- **core**: 核心基础设施，缺失时降级为内存实现并发出警告
-- **optional**: 可选功能，缺失则对应 API 返回 `501 Not Implemented`
+**Criticality Levels**
+- **required**: System cannot start without this service
+- **core**: Falls back to in-memory implementation with a warning if missing
+- **optional**: Feature disabled; API returns `501 Not Implemented` if missing
 </Callout>
 
 ---
 
-## 一、metadata 服务 ✅ 已完成
+## 1. metadata Service ✅ Complete
 
-**注册名**: `metadata` · **临界级别**: `required`  
-**实现**: `@objectstack/objectql` → `ObjectStackProtocolImplementation`  
-**路由挂载**: `/api/v1/meta`、`/api/v1/discovery`、`/api/v1/packages`
+**Service Name**: `metadata` · **Criticality**: `required`  
+**Implementation**: `@objectstack/objectql` → `ObjectStackProtocolImplementation`  
+**Route Mounts**: `/api/v1/meta`, `/api/v1/discovery`, `/api/v1/packages`
 
-### 协议方法
+### Protocol Methods
 
-| 方法 | 签名 | 状态 |
-|:-----|:-----|:----:|
+| Method | Signature | Status |
+|:-------|:----------|:------:|
 | `getDiscovery` | `GetDiscoveryRequest → GetDiscoveryResponse` | ✅ |
 | `getMetaTypes` | `GetMetaTypesRequest → GetMetaTypesResponse` | ✅ |
 | `getMetaItems` | `GetMetaItemsRequest → GetMetaItemsResponse` | ✅ |
@@ -68,25 +68,25 @@ ObjectStack 协议定义了 **17 项内核服务**，通过 `CoreServiceName` �
 | `getMetaItemCached` | `GetMetaItemCachedRequest → GetMetaItemCachedResponse` | ✅ |
 | `getUiView` | `GetUiViewRequest → GetUiViewResponse` | ✅ |
 
-### 实现细节
+### Implementation Details
 
-- **Discovery**: 返回 API 版本、基路径、路由挂载点和能力开关
-- **元数据 CRUD**: 委托 `SchemaRegistry` 实现类型注册与查询
-- **ETag 缓存**: 基于 `simpleHash()` 的浏览器兼容缓存
-- **UI 视图自动生成**: 根据 Object Schema 的字段自动生成 ListView / FormView
+- **Discovery**: Returns API version, base path, route mounts, and capability flags
+- **Metadata CRUD**: Delegates to `SchemaRegistry` for type registration and queries
+- **ETag Caching**: Browser-compatible caching via `simpleHash()`
+- **Auto-generated UI Views**: Generates ListView / FormView from Object Schema fields
 
 ---
 
-## 二、data 服务 ✅ 已完成
+## 2. data Service ✅ Complete
 
-**注册名**: `data` · **临界级别**: `required`  
-**实现**: `@objectstack/objectql` → `ObjectQL` (IDataEngine) + `ObjectStackProtocolImplementation`  
-**路由挂载**: `/api/v1/data`
+**Service Name**: `data` · **Criticality**: `required`  
+**Implementation**: `@objectstack/objectql` → `ObjectQL` (IDataEngine) + `ObjectStackProtocolImplementation`  
+**Route Mount**: `/api/v1/data`
 
-### 协议方法
+### Protocol Methods
 
-| 方法 | 签名 | 状态 |
-|:-----|:-----|:----:|
+| Method | Signature | Status |
+|:-------|:----------|:------:|
 | `findData` | `FindDataRequest → FindDataResponse` | ✅ |
 | `getData` | `GetDataRequest → GetDataResponse` | ✅ |
 | `createData` | `CreateDataRequest → CreateDataResponse` | ✅ |
@@ -97,459 +97,458 @@ ObjectStack 协议定义了 **17 项内核服务**，通过 `CoreServiceName` �
 | `updateManyData` | `UpdateManyDataRequest → UpdateManyDataResponse` | ✅ |
 | `deleteManyData` | `DeleteManyDataRequest → DeleteManyDataResponse` | ✅ |
 
-### 实现细节
+### Implementation Details
 
-- **CRUD**: 委托 `ObjectQL.find()` / `insert()` / `update()` / `delete()` → 驱动层
-- **Batch**: `batchData()` 支持 `create`/`update`/`upsert`/`delete` 混合操作，支持 `atomic` 和 `continueOnError` 选项
-- **Bulk**: `createManyData` 批量创建，`updateManyData` 逐条更新带错误收集，`deleteManyData` 使用 `$in` 过滤批量删除
-- **Hook 系统**: `beforeFind`/`afterInsert` 等生命周期钩子已完整支持
-- **聚合**: `engine.aggregate()` 将 `DataEngineAggregateOptions` 映射为 `QueryAST`（groupBy + aggregations）并委托驱动执行
+- **CRUD**: Delegates to `ObjectQL.find()` / `insert()` / `update()` / `delete()` → Driver layer
+- **Batch**: `batchData()` supports mixed `create`/`update`/`upsert`/`delete` operations with `atomic` and `continueOnError` options
+- **Bulk**: `createManyData` for batch inserts, `updateManyData` with per-record error collection, `deleteManyData` via `$in` filter
+- **Hook System**: Full lifecycle hooks (`beforeFind`, `afterInsert`, etc.)
+- **Aggregation**: `engine.aggregate()` maps `DataEngineAggregateOptions` to `QueryAST` (groupBy + aggregations) and delegates to the driver
 
-### 驱动实现
+### Driver Implementations
 
-| 驱动 | 包名 | CRUD | 聚合 | 生产就绪 |
-|:-----|:-----|:----:|:----:|:--------:|
-| InMemory | `@objectstack/driver-memory` | ✅ | ✅ | 开发/测试 |
-| PostgreSQL | 待开发 | — | — | — |
-| MySQL | 待开发 | — | — | — |
-| MongoDB | 待开发 | — | — | — |
-| SQLite | 待开发 | — | — | — |
-
----
-
-## 三、auth 服务 ⚠️ 通道实现
-
-**注册名**: `auth` · **临界级别**: `required`  
-**路由挂载**: `/api/v1/auth`
-
-### 当前状态
-
-- HTTP Dispatcher 路由已定义，认证中间件通道已实现
-- Client SDK 提供 `login`/`logout`/`register`/`refreshToken`/`me`
-- **需要开发**: 完整的身份认证引擎
-
-### 需要实现的内容
-
-| 功能模块 | 描述 | 优先级 |
-|:---------|:-----|:------:|
-| **身份提供者** | JWT 签发/验证、会话管理 | P0 |
-| **用户管理 CRUD** | 创建/查询/更新/删除用户 | P0 |
-| **角色管理** | 角色定义、角色-用户关联 | P0 |
-| **OAuth2 / OIDC** | 第三方登录 (Google, GitHub, etc.) | P1 |
-| **多租户** | Space/Tenant 隔离 | P1 |
-| **SCIM** | 企业用户同步协议 | P2 |
-
-### 相关协议规范
-
-- `src/identity/identity.zod.ts` — 用户/身份 Schema
-- `src/identity/role.zod.ts` — 角色 Schema
-- `src/identity/organization.zod.ts` — 组织 Schema
-- `src/system/auth-config.zod.ts` — 认证配置
-- `src/system/tenant.zod.ts` — 多租户
+| Driver | Package | CRUD | Aggregation | Production Ready |
+|:-------|:--------|:----:|:-----------:|:----------------:|
+| InMemory | `@objectstack/driver-memory` | ✅ | ✅ | Dev / Test |
+| PostgreSQL | TBD | — | — | — |
+| MySQL | TBD | — | — | — |
+| MongoDB | TBD | — | — | — |
+| SQLite | TBD | — | — | — |
 
 ---
 
-## 四、analytics 服务 ✅ 已完成
+## 3. auth Service ⚠️ Passthrough
 
-**注册名**: `analytics` · **临界级别**: `optional`  
-**实现**: `@objectstack/objectql` (驱动层能力，非独立插件)  
-**路由挂载**: `/api/v1/analytics`
+**Service Name**: `auth` · **Criticality**: `required`  
+**Route Mount**: `/api/v1/auth`
 
-### 协议方法
+### Current State
 
-| 方法 | 签名 | 状态 |
-|:-----|:-----|:----:|
+- HTTP Dispatcher routes defined; authentication middleware passthrough implemented
+- Client SDK exposes `login`/`logout`/`register`/`refreshToken`/`me`
+- **Needs development**: A complete identity & authentication engine
+
+### Development Requirements
+
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **Identity Provider** | JWT issuance/verification, session management | P0 |
+| **User CRUD** | Create / read / update / delete users | P0 |
+| **Role Management** | Role definitions, role-user associations | P0 |
+| **OAuth2 / OIDC** | Third-party login (Google, GitHub, etc.) | P1 |
+| **Multi-tenancy** | Space / Tenant isolation | P1 |
+| **SCIM** | Enterprise user provisioning protocol | P2 |
+
+### Related Spec Files
+
+- `src/identity/identity.zod.ts` — User / Identity schema
+- `src/identity/role.zod.ts` — Role schema
+- `src/identity/organization.zod.ts` — Organization schema
+- `src/system/auth-config.zod.ts` — Auth configuration
+- `src/system/tenant.zod.ts` — Multi-tenancy
+
+---
+
+## 4. analytics Service ✅ Complete
+
+**Service Name**: `analytics` · **Criticality**: `optional`  
+**Implementation**: `@objectstack/objectql` (driver-level capability, not a standalone plugin)  
+**Route Mount**: `/api/v1/analytics`
+
+### Protocol Methods
+
+| Method | Signature | Status |
+|:-------|:----------|:------:|
 | `analyticsQuery` | `AnalyticsQueryRequest → AnalyticsResultResponse` | ✅ |
 | `getAnalyticsMeta` | `GetAnalyticsMetaRequest → AnalyticsMetadataResponse` | ✅ |
 
-### 实现细节
+### Implementation Details
 
-- **Cube 语义查询**: 将 AnalyticsQuery（measures / dimensions / filters）映射为 ObjectQL 聚合查询
-  - `cube` → 对象名
+- **Cube Semantic Queries**: Maps AnalyticsQuery (measures / dimensions / filters) to ObjectQL aggregation
+  - `cube` → object name
   - `dimensions` → `groupBy`
-  - `measures` → `aggregations`（支持 `count`、`field.sum`、`field.avg` 等格式）
-  - `filters` → 驱动层 where 条件
-- **元数据自动生成**: 从 SchemaRegistry 对象自动生成 Cube 元数据
-  - 数字字段 → sum/avg measures + number dimensions
-  - 日期字段 → time dimensions（day/week/month/quarter/year）
-  - 文本字段 → string dimensions
-  
----
-
-## 五、ui 服务 ❌ 待开发
-
-**注册名**: `ui` · **临界级别**: `optional`  
-**路由挂载**: `/api/v1/ui`
-
-### 需要实现的协议方法
-
-| 方法 | 签名 | 描述 |
-|:-----|:-----|:-----|
-| `listViews` | `ListViewsRequest → ListViewsResponse` | 列出对象的所有视图 |
-| `getView` | `GetViewRequest → GetViewResponse` | 获取单个视图定义 |
-| `createView` | `CreateViewRequest → CreateViewResponse` | 创建自定义视图 |
-| `updateView` | `UpdateViewRequest → UpdateViewResponse` | 更新视图配置 |
-| `deleteView` | `DeleteViewRequest → DeleteViewResponse` | 删除视图 |
-
-### 需要开发的内容
-
-| 功能模块 | 描述 | 优先级 |
-|:---------|:-----|:------:|
-| **视图 CRUD** | 基于 SchemaRegistry 存储视图定义，支持 ListView / FormView / KanbanView 等 | P0 |
-| **视图合并** | 合并 Object Schema 默认视图与自定义视图覆盖 | P1 |
-| **布局引擎** | 解析 Layout DSL（tabs/sections/columns） | P1 |
-| **动作注册** | 视图关联的 Action 按钮定义及执行 | P2 |
-| **权限过滤** | 根据用户角色过滤视图和字段可见性 | P2 |
-
-### 相关协议规范
-
-- `src/ui/view.zod.ts` — 视图 Schema（grid / kanban / calendar / gantt / form / wizard）
-- `src/ui/app.zod.ts` — 应用导航 Schema
-- `src/ui/action.zod.ts` — 动作 Schema
-- `src/ui/dashboard.zod.ts` — 仪表盘 Schema
-- `src/ui/page.zod.ts` — 页面 Schema
+  - `measures` → `aggregations` (supports `count`, `field.sum`, `field.avg`, etc.)
+  - `filters` → driver-level where conditions
+- **Auto-generated Metadata**: Generates Cube metadata from SchemaRegistry objects
+  - Numeric fields → sum/avg measures + number dimensions
+  - Date fields → time dimensions (day/week/month/quarter/year)
+  - Text fields → string dimensions
 
 ---
 
-## 六、workflow 服务 ❌ 待开发
+## 5. ui Service ❌ Not Implemented
 
-**注册名**: `workflow` · **临界级别**: `optional`  
-**路由挂载**: `/api/v1/workflow`
+**Service Name**: `ui` · **Criticality**: `optional`  
+**Route Mount**: `/api/v1/ui`
 
-### 需要实现的协议方法
+### Protocol Methods to Implement
 
-| 方法 | 签名 | 描述 |
-|:-----|:-----|:-----|
-| `getWorkflowConfig` | `GetWorkflowConfigRequest → GetWorkflowConfigResponse` | 获取工作流配置 |
-| `getWorkflowState` | `GetWorkflowStateRequest → GetWorkflowStateResponse` | 获取记录的工作流状态 |
-| `workflowTransition` | `WorkflowTransitionRequest → WorkflowTransitionResponse` | 执行状态转换 |
-| `workflowApprove` | `WorkflowApproveRequest → WorkflowApproveResponse` | 审批通过 |
-| `workflowReject` | `WorkflowRejectRequest → WorkflowRejectResponse` | 审批驳回 |
+| Method | Signature | Description |
+|:-------|:----------|:------------|
+| `listViews` | `ListViewsRequest → ListViewsResponse` | List all views for an object |
+| `getView` | `GetViewRequest → GetViewResponse` | Get a single view definition |
+| `createView` | `CreateViewRequest → CreateViewResponse` | Create a custom view |
+| `updateView` | `UpdateViewRequest → UpdateViewResponse` | Update a view configuration |
+| `deleteView` | `DeleteViewRequest → DeleteViewResponse` | Delete a view |
 
-### 需要开发的内容
+### Development Requirements
 
-| 功能模块 | 描述 | 优先级 |
-|:---------|:-----|:------:|
-| **状态机引擎** | 基于 `StateMachineSchema` 实现状态定义与转换规则 | P0 |
-| **审批流程** | 串行/并行审批节点、多级审批、委托审批 | P0 |
-| **工作流配置** | 从 SchemaRegistry 加载 workflow 元数据 | P1 |
-| **历史记录** | 状态变更审计日志 | P1 |
-| **条件判断** | 转换条件表达式（权限检查、字段条件） | P1 |
-| **通知集成** | 状态变更时触发通知（依赖 notification 服务） | P2 |
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **View CRUD** | Store view definitions in SchemaRegistry; support ListView / FormView / KanbanView | P0 |
+| **View Merging** | Merge Object Schema default views with custom view overrides | P1 |
+| **Layout Engine** | Parse Layout DSL (tabs / sections / columns) | P1 |
+| **Action Registry** | Action button definitions and execution binding on views | P2 |
+| **Permission Filtering** | Filter views and field visibility by user role | P2 |
 
-### 相关协议规范
+### Related Spec Files
 
-- `src/automation/workflow.zod.ts` — 工作流 / 状态机 Schema
-- `src/automation/flow.zod.ts` — 流程编排 Schema
-- `src/data/analytics.zod.ts` — CubeSchema 中的 measures / dimensions
-
----
-
-## 七、automation 服务 🚧 存根
-
-**注册名**: `automation` · **临界级别**: `optional`  
-**路由挂载**: `/api/v1/automation`
-
-### 需要实现的协议方法
-
-| 方法 | 签名 | 当前状态 |
-|:-----|:-----|:---------|
-| `triggerAutomation` | `AutomationTriggerRequest → AutomationTriggerResponse` | 🚧 抛出 `requires plugin-automation` |
-
-### 需要开发的内容
-
-| 功能模块 | 描述 | 优先级 |
-|:---------|:-----|:------:|
-| **触发器引擎** | 接收 `triggerAutomation` 请求，路由到合适的 handler | P0 |
-| **事件触发** | 监听 ObjectQL Hook 事件（afterInsert/afterUpdate），自动触发流程 | P0 |
-| **Flow 执行器** | 执行 FlowSchema 定义的节点（decision/assignment/loop/action） | P1 |
-| **定时触发** | Schedule 类型，基于 cron 表达式触发流程 | P1 |
-| **Webhook 入站** | 接收外部 HTTP 事件作为触发源 | P2 |
-| **ETL 管道** | 数据抽取/转换/加载管道 | P2 |
-
-### 相关协议规范
-
-- `src/automation/trigger-registry.zod.ts` — 触发器注册 Schema
-- `src/automation/flow.zod.ts` — 流程编排 Schema（autolaunched / screen / schedule）
-- `src/automation/workflow.zod.ts` — 工作流审批 Schema
+- `src/ui/view.zod.ts` — View schema (grid / kanban / calendar / gantt / form / wizard)
+- `src/ui/app.zod.ts` — App navigation schema
+- `src/ui/action.zod.ts` — Action schema
+- `src/ui/dashboard.zod.ts` — Dashboard schema
+- `src/ui/page.zod.ts` — Page schema
 
 ---
 
-## 八、realtime 服务 ❌ 待开发
+## 6. workflow Service ❌ Not Implemented
 
-**注册名**: `realtime` · **临界级别**: `optional`  
-**路由挂载**: `/api/v1/realtime`
+**Service Name**: `workflow` · **Criticality**: `optional`  
+**Route Mount**: `/api/v1/workflow`
 
-### 需要实现的协议方法
+### Protocol Methods to Implement
 
-| 方法 | 签名 | 描述 |
-|:-----|:-----|:-----|
-| `realtimeConnect` | `RealtimeConnectRequest → RealtimeConnectResponse` | 建立连接 |
-| `realtimeDisconnect` | `RealtimeDisconnectRequest → RealtimeDisconnectResponse` | 断开连接 |
-| `realtimeSubscribe` | `RealtimeSubscribeRequest → RealtimeSubscribeResponse` | 订阅数据变更 |
-| `realtimeUnsubscribe` | `RealtimeUnsubscribeRequest → RealtimeUnsubscribeResponse` | 取消订阅 |
-| `setPresence` | `SetPresenceRequest → SetPresenceResponse` | 设置在线状态 |
-| `getPresence` | `GetPresenceRequest → GetPresenceResponse` | 查询在线状态 |
+| Method | Signature | Description |
+|:-------|:----------|:------------|
+| `getWorkflowConfig` | `GetWorkflowConfigRequest → GetWorkflowConfigResponse` | Get workflow configuration |
+| `getWorkflowState` | `GetWorkflowStateRequest → GetWorkflowStateResponse` | Get a record's workflow state |
+| `workflowTransition` | `WorkflowTransitionRequest → WorkflowTransitionResponse` | Execute a state transition |
+| `workflowApprove` | `WorkflowApproveRequest → WorkflowApproveResponse` | Approve a workflow step |
+| `workflowReject` | `WorkflowRejectRequest → WorkflowRejectResponse` | Reject a workflow step |
 
-### 需要开发的内容
+### Development Requirements
 
-| 功能模块 | 描述 | 优先级 |
-|:---------|:-----|:------:|
-| **WebSocket 服务** | 基于 Hono 或独立 WS 服务管理连接生命周期 | P0 |
-| **订阅管理** | 记录客户端订阅的 object/record，数据变更时推送 | P0 |
-| **变更广播** | Hook into ObjectQL afterInsert/afterUpdate/afterDelete 事件推送 | P0 |
-| **频道隔离** | 按 object、record、custom channel 进行消息隔离 | P1 |
-| **Presence** | 用户在线状态跟踪、心跳检测 | P1 |
-| **SSE 降级** | 不支持 WebSocket 时使用 Server-Sent Events | P2 |
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **State Machine Engine** | Implement state definitions and transition rules via `StateMachineSchema` | P0 |
+| **Approval Process** | Serial/parallel approval nodes, multi-level approval, delegation | P0 |
+| **Workflow Configuration** | Load workflow metadata from SchemaRegistry | P1 |
+| **Audit History** | State change audit trail | P1 |
+| **Conditional Guards** | Transition condition expressions (permission checks, field conditions) | P1 |
+| **Notification Integration** | Trigger notifications on state changes (depends on notification service) | P2 |
 
-### 相关协议规范
+### Related Spec Files
 
-- `src/api/realtime.zod.ts` — 实时通信协议 Schema
-- `src/api/websocket.zod.ts` — WebSocket 消息格式
-
----
-
-## 九、notification 服务 ❌ 待开发
-
-**注册名**: `notification` · **临界级别**: `optional`  
-**路由挂载**: `/api/v1/notifications`
-
-### 需要实现的协议方法
-
-| 方法 | 签名 | 描述 |
-|:-----|:-----|:-----|
-| `registerDevice` | `RegisterDeviceRequest → RegisterDeviceResponse` | 注册设备推送令牌 |
-| `unregisterDevice` | `UnregisterDeviceRequest → UnregisterDeviceResponse` | 注销设备 |
-| `getNotificationPreferences` | `GetNotificationPreferencesRequest → GetNotificationPreferencesResponse` | 获取通知偏好 |
-| `updateNotificationPreferences` | `UpdateNotificationPreferencesRequest → UpdateNotificationPreferencesResponse` | 更新通知偏好 |
-| `listNotifications` | `ListNotificationsRequest → ListNotificationsResponse` | 列出用户通知 |
-| `markNotificationsRead` | `MarkNotificationsReadRequest → MarkNotificationsReadResponse` | 标记已读 |
-| `markAllNotificationsRead` | `MarkAllNotificationsReadRequest → MarkAllNotificationsReadResponse` | 全部标记已读 |
-
-### 需要开发的内容
-
-| 功能模块 | 描述 | 优先级 |
-|:---------|:-----|:------:|
-| **通知存储** | 存储通知记录（对象 + 驱动） | P0 |
-| **通知查询** | 按用户/类型/已读状态分页查询 | P0 |
-| **偏好管理** | 按通知类型配置 email/push/in-app 渠道 | P1 |
-| **设备管理** | 注册/注销推送令牌（FCM/APNs） | P1 |
-| **发送引擎** | 通知分发（in-app → 存储，email → SMTP，push → 推送服务） | P1 |
-| **模板系统** | 通知内容模板，支持变量替换 | P2 |
-
-### 相关协议规范
-
-- `src/system/notification.zod.ts` — 通知 Schema
+- `src/automation/workflow.zod.ts` — Workflow / state machine schema
+- `src/automation/flow.zod.ts` — Flow orchestration schema
 
 ---
 
-## 十、ai 服务 ❌ 待开发
+## 7. automation Service 🚧 Stub
 
-**注册名**: `ai` · **临界级别**: `optional`  
-**路由挂载**: `/api/v1/ai`
+**Service Name**: `automation` · **Criticality**: `optional`  
+**Route Mount**: `/api/v1/automation`
 
-### 需要实现的协议方法
+### Protocol Methods to Implement
 
-| 方法 | 签名 | 描述 |
-|:-----|:-----|:-----|
-| `aiNlq` | `AiNlqRequest → AiNlqResponse` | 自然语言查询（NLQ → QueryAST） |
-| `aiChat` | `AiChatRequest → AiChatResponse` | AI 对话（上下文感知） |
-| `aiSuggest` | `AiSuggestRequest → AiSuggestResponse` | 字段值建议 / 自动补全 |
-| `aiInsights` | `AiInsightsRequest → AiInsightsResponse` | 数据洞察生成 |
+| Method | Signature | Current State |
+|:-------|:----------|:--------------|
+| `triggerAutomation` | `AutomationTriggerRequest → AutomationTriggerResponse` | 🚧 Throws `requires plugin-automation` |
 
-### 需要开发的内容
+### Development Requirements
 
-| 功能模块 | 描述 | 优先级 |
-|:---------|:-----|:------:|
-| **模型注册** | LLM Provider 配置与路由（OpenAI / Anthropic / 本地模型） | P0 |
-| **NLQ 引擎** | 自然语言 → QueryAST 转换，利用 Schema 元数据提供上下文 | P0 |
-| **Agent 框架** | 基于 AgentSchema 实现 Agent 执行（role / instructions / tools） | P1 |
-| **对话管理** | 会话持久化、上下文窗口管理 | P1 |
-| **RAG 管道** | 知识库索引 + 检索增强生成 | P2 |
-| **数据洞察** | 基于数据分析结果生成自然语言总结 | P2 |
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **Trigger Engine** | Accept `triggerAutomation` requests and route to appropriate handlers | P0 |
+| **Event Triggers** | Listen to ObjectQL Hook events (afterInsert/afterUpdate) to auto-trigger flows | P0 |
+| **Flow Executor** | Execute FlowSchema nodes (decision / assignment / loop / action) | P1 |
+| **Scheduled Triggers** | Cron-based schedule triggers | P1 |
+| **Inbound Webhooks** | Accept external HTTP events as trigger sources | P2 |
+| **ETL Pipelines** | Data extract / transform / load pipelines | P2 |
 
-### 相关协议规范
+### Related Spec Files
 
-- `src/ai/agent.zod.ts` — Agent Schema
-- `src/ai/model-registry.zod.ts` — 模型配置
-- `src/ai/rag-pipeline.zod.ts` — RAG 管道
-- `src/api/analytics.zod.ts` — NLQ 请求/响应
+- `src/automation/trigger-registry.zod.ts` — Trigger registry schema
+- `src/automation/flow.zod.ts` — Flow orchestration schema (autolaunched / screen / schedule)
+- `src/automation/workflow.zod.ts` — Workflow approval schema
 
 ---
 
-## 十一、i18n 服务 ❌ 待开发
+## 8. realtime Service ❌ Not Implemented
 
-**注册名**: `i18n` · **临界级别**: `optional`  
-**路由挂载**: `/api/v1/i18n`
+**Service Name**: `realtime` · **Criticality**: `optional`  
+**Route Mount**: `/api/v1/realtime`
 
-### 需要实现的协议方法
+### Protocol Methods to Implement
 
-| 方法 | 签名 | 描述 |
-|:-----|:-----|:-----|
-| `getLocales` | `GetLocalesRequest → GetLocalesResponse` | 获取支持的语言列表 |
-| `getTranslations` | `GetTranslationsRequest → GetTranslationsResponse` | 获取翻译资源包 |
-| `getFieldLabels` | `GetFieldLabelsRequest → GetFieldLabelsResponse` | 获取字段标签翻译 |
+| Method | Signature | Description |
+|:-------|:----------|:------------|
+| `realtimeConnect` | `RealtimeConnectRequest → RealtimeConnectResponse` | Establish connection |
+| `realtimeDisconnect` | `RealtimeDisconnectRequest → RealtimeDisconnectResponse` | Disconnect |
+| `realtimeSubscribe` | `RealtimeSubscribeRequest → RealtimeSubscribeResponse` | Subscribe to data changes |
+| `realtimeUnsubscribe` | `RealtimeUnsubscribeRequest → RealtimeUnsubscribeResponse` | Unsubscribe |
+| `setPresence` | `SetPresenceRequest → SetPresenceResponse` | Set online presence |
+| `getPresence` | `GetPresenceRequest → GetPresenceResponse` | Query online presence |
 
-### 需要开发的内容
+### Development Requirements
 
-| 功能模块 | 描述 | 优先级 |
-|:---------|:-----|:------:|
-| **翻译存储** | 加载 Translation 元数据（从 SchemaRegistry 或文件） | P0 |
-| **语言包查询** | 按 locale + namespace 返回翻译键值对 | P0 |
-| **字段标签** | 根据 Object Schema 的 label 字段自动生成多语言标签 | P1 |
-| **动态加载** | 按需加载语言包（减少初始化体积） | P2 |
-| **翻译覆盖** | 允许插件覆盖内置翻译 | P2 |
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **WebSocket Server** | Manage connection lifecycle via Hono or a standalone WS server | P0 |
+| **Subscription Manager** | Track client subscriptions per object/record and push changes | P0 |
+| **Change Broadcasting** | Hook into ObjectQL afterInsert/afterUpdate/afterDelete for push events | P0 |
+| **Channel Isolation** | Isolate messages by object, record, or custom channel | P1 |
+| **Presence** | User online status tracking with heartbeat detection | P1 |
+| **SSE Fallback** | Server-Sent Events fallback when WebSocket is unavailable | P2 |
 
-### 相关协议规范
+### Related Spec Files
 
-- `src/system/translation.zod.ts` — 翻译 Schema
-
----
-
-## 十二、file-storage 服务 ❌ 待开发
-
-**注册名**: `file-storage` · **临界级别**: `optional`  
-**路由挂载**: `/api/v1/storage`
-
-### 需要开发的内容
-
-| 功能模块 | 描述 | 优先级 |
-|:---------|:-----|:------:|
-| **存储接口** | 统一的文件上传/下载/删除接口（`IStorageProvider`） | P0 |
-| **本地存储** | 文件系统驱动（开发环境） | P0 |
-| **S3 驱动** | AWS S3 / MinIO 兼容对象存储 | P1 |
-| **元数据关联** | 文件与记录字段绑定（file/image 字段类型） | P1 |
-| **访问控制** | 签名 URL、权限检查 | P2 |
-
-### 相关协议规范
-
-- `src/integration/object-storage.zod.ts` — 对象存储 Schema
+- `src/api/realtime.zod.ts` — Realtime protocol schema
+- `src/api/websocket.zod.ts` — WebSocket message format
 
 ---
 
-## 十三、search 服务 ❌ 待开发
+## 9. notification Service ❌ Not Implemented
 
-**注册名**: `search` · **临界级别**: `optional`
+**Service Name**: `notification` · **Criticality**: `optional`  
+**Route Mount**: `/api/v1/notifications`
 
-### 需要开发的内容
+### Protocol Methods to Implement
 
-| 功能模块 | 描述 | 优先级 |
-|:---------|:-----|:------:|
-| **搜索接口** | 统一全文搜索 API（`ISearchEngine`） | P0 |
-| **内存搜索** | 基于 InMemory Driver 的简单匹配搜索 | P0 |
-| **Elasticsearch 驱动** | 全文搜索引擎集成 | P1 |
-| **索引管理** | 自动为可搜索字段创建索引 | P1 |
-| **搜索建议** | typeahead / autocomplete | P2 |
+| Method | Signature | Description |
+|:-------|:----------|:------------|
+| `registerDevice` | `RegisterDeviceRequest → RegisterDeviceResponse` | Register a push device token |
+| `unregisterDevice` | `UnregisterDeviceRequest → UnregisterDeviceResponse` | Unregister a device |
+| `getNotificationPreferences` | `GetNotificationPreferencesRequest → GetNotificationPreferencesResponse` | Get notification preferences |
+| `updateNotificationPreferences` | `UpdateNotificationPreferencesRequest → UpdateNotificationPreferencesResponse` | Update preferences |
+| `listNotifications` | `ListNotificationsRequest → ListNotificationsResponse` | List user notifications |
+| `markNotificationsRead` | `MarkNotificationsReadRequest → MarkNotificationsReadResponse` | Mark as read |
+| `markAllNotificationsRead` | `MarkAllNotificationsReadRequest → MarkAllNotificationsReadResponse` | Mark all as read |
 
-### 相关协议规范
+### Development Requirements
 
-- `src/data/search-engine.zod.ts` — 搜索引擎 Schema
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **Notification Storage** | Store notification records (object + driver) | P0 |
+| **Notification Query** | Paginated query by user / type / read status | P0 |
+| **Preference Management** | Per-type channel configuration (email / push / in-app) | P1 |
+| **Device Management** | Register/unregister push tokens (FCM / APNs) | P1 |
+| **Dispatch Engine** | Notification routing (in-app → storage, email → SMTP, push → push service) | P1 |
+| **Template System** | Notification content templates with variable substitution | P2 |
 
----
+### Related Spec Files
 
-## 十四、cache 服务 ⚠️ 部分实现
-
-**注册名**: `cache` · **临界级别**: `core`
-
-### 当前状态
-
-- HTTP ETag 缓存已在 `getMetaItemCached()` 实现
-- 内存级通用缓存未实现
-
-### 需要开发的内容
-
-| 功能模块 | 描述 | 优先级 |
-|:---------|:-----|:------:|
-| **缓存接口** | 统一的 `ICacheProvider`（get/set/del/has/ttl） | P0 |
-| **内存缓存** | LRU / TTL 内存缓存实现 | P0 |
-| **Redis 驱动** | Redis 缓存驱动 | P1 |
-| **查询缓存** | ObjectQL 查询结果自动缓存 + 失效策略 | P1 |
-| **Schema 缓存** | SchemaRegistry 解析结果缓存 | P2 |
-
-### 相关协议规范
-
-- `src/system/cache.zod.ts` — 缓存配置 Schema
+- `src/system/notification.zod.ts` — Notification schema
 
 ---
 
-## 十五、queue 服务 ❌ 待开发
+## 10. ai Service ❌ Not Implemented
 
-**注册名**: `queue` · **临界级别**: `core`
+**Service Name**: `ai` · **Criticality**: `optional`  
+**Route Mount**: `/api/v1/ai`
 
-### 需要开发的内容
+### Protocol Methods to Implement
 
-| 功能模块 | 描述 | 优先级 |
-|:---------|:-----|:------:|
-| **队列接口** | 统一的 `IQueueProvider`（enqueue/dequeue/ack） | P0 |
-| **内存队列** | 基于 Array/EventEmitter 的简单队列 | P0 |
-| **Redis 队列** | BullMQ / Redis Streams 驱动 | P1 |
-| **消息重试** | 失败重试、死信队列 | P1 |
+| Method | Signature | Description |
+|:-------|:----------|:------------|
+| `aiNlq` | `AiNlqRequest → AiNlqResponse` | Natural Language Query (NLQ → QueryAST) |
+| `aiChat` | `AiChatRequest → AiChatResponse` | Context-aware AI chat |
+| `aiSuggest` | `AiSuggestRequest → AiSuggestResponse` | Field value suggestions / autocomplete |
+| `aiInsights` | `AiInsightsRequest → AiInsightsResponse` | Data insight generation |
 
-### 相关协议规范
+### Development Requirements
 
-- `src/integration/message-queue.zod.ts` — 消息队列 Schema
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **Model Registry** | LLM provider configuration and routing (OpenAI / Anthropic / local models) | P0 |
+| **NLQ Engine** | Natural language → QueryAST conversion using Schema metadata for context | P0 |
+| **Agent Framework** | Execute agents via AgentSchema (role / instructions / tools) | P1 |
+| **Conversation Manager** | Session persistence, context window management | P1 |
+| **RAG Pipeline** | Knowledge base indexing + retrieval-augmented generation | P2 |
+| **Data Insights** | Generate natural language summaries from analytics results | P2 |
 
----
+### Related Spec Files
 
-## 十六、job 服务 ❌ 待开发
-
-**注册名**: `job` · **临界级别**: `core`
-
-### 需要开发的内容
-
-| 功能模块 | 描述 | 优先级 |
-|:---------|:-----|:------:|
-| **任务调度器** | 基于 cron 的定时任务执行 | P0 |
-| **任务注册** | 插件注册定时任务（name / schedule / handler） | P0 |
-| **任务状态** | 执行历史、成功/失败记录 | P1 |
-| **并发控制** | 任务锁、防止重复执行 | P1 |
-| **Worker 池** | 长任务在独立 Worker 中执行 | P2 |
-
-### 相关协议规范
-
-- `src/system/job.zod.ts` — 任务调度 Schema
-- `src/system/worker.zod.ts` — Worker Schema
+- `src/ai/agent.zod.ts` — Agent schema
+- `src/ai/model-registry.zod.ts` — Model configuration
+- `src/ai/rag-pipeline.zod.ts` — RAG pipeline
+- `src/api/analytics.zod.ts` — NLQ request/response
 
 ---
 
-## 十七、graphql 服务 ❌ 待开发
+## 11. i18n Service ❌ Not Implemented
 
-**注册名**: `graphql` · **临界级别**: `optional`  
-**路由挂载**: `/api/v1/graphql`
+**Service Name**: `i18n` · **Criticality**: `optional`  
+**Route Mount**: `/api/v1/i18n`
 
-### 需要开发的内容
+### Protocol Methods to Implement
 
-| 功能模块 | 描述 | 优先级 |
-|:---------|:-----|:------:|
-| **Schema 自动生成** | 根据 Object 元数据自动生成 GraphQL Schema（types / queries / mutations） | P0 |
-| **查询解析** | GraphQL Query → ObjectQL QueryAST 映射 | P0 |
-| **Mutation 映射** | GraphQL Mutation → ObjectQL insert/update/delete | P1 |
-| **关联查询** | lookup/master_detail 字段的 GraphQL 关联解析（DataLoader） | P1 |
-| **Subscription** | 结合 realtime 服务实现 GraphQL Subscription | P2 |
+| Method | Signature | Description |
+|:-------|:----------|:------------|
+| `getLocales` | `GetLocalesRequest → GetLocalesResponse` | Get supported locales |
+| `getTranslations` | `GetTranslationsRequest → GetTranslationsResponse` | Get translation bundles |
+| `getFieldLabels` | `GetFieldLabelsRequest → GetFieldLabelsResponse` | Get field label translations |
 
-### 相关协议规范
+### Development Requirements
 
-- `src/api/graphql.zod.ts` — GraphQL 端点配置
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **Translation Storage** | Load Translation metadata from SchemaRegistry or files | P0 |
+| **Bundle Query** | Return key-value pairs by locale + namespace | P0 |
+| **Field Labels** | Auto-generate multilingual labels from Object Schema `label` fields | P1 |
+| **Lazy Loading** | On-demand bundle loading to reduce initialization size | P2 |
+| **Translation Overrides** | Allow plugins to override built-in translations | P2 |
+
+### Related Spec Files
+
+- `src/system/translation.zod.ts` — Translation schema
 
 ---
 
-## 服务依赖关系
+## 12. file-storage Service ❌ Not Implemented
+
+**Service Name**: `file-storage` · **Criticality**: `optional`  
+**Route Mount**: `/api/v1/storage`
+
+### Development Requirements
+
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **Storage Interface** | Unified upload/download/delete API (`IStorageProvider`) | P0 |
+| **Local Storage** | Filesystem driver for development | P0 |
+| **S3 Driver** | AWS S3 / MinIO compatible object storage | P1 |
+| **Metadata Binding** | Bind files to record fields (file/image field types) | P1 |
+| **Access Control** | Signed URLs, permission checks | P2 |
+
+### Related Spec Files
+
+- `src/integration/object-storage.zod.ts` — Object storage schema
+
+---
+
+## 13. search Service ❌ Not Implemented
+
+**Service Name**: `search` · **Criticality**: `optional`
+
+### Development Requirements
+
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **Search Interface** | Unified full-text search API (`ISearchEngine`) | P0 |
+| **In-Memory Search** | Simple match search using the InMemory Driver | P0 |
+| **Elasticsearch Driver** | Full-text search engine integration | P1 |
+| **Index Management** | Auto-index searchable fields | P1 |
+| **Search Suggestions** | Typeahead / autocomplete | P2 |
+
+### Related Spec Files
+
+- `src/data/search-engine.zod.ts` — Search engine schema
+
+---
+
+## 14. cache Service ⚠️ Partial
+
+**Service Name**: `cache` · **Criticality**: `core`
+
+### Current State
+
+- HTTP ETag caching implemented in `getMetaItemCached()`
+- General-purpose in-memory cache not yet implemented
+
+### Development Requirements
+
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **Cache Interface** | Unified `ICacheProvider` (get/set/del/has/ttl) | P0 |
+| **In-Memory Cache** | LRU / TTL in-memory cache implementation | P0 |
+| **Redis Driver** | Redis cache driver | P1 |
+| **Query Cache** | Auto-cache ObjectQL query results + invalidation strategy | P1 |
+| **Schema Cache** | Cache SchemaRegistry parse results | P2 |
+
+### Related Spec Files
+
+- `src/system/cache.zod.ts` — Cache configuration schema
+
+---
+
+## 15. queue Service ❌ Not Implemented
+
+**Service Name**: `queue` · **Criticality**: `core`
+
+### Development Requirements
+
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **Queue Interface** | Unified `IQueueProvider` (enqueue/dequeue/ack) | P0 |
+| **In-Memory Queue** | Simple queue based on Array/EventEmitter | P0 |
+| **Redis Queue** | BullMQ / Redis Streams driver | P1 |
+| **Message Retry** | Failed message retry, dead letter queue | P1 |
+
+### Related Spec Files
+
+- `src/integration/message-queue.zod.ts` — Message queue schema
+
+---
+
+## 16. job Service ❌ Not Implemented
+
+**Service Name**: `job` · **Criticality**: `core`
+
+### Development Requirements
+
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **Task Scheduler** | Cron-based scheduled task execution | P0 |
+| **Task Registration** | Plugins register tasks (name / schedule / handler) | P0 |
+| **Task Status** | Execution history, success/failure records | P1 |
+| **Concurrency Control** | Task locking, prevent duplicate execution | P1 |
+| **Worker Pool** | Execute long-running tasks in isolated Workers | P2 |
+
+### Related Spec Files
+
+- `src/system/job.zod.ts` — Job scheduler schema
+- `src/system/worker.zod.ts` — Worker schema
+
+---
+
+## 17. graphql Service ❌ Not Implemented
+
+**Service Name**: `graphql` · **Criticality**: `optional`  
+**Route Mount**: `/api/v1/graphql`
+
+### Development Requirements
+
+| Module | Description | Priority |
+|:-------|:------------|:--------:|
+| **Schema Auto-generation** | Generate GraphQL Schema (types / queries / mutations) from Object metadata | P0 |
+| **Query Resolution** | GraphQL Query → ObjectQL QueryAST mapping | P0 |
+| **Mutation Mapping** | GraphQL Mutation → ObjectQL insert/update/delete | P1 |
+| **Relationship Resolution** | Resolve lookup/master_detail fields via GraphQL association resolvers (DataLoader) | P1 |
+| **Subscription** | Combine with the realtime service for GraphQL Subscriptions | P2 |
+
+### Related Spec Files
+
+- `src/api/graphql.zod.ts` — GraphQL endpoint configuration
+
+---
+
+## Service Dependency Graph
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                    必需服务 (required)                 │
+┌──────────────────────────────────────────────────────┐
+│                  Required Services                    │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐           │
 │  │ metadata │  │   data   │  │   auth   │           │
 │  └────┬─────┘  └────┬─────┘  └────┬─────┘           │
 │       │              │              │                 │
 ├───────┼──────────────┼──────────────┼─────────────────┤
-│       │         核心服务 (core)      │                 │
+│       │         Core Services       │                 │
 │  ┌────┴─────┐  ┌──────────┐  ┌─────┴────┐           │
 │  │  cache   │  │  queue   │  │   job    │           │
 │  └──────────┘  └──────────┘  └──────────┘           │
 │                                                      │
 ├──────────────────────────────────────────────────────┤
-│                    可选服务 (optional)                 │
+│                  Optional Services                    │
 │  ┌───────────┐ ┌──────────┐ ┌──────────┐            │
 │  │ analytics │ │    ui    │ │ workflow │            │
 │  │    ✅     │ │    ❌    │ │    ❌    │            │
@@ -571,51 +570,51 @@ ObjectStack 协议定义了 **17 项内核服务**，通过 `CoreServiceName` �
 
 ---
 
-## 开发优先级建议
+## Recommended Development Phases
 
-### 第一阶段：内核强化（P0）
+### Phase 1: Kernel Hardening (P0)
 
-| 服务 | 方法数 | 描述 |
-|:-----|:------:|:-----|
-| **auth** | — | 身份认证引擎 — 系统必需，当前仅有通道 |
-| **ui** | 5 | 视图 CRUD — 低代码平台的核心 |
-| **cache** | — | 通用缓存 — 性能基础设施 |
+| Service | Methods | Description |
+|:--------|:-------:|:------------|
+| **auth** | — | Identity & authentication engine — system requirement, currently passthrough only |
+| **ui** | 5 | View CRUD — core capability of a low-code platform |
+| **cache** | — | General-purpose cache — performance infrastructure |
 
-### 第二阶段：业务引擎（P1）
+### Phase 2: Business Engine (P1)
 
-| 服务 | 方法数 | 描述 |
-|:-----|:------:|:-----|
-| **workflow** | 5 | 状态机 + 审批流 — 企业应用核心 |
-| **automation** | 1+ | 触发器 + Flow 编排 — 自动化基础 |
-| **i18n** | 3 | 国际化 — 多语言支持 |
-| **file-storage** | — | 文件存储 — 常见业务需求 |
+| Service | Methods | Description |
+|:--------|:-------:|:------------|
+| **workflow** | 5 | State machine + approval process — enterprise application core |
+| **automation** | 1+ | Triggers + flow orchestration — automation foundation |
+| **i18n** | 3 | Internationalization — multi-language support |
+| **file-storage** | — | File storage — common business requirement |
 
-### 第三阶段：高级能力（P2）
+### Phase 3: Advanced Capabilities (P2)
 
-| 服务 | 方法数 | 描述 |
-|:-----|:------:|:-----|
-| **realtime** | 6 | WebSocket 实时推送 |
-| **notification** | 7 | 通知引擎 |
-| **ai** | 4 | AI 智能能力 |
-| **graphql** | — | GraphQL API 端点 |
-| **search** | — | 全文搜索 |
-| **job** | — | 定时任务 |
-| **queue** | — | 消息队列 |
+| Service | Methods | Description |
+|:--------|:-------:|:------------|
+| **realtime** | 6 | WebSocket real-time push |
+| **notification** | 7 | Notification engine |
+| **ai** | 4 | AI capabilities |
+| **graphql** | — | GraphQL API endpoint |
+| **search** | — | Full-text search |
+| **job** | — | Scheduled tasks |
+| **queue** | — | Message queue |
 
 ---
 
-## 技术实现指南
+## Implementation Guide
 
-### 添加新的内核服务
+### Adding a New Kernel Service
 
-每个内核服务应遵循以下模式：
+Each kernel service should follow this plugin pattern:
 
 ```typescript
 import type { Plugin } from '@objectstack/core';
 
 export const myServicePlugin: Plugin = {
   name: 'my-service',
-  provides: ['my-service'], // CoreServiceName 中的值
+  provides: ['my-service'], // Value from CoreServiceName
   
   async init(ctx) {
     const engine = ctx.getService<IDataEngine>('data');
@@ -635,9 +634,9 @@ export const myServicePlugin: Plugin = {
 };
 ```
 
-### 协议方法注册
+### Implementing Protocol Methods
 
-在 `ObjectStackProtocolImplementation` 中实现协议方法：
+Add protocol methods in `ObjectStackProtocolImplementation`:
 
 ```typescript
 // packages/objectql/src/protocol.ts
@@ -650,41 +649,41 @@ async listViews(request: ListViewsRequest): Promise<ListViewsResponse> {
 }
 ```
 
-### REST 路由自动注册
+### Automatic REST Route Registration
 
-REST 层会自动为已实现的协议方法生成 HTTP 端点：
+The REST layer auto-generates HTTP endpoints for implemented protocol methods:
 
 ```
-GET  /api/v1/ui/views?object=account     → listViews
-GET  /api/v1/ui/views/:name              → getView
-POST /api/v1/ui/views                    → createView
-PATCH /api/v1/ui/views/:name             → updateView
-DELETE /api/v1/ui/views/:name            → deleteView
+GET    /api/v1/ui/views?object=account  → listViews
+GET    /api/v1/ui/views/:name           → getView
+POST   /api/v1/ui/views                 → createView
+PATCH  /api/v1/ui/views/:name           → updateView
+DELETE /api/v1/ui/views/:name           → deleteView
 ```
 
 ---
 
-## 下一步
+## Next Steps
 
 <Cards>
   <Card 
     href="../concepts/implementation-status" 
-    title="实现状态矩阵"
-    description="查看所有协议规范的详细实现状态"
+    title="Implementation Status Matrix"
+    description="Full protocol implementation status across all packages"
   />
   <Card 
     href="../concepts/core/services" 
     title="Service Registry"
-    description="了解微内核的服务注册与依赖注入机制"
+    description="Microkernel service registration and dependency injection"
   />
   <Card 
     href="../../references/kernel" 
-    title="内核协议参考"
-    description="查看所有内核级别的 Zod Schema 定义"
+    title="Kernel Protocol Reference"
+    description="All kernel-level Zod schema definitions"
   />
   <Card 
     href="https://github.com/objectstack-ai/spec" 
-    title="参与贡献"
-    description="在 GitHub 上帮助实现缺失的服务"
+    title="Contribute"
+    description="Help implement missing services on GitHub"
   />
 </Cards>
