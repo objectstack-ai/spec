@@ -17,7 +17,7 @@ The `@objectstack/client` is the official TypeScript client for ObjectStack. It 
 - **Batch Operations**: Efficient bulk create/update/upsert/delete with transaction support
 - **Query Builder**: Programmatic query construction with `createQuery()` and `createFilter()`
 - **Standardized Errors**: Machine-readable error codes with retry guidance
-- **100% Protocol Compliant**: Implements all 13 API namespaces and 95+ methods defined in `@objectstack/spec`
+- **100% Protocol Compliant**: Implements all 15 API namespaces defined in `@objectstack/spec`
 
 ## Installation
 
@@ -105,7 +105,7 @@ if (discovery.services?.auth?.enabled) {
 
 ## Protocol Coverage
 
-The `@objectstack/client` SDK aims to implement the ObjectStack API protocol specification. It covers all 13 API namespaces defined in `@objectstack/spec`:
+The `@objectstack/client` SDK aims to implement the ObjectStack API protocol specification. It covers all 15 API namespaces defined in `@objectstack/spec`:
 
 | Namespace | Status | Methods | Purpose |
 |:----------|:------:|:--------|:--------|
@@ -113,11 +113,13 @@ The `@objectstack/client` SDK aims to implement the ObjectStack API protocol spe
 | **meta** | ✅ | 7 | Metadata operations (objects, views, plugins) |
 | **data** | ✅ | 10 | CRUD & query operations |
 | **auth** | ✅ | 5 | Authentication & user management |
+| **permissions** | ✅ | 3 | Access control checks |
 | **packages** | ✅ | 6 | Plugin/package lifecycle management |
 | **views** | ✅ | 5 | UI view definitions |
 | **workflow** | ✅ | 5 | Workflow state transitions |
-| **analytics** | ✅ | 2 | Analytics queries |
+| **analytics** | ✅ | 3 | Analytics queries |
 | **automation** | ✅ | 1 | Automation triggers |
+| **storage** | ✅ | 2 | File upload & download |
 | **i18n** | ✅ | 3 | Internationalization |
 | **notifications** | ✅ | 7 | Push notifications |
 | **realtime** | ✅ | 6 | WebSocket subscriptions |
@@ -219,15 +221,21 @@ const result = await client.analytics.query({
   limit: 100,
 });
 
-// Get cube metadata
-const meta = await client.analytics.getMeta();
+// Get cube metadata for a specific cube
+const meta = await client.analytics.meta('account');
+
+// Explain a query plan
+const explained = await client.analytics.explain({
+  cube: 'account',
+  measures: ['revenue.sum'],
+});
 ```
 
 ### `client.packages` — Package Management
 
 ```typescript
 const packages = await client.packages.list();
-await client.packages.install({ manifest: { name: 'plugin-auth', version: '1.0.0' } });
+await client.packages.install({ name: 'plugin-auth', version: '1.0.0' });
 await client.packages.enable('plugin-auth');
 await client.packages.disable('plugin-auth');
 await client.packages.uninstall('plugin-auth');
@@ -260,12 +268,17 @@ await client.workflow.reject({ object: 'approval', recordId, reason: 'Incomplete
 // Realtime — WebSocket subscriptions
 await client.realtime.connect({ protocol: 'websocket' });
 await client.realtime.subscribe({ channel: 'account', event: 'update' });
-await client.realtime.setPresence({ status: 'online' });
+await client.realtime.unsubscribe('subscription-id');
+await client.realtime.setPresence('account', { status: 'online' });
+await client.realtime.getPresence('account');
 await client.realtime.disconnect();
 
 // Notifications — Push notification management
 await client.notifications.registerDevice({ token: 'device-token', platform: 'ios' });
-await client.notifications.list({ unreadOnly: true });
+await client.notifications.unregisterDevice('device-id');
+await client.notifications.getPreferences();
+await client.notifications.updatePreferences({ email: true, push: false });
+await client.notifications.list({ read: false });
 await client.notifications.markRead(['notif-1', 'notif-2']);
 await client.notifications.markAllRead();
 
@@ -309,18 +322,37 @@ Build complex queries programmatically:
 import { createQuery, createFilter } from '@objectstack/client';
 
 const query = createQuery('account')
-  .select(['name', 'industry', 'revenue'])
-  .where(
-    createFilter()
-      .and('industry', '=', 'Technology')
-      .and('revenue', '>', 10000)
-      .build()
-  )
-  .orderBy('-revenue')
+  .select('name', 'industry', 'revenue')
+  .where((f) => {
+    f.equals('industry', 'Technology');
+    f.greaterThan('revenue', 10000);
+  })
+  .orderBy('revenue', 'desc')
   .limit(50)
   .build();
 
 const results = await client.data.query('account', query);
+```
+
+### Filter Builder Methods
+
+The `FilterBuilder` provides a rich set of filter methods:
+
+```typescript
+import { createFilter } from '@objectstack/client';
+
+const filter = createFilter()
+  .equals('status', 'active')        // field = value
+  .notEquals('type', 'archived')      // field != value
+  .greaterThan('revenue', 10000)      // field > value
+  .lessThanOrEqual('age', 100)        // field <= value
+  .in('category', ['A', 'B', 'C'])   // field IN (...)
+  .like('name', '%Corp%')             // field LIKE pattern
+  .contains('name', 'Corp')           // LIKE %Corp%
+  .startsWith('name', 'Acme')         // LIKE Acme%
+  .isNull('deleted_at')               // field IS NULL
+  .between('created_at', '2024-01', '2024-12')
+  .build();
 ```
 
 ---
@@ -389,9 +421,11 @@ interface ClientConfig {
   /** Bearer token for authentication (if auth plugin installed) */
   token?: string;
   /** Custom fetch implementation (e.g. for SSR or testing) */
-  fetch?: typeof fetch;
-  /** Request timeout in ms (default: 30000) */
-  timeout?: number;
+  fetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+  /** Logger instance for debugging */
+  logger?: Logger;
+  /** Enable debug logging */
+  debug?: boolean;
 }
 ```
 
@@ -406,19 +440,47 @@ pnpm add @objectstack/client-react
 ```
 
 ```typescript
-import { useObjectStack, useFind, useGet } from '@objectstack/client-react';
+import { ObjectStackProvider, useClient, useQuery } from '@objectstack/client-react';
+import { ObjectStackClient } from '@objectstack/client';
 
+// 1. Wrap your app with the provider
+const client = new ObjectStackClient({ baseUrl: 'http://localhost:3004' });
+
+function App() {
+  return (
+    <ObjectStackProvider client={client}>
+      <AccountList />
+    </ObjectStackProvider>
+  );
+}
+
+// 2. Use hooks in child components
 function AccountList() {
-  const { data: accounts, loading } = useFind('account', {
+  const { data, isLoading, error, refetch } = useQuery('account', {
     filters: ['status', '=', 'active'],
     sort: ['-created_at'],
     top: 20,
   });
 
-  if (loading) return <div>Loading...</div>;
-  return accounts.map(a => <div key={a.id}>{a.name}</div>);
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  return data?.records.map(a => <div key={a.id}>{a.name}</div>);
 }
 ```
+
+### Available Hooks
+
+| Hook | Purpose |
+|:-----|:--------|
+| `useClient()` | Access the `ObjectStackClient` instance from context |
+| `useQuery(object, options)` | Query data with auto caching and refetching |
+| `useMutation(object)` | Create/update/delete mutations |
+| `usePagination(object, options)` | Paginated data queries |
+| `useInfiniteQuery(object, options)` | Infinite scroll queries |
+| `useObject(name)` | Get object metadata |
+| `useView(object, type)` | Get view definition |
+| `useFields(object)` | Get field definitions |
+| `useMetadata(type, name)` | Get arbitrary metadata |
 
 ---
 
@@ -449,7 +511,7 @@ cd packages/client
 pnpm test:integration
 ```
 
-Integration tests verify end-to-end communication with a live ObjectStack server across all 13 API namespaces.
+Integration tests verify end-to-end communication with a live ObjectStack server across all 15 API namespaces.
 
 <Callout type="info">
 **Test coverage**: Integration test specifications cover discovery/connection, authentication, metadata operations, CRUD operations (basic, batch, advanced queries), permissions, workflow, realtime, notifications, AI services, i18n, analytics, packages, views, storage, and automation.
@@ -461,10 +523,9 @@ Integration tests verify end-to-end communication with a live ObjectStack server
 
 For detailed information about the client's protocol implementation:
 
-- **[Protocol Compliance Matrix](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SPEC_COMPLIANCE.md)** — Method-by-method verification of all 95+ API methods across 13 namespaces
+- **[Protocol Compliance Matrix](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SPEC_COMPLIANCE.md)** — Method-by-method verification of all API methods across 15 namespaces
 - **[Integration Test Specifications](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SERVER_INTEGRATION_TESTS.md)** — Comprehensive test cases for client-server communication
 - **[Quick Reference Guide](https://github.com/objectstack-ai/spec/blob/main/packages/client/QUICK_REFERENCE.md)** — Developer navigation and API reference
-- **[中文合规性报告](https://github.com/objectstack-ai/spec/blob/main/packages/client/CLIENT_SPEC_COMPLIANCE_CN.md)** — Chinese language compliance verification report
 
 ---
 
