@@ -127,12 +127,6 @@ importers:
 
   apps/studio:
     dependencies:
-      '@example/app-crm':
-        specifier: workspace:*
-        version: link:../../examples/app-crm
-      '@example/app-todo':
-        specifier: workspace:*
-        version: link:../../examples/app-todo
       '@objectstack/client':
         specifier: workspace:*
         version: link:../../packages/client

@@ -17,8 +17,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@example/app-crm": "workspace:*",
-    "@example/app-todo": "workspace:*",
     "@objectstack/client": "workspace:*",
     "@objectstack/client-react": "workspace:*",
     "@objectstack/driver-memory": "workspace:*",
