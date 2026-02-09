@@ -32,7 +32,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         this.engine = engine;
     }
 
-    async getDiscovery(_request: {}) {
+    async getDiscovery() {
         return {
             version: '1.0',
             apiName: 'ObjectStack API',
@@ -42,7 +42,11 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
                 websockets: false,
                 files: true,
                 analytics: false,
-                hub: false
+                hub: false,
+                ai: false,
+                workflow: false,
+                notifications: false,
+                i18n: false,
             },
             endpoints: {
                 data: '/api/data',
@@ -52,18 +56,18 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         };
     }
 
-    async getMetaTypes(_request: {}) {
+    async getMetaTypes() {
         return {
             types: SchemaRegistry.getRegisteredTypes()
         };
     }
 
-    async getMetaItems(request: { type: string; packageId?: string }) {
-        let items = SchemaRegistry.listItems(request.type, request.packageId);
+    async getMetaItems(request: { type: string }) {
+        let items = SchemaRegistry.listItems(request.type);
         // Normalize singular/plural: REST uses singular ('app') but registry may store as plural ('apps')
         if (items.length === 0) {
             const alt = request.type.endsWith('s') ? request.type.slice(0, -1) : request.type + 's';
-            items = SchemaRegistry.listItems(alt, request.packageId);
+            items = SchemaRegistry.listItems(alt);
         }
         return {
             type: request.type,

@@ -1184,90 +1184,101 @@ export type {
   PackageStatus,
 };
 
-export type ObjectStackProtocol = z.infer<typeof ObjectStackProtocolSchema>;
+/**
+ * Zod-inferred protocol type (for runtime validation only).
+ * Use ObjectStackProtocol interface for implementation contracts.
+ */
+export type ObjectStackProtocolZod = z.infer<typeof ObjectStackProtocolSchema>;
 
 /**
- * Legacy Interface Export
- * Maintained for backward compatibility
- * @deprecated Use ObjectStackProtocol type from protocol.zod.ts instead
+ * ObjectStack Protocol Interface
+ * 
+ * Properly typed interface for implementing the ObjectStack API protocol.
+ * The Zod schema (ObjectStackProtocolSchema) is used for runtime validation,
+ * while this interface provides compile-time type safety for implementations.
  */
-export interface IObjectStackProtocolLegacy {
-  getDiscovery(): Promise<GetDiscoveryResponse>;
-  getMetaTypes(): Promise<GetMetaTypesResponse>;
+export interface ObjectStackProtocol {
+  // Discovery & Metadata (core)
+  getDiscovery(request?: GetDiscoveryRequest): Promise<GetDiscoveryResponse>;
+  getMetaTypes(request?: GetMetaTypesRequest): Promise<GetMetaTypesResponse>;
   getMetaItems(request: GetMetaItemsRequest): Promise<GetMetaItemsResponse>;
   getMetaItem(request: GetMetaItemRequest): Promise<GetMetaItemResponse>;
   saveMetaItem(request: SaveMetaItemRequest): Promise<SaveMetaItemResponse>;
-  getMetaItemCached(request: GetMetaItemCachedRequest): Promise<GetMetaItemCachedResponse>;
-  getUiView(request: GetUiViewRequest): Promise<GetUiViewResponse>;
+  getMetaItemCached?(request: GetMetaItemCachedRequest): Promise<GetMetaItemCachedResponse>;
+  getUiView?(request: GetUiViewRequest): Promise<GetUiViewResponse>;
   
-  analyticsQuery(request: AnalyticsQueryRequest): Promise<AnalyticsResultResponse>;
-  getAnalyticsMeta(request: GetAnalyticsMetaRequest): Promise<GetAnalyticsMetaResponse>;
+  // Analytics (optional)
+  analyticsQuery?(request: AnalyticsQueryRequest): Promise<AnalyticsResultResponse>;
+  getAnalyticsMeta?(request: GetAnalyticsMetaRequest): Promise<GetAnalyticsMetaResponse>;
 
-  triggerAutomation(request: AutomationTriggerRequest): Promise<AutomationTriggerResponse>;
+  // Automation (optional)
+  triggerAutomation?(request: AutomationTriggerRequest): Promise<AutomationTriggerResponse>;
 
-  // Package Management
-  listPackages(request: ListPackagesRequest): Promise<ListPackagesResponse>;
-  getPackage(request: GetPackageRequest): Promise<GetPackageResponse>;
-  installPackage(request: InstallPackageRequest): Promise<InstallPackageResponse>;
-  uninstallPackage(request: UninstallPackageRequest): Promise<UninstallPackageResponse>;
-  enablePackage(request: EnablePackageRequest): Promise<EnablePackageResponse>;
-  disablePackage(request: DisablePackageRequest): Promise<DisablePackageResponse>;
+  // Package Management (optional)
+  listPackages?(request: ListPackagesRequest): Promise<ListPackagesResponse>;
+  getPackage?(request: GetPackageRequest): Promise<GetPackageResponse>;
+  installPackage?(request: InstallPackageRequest): Promise<InstallPackageResponse>;
+  uninstallPackage?(request: UninstallPackageRequest): Promise<UninstallPackageResponse>;
+  enablePackage?(request: EnablePackageRequest): Promise<EnablePackageResponse>;
+  disablePackage?(request: DisablePackageRequest): Promise<DisablePackageResponse>;
 
+  // Data Operations (core)
   findData(request: FindDataRequest): Promise<FindDataResponse>;
   getData(request: GetDataRequest): Promise<GetDataResponse>;
   createData(request: CreateDataRequest): Promise<CreateDataResponse>;
   updateData(request: UpdateDataRequest): Promise<UpdateDataResponse>;
   deleteData(request: DeleteDataRequest): Promise<DeleteDataResponse>;
   
-  batchData(request: BatchDataRequest): Promise<BatchDataResponse>;
-  createManyData(request: CreateManyDataRequest): Promise<CreateManyDataResponse>;
-  updateManyData(request: UpdateManyDataRequest): Promise<UpdateManyDataResponse>;
-  deleteManyData(request: DeleteManyDataRequest): Promise<DeleteManyDataResponse>;
+  // Batch Operations (optional)
+  batchData?(request: BatchDataRequest): Promise<BatchDataResponse>;
+  createManyData?(request: CreateManyDataRequest): Promise<CreateManyDataResponse>;
+  updateManyData?(request: UpdateManyDataRequest): Promise<UpdateManyDataResponse>;
+  deleteManyData?(request: DeleteManyDataRequest): Promise<DeleteManyDataResponse>;
 
-  // View Management
-  listViews(request: ListViewsRequest): Promise<ListViewsResponse>;
-  getView(request: GetViewRequest): Promise<GetViewResponse>;
-  createView(request: CreateViewRequest): Promise<CreateViewResponse>;
-  updateView(request: UpdateViewRequest): Promise<UpdateViewResponse>;
-  deleteView(request: DeleteViewRequest): Promise<DeleteViewResponse>;
+  // View Management (optional)
+  listViews?(request: ListViewsRequest): Promise<ListViewsResponse>;
+  getView?(request: GetViewRequest): Promise<GetViewResponse>;
+  createView?(request: CreateViewRequest): Promise<CreateViewResponse>;
+  updateView?(request: UpdateViewRequest): Promise<UpdateViewResponse>;
+  deleteView?(request: DeleteViewRequest): Promise<DeleteViewResponse>;
 
-  // Permissions
-  checkPermission(request: CheckPermissionRequest): Promise<CheckPermissionResponse>;
-  getObjectPermissions(request: GetObjectPermissionsRequest): Promise<GetObjectPermissionsResponse>;
-  getEffectivePermissions(request: GetEffectivePermissionsRequest): Promise<GetEffectivePermissionsResponse>;
+  // Permissions (optional)
+  checkPermission?(request: CheckPermissionRequest): Promise<CheckPermissionResponse>;
+  getObjectPermissions?(request: GetObjectPermissionsRequest): Promise<GetObjectPermissionsResponse>;
+  getEffectivePermissions?(request: GetEffectivePermissionsRequest): Promise<GetEffectivePermissionsResponse>;
 
-  // Workflows
-  getWorkflowConfig(request: GetWorkflowConfigRequest): Promise<GetWorkflowConfigResponse>;
-  getWorkflowState(request: GetWorkflowStateRequest): Promise<GetWorkflowStateResponse>;
-  workflowTransition(request: WorkflowTransitionRequest): Promise<WorkflowTransitionResponse>;
-  workflowApprove(request: WorkflowApproveRequest): Promise<WorkflowApproveResponse>;
-  workflowReject(request: WorkflowRejectRequest): Promise<WorkflowRejectResponse>;
+  // Workflows (optional)
+  getWorkflowConfig?(request: GetWorkflowConfigRequest): Promise<GetWorkflowConfigResponse>;
+  getWorkflowState?(request: GetWorkflowStateRequest): Promise<GetWorkflowStateResponse>;
+  workflowTransition?(request: WorkflowTransitionRequest): Promise<WorkflowTransitionResponse>;
+  workflowApprove?(request: WorkflowApproveRequest): Promise<WorkflowApproveResponse>;
+  workflowReject?(request: WorkflowRejectRequest): Promise<WorkflowRejectResponse>;
 
-  // Realtime
-  realtimeConnect(request: RealtimeConnectRequest): Promise<RealtimeConnectResponse>;
-  realtimeDisconnect(request: RealtimeDisconnectRequest): Promise<RealtimeDisconnectResponse>;
-  realtimeSubscribe(request: RealtimeSubscribeRequest): Promise<RealtimeSubscribeResponse>;
-  realtimeUnsubscribe(request: RealtimeUnsubscribeRequest): Promise<RealtimeUnsubscribeResponse>;
-  setPresence(request: SetPresenceRequest): Promise<SetPresenceResponse>;
-  getPresence(request: GetPresenceRequest): Promise<GetPresenceResponse>;
+  // Realtime (optional)
+  realtimeConnect?(request: RealtimeConnectRequest): Promise<RealtimeConnectResponse>;
+  realtimeDisconnect?(request: RealtimeDisconnectRequest): Promise<RealtimeDisconnectResponse>;
+  realtimeSubscribe?(request: RealtimeSubscribeRequest): Promise<RealtimeSubscribeResponse>;
+  realtimeUnsubscribe?(request: RealtimeUnsubscribeRequest): Promise<RealtimeUnsubscribeResponse>;
+  setPresence?(request: SetPresenceRequest): Promise<SetPresenceResponse>;
+  getPresence?(request: GetPresenceRequest): Promise<GetPresenceResponse>;
 
-  // Notifications
-  registerDevice(request: RegisterDeviceRequest): Promise<RegisterDeviceResponse>;
-  unregisterDevice(request: UnregisterDeviceRequest): Promise<UnregisterDeviceResponse>;
-  getNotificationPreferences(request: GetNotificationPreferencesRequest): Promise<GetNotificationPreferencesResponse>;
-  updateNotificationPreferences(request: UpdateNotificationPreferencesRequest): Promise<UpdateNotificationPreferencesResponse>;
-  listNotifications(request: ListNotificationsRequest): Promise<ListNotificationsResponse>;
-  markNotificationsRead(request: MarkNotificationsReadRequest): Promise<MarkNotificationsReadResponse>;
-  markAllNotificationsRead(request: MarkAllNotificationsReadRequest): Promise<MarkAllNotificationsReadResponse>;
+  // Notifications (optional)
+  registerDevice?(request: RegisterDeviceRequest): Promise<RegisterDeviceResponse>;
+  unregisterDevice?(request: UnregisterDeviceRequest): Promise<UnregisterDeviceResponse>;
+  getNotificationPreferences?(request: GetNotificationPreferencesRequest): Promise<GetNotificationPreferencesResponse>;
+  updateNotificationPreferences?(request: UpdateNotificationPreferencesRequest): Promise<UpdateNotificationPreferencesResponse>;
+  listNotifications?(request: ListNotificationsRequest): Promise<ListNotificationsResponse>;
+  markNotificationsRead?(request: MarkNotificationsReadRequest): Promise<MarkNotificationsReadResponse>;
+  markAllNotificationsRead?(request: MarkAllNotificationsReadRequest): Promise<MarkAllNotificationsReadResponse>;
 
-  // AI
-  aiNlq(request: AiNlqRequest): Promise<AiNlqResponse>;
-  aiChat(request: AiChatRequest): Promise<AiChatResponse>;
-  aiSuggest(request: AiSuggestRequest): Promise<AiSuggestResponse>;
-  aiInsights(request: AiInsightsRequest): Promise<AiInsightsResponse>;
+  // AI (optional)
+  aiNlq?(request: AiNlqRequest): Promise<AiNlqResponse>;
+  aiChat?(request: AiChatRequest): Promise<AiChatResponse>;
+  aiSuggest?(request: AiSuggestRequest): Promise<AiSuggestResponse>;
+  aiInsights?(request: AiInsightsRequest): Promise<AiInsightsResponse>;
 
-  // i18n
-  getLocales(request: GetLocalesRequest): Promise<GetLocalesResponse>;
-  getTranslations(request: GetTranslationsRequest): Promise<GetTranslationsResponse>;
-  getFieldLabels(request: GetFieldLabelsRequest): Promise<GetFieldLabelsResponse>;
+  // i18n (optional)
+  getLocales?(request: GetLocalesRequest): Promise<GetLocalesResponse>;
+  getTranslations?(request: GetTranslationsRequest): Promise<GetTranslationsResponse>;
+  getFieldLabels?(request: GetFieldLabelsRequest): Promise<GetFieldLabelsResponse>;
 }

@@ -219,7 +219,7 @@ export class RestServer {
             path: basePath,
             handler: async (_req: any, res: any) => {
                 try {
-                    const discovery = await this.protocol.getDiscovery({});
+                    const discovery = await this.protocol.getDiscovery();
                     
                     // Override discovery information with actual server configuration
                     discovery.version = this.config.api.version;
@@ -270,7 +270,7 @@ export class RestServer {
                 path: metaPath,
                 handler: async (_req: any, res: any) => {
                     try {
-                        const types = await this.protocol.getMetaTypes({});
+                        const types = await this.protocol.getMetaTypes();
                         res.json(types);
                     } catch (error: any) {
                         res.status(500).json({ error: error.message });
@@ -290,8 +290,7 @@ export class RestServer {
                 path: `${metaPath}/:type`,
                 handler: async (req: any, res: any) => {
                     try {
-                        const packageId = req.query?.package || undefined;
-                        const items = await this.protocol.getMetaItems({ type: req.params.type, packageId });
+                        const items = await this.protocol.getMetaItems({ type: req.params.type });
                         res.json(items);
                     } catch (error: any) {
                         res.status(404).json({ error: error.message });
