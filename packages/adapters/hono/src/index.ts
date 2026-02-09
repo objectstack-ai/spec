@@ -8,8 +8,22 @@ export interface ObjectStackHonoOptions {
 }
 
 /**
- * Creates a Hono application tailored for ObjectStack
- * Fully compliant with @objectstack/spec
+ * @deprecated Use `HonoServerPlugin` + `createRestApiPlugin()` + `createDispatcherPlugin()` instead.
+ * This function bundles all routes into a single Hono app using the legacy HttpDispatcher.
+ * The plugin-based approach provides better modularity and separation of concerns.
+ *
+ * Migration:
+ * ```ts
+ * // Before:
+ * const app = createHonoApp({ kernel, prefix: '/api/v1' });
+ *
+ * // After:
+ * import { createRestApiPlugin } from '@objectstack/rest';
+ * import { createDispatcherPlugin } from '@objectstack/runtime';
+ * kernel.use(new HonoServerPlugin({ port: 3000 }));
+ * kernel.use(createRestApiPlugin());
+ * kernel.use(createDispatcherPlugin({ prefix: '/api/v1' }));
+ * ```
  */
 export function createHonoApp(options: ObjectStackHonoOptions) {
   const app = new Hono();

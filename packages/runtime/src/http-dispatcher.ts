@@ -16,6 +16,14 @@ export interface HttpDispatcherResult {
     result?: any; // For flexible return types or direct response objects (Response/NextResponse)
 }
 
+/**
+ * @deprecated Use `createDispatcherPlugin()` from `@objectstack/runtime` instead.
+ * This class will be removed in v2. Prefer the plugin-based approach:
+ * ```ts
+ * import { createDispatcherPlugin } from '@objectstack/runtime';
+ * kernel.use(createDispatcherPlugin({ prefix: '/api/v1' }));
+ * ```
+ */
 export class HttpDispatcher {
     private kernel: any; // Casting to any to access dynamic props like broker, services, graphql
 

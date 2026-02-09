@@ -618,18 +618,9 @@ importers:
       '@objectstack/core':
         specifier: workspace:*
         version: link:../../core
-      '@objectstack/hono':
-        specifier: workspace:*
-        version: link:../../adapters/hono
-      '@objectstack/runtime':
-        specifier: workspace:*
-        version: link:../../runtime
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../spec
-      '@objectstack/types':
-        specifier: workspace:*
-        version: link:../../types
       hono:
         specifier: ^4.0.0
         version: 4.11.4

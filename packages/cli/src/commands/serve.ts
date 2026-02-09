@@ -235,6 +235,15 @@ export const serveCommand = new Command('serve')
         } catch (e: any) {
           // @objectstack/rest is optional
         }
+
+        // Register Dispatcher plugin (auth, graphql, analytics, packages, hub, storage, automation)
+        try {
+          const { createDispatcherPlugin } = await import('@objectstack/runtime');
+          await kernel.use(createDispatcherPlugin());
+          trackPlugin('Dispatcher');
+        } catch (e: any) {
+          // optional
+        }
       }
 
       // ── Studio UI (--ui) ────────────────────────────────────────────
