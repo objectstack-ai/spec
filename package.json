@@ -41,7 +41,7 @@
     "@objectstack/plugin-hono-server": "workspace:*",
     "@objectstack/runtime": "workspace:*",
     "@objectstack/spec": "workspace:*",
-    "lucide-react": "^0.562.0"
+    "lucide-react": "^0.563.0"
   },
   "engines": {
     "node": ">=18.0.0"
