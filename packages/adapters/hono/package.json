@@ -12,7 +12,9 @@
     }
   },
   "scripts": {
-    "build": "tsup --config ../../../tsup.config.ts"
+    "build": "tsup --config ../../../tsup.config.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "peerDependencies": {
     "@objectstack/runtime": "workspace:*",
@@ -21,6 +23,7 @@
   "devDependencies": {
     "@objectstack/runtime": "workspace:*",
     "hono": "^4.11.9",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.18"
   }
 }
