@@ -65,18 +65,40 @@ export class HttpDispatcher {
         const hasWebSockets = !!services[CoreServiceName.enum.realtime];
         const hasFiles = !!(services[CoreServiceName.enum['file-storage']] || services['storage']?.supportsFiles);
         const hasAnalytics = !!services[CoreServiceName.enum.analytics];
+        const hasWorkflow = !!services[CoreServiceName.enum.workflow];
+        const hasAi = !!services[CoreServiceName.enum.ai];
+        const hasNotification = !!services[CoreServiceName.enum.notification];
+        const hasI18n = !!services[CoreServiceName.enum.i18n];
+        const hasUi = !!services[CoreServiceName.enum.ui];
+        const hasAutomation = !!services[CoreServiceName.enum.automation];
+        const hasCache = !!services[CoreServiceName.enum.cache];
+        const hasQueue = !!services[CoreServiceName.enum.queue];
+        const hasJob = !!services[CoreServiceName.enum.job];
 
         const routes = {
                 data: `${prefix}/data`,
                 metadata: `${prefix}/meta`,
                 packages: `${prefix}/packages`,
                 auth: `${prefix}/auth`,
-                ui: `${prefix}/ui`,
+                ui: hasUi ? `${prefix}/ui` : undefined,
                 graphql: hasGraphQL ? `${prefix}/graphql` : undefined,
                 storage: hasFiles ? `${prefix}/storage` : undefined,
                 analytics: hasAnalytics ? `${prefix}/analytics` : undefined,
-                automation: `${prefix}/automation`, 
+                automation: hasAutomation ? `${prefix}/automation` : undefined,
+                workflow: hasWorkflow ? `${prefix}/workflow` : undefined,
+                realtime: hasWebSockets ? `${prefix}/realtime` : undefined,
+                notifications: hasNotification ? `${prefix}/notifications` : undefined,
+                ai: hasAi ? `${prefix}/ai` : undefined,
+                i18n: hasI18n ? `${prefix}/i18n` : undefined,
         };
+
+        // Build per-service status map
+        const svcInfo = (name: string, enabled: boolean, route?: string) => ({
+            enabled,
+            status: enabled ? 'available' as const : 'unavailable' as const,
+            route: enabled ? route : undefined,
+            message: enabled ? undefined : `${name} service not available`,
+        });
 
         return {
             name: 'ObjectOS',
@@ -90,6 +112,29 @@ export class HttpDispatcher {
                 websockets: hasWebSockets,
                 files: hasFiles,
                 analytics: hasAnalytics,
+                ai: hasAi,
+                workflow: hasWorkflow,
+                notifications: hasNotification,
+                i18n: hasI18n,
+            },
+            services: {
+                metadata:       svcInfo('metadata', true, routes.metadata),
+                data:           svcInfo('data', true, routes.data),
+                auth:           svcInfo('auth', true, routes.auth),
+                cache:          svcInfo('cache', hasCache),
+                queue:          svcInfo('queue', hasQueue),
+                job:            svcInfo('job', hasJob),
+                analytics:      svcInfo('analytics', hasAnalytics, routes.analytics),
+                automation:     svcInfo('automation', hasAutomation, routes.automation),
+                ui:             svcInfo('ui', hasUi, routes.ui),
+                workflow:       svcInfo('workflow', hasWorkflow, routes.workflow),
+                realtime:       svcInfo('realtime', hasWebSockets, routes.realtime),
+                notification:   svcInfo('notification', hasNotification, routes.notifications),
+                ai:             svcInfo('ai', hasAi, routes.ai),
+                i18n:           svcInfo('i18n', hasI18n, routes.i18n),
+                graphql:        svcInfo('graphql', hasGraphQL, routes.graphql),
+                'file-storage': svcInfo('file-storage', hasFiles, routes.storage),
+                search:         svcInfo('search', hasSearch),
             },
             locale: {
                 default: 'en',

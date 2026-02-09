@@ -19,6 +19,25 @@ export const ApiCapabilitiesSchema = z.object({
 });
 
 /**
+ * Service Status in Discovery Response
+ * Reports per-service availability so clients can adapt their UI accordingly.
+ */
+export const ServiceInfoSchema = z.object({
+  /** Whether the service is enabled and available */
+  enabled: z.boolean(),
+  /** Current operational status */
+  status: z.enum(['available', 'unavailable', 'degraded', 'stub']).describe(
+    'available = fully operational, unavailable = not installed, degraded = partial, stub = placeholder that throws'
+  ),
+  /** Route path (only present if enabled) */
+  route: z.string().optional().describe('e.g. /api/v1/analytics'),
+  /** Implementation provider name */
+  provider: z.string().optional().describe('e.g. "objectql", "plugin-redis", "driver-memory"'),
+  /** Human-readable reason if unavailable */
+  message: z.string().optional().describe('e.g. "Install plugin-workflow to enable"'),
+});
+
+/**
  * API Routes Schema
  * The "Map" for the frontend to know where to send requests.
  * This decouples the frontend from hardcoded URL paths.
@@ -91,6 +110,15 @@ export const DiscoverySchema = z.object({
   }),
   
   /**
+   * Per-service status map.
+   * Clients use this to determine which features are available,
+   * show/hide UI elements, and display appropriate messages.
+   */
+  services: z.record(z.string(), ServiceInfoSchema).optional().describe(
+    'Per-service availability map keyed by CoreServiceName'
+  ),
+
+  /**
    * Custom metadata key-value pairs for extensibility
    */
   metadata: z.record(z.string(), z.unknown()).optional().describe('Custom metadata key-value pairs for extensibility'),
@@ -99,3 +127,4 @@ export const DiscoverySchema = z.object({
 export type DiscoveryResponse = z.infer<typeof DiscoverySchema>;
 export type ApiRoutes = z.infer<typeof ApiRoutesSchema>;
 export type ApiCapabilities = z.infer<typeof ApiCapabilitiesSchema>;
+export type ServiceInfo = z.infer<typeof ServiceInfoSchema>;
