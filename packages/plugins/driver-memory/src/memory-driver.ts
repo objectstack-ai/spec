@@ -44,14 +44,14 @@ export class InMemoryDriver implements DriverInterface {
     queryAggregations: true,    // Implemented
     querySorting: true,          // Implemented via JS sort
     queryPagination: true,       // Implemented
-    queryWindowFunctions: false, // TODO: Not implemented
-    querySubqueries: false,      // TODO: Not implemented
-    joins: false,                // TODO: Not implemented
+    queryWindowFunctions: false, // @planned: Window functions (ROW_NUMBER, RANK, etc.)
+    querySubqueries: false,      // @planned: Subquery execution
+    joins: false,                // @planned: In-memory join operations
     
     // Advanced Features
-    fullTextSearch: false,       // TODO: Not implemented
-    vectorSearch: false,         // TODO: Not implemented
-    geoSpatial: false,           // TODO: Not implemented
+    fullTextSearch: false,       // @planned: Text tokenization + matching
+    vectorSearch: false,         // @planned: Cosine similarity search
+    geoSpatial: false,           // @planned: Distance/within calculations
     jsonFields: true,            // Native JS object support
     arrayFields: true,           // Native JS array support
   };
