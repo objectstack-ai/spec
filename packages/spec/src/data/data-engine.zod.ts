@@ -168,32 +168,32 @@ export const DataEngineCountOptionsSchema = z.object({
 
 export const DataEngineContractSchema = z.object({
   find: z.function()
-    .args(z.string(), DataEngineQueryOptionsSchema.optional())
-    .returns(z.promise(z.array(z.unknown()))),
+    .input(z.tuple([z.string(), DataEngineQueryOptionsSchema.optional()]))
+    .output(z.promise(z.array(z.unknown()))),
     
   findOne: z.function()
-    .args(z.string(), DataEngineQueryOptionsSchema.optional())
-    .returns(z.promise(z.unknown())),
+    .input(z.tuple([z.string(), DataEngineQueryOptionsSchema.optional()]))
+    .output(z.promise(z.unknown())),
     
   insert: z.function()
-    .args(z.string(), z.union([z.record(z.string(), z.unknown()), z.array(z.record(z.string(), z.unknown()))]), DataEngineInsertOptionsSchema.optional())
-    .returns(z.promise(z.unknown())),
+    .input(z.tuple([z.string(), z.union([z.record(z.string(), z.unknown()), z.array(z.record(z.string(), z.unknown()))]), DataEngineInsertOptionsSchema.optional()]))
+    .output(z.promise(z.unknown())),
     
   update: z.function()
-    .args(z.string(), z.record(z.string(), z.unknown()), DataEngineUpdateOptionsSchema.optional())
-    .returns(z.promise(z.unknown())),
+    .input(z.tuple([z.string(), z.record(z.string(), z.unknown()), DataEngineUpdateOptionsSchema.optional()]))
+    .output(z.promise(z.unknown())),
     
   delete: z.function()
-    .args(z.string(), DataEngineDeleteOptionsSchema.optional())
-    .returns(z.promise(z.unknown())),
+    .input(z.tuple([z.string(), DataEngineDeleteOptionsSchema.optional()]))
+    .output(z.promise(z.unknown())),
     
   count: z.function()
-    .args(z.string(), DataEngineCountOptionsSchema.optional())
-    .returns(z.promise(z.number())),
+    .input(z.tuple([z.string(), DataEngineCountOptionsSchema.optional()]))
+    .output(z.promise(z.number())),
     
   aggregate: z.function()
-    .args(z.string(), DataEngineAggregateOptionsSchema)
-    .returns(z.promise(z.array(z.unknown())))
+    .input(z.tuple([z.string(), DataEngineAggregateOptionsSchema]))
+    .output(z.promise(z.array(z.unknown())))
 }).describe('Standard Data Engine Contract');
 
 // ==========================================================================
