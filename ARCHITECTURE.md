@@ -674,6 +674,8 @@ export type Field = z.infer<typeof FieldSchema>;
 
 - [Quick Reference Guide](./QUICK-REFERENCE.md) - Fast lookup for common tasks
 - [Package Dependency Graph](./PACKAGE-DEPENDENCIES.md) - Complete dependency visualization
+- [Development Roadmap](./ROADMAP.md) - Next-phase optimization & improvement plan
+- [Studio Roadmap](./apps/studio/ROADMAP.md) - Studio IDE development plan
 - [MicroKernel Architecture Guide](./content/docs/developers/micro-kernel.mdx)
 - [Plugin Ecosystem Architecture](./content/docs/developers/plugin-ecosystem.mdx)
 - [Writing Plugins](./content/docs/developers/writing-plugins.mdx)
@@ -682,6 +684,6 @@ export type Field = z.infer<typeof FieldSchema>;
 
 ---
 
-**Last Updated**: January 2026  
+**Last Updated**: February 2026  
 **Maintainers**: ObjectStack Core Team  
 **Status**: Living Document

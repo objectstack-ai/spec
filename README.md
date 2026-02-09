@@ -160,6 +160,19 @@ os doctor            # Check environment health
 | [`@example/app-host`](examples/app-host) | Server host — multi-app orchestration with plugins | 🔴 Advanced |
 | [`@example/plugin-bi`](examples/plugin-bi) | BI plugin — analytics objects and reports | 🟡 Intermediate |
 
+## 🗺️ Roadmap
+
+See **[ROADMAP.md](./ROADMAP.md)** for the next-phase optimization and improvement plan (Phases 5–11), covering:
+
+- Spec test coverage completion (100% schema coverage)
+- Runtime package hardening (resolve all TODOs)
+- Framework adapter implementations (Hono, Next.js, NestJS)
+- Deprecation cleanup & v3.0 preparation
+- Developer experience & tooling improvements
+- Performance optimization & security hardening
+
+Studio-specific roadmap: **[apps/studio/ROADMAP.md](./apps/studio/ROADMAP.md)**
+
 ## 🤝 Contributing
 
 We welcome contributions! Please read our **[Contributing Guide](./CONTRIBUTING.md)** for:
