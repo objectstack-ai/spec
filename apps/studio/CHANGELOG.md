@@ -1,5 +1,22 @@
 # @objectstack/studio
 
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies [38e5dd5]
+- Updated dependencies [38e5dd5]
+  - @objectstack/spec@2.0.0
+  - @example/app-crm@1.2.1
+  - @example/app-todo@1.2.1
+  - @objectstack/client@2.0.0
+  - @objectstack/client-react@2.0.0
+  - @objectstack/metadata@2.0.0
+  - @objectstack/objectql@2.0.0
+  - @objectstack/driver-memory@2.0.0
+  - @objectstack/plugin-msw@2.0.0
+  - @objectstack/runtime@2.0.0
+
 ## 0.9.16
 
 ### Patch Changes
