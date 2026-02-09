@@ -131,10 +131,18 @@ export class TestRunner {
     return result;
   }
 
-  private resolveVariables(action: QA.TestAction, _context: Record<string, unknown>): QA.TestAction {
-    // TODO: Implement JSON path variable substitution stringify/parse
-    // For now returning as is
-    return action; 
+  private resolveVariables(action: QA.TestAction, context: Record<string, unknown>): QA.TestAction {
+    const actionStr = JSON.stringify(action);
+    const resolved = actionStr.replace(/\{\{([^}]+)\}\}/g, (_match, varPath: string) => {
+      const value = this.getValueByPath(context, varPath.trim());
+      if (value === undefined) return _match; // Keep unresolved
+      return typeof value === 'string' ? value : JSON.stringify(value);
+    });
+    try {
+      return JSON.parse(resolved) as QA.TestAction;
+    } catch {
+      return action; // Fallback to original if parse fails
+    }
   }
 
   private getValueByPath(obj: unknown, path: string): unknown {
