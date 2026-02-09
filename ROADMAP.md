@@ -22,15 +22,15 @@ ObjectStack v2.0.1 has achieved solid protocol-level maturity (B+ → A- grade a
 | Spec test files | 150 / 142 schemas | 100% ✅ |
 | Runtime package test coverage | Sparse | Comprehensive |
 | Adapter implementations | 3 stubs | 3 functional |
-| TODO/FIXME comments | 24 across monorepo | 0 |
+| TODO/FIXME comments | 0 across monorepo | 0 ✅ |
 | Deprecated items pending removal | 5+ schemas/fields | Migration path documented |
 | z.instanceof() usage | 0 | 0 ✅ |
 
 ---
 
-## Phase 5: Spec Test Coverage Completion (1 week)
+## Phase 5: Spec Test Coverage Completion ✅
 
-> **Goal:** Achieve 100% test file coverage for all `.zod.ts` schemas. Currently 73/96 (76%).
+> **Goal:** Achieve 100% test file coverage for all `.zod.ts` schemas. ~~Currently 73/96 (76%).~~ **Done: 150 test files, 4,196 tests.**
 
 ### 5.1 Missing Test Files — System Domain (13 files)
 
@@ -81,9 +81,9 @@ ObjectStack v2.0.1 has achieved solid protocol-level maturity (B+ → A- grade a
 
 ---
 
-## Phase 6: Runtime Package Hardening (2 weeks)
+## Phase 6: Runtime Package Hardening ✅ (TODOs) / 🔄 (Tests)
 
-> **Goal:** Resolve all TODO/FIXME comments, add missing tests, and harden production code paths.
+> **Goal:** Resolve all TODO/FIXME comments, add missing tests, and harden production code paths. **TODOs: 0 remaining.**
 
 ### 6.1 Core Security TODOs (6 items — `packages/core`)
 
