@@ -61,13 +61,10 @@ export class AuthManager {
       secret: this.config.secret || this.generateSecret(),
       baseURL: this.config.baseUrl || 'http://localhost:3000',
       
-      // Database adapter - use memory for now
-      // In production, use appropriate database adapter
-      database: {
-        // Using in-memory adapter for development
-        // @TODO: Implement proper database adapter
-        adapter: 'better-sqlite3' as any,
-      } as any,
+      // Database adapter configuration
+      // For now, we configure a basic setup that will be enhanced
+      // when database URL is provided and drizzle-orm is available
+      database: this.createDatabaseConfig(),
       
       // Email configuration
       emailAndPassword: {
@@ -85,12 +82,49 @@ export class AuthManager {
   }
 
   /**
+   * Create database configuration
+   * TODO: Implement proper database adapter when drizzle-orm is available
+   */
+  private createDatabaseConfig(): any {
+    // If databaseUrl is provided, we would use drizzle adapter
+    // For now, this is a placeholder configuration
+    if (this.config.databaseUrl) {
+      console.warn(
+        'Database URL provided but adapter integration not yet complete. ' +
+        'Install drizzle-orm and configure a proper adapter for production use.'
+      );
+    }
+    
+    // Return a minimal configuration that better-auth can work with
+    // This will need to be replaced with a proper adapter
+    return {
+      // Placeholder - will be replaced with actual adapter
+      adapter: 'in-memory' as any,
+    };
+  }
+
+  /**
    * Generate a secure secret if not provided
    */
   private generateSecret(): string {
-    // In production, this should come from environment variables
-    // This is just a fallback for development
-    return process.env.AUTH_SECRET || 'default-secret-change-in-production';
+    const envSecret = process.env.AUTH_SECRET;
+    
+    if (!envSecret) {
+      // In production, a secret MUST be provided
+      // For development/testing, we'll use a fallback but warn about it
+      const fallbackSecret = 'dev-secret-' + Date.now();
+      
+      console.warn(
+        '⚠️  WARNING: No AUTH_SECRET environment variable set! ' +
+        'Using a temporary development secret. ' +
+        'This is NOT secure for production use. ' +
+        'Please set AUTH_SECRET in your environment variables.'
+      );
+      
+      return fallbackSecret;
+    }
+    
+    return envSecret;
   }
 
   /**
