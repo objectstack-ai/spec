@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { FilterConditionSchema } from './filter.zod';
 import { SortNodeSchema } from './query.zod';
+import { ExecutionContextSchema } from '../kernel/execution-context.zod';
 
 /**
  * Data Engine Protocol
@@ -42,10 +43,25 @@ export const DataEngineSortSchema = z.union([
 ]).describe('Sort order definition');
 
 // ==========================================================================
+// 1b. Base Engine Options (shared context)
+// ==========================================================================
+
+/**
+ * Base Engine Options
+ * 
+ * All Data Engine operation options extend this schema to carry
+ * an optional ExecutionContext for identity, tenant, and transaction propagation.
+ */
+export const BaseEngineOptionsSchema = z.object({
+  /** Execution context (identity, tenant, transaction) */
+  context: ExecutionContextSchema.optional(),
+});
+
+// ==========================================================================
 // 2. method: FIND
 // ==========================================================================
 
-export const DataEngineQueryOptionsSchema = z.object({
+export const DataEngineQueryOptionsSchema = BaseEngineOptionsSchema.extend({
   /** Filter conditions (WHERE) */
   filter: DataEngineFilterSchema.optional(),
   
@@ -78,7 +94,7 @@ export const DataEngineQueryOptionsSchema = z.object({
 // 3. method: INSERT
 // ==========================================================================
 
-export const DataEngineInsertOptionsSchema = z.object({
+export const DataEngineInsertOptionsSchema = BaseEngineOptionsSchema.extend({
   /** 
    * Return the inserted record(s)? 
    * Some drivers support RETURNING clause for efficiency.
@@ -91,7 +107,7 @@ export const DataEngineInsertOptionsSchema = z.object({
 // 4. method: UPDATE
 // ==========================================================================
 
-export const DataEngineUpdateOptionsSchema = z.object({
+export const DataEngineUpdateOptionsSchema = BaseEngineOptionsSchema.extend({
   /** Filter conditions to identify records to update */
   filter: DataEngineFilterSchema.optional(),
   
@@ -119,7 +135,7 @@ export const DataEngineUpdateOptionsSchema = z.object({
 // 5. method: DELETE
 // ==========================================================================
 
-export const DataEngineDeleteOptionsSchema = z.object({
+export const DataEngineDeleteOptionsSchema = BaseEngineOptionsSchema.extend({
   /** Filter conditions to identify records to delete */
   filter: DataEngineFilterSchema.optional(),
   
@@ -135,7 +151,7 @@ export const DataEngineDeleteOptionsSchema = z.object({
 // 6. method: AGGREGATE
 // ==========================================================================
 
-export const DataEngineAggregateOptionsSchema = z.object({
+export const DataEngineAggregateOptionsSchema = BaseEngineOptionsSchema.extend({
   /** Filter conditions (WHERE) */
   filter: DataEngineFilterSchema.optional(),
   
@@ -157,7 +173,7 @@ export const DataEngineAggregateOptionsSchema = z.object({
 // 7. method: COUNT
 // ==========================================================================
 
-export const DataEngineCountOptionsSchema = z.object({
+export const DataEngineCountOptionsSchema = BaseEngineOptionsSchema.extend({
   /** Filter conditions */
   filter: DataEngineFilterSchema.optional(),
 }).describe('Options for DataEngine.count operations');
@@ -335,6 +351,7 @@ export const DataEngineRequestSchema = z.discriminatedUnion('method', [
 
 export type DataEngineFilter = z.infer<typeof DataEngineFilterSchema>;
 export type DataEngineSort = z.infer<typeof DataEngineSortSchema>;
+export type BaseEngineOptions = z.infer<typeof BaseEngineOptionsSchema>;
 export type DataEngineQueryOptions = z.infer<typeof DataEngineQueryOptionsSchema>;
 export type DataEngineInsertOptions = z.infer<typeof DataEngineInsertOptionsSchema>;
 export type DataEngineUpdateOptions = z.infer<typeof DataEngineUpdateOptionsSchema>;
