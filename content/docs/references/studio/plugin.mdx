@@ -109,60 +109,156 @@ const result = ActionContribution.parse(data);
 
 ## ActionContribution
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique action identifier |
+| **label** | `string` | ✅ | Action display label |
+| **icon** | `string` | optional | Lucide icon name |
+| **location** | `Enum<'toolbar' \| 'contextMenu' \| 'commandPalette'>` | ✅ | UI location |
+| **metadataTypes** | `string[]` | ✅ | Applicable metadata types |
+
 
 ---
 
 ## ActionLocation
 
+### Allowed Values
+
+* `toolbar`
+* `contextMenu`
+* `commandPalette`
+
 
 ---
-
-## ActivationEvent
 
 
 ---
 
 ## CommandContribution
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique command identifier |
+| **label** | `string` | ✅ | Command display label |
+| **shortcut** | `string` | optional | Keyboard shortcut |
+| **icon** | `string` | optional | Lucide icon name |
+
 
 ---
 
 ## MetadataIconContribution
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **metadataType** | `string` | ✅ | Metadata type |
+| **label** | `string` | ✅ | Display label |
+| **icon** | `string` | ✅ | Lucide icon name |
 
 
 ---
 
 ## MetadataViewerContribution
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique viewer identifier |
+| **metadataTypes** | `string[]` | ✅ | Metadata types this viewer can handle |
+| **label** | `string` | ✅ | Viewer display label |
+| **priority** | `number` | ✅ | Viewer priority (higher wins) |
+| **modes** | `Enum<'preview' \| 'design' \| 'code' \| 'data'>[]` | ✅ | Supported view modes |
+
 
 ---
 
 ## PanelContribution
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique panel identifier |
+| **label** | `string` | ✅ | Panel display label |
+| **icon** | `string` | optional | Lucide icon name |
+| **location** | `Enum<'bottom' \| 'right' \| 'modal'>` | ✅ | Panel location |
 
 
 ---
 
 ## PanelLocation
 
+### Allowed Values
+
+* `bottom`
+* `right`
+* `modal`
+
 
 ---
 
 ## SidebarGroupContribution
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **key** | `string` | ✅ | Unique group key |
+| **label** | `string` | ✅ | Group display label |
+| **icon** | `string` | optional | Lucide icon name |
+| **metadataTypes** | `string[]` | ✅ | Metadata types in this group |
+| **order** | `number` | ✅ | Sort order (lower = higher) |
 
 
 ---
 
 ## StudioPluginContributions
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **metadataViewers** | `Object[]` | ✅ |  |
+| **sidebarGroups** | `Object[]` | ✅ |  |
+| **actions** | `Object[]` | ✅ |  |
+| **metadataIcons** | `Object[]` | ✅ |  |
+| **panels** | `Object[]` | ✅ |  |
+| **commands** | `Object[]` | ✅ |  |
+
 
 ---
 
 ## StudioPluginManifest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Plugin ID (dot-separated lowercase) |
+| **name** | `string` | ✅ | Plugin display name |
+| **version** | `string` | ✅ | Plugin version |
+| **description** | `string` | optional | Plugin description |
+| **author** | `string` | optional | Author |
+| **contributes** | `Object` | ✅ |  |
+| **activationEvents** | `string[]` | ✅ |  |
+
 
 ---
 
 ## ViewMode
+
+### Allowed Values
+
+* `preview`
+* `design`
+* `code`
+* `data`
 
 
 ---

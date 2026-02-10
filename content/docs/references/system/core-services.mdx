@@ -33,25 +33,68 @@ const result = CoreServiceName.parse(data);
 
 ## CoreServiceName
 
+### Allowed Values
+
+* `metadata`
+* `data`
+* `auth`
+* `file-storage`
+* `search`
+* `cache`
+* `queue`
+* `automation`
+* `graphql`
+* `analytics`
+* `realtime`
+* `job`
+* `notification`
+* `ai`
+* `i18n`
+* `ui`
+* `workflow`
+
 
 ---
-
-## KernelServiceMap
 
 
 ---
 
 ## ServiceConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+| **name** | `Enum<'metadata' \| 'data' \| 'auth' \| 'file-storage' \| 'search' \| 'cache' \| 'queue' \| 'automation' \| 'graphql' \| 'analytics' \| 'realtime' \| 'job' \| 'notification' \| 'ai' \| 'i18n' \| 'ui' \| 'workflow'>` | ✅ |  |
+| **options** | `Record<string, any>` | optional |  |
+
 
 ---
 
 ## ServiceCriticality
 
+### Allowed Values
+
+* `required`
+* `core`
+* `optional`
+
 
 ---
 
 ## ServiceStatus
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `Enum<'metadata' \| 'data' \| 'auth' \| 'file-storage' \| 'search' \| 'cache' \| 'queue' \| 'automation' \| 'graphql' \| 'analytics' \| 'realtime' \| 'job' \| 'notification' \| 'ai' \| 'i18n' \| 'ui' \| 'workflow'>` | ✅ |  |
+| **enabled** | `boolean` | ✅ |  |
+| **status** | `Enum<'running' \| 'stopped' \| 'degraded' \| 'initializing'>` | ✅ |  |
+| **version** | `string` | optional |  |
+| **provider** | `string` | optional | Implementation provider (e.g. "s3" for storage) |
+| **features** | `string[]` | optional | List of supported sub-features |
 
 
 ---

@@ -14,8 +14,8 @@ Passed to most driver methods to control behavior (transactions, timeouts, etc.)
 ## TypeScript Usage
 
 ```typescript
-import { DriverCapabilities, DriverConfig, DriverInterface, DriverOptions, PoolConfig } from '@objectstack/spec/data';
-import type { DriverCapabilities, DriverConfig, DriverInterface, DriverOptions, PoolConfig } from '@objectstack/spec/data';
+import { DriverCapabilities, DriverConfig, DriverOptions, PoolConfig } from '@objectstack/spec/data';
+import type { DriverCapabilities, DriverConfig, DriverOptions, PoolConfig } from '@objectstack/spec/data';
 
 // Validate data
 const result = DriverCapabilities.parse(data);
@@ -25,25 +25,85 @@ const result = DriverCapabilities.parse(data);
 
 ## DriverCapabilities
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **create** | `boolean` | ✅ | Supports CREATE operations |
+| **read** | `boolean` | ✅ | Supports READ operations |
+| **update** | `boolean` | ✅ | Supports UPDATE operations |
+| **delete** | `boolean` | ✅ | Supports DELETE operations |
+| **bulkCreate** | `boolean` | ✅ | Supports bulk CREATE operations |
+| **bulkUpdate** | `boolean` | ✅ | Supports bulk UPDATE operations |
+| **bulkDelete** | `boolean` | ✅ | Supports bulk DELETE operations |
+| **transactions** | `boolean` | ✅ | Supports ACID transactions |
+| **savepoints** | `boolean` | ✅ | Supports transaction savepoints |
+| **isolationLevels** | `Enum<'read_uncommitted' \| 'read_committed' \| 'repeatable_read' \| 'serializable' \| 'snapshot'>[]` | optional | Supported isolation levels |
+| **queryFilters** | `boolean` | ✅ | Supports WHERE clause filtering |
+| **queryAggregations** | `boolean` | ✅ | Supports GROUP BY and aggregation functions |
+| **querySorting** | `boolean` | ✅ | Supports ORDER BY sorting |
+| **queryPagination** | `boolean` | ✅ | Supports LIMIT/OFFSET pagination |
+| **queryWindowFunctions** | `boolean` | ✅ | Supports window functions with OVER clause |
+| **querySubqueries** | `boolean` | ✅ | Supports subqueries |
+| **queryCTE** | `boolean` | ✅ | Supports Common Table Expressions (WITH clause) |
+| **joins** | `boolean` | ✅ | Supports SQL joins |
+| **fullTextSearch** | `boolean` | ✅ | Supports full-text search |
+| **jsonQuery** | `boolean` | ✅ | Supports JSON field querying |
+| **geospatialQuery** | `boolean` | ✅ | Supports geospatial queries |
+| **streaming** | `boolean` | ✅ | Supports result streaming (cursors/iterators) |
+| **jsonFields** | `boolean` | ✅ | Supports JSON field types |
+| **arrayFields** | `boolean` | ✅ | Supports array field types |
+| **vectorSearch** | `boolean` | ✅ | Supports vector embeddings and similarity search |
+| **schemaSync** | `boolean` | ✅ | Supports automatic schema synchronization |
+| **migrations** | `boolean` | ✅ | Supports database migrations |
+| **indexes** | `boolean` | ✅ | Supports index creation and management |
+| **connectionPooling** | `boolean` | ✅ | Supports connection pooling |
+| **preparedStatements** | `boolean` | ✅ | Supports prepared statements (SQL injection prevention) |
+| **queryCache** | `boolean` | ✅ | Supports query result caching |
+
 
 ---
 
 ## DriverConfig
 
+### Properties
 
----
-
-## DriverInterface
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Driver instance name |
+| **type** | `Enum<'sql' \| 'nosql' \| 'cache' \| 'search' \| 'graph' \| 'timeseries'>` | ✅ | Driver type category |
+| **capabilities** | `Object` | ✅ | Driver capability flags |
+| **connectionString** | `string` | optional | Database connection string (driver-specific format) |
+| **poolConfig** | `Object` | optional | Connection pool configuration |
 
 
 ---
 
 ## DriverOptions
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **transaction** | `any` | optional | Transaction handle |
+| **timeout** | `number` | optional | Timeout in ms |
+| **skipCache** | `boolean` | optional | Bypass cache |
+| **traceContext** | `Record<string, string>` | optional | OpenTelemetry context or request ID |
+| **tenantId** | `string` | optional | Tenant Isolation identifier |
+
 
 ---
 
 ## PoolConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **min** | `number` | ✅ | Minimum number of connections in pool |
+| **max** | `number` | ✅ | Maximum number of connections in pool |
+| **idleTimeoutMillis** | `number` | ✅ | Time in ms before idle connection is closed |
+| **connectionTimeoutMillis** | `number` | ✅ | Time in ms to wait for available connection |
 
 
 ---

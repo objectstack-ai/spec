@@ -23,15 +23,51 @@ const result = MaskingConfig.parse(data);
 
 ## MaskingConfig
 
+Top-level data masking configuration for PII protection
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable data masking |
+| **rules** | `Object[]` | ✅ | List of field-level masking rules |
+| **auditUnmasking** | `boolean` | ✅ | Log when masked data is accessed unmasked |
+
 
 ---
 
 ## MaskingRule
 
+Masking rule for a single field
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Field name to apply masking to |
+| **strategy** | `Enum<'redact' \| 'partial' \| 'hash' \| 'tokenize' \| 'randomize' \| 'nullify' \| 'substitute'>` | ✅ | Masking strategy to use |
+| **pattern** | `string` | optional | Regex pattern for partial masking |
+| **preserveFormat** | `boolean` | ✅ | Keep the original data format after masking |
+| **preserveLength** | `boolean` | ✅ | Keep the original data length after masking |
+| **roles** | `string[]` | optional | Roles that see masked data |
+| **exemptRoles** | `string[]` | optional | Roles that see unmasked data |
+
 
 ---
 
 ## MaskingStrategy
+
+Data masking strategy for PII protection
+
+### Allowed Values
+
+* `redact`
+* `partial`
+* `hash`
+* `tokenize`
+* `randomize`
+* `nullify`
+* `substitute`
 
 
 ---

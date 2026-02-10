@@ -39,20 +39,59 @@ const result = VersionDefinition.parse(data);
 
 ## VersionDefinition
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **version** | `string` | ✅ | Version identifier (e.g., "v1", "v2beta1", "2025-01-01") |
+| **status** | `Enum<'preview' \| 'current' \| 'supported' \| 'deprecated' \| 'retired'>` | ✅ | Lifecycle status of this version |
+| **releasedAt** | `string` | ✅ | Release date (ISO 8601, e.g., "2025-01-15") |
+| **deprecatedAt** | `string` | optional | Deprecation date (ISO 8601). Only set for deprecated/retired versions |
+| **sunsetAt** | `string` | optional | Sunset date (ISO 8601). After this date, the version returns 410 Gone |
+| **migrationGuide** | `string` | optional | URL to migration guide for upgrading from this version |
+| **description** | `string` | optional | Human-readable description or release notes summary |
+| **breakingChanges** | `string[]` | optional | List of breaking changes (for preview/new versions) |
+
 
 ---
 
 ## VersionNegotiationResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **current** | `string` | ✅ | Current recommended API version |
+| **requested** | `string` | optional | Version requested by the client |
+| **resolved** | `string` | ✅ | Resolved API version for this request |
+| **supported** | `string[]` | ✅ | All supported version identifiers |
+| **deprecated** | `string[]` | optional | Deprecated version identifiers |
+| **versions** | `Object[]` | optional | Full version definitions with lifecycle metadata |
 
 
 ---
 
 ## VersionStatus
 
+### Allowed Values
+
+* `preview`
+* `current`
+* `supported`
+* `deprecated`
+* `retired`
+
 
 ---
 
 ## VersioningStrategy
+
+### Allowed Values
+
+* `urlPath`
+* `header`
+* `queryParam`
+* `dateBased`
 
 
 ---

@@ -14,26 +14,56 @@ Defines the interception points in the ObjectQL execution pipeline.
 ## TypeScript Usage
 
 ```typescript
-import { Hook, HookContext, HookEvent } from '@objectstack/spec/data';
-import type { Hook, HookContext, HookEvent } from '@objectstack/spec/data';
+import { HookContext, HookEvent } from '@objectstack/spec/data';
+import type { HookContext, HookEvent } from '@objectstack/spec/data';
 
 // Validate data
-const result = Hook.parse(data);
+const result = HookContext.parse(data);
 ```
-
----
-
-## Hook
-
 
 ---
 
 ## HookContext
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique execution ID for tracing |
+| **object** | `string` | ✅ |  |
+| **event** | `Enum<'beforeFind' \| 'afterFind' \| 'beforeFindOne' \| 'afterFindOne' \| 'beforeCount' \| 'afterCount' \| 'beforeAggregate' \| 'afterAggregate' \| 'beforeInsert' \| 'afterInsert' \| 'beforeUpdate' \| 'afterUpdate' \| 'beforeDelete' \| 'afterDelete' \| 'beforeUpdateMany' \| 'afterUpdateMany' \| 'beforeDeleteMany' \| 'afterDeleteMany'>` | ✅ |  |
+| **input** | `Record<string, any>` | ✅ | Mutable input parameters |
+| **result** | `any` | optional | Operation result (After hooks only) |
+| **previous** | `Record<string, any>` | optional | Record state before operation |
+| **session** | `Object` | optional | Current session context |
+| **transaction** | `any` | optional | Database transaction handle |
+| **ql** | `any` | ✅ | ObjectQL Engine Reference |
+
 
 ---
 
 ## HookEvent
+
+### Allowed Values
+
+* `beforeFind`
+* `afterFind`
+* `beforeFindOne`
+* `afterFindOne`
+* `beforeCount`
+* `afterCount`
+* `beforeAggregate`
+* `afterAggregate`
+* `beforeInsert`
+* `afterInsert`
+* `beforeUpdate`
+* `afterUpdate`
+* `beforeDelete`
+* `afterDelete`
+* `beforeUpdateMany`
+* `afterUpdateMany`
+* `beforeDeleteMany`
+* `afterDeleteMany`
 
 
 ---

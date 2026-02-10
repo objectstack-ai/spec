@@ -39,55 +39,209 @@ const result = KernelSecurityPolicy.parse(data);
 
 ## KernelSecurityPolicy
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **csp** | `Object` | optional |  |
+| **cors** | `Object` | optional |  |
+| **rateLimit** | `Object` | optional |  |
+| **authentication** | `Object` | optional |  |
+| **encryption** | `Object` | optional |  |
+| **auditLog** | `Object` | optional |  |
+
 
 ---
 
 ## KernelSecurityScanResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **timestamp** | `string` | ✅ |  |
+| **scanner** | `Object` | ✅ |  |
+| **status** | `Enum<'passed' \| 'failed' \| 'warning'>` | ✅ |  |
+| **vulnerabilities** | `Object[]` | optional |  |
+| **codeIssues** | `Object[]` | optional |  |
+| **dependencyVulnerabilities** | `Object[]` | optional |  |
+| **licenseCompliance** | `Object` | optional |  |
+| **summary** | `Object` | ✅ |  |
 
 
 ---
 
 ## KernelSecurityVulnerability
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **cve** | `string` | optional |  |
+| **id** | `string` | ✅ |  |
+| **severity** | `Enum<'critical' \| 'high' \| 'medium' \| 'low' \| 'info'>` | ✅ |  |
+| **category** | `string` | optional |  |
+| **title** | `string` | ✅ |  |
+| **location** | `string` | optional |  |
+| **remediation** | `string` | optional |  |
+| **description** | `string` | ✅ |  |
+| **affectedVersions** | `string[]` | ✅ |  |
+| **fixedIn** | `string[]` | optional |  |
+| **cvssScore** | `number` | optional |  |
+| **exploitAvailable** | `boolean` | ✅ |  |
+| **patchAvailable** | `boolean` | ✅ |  |
+| **workaround** | `string` | optional |  |
+| **references** | `string[]` | optional |  |
+| **discoveredDate** | `string` | optional |  |
+| **publishedDate** | `string` | optional |  |
+
 
 ---
 
 ## Permission
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique permission identifier |
+| **resource** | `Enum<'data.object' \| 'data.record' \| 'data.field' \| 'ui.view' \| 'ui.dashboard' \| 'ui.report' \| 'system.config' \| 'system.plugin' \| 'system.api' \| 'system.service' \| 'storage.file' \| 'storage.database' \| 'network.http' \| 'network.websocket' \| 'process.spawn' \| 'process.env'>` | ✅ | Type of resource being accessed |
+| **actions** | `Enum<'create' \| 'read' \| 'update' \| 'delete' \| 'execute' \| 'manage' \| 'configure' \| 'share' \| 'export' \| 'import' \| 'admin'>[]` | ✅ |  |
+| **scope** | `Enum<'global' \| 'tenant' \| 'user' \| 'resource' \| 'plugin'>` | ✅ | Scope of permission application |
+| **filter** | `Object` | optional |  |
+| **description** | `string` | ✅ |  |
+| **required** | `boolean` | ✅ |  |
+| **justification** | `string` | optional | Why this permission is needed |
 
 
 ---
 
 ## PermissionAction
 
+Type of action being permitted
+
+### Allowed Values
+
+* `create`
+* `read`
+* `update`
+* `delete`
+* `execute`
+* `manage`
+* `configure`
+* `share`
+* `export`
+* `import`
+* `admin`
+
 
 ---
 
 ## PermissionScope
+
+Scope of permission application
+
+### Allowed Values
+
+* `global`
+* `tenant`
+* `user`
+* `resource`
+* `plugin`
 
 
 ---
 
 ## PluginSecurityManifest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **pluginId** | `string` | ✅ |  |
+| **trustLevel** | `Enum<'verified' \| 'trusted' \| 'community' \| 'untrusted' \| 'blocked'>` | ✅ | Trust level of the plugin |
+| **permissions** | `Object` | ✅ |  |
+| **sandbox** | `Object` | ✅ |  |
+| **policy** | `Object` | optional |  |
+| **scanResults** | `Object[]` | optional |  |
+| **vulnerabilities** | `Object[]` | optional |  |
+| **codeSigning** | `Object` | optional |  |
+| **certifications** | `Object[]` | optional |  |
+| **securityContact** | `Object` | optional |  |
+| **vulnerabilityDisclosure** | `Object` | optional |  |
+
 
 ---
 
 ## PluginTrustLevel
+
+Trust level of the plugin
+
+### Allowed Values
+
+* `verified`
+* `trusted`
+* `community`
+* `untrusted`
+* `blocked`
 
 
 ---
 
 ## ResourceType
 
+Type of resource being accessed
+
+### Allowed Values
+
+* `data.object`
+* `data.record`
+* `data.field`
+* `ui.view`
+* `ui.dashboard`
+* `ui.report`
+* `system.config`
+* `system.plugin`
+* `system.api`
+* `system.service`
+* `storage.file`
+* `storage.database`
+* `network.http`
+* `network.websocket`
+* `process.spawn`
+* `process.env`
+
 
 ---
 
 ## RuntimeConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **engine** | `Enum<'v8-isolate' \| 'wasm' \| 'container' \| 'process'>` | ✅ | Execution environment engine |
+| **engineConfig** | `Object` | optional |  |
+| **resourceLimits** | `Object` | optional |  |
+
 
 ---
 
 ## SandboxConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ |  |
+| **level** | `Enum<'none' \| 'minimal' \| 'standard' \| 'strict' \| 'paranoid'>` | ✅ |  |
+| **runtime** | `Object` | optional | Execution environment and isolation settings |
+| **filesystem** | `Object` | optional |  |
+| **network** | `Object` | optional |  |
+| **process** | `Object` | optional |  |
+| **memory** | `Object` | optional |  |
+| **cpu** | `Object` | optional |  |
+| **environment** | `Object` | optional |  |
 
 
 ---

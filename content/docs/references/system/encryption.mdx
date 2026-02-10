@@ -25,25 +25,77 @@ const result = EncryptionAlgorithm.parse(data);
 
 ## EncryptionAlgorithm
 
+Supported encryption algorithm
+
+### Allowed Values
+
+* `aes-256-gcm`
+* `aes-256-cbc`
+* `chacha20-poly1305`
+
 
 ---
 
 ## EncryptionConfig
+
+Field-level encryption configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable field-level encryption |
+| **algorithm** | `Enum<'aes-256-gcm' \| 'aes-256-cbc' \| 'chacha20-poly1305'>` | ✅ | Encryption algorithm |
+| **keyManagement** | `Object` | ✅ | Key management configuration |
+| **scope** | `Enum<'field' \| 'record' \| 'table' \| 'database'>` | ✅ | Encryption scope level |
+| **deterministicEncryption** | `boolean` | ✅ | Allows equality queries on encrypted data |
+| **searchableEncryption** | `boolean` | ✅ | Allows search on encrypted data |
 
 
 ---
 
 ## FieldEncryption
 
+Per-field encryption assignment
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **fieldName** | `string` | ✅ | Name of the field to encrypt |
+| **encryptionConfig** | `Object` | ✅ | Encryption settings for this field |
+| **indexable** | `boolean` | ✅ | Allow indexing on encrypted field |
+
 
 ---
 
 ## KeyManagementProvider
 
+Key management service provider
+
+### Allowed Values
+
+* `local`
+* `aws-kms`
+* `azure-key-vault`
+* `gcp-kms`
+* `hashicorp-vault`
+
 
 ---
 
 ## KeyRotationPolicy
+
+Policy for automatic encryption key rotation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable automatic key rotation |
+| **frequencyDays** | `number` | ✅ | Rotation frequency in days |
+| **retainOldVersions** | `number` | ✅ | Number of old key versions to retain |
+| **autoRotate** | `boolean` | ✅ | Automatically rotate without manual approval |
 
 
 ---

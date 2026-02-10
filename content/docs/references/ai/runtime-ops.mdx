@@ -35,40 +35,143 @@ const result = AIOpsAgentConfig.parse(data);
 
 ## AIOpsAgentConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **agentId** | `string` | ✅ |  |
+| **pluginId** | `string` | ✅ |  |
+| **selfHealing** | `Object` | optional |  |
+| **autoScaling** | `Object[]` | optional |  |
+| **monitoring** | `Object` | optional |  |
+| **optimization** | `Object` | optional |  |
+| **incidentResponse** | `Object` | optional |  |
+
 
 ---
 
 ## AnomalyDetectionConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ |  |
+| **metrics** | `Enum<'cpu-usage' \| 'memory-usage' \| 'response-time' \| 'error-rate' \| 'throughput' \| 'latency' \| 'connection-count' \| 'queue-depth'>[]` | ✅ |  |
+| **algorithm** | `Enum<'statistical' \| 'machine-learning' \| 'heuristic' \| 'hybrid'>` | ✅ |  |
+| **sensitivity** | `Enum<'low' \| 'medium' \| 'high'>` | ✅ | How aggressively to detect anomalies |
+| **timeWindow** | `integer` | ✅ | Historical data window for anomaly detection |
+| **confidenceThreshold** | `number` | ✅ | Minimum confidence to flag as anomaly |
+| **alertOnDetection** | `boolean` | ✅ |  |
 
 
 ---
 
 ## AutoScalingPolicy
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ |  |
+| **metric** | `Enum<'cpu-usage' \| 'memory-usage' \| 'request-rate' \| 'response-time' \| 'queue-depth' \| 'custom'>` | ✅ |  |
+| **customMetric** | `string` | optional |  |
+| **targetValue** | `number` | ✅ | Desired metric value (e.g., 70 for 70% CPU) |
+| **bounds** | `Object` | ✅ |  |
+| **scaleUp** | `Object` | ✅ |  |
+| **scaleDown** | `Object` | ✅ |  |
+| **predictive** | `Object` | optional |  |
+
 
 ---
 
 ## PerformanceOptimization
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+| **pluginId** | `string` | ✅ |  |
+| **type** | `Enum<'caching' \| 'query-optimization' \| 'resource-allocation' \| 'code-refactoring' \| 'architecture-change' \| 'configuration-tuning'>` | ✅ |  |
+| **description** | `string` | ✅ |  |
+| **expectedImpact** | `Object` | ✅ |  |
+| **difficulty** | `Enum<'trivial' \| 'easy' \| 'moderate' \| 'complex' \| 'very-complex'>` | ✅ |  |
+| **steps** | `string[]` | ✅ |  |
+| **risks** | `string[]` | optional |  |
+| **confidence** | `number` | ✅ |  |
+| **priority** | `Enum<'low' \| 'medium' \| 'high' \| 'critical'>` | ✅ |  |
 
 
 ---
 
 ## RootCauseAnalysisRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **incidentId** | `string` | ✅ |  |
+| **pluginId** | `string` | ✅ |  |
+| **symptoms** | `Object[]` | ✅ |  |
+| **timeRange** | `Object` | ✅ |  |
+| **analyzeLogs** | `boolean` | ✅ |  |
+| **analyzeMetrics** | `boolean` | ✅ |  |
+| **analyzeDependencies** | `boolean` | ✅ |  |
+| **context** | `Record<string, any>` | optional |  |
+
 
 ---
 
 ## RootCauseAnalysisResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **analysisId** | `string` | ✅ |  |
+| **incidentId** | `string` | ✅ |  |
+| **rootCauses** | `Object[]` | ✅ |  |
+| **contributingFactors** | `Object[]` | optional |  |
+| **timeline** | `Object[]` | optional |  |
+| **remediation** | `Object` | optional |  |
+| **overallConfidence** | `number` | ✅ |  |
+| **timestamp** | `string` | ✅ |  |
 
 
 ---
 
 ## SelfHealingAction
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+| **type** | `Enum<'restart' \| 'scale' \| 'rollback' \| 'clear-cache' \| 'adjust-config' \| 'execute-script' \| 'notify'>` | ✅ |  |
+| **trigger** | `Object` | ✅ |  |
+| **parameters** | `Record<string, any>` | optional |  |
+| **maxAttempts** | `integer` | ✅ |  |
+| **cooldown** | `integer` | ✅ |  |
+| **timeout** | `integer` | ✅ |  |
+| **requireApproval** | `boolean` | ✅ |  |
+| **priority** | `integer` | ✅ | Action priority (lower number = higher priority) |
+
 
 ---
 
 ## SelfHealingConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ |  |
+| **strategy** | `Enum<'conservative' \| 'moderate' \| 'aggressive'>` | ✅ |  |
+| **actions** | `Object[]` | ✅ |  |
+| **anomalyDetection** | `Object` | optional |  |
+| **maxConcurrentHealing** | `integer` | ✅ | Maximum number of simultaneous healing attempts |
+| **learning** | `Object` | optional |  |
 
 
 ---

@@ -23,65 +23,174 @@ const result = ApiError.parse(data);
 
 ## ApiError
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **code** | `string` | ✅ | Error code (e.g. validation_error) |
+| **message** | `string` | ✅ | Readable error message |
+| **category** | `string` | optional | Error category (e.g. validation, authorization) |
+| **details** | `any` | optional | Additional error context (e.g. field validation errors) |
+| **requestId** | `string` | optional | Request ID for tracking |
+
 
 ---
 
 ## BaseResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
 
 
 ---
 
 ## BulkRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **records** | `Record<string, any>[]` | ✅ | Array of records to process |
+| **allOrNone** | `boolean` | ✅ | If true, rollback entire transaction on any failure |
+
 
 ---
 
 ## BulkResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object[]` | ✅ | Results for each item in the batch |
 
 
 ---
 
 ## CreateRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **data** | `Record<string, any>` | ✅ | Record data to insert |
+
 
 ---
 
 ## DeleteResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **id** | `string` | ✅ | ID of the deleted record |
 
 
 ---
 
 ## ExportRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g. account) |
+| **fields** | `[__schema1](./__schema1)[]` | optional | Fields to retrieve |
+| **where** | `[__schema2](./__schema2)` | optional | Filtering criteria (WHERE) |
+| **search** | `Object` | optional | Full-text search configuration ($search parameter) |
+| **orderBy** | `Object[]` | optional | Sorting instructions (ORDER BY) |
+| **limit** | `number` | optional | Max records to return (LIMIT) |
+| **offset** | `number` | optional | Records to skip (OFFSET) |
+| **top** | `number` | optional | Alias for limit (OData compatibility) |
+| **cursor** | `Record<string, any>` | optional | Cursor for keyset pagination |
+| **joins** | `Object[]` | optional | Explicit Table Joins |
+| **aggregations** | `Object[]` | optional | Aggregation functions |
+| **groupBy** | `string[]` | optional | GROUP BY fields |
+| **having** | `[__schema2](./__schema2)` | optional | HAVING clause for aggregation filtering |
+| **windowFunctions** | `Object[]` | optional | Window functions with OVER clause |
+| **distinct** | `boolean` | optional | SELECT DISTINCT flag |
+| **expand** | `Record<string, [__schema0](./__schema0)>` | optional | Recursive relation loading (nested queries) |
+
 
 ---
 
 ## IdRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Record ID |
 
 
 ---
 
 ## ListRecordResponse
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Record<string, any>[]` | ✅ | Array of matching records |
+| **pagination** | `Object` | ✅ | Pagination info |
+
 
 ---
 
 ## ModificationResult
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Record ID if processed |
+| **success** | `boolean` | ✅ |  |
+| **errors** | `Object[]` | optional |  |
+| **index** | `number` | optional | Index in original request |
+| **data** | `any` | optional | Result data (e.g. created record) |
+
 
 ---
-
-## RecordData
 
 
 ---
 
 ## SingleRecordResponse
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Record<string, any>` | ✅ | The requested or modified record |
+
 
 ---
 
 ## UpdateRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **data** | `Record<string, any>` | ✅ | Partial record data to update |
 
 
 ---

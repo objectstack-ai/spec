@@ -27,15 +27,41 @@ const result = CorsConfig.parse(data);
 
 ## CorsConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable CORS |
+| **origins** | `string \| string[]` | ✅ | Allowed origins (* for all) |
+| **methods** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'DELETE' \| 'PATCH' \| 'HEAD' \| 'OPTIONS'>[]` | optional | Allowed HTTP methods |
+| **credentials** | `boolean` | ✅ | Allow credentials (cookies, authorization headers) |
+| **maxAge** | `integer` | optional | Preflight cache duration in seconds |
+
 
 ---
 
 ## RateLimitConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable rate limiting |
+| **windowMs** | `integer` | ✅ | Time window in milliseconds |
+| **maxRequests** | `integer` | ✅ | Max requests per window |
+
 
 ---
 
 ## StaticMount
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **path** | `string` | ✅ | URL path to serve from |
+| **directory** | `string` | ✅ | Physical directory to serve |
+| **cacheControl** | `string` | optional | Cache-Control header value |
 
 
 ---

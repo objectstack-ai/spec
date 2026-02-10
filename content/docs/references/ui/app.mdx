@@ -43,40 +43,218 @@ const result = App.parse(data);
 
 ## App
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | App unique machine name (lowercase snake_case) |
+| **label** | `string` | ✅ | App display label |
+| **version** | `string` | optional | App version |
+| **description** | `string` | optional | App description |
+| **icon** | `string` | optional | App icon used in the App Launcher |
+| **branding** | `Object` | optional | App-specific branding |
+| **active** | `boolean` | ✅ | Whether the app is enabled |
+| **isDefault** | `boolean` | ✅ | Is default app |
+| **navigation** | `[__schema0](./__schema0)[]` | optional | Structured navigation menu tree |
+| **homePageId** | `string` | optional | ID of the navigation item to serve as landing page |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this app |
+| **objects** | `any[]` | optional | Objects belonging to this app |
+| **apis** | `any[]` | optional | Custom APIs belonging to this app |
+
 
 ---
 
 ## AppBranding
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **primaryColor** | `string` | optional | Primary theme color hex code |
+| **logo** | `string` | optional | Custom logo URL for this app |
+| **favicon** | `string` | optional | Custom favicon URL for this app |
 
 
 ---
 
 ## DashboardNavItem
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **dashboardName** | `string` | ✅ | Target dashboard name |
+
 
 ---
 
 ## GroupNavItem
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **expanded** | `boolean` | ✅ | Default expansion state in sidebar |
 
 
 ---
 
 ## NavigationItem
 
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+**Type:** `object`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **objectName** | `string` | ✅ | Target object name |
+| **viewName** | `string` | optional | Default list view to open. Defaults to "all" |
+| **children** | `[#](./#)[]` | optional | Child navigation items (e.g. specific views) |
+
+---
+
+#### Option 2
+
+**Type:** `dashboard`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **dashboardName** | `string` | ✅ | Target dashboard name |
+
+---
+
+#### Option 3
+
+**Type:** `page`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **pageName** | `string` | ✅ | Target custom page component name |
+| **params** | `Record<string, any>` | optional | Parameters passed to the page context |
+
+---
+
+#### Option 4
+
+**Type:** `url`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **url** | `string` | ✅ | Target external URL |
+| **target** | `Enum<'_self' \| '_blank'>` | ✅ | Link target window |
+
+---
+
+#### Option 5
+
+**Type:** `group`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **expanded** | `boolean` | ✅ | Default expansion state in sidebar |
+| **children** | `[#](./#)[]` | ✅ | Child navigation items |
+
+---
+
 
 ---
 
 ## ObjectNavItem
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **objectName** | `string` | ✅ | Target object name |
+| **viewName** | `string` | optional | Default list view to open. Defaults to "all" |
 
 
 ---
 
 ## PageNavItem
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **pageName** | `string` | ✅ | Target custom page component name |
+| **params** | `Record<string, any>` | optional | Parameters passed to the page context |
+
 
 ---
 
 ## UrlNavItem
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **visible** | `string` | optional | Visibility formula condition |
+| **type** | `string` | ✅ |  |
+| **url** | `string` | ✅ | Target external URL |
+| **target** | `Enum<'_self' \| '_blank'>` | ✅ | Link target window |
 
 
 ---

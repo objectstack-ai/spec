@@ -31,20 +31,58 @@ const result = HealthStatus.parse(data);
 
 ## HealthStatus
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **healthy** | `boolean` | ✅ | Whether the plugin is healthy |
+| **timestamp** | `integer` | ✅ | Unix timestamp in milliseconds when health check was performed |
+| **details** | `Record<string, any>` | optional | Optional plugin-specific health details |
+| **message** | `string` | optional | Error message if plugin is unhealthy |
+
 
 ---
 
 ## PluginStartupResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **plugin** | `Record<string, any>` | ✅ | Plugin metadata |
+| **success** | `boolean` | ✅ | Whether the plugin started successfully |
+| **duration** | `number` | ✅ | Time taken to start the plugin in milliseconds |
+| **error** | `Object` | optional | Serializable error representation if startup failed |
+| **health** | `Object` | optional | Health status after startup if health check was enabled |
 
 
 ---
 
 ## StartupOptions
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **timeout** | `integer` | ✅ | Maximum time in milliseconds to wait for each plugin to start |
+| **rollbackOnFailure** | `boolean` | ✅ | Whether to rollback already-started plugins if any plugin fails |
+| **healthCheck** | `boolean` | ✅ | Whether to run health checks after plugin startup |
+| **parallel** | `boolean` | ✅ | Whether to start plugins in parallel when dependencies allow |
+| **context** | `any` | optional | Custom context object to pass to plugin lifecycle methods |
+
 
 ---
 
 ## StartupOrchestrationResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **results** | `Object[]` | ✅ | Startup results for each plugin |
+| **totalDuration** | `number` | ✅ | Total time taken for all plugins in milliseconds |
+| **allSuccessful** | `boolean` | ✅ | Whether all plugins started successfully |
+| **rolledBack** | `string[]` | optional | Names of plugins that were rolled back |
 
 
 ---

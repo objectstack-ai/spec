@@ -25,25 +25,82 @@ const result = AnalyzerConfig.parse(data);
 
 ## AnalyzerConfig
 
+Text analyzer configuration for index tokenization and normalization
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'standard' \| 'simple' \| 'whitespace' \| 'keyword' \| 'pattern' \| 'language'>` | ✅ | Text analyzer type |
+| **language** | `string` | optional | Language for language-specific analysis |
+| **stopwords** | `string[]` | optional | Custom stopwords to filter during analysis |
+| **customFilters** | `string[]` | optional | Additional token filter names to apply |
+
 
 ---
 
 ## FacetConfig
+
+Faceted search configuration for a single field
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Field name to generate facets from |
+| **maxValues** | `number` | ✅ | Maximum number of facet values to return |
+| **sort** | `Enum<'count' \| 'alpha'>` | ✅ | Facet value sort order |
 
 
 ---
 
 ## SearchConfig
 
+Top-level full-text search engine configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **provider** | `Enum<'elasticsearch' \| 'algolia' \| 'meilisearch' \| 'typesense' \| 'opensearch'>` | ✅ | Search engine backend provider |
+| **indexes** | `Object[]` | ✅ | Search index definitions |
+| **analyzers** | `Record<string, Object>` | optional | Named text analyzer configurations |
+| **facets** | `Object[]` | optional | Faceted search configurations |
+| **typoTolerance** | `boolean` | ✅ | Enable typo-tolerant search |
+| **synonyms** | `Record<string, string[]>` | optional | Synonym mappings for search expansion |
+| **ranking** | `Enum<'typo' \| 'geo' \| 'words' \| 'filters' \| 'proximity' \| 'attribute' \| 'exact' \| 'custom'>[]` | optional | Custom ranking rule order |
+
 
 ---
 
 ## SearchIndexConfig
 
+Search index definition mapping an ObjectQL object to a search engine index
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **indexName** | `string` | ✅ | Name of the search index |
+| **objectName** | `string` | ✅ | Source ObjectQL object |
+| **fields** | `Object[]` | ✅ | Fields to include in the search index |
+| **replicas** | `number` | ✅ | Number of index replicas for availability |
+| **shards** | `number` | ✅ | Number of index shards for distribution |
+
 
 ---
 
 ## SearchProvider
+
+Supported full-text search engine provider
+
+### Allowed Values
+
+* `elasticsearch`
+* `algolia`
+* `meilisearch`
+* `typesense`
+* `opensearch`
 
 
 ---

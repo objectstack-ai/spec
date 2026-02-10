@@ -21,6 +21,20 @@ const result = VersioningConfig.parse(data);
 
 ## VersioningConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strategy** | `Enum<'urlPath' \| 'header' \| 'queryParam' \| 'dateBased'>` | ✅ | How the API version is specified by clients |
+| **current** | `string` | ✅ | The current/recommended API version identifier |
+| **default** | `string` | ✅ | Fallback version when client does not specify one |
+| **versions** | `Object[]` | ✅ | All available API versions with lifecycle metadata |
+| **headerName** | `string` | ✅ | HTTP header name for version negotiation (header/dateBased strategies) |
+| **queryParamName** | `string` | ✅ | Query parameter name for version specification (queryParam strategy) |
+| **urlPrefix** | `string` | ✅ | URL prefix before version segment (urlPath strategy) |
+| **deprecation** | `Object` | optional | Deprecation lifecycle behavior |
+| **includeInDiscovery** | `boolean` | ✅ | Include version information in the API discovery endpoint |
+
 
 ---
 

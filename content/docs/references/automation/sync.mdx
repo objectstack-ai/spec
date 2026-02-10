@@ -151,30 +151,86 @@ const result = DataDestinationConfig.parse(data);
 
 ## DataDestinationConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | optional | ObjectStack object name |
+| **connectorInstanceId** | `string` | optional | Connector instance ID |
+| **operation** | `Enum<'insert' \| 'update' \| 'upsert' \| 'delete' \| 'sync'>` | ✅ | Sync operation |
+| **mapping** | `Record<string, string> \| Object[]` | optional | Field mappings |
+| **externalResource** | `string` | optional | External resource ID |
+| **matchKey** | `string[]` | optional | Match key fields |
+
 
 ---
 
 ## DataSourceConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | optional | ObjectStack object name |
+| **filters** | `any` | optional | Filter conditions |
+| **fields** | `string[]` | optional | Fields to sync |
+| **connectorInstanceId** | `string` | optional | Connector instance ID |
+| **externalResource** | `string` | optional | External resource ID |
 
 
 ---
 
 ## SyncDirection
 
+### Allowed Values
+
+* `push`
+* `pull`
+* `bidirectional`
+
 
 ---
 
 ## SyncExecutionResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Execution ID |
+| **syncName** | `string` | ✅ | Sync name |
+| **status** | `Enum<'pending' \| 'running' \| 'completed' \| 'partial' \| 'failed' \| 'cancelled'>` | ✅ | Execution status |
+| **startedAt** | `string` | ✅ | Start time |
+| **completedAt** | `string` | optional | Completion time |
+| **durationMs** | `number` | optional | Duration in ms |
+| **stats** | `Object` | optional | Execution statistics |
+| **errors** | `Object[]` | optional | Errors |
+| **logs** | `string[]` | optional | Execution logs |
 
 
 ---
 
 ## SyncExecutionStatus
 
+### Allowed Values
+
+* `pending`
+* `running`
+* `completed`
+* `partial`
+* `failed`
+* `cancelled`
+
 
 ---
 
 ## SyncMode
+
+### Allowed Values
+
+* `full`
+* `incremental`
+* `realtime`
 
 
 ---

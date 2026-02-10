@@ -37,30 +37,85 @@ const result = ScopeConfig.parse(data);
 
 ## ScopeConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **scopeType** | `string` | ✅ | Type of scope |
+| **scopeId** | `string` | optional | Unique scope identifier |
+| **metadata** | `Record<string, any>` | optional | Scope-specific context metadata |
+
 
 ---
 
 ## ScopeInfo
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **scopeId** | `string` | ✅ | Unique scope identifier |
+| **scopeType** | `string` | ✅ | Type of scope |
+| **createdAt** | `integer` | ✅ | Unix timestamp in milliseconds when scope was created |
+| **serviceCount** | `integer` | optional | Number of services registered in this scope |
+| **metadata** | `Record<string, any>` | optional | Scope-specific context metadata |
 
 
 ---
 
 ## ServiceFactoryRegistration
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique service name identifier |
+| **scope** | `Enum<'singleton' \| 'transient' \| 'scoped'>` | ✅ | Service scope type |
+| **factoryType** | `Enum<'sync' \| 'async'>` | ✅ | Whether factory is synchronous or asynchronous |
+| **singleton** | `boolean` | ✅ | Whether to cache the factory result (singleton pattern) |
+
 
 ---
 
 ## ServiceMetadata
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique service name identifier |
+| **scope** | `Enum<'singleton' \| 'transient' \| 'scoped'>` | ✅ | Service scope type |
+| **type** | `string` | optional | Service type or interface name |
+| **registeredAt** | `integer` | optional | Unix timestamp in milliseconds when service was registered |
+| **metadata** | `Record<string, any>` | optional | Additional service-specific metadata |
 
 
 ---
 
 ## ServiceRegistryConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strictMode** | `boolean` | ✅ | Throw errors on invalid operations (duplicate registration, service not found, etc.) |
+| **allowOverwrite** | `boolean` | ✅ | Allow overwriting existing service registrations |
+| **enableLogging** | `boolean` | ✅ | Enable logging for service registration and retrieval |
+| **scopeTypes** | `string[]` | optional | Supported scope types |
+| **maxServices** | `integer` | optional | Maximum number of services that can be registered |
+
 
 ---
 
 ## ServiceScopeType
+
+Service scope type
+
+### Allowed Values
+
+* `singleton`
+* `transient`
+* `scoped`
 
 
 ---

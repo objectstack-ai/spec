@@ -25,20 +25,76 @@ const result = ApiCapabilities.parse(data);
 
 ## ApiCapabilities
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **graphql** | `boolean` | ✅ |  |
+| **search** | `boolean` | ✅ |  |
+| **websockets** | `boolean` | ✅ |  |
+| **files** | `boolean` | ✅ |  |
+| **analytics** | `boolean` | ✅ | Is the Analytics/BI engine enabled? |
+| **ai** | `boolean` | ✅ | Is the AI engine enabled? |
+| **workflow** | `boolean` | ✅ | Is the Workflow engine enabled? |
+| **notifications** | `boolean` | ✅ | Is the Notification service enabled? |
+| **i18n** | `boolean` | ✅ | Is the i18n service enabled? |
+
 
 ---
 
 ## ApiRoutes
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **data** | `string` | ✅ | e.g. /api/v1/data |
+| **metadata** | `string` | ✅ | e.g. /api/v1/meta |
+| **ui** | `string` | optional | e.g. /api/v1/ui |
+| **auth** | `string` | optional | e.g. /api/v1/auth |
+| **automation** | `string` | optional | e.g. /api/v1/automation |
+| **storage** | `string` | optional | e.g. /api/v1/storage |
+| **analytics** | `string` | optional | e.g. /api/v1/analytics |
+| **graphql** | `string` | optional | e.g. /graphql |
+| **packages** | `string` | optional | e.g. /api/v1/packages |
+| **workflow** | `string` | optional | e.g. /api/v1/workflow |
+| **realtime** | `string` | optional | e.g. /api/v1/realtime |
+| **notifications** | `string` | optional | e.g. /api/v1/notifications |
+| **ai** | `string` | optional | e.g. /api/v1/ai |
+| **i18n** | `string` | optional | e.g. /api/v1/i18n |
 
 
 ---
 
 ## Discovery
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ |  |
+| **version** | `string` | ✅ |  |
+| **environment** | `Enum<'production' \| 'sandbox' \| 'development'>` | ✅ |  |
+| **routes** | `Object` | ✅ |  |
+| **features** | `Object` | ✅ |  |
+| **locale** | `Object` | ✅ |  |
+| **services** | `Record<string, Object>` | optional | Per-service availability map keyed by CoreServiceName |
+| **metadata** | `Record<string, any>` | optional | Custom metadata key-value pairs for extensibility |
+
 
 ---
 
 ## ServiceInfo
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ |  |
+| **status** | `Enum<'available' \| 'unavailable' \| 'degraded' \| 'stub'>` | ✅ | available = fully operational, unavailable = not installed, degraded = partial, stub = placeholder that throws |
+| **route** | `string` | optional | e.g. /api/v1/analytics |
+| **provider** | `string` | optional | e.g. "objectql", "plugin-redis", "driver-memory" |
+| **message** | `string` | optional | e.g. "Install plugin-workflow to enable" |
 
 
 ---

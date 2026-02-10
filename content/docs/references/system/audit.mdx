@@ -39,55 +39,228 @@ const result = AuditConfig.parse(data);
 
 ## AuditConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Configuration name (snake_case, max 64 chars) |
+| **label** | `string` | ✅ | Display label |
+| **enabled** | `boolean` | ✅ | Enable audit logging |
+| **eventTypes** | `Enum<'data.create' \| 'data.read' \| 'data.update' \| 'data.delete' \| 'data.export' \| 'data.import' \| 'data.bulk_update' \| 'data.bulk_delete' \| 'auth.login' \| 'auth.login_failed' \| 'auth.logout' \| 'auth.session_created' \| 'auth.session_expired' \| 'auth.password_reset' \| 'auth.password_changed' \| 'auth.email_verified' \| 'auth.mfa_enabled' \| 'auth.mfa_disabled' \| 'auth.account_locked' \| 'auth.account_unlocked' \| 'authz.permission_granted' \| 'authz.permission_revoked' \| 'authz.role_assigned' \| 'authz.role_removed' \| 'authz.role_created' \| 'authz.role_updated' \| 'authz.role_deleted' \| 'authz.policy_created' \| 'authz.policy_updated' \| 'authz.policy_deleted' \| 'system.config_changed' \| 'system.plugin_installed' \| 'system.plugin_uninstalled' \| 'system.backup_created' \| 'system.backup_restored' \| 'system.integration_added' \| 'system.integration_removed' \| 'security.access_denied' \| 'security.suspicious_activity' \| 'security.data_breach' \| 'security.api_key_created' \| 'security.api_key_revoked'>[]` | optional | Event types to audit |
+| **excludeEventTypes** | `Enum<'data.create' \| 'data.read' \| 'data.update' \| 'data.delete' \| 'data.export' \| 'data.import' \| 'data.bulk_update' \| 'data.bulk_delete' \| 'auth.login' \| 'auth.login_failed' \| 'auth.logout' \| 'auth.session_created' \| 'auth.session_expired' \| 'auth.password_reset' \| 'auth.password_changed' \| 'auth.email_verified' \| 'auth.mfa_enabled' \| 'auth.mfa_disabled' \| 'auth.account_locked' \| 'auth.account_unlocked' \| 'authz.permission_granted' \| 'authz.permission_revoked' \| 'authz.role_assigned' \| 'authz.role_removed' \| 'authz.role_created' \| 'authz.role_updated' \| 'authz.role_deleted' \| 'authz.policy_created' \| 'authz.policy_updated' \| 'authz.policy_deleted' \| 'system.config_changed' \| 'system.plugin_installed' \| 'system.plugin_uninstalled' \| 'system.backup_created' \| 'system.backup_restored' \| 'system.integration_added' \| 'system.integration_removed' \| 'security.access_denied' \| 'security.suspicious_activity' \| 'security.data_breach' \| 'security.api_key_created' \| 'security.api_key_revoked'>[]` | optional | Event types to exclude |
+| **minimumSeverity** | `Enum<'debug' \| 'info' \| 'notice' \| 'warning' \| 'error' \| 'critical' \| 'alert' \| 'emergency'>` | ✅ | Minimum severity level |
+| **storage** | `Object` | ✅ | Storage configuration |
+| **retentionPolicy** | `Object` | optional | Retention policy |
+| **suspiciousActivityRules** | `Object[]` | ✅ | Suspicious activity rules |
+| **includeSensitiveData** | `boolean` | ✅ | Include sensitive data |
+| **redactFields** | `string[]` | ✅ | Fields to redact |
+| **logReads** | `boolean` | ✅ | Log read operations |
+| **readSamplingRate** | `number` | ✅ | Read sampling rate |
+| **logSystemEvents** | `boolean` | ✅ | Log system events |
+| **customHandlers** | `Object[]` | optional | Custom event handler references |
+| **compliance** | `Object` | optional | Compliance configuration |
+
 
 ---
 
 ## AuditEvent
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Audit event ID |
+| **eventType** | `Enum<'data.create' \| 'data.read' \| 'data.update' \| 'data.delete' \| 'data.export' \| 'data.import' \| 'data.bulk_update' \| 'data.bulk_delete' \| 'auth.login' \| 'auth.login_failed' \| 'auth.logout' \| 'auth.session_created' \| 'auth.session_expired' \| 'auth.password_reset' \| 'auth.password_changed' \| 'auth.email_verified' \| 'auth.mfa_enabled' \| 'auth.mfa_disabled' \| 'auth.account_locked' \| 'auth.account_unlocked' \| 'authz.permission_granted' \| 'authz.permission_revoked' \| 'authz.role_assigned' \| 'authz.role_removed' \| 'authz.role_created' \| 'authz.role_updated' \| 'authz.role_deleted' \| 'authz.policy_created' \| 'authz.policy_updated' \| 'authz.policy_deleted' \| 'system.config_changed' \| 'system.plugin_installed' \| 'system.plugin_uninstalled' \| 'system.backup_created' \| 'system.backup_restored' \| 'system.integration_added' \| 'system.integration_removed' \| 'security.access_denied' \| 'security.suspicious_activity' \| 'security.data_breach' \| 'security.api_key_created' \| 'security.api_key_revoked'>` | ✅ | Event type |
+| **severity** | `Enum<'debug' \| 'info' \| 'notice' \| 'warning' \| 'error' \| 'critical' \| 'alert' \| 'emergency'>` | ✅ | Event severity |
+| **timestamp** | `string` | ✅ | Event timestamp |
+| **actor** | `Object` | ✅ | Event actor |
+| **target** | `Object` | optional | Event target |
+| **description** | `string` | ✅ | Event description |
+| **changes** | `Object[]` | optional | List of changes |
+| **result** | `Enum<'success' \| 'failure' \| 'partial'>` | ✅ | Action result |
+| **errorMessage** | `string` | optional | Error message |
+| **tenantId** | `string` | optional | Tenant identifier |
+| **requestId** | `string` | optional | Request ID for tracing |
+| **metadata** | `Record<string, any>` | optional | Additional metadata |
+| **location** | `Object` | optional | Geographic location |
 
 
 ---
 
 ## AuditEventActor
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'user' \| 'system' \| 'service' \| 'api_client' \| 'integration'>` | ✅ | Actor type |
+| **id** | `string` | ✅ | Actor identifier |
+| **name** | `string` | optional | Actor display name |
+| **email** | `string` | optional | Actor email address |
+| **ipAddress** | `string` | optional | Actor IP address |
+| **userAgent** | `string` | optional | User agent string |
+
 
 ---
 
 ## AuditEventChange
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Changed field name |
+| **oldValue** | `any` | optional | Previous value |
+| **newValue** | `any` | optional | New value |
 
 
 ---
 
 ## AuditEventFilter
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **eventTypes** | `Enum<'data.create' \| 'data.read' \| 'data.update' \| 'data.delete' \| 'data.export' \| 'data.import' \| 'data.bulk_update' \| 'data.bulk_delete' \| 'auth.login' \| 'auth.login_failed' \| 'auth.logout' \| 'auth.session_created' \| 'auth.session_expired' \| 'auth.password_reset' \| 'auth.password_changed' \| 'auth.email_verified' \| 'auth.mfa_enabled' \| 'auth.mfa_disabled' \| 'auth.account_locked' \| 'auth.account_unlocked' \| 'authz.permission_granted' \| 'authz.permission_revoked' \| 'authz.role_assigned' \| 'authz.role_removed' \| 'authz.role_created' \| 'authz.role_updated' \| 'authz.role_deleted' \| 'authz.policy_created' \| 'authz.policy_updated' \| 'authz.policy_deleted' \| 'system.config_changed' \| 'system.plugin_installed' \| 'system.plugin_uninstalled' \| 'system.backup_created' \| 'system.backup_restored' \| 'system.integration_added' \| 'system.integration_removed' \| 'security.access_denied' \| 'security.suspicious_activity' \| 'security.data_breach' \| 'security.api_key_created' \| 'security.api_key_revoked'>[]` | optional | Event types to include |
+| **severities** | `Enum<'debug' \| 'info' \| 'notice' \| 'warning' \| 'error' \| 'critical' \| 'alert' \| 'emergency'>[]` | optional | Severity levels to include |
+| **actorId** | `string` | optional | Actor identifier |
+| **tenantId** | `string` | optional | Tenant identifier |
+| **timeRange** | `Object` | optional | Time range filter |
+| **result** | `Enum<'success' \| 'failure' \| 'partial'>` | optional | Result status |
+| **searchQuery** | `string` | optional | Search query |
+| **customFilters** | `Record<string, any>` | optional | Custom filters |
+
 
 ---
 
 ## AuditEventSeverity
+
+### Allowed Values
+
+* `debug`
+* `info`
+* `notice`
+* `warning`
+* `error`
+* `critical`
+* `alert`
+* `emergency`
 
 
 ---
 
 ## AuditEventTarget
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Target type |
+| **id** | `string` | ✅ | Target identifier |
+| **name** | `string` | optional | Target display name |
+| **metadata** | `Record<string, any>` | optional | Target metadata |
+
 
 ---
 
 ## AuditEventType
+
+### Allowed Values
+
+* `data.create`
+* `data.read`
+* `data.update`
+* `data.delete`
+* `data.export`
+* `data.import`
+* `data.bulk_update`
+* `data.bulk_delete`
+* `auth.login`
+* `auth.login_failed`
+* `auth.logout`
+* `auth.session_created`
+* `auth.session_expired`
+* `auth.password_reset`
+* `auth.password_changed`
+* `auth.email_verified`
+* `auth.mfa_enabled`
+* `auth.mfa_disabled`
+* `auth.account_locked`
+* `auth.account_unlocked`
+* `authz.permission_granted`
+* `authz.permission_revoked`
+* `authz.role_assigned`
+* `authz.role_removed`
+* `authz.role_created`
+* `authz.role_updated`
+* `authz.role_deleted`
+* `authz.policy_created`
+* `authz.policy_updated`
+* `authz.policy_deleted`
+* `system.config_changed`
+* `system.plugin_installed`
+* `system.plugin_uninstalled`
+* `system.backup_created`
+* `system.backup_restored`
+* `system.integration_added`
+* `system.integration_removed`
+* `security.access_denied`
+* `security.suspicious_activity`
+* `security.data_breach`
+* `security.api_key_created`
+* `security.api_key_revoked`
 
 
 ---
 
 ## AuditRetentionPolicy
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **retentionDays** | `integer` | ✅ | Retention period in days |
+| **archiveAfterRetention** | `boolean` | ✅ | Archive logs after retention period |
+| **archiveStorage** | `Object` | optional | Archive storage configuration |
+| **customRetention** | `Record<string, integer>` | optional | Custom retention by event type |
+| **minimumRetentionDays** | `integer` | optional | Minimum retention for compliance |
+
 
 ---
 
 ## AuditStorageConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'database' \| 'elasticsearch' \| 'mongodb' \| 'clickhouse' \| 's3' \| 'gcs' \| 'azure_blob' \| 'custom'>` | ✅ | Storage backend type |
+| **connectionString** | `string` | optional | Connection string |
+| **config** | `Record<string, any>` | optional | Storage-specific configuration |
+| **bufferEnabled** | `boolean` | ✅ | Enable buffering |
+| **bufferSize** | `integer` | ✅ | Buffer size |
+| **flushIntervalSeconds** | `integer` | ✅ | Flush interval in seconds |
+| **compression** | `boolean` | ✅ | Enable compression |
+
 
 ---
 
 ## SuspiciousActivityRule
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Rule identifier |
+| **name** | `string` | ✅ | Rule name |
+| **description** | `string` | optional | Rule description |
+| **enabled** | `boolean` | ✅ | Rule enabled status |
+| **eventTypes** | `Enum<'data.create' \| 'data.read' \| 'data.update' \| 'data.delete' \| 'data.export' \| 'data.import' \| 'data.bulk_update' \| 'data.bulk_delete' \| 'auth.login' \| 'auth.login_failed' \| 'auth.logout' \| 'auth.session_created' \| 'auth.session_expired' \| 'auth.password_reset' \| 'auth.password_changed' \| 'auth.email_verified' \| 'auth.mfa_enabled' \| 'auth.mfa_disabled' \| 'auth.account_locked' \| 'auth.account_unlocked' \| 'authz.permission_granted' \| 'authz.permission_revoked' \| 'authz.role_assigned' \| 'authz.role_removed' \| 'authz.role_created' \| 'authz.role_updated' \| 'authz.role_deleted' \| 'authz.policy_created' \| 'authz.policy_updated' \| 'authz.policy_deleted' \| 'system.config_changed' \| 'system.plugin_installed' \| 'system.plugin_uninstalled' \| 'system.backup_created' \| 'system.backup_restored' \| 'system.integration_added' \| 'system.integration_removed' \| 'security.access_denied' \| 'security.suspicious_activity' \| 'security.data_breach' \| 'security.api_key_created' \| 'security.api_key_revoked'>[]` | ✅ | Event types to monitor |
+| **condition** | `Object` | ✅ | Detection condition |
+| **actions** | `Enum<'alert' \| 'lock_account' \| 'block_ip' \| 'require_mfa' \| 'log_critical' \| 'webhook'>[]` | ✅ | Actions to take |
+| **alertSeverity** | `Enum<'debug' \| 'info' \| 'notice' \| 'warning' \| 'error' \| 'critical' \| 'alert' \| 'emergency'>` | ✅ | Alert severity |
+| **notifications** | `Object` | optional | Notification configuration |
 
 
 ---

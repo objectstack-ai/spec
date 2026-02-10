@@ -37,17 +37,23 @@ const result = Locale.parse(data);
 
 ---
 
-## Locale
-
 
 ---
-
-## TranslationBundle
 
 
 ---
 
 ## TranslationData
+
+Translation data for objects, apps, and UI messages
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **objects** | `Record<string, Object>` | optional | Object translations keyed by object name |
+| **apps** | `Record<string, Object>` | optional | App translations keyed by app name |
+| **messages** | `Record<string, string>` | optional | UI message translations keyed by message ID |
 
 
 ---
