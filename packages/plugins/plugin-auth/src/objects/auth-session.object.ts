@@ -5,7 +5,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
 /**
  * Auth Session Object
  * 
- * Maps to better-auth's Session schema:
+ * Uses better-auth's native schema for seamless migration:
  * - id: string
  * - createdAt: Date
  * - updatedAt: Date
@@ -16,13 +16,13 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * - userAgent: string | null
  */
 export const AuthSession = ObjectSchema.create({
-  name: 'auth_session',
+  name: 'session',
   label: 'Session',
   pluralLabel: 'Sessions',
   icon: 'key',
   description: 'Active user sessions',
   titleFormat: 'Session {token}',
-  compactLayout: ['user_id', 'expires_at', 'ip_address'],
+  compactLayout: ['userId', 'expiresAt', 'ipAddress'],
   
   fields: {
     id: Field.text({
@@ -31,24 +31,24 @@ export const AuthSession = ObjectSchema.create({
       readonly: true,
     }),
     
-    created_at: Field.datetime({
+    createdAt: Field.datetime({
       label: 'Created At',
       defaultValue: 'NOW()',
       readonly: true,
     }),
     
-    updated_at: Field.datetime({
+    updatedAt: Field.datetime({
       label: 'Updated At',
       defaultValue: 'NOW()',
       readonly: true,
     }),
     
-    user_id: Field.text({
+    userId: Field.text({
       label: 'User ID',
       required: true,
     }),
     
-    expires_at: Field.datetime({
+    expiresAt: Field.datetime({
       label: 'Expires At',
       required: true,
     }),
@@ -58,13 +58,13 @@ export const AuthSession = ObjectSchema.create({
       required: true,
     }),
     
-    ip_address: Field.text({
+    ipAddress: Field.text({
       label: 'IP Address',
       required: false,
       maxLength: 45, // Support IPv6
     }),
     
-    user_agent: Field.textarea({
+    userAgent: Field.textarea({
       label: 'User Agent',
       required: false,
     }),
@@ -73,8 +73,8 @@ export const AuthSession = ObjectSchema.create({
   // Database indexes for performance
   indexes: [
     { fields: ['token'], unique: true },
-    { fields: ['user_id'], unique: false },
-    { fields: ['expires_at'], unique: false },
+    { fields: ['userId'], unique: false },
+    { fields: ['expiresAt'], unique: false },
   ],
   
   // Enable features

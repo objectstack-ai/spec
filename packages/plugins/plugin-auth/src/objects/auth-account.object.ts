@@ -5,13 +5,13 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
 /**
  * Auth Account Object
  * 
- * Maps to better-auth's Account schema for OAuth providers:
+ * Uses better-auth's native schema for seamless migration:
  * - id: string
  * - createdAt: Date
  * - updatedAt: Date
  * - providerId: string (e.g., 'google', 'github')
  * - accountId: string (provider's user ID)
- * - userId: string (link to auth_user)
+ * - userId: string (link to user table)
  * - accessToken: string | null
  * - refreshToken: string | null
  * - idToken: string | null
@@ -21,13 +21,13 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * - password: string | null (for email/password provider)
  */
 export const AuthAccount = ObjectSchema.create({
-  name: 'auth_account',
+  name: 'account',
   label: 'Account',
   pluralLabel: 'Accounts',
   icon: 'link',
   description: 'OAuth and authentication provider accounts',
-  titleFormat: '{provider_id} - {account_id}',
-  compactLayout: ['provider_id', 'user_id', 'account_id'],
+  titleFormat: '{providerId} - {accountId}',
+  compactLayout: ['providerId', 'userId', 'accountId'],
   
   fields: {
     id: Field.text({
@@ -36,57 +36,57 @@ export const AuthAccount = ObjectSchema.create({
       readonly: true,
     }),
     
-    created_at: Field.datetime({
+    createdAt: Field.datetime({
       label: 'Created At',
       defaultValue: 'NOW()',
       readonly: true,
     }),
     
-    updated_at: Field.datetime({
+    updatedAt: Field.datetime({
       label: 'Updated At',
       defaultValue: 'NOW()',
       readonly: true,
     }),
     
-    provider_id: Field.text({
+    providerId: Field.text({
       label: 'Provider ID',
       required: true,
       description: 'OAuth provider identifier (google, github, etc.)',
     }),
     
-    account_id: Field.text({
+    accountId: Field.text({
       label: 'Provider Account ID',
       required: true,
       description: "User's ID in the provider's system",
     }),
     
-    user_id: Field.text({
+    userId: Field.text({
       label: 'User ID',
       required: true,
-      description: 'Link to auth_user',
+      description: 'Link to user table',
     }),
     
-    access_token: Field.textarea({
+    accessToken: Field.textarea({
       label: 'Access Token',
       required: false,
     }),
     
-    refresh_token: Field.textarea({
+    refreshToken: Field.textarea({
       label: 'Refresh Token',
       required: false,
     }),
     
-    id_token: Field.textarea({
+    idToken: Field.textarea({
       label: 'ID Token',
       required: false,
     }),
     
-    access_token_expires_at: Field.datetime({
+    accessTokenExpiresAt: Field.datetime({
       label: 'Access Token Expires At',
       required: false,
     }),
     
-    refresh_token_expires_at: Field.datetime({
+    refreshTokenExpiresAt: Field.datetime({
       label: 'Refresh Token Expires At',
       required: false,
     }),
@@ -105,8 +105,8 @@ export const AuthAccount = ObjectSchema.create({
   
   // Database indexes for performance
   indexes: [
-    { fields: ['user_id'], unique: false },
-    { fields: ['provider_id', 'account_id'], unique: true },
+    { fields: ['userId'], unique: false },
+    { fields: ['providerId', 'accountId'], unique: true },
   ],
   
   // Enable features

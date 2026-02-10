@@ -32,14 +32,15 @@ Authentication & Identity Plugin for ObjectStack.
 ### ObjectQL-Based Database Architecture
 - ✅ **Native ObjectQL Data Persistence** - Uses ObjectQL's IDataEngine interface
 - ✅ **No Third-Party ORM** - No dependency on drizzle-orm or other ORMs
+- ✅ **Better-Auth Native Schema** - Uses better-auth's naming conventions for seamless migration
 - ✅ **Object Definitions** - Auth objects defined using ObjectStack's Object Protocol
-  - `auth_user` - User accounts
-  - `auth_session` - Active sessions
-  - `auth_account` - OAuth provider accounts
-  - `auth_verification` - Email/phone verification tokens
+  - `user` - User accounts (better-auth native table name)
+  - `session` - Active sessions (better-auth native table name)
+  - `account` - OAuth provider accounts (better-auth native table name)
+  - `verification` - Email/phone verification tokens (better-auth native table name)
 - ✅ **ObjectQL Adapter** - Custom adapter bridges better-auth to ObjectQL
 
-The plugin uses [better-auth](https://www.better-auth.com/) for robust, production-ready authentication functionality. All requests are forwarded directly to better-auth's universal handler, ensuring full compatibility with all better-auth features. Data persistence is handled by ObjectQL, adhering to ObjectStack's "Data as Code" philosophy.
+The plugin uses [better-auth](https://www.better-auth.com/) for robust, production-ready authentication functionality. All requests are forwarded directly to better-auth's universal handler, ensuring full compatibility with all better-auth features. Data persistence is handled by ObjectQL using **better-auth's native naming conventions** (camelCase) to ensure seamless migration for existing better-auth users.
 
 ## Installation
 
@@ -184,13 +185,16 @@ This architecture provides:
 The plugin uses **ObjectQL** for data persistence instead of third-party ORMs:
 
 ```typescript
-// Object definitions replace ORM schemas
+// Object definitions use better-auth's native naming conventions
 export const AuthUser = ObjectSchema.create({
-  name: 'auth_user',
+  name: 'user',  // better-auth native table name
   fields: {
     id: Field.text({ label: 'User ID', required: true }),
     email: Field.email({ label: 'Email', required: true }),
+    emailVerified: Field.boolean({ label: 'Email Verified' }),  // camelCase
     name: Field.text({ label: 'Name', required: true }),
+    createdAt: Field.datetime({ label: 'Created At' }),  // camelCase
+    updatedAt: Field.datetime({ label: 'Updated At' }),  // camelCase
     // ... other fields
   },
   indexes: [
@@ -206,18 +210,20 @@ export const AuthUser = ObjectSchema.create({
 - ✅ **Type-Safe** - Zod-based schemas provide runtime + compile-time safety
 - ✅ **"Data as Code"** - Object definitions are versioned, declarative code
 - ✅ **Metadata Driven** - Supports migrations, validation, indexing via metadata
+- ✅ **Seamless Migration** - Uses better-auth's native naming (camelCase) for easy migration
 
 **Database Objects:**
-- `auth_user` - User accounts (email, name, emailVerified, etc.)
-- `auth_session` - Active sessions (token, expiresAt, ipAddress, etc.)
-- `auth_account` - OAuth provider accounts (providerId, tokens, etc.)
-- `auth_verification` - Verification tokens (email, phone verification)
+Uses better-auth's native table and field names for compatibility:
+- `user` - User accounts (id, email, name, emailVerified, createdAt, etc.)
+- `session` - Active sessions (id, token, userId, expiresAt, ipAddress, etc.)
+- `account` - OAuth provider accounts (id, providerId, accountId, userId, tokens, etc.)
+- `verification` - Verification tokens (id, value, identifier, expiresAt, etc.)
 
 **Adapter:**
-The `createObjectQLAdapter()` function bridges better-auth's database interface to ObjectQL's IDataEngine:
+The `createObjectQLAdapter()` function bridges better-auth's database interface to ObjectQL's IDataEngine using better-auth's native naming conventions:
 
 ```typescript
-// Better-auth → ObjectQL Adapter
+// Better-auth → ObjectQL Adapter (no name conversion needed)
 const adapter = createObjectQLAdapter(dataEngine);
 
 // Better-auth uses this adapter for all database operations
