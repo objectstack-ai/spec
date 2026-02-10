@@ -35,6 +35,7 @@ export * from './versioning.zod';
 // export type { IObjectStackProtocol } from './protocol';
 
 export * from './auth.zod';
+export * from './auth-endpoints.zod';
 export * from './storage.zod';
 export * from './metadata.zod';
 export * from './dispatcher.zod';
