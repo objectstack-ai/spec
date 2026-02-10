@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [2.0.5] - 2026-02-10
+
+### Changed
+- Unified all package versions to 2.0.5
+- Added `@objectstack/plugin-auth` and `@objectstack/plugin-security` to the changeset fixed versioning group
+- All packages now release together under the same version number
+
 ## [2.0.4] - 2026-02-10
 
 ### Changed
@@ -252,7 +259,9 @@ Mark breaking changes clearly:
 
 ---
 
-[Unreleased]: https://github.com/objectstack-ai/spec/compare/v2.0.3...HEAD
+[Unreleased]: https://github.com/objectstack-ai/spec/compare/v2.0.5...HEAD
+[2.0.5]: https://github.com/objectstack-ai/spec/compare/v2.0.4...v2.0.5
+[2.0.4]: https://github.com/objectstack-ai/spec/compare/v2.0.3...v2.0.4
 [2.0.3]: https://github.com/objectstack-ai/spec/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/objectstack-ai/spec/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/objectstack-ai/spec/compare/v0.9.1...v2.0.1
