@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { ViewSchema } from '../ui/view.zod';
-import { ApiCapabilitiesSchema, ApiRoutesSchema } from './discovery.zod';
+import { ApiCapabilitiesSchema, ApiRoutesSchema, ServiceInfoSchema } from './discovery.zod';
 import { BatchUpdateRequestSchema, BatchUpdateResponseSchema, BatchOptionsSchema } from './batch.zod';
 import { MetadataCacheRequestSchema, MetadataCacheResponseSchema } from './http-cache.zod';
 import { QuerySchema } from '../data/query.zod';
@@ -95,6 +95,7 @@ export const GetDiscoveryResponseSchema = z.object({
   apiName: z.string().describe('API name'),
   capabilities: ApiCapabilitiesSchema.optional().describe('Supported features/capabilities'),
   endpoints: ApiRoutesSchema.optional().describe('Available endpoint paths'),
+  services: z.record(z.string(), ServiceInfoSchema).optional().describe('Per-service availability map'),
 });
 
 /**
