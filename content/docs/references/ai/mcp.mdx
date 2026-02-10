@@ -1,0 +1,149 @@
+---
+title: Mcp
+description: Mcp protocol schemas
+---
+
+Model Context Protocol (MCP)
+
+Defines the protocol for connecting AI assistants to external tools, data sources,
+
+and resources. MCP enables AI models to access contextual information, invoke
+
+functions, and interact with external systems in a standardized way.
+
+Architecture Alignment:
+
+- Anthropic Model Context Protocol (MCP)
+
+- OpenAI Function Calling / Tools
+
+- LangChain Tool Interface
+
+- Microsoft Semantic Kernel Plugins
+
+Use Cases:
+
+- Connect AI agents to ObjectStack data (Objects, Views, Reports)
+
+- Expose business logic as callable tools (Workflows, Flows, Actions)
+
+- Provide dynamic context to AI models (User profile, Recent activity)
+
+- Enable AI to read and modify data through standardized interfaces
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/mcp.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { MCPCapability, MCPClientConfig, MCPPrompt, MCPPromptArgument, MCPPromptMessage, MCPPromptRequest, MCPPromptResponse, MCPResource, MCPResourceRequest, MCPResourceResponse, MCPResourceTemplate, MCPResourceType, MCPServerConfig, MCPServerInfo, MCPTool, MCPToolCallRequest, MCPToolCallResponse, MCPToolParameter, MCPTransportConfig, MCPTransportType } from '@objectstack/spec/ai';
+import type { MCPCapability, MCPClientConfig, MCPPrompt, MCPPromptArgument, MCPPromptMessage, MCPPromptRequest, MCPPromptResponse, MCPResource, MCPResourceRequest, MCPResourceResponse, MCPResourceTemplate, MCPResourceType, MCPServerConfig, MCPServerInfo, MCPTool, MCPToolCallRequest, MCPToolCallResponse, MCPToolParameter, MCPTransportConfig, MCPTransportType } from '@objectstack/spec/ai';
+
+// Validate data
+const result = MCPCapability.parse(data);
+```
+
+---
+
+## MCPCapability
+
+
+---
+
+## MCPClientConfig
+
+
+---
+
+## MCPPrompt
+
+
+---
+
+## MCPPromptArgument
+
+
+---
+
+## MCPPromptMessage
+
+
+---
+
+## MCPPromptRequest
+
+
+---
+
+## MCPPromptResponse
+
+
+---
+
+## MCPResource
+
+
+---
+
+## MCPResourceRequest
+
+
+---
+
+## MCPResourceResponse
+
+
+---
+
+## MCPResourceTemplate
+
+
+---
+
+## MCPResourceType
+
+
+---
+
+## MCPServerConfig
+
+
+---
+
+## MCPServerInfo
+
+
+---
+
+## MCPTool
+
+
+---
+
+## MCPToolCallRequest
+
+
+---
+
+## MCPToolCallResponse
+
+
+---
+
+## MCPToolParameter
+
+
+---
+
+## MCPTransportConfig
+
+
+---
+
+## MCPTransportType
+
+
+---
+
