@@ -389,7 +389,7 @@ describe('Auth enhancements', () => {
         });
         expect(result.data.token).toBe('new-token');
         const [url, opts] = fetchMock.mock.calls[0];
-        expect(url).toContain('/api/v1/auth/register');
+        expect(url).toContain('/api/v1/auth/sign-up/email'); // Updated to better-auth endpoint
         expect(opts.method).toBe('POST');
         // Token should be auto-set
         expect((client as any).token).toBe('new-token');
@@ -402,10 +402,8 @@ describe('Auth enhancements', () => {
         const result = await client.auth.refreshToken('old-refresh-token');
         expect(result.data.token).toBe('refreshed-token');
         const [url, opts] = fetchMock.mock.calls[0];
-        expect(url).toContain('/api/v1/auth/refresh');
-        expect(opts.method).toBe('POST');
-        const body = JSON.parse(opts.body);
-        expect(body.refreshToken).toBe('old-refresh-token');
+        expect(url).toContain('/api/v1/auth/get-session'); // Updated: better-auth uses get-session for refresh
+        expect(opts.method).toBe('GET'); // Updated: GET instead of POST
         // Token should be auto-set
         expect((client as any).token).toBe('refreshed-token');
     });

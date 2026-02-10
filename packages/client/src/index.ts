@@ -479,9 +479,13 @@ export class ObjectStackClient {
    * Authentication Services
    */
   auth = {
+    /**
+     * Login with email and password
+     * Uses better-auth endpoint: POST /sign-in/email
+     */
     login: async (request: LoginRequest): Promise<SessionResponse> => {
         const route = this.getRoute('auth');
-        const res = await this.fetch(`${this.baseUrl}${route}/login`, {
+        const res = await this.fetch(`${this.baseUrl}${route}/sign-in/email`, {
             method: 'POST',
             body: JSON.stringify(request)
         });
@@ -493,24 +497,33 @@ export class ObjectStackClient {
         return data;
     },
     
+    /**
+     * Logout current user
+     * Uses better-auth endpoint: POST /sign-out
+     */
     logout: async () => {
         const route = this.getRoute('auth');
-        await this.fetch(`${this.baseUrl}${route}/logout`, { method: 'POST' });
+        await this.fetch(`${this.baseUrl}${route}/sign-out`, { method: 'POST' });
         this.token = undefined;
     },
 
+    /**
+     * Get current user session
+     * Uses better-auth endpoint: GET /get-session
+     */
     me: async (): Promise<SessionResponse> => {
         const route = this.getRoute('auth');
-        const res = await this.fetch(`${this.baseUrl}${route}/me`);
+        const res = await this.fetch(`${this.baseUrl}${route}/get-session`);
         return res.json();
     },
 
     /**
      * Register a new user account
+     * Uses better-auth endpoint: POST /sign-up/email
      */
     register: async (request: RegisterRequest): Promise<SessionResponse> => {
       const route = this.getRoute('auth');
-      const res = await this.fetch(`${this.baseUrl}${route}/register`, {
+      const res = await this.fetch(`${this.baseUrl}${route}/sign-up/email`, {
         method: 'POST',
         body: JSON.stringify(request)
       });
@@ -523,12 +536,15 @@ export class ObjectStackClient {
 
     /**
      * Refresh an authentication token
+     * Note: better-auth handles token refresh automatically via /get-session
+     * @param _refreshToken - Not used (better-auth handles refresh automatically)
      */
-    refreshToken: async (refreshToken: string): Promise<SessionResponse> => {
+    refreshToken: async (_refreshToken: string): Promise<SessionResponse> => {
       const route = this.getRoute('auth');
-      const res = await this.fetch(`${this.baseUrl}${route}/refresh`, {
-        method: 'POST',
-        body: JSON.stringify({ refreshToken })
+      // better-auth doesn't have a separate refresh endpoint
+      // Session refresh is handled automatically when calling /get-session
+      const res = await this.fetch(`${this.baseUrl}${route}/get-session`, {
+        method: 'GET'
       });
       const data = await res.json();
       if (data.data?.token) {
