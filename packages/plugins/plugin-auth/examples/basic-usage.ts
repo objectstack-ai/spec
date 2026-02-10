@@ -3,8 +3,9 @@
 /**
  * Auth Plugin Usage Example
  * 
- * This example demonstrates how to use the AuthPlugin
- * in an ObjectStack application.
+ * This example demonstrates how to use the AuthPlugin with better-auth
+ * in an ObjectStack application. All requests are forwarded directly
+ * to better-auth's universal handler.
  */
 
 import { ObjectKernel } from '@objectstack/core';
@@ -68,11 +69,24 @@ async function main() {
     await kernel.start();
     
     console.log('🚀 Server started with auth plugin');
-    console.log('📍 Auth endpoints available at:');
-    console.log('   - POST http://localhost:3000/api/v1/auth/login');
-    console.log('   - POST http://localhost:3000/api/v1/auth/register');
-    console.log('   - POST http://localhost:3000/api/v1/auth/logout');
-    console.log('   - GET  http://localhost:3000/api/v1/auth/session');
+    console.log('📍 Better-auth endpoints available at:');
+    console.log('');
+    console.log('   Email/Password:');
+    console.log('   - POST http://localhost:3000/api/v1/auth/sign-up/email');
+    console.log('   - POST http://localhost:3000/api/v1/auth/sign-in/email');
+    console.log('   - POST http://localhost:3000/api/v1/auth/sign-out');
+    console.log('   - GET  http://localhost:3000/api/v1/auth/get-session');
+    console.log('');
+    console.log('   Password Management:');
+    console.log('   - POST http://localhost:3000/api/v1/auth/forget-password');
+    console.log('   - POST http://localhost:3000/api/v1/auth/reset-password');
+    console.log('');
+    console.log('   OAuth (if configured):');
+    console.log('   - GET  http://localhost:3000/api/v1/auth/authorize/google');
+    console.log('   - GET  http://localhost:3000/api/v1/auth/authorize/github');
+    console.log('');
+    console.log('   See https://www.better-auth.com/docs for complete API reference');
+    console.log('');
     
     // Access the auth service from the kernel
     const authService = kernel.getService('auth');
