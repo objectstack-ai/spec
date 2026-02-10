@@ -9,7 +9,7 @@
 
 import { ObjectKernel } from '@objectstack/core';
 import { ObjectQL } from '@objectstack/objectql';
-import { MemoryDriver } from '@objectstack/driver-memory';
+import { InMemoryDriver } from '@objectstack/driver-memory';
 import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
 import { AuthPlugin } from '@objectstack/plugin-auth';
 
@@ -18,44 +18,41 @@ async function main() {
 
   // 1. Create ObjectQL instance with in-memory driver
   const objectql = new ObjectQL();
-  await objectql.registerDriver('memory', new MemoryDriver());
+  await objectql.registerDriver(new InMemoryDriver());
 
-  // 2. Create kernel with authentication enabled
-  const kernel = new ObjectKernel({
-    plugins: [
-      // HTTP server plugin
-      new HonoServerPlugin({
-        port: 3000,
-      }),
-      
-      // Authentication plugin
-      new AuthPlugin({
-        secret: process.env.AUTH_SECRET || 'dev-secret-please-change-in-production-min-32-chars',
-        baseUrl: 'http://localhost:3000',
-        // Optional: Enable OAuth providers
-        // providers: [
-        //   {
-        //     id: 'google',
-        //     clientId: process.env.GOOGLE_CLIENT_ID!,
-        //     clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        //   }
-        // ],
-        // Optional: Enable advanced features
-        // plugins: {
-        //   organization: true,  // Multi-tenant support
-        //   twoFactor: true,     // 2FA
-        //   passkeys: true,      // WebAuthn/Passkeys
-        //   magicLink: true,     // Passwordless auth
-        // }
-      }),
-    ],
-  });
+  // 2. Create kernel
+  const kernel = new ObjectKernel();
 
   // 3. Register ObjectQL as data service
   kernel.registerService('data', objectql);
 
-  // 4. Start the kernel
-  await kernel.start();
+  // 4. Register plugins
+  await kernel.use(new HonoServerPlugin({
+    port: 3000,
+  }));
+  
+  await kernel.use(new AuthPlugin({
+    secret: process.env.AUTH_SECRET || 'dev-secret-please-change-in-production-min-32-chars',
+    baseUrl: 'http://localhost:3000',
+    // Optional: Enable OAuth providers
+    // providers: [
+    //   {
+    //     id: 'google',
+    //     clientId: process.env.GOOGLE_CLIENT_ID!,
+    //     clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    //   }
+    // ],
+    // Optional: Enable advanced features
+    // plugins: {
+    //   organization: true,  // Multi-tenant support
+    //   twoFactor: true,     // 2FA
+    //   passkeys: true,      // WebAuthn/Passkeys
+    //   magicLink: true,     // Passwordless auth
+    // }
+  }));
+
+  // 5. Bootstrap the kernel
+  await kernel.bootstrap();
 
   console.log('✅ Server started successfully!\n');
   console.log('📍 Available Authentication Endpoints:');
@@ -75,7 +72,7 @@ async function main() {
   // Keep the process running
   process.on('SIGINT', async () => {
     console.log('\n🛑 Shutting down...');
-    await kernel.destroy();
+    await kernel.shutdown();
     process.exit(0);
   });
 }

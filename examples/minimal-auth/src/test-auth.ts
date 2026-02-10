@@ -41,6 +41,7 @@ async function testAuthFlow() {
     // 4. Login again
     console.log('\n🔐 Logging in...');
     const loginResult = await client.auth.login({
+      type: 'email',
       email: 'test@example.com',
       password: 'SecurePassword123!'
     });

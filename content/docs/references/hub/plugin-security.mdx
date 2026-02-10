@@ -1,0 +1,260 @@
+---
+title: Plugin Security
+description: Plugin Security protocol schemas
+---
+
+<Callout type="info">
+**Source:** `packages/spec/src/hub/plugin-security.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { DependencyGraph, DependencyGraphNode, PackageDependency, PackageDependencyConflict, PackageDependencyResolutionResult, PluginProvenance, PluginTrustScore, SBOM, SBOMEntry, SecurityPolicy, SecurityScanResult, SecurityVulnerability, VulnerabilitySeverity } from '@objectstack/spec/hub';
+import type { DependencyGraph, DependencyGraphNode, PackageDependency, PackageDependencyConflict, PackageDependencyResolutionResult, PluginProvenance, PluginTrustScore, SBOM, SBOMEntry, SecurityPolicy, SecurityScanResult, SecurityVulnerability, VulnerabilitySeverity } from '@objectstack/spec/hub';
+
+// Validate data
+const result = DependencyGraph.parse(data);
+```
+
+---
+
+## DependencyGraph
+
+Complete dependency graph for a package and its transitive dependencies
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **root** | `Object` | ✅ | Root package of the dependency graph |
+| **nodes** | `Object[]` | ✅ | All resolved package nodes in the dependency graph |
+| **edges** | `Object[]` | ✅ | Directed edges representing dependency relationships |
+| **stats** | `Object` | ✅ | Summary statistics for the dependency graph |
+
+
+---
+
+## DependencyGraphNode
+
+A node in the dependency graph representing a resolved package
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier of the package |
+| **version** | `string` | ✅ | Resolved version of the package |
+| **dependencies** | `Object[]` | ✅ | Dependencies required by this package |
+| **depth** | `integer` | ✅ | Depth level in the dependency tree (0 = root) |
+| **isDirect** | `boolean` | ✅ | Whether this is a direct (top-level) dependency |
+| **metadata** | `Object` | optional | Additional metadata about the package |
+
+
+---
+
+## PackageDependency
+
+A package dependency with its version constraint
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Package name or identifier |
+| **versionConstraint** | `string` | ✅ | Semver range (e.g., `^1.0.0`, `>=2.0.0 <3.0.0`) |
+| **type** | `Enum<'required' \| 'optional' \| 'peer' \| 'dev'>` | ✅ | Category of the dependency relationship |
+| **resolvedVersion** | `string` | optional | Concrete version resolved during dependency resolution |
+
+
+---
+
+## PackageDependencyConflict
+
+A detected conflict between dependency version requirements
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **package** | `string` | ✅ | Name of the package with conflicting version requirements |
+| **conflicts** | `Object[]` | ✅ | List of conflicting version requirements |
+| **resolution** | `Object` | optional | Suggested resolution for the conflict |
+| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ | Severity level of the dependency conflict |
+
+
+---
+
+## PackageDependencyResolutionResult
+
+Result of a dependency resolution process
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **status** | `Enum<'success' \| 'conflict' \| 'error'>` | ✅ | Overall status of the dependency resolution |
+| **graph** | `Object` | optional | Resolved dependency graph if resolution succeeded |
+| **conflicts** | `Object[]` | ✅ | List of dependency conflicts detected during resolution |
+| **errors** | `Object[]` | ✅ | Errors encountered during dependency resolution |
+| **installOrder** | `string[]` | ✅ | Topologically sorted list of package IDs for installation |
+| **resolvedIn** | `integer` | optional | Time taken to resolve dependencies in milliseconds |
+
+
+---
+
+## PluginProvenance
+
+Verifiable provenance and chain of custody for a plugin artifact
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **pluginId** | `string` | ✅ | Unique identifier of the plugin |
+| **version** | `string` | ✅ | Version of the plugin artifact |
+| **build** | `Object` | ✅ | Build provenance information |
+| **artifacts** | `Object[]` | ✅ | List of build artifacts with integrity hashes |
+| **signatures** | `Object[]` | ✅ | Cryptographic signatures for the plugin artifact |
+| **attestations** | `Object[]` | ✅ | Verification attestations for the plugin |
+
+
+---
+
+## PluginTrustScore
+
+Trust score and verification status for a plugin
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **pluginId** | `string` | ✅ | Unique identifier of the plugin |
+| **score** | `number` | ✅ | Overall trust score from 0 to 100 |
+| **components** | `Object` | ✅ | Individual score components contributing to the overall trust score |
+| **level** | `Enum<'verified' \| 'trusted' \| 'neutral' \| 'untrusted' \| 'blocked'>` | ✅ | Computed trust level based on the overall score |
+| **badges** | `Enum<'official' \| 'verified-vendor' \| 'security-scanned' \| 'code-signed' \| 'open-source' \| 'popular'>[]` | ✅ | Verification badges earned by the plugin |
+| **updatedAt** | `string` | ✅ | ISO 8601 timestamp when the trust score was last updated |
+
+
+---
+
+## SBOM
+
+Software Bill of Materials for a plugin
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **format** | `Enum<'spdx' \| 'cyclonedx'>` | ✅ | SBOM standard format used |
+| **version** | `string` | ✅ | Version of the SBOM specification |
+| **plugin** | `Object` | ✅ | Metadata about the plugin this SBOM describes |
+| **components** | `Object[]` | ✅ | List of software components included in the plugin |
+| **generatedAt** | `string` | ✅ | ISO 8601 timestamp when the SBOM was generated |
+| **generator** | `Object` | optional | Tool used to generate this SBOM |
+
+
+---
+
+## SBOMEntry
+
+A single entry in a Software Bill of Materials
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Name of the software component |
+| **version** | `string` | ✅ | Version of the software component |
+| **purl** | `string` | optional | Package URL identifier |
+| **license** | `string` | optional | SPDX license identifier of the component |
+| **hashes** | `Object` | optional | Cryptographic hashes for integrity verification |
+| **supplier** | `Object` | optional | Supplier information for the component |
+| **externalRefs** | `Object[]` | ✅ | External references related to the component |
+
+
+---
+
+## SecurityPolicy
+
+Security policy governing plugin scanning and enforcement
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for the security policy |
+| **name** | `string` | ✅ | Human-readable name of the security policy |
+| **autoScan** | `Object` | ✅ | Automatic security scanning configuration |
+| **thresholds** | `Object` | ✅ | Vulnerability count thresholds for policy enforcement |
+| **allowedLicenses** | `string[]` | ✅ | List of SPDX license identifiers that are permitted |
+| **prohibitedLicenses** | `string[]` | ✅ | List of SPDX license identifiers that are prohibited |
+| **codeSigning** | `Object` | optional | Code signing requirements for plugin artifacts |
+| **sandbox** | `Object` | optional | Sandbox restrictions for plugin execution |
+
+
+---
+
+## SecurityScanResult
+
+Result of a security scan performed on a plugin
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **scanId** | `string` | ✅ | Unique identifier for this security scan |
+| **plugin** | `Object` | ✅ | Plugin that was scanned |
+| **scannedAt** | `string` | ✅ | ISO 8601 timestamp when the scan was performed |
+| **scanner** | `Object` | ✅ | Information about the scanner tool used |
+| **status** | `Enum<'passed' \| 'failed' \| 'warning'>` | ✅ | Overall result status of the security scan |
+| **vulnerabilities** | `Object[]` | ✅ | List of vulnerabilities discovered during the scan |
+| **summary** | `Object` | ✅ | Summary counts of vulnerabilities by severity |
+| **licenseIssues** | `Object[]` | ✅ | License compliance issues found during the scan |
+| **codeQuality** | `Object` | optional | Code quality analysis results |
+| **nextScanAt** | `string` | optional | ISO 8601 timestamp for the next scheduled scan |
+
+
+---
+
+## SecurityVulnerability
+
+A known security vulnerability in a package dependency
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **cve** | `string` | optional | CVE identifier |
+| **id** | `string` | ✅ | Vulnerability ID |
+| **title** | `string` | ✅ | Short title summarizing the vulnerability |
+| **description** | `string` | ✅ | Detailed description of the vulnerability |
+| **severity** | `Enum<'critical' \| 'high' \| 'medium' \| 'low' \| 'info'>` | ✅ | Severity level of this vulnerability |
+| **cvss** | `number` | optional | CVSS score ranging from 0 to 10 |
+| **package** | `Object` | ✅ | Affected package information |
+| **vulnerableVersions** | `string` | ✅ | Semver range of vulnerable versions |
+| **patchedVersions** | `string` | optional | Semver range of patched versions |
+| **references** | `Object[]` | ✅ | External references related to the vulnerability |
+| **cwe** | `string[]` | ✅ | CWE identifiers associated with this vulnerability |
+| **publishedAt** | `string` | optional | ISO 8601 date when the vulnerability was published |
+| **mitigation** | `string` | optional | Recommended steps to mitigate the vulnerability |
+
+
+---
+
+## VulnerabilitySeverity
+
+Severity level of a security vulnerability
+
+### Allowed Values
+
+* `critical`
+* `high`
+* `medium`
+* `low`
+* `info`
+
+
+---
+
