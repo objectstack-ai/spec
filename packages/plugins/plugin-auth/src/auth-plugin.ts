@@ -1,7 +1,8 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Plugin, PluginContext, IHttpServer } from '@objectstack/core';
+import { Plugin, PluginContext, IHttpServer, IHttpRequest, IHttpResponse } from '@objectstack/core';
 import { AuthConfig } from '@objectstack/spec/system';
+import { AuthManager } from './auth-manager.js';
 
 /**
  * Auth Plugin Options
@@ -37,9 +38,9 @@ export interface AuthPluginOptions extends Partial<AuthConfig> {
  * - `auth` service (auth manager instance)
  * - HTTP routes for authentication endpoints
  * 
- * @planned This is a stub implementation. Full better-auth integration
- * will be added in a future version. For now, it provides the plugin
- * structure and basic route registration.
+ * Integrates with better-auth library to provide comprehensive
+ * authentication capabilities including email/password, OAuth, 2FA,
+ * magic links, passkeys, and organization support.
  */
 export class AuthPlugin implements Plugin {
   name = 'com.objectstack.auth';
@@ -112,7 +113,7 @@ export class AuthPlugin implements Plugin {
     const basePath = this.options.basePath || '/api/v1/auth';
 
     // Login endpoint
-    httpServer.post(`${basePath}/login`, async (req, res) => {
+    httpServer.post(`${basePath}/login`, async (req: IHttpRequest, res: IHttpResponse) => {
       try {
         const body = req.body;
         const result = await this.authManager!.login(body);
@@ -128,7 +129,7 @@ export class AuthPlugin implements Plugin {
     });
 
     // Register endpoint
-    httpServer.post(`${basePath}/register`, async (req, res) => {
+    httpServer.post(`${basePath}/register`, async (req: IHttpRequest, res: IHttpResponse) => {
       try {
         const body = req.body;
         const result = await this.authManager!.register(body);
@@ -144,7 +145,7 @@ export class AuthPlugin implements Plugin {
     });
 
     // Logout endpoint
-    httpServer.post(`${basePath}/logout`, async (req, res) => {
+    httpServer.post(`${basePath}/logout`, async (req: IHttpRequest, res: IHttpResponse) => {
       try {
         const authHeader = req.headers['authorization'];
         const token = typeof authHeader === 'string' ? authHeader.replace('Bearer ', '') : undefined;
@@ -161,7 +162,7 @@ export class AuthPlugin implements Plugin {
     });
 
     // Session endpoint
-    httpServer.get(`${basePath}/session`, async (req, res) => {
+    httpServer.get(`${basePath}/session`, async (req: IHttpRequest, res: IHttpResponse) => {
       try {
         const authHeader = req.headers['authorization'];
         const token = typeof authHeader === 'string' ? authHeader.replace('Bearer ', '') : undefined;
@@ -188,35 +189,5 @@ export class AuthPlugin implements Plugin {
   }
 }
 
-/**
- * Auth Manager
- * 
- * @planned This is a stub implementation. Real authentication logic
- * will be implemented using better-auth or similar library in future versions.
- */
-class AuthManager {
-  constructor(_config: AuthPluginOptions) {
-    // Store config for future use
-  }
 
-  async login(_credentials: any): Promise<any> {
-    // @planned Implement actual login logic with better-auth
-    throw new Error('Login not yet implemented');
-  }
-
-  async register(_userData: any): Promise<any> {
-    // @planned Implement actual registration logic with better-auth
-    throw new Error('Registration not yet implemented');
-  }
-
-  async logout(_token?: string): Promise<void> {
-    // @planned Implement actual logout logic
-    throw new Error('Logout not yet implemented');
-  }
-
-  async getSession(_token?: string): Promise<any> {
-    // @planned Implement actual session retrieval
-    throw new Error('Session retrieval not yet implemented');
-  }
-}
 

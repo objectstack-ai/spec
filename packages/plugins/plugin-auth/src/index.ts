@@ -8,4 +8,5 @@
  */
 
 export * from './auth-plugin';
+export * from './auth-manager';
 export type { AuthConfig, AuthProviderConfig, AuthPluginConfig } from '@objectstack/spec/system';
