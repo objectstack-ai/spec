@@ -10,6 +10,13 @@ export interface ObjectStackHonoOptions {
 }
 
 /**
+ * Auth service interface with handleRequest method
+ */
+interface AuthService {
+  handleRequest(request: Request): Promise<Response>;
+}
+
+/**
  * @deprecated Use `HonoServerPlugin` + `createRestApiPlugin()` + `createDispatcherPlugin()` instead.
  * This function bundles all routes into a single Hono app using the legacy HttpDispatcher.
  * The plugin-based approach provides better modularity and separation of concerns.
@@ -68,7 +75,7 @@ export function createHonoApp(options: ObjectStackHonoOptions) {
     try {
       // Try AuthPlugin service first (preferred path)
       const authService = typeof options.kernel.getService === 'function'
-        ? options.kernel.getService('auth')
+        ? options.kernel.getService<AuthService>('auth')
         : null;
 
       if (authService && typeof authService.handleRequest === 'function') {

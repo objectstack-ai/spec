@@ -9,6 +9,13 @@ export interface NextAdapterOptions {
 }
 
 /**
+ * Auth service interface with handleRequest method
+ */
+interface AuthService {
+  handleRequest(request: Request): Promise<Response>;
+}
+
+/**
  * Creates a route handler for Next.js App Router
  * Handles /api/[...objectstack] pattern
  */
@@ -63,7 +70,7 @@ export function createRouteHandler(options: NextAdapterOptions) {
         if (segments[0] === 'auth') {
            // Try AuthPlugin service first (preferred path)
            const authService = typeof options.kernel.getService === 'function'
-             ? options.kernel.getService('auth')
+             ? options.kernel.getService<AuthService>('auth')
              : null;
 
            if (authService && typeof authService.handleRequest === 'function') {
