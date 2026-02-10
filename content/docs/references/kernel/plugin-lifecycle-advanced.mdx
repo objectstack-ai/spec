@@ -37,148 +37,45 @@ const result = AdvancedPluginLifecycleConfig.parse(data);
 
 ## AdvancedPluginLifecycleConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **health** | `Object` | optional |  |
-| **hotReload** | `Object` | optional |  |
-| **degradation** | `Object` | optional |  |
-| **updates** | `Object` | optional |  |
-| **resources** | `Object` | optional |  |
-| **observability** | `Object` | optional |  |
-
 
 ---
 
 ## DistributedStateConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **provider** | `Enum<'redis' \| 'etcd' \| 'custom'>` | ✅ | Distributed state backend provider |
-| **endpoints** | `string[]` | optional | Backend connection endpoints |
-| **keyPrefix** | `string` | optional | Prefix for all keys (e.g., "plugin:my-plugin:") |
-| **ttl** | `integer` | optional | State expiration time in seconds |
-| **auth** | `Object` | optional |  |
-| **replication** | `Object` | optional |  |
-| **customConfig** | `Record<string, any>` | optional | Provider-specific configuration |
 
 
 ---
 
 ## GracefulDegradation
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **fallbackMode** | `Enum<'minimal' \| 'cached' \| 'readonly' \| 'offline' \| 'disabled'>` | optional |  |
-| **criticalDependencies** | `string[]` | optional | Plugin IDs that are required for operation |
-| **optionalDependencies** | `string[]` | optional | Plugin IDs that are nice to have but not required |
-| **degradedFeatures** | `Object[]` | optional |  |
-| **autoRecovery** | `Object` | optional |  |
-
 
 ---
 
 ## HotReloadConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **watchPatterns** | `string[]` | optional | Glob patterns to watch for changes |
-| **debounceDelay** | `integer` | optional | Wait time after change detection before reload |
-| **preserveState** | `boolean` | optional | Keep plugin state across reloads |
-| **stateStrategy** | `Enum<'memory' \| 'disk' \| 'distributed' \| 'none'>` | optional | How to preserve state during reload |
-| **distributedConfig** | `Object` | optional | Configuration for distributed state management |
-| **shutdownTimeout** | `integer` | optional | Maximum time to wait for graceful shutdown |
-| **beforeReload** | `string[]` | optional | Hook names to call before reload |
-| **afterReload** | `string[]` | optional | Hook names to call after reload |
 
 
 ---
 
 ## PluginHealthCheck
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **interval** | `integer` | optional | How often to perform health checks (default: 30s) |
-| **timeout** | `integer` | optional | Maximum time to wait for health check response |
-| **failureThreshold** | `integer` | optional | Consecutive failures needed to mark unhealthy |
-| **successThreshold** | `integer` | optional | Consecutive successes needed to mark healthy |
-| **checkMethod** | `string` | optional | Method name to call for health check |
-| **autoRestart** | `boolean` | optional | Automatically restart plugin on health check failure |
-| **maxRestartAttempts** | `integer` | optional | Maximum restart attempts before giving up |
-| **restartBackoff** | `Enum<'fixed' \| 'linear' \| 'exponential'>` | optional | Backoff strategy for restart delays |
-
 
 ---
 
 ## PluginHealthReport
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **status** | `Enum<'healthy' \| 'degraded' \| 'unhealthy' \| 'failed' \| 'recovering' \| 'unknown'>` | ✅ | Current health status of the plugin |
-| **timestamp** | `string` | ✅ |  |
-| **message** | `string` | optional |  |
-| **metrics** | `Object` | optional |  |
-| **checks** | `Object[]` | optional |  |
-| **dependencies** | `Object[]` | optional |  |
 
 
 ---
 
 ## PluginHealthStatus
 
-Current health status of the plugin
-
-### Allowed Values
-
-* `healthy`
-* `degraded`
-* `unhealthy`
-* `failed`
-* `recovering`
-* `unknown`
-
 
 ---
 
 ## PluginStateSnapshot
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **pluginId** | `string` | ✅ |  |
-| **version** | `string` | ✅ |  |
-| **timestamp** | `string` | ✅ |  |
-| **state** | `Record<string, any>` | ✅ |  |
-| **metadata** | `Object` | optional |  |
-
 
 ---
 
 ## PluginUpdateStrategy
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **mode** | `Enum<'manual' \| 'automatic' \| 'scheduled' \| 'rolling'>` | optional |  |
-| **autoUpdateConstraints** | `Object` | optional |  |
-| **schedule** | `Object` | optional |  |
-| **rollback** | `Object` | optional |  |
-| **validation** | `Object` | optional |  |
 
 
 ---

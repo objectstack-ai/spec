@@ -25,56 +25,15 @@ const result = Webhook.parse(data);
 
 ## Webhook
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Webhook unique name (lowercase snake_case) |
-| **label** | `string` | optional | Human-readable webhook label |
-| **object** | `string` | optional | Object to listen to (optional for manual webhooks) |
-| **triggers** | `Enum<'create' \| 'update' \| 'delete' \| 'undelete' \| 'api'>[]` | optional | Events that trigger execution |
-| **url** | `string` | ✅ | External webhook endpoint URL |
-| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'PATCH' \| 'DELETE'>` | optional | HTTP method |
-| **headers** | `Record<string, string>` | optional | Custom HTTP headers |
-| **body** | `any` | optional | Request body payload (if not using default record data) |
-| **payloadFields** | `string[]` | optional | Fields to include. Empty = All |
-| **includeSession** | `boolean` | optional | Include user session info |
-| **authentication** | `Object` | optional | Authentication configuration |
-| **retryPolicy** | `Object` | optional | Retry policy configuration |
-| **timeoutMs** | `integer` | optional | Request timeout in milliseconds |
-| **secret** | `string` | optional | Signing secret for HMAC signature verification |
-| **isActive** | `boolean` | optional | Whether webhook is active |
-| **description** | `string` | optional | Webhook description |
-| **tags** | `string[]` | optional | Tags for organization |
-
 
 ---
 
 ## WebhookReceiver
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Webhook receiver unique name (lowercase snake_case) |
-| **path** | `string` | ✅ | URL Path (e.g. /webhooks/stripe) |
-| **verificationType** | `Enum<'none' \| 'header_token' \| 'hmac' \| 'ip_whitelist'>` | optional |  |
-| **verificationParams** | `Object` | optional |  |
-| **action** | `Enum<'trigger_flow' \| 'script' \| 'upsert_record'>` | optional |  |
-| **target** | `string` | ✅ | Flow ID or Script name |
-
 
 ---
 
 ## WebhookTriggerType
-
-### Allowed Values
-
-* `create`
-* `update`
-* `delete`
-* `undelete`
-* `api`
 
 
 ---

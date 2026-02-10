@@ -25,93 +25,25 @@ const result = Page.parse(data);
 
 ## Page
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Page unique name (lowercase snake_case) |
-| **label** | `string` | ✅ |  |
-| **description** | `string` | optional |  |
-| **type** | `Enum<'record' \| 'home' \| 'app' \| 'utility'>` | optional |  |
-| **variables** | `Object[]` | optional | Local page state variables |
-| **object** | `string` | optional | Bound object (for Record pages) |
-| **template** | `string` | optional | Layout template name (e.g. "header-sidebar-main") |
-| **regions** | `Object[]` | ✅ | Defined regions with components |
-| **isDefault** | `boolean` | optional |  |
-| **assignedProfiles** | `string[]` | optional |  |
-
 
 ---
 
 ## PageComponent
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `Enum<'page:header' \| 'page:footer' \| 'page:sidebar' \| 'page:tabs' \| 'page:accordion' \| 'page:card' \| 'page:section' \| 'record:details' \| 'record:highlights' \| 'record:related_list' \| 'record:activity' \| 'record:chatter' \| 'record:path' \| 'app:launcher' \| 'nav:menu' \| 'nav:breadcrumb' \| 'global:search' \| 'global:notifications' \| 'user:profile' \| 'ai:chat_window' \| 'ai:suggestion'> \| string` | ✅ | Component Type (Standard enum or custom string) |
-| **id** | `string` | optional | Unique instance ID |
-| **label** | `string` | optional |  |
-| **properties** | `Record<string, any>` | ✅ | Component props passed to the widget. See component.zod.ts for schemas. |
-| **events** | `Record<string, string>` | optional | Event handlers map |
-| **style** | `Record<string, string>` | optional | Inline styles or utility classes |
-| **className** | `string` | optional | CSS class names |
-| **visibility** | `string` | optional | Visibility filter/formula |
 
 
 ---
 
 ## PageComponentType
 
-### Allowed Values
-
-* `page:header`
-* `page:footer`
-* `page:sidebar`
-* `page:tabs`
-* `page:accordion`
-* `page:card`
-* `page:section`
-* `record:details`
-* `record:highlights`
-* `record:related_list`
-* `record:activity`
-* `record:chatter`
-* `record:path`
-* `app:launcher`
-* `nav:menu`
-* `nav:breadcrumb`
-* `global:search`
-* `global:notifications`
-* `user:profile`
-* `ai:chat_window`
-* `ai:suggestion`
-
 
 ---
 
 ## PageRegion
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Region name (e.g. "sidebar", "main", "header") |
-| **width** | `Enum<'small' \| 'medium' \| 'large' \| 'full'>` | optional |  |
-| **components** | `Object[]` | ✅ | Components in this region |
-
 
 ---
 
 ## PageVariable
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Variable name |
-| **type** | `Enum<'string' \| 'number' \| 'boolean' \| 'object' \| 'array'>` | optional |  |
-| **defaultValue** | `any` | optional |  |
 
 
 ---

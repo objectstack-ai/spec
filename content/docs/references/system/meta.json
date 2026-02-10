@@ -7,9 +7,11 @@
     "change-management",
     "collaboration",
     "compliance",
+    "core-services",
     "encryption",
     "http-server",
     "job",
+    "license",
     "logging",
     "masking",
     "message-queue",
@@ -18,13 +20,11 @@
     "migration",
     "notification",
     "object-storage",
+    "registry-config",
     "search-engine",
-    "service-registry",
+    "tenant",
     "tracing",
     "translation",
-    "worker",
-    "tenant",
-    "license",
-    "registry-config"
+    "worker"
   ]
 }

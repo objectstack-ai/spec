@@ -26,8 +26,8 @@ Isolation Levels:
 ## TypeScript Usage
 
 ```typescript
-import { DatabaseLevelIsolationStrategy, LevelIsolationStrategySchema, RowLevelIsolationStrategy, Tenant, TenantIsolationConfig, TenantIsolationLevel, TenantQuota, TenantSecurityPolicy } from '@objectstack/spec/hub';
-import type { DatabaseLevelIsolationStrategy, LevelIsolationStrategy, RowLevelIsolationStrategy, Tenant, TenantIsolationConfig, TenantIsolationLevel, TenantQuota, TenantSecurityPolicy } from '@objectstack/spec/hub';
+import { DatabaseLevelIsolationStrategy, LevelIsolationStrategySchema, RowLevelIsolationStrategy, Tenant, TenantIsolationConfig, TenantIsolationLevel, TenantQuota, TenantSecurityPolicy } from '@objectstack/spec/system';
+import type { DatabaseLevelIsolationStrategy, LevelIsolationStrategy, RowLevelIsolationStrategy, Tenant, TenantIsolationConfig, TenantIsolationLevel, TenantQuota, TenantSecurityPolicy } from '@objectstack/spec/system';
 
 // Validate data
 const result = DatabaseLevelIsolationStrategy.parse(data);
@@ -37,142 +37,40 @@ const result = DatabaseLevelIsolationStrategy.parse(data);
 
 ## DatabaseLevelIsolationStrategy
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **strategy** | `string` | ✅ | Database-level isolation strategy |
-| **database** | `Object` | optional | Database configuration |
-| **connectionPool** | `Object` | optional | Connection pool configuration |
-| **backup** | `Object` | optional | Backup configuration |
-| **encryption** | `Object` | optional | Encryption configuration |
-
 
 ---
 
 ## LevelIsolationStrategySchema
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **strategy** | `string` | ✅ | Schema-level isolation strategy |
-| **schema** | `Object` | optional | Schema configuration |
-| **migrations** | `Object` | optional | Migration configuration |
-| **performance** | `Object` | optional | Performance settings |
 
 
 ---
 
 ## RowLevelIsolationStrategy
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **strategy** | `string` | ✅ | Row-level isolation strategy |
-| **database** | `Object` | optional | Database configuration |
-| **performance** | `Object` | optional | Performance settings |
-
 
 ---
 
 ## Tenant
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Unique tenant identifier |
-| **name** | `string` | ✅ | Tenant display name |
-| **isolationLevel** | `Enum<'shared_schema' \| 'isolated_schema' \| 'isolated_db'>` | ✅ |  |
-| **customizations** | `Record<string, any>` | optional | Custom configuration values |
-| **quotas** | `Object` | optional |  |
 
 
 ---
 
 ## TenantIsolationConfig
 
-### Union Options
-
-This schema accepts one of the following structures:
-
-#### Option 1
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **strategy** | `string` | ✅ | Row-level isolation strategy |
-| **database** | `Object` | optional | Database configuration |
-| **performance** | `Object` | optional | Performance settings |
-
----
-
-#### Option 2
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **strategy** | `string` | ✅ | Schema-level isolation strategy |
-| **schema** | `Object` | optional | Schema configuration |
-| **migrations** | `Object` | optional | Migration configuration |
-| **performance** | `Object` | optional | Performance settings |
-
----
-
-#### Option 3
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **strategy** | `string` | ✅ | Database-level isolation strategy |
-| **database** | `Object` | optional | Database configuration |
-| **connectionPool** | `Object` | optional | Connection pool configuration |
-| **backup** | `Object` | optional | Backup configuration |
-| **encryption** | `Object` | optional | Encryption configuration |
-
----
-
 
 ---
 
 ## TenantIsolationLevel
-
-### Allowed Values
-
-* `shared_schema`
-* `isolated_schema`
-* `isolated_db`
 
 
 ---
 
 ## TenantQuota
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **maxUsers** | `integer` | optional | Maximum number of users |
-| **maxStorage** | `integer` | optional | Maximum storage in bytes |
-| **apiRateLimit** | `integer` | optional | API requests per minute |
-
 
 ---
 
 ## TenantSecurityPolicy
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **encryption** | `Object` | optional | Encryption requirements |
-| **accessControl** | `Object` | optional | Access control requirements |
-| **compliance** | `Object` | optional | Compliance requirements |
 
 
 ---

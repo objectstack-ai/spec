@@ -25,63 +25,20 @@ const result = Datasource.parse(data);
 
 ## Datasource
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Unique datasource identifier |
-| **label** | `string` | optional | Display label |
-| **driver** | `string` | ✅ | Underlying driver type |
-| **config** | `Record<string, any>` | ✅ | Driver specific configuration |
-| **pool** | `Object` | optional | Connection pool settings |
-| **readReplicas** | `Record<string, any>[]` | optional | Read-only replica configurations |
-| **capabilities** | `Object` | optional | Capability overrides |
-| **description** | `string` | optional | Internal description |
-| **active** | `boolean` | optional | Is datasource enabled |
-
 
 ---
 
 ## DatasourceCapabilities
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **transactions** | `boolean` | optional |  |
-| **queryFilters** | `boolean` | optional |  |
-| **queryAggregations** | `boolean` | optional |  |
-| **querySorting** | `boolean` | optional |  |
-| **queryPagination** | `boolean` | optional |  |
-| **queryWindowFunctions** | `boolean` | optional |  |
-| **querySubqueries** | `boolean` | optional |  |
-| **joins** | `boolean` | optional |  |
-| **fullTextSearch** | `boolean` | optional |  |
-| **readOnly** | `boolean` | optional |  |
-| **dynamicSchema** | `boolean` | optional |  |
 
 
 ---
 
 ## DriverDefinition
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Unique driver identifier (e.g. "postgres") |
-| **label** | `string` | ✅ | Display label (e.g. "PostgreSQL") |
-| **description** | `string` | optional |  |
-| **icon** | `string` | optional |  |
-| **configSchema** | `Record<string, any>` | ✅ | JSON Schema for connection configuration |
-| **capabilities** | `Object` | optional |  |
-
 
 ---
 
 ## DriverType
-
-Underlying driver identifier
 
 
 ---

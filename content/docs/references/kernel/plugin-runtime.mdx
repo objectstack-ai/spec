@@ -1,0 +1,87 @@
+---
+title: Plugin Runtime
+description: Plugin Runtime protocol schemas
+---
+
+# Plugin Runtime Management Protocol
+
+Defines the protocol for dynamic plugin loading, unloading, and discovery
+
+at runtime. Addresses the "Dynamic Loading" gap in the microkernel architecture
+
+by enabling plugins to be loaded and unloaded without restarting the kernel.
+
+Inspired by:
+
+- OSGi Dynamic Module System (bundle lifecycle)
+
+- Kubernetes Operator pattern (reconciliation loop)
+
+- VS Code Extension Host (activation events)
+
+This protocol enables:
+
+- Runtime load/unload of plugins without kernel restart
+
+- Plugin discovery from registries and local filesystem
+
+- Activation events (load plugin only when needed)
+
+- Safe unload with dependency awareness
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/plugin-runtime.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { DynamicLoadRequest, DynamicLoadingConfig, DynamicPluginOperation, DynamicPluginResult, DynamicUnloadRequest, PluginDiscoveryConfig, PluginDiscoverySource, PluginSource } from '@objectstack/spec/kernel';
+import type { DynamicLoadRequest, DynamicLoadingConfig, DynamicPluginOperation, DynamicPluginResult, DynamicUnloadRequest, PluginDiscoveryConfig, PluginDiscoverySource, PluginSource } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = DynamicLoadRequest.parse(data);
+```
+
+---
+
+## DynamicLoadRequest
+
+
+---
+
+## DynamicLoadingConfig
+
+
+---
+
+## DynamicPluginOperation
+
+
+---
+
+## DynamicPluginResult
+
+
+---
+
+## DynamicUnloadRequest
+
+
+---
+
+## PluginDiscoveryConfig
+
+
+---
+
+## PluginDiscoverySource
+
+
+---
+
+## PluginSource
+
+
+---
+

@@ -27,45 +27,15 @@ const result = AuthConfig.parse(data);
 
 ## AuthConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **secret** | `string` | optional | Encryption secret |
-| **baseUrl** | `string` | optional | Base URL for auth routes |
-| **databaseUrl** | `string` | optional | Database connection string |
-| **providers** | `Object[]` | optional |  |
-| **plugins** | `Object` | optional |  |
-| **session** | `Object` | optional |  |
-| **[object Object]** | `any` | optional |  |
-
 
 ---
 
 ## AuthPluginConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **organization** | `boolean` | optional | Enable Organization/Teams support |
-| **twoFactor** | `boolean` | optional | Enable 2FA |
-| **passkeys** | `boolean` | optional | Enable Passkey support |
-| **magicLink** | `boolean` | optional | Enable Magic Link login |
-
 
 ---
 
 ## AuthProviderConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Provider ID (github, google) |
-| **clientId** | `string` | ✅ | OAuth Client ID |
-| **clientSecret** | `string` | ✅ | OAuth Client Secret |
-| **scope** | `string[]` | optional | Requested permissions |
 
 
 ---

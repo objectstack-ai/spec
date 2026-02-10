@@ -30,8 +30,8 @@ Features:
 ## TypeScript Usage
 
 ```typescript
-import { DependencyGraph, DependencyGraphNode, PackageDependency, PluginProvenance, PluginTrustScore, SBOM, SBOMEntry, VulnerabilitySeverity } from '@objectstack/spec/kernel';
-import type { DependencyGraph, DependencyGraphNode, PackageDependency, PluginProvenance, PluginTrustScore, SBOM, SBOMEntry, VulnerabilitySeverity } from '@objectstack/spec/kernel';
+import { DependencyGraph, DependencyGraphNode, PackageDependency, PackageDependencyConflict, PackageDependencyResolutionResult, PluginProvenance, PluginTrustScore, SBOM, SBOMEntry, SecurityPolicy, SecurityScanResult, SecurityVulnerability, VulnerabilitySeverity } from '@objectstack/spec/kernel';
+import type { DependencyGraph, DependencyGraphNode, PackageDependency, PackageDependencyConflict, PackageDependencyResolutionResult, PluginProvenance, PluginTrustScore, SBOM, SBOMEntry, SecurityPolicy, SecurityScanResult, SecurityVulnerability, VulnerabilitySeverity } from '@objectstack/spec/kernel';
 
 // Validate data
 const result = DependencyGraph.parse(data);
@@ -41,122 +41,65 @@ const result = DependencyGraph.parse(data);
 
 ## DependencyGraph
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **root** | `Object` | ✅ |  |
-| **nodes** | `Object[]` | ✅ |  |
-| **edges** | `Object[]` | ✅ |  |
-| **stats** | `Object` | ✅ |  |
-
 
 ---
 
 ## DependencyGraphNode
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ |  |
-| **version** | `string` | ✅ |  |
-| **dependencies** | `Object[]` | optional |  |
-| **depth** | `integer` | ✅ |  |
-| **isDirect** | `boolean` | ✅ |  |
-| **metadata** | `Object` | optional |  |
 
 
 ---
 
 ## PackageDependency
 
-### Properties
 
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ |  |
-| **versionConstraint** | `string` | ✅ | Semver range (e.g., `^1.0.0`, `>=2.0.0 <3.0.0`) |
-| **type** | `Enum<'required' \| 'optional' \| 'peer' \| 'dev'>` | optional |  |
-| **resolvedVersion** | `string` | optional |  |
+---
+
+## PackageDependencyConflict
+
+
+---
+
+## PackageDependencyResolutionResult
 
 
 ---
 
 ## PluginProvenance
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **pluginId** | `string` | ✅ |  |
-| **version** | `string` | ✅ |  |
-| **build** | `Object` | ✅ |  |
-| **artifacts** | `Object[]` | ✅ |  |
-| **signatures** | `Object[]` | optional |  |
-| **attestations** | `Object[]` | optional |  |
-
 
 ---
 
 ## PluginTrustScore
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **pluginId** | `string` | ✅ |  |
-| **score** | `number` | ✅ |  |
-| **components** | `Object` | ✅ |  |
-| **level** | `Enum<'verified' \| 'trusted' \| 'neutral' \| 'untrusted' \| 'blocked'>` | ✅ |  |
-| **badges** | `Enum<'official' \| 'verified-vendor' \| 'security-scanned' \| 'code-signed' \| 'open-source' \| 'popular'>[]` | optional |  |
-| **updatedAt** | `string` | ✅ |  |
 
 
 ---
 
 ## SBOM
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **format** | `Enum<'spdx' \| 'cyclonedx'>` | optional |  |
-| **version** | `string` | ✅ |  |
-| **plugin** | `Object` | ✅ |  |
-| **components** | `Object[]` | ✅ |  |
-| **generatedAt** | `string` | ✅ |  |
-| **generator** | `Object` | optional |  |
-
 
 ---
 
 ## SBOMEntry
 
-### Properties
 
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ |  |
-| **version** | `string` | ✅ |  |
-| **purl** | `string` | optional | Package URL identifier |
-| **license** | `string` | optional |  |
-| **hashes** | `Object` | optional |  |
-| **supplier** | `Object` | optional |  |
-| **externalRefs** | `Object[]` | optional |  |
+---
+
+## SecurityPolicy
+
+
+---
+
+## SecurityScanResult
+
+
+---
+
+## SecurityVulnerability
 
 
 ---
 
 ## VulnerabilitySeverity
-
-### Allowed Values
-
-* `critical`
-* `high`
-* `medium`
-* `low`
-* `info`
 
 
 ---

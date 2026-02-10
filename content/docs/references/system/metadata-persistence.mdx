@@ -25,247 +25,75 @@ const result = MetadataCollectionInfo.parse(data);
 
 ## MetadataCollectionInfo
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **count** | `number` | ✅ |  |
-| **namespaces** | `string[]` | ✅ |  |
-
 
 ---
 
 ## MetadataExportOptions
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **types** | `string[]` | optional |  |
-| **namespaces** | `string[]` | optional |  |
-| **output** | `string` | ✅ | Output directory or file |
-| **format** | `Enum<'json' \| 'yaml' \| 'yml' \| 'ts' \| 'js' \| 'typescript' \| 'javascript'>` | optional |  |
 
 
 ---
 
 ## MetadataFormat
 
-### Allowed Values
-
-* `json`
-* `yaml`
-* `yml`
-* `ts`
-* `js`
-* `typescript`
-* `javascript`
-
 
 ---
 
 ## MetadataImportOptions
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **source** | `string` | ✅ | Input directory or file |
-| **strategy** | `Enum<'merge' \| 'replace' \| 'skip'>` | optional |  |
-| **validate** | `boolean` | optional |  |
 
 
 ---
 
 ## MetadataLoadOptions
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **scope** | `Enum<'system' \| 'platform' \| 'user'>` | optional |  |
-| **namespace** | `string` | optional |  |
-| **raw** | `boolean` | optional | Return raw file content instead of parsed JSON |
-| **cache** | `boolean` | optional |  |
-| **useCache** | `boolean` | optional |  |
-| **validate** | `boolean` | optional |  |
-| **ifNoneMatch** | `string` | optional |  |
-| **recursive** | `boolean` | optional |  |
-| **limit** | `number` | optional |  |
-| **patterns** | `string[]` | optional |  |
-| **loader** | `string` | optional | Specific loader to use (e.g. filesystem, database) |
-
 
 ---
 
 ## MetadataLoadResult
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **data** | `any` | optional |  |
-| **stats** | `Object` | optional |  |
-| **format** | `Enum<'json' \| 'yaml' \| 'yml' \| 'ts' \| 'js' \| 'typescript' \| 'javascript'>` | optional |  |
-| **source** | `string` | optional |  |
-| **fromCache** | `boolean` | optional |  |
-| **etag** | `string` | optional |  |
-| **notModified** | `boolean` | optional |  |
-| **loadTime** | `number` | optional |  |
 
 
 ---
 
 ## MetadataLoaderContract
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ |  |
-| **protocol** | `string` | ✅ |  |
-| **description** | `string` | optional |  |
-| **supportedFormats** | `string[]` | optional |  |
-| **supportsWatch** | `boolean` | optional |  |
-| **supportsWrite** | `boolean` | optional |  |
-| **supportsCache** | `boolean` | optional |  |
-| **capabilities** | `Object` | ✅ |  |
-
 
 ---
 
 ## MetadataManagerConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **loaders** | `any[]` | optional |  |
-| **watch** | `boolean` | optional |  |
-| **cache** | `boolean` | optional |  |
-| **basePath** | `string` | optional |  |
-| **rootDir** | `string` | optional |  |
-| **formats** | `Enum<'json' \| 'yaml' \| 'yml' \| 'ts' \| 'js' \| 'typescript' \| 'javascript'>[]` | optional |  |
-| **watchOptions** | `any` | optional |  |
 
 
 ---
 
 ## MetadataRecord
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **_id** | `string` | ✅ |  |
-| **name** | `string` | ✅ |  |
-| **type** | `string` | ✅ |  |
-| **namespace** | `string` | optional |  |
-| **scope** | `Enum<'system' \| 'platform' \| 'user'>` | optional |  |
-| **metadata** | `Record<string, any>` | ✅ |  |
-| **extends** | `string` | optional | Name of the parent metadata to extend/override |
-| **strategy** | `Enum<'merge' \| 'replace'>` | optional |  |
-| **owner** | `string` | optional |  |
-| **state** | `Enum<'draft' \| 'active' \| 'archived' \| 'deprecated'>` | optional |  |
-| **created_by** | `string` | optional |  |
-| **created_at** | `string` | optional |  |
-| **updated_by** | `string` | optional |  |
-| **updated_at** | `string` | optional |  |
-
 
 ---
 
 ## MetadataSaveOptions
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **format** | `Enum<'json' \| 'yaml' \| 'yml' \| 'ts' \| 'js' \| 'typescript' \| 'javascript'>` | optional |  |
-| **create** | `boolean` | optional |  |
-| **overwrite** | `boolean` | optional |  |
-| **path** | `string` | optional |  |
-| **prettify** | `boolean` | optional |  |
-| **indent** | `number` | optional |  |
-| **sortKeys** | `boolean` | optional |  |
-| **backup** | `boolean` | optional |  |
-| **atomic** | `boolean` | optional |  |
-| **loader** | `string` | optional | Specific loader to use (e.g. filesystem, database) |
 
 
 ---
 
 ## MetadataSaveResult
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ |  |
-| **path** | `string` | optional |  |
-| **stats** | `Object` | optional |  |
-| **etag** | `string` | optional |  |
-| **size** | `number` | optional |  |
-| **saveTime** | `number` | optional |  |
-| **backupPath** | `string` | optional |  |
-
 
 ---
 
 ## MetadataScope
-
-### Allowed Values
-
-* `system`
-* `platform`
-* `user`
 
 
 ---
 
 ## MetadataState
 
-### Allowed Values
-
-* `draft`
-* `active`
-* `archived`
-* `deprecated`
-
 
 ---
 
 ## MetadataStats
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **path** | `string` | optional |  |
-| **size** | `number` | optional |  |
-| **mtime** | `string` | optional |  |
-| **hash** | `string` | optional |  |
-| **etag** | `string` | optional |  |
-| **modifiedAt** | `string` | optional |  |
-| **format** | `Enum<'json' \| 'yaml' \| 'yml' \| 'ts' \| 'js' \| 'typescript' \| 'javascript'>` | optional |  |
-
 
 ---
 
 ## MetadataWatchEvent
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `Enum<'add' \| 'change' \| 'unlink' \| 'added' \| 'changed' \| 'deleted'>` | ✅ |  |
-| **path** | `string` | ✅ |  |
-| **name** | `string` | optional |  |
-| **stats** | `Object` | optional |  |
-| **metadataType** | `string` | optional |  |
-| **data** | `any` | optional |  |
-| **timestamp** | `string` | optional |  |
 
 
 ---
