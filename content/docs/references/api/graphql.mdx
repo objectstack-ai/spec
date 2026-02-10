@@ -135,262 +135,70 @@ const result = GraphQLConfig.parse(data);
 
 ## GraphQLConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional | Enable GraphQL API |
-| **path** | `string` | optional | GraphQL endpoint path |
-| **playground** | `Object` | optional | GraphQL Playground configuration |
-| **schema** | `Object` | optional | Schema generation configuration |
-| **dataLoaders** | `Object[]` | optional | DataLoader configurations |
-| **security** | `Object` | optional | Security configuration |
-
 
 ---
 
 ## GraphQLDataLoaderConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | DataLoader name |
-| **source** | `string` | ✅ | Source object or datasource |
-| **batchFunction** | `Object` | ✅ | Batch function configuration |
-| **cache** | `Object` | optional | DataLoader caching |
-| **options** | `Object` | optional | DataLoader options |
 
 
 ---
 
 ## GraphQLDirectiveConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Directive name (camelCase) |
-| **description** | `string` | optional | Directive description |
-| **locations** | `Enum<'QUERY' \| 'MUTATION' \| 'SUBSCRIPTION' \| 'FIELD' \| 'FRAGMENT_DEFINITION' \| 'FRAGMENT_SPREAD' \| 'INLINE_FRAGMENT' \| 'VARIABLE_DEFINITION' \| 'SCHEMA' \| 'SCALAR' \| 'OBJECT' \| 'FIELD_DEFINITION' \| 'ARGUMENT_DEFINITION' \| 'INTERFACE' \| 'UNION' \| 'ENUM' \| 'ENUM_VALUE' \| 'INPUT_OBJECT' \| 'INPUT_FIELD_DEFINITION'>[]` | ✅ | Directive locations |
-| **args** | `Record<string, Object>` | optional | Directive arguments |
-| **repeatable** | `boolean` | optional | Can be applied multiple times |
-| **implementation** | `Object` | optional | Directive implementation |
-
 
 ---
 
 ## GraphQLDirectiveLocation
-
-### Allowed Values
-
-* `QUERY`
-* `MUTATION`
-* `SUBSCRIPTION`
-* `FIELD`
-* `FRAGMENT_DEFINITION`
-* `FRAGMENT_SPREAD`
-* `INLINE_FRAGMENT`
-* `VARIABLE_DEFINITION`
-* `SCHEMA`
-* `SCALAR`
-* `OBJECT`
-* `FIELD_DEFINITION`
-* `ARGUMENT_DEFINITION`
-* `INTERFACE`
-* `UNION`
-* `ENUM`
-* `ENUM_VALUE`
-* `INPUT_OBJECT`
-* `INPUT_FIELD_DEFINITION`
 
 
 ---
 
 ## GraphQLMutationConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Mutation field name (camelCase recommended) |
-| **object** | `string` | ✅ | Source ObjectQL object name |
-| **type** | `Enum<'create' \| 'update' \| 'delete' \| 'upsert' \| 'custom'>` | ✅ | Mutation type |
-| **description** | `string` | optional | Mutation description |
-| **input** | `Object` | optional | Input configuration |
-| **output** | `Object` | optional | Output configuration |
-| **transaction** | `Object` | optional | Transaction configuration |
-| **authRequired** | `boolean` | optional | Require authentication |
-| **permissions** | `string[]` | optional | Required permissions |
-| **hooks** | `Object` | optional | Lifecycle hooks |
-
 
 ---
 
 ## GraphQLPersistedQuery
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional | Enable persisted queries |
-| **mode** | `Enum<'optional' \| 'required'>` | optional | Persisted query mode (optional: allow both, required: only persisted) |
-| **store** | `Object` | optional | Query store configuration |
-| **apq** | `Object` | optional | Automatic Persisted Queries configuration |
-| **allowlist** | `Object` | optional | Query allow list configuration |
-| **security** | `Object` | optional | Security configuration |
 
 
 ---
 
 ## GraphQLQueryComplexity
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional | Enable query complexity limiting |
-| **maxComplexity** | `integer` | optional | Maximum query complexity |
-| **defaultFieldComplexity** | `integer` | optional | Default complexity per field |
-| **fieldComplexity** | `Record<string, integer \| Object>` | optional | Per-field complexity configuration |
-| **listMultiplier** | `number` | optional | Multiplier for list fields |
-| **onComplexityExceeded** | `Enum<'reject' \| 'log' \| 'warn'>` | optional | Action when complexity exceeded |
-| **errorMessage** | `string` | optional | Custom error message for complexity violations |
-
 
 ---
 
 ## GraphQLQueryConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Query field name (camelCase recommended) |
-| **object** | `string` | ✅ | Source ObjectQL object name |
-| **type** | `Enum<'get' \| 'list' \| 'search'>` | ✅ | Query type |
-| **description** | `string` | optional | Query description |
-| **args** | `Record<string, Object>` | optional | Query arguments |
-| **filtering** | `Object` | optional | Filtering capabilities |
-| **sorting** | `Object` | optional | Sorting capabilities |
-| **pagination** | `Object` | optional | Pagination configuration |
-| **fields** | `Object` | optional | Field selection configuration |
-| **authRequired** | `boolean` | optional | Require authentication |
-| **permissions** | `string[]` | optional | Required permissions |
-| **cache** | `Object` | optional | Query caching |
 
 
 ---
 
 ## GraphQLQueryDepthLimit
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional | Enable query depth limiting |
-| **maxDepth** | `integer` | optional | Maximum query depth |
-| **ignoreFields** | `string[]` | optional | Fields excluded from depth calculation |
-| **onDepthExceeded** | `Enum<'reject' \| 'log' \| 'warn'>` | optional | Action when depth exceeded |
-| **errorMessage** | `string` | optional | Custom error message for depth violations |
-
 
 ---
 
 ## GraphQLRateLimit
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional | Enable rate limiting |
-| **strategy** | `Enum<'token_bucket' \| 'fixed_window' \| 'sliding_window' \| 'cost_based'>` | optional | Rate limiting strategy |
-| **global** | `Object` | optional | Global rate limits |
-| **perUser** | `Object` | optional | Per-user rate limits |
-| **costBased** | `Object` | optional | Cost-based rate limiting |
-| **operations** | `Record<string, Object>` | optional | Per-operation rate limits |
-| **onLimitExceeded** | `Enum<'reject' \| 'queue' \| 'log'>` | optional | Action when rate limit exceeded |
-| **errorMessage** | `string` | optional | Custom error message for rate limit violations |
-| **includeHeaders** | `boolean` | optional | Include rate limit headers in response |
 
 
 ---
 
 ## GraphQLResolverConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **path** | `string` | ✅ | Resolver path (Type.field) |
-| **type** | `Enum<'datasource' \| 'computed' \| 'script' \| 'proxy'>` | ✅ | Resolver implementation type |
-| **implementation** | `Object` | optional | Implementation configuration |
-| **cache** | `Object` | optional | Resolver caching |
-
 
 ---
 
 ## GraphQLScalarType
-
-### Allowed Values
-
-* `ID`
-* `String`
-* `Int`
-* `Float`
-* `Boolean`
-* `DateTime`
-* `Date`
-* `Time`
-* `JSON`
-* `JSONObject`
-* `Upload`
-* `URL`
-* `Email`
-* `PhoneNumber`
-* `Currency`
-* `Decimal`
-* `BigInt`
-* `Long`
-* `UUID`
-* `Base64`
-* `Void`
 
 
 ---
 
 ## GraphQLSubscriptionConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Subscription field name (camelCase recommended) |
-| **object** | `string` | ✅ | Source ObjectQL object name |
-| **events** | `Enum<'created' \| 'updated' \| 'deleted' \| 'custom'>[]` | ✅ | Events to subscribe to |
-| **description** | `string` | optional | Subscription description |
-| **filter** | `Object` | optional | Subscription filtering |
-| **payload** | `Object` | optional | Payload configuration |
-| **authRequired** | `boolean` | optional | Require authentication |
-| **permissions** | `string[]` | optional | Required permissions |
-| **rateLimit** | `Object` | optional | Subscription rate limiting |
-
 
 ---
 
 ## GraphQLTypeConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | GraphQL type name (PascalCase recommended) |
-| **object** | `string` | ✅ | Source ObjectQL object name |
-| **description** | `string` | optional | Type description |
-| **fields** | `Object` | optional | Field configuration |
-| **interfaces** | `string[]` | optional | GraphQL interface names |
-| **isInterface** | `boolean` | optional | Define as GraphQL interface |
-| **directives** | `Object[]` | optional | GraphQL directives |
 
 
 ---

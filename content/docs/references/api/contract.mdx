@@ -23,79 +23,30 @@ const result = ApiError.parse(data);
 
 ## ApiError
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **code** | `string` | ✅ | Error code (e.g. validation_error) |
-| **message** | `string` | ✅ | Readable error message |
-| **category** | `string` | optional | Error category (e.g. validation, authorization) |
-| **details** | `any` | optional | Additional error context (e.g. field validation errors) |
-| **requestId** | `string` | optional | Request ID for tracking |
-
 
 ---
 
 ## BaseResponse
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ | Operation success status |
-| **error** | `Object` | optional | Error details if success is false |
-| **meta** | `Object` | optional | Response metadata |
 
 
 ---
 
 ## BulkRequest
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **records** | `Record<string, any>[]` | ✅ | Array of records to process |
-| **allOrNone** | `boolean` | optional | If true, rollback entire transaction on any failure |
-
 
 ---
 
 ## BulkResponse
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ | Operation success status |
-| **error** | `Object` | optional | Error details if success is false |
-| **meta** | `Object` | optional | Response metadata |
-| **data** | `Object[]` | ✅ | Results for each item in the batch |
 
 
 ---
 
 ## CreateRequest
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **data** | `Record<string, any>` | ✅ | Record data to insert |
-
 
 ---
 
 ## DeleteResponse
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ | Operation success status |
-| **error** | `Object` | optional | Error details if success is false |
-| **meta** | `Object` | optional | Response metadata |
-| **id** | `string` | ✅ | ID of the deleted record |
 
 
 ---
@@ -107,73 +58,30 @@ const result = ApiError.parse(data);
 
 ## IdRequest
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Record ID |
-
 
 ---
 
 ## ListRecordResponse
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ | Operation success status |
-| **error** | `Object` | optional | Error details if success is false |
-| **meta** | `Object` | optional | Response metadata |
-| **data** | `Record<string, any>[]` | ✅ | Array of matching records |
-| **pagination** | `Object` | ✅ | Pagination info |
 
 
 ---
 
 ## ModificationResult
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | optional | Record ID if processed |
-| **success** | `boolean` | ✅ |  |
-| **errors** | `Object[]` | optional |  |
-| **index** | `number` | optional | Index in original request |
-| **data** | `any` | optional | Result data (e.g. created record) |
-
 
 ---
 
 ## RecordData
-
-Key-value map of record data
 
 
 ---
 
 ## SingleRecordResponse
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ | Operation success status |
-| **error** | `Object` | optional | Error details if success is false |
-| **meta** | `Object` | optional | Response metadata |
-| **data** | `Record<string, any>` | ✅ | The requested or modified record |
-
 
 ---
 
 ## UpdateRequest
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **data** | `Record<string, any>` | ✅ | Partial record data to update |
 
 
 ---

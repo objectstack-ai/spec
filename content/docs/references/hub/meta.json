@@ -1,0 +1,10 @@
+{
+  "title": "Hub Protocol",
+  "pages": [
+    "license",
+    "plugin-registry",
+    "plugin-security",
+    "registry-config",
+    "tenant"
+  ]
+}

@@ -21,17 +21,6 @@ const result = RateLimitConfig.parse(data);
 
 ## RateLimitConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **strategy** | `Enum<'fixed_window' \| 'sliding_window' \| 'token_bucket' \| 'leaky_bucket'>` | optional | Rate limiting strategy |
-| **maxRequests** | `number` | ✅ | Maximum requests per window |
-| **windowSeconds** | `number` | ✅ | Time window in seconds |
-| **burstCapacity** | `number` | optional | Burst capacity |
-| **respectUpstreamLimits** | `boolean` | optional | Respect external rate limit headers |
-| **rateLimitHeaders** | `Object` | optional | Custom rate limit headers |
-
 
 ---
 

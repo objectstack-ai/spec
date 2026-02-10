@@ -3,6 +3,22 @@ title: Plugin Versioning
 description: Plugin Versioning protocol schemas
 ---
 
+# Plugin Versioning and Compatibility Protocol
+
+Defines comprehensive versioning, compatibility checking, and dependency
+
+resolution mechanisms for the plugin ecosystem.
+
+Based on semantic versioning (SemVer) with extensions for:
+
+- Compatibility matrices
+
+- Breaking change detection
+
+- Migration paths
+
+- Multi-version support
+
 <Callout type="info">
 **Source:** `packages/spec/src/kernel/plugin-versioning.zod.ts`
 </Callout>
@@ -10,41 +26,66 @@ description: Plugin Versioning protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { DependencyConflict, DependencyResolutionResult } from '@objectstack/spec/kernel';
-import type { DependencyConflict, DependencyResolutionResult } from '@objectstack/spec/kernel';
+import { BreakingChange, CompatibilityLevel, CompatibilityMatrixEntry, DependencyConflict, DependencyResolutionResult, DeprecationNotice, MultiVersionSupport, PluginCompatibilityMatrix, PluginVersionMetadata, SemanticVersion, VersionConstraint } from '@objectstack/spec/kernel';
+import type { BreakingChange, CompatibilityLevel, CompatibilityMatrixEntry, DependencyConflict, DependencyResolutionResult, DeprecationNotice, MultiVersionSupport, PluginCompatibilityMatrix, PluginVersionMetadata, SemanticVersion, VersionConstraint } from '@objectstack/spec/kernel';
 
 // Validate data
-const result = DependencyConflict.parse(data);
+const result = BreakingChange.parse(data);
 ```
 
 ---
 
+## BreakingChange
+
+
+---
+
+## CompatibilityLevel
+
+
+---
+
+## CompatibilityMatrixEntry
+
+
+---
+
 ## DependencyConflict
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **package** | `string` | ✅ |  |
-| **conflicts** | `Object[]` | ✅ |  |
-| **resolution** | `Object` | optional |  |
-| **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 
 
 ---
 
 ## DependencyResolutionResult
 
-### Properties
 
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **status** | `Enum<'success' \| 'conflict' \| 'error'>` | ✅ |  |
-| **graph** | `Object` | optional |  |
-| **conflicts** | `Object[]` | optional |  |
-| **errors** | `Object[]` | optional |  |
-| **installOrder** | `string[]` | optional |  |
-| **resolvedIn** | `integer` | optional |  |
+---
+
+## DeprecationNotice
+
+
+---
+
+## MultiVersionSupport
+
+
+---
+
+## PluginCompatibilityMatrix
+
+
+---
+
+## PluginVersionMetadata
+
+
+---
+
+## SemanticVersion
+
+
+---
+
+## VersionConstraint
 
 
 ---

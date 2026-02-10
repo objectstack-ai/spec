@@ -47,235 +47,65 @@ const result = PluginCaching.parse(data);
 
 ## PluginCaching
 
-Plugin caching configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **storage** | `Enum<'memory' \| 'disk' \| 'indexeddb' \| 'hybrid'>` | optional |  |
-| **keyStrategy** | `Enum<'version' \| 'hash' \| 'timestamp'>` | optional |  |
-| **ttl** | `integer` | optional | Time to live in seconds (0 = infinite) |
-| **maxSize** | `integer` | optional | Max cache size in MB |
-| **invalidateOn** | `Enum<'version-change' \| 'dependency-change' \| 'manual' \| 'error'>[]` | optional |  |
-| **compression** | `Object` | optional |  |
-
 
 ---
 
 ## PluginCodeSplitting
-
-Plugin code splitting configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **strategy** | `Enum<'route' \| 'feature' \| 'size' \| 'custom'>` | optional |  |
-| **chunkNaming** | `Enum<'hashed' \| 'named' \| 'sequential'>` | optional |  |
-| **maxChunkSize** | `integer` | optional | Max chunk size in KB |
-| **sharedDependencies** | `Object` | optional |  |
 
 
 ---
 
 ## PluginDependencyResolution
 
-Plugin dependency resolution configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **strategy** | `Enum<'strict' \| 'compatible' \| 'latest' \| 'pinned'>` | optional |  |
-| **peerDependencies** | `Object` | optional |  |
-| **optionalDependencies** | `Object` | optional |  |
-| **conflictResolution** | `Enum<'fail' \| 'latest' \| 'oldest' \| 'manual'>` | optional |  |
-| **circularDependencies** | `Enum<'error' \| 'warn' \| 'allow'>` | optional |  |
-
 
 ---
 
 ## PluginDynamicImport
-
-Plugin dynamic import configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **mode** | `Enum<'async' \| 'sync' \| 'eager' \| 'lazy'>` | optional |  |
-| **prefetch** | `boolean` | optional | Prefetch module in idle time |
-| **preload** | `boolean` | optional | Preload module in parallel with parent |
-| **webpackChunkName** | `string` | optional | Custom chunk name for webpack |
-| **timeout** | `integer` | optional | Dynamic import timeout (ms) |
-| **retry** | `Object` | optional |  |
 
 
 ---
 
 ## PluginHotReload
 
-Plugin hot reload configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **strategy** | `Enum<'full' \| 'partial' \| 'state-preserve'>` | optional |  |
-| **watchPatterns** | `string[]` | optional | Glob patterns for files to watch |
-| **ignorePatterns** | `string[]` | optional | Glob patterns for files to ignore |
-| **debounceMs** | `integer` | optional |  |
-| **preserveState** | `boolean` | optional |  |
-| **stateSerialization** | `Object` | optional |  |
-| **hooks** | `Object` | optional |  |
-
 
 ---
 
 ## PluginInitialization
-
-Plugin initialization configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **mode** | `Enum<'sync' \| 'async' \| 'parallel' \| 'sequential'>` | optional |  |
-| **timeout** | `integer` | optional |  |
-| **priority** | `integer` | optional |  |
-| **critical** | `boolean` | optional | If true, kernel bootstrap fails if plugin fails |
-| **retry** | `Object` | optional |  |
-| **healthCheckInterval** | `integer` | optional | Health check interval in ms (0 = disabled) |
 
 
 ---
 
 ## PluginLoadingConfig
 
-Complete plugin loading configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **strategy** | `Enum<'eager' \| 'lazy' \| 'parallel' \| 'deferred' \| 'on-demand'>` | optional | Plugin loading strategy |
-| **preload** | `Object` | optional | Plugin preloading configuration |
-| **codeSplitting** | `Object` | optional | Plugin code splitting configuration |
-| **dynamicImport** | `Object` | optional | Plugin dynamic import configuration |
-| **initialization** | `Object` | optional | Plugin initialization configuration |
-| **dependencyResolution** | `Object` | optional | Plugin dependency resolution configuration |
-| **hotReload** | `Object` | optional | Plugin hot reload configuration |
-| **caching** | `Object` | optional | Plugin caching configuration |
-| **sandboxing** | `Object` | optional | Plugin sandboxing configuration |
-| **monitoring** | `Object` | optional | Plugin performance monitoring configuration |
-
 
 ---
 
 ## PluginLoadingEvent
-
-Plugin loading lifecycle event
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `Enum<'load-started' \| 'load-completed' \| 'load-failed' \| 'init-started' \| 'init-completed' \| 'init-failed' \| 'preload-started' \| 'preload-completed' \| 'cache-hit' \| 'cache-miss' \| 'hot-reload'>` | ✅ |  |
-| **pluginId** | `string` | ✅ |  |
-| **timestamp** | `integer` | ✅ |  |
-| **durationMs** | `integer` | optional |  |
-| **metadata** | `Record<string, any>` | optional |  |
-| **error** | `Object` | optional |  |
 
 
 ---
 
 ## PluginLoadingState
 
-Plugin loading state
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **pluginId** | `string` | ✅ |  |
-| **state** | `Enum<'pending' \| 'loading' \| 'loaded' \| 'initializing' \| 'ready' \| 'failed' \| 'reloading'>` | ✅ |  |
-| **progress** | `number` | optional |  |
-| **startedAt** | `integer` | optional |  |
-| **completedAt** | `integer` | optional |  |
-| **lastError** | `string` | optional |  |
-| **retryCount** | `integer` | optional |  |
-
 
 ---
 
 ## PluginLoadingStrategy
-
-Plugin loading strategy
-
-### Allowed Values
-
-* `eager`
-* `lazy`
-* `parallel`
-* `deferred`
-* `on-demand`
 
 
 ---
 
 ## PluginPerformanceMonitoring
 
-Plugin performance monitoring configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **metrics** | `Enum<'load-time' \| 'init-time' \| 'memory-usage' \| 'cpu-usage' \| 'api-calls' \| 'error-rate' \| 'cache-hit-rate'>[]` | optional |  |
-| **samplingRate** | `number` | optional |  |
-| **reportingInterval** | `integer` | optional |  |
-| **budgets** | `Object` | optional |  |
-| **onBudgetViolation** | `Enum<'warn' \| 'error' \| 'ignore'>` | optional |  |
-
 
 ---
 
 ## PluginPreloadConfig
 
-Plugin preloading configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **priority** | `integer` | optional |  |
-| **resources** | `Enum<'metadata' \| 'dependencies' \| 'assets' \| 'code' \| 'services'>[]` | optional |  |
-| **conditions** | `Object` | optional |  |
-
 
 ---
 
 ## PluginSandboxing
-
-Plugin sandboxing configuration
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **isolationLevel** | `Enum<'none' \| 'process' \| 'vm' \| 'iframe' \| 'web-worker'>` | optional |  |
-| **allowedCapabilities** | `string[]` | optional | List of allowed capability IDs |
-| **resourceQuotas** | `Object` | optional |  |
-| **permissions** | `Object` | optional |  |
 
 
 ---

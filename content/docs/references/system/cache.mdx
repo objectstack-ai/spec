@@ -55,59 +55,20 @@ const result = CacheConfig.parse(data);
 
 ## CacheConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | optional |  |
-| **tiers** | `Object[]` | ✅ |  |
-| **invalidation** | `Object[]` | ✅ |  |
-| **prefetch** | `boolean` | optional |  |
-| **compression** | `boolean` | optional |  |
-| **encryption** | `boolean` | optional |  |
-
 
 ---
 
 ## CacheInvalidation
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **trigger** | `Enum<'create' \| 'update' \| 'delete' \| 'manual'>` | ✅ |  |
-| **scope** | `Enum<'key' \| 'pattern' \| 'tag' \| 'all'>` | ✅ |  |
-| **pattern** | `string` | optional |  |
-| **tags** | `string[]` | optional |  |
 
 
 ---
 
 ## CacheStrategy
 
-### Allowed Values
-
-* `lru`
-* `lfu`
-* `fifo`
-* `ttl`
-* `adaptive`
-
 
 ---
 
 ## CacheTier
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ |  |
-| **type** | `Enum<'memory' \| 'redis' \| 'memcached' \| 'cdn'>` | ✅ |  |
-| **maxSize** | `number` | optional | Max size in MB |
-| **ttl** | `number` | optional | Default TTL in seconds |
-| **strategy** | `Enum<'lru' \| 'lfu' \| 'fifo' \| 'ttl' \| 'adaptive'>` | optional |  |
-| **warmup** | `boolean` | optional |  |
 
 
 ---

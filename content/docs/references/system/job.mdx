@@ -25,144 +25,40 @@ const result = CronSchedule.parse(data);
 
 ## CronSchedule
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **expression** | `string` | ✅ | Cron expression (e.g., "0 0 * * *" for daily at midnight) |
-| **timezone** | `string` | optional | Timezone for cron execution (e.g., "America/New_York") |
-
 
 ---
 
 ## IntervalSchedule
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **intervalMs** | `integer` | ✅ | Interval in milliseconds |
 
 
 ---
 
 ## Job
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Unique job identifier |
-| **name** | `string` | ✅ | Job name (snake_case) |
-| **schedule** | `Object \| Object \| Object` | ✅ | Job schedule configuration |
-| **handler** | `string` | ✅ | Handler path (e.g. "path/to/file:functionName") or script ID |
-| **retryPolicy** | `Object` | optional | Retry policy configuration |
-| **timeout** | `integer` | optional | Timeout in milliseconds |
-| **enabled** | `boolean` | optional | Whether the job is enabled |
-
 
 ---
 
 ## JobExecution
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **jobId** | `string` | ✅ | Job identifier |
-| **startedAt** | `string` | ✅ | ISO 8601 datetime when execution started |
-| **completedAt** | `string` | optional | ISO 8601 datetime when execution completed |
-| **status** | `Enum<'running' \| 'success' \| 'failed' \| 'timeout'>` | ✅ | Execution status |
-| **error** | `string` | optional | Error message if failed |
-| **duration** | `integer` | optional | Execution duration in milliseconds |
 
 
 ---
 
 ## JobExecutionStatus
 
-### Allowed Values
-
-* `running`
-* `success`
-* `failed`
-* `timeout`
-
 
 ---
 
 ## OnceSchedule
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **at** | `string` | ✅ | ISO 8601 datetime when to execute |
 
 
 ---
 
 ## RetryPolicy
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **maxRetries** | `integer` | optional | Maximum number of retry attempts |
-| **backoffMs** | `integer` | optional | Initial backoff delay in milliseconds |
-| **backoffMultiplier** | `number` | optional | Multiplier for exponential backoff |
-
 
 ---
 
 ## Schedule
-
-### Union Options
-
-This schema accepts one of the following structures:
-
-#### Option 1
-
-**Type:** `cron`
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **expression** | `string` | ✅ | Cron expression (e.g., "0 0 * * *" for daily at midnight) |
-| **timezone** | `string` | optional | Timezone for cron execution (e.g., "America/New_York") |
-
----
-
-#### Option 2
-
-**Type:** `interval`
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **intervalMs** | `integer` | ✅ | Interval in milliseconds |
-
----
-
-#### Option 3
-
-**Type:** `once`
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **at** | `string` | ✅ | ISO 8601 datetime when to execute |
-
----
 
 
 ---

@@ -25,32 +25,10 @@ const result = KernelContext.parse(data);
 
 ## KernelContext
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **instanceId** | `string` | ✅ | Unique UUID for this running kernel process |
-| **mode** | `Enum<'development' \| 'production' \| 'test' \| 'provisioning'>` | optional | Kernel operating mode |
-| **version** | `string` | ✅ | Kernel version |
-| **appName** | `string` | optional | Host application name |
-| **cwd** | `string` | ✅ | Current working directory |
-| **workspaceRoot** | `string` | optional | Workspace root if different from cwd |
-| **startTime** | `integer` | ✅ | Boot timestamp (ms) |
-| **features** | `Record<string, boolean>` | optional | Global feature toggles |
-
 
 ---
 
 ## RuntimeMode
-
-Kernel operating mode
-
-### Allowed Values
-
-* `development`
-* `production`
-* `test`
-* `provisioning`
 
 
 ---
