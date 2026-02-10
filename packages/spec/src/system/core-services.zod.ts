@@ -60,7 +60,9 @@ export const ServiceRequirementDef = {
   // Required: The kernel cannot function without these
   metadata: 'required',
   data: 'required',
-  auth: 'required',
+
+  // Core: Highly recommended, defaults to in-memory / no-op if missing
+  auth: 'core',
 
   // Core: Highly recommended, defaults to in-memory if missing
   cache: 'core',

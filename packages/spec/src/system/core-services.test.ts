@@ -48,7 +48,7 @@ describe('ServiceRequirementDef', () => {
   it('should define required services', () => {
     expect(ServiceRequirementDef.metadata).toBe('required');
     expect(ServiceRequirementDef.data).toBe('required');
-    expect(ServiceRequirementDef.auth).toBe('required');
+    expect(ServiceRequirementDef.auth).toBe('core');
   });
 
   it('should define core services', () => {
