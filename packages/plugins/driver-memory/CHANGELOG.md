@@ -1,5 +1,14 @@
 # @objectstack/driver-memory
 
+## 2.0.4
+
+### Patch Changes
+
+- Patch release for maintenance and stability improvements
+- Updated dependencies
+  - @objectstack/spec@2.0.4
+  - @objectstack/core@2.0.4
+
 ## 2.0.3
 
 ### Patch Changes
