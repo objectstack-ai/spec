@@ -94,6 +94,77 @@ describe('createHonoApp', () => {
     });
   });
 
+  describe('Auth via AuthPlugin service', () => {
+    it('uses kernel.getService("auth") when available', async () => {
+      const mockHandleRequest = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ user: { id: '1' } }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      );
+      const kernelWithAuth = {
+        ...mockKernel,
+        getService: vi.fn().mockReturnValue({ handleRequest: mockHandleRequest }),
+      };
+      const app = createHonoApp({ kernel: kernelWithAuth });
+      const res = await app.request('/api/auth/sign-in/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'a@b.com', password: 'pass' }),
+      });
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.user.id).toBe('1');
+      expect(kernelWithAuth.getService).toHaveBeenCalledWith('auth');
+      expect(mockHandleRequest).toHaveBeenCalledWith(expect.any(Request));
+      expect(mockDispatcher.handleAuth).not.toHaveBeenCalled();
+    });
+
+    it('falls back to dispatcher.handleAuth when auth service is not available', async () => {
+      const kernelWithoutAuth = {
+        ...mockKernel,
+        getService: vi.fn().mockReturnValue(null),
+      };
+      const app = createHonoApp({ kernel: kernelWithoutAuth });
+      const res = await app.request('/api/auth/login', { method: 'POST' });
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handleAuth).toHaveBeenCalled();
+    });
+
+    it('forwards GET requests to auth service', async () => {
+      const mockHandleRequest = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ session: { token: 'abc' } }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      );
+      const kernelWithAuth = {
+        ...mockKernel,
+        getService: vi.fn().mockReturnValue({ handleRequest: mockHandleRequest }),
+      };
+      const app = createHonoApp({ kernel: kernelWithAuth });
+      const res = await app.request('/api/auth/get-session', { method: 'GET' });
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.session.token).toBe('abc');
+      expect(mockHandleRequest).toHaveBeenCalled();
+    });
+
+    it('returns error when auth service throws', async () => {
+      const mockHandleRequest = vi.fn().mockRejectedValue(new Error('Auth failed'));
+      const kernelWithAuth = {
+        ...mockKernel,
+        getService: vi.fn().mockReturnValue({ handleRequest: mockHandleRequest }),
+      };
+      const app = createHonoApp({ kernel: kernelWithAuth });
+      const res = await app.request('/api/auth/sign-in/email', { method: 'POST' });
+      expect(res.status).toBe(500);
+      const json = await res.json();
+      expect(json.success).toBe(false);
+      expect(json.error.message).toBe('Auth failed');
+    });
+  });
+
   describe('GraphQL Endpoint', () => {
     it('POST /api/graphql calls handleGraphQL', async () => {
       const app = createHonoApp({ kernel: mockKernel });

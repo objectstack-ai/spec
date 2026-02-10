@@ -190,6 +190,109 @@ describe('ObjectStackController', () => {
     });
   });
 
+  describe('auth() via AuthPlugin service', () => {
+    it('uses kernel.getService("auth") when available', async () => {
+      const mockHandleRequest = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ user: { id: '1' } }), {
+          status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
+        }),
+      );
+      const kernelWithAuth = {
+        ...createMockKernel(),
+        getService: vi.fn().mockReturnValue({ handleRequest: mockHandleRequest }),
+      };
+      const svc = new ObjectStackService(kernelWithAuth);
+      const ctrl = new ObjectStackController(svc);
+      const r = createMockRes();
+      const req = {
+        params: { 0: 'sign-in/email' },
+        url: '/api/auth/sign-in/email',
+        method: 'POST',
+        protocol: 'http',
+        get: (key: string) => key === 'host' ? 'localhost' : undefined,
+        headers: { 'content-type': 'application/json' },
+        originalUrl: '/api/auth/sign-in/email',
+      };
+
+      await ctrl.auth(req, r, { email: 'a@b.com', password: 'pass' });
+
+      expect(kernelWithAuth.getService).toHaveBeenCalledWith('auth');
+      expect(mockHandleRequest).toHaveBeenCalledWith(expect.any(Request));
+      expect(r._status).toBe(200);
+    });
+
+    it('falls back to dispatcher when auth service is not available', async () => {
+      const kernelWithoutAuth = {
+        ...createMockKernel(),
+        getService: vi.fn().mockReturnValue(null),
+      };
+      const svc = new ObjectStackService(kernelWithoutAuth);
+      const ctrl = new ObjectStackController(svc);
+      const r = createMockRes();
+      const req = { params: { 0: 'login' }, url: '/api/auth/login', method: 'POST' };
+
+      await ctrl.auth(req, r, { email: 'a@b.com' });
+
+      expect(svc.dispatcher.handleAuth).toHaveBeenCalled();
+    });
+
+    it('forwards GET requests to auth service', async () => {
+      const mockHandleRequest = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ session: { token: 'abc' } }), {
+          status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
+        }),
+      );
+      const kernelWithAuth = {
+        ...createMockKernel(),
+        getService: vi.fn().mockReturnValue({ handleRequest: mockHandleRequest }),
+      };
+      const svc = new ObjectStackService(kernelWithAuth);
+      const ctrl = new ObjectStackController(svc);
+      const r = createMockRes();
+      const req = {
+        params: { 0: 'get-session' },
+        url: '/api/auth/get-session',
+        method: 'GET',
+        protocol: 'http',
+        get: (key: string) => key === 'host' ? 'localhost' : undefined,
+        headers: {},
+        originalUrl: '/api/auth/get-session',
+      };
+
+      await ctrl.auth(req, r, {});
+
+      expect(mockHandleRequest).toHaveBeenCalled();
+      expect(r._status).toBe(200);
+    });
+
+    it('returns error when auth service throws', async () => {
+      const mockHandleRequest = vi.fn().mockRejectedValue(new Error('Auth failed'));
+      const kernelWithAuth = {
+        ...createMockKernel(),
+        getService: vi.fn().mockReturnValue({ handleRequest: mockHandleRequest }),
+      };
+      const svc = new ObjectStackService(kernelWithAuth);
+      const ctrl = new ObjectStackController(svc);
+      const r = createMockRes();
+      const req = {
+        params: { 0: 'sign-in/email' },
+        url: '/api/auth/sign-in/email',
+        method: 'POST',
+        protocol: 'http',
+        get: (key: string) => key === 'host' ? 'localhost' : undefined,
+        headers: {},
+        originalUrl: '/api/auth/sign-in/email',
+      };
+
+      await ctrl.auth(req, r, {});
+
+      expect(r._status).toBe(500);
+      expect(r._body.success).toBe(false);
+    });
+  });
+
   describe('metadata()', () => {
     it('dispatches to handleMetadata with extracted path', async () => {
       const req = { params: { 0: '' }, url: '/api/meta/objects', method: 'GET' };

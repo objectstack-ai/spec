@@ -66,7 +66,17 @@ export function createHonoApp(options: ObjectStackHonoOptions) {
   // --- 1. Auth ---
   app.all(`${prefix}/auth/*`, async (c) => {
     try {
-      // subpath from /api/auth/login -> login
+      // Try AuthPlugin service first (preferred path)
+      const authService = typeof options.kernel.getService === 'function'
+        ? options.kernel.getService('auth')
+        : null;
+
+      if (authService && typeof authService.handleRequest === 'function') {
+        const response = await authService.handleRequest(c.req.raw);
+        return response;
+      }
+
+      // Fallback to legacy dispatcher
       const path = c.req.path.substring(c.req.path.indexOf('/auth/') + 6);
       const body = await c.req.parseBody().catch(() => ({})); 
       
