@@ -115,7 +115,6 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
             i18n: 'i18n',
             graphql: 'graphql',
             'file-storage': 'storage',
-            search: 'analytics',
         };
 
         const optionalEndpoints: Partial<ApiRoutes> = {
