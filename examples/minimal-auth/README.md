@@ -67,6 +67,14 @@ This will:
 4. Get the current session
 5. Test password reset flow
 
+### 5. Test Dynamic Discovery (Optional)
+
+```bash
+pnpm tsx src/test-discovery.ts
+```
+
+This test demonstrates how the auth service automatically appears in the API discovery response when `plugin-auth` is registered. Before the plugin is registered, `discovery.services.auth.status` is "unavailable". After registration, it becomes "available" with the proper route information.
+
 ## Usage
 
 ### Using the ObjectStack Client
@@ -122,10 +130,57 @@ curl http://localhost:3000/api/v1/auth/get-session \
 ```
 minimal-auth/
 ├── src/
-│   ├── server.ts       # Server setup with AuthPlugin
-│   └── test-auth.ts    # Authentication flow test
+│   ├── server.ts          # Server setup with AuthPlugin
+│   ├── test-auth.ts       # Authentication flow test
+│   └── test-discovery.ts  # Discovery API test (dynamic service detection)
 ├── package.json
 └── README.md
+```
+
+## Dynamic Service Discovery
+
+ObjectStack features a **dynamic service discovery** system that automatically reflects which plugins are registered. This is particularly useful for clients that need to adapt their UI or behavior based on available services.
+
+**Discovery Response Without Auth Plugin:**
+```json
+{
+  "services": {
+    "auth": {
+      "enabled": false,
+      "status": "unavailable",
+      "message": "Install plugin-auth to enable"
+    }
+  }
+}
+```
+
+**Discovery Response With Auth Plugin:**
+```json
+{
+  "services": {
+    "auth": {
+      "enabled": true,
+      "status": "available",
+      "route": "/api/v1/auth",
+      "provider": "plugin-auth"
+    }
+  },
+  "endpoints": {
+    "auth": "/api/v1/auth"
+  }
+}
+```
+
+Clients can use this to check service availability:
+```typescript
+const discovery = await client.getDiscovery();
+if (discovery.services.auth?.enabled) {
+  // Auth is available - show login UI
+  await client.auth.login({ ... });
+} else {
+  // Auth not available - hide login UI
+  console.log(discovery.services.auth?.message);
+}
 ```
 
 ## Advanced Configuration
