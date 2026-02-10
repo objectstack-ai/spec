@@ -1,0 +1,34 @@
+{
+  "name": "@objectstack/example-metadata-objectql",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Example demonstrating ObjectQL metadata service usage",
+  "type": "module",
+  "main": "./src/view-crud.ts",
+  "scripts": {
+    "example:basic": "tsx src/basic-example.ts",
+    "example:view-crud": "tsx src/view-crud.ts",
+    "example:migration": "tsx src/migration-example.ts",
+    "dev": "tsx watch src/view-crud.ts",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@objectstack/core": "workspace:*",
+    "@objectstack/objectql": "workspace:*",
+    "@objectstack/metadata": "workspace:*",
+    "@objectstack/spec": "workspace:*",
+    "@objectstack/driver-memory": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "keywords": [
+    "objectstack",
+    "metadata",
+    "objectql",
+    "example"
+  ],
+  "license": "Apache-2.0"
+}
