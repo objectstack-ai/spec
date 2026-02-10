@@ -329,7 +329,11 @@ Object.entries(CATEGORIES).forEach(([category, title]) => {
   // BUT 'index' must be in 'meta.json' pages? No, index is implicit usually.
   
   // However, Fumadocs often treats folder/index.mdx as the page for the folder.
-  fs.writeFileSync(path.join(DOCS_ROOT, category, 'index.mdx'), mdx);
+  // Ensure directory exists before writing
+  const categoryDir = path.join(DOCS_ROOT, category);
+  if (!fs.existsSync(categoryDir)) fs.mkdirSync(categoryDir, { recursive: true });
+  
+  fs.writeFileSync(path.join(categoryDir, 'index.mdx'), mdx);
   console.log(`✓ Generated ${category}/index.mdx`);
 });
 
