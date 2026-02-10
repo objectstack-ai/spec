@@ -29,54 +29,98 @@ function simpleHash(str: string): string {
 
 export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
     private engine: IDataEngine;
+    private getServicesRegistry?: () => Map<string, any>;
 
-    constructor(engine: IDataEngine) {
+    constructor(engine: IDataEngine, getServicesRegistry?: () => Map<string, any>) {
         this.engine = engine;
+        this.getServicesRegistry = getServicesRegistry;
     }
 
     async getDiscovery() {
+        // Get registered services from kernel if available
+        const registeredServices = this.getServicesRegistry ? this.getServicesRegistry() : new Map();
+        
+        // Build dynamic service info
+        const services: Record<string, any> = {
+            // --- Kernel-provided (objectql is an example kernel implementation) ---
+            metadata:  { enabled: true, status: 'degraded' as const, route: '/api/meta', provider: 'objectql', message: 'In-memory registry only; DB persistence not yet implemented' },
+            data:      { enabled: true, status: 'available' as const, route: '/api/data', provider: 'objectql' },
+            analytics: { enabled: true, status: 'available' as const, route: '/api/analytics', provider: 'objectql' },
+        };
+
+        // Define service configuration for dynamic discovery
+        const serviceConfig: Record<string, { route: string; plugin: string; capability?: string }> = {
+            auth:         { route: '/api/v1/auth', plugin: 'plugin-auth' },
+            automation:   { route: '/api/v1/automation', plugin: 'plugin-automation', capability: 'workflow' },
+            cache:        { route: '/api/v1/cache', plugin: 'plugin-redis' },
+            queue:        { route: '/api/v1/queue', plugin: 'plugin-bullmq' },
+            job:          { route: '/api/v1/jobs', plugin: 'job-scheduler' },
+            ui:           { route: '/api/v1/ui', plugin: 'ui-plugin' },
+            workflow:     { route: '/api/v1/workflow', plugin: 'plugin-workflow', capability: 'workflow' },
+            realtime:     { route: '/api/v1/realtime', plugin: 'plugin-realtime', capability: 'websockets' },
+            notification: { route: '/api/v1/notifications', plugin: 'plugin-notifications', capability: 'notifications' },
+            ai:           { route: '/api/v1/ai', plugin: 'plugin-ai', capability: 'ai' },
+            i18n:         { route: '/api/v1/i18n', plugin: 'plugin-i18n', capability: 'i18n' },
+            graphql:      { route: '/graphql', plugin: 'plugin-graphql', capability: 'graphql' },
+            'file-storage': { route: '/api/v1/storage', plugin: 'plugin-storage', capability: 'files' },
+            search:       { route: '/api/v1/search', plugin: 'plugin-search', capability: 'search' },
+        };
+
+        // Check which services are actually registered
+        for (const [serviceName, config] of Object.entries(serviceConfig)) {
+            if (registeredServices.has(serviceName)) {
+                // Service is registered and available
+                services[serviceName] = {
+                    enabled: true,
+                    status: 'available' as const,
+                    route: config.route,
+                    provider: config.plugin,
+                };
+            } else {
+                // Service is not registered
+                services[serviceName] = {
+                    enabled: false,
+                    status: 'unavailable' as const,
+                    message: `Install ${config.plugin} to enable`,
+                };
+            }
+        }
+
+        // Build capabilities based on available services
+        const capabilities = {
+            graphql: registeredServices.has('graphql'),
+            search: registeredServices.has('search'),
+            websockets: registeredServices.has('realtime'),
+            files: registeredServices.has('file-storage'),
+            analytics: true, // Always available via objectql
+            ai: registeredServices.has('ai'),
+            workflow: registeredServices.has('workflow') || registeredServices.has('automation'),
+            notifications: registeredServices.has('notification'),
+            i18n: registeredServices.has('i18n'),
+        };
+
+        // Build endpoints (only include available services)
+        const endpoints: Record<string, string> = {
+            data: '/api/data',
+            metadata: '/api/meta',
+            analytics: '/api/analytics',
+        };
+
+        // Add routes for available plugin services
+        for (const [serviceName, config] of Object.entries(serviceConfig)) {
+            if (registeredServices.has(serviceName)) {
+                // Map service name to endpoint key (some services use different names)
+                const endpointKey = serviceName === 'file-storage' ? 'storage' : serviceName;
+                endpoints[endpointKey] = config.route;
+            }
+        }
+
         return {
             version: '1.0',
             apiName: 'ObjectStack API',
-            capabilities: {
-                graphql: false,
-                search: false,
-                websockets: false,
-                files: false,
-                analytics: true,
-                ai: false,
-                workflow: false,
-                notifications: false,
-                i18n: false,
-            },
-            endpoints: {
-                data: '/api/data',
-                metadata: '/api/meta',
-                analytics: '/api/analytics',
-            },
-            services: {
-                // --- Kernel-provided (objectql is an example kernel implementation) ---
-                metadata:  { enabled: true, status: 'degraded' as const, route: '/api/meta', provider: 'objectql', message: 'In-memory registry only; DB persistence not yet implemented' },
-                data:      { enabled: true, status: 'available' as const, route: '/api/data', provider: 'objectql' },
-                analytics: { enabled: true, status: 'available' as const, route: '/api/analytics', provider: 'objectql' },
-                // --- Plugin-provided (kernel does NOT handle these) ---
-                auth:         { enabled: false, status: 'unavailable' as const, message: 'Install an auth plugin (e.g. plugin-auth) to enable' },
-                automation:   { enabled: false, status: 'unavailable' as const, message: 'Install an automation plugin (e.g. plugin-automation) to enable' },
-                // --- Core infrastructure (plugin-provided) ---
-                cache:        { enabled: false, status: 'unavailable' as const, message: 'Install a cache plugin (e.g. plugin-redis) to enable' },
-                queue:        { enabled: false, status: 'unavailable' as const, message: 'Install a queue plugin (e.g. plugin-bullmq) to enable' },
-                job:          { enabled: false, status: 'unavailable' as const, message: 'Install a job scheduler plugin to enable' },
-                // --- Optional services (all plugin-provided) ---
-                ui:             { enabled: false, status: 'unavailable' as const, message: 'Install a UI plugin to enable' },
-                workflow:       { enabled: false, status: 'unavailable' as const, message: 'Install a workflow plugin to enable' },
-                realtime:       { enabled: false, status: 'unavailable' as const, message: 'Install a realtime plugin to enable' },
-                notification:   { enabled: false, status: 'unavailable' as const, message: 'Install a notification plugin to enable' },
-                ai:             { enabled: false, status: 'unavailable' as const, message: 'Install an AI plugin to enable' },
-                i18n:           { enabled: false, status: 'unavailable' as const, message: 'Install an i18n plugin to enable' },
-                graphql:        { enabled: false, status: 'unavailable' as const, message: 'Install a GraphQL plugin to enable' },
-                'file-storage': { enabled: false, status: 'unavailable' as const, message: 'Install a file-storage plugin to enable' },
-                search:         { enabled: false, status: 'unavailable' as const, message: 'Install a search plugin to enable' },
-            },
+            capabilities,
+            endpoints,
+            services,
         };
     }
 
