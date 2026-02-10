@@ -87,6 +87,7 @@ await client.auth.register({
 
 // Login (auto-sets token)
 await client.auth.login({
+  type: 'email',
   email: 'user@example.com',
   password: 'SecurePassword123!'
 });

@@ -147,6 +147,7 @@ console.log('Access token:', result.data.token);
 
 ```typescript
 const session = await client.auth.login({
+  type: 'email',
   email: 'user@example.com',
   password: 'securePassword123'
 });
@@ -407,6 +408,7 @@ await client.auth.register({
 
 // Login (auto-sets token)
 await client.auth.login({
+  type: 'email',
   email: 'user@example.com',
   password: 'password123'
 });
@@ -552,6 +554,7 @@ For complete API documentation, see the [Better-Auth API Reference](https://www.
 ```typescript
 try {
   await client.auth.login({
+    type: 'email',
     email: 'user@example.com',
     password: 'wrong-password'
   });
