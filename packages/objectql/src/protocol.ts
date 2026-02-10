@@ -8,7 +8,7 @@ import type {
     UpdateManyDataRequest,
     DeleteManyDataRequest
 } from '@objectstack/spec/api';
-import type { MetadataCacheRequest, MetadataCacheResponse } from '@objectstack/spec/api';
+import type { MetadataCacheRequest, MetadataCacheResponse, ServiceInfo } from '@objectstack/spec/api';
 
 // We import SchemaRegistry directly since this class lives in the same package
 import { SchemaRegistry } from './registry.js';
@@ -27,6 +27,27 @@ function simpleHash(str: string): string {
     return Math.abs(hash).toString(16);
 }
 
+/**
+ * Service Configuration for Discovery
+ * Maps service names to their routes and plugin providers
+ */
+const SERVICE_CONFIG: Record<string, { route: string; plugin: string; capability?: string }> = {
+    auth:         { route: '/api/v1/auth', plugin: 'plugin-auth' },
+    automation:   { route: '/api/v1/automation', plugin: 'plugin-automation', capability: 'workflow' },
+    cache:        { route: '/api/v1/cache', plugin: 'plugin-redis' },
+    queue:        { route: '/api/v1/queue', plugin: 'plugin-bullmq' },
+    job:          { route: '/api/v1/jobs', plugin: 'job-scheduler' },
+    ui:           { route: '/api/v1/ui', plugin: 'ui-plugin' },
+    workflow:     { route: '/api/v1/workflow', plugin: 'plugin-workflow', capability: 'workflow' },
+    realtime:     { route: '/api/v1/realtime', plugin: 'plugin-realtime', capability: 'websockets' },
+    notification: { route: '/api/v1/notifications', plugin: 'plugin-notifications', capability: 'notifications' },
+    ai:           { route: '/api/v1/ai', plugin: 'plugin-ai', capability: 'ai' },
+    i18n:         { route: '/api/v1/i18n', plugin: 'plugin-i18n', capability: 'i18n' },
+    graphql:      { route: '/graphql', plugin: 'plugin-graphql', capability: 'graphql' },
+    'file-storage': { route: '/api/v1/storage', plugin: 'plugin-storage', capability: 'files' },
+    search:       { route: '/api/v1/search', plugin: 'plugin-search', capability: 'search' },
+};
+
 export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
     private engine: IDataEngine;
     private getServicesRegistry?: () => Map<string, any>;
@@ -40,34 +61,16 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         // Get registered services from kernel if available
         const registeredServices = this.getServicesRegistry ? this.getServicesRegistry() : new Map();
         
-        // Build dynamic service info
-        const services: Record<string, any> = {
+        // Build dynamic service info with proper typing
+        const services: Record<string, ServiceInfo> = {
             // --- Kernel-provided (objectql is an example kernel implementation) ---
             metadata:  { enabled: true, status: 'degraded' as const, route: '/api/meta', provider: 'objectql', message: 'In-memory registry only; DB persistence not yet implemented' },
             data:      { enabled: true, status: 'available' as const, route: '/api/data', provider: 'objectql' },
             analytics: { enabled: true, status: 'available' as const, route: '/api/analytics', provider: 'objectql' },
         };
 
-        // Define service configuration for dynamic discovery
-        const serviceConfig: Record<string, { route: string; plugin: string; capability?: string }> = {
-            auth:         { route: '/api/v1/auth', plugin: 'plugin-auth' },
-            automation:   { route: '/api/v1/automation', plugin: 'plugin-automation', capability: 'workflow' },
-            cache:        { route: '/api/v1/cache', plugin: 'plugin-redis' },
-            queue:        { route: '/api/v1/queue', plugin: 'plugin-bullmq' },
-            job:          { route: '/api/v1/jobs', plugin: 'job-scheduler' },
-            ui:           { route: '/api/v1/ui', plugin: 'ui-plugin' },
-            workflow:     { route: '/api/v1/workflow', plugin: 'plugin-workflow', capability: 'workflow' },
-            realtime:     { route: '/api/v1/realtime', plugin: 'plugin-realtime', capability: 'websockets' },
-            notification: { route: '/api/v1/notifications', plugin: 'plugin-notifications', capability: 'notifications' },
-            ai:           { route: '/api/v1/ai', plugin: 'plugin-ai', capability: 'ai' },
-            i18n:         { route: '/api/v1/i18n', plugin: 'plugin-i18n', capability: 'i18n' },
-            graphql:      { route: '/graphql', plugin: 'plugin-graphql', capability: 'graphql' },
-            'file-storage': { route: '/api/v1/storage', plugin: 'plugin-storage', capability: 'files' },
-            search:       { route: '/api/v1/search', plugin: 'plugin-search', capability: 'search' },
-        };
-
         // Check which services are actually registered
-        for (const [serviceName, config] of Object.entries(serviceConfig)) {
+        for (const [serviceName, config] of Object.entries(SERVICE_CONFIG)) {
             if (registeredServices.has(serviceName)) {
                 // Service is registered and available
                 services[serviceName] = {
@@ -107,7 +110,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         };
 
         // Add routes for available plugin services
-        for (const [serviceName, config] of Object.entries(serviceConfig)) {
+        for (const [serviceName, config] of Object.entries(SERVICE_CONFIG)) {
             if (registeredServices.has(serviceName)) {
                 // Map service name to endpoint key (some services use different names)
                 const endpointKey = serviceName === 'file-storage' ? 'storage' : serviceName;
