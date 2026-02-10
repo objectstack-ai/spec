@@ -2,7 +2,7 @@
 
 Authentication & Identity Plugin for ObjectStack.
 
-> **✨ Status:** Better-Auth library successfully integrated! Core authentication structure is in place with better-auth v1.4.18. Full API integration and advanced features are in active development.
+> **✨ Status:** ObjectQL-based authentication implementation! Uses ObjectQL for data persistence (no third-party ORM required). Core authentication structure is in place with better-auth v1.4.18.
 
 ## Features
 
@@ -12,6 +12,7 @@ Authentication & Identity Plugin for ObjectStack.
 - ✅ Service registration in ObjectKernel
 - ✅ Configuration schema support
 - ✅ **Better-Auth library integration (v1.4.18)**
+- ✅ **ObjectQL-based database implementation (no ORM required)**
 - ✅ **Direct request forwarding to better-auth handler**
 - ✅ **Wildcard routing (`/api/v1/auth/*`)**
 - ✅ **Full better-auth API access via `auth.api`**
@@ -28,10 +29,17 @@ Authentication & Identity Plugin for ObjectStack.
 - ✅ **Magic Links** - Passwordless authentication (when enabled)
 - ✅ **Organizations** - Multi-tenant support (when enabled)
 
-### In Active Development
-- 🔄 **Database Adapter** - Drizzle ORM integration for data persistence
+### ObjectQL-Based Database Architecture
+- ✅ **Native ObjectQL Data Persistence** - Uses ObjectQL's IDataEngine interface
+- ✅ **No Third-Party ORM** - No dependency on drizzle-orm or other ORMs
+- ✅ **Object Definitions** - Auth objects defined using ObjectStack's Object Protocol
+  - `auth_user` - User accounts
+  - `auth_session` - Active sessions
+  - `auth_account` - OAuth provider accounts
+  - `auth_verification` - Email/phone verification tokens
+- ✅ **ObjectQL Adapter** - Custom adapter bridges better-auth to ObjectQL
 
-The plugin uses [better-auth](https://www.better-auth.com/) for robust, production-ready authentication functionality. All requests are forwarded directly to better-auth's universal handler, ensuring full compatibility with all better-auth features.
+The plugin uses [better-auth](https://www.better-auth.com/) for robust, production-ready authentication functionality. All requests are forwarded directly to better-auth's universal handler, ensuring full compatibility with all better-auth features. Data persistence is handled by ObjectQL, adhering to ObjectStack's "Data as Code" philosophy.
 
 ## Installation
 
@@ -41,18 +49,22 @@ pnpm add @objectstack/plugin-auth
 
 ## Usage
 
-### Basic Setup
+### Basic Setup with ObjectQL
 
 ```typescript
 import { ObjectKernel } from '@objectstack/core';
 import { AuthPlugin } from '@objectstack/plugin-auth';
+import { ObjectQL } from '@objectstack/objectql';
+
+// Initialize ObjectQL as the data engine
+const dataEngine = new ObjectQL();
 
 const kernel = new ObjectKernel({
   plugins: [
     new AuthPlugin({
       secret: process.env.AUTH_SECRET,
       baseUrl: 'http://localhost:3000',
-      databaseUrl: process.env.DATABASE_URL,
+      // ObjectQL will be automatically injected by the kernel
       providers: [
         {
           id: 'google',
@@ -65,13 +77,14 @@ const kernel = new ObjectKernel({
 });
 ```
 
+**Note:** The `databaseUrl` parameter is no longer used. The plugin now uses ObjectQL's IDataEngine interface, which is provided by the kernel's `data` service. This allows the plugin to work with any ObjectQL-compatible driver (memory, SQL, NoSQL, etc.) without requiring a specific ORM.
+
 ### With Organization Support
 
 ```typescript
 new AuthPlugin({
   secret: process.env.AUTH_SECRET,
   baseUrl: 'http://localhost:3000',
-  databaseUrl: process.env.DATABASE_URL,
   plugins: {
     organization: true,  // Enable organization/teams
     twoFactor: true,     // Enable 2FA
@@ -142,9 +155,11 @@ This package provides authentication services powered by better-auth. Current im
 7. ✅ Full better-auth API support
 8. ✅ OAuth providers (configurable)
 9. ✅ 2FA, passkeys, magic links (configurable)
-10. 🔄 Database adapter integration (in progress)
+10. ✅ ObjectQL-based database implementation (no ORM required)
 
 ### Architecture
+
+#### Request Flow
 
 The plugin uses a **direct forwarding** approach:
 
@@ -163,6 +178,54 @@ This architecture provides:
 - ✅ **Easy updates** - Better-auth updates don't require code changes
 - ✅ **Type safety** - Full TypeScript support from better-auth
 - ✅ **Programmatic API** - Access auth methods via `authManager.api`
+
+#### ObjectQL Database Architecture
+
+The plugin uses **ObjectQL** for data persistence instead of third-party ORMs:
+
+```typescript
+// Object definitions replace ORM schemas
+export const AuthUser = ObjectSchema.create({
+  name: 'auth_user',
+  fields: {
+    id: Field.text({ label: 'User ID', required: true }),
+    email: Field.email({ label: 'Email', required: true }),
+    name: Field.text({ label: 'Name', required: true }),
+    // ... other fields
+  },
+  indexes: [
+    { fields: ['email'], unique: true }
+  ]
+});
+```
+
+**Benefits:**
+- ✅ **No ORM Dependencies** - No drizzle-orm, Prisma, or other ORMs required
+- ✅ **Unified Data Layer** - Uses same data engine as rest of ObjectStack
+- ✅ **Driver Agnostic** - Works with memory, SQL, NoSQL via ObjectQL drivers
+- ✅ **Type-Safe** - Zod-based schemas provide runtime + compile-time safety
+- ✅ **"Data as Code"** - Object definitions are versioned, declarative code
+- ✅ **Metadata Driven** - Supports migrations, validation, indexing via metadata
+
+**Database Objects:**
+- `auth_user` - User accounts (email, name, emailVerified, etc.)
+- `auth_session` - Active sessions (token, expiresAt, ipAddress, etc.)
+- `auth_account` - OAuth provider accounts (providerId, tokens, etc.)
+- `auth_verification` - Verification tokens (email, phone verification)
+
+**Adapter:**
+The `createObjectQLAdapter()` function bridges better-auth's database interface to ObjectQL's IDataEngine:
+
+```typescript
+// Better-auth → ObjectQL Adapter
+const adapter = createObjectQLAdapter(dataEngine);
+
+// Better-auth uses this adapter for all database operations
+const auth = betterAuth({
+  database: adapter,
+  // ... other config
+});
+```
 
 ## Development
 
