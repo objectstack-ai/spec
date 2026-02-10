@@ -207,6 +207,17 @@ export const serveCommand = new Command('serve')
               }
             }
 
+            // Wrap raw config objects (no init/start) into AppPlugin
+            // This handles plugins defined as plain { name, objects, ... } bundles
+            if (pluginToLoad && typeof pluginToLoad === 'object' && !pluginToLoad.init) {
+              try {
+                const { AppPlugin } = await import('@objectstack/runtime');
+                pluginToLoad = new AppPlugin(pluginToLoad);
+              } catch (e: any) {
+                // Fall through to kernel.use which will report the error
+              }
+            }
+
             await kernel.use(pluginToLoad);
             const pluginName = plugin.name || plugin.constructor?.name || 'unnamed';
             trackPlugin(pluginName);
