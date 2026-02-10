@@ -1,5 +1,16 @@
 # @objectstack/runtime
 
+## 2.0.4
+
+### Patch Changes
+
+- Change auth service from required to core criticality level
+- Updated dependencies
+  - @objectstack/spec@2.0.4
+  - @objectstack/core@2.0.4
+  - @objectstack/rest@2.0.4
+  - @objectstack/types@2.0.4
+
 ## 2.0.3
 
 ### Patch Changes

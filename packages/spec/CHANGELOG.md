@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 2.0.4
+
+### Patch Changes
+
+- Change auth service from required to core criticality level
+
 ## 2.0.3
 
 ### Patch Changes

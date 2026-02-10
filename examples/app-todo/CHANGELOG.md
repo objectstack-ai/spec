@@ -1,5 +1,16 @@
 # @objectstack/example-todo
 
+## 1.2.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/runtime@2.0.4
+  - @objectstack/spec@2.0.4
+  - @objectstack/client@2.0.4
+  - @objectstack/objectql@2.0.4
+  - @objectstack/driver-memory@2.0.4
+
 ## 1.2.4
 
 ### Patch Changes
