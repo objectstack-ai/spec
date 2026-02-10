@@ -10,6 +10,7 @@ import path from 'path';
 import fs from 'fs';
 import net from 'net';
 import { createRequire } from 'module';
+import { pathToFileURL } from 'url';
 import { spawn, type ChildProcess } from 'child_process';
 import chalk from 'chalk';
 
@@ -49,13 +50,12 @@ export function resolveStudioPath(): string | null {
     }
   }
 
-  // Fallback: resolve from node_modules
-  // Try resolving from the consumer's working directory first (important for
-  // pnpm strict isolation where the CLI cannot see the consumer's dependencies),
-  // then fall back to resolving from the CLI's own location.
+  // Fallback: resolve from node_modules via createRequire.
+  // Try the consumer's cwd first (pnpm strict isolation means the CLI's own
+  // import.meta.url cannot see the consumer's dependencies), then the CLI itself.
   const resolutionBases = [
-    path.join(cwd, '__placeholder__.js'),   // consumer workspace
-    import.meta.url,                          // CLI package itself
+    pathToFileURL(path.join(cwd, 'package.json')).href,  // consumer workspace
+    import.meta.url,                                       // CLI package itself
   ];
 
   for (const base of resolutionBases) {
@@ -63,13 +63,12 @@ export function resolveStudioPath(): string | null {
       const req = createRequire(base);
       const resolved = req.resolve('@objectstack/studio/package.json');
       return path.dirname(resolved);
-    } catch (e) {
+    } catch {
       // Not resolvable from this base — try next
-      if (process.env.DEBUG) console.error(`  [studio] resolve from ${base} failed:`, (e as Error).message);
     }
   }
 
-  // Last resort: direct filesystem check in node_modules
+  // Last resort: direct filesystem check in cwd/node_modules
   const directPath = path.join(cwd, 'node_modules', '@objectstack', 'studio');
   if (fs.existsSync(path.join(directPath, 'package.json'))) {
     return directPath;

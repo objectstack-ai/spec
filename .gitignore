@@ -45,6 +45,9 @@ temp/
 packages/*/dist/
 packages/*/*.tsbuildinfo
 
+# Generated JSON Schema (rebuilt by `pnpm gen:schema` during build)
+packages/spec/json-schema/
+
 # Exclude generated JS from TypeScript sources
 packages/*/src/**/*.js
 !packages/*/src/**/*.config.js
