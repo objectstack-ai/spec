@@ -142,6 +142,7 @@ os doctor            # Check environment health
 | [`@objectstack/driver-memory`](packages/plugins/driver-memory) | In-memory driver (reference implementation, zero deps) | 🟢 Active |
 | [`@objectstack/plugin-hono-server`](packages/plugins/plugin-hono-server) | HTTP server plugin (Hono-based, auto-discovery) | 🟢 Active |
 | [`@objectstack/plugin-msw`](packages/plugins/plugin-msw) | Mock Service Worker plugin for browser testing | 🟢 Active |
+| [`@objectstack/plugin-auth`](packages/plugins/plugin-auth) | Authentication & identity plugin (structure implemented) | 🟡 In Development |
 
 ### Tools & Apps
 

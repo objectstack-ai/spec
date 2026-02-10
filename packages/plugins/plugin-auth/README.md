@@ -1,15 +1,27 @@
 # @objectstack/plugin-auth
 
-Authentication & Identity Plugin for ObjectStack, powered by [better-auth](https://www.better-auth.com/).
+Authentication & Identity Plugin for ObjectStack.
+
+> **⚠️ Current Status:** This is an initial implementation providing the plugin structure and API route scaffolding. Full better-auth integration and actual authentication logic will be added in a future release.
 
 ## Features
 
-- 🔐 **Session Management** - Secure session handling with automatic refresh
-- 👤 **User Management** - User registration, login, profile management
-- 🔑 **Multiple Auth Providers** - Support for OAuth (Google, GitHub, etc.), email/password, magic links
-- 🏢 **Organization Support** - Multi-tenant organization and team management
-- 🛡️ **Security** - 2FA, passkeys, rate limiting, and security best practices
-- 🔄 **Database Agnostic** - Works with any database supported by better-auth
+### Currently Implemented
+- ✅ Plugin structure following ObjectStack conventions
+- ✅ HTTP route registration for auth endpoints
+- ✅ Service registration in ObjectKernel
+- ✅ Configuration schema support
+- ✅ Comprehensive test coverage (11/11 tests passing)
+
+### Planned for Future Releases
+- 🔄 **Session Management** - Secure session handling with automatic refresh
+- 🔄 **User Management** - User registration, login, profile management
+- 🔄 **Multiple Auth Providers** - Support for OAuth (Google, GitHub, etc.), email/password, magic links
+- 🔄 **Organization Support** - Multi-tenant organization and team management
+- 🔄 **Security** - 2FA, passkeys, rate limiting, and security best practices
+- 🔄 **Database Integration** - Works with any database supported by better-auth
+
+The plugin is designed to eventually use [better-auth](https://www.better-auth.com/) for robust authentication functionality.
 
 ## Installation
 
@@ -71,18 +83,27 @@ The plugin accepts configuration via `AuthConfig` schema from `@objectstack/spec
 
 ## API Routes
 
-The plugin automatically registers the following API routes:
+The plugin registers the following API route scaffolding (implementation to be completed):
 
-- `POST /api/v1/auth/login` - User login
-- `POST /api/v1/auth/register` - User registration
-- `POST /api/v1/auth/logout` - User logout
-- `GET /api/v1/auth/session` - Get current session
-- `POST /api/v1/auth/refresh` - Refresh session token
-- `GET /api/v1/auth/user` - Get current user profile
+- `POST /api/v1/auth/login` - User login (stub)
+- `POST /api/v1/auth/register` - User registration (stub)
+- `POST /api/v1/auth/logout` - User logout (stub)
+- `GET /api/v1/auth/session` - Get current session (stub)
 
-Additional routes for OAuth providers:
-- `GET /api/v1/auth/:provider/login` - OAuth login redirect
-- `GET /api/v1/auth/:provider/callback` - OAuth callback handler
+Additional routes for OAuth providers will be added when better-auth integration is complete.
+
+## Implementation Status
+
+This package provides the foundational plugin structure for authentication in ObjectStack. The actual authentication logic using better-auth will be implemented in upcoming releases. Current implementation includes:
+
+1. ✅ Plugin lifecycle (init, start, destroy)
+2. ✅ HTTP route registration
+3. ✅ Configuration validation
+4. ✅ Service registration
+5. ⏳ Actual authentication logic (planned)
+6. ⏳ Database integration (planned)
+7. ⏳ OAuth providers (planned)
+8. ⏳ Session management (planned)
 
 ## Development
 
