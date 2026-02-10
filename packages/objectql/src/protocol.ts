@@ -8,7 +8,7 @@ import type {
     UpdateManyDataRequest,
     DeleteManyDataRequest
 } from '@objectstack/spec/api';
-import type { MetadataCacheRequest, MetadataCacheResponse, ServiceInfo } from '@objectstack/spec/api';
+import type { MetadataCacheRequest, MetadataCacheResponse, ServiceInfo, ApiRoutes } from '@objectstack/spec/api';
 
 // We import SchemaRegistry directly since this class lives in the same package
 import { SchemaRegistry } from './registry.js';
@@ -103,20 +103,39 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         };
 
         // Build endpoints (only include available services)
-        const endpoints: Record<string, string> = {
-            data: '/api/data',
-            metadata: '/api/meta',
+        // Map service names to ApiRoutes keys
+        const serviceToEndpointKey: Record<string, keyof ApiRoutes> = {
+            auth: 'auth',
+            automation: 'automation',
+            ui: 'ui',
+            workflow: 'workflow',
+            realtime: 'realtime',
+            notification: 'notifications',
+            ai: 'ai',
+            i18n: 'i18n',
+            graphql: 'graphql',
+            'file-storage': 'storage',
+        };
+
+        const optionalEndpoints: Partial<ApiRoutes> = {
             analytics: '/api/analytics',
         };
 
         // Add routes for available plugin services
         for (const [serviceName, config] of Object.entries(SERVICE_CONFIG)) {
             if (registeredServices.has(serviceName)) {
-                // Map service name to endpoint key (some services use different names)
-                const endpointKey = serviceName === 'file-storage' ? 'storage' : serviceName;
-                endpoints[endpointKey] = config.route;
+                const endpointKey = serviceToEndpointKey[serviceName];
+                if (endpointKey) {
+                    optionalEndpoints[endpointKey] = config.route;
+                }
             }
         }
+
+        const endpoints: ApiRoutes = {
+            data: '/api/data',
+            metadata: '/api/meta',
+            ...optionalEndpoints,
+        };
 
         return {
             version: '1.0',

@@ -115,7 +115,7 @@ export class ObjectQLPlugin implements Plugin {
     
     ctx.logger.info('ObjectQL engine started', {
         driversRegistered: this.ql?.['drivers']?.size || 0,
-        objectsRegistered: this.ql?.registry?.listObjects?.()?.length || 0
+        objectsRegistered: this.ql?.registry?.getAllObjects?.()?.length || 0
     });
   }
 
