@@ -122,12 +122,16 @@ export class AuthPlugin implements Plugin {
     const basePath = this.options.basePath || '/api/v1/auth';
 
     // Get raw Hono app to use native wildcard routing
-    const rawApp = (httpServer as any).getRawApp?.();
-    
-    if (!rawApp) {
-      ctx.logger.error('Cannot access raw HTTP server app - wildcard routing not supported');
-      throw new Error('HTTP server does not support wildcard routing');
+    // Type assertion is safe here because we explicitly require Hono server as a dependency
+    if (!('getRawApp' in httpServer) || typeof (httpServer as any).getRawApp !== 'function') {
+      ctx.logger.error('HTTP server does not support getRawApp() - wildcard routing requires Hono server');
+      throw new Error(
+        'AuthPlugin requires HonoServerPlugin for wildcard routing support. ' +
+        'Please ensure HonoServerPlugin is loaded before AuthPlugin.'
+      );
     }
+
+    const rawApp = (httpServer as any).getRawApp();
 
     // Register wildcard route to forward all auth requests to better-auth
     // Better-auth expects requests at its baseURL, so we need to preserve the full path
