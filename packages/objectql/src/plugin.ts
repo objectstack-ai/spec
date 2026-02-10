@@ -55,10 +55,9 @@ export class ObjectQLPlugin implements Plugin {
     }
     
     ctx.registerService('data', this.ql); // ObjectQL implements IDataEngine
-    ctx.registerService('auth', this.ql);
     
     ctx.logger.info('ObjectQL engine registered as service', { 
-        provides: ['objectql', 'metadata', 'data', 'auth'] 
+        provides: ['objectql', 'metadata', 'data'] 
     });
 
     // Register Protocol Implementation

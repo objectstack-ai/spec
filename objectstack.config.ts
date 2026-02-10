@@ -11,6 +11,7 @@ import { InMemoryDriver } from '@objectstack/driver-memory';
 import CrmApp from './examples/app-crm/objectstack.config';
 import TodoApp from './examples/app-todo/objectstack.config';
 import BiPlugin from './examples/plugin-bi/objectstack.config';
+import { AuthPlugin } from '@objectstack/plugin-auth';
 
 export default defineStack({
   manifest: {
@@ -23,6 +24,25 @@ export default defineStack({
   plugins: [
     new ObjectQLPlugin(),
     new DriverPlugin(new InMemoryDriver()),
+    new AuthPlugin({
+      secret: 'dev-secret-please-change-in-production-min-32-chars',
+      baseUrl: 'http://localhost:3000',
+      // Optional: Enable OAuth providers
+      // providers: [
+      //   {
+      //     id: 'google',
+      //     clientId: process.env.GOOGLE_CLIENT_ID!,
+      //     clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      //   }
+      // ],
+      // Optional: Enable advanced features
+      // plugins: {
+      //   organization: true,  // Multi-tenant support
+      //   twoFactor: true,     // 2FA
+      //   passkeys: true,      // WebAuthn/Passkeys
+      //   magicLink: true,     // Passwordless auth
+      // }
+    }),
     new AppPlugin(CrmApp),
     new AppPlugin(TodoApp),
     new AppPlugin(BiPlugin),

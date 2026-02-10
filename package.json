@@ -38,6 +38,7 @@
   "dependencies": {
     "@objectstack/driver-memory": "workspace:*",
     "@objectstack/objectql": "workspace:*",
+    "@objectstack/plugin-auth": "workspace:*",
     "@objectstack/plugin-hono-server": "workspace:*",
     "@objectstack/runtime": "workspace:*",
     "@objectstack/spec": "workspace:*",
