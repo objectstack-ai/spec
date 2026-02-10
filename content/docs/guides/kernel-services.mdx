@@ -14,7 +14,8 @@ The ObjectStack protocol defines **17 kernel services** registered via the `Core
 
 - ✅ Implemented — 18 protocol methods (kernel-provided)
 - ⚠️ Framework — metadata (in-memory registry, DB persistence pending)
-- ❌ Plugin Required — 39 protocol methods (to be delivered by plugins)
+- 🟡 In Development — auth (plugin structure complete, logic planned)
+- ❌ Plugin Required — 38 protocol methods (to be delivered by plugins)
 </Callout>
 
 ---
@@ -50,7 +51,7 @@ The ObjectStack protocol defines **17 kernel services** registered via the `Core
 | 1 | **metadata** | `required` | 7 | ⚠️ Framework | Kernel (in-memory) |
 | 2 | **data** | `required` | 9 | ✅ Implemented | `@objectstack/objectql` |
 | 3 | **analytics** | `optional` | 2 | ✅ Implemented | `@objectstack/objectql` |
-| 4 | **auth** | `required` | — | ❌ Plugin Required | TBD plugin |
+| 4 | **auth** | `required` | — | 🟡 In Development | `@objectstack/plugin-auth` |
 | 5 | **ui** | `optional` | 5 | ❌ Plugin Required | TBD plugin |
 | 6 | **workflow** | `optional` | 5 | ❌ Plugin Required | TBD plugin |
 | 7 | **automation** | `optional` | 1 | ❌ Plugin Required | TBD plugin |

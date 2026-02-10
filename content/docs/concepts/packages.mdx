@@ -5,7 +5,7 @@ description: Complete reference of all ObjectStack packages in the monorepo
 
 # Package Reference
 
-ObjectStack is distributed as a monorepo containing **15 packages** organized into core packages, adapters, and plugins.
+ObjectStack is distributed as a monorepo containing **16 packages** organized into core packages, adapters, and plugins.
 
 > **Note for AI Agents**: Each package's `README.md` contains a specific "AI Development Context" section describing its architectural role and usage rules.
 
@@ -15,9 +15,9 @@ ObjectStack is distributed as a monorepo containing **15 packages** organized in
 | :--- | :---: | :--- |
 | [Core Packages](#core-packages) | 9 | Essential runtime, protocols, client SDKs, and CLI |
 | [Adapter Packages](#adapter-packages) | 3 | Framework adapters (Hono, NestJS, Next.js) |
-| [Plugin Packages](#plugin-packages) | 3 | Drivers and server plugins |
+| [Plugin Packages](#plugin-packages) | 4 | Drivers, server, and authentication plugins |
 
-**Total: 15 packages**
+**Total: 16 packages**
 
 ---
 
@@ -421,6 +421,41 @@ Framework adapters that bridge ObjectStack's unified `HttpDispatcher` to specifi
 - E2E testing with mocked APIs
 
 **Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready for testing
+
+---
+
+### @objectstack/plugin-auth
+
+**Description:** Authentication & Identity Plugin for ObjectStack
+
+**Purpose:** Provides authentication and identity management services for ObjectStack applications with plugin structure ready for better-auth integration.
+
+**Key Features:**
+- **Plugin Lifecycle**: Full init/start/destroy lifecycle implementation
+- **Service Registration**: Registers `auth` service in ObjectKernel
+- **HTTP Route Scaffolding**: `/api/v1/auth/*` endpoints via IHttpServer
+- **Configuration Support**: Uses `AuthConfig` schema from `@objectstack/spec/system`
+- **OAuth Provider Support**: Configuration for Google, GitHub, Microsoft, etc.
+- **Advanced Features**: Organization/team support, 2FA, passkeys, magic links (planned)
+- **Session Management**: Configurable session expiry and refresh (planned)
+
+**API Routes:**
+- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/register` - User registration
+- `POST /api/v1/auth/logout` - User logout
+- `GET /api/v1/auth/session` - Get current session
+
+**Use Cases:**
+- Adding authentication to ObjectStack applications
+- Multi-tenant applications with organization support
+- OAuth social login integration
+- Secure session management
+
+**Status:** 🟡 **IN DEVELOPMENT** - Structure complete, authentication logic planned
+
+**Implementation Status:** ⚠️ **PARTIALLY IMPLEMENTED** - Plugin structure and routes scaffolded, authentication logic to be added with better-auth integration
+
+**Learn more:** [Auth Config Reference](/docs/references/system/auth-config)
 
 ---
 
