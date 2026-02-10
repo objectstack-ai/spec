@@ -1,0 +1,216 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { AuthPlugin } from './auth-plugin';
+import type { PluginContext } from '@objectstack/core';
+
+describe('AuthPlugin', () => {
+  let mockContext: PluginContext;
+  let authPlugin: AuthPlugin;
+
+  beforeEach(() => {
+    mockContext = {
+      registerService: vi.fn(),
+      getService: vi.fn(),
+      getServices: vi.fn(() => new Map()),
+      hook: vi.fn(),
+      trigger: vi.fn(),
+      logger: {
+        info: vi.fn(),
+        error: vi.fn(),
+        warn: vi.fn(),
+        debug: vi.fn(),
+      },
+      getKernel: vi.fn(),
+    };
+  });
+
+  describe('Plugin Metadata', () => {
+    it('should have correct plugin metadata', () => {
+      authPlugin = new AuthPlugin({
+        secret: 'test-secret',
+      });
+
+      expect(authPlugin.name).toBe('com.objectstack.auth');
+      expect(authPlugin.type).toBe('standard');
+      expect(authPlugin.version).toBe('1.0.0');
+      expect(authPlugin.dependencies).toContain('com.objectstack.server.hono');
+    });
+  });
+
+  describe('Initialization', () => {
+    it('should throw error if secret is not provided', async () => {
+      authPlugin = new AuthPlugin({});
+
+      await expect(authPlugin.init(mockContext)).rejects.toThrow(
+        'AuthPlugin: secret is required'
+      );
+    });
+
+    it('should initialize successfully with required config', async () => {
+      authPlugin = new AuthPlugin({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+      });
+
+      await authPlugin.init(mockContext);
+
+      expect(mockContext.logger.info).toHaveBeenCalledWith('Initializing Auth Plugin...');
+      expect(mockContext.registerService).toHaveBeenCalledWith('auth', expect.anything());
+      expect(mockContext.logger.info).toHaveBeenCalledWith('Auth Plugin initialized successfully');
+    });
+
+    it('should configure OAuth providers', async () => {
+      authPlugin = new AuthPlugin({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+        providers: [
+          {
+            id: 'google',
+            clientId: 'google-client-id',
+            clientSecret: 'google-client-secret',
+            scope: ['email', 'profile'],
+          },
+        ],
+      });
+
+      await authPlugin.init(mockContext);
+
+      expect(mockContext.registerService).toHaveBeenCalled();
+    });
+
+    it('should configure plugins', async () => {
+      authPlugin = new AuthPlugin({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+        plugins: {
+          organization: true,
+          twoFactor: true,
+          passkeys: true,
+          magicLink: true,
+        },
+      });
+
+      await authPlugin.init(mockContext);
+
+      expect(mockContext.registerService).toHaveBeenCalled();
+    });
+  });
+
+  describe('Start Phase', () => {
+    beforeEach(async () => {
+      authPlugin = new AuthPlugin({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+      });
+      await authPlugin.init(mockContext);
+    });
+
+    it('should register routes with HTTP server when enabled', async () => {
+      const mockHttpServer = {
+        post: vi.fn(),
+        get: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+        patch: vi.fn(),
+        use: vi.fn(),
+      };
+
+      mockContext.getService = vi.fn((name: string) => {
+        if (name === 'http-server') return mockHttpServer;
+        throw new Error(`Service not found: ${name}`);
+      });
+
+      await authPlugin.start(mockContext);
+
+      expect(mockContext.getService).toHaveBeenCalledWith('http-server');
+      expect(mockHttpServer.post).toHaveBeenCalled();
+      expect(mockHttpServer.get).toHaveBeenCalled();
+      expect(mockContext.logger.info).toHaveBeenCalledWith(
+        expect.stringContaining('Auth routes registered')
+      );
+    });
+
+    it('should skip route registration when disabled', async () => {
+      authPlugin = new AuthPlugin({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+        registerRoutes: false,
+      });
+
+      await authPlugin.init(mockContext);
+      await authPlugin.start(mockContext);
+
+      expect(mockContext.getService).not.toHaveBeenCalledWith('http-server');
+    });
+
+    it('should throw error if auth not initialized', async () => {
+      const uninitializedPlugin = new AuthPlugin({
+        secret: 'test-secret',
+      });
+
+      await expect(uninitializedPlugin.start(mockContext)).rejects.toThrow(
+        'Auth manager not initialized'
+      );
+    });
+  });
+
+  describe('Destroy Phase', () => {
+    it('should cleanup resources', async () => {
+      authPlugin = new AuthPlugin({
+        secret: 'test-secret-at-least-32-chars-long',
+      });
+
+      await authPlugin.init(mockContext);
+      await authPlugin.destroy();
+
+      // Should not throw
+      expect(true).toBe(true);
+    });
+  });
+
+  describe('Configuration Options', () => {
+    it('should use custom base path', async () => {
+      authPlugin = new AuthPlugin({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+        basePath: '/custom/auth',
+      });
+
+      await authPlugin.init(mockContext);
+
+      const mockHttpServer = {
+        post: vi.fn(),
+        get: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+        patch: vi.fn(),
+        use: vi.fn(),
+      };
+
+      mockContext.getService = vi.fn(() => mockHttpServer);
+
+      await authPlugin.start(mockContext);
+
+      expect(mockHttpServer.post).toHaveBeenCalledWith(
+        '/custom/auth/login',
+        expect.any(Function)
+      );
+    });
+
+    it('should configure session options', async () => {
+      authPlugin = new AuthPlugin({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+        session: {
+          expiresIn: 60 * 60 * 24 * 30, // 30 days
+          updateAge: 60 * 60 * 24, // 1 day
+        },
+      });
+
+      await authPlugin.init(mockContext);
+
+      expect(mockContext.registerService).toHaveBeenCalled();
+    });
+  });
+});
