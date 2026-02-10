@@ -130,6 +130,13 @@ packages/plugins/plugin-auth/
    - Session security
    - Audit logging
 
+🔄 Phase 6: Full Better-Auth Integration - PLANNED FOR FUTURE RELEASE
+ Integrate actual better-auth library
+ Implement real authentication logic
+ Add database adapter integration
+ Complete OAuth provider implementation
+ Add 2FA, passkeys, magic link support
+ Add session persistence and management
 ## References
 
 - Plugin implementation: `packages/plugins/plugin-auth/src/auth-plugin.ts`
