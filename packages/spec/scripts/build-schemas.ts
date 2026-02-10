@@ -3,7 +3,6 @@
 import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import * as Protocol from '../src/index';
 
 const OUT_DIR = path.resolve(__dirname, '../json-schema');
@@ -118,10 +117,9 @@ for (const [namespaceName, namespaceExports] of Object.entries(Protocol)) {
         const schemaName = key.endsWith('Schema') ? key.replace('Schema', '') : key;
         
         try {
-          // Convert to JSON Schema
-          const jsonSchema = zodToJsonSchema(value, {
-            name: schemaName,
-            $refStrategy: "none" // We want self-contained schemas for now
+          // Convert to JSON Schema using Zod v4's built-in toJSONSchema()
+          const jsonSchema = z.toJSONSchema(value, {
+            target: 'draft-2020-12',
           });
 
           const fileName = `${schemaName}.json`;
