@@ -1,45 +1,7 @@
 {
   "$ref": "#/definitions/ServiceConfig",
   "definitions": {
-    "ServiceConfig": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string",
-          "enum": [
-            "metadata",
-            "data",
-            "auth",
-            "file-storage",
-            "search",
-            "cache",
-            "queue",
-            "automation",
-            "graphql",
-            "analytics",
-            "realtime",
-            "job",
-            "notification",
-            "ai",
-            "i18n",
-            "ui",
-            "workflow"
-          ]
-        },
-        "options": {
-          "type": "object",
-          "additionalProperties": {}
-        }
-      },
-      "required": [
-        "id",
-        "name"
-      ],
-      "additionalProperties": false
-    }
+    "ServiceConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

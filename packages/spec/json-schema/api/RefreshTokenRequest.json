@@ -1,19 +1,7 @@
 {
   "$ref": "#/definitions/RefreshTokenRequest",
   "definitions": {
-    "RefreshTokenRequest": {
-      "type": "object",
-      "properties": {
-        "refreshToken": {
-          "type": "string",
-          "description": "Refresh token"
-        }
-      },
-      "required": [
-        "refreshToken"
-      ],
-      "additionalProperties": false
-    }
+    "RefreshTokenRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

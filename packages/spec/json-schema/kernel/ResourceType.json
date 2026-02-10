@@ -1,28 +1,7 @@
 {
   "$ref": "#/definitions/ResourceType",
   "definitions": {
-    "ResourceType": {
-      "type": "string",
-      "enum": [
-        "data.object",
-        "data.record",
-        "data.field",
-        "ui.view",
-        "ui.dashboard",
-        "ui.report",
-        "system.config",
-        "system.plugin",
-        "system.api",
-        "system.service",
-        "storage.file",
-        "storage.database",
-        "network.http",
-        "network.websocket",
-        "process.spawn",
-        "process.env"
-      ],
-      "description": "Type of resource being accessed"
-    }
+    "ResourceType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

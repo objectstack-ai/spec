@@ -1,77 +1,7 @@
 {
   "$ref": "#/definitions/MetadataLoaderContract",
   "definitions": {
-    "MetadataLoaderContract": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Loader identifier"
-        },
-        "protocol": {
-          "type": "string",
-          "description": "Protocol identifier"
-        },
-        "capabilities": {
-          "type": "object",
-          "properties": {
-            "read": {
-              "type": "boolean",
-              "default": true
-            },
-            "write": {
-              "type": "boolean",
-              "default": false
-            },
-            "watch": {
-              "type": "boolean",
-              "default": false
-            },
-            "list": {
-              "type": "boolean",
-              "default": true
-            }
-          },
-          "additionalProperties": false,
-          "description": "Loader capabilities"
-        },
-        "supportedFormats": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "json",
-              "yaml",
-              "typescript",
-              "javascript"
-            ]
-          },
-          "description": "Supported formats"
-        },
-        "supportsWatch": {
-          "type": "boolean",
-          "default": false,
-          "description": "Supports file watching"
-        },
-        "supportsWrite": {
-          "type": "boolean",
-          "default": true,
-          "description": "Supports write operations"
-        },
-        "supportsCache": {
-          "type": "boolean",
-          "default": true,
-          "description": "Supports caching"
-        }
-      },
-      "required": [
-        "name",
-        "protocol",
-        "capabilities",
-        "supportedFormats"
-      ],
-      "additionalProperties": false
-    }
+    "MetadataLoaderContract": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

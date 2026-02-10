@@ -1,20 +1,7 @@
 {
   "$ref": "#/definitions/CreateRequest",
   "definitions": {
-    "CreateRequest": {
-      "type": "object",
-      "properties": {
-        "data": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Record data to insert"
-        }
-      },
-      "required": [
-        "data"
-      ],
-      "additionalProperties": false
-    }
+    "CreateRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

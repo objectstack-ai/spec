@@ -1,10 +1,7 @@
 {
   "$ref": "#/definitions/ActivationEvent",
   "definitions": {
-    "ActivationEvent": {
-      "type": "string",
-      "description": "Activation event pattern"
-    }
+    "ActivationEvent": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

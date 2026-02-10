@@ -1,40 +1,7 @@
 {
   "$ref": "#/definitions/PackageDependency",
   "definitions": {
-    "PackageDependency": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Package name or identifier"
-        },
-        "versionConstraint": {
-          "type": "string",
-          "description": "Semver range (e.g., `^1.0.0`, `>=2.0.0 <3.0.0`)"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "required",
-            "optional",
-            "peer",
-            "dev"
-          ],
-          "default": "required",
-          "description": "Category of the dependency relationship"
-        },
-        "resolvedVersion": {
-          "type": "string",
-          "description": "Concrete version resolved during dependency resolution"
-        }
-      },
-      "required": [
-        "name",
-        "versionConstraint"
-      ],
-      "additionalProperties": false,
-      "description": "A package dependency with its version constraint"
-    }
+    "PackageDependency": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

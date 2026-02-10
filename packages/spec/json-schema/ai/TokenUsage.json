@@ -1,32 +1,7 @@
 {
   "$ref": "#/definitions/TokenUsage",
   "definitions": {
-    "TokenUsage": {
-      "type": "object",
-      "properties": {
-        "prompt": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Input tokens"
-        },
-        "completion": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Output tokens"
-        },
-        "total": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Total tokens"
-        }
-      },
-      "required": [
-        "prompt",
-        "completion",
-        "total"
-      ],
-      "additionalProperties": false
-    }
+    "TokenUsage": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

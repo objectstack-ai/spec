@@ -1,15 +1,7 @@
 {
   "$ref": "#/definitions/LicenseMetricType",
   "definitions": {
-    "LicenseMetricType": {
-      "type": "string",
-      "enum": [
-        "boolean",
-        "counter",
-        "gauge"
-      ],
-      "description": "License metric type"
-    }
+    "LicenseMetricType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

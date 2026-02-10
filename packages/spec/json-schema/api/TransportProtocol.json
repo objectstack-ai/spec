@@ -1,14 +1,7 @@
 {
   "$ref": "#/definitions/TransportProtocol",
   "definitions": {
-    "TransportProtocol": {
-      "type": "string",
-      "enum": [
-        "websocket",
-        "sse",
-        "polling"
-      ]
-    }
+    "TransportProtocol": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

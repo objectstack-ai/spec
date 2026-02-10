@@ -1,27 +1,7 @@
 {
   "$ref": "#/definitions/SaveMetaItemRequest",
   "definitions": {
-    "SaveMetaItemRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "description": "Metadata type name"
-        },
-        "name": {
-          "type": "string",
-          "description": "Item name"
-        },
-        "item": {
-          "description": "Metadata item definition"
-        }
-      },
-      "required": [
-        "type",
-        "name"
-      ],
-      "additionalProperties": false
-    }
+    "SaveMetaItemRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

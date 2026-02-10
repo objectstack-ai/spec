@@ -1,74 +1,7 @@
 {
   "$ref": "#/definitions/ModelDrift",
   "definitions": {
-    "ModelDrift": {
-      "type": "object",
-      "properties": {
-        "modelName": {
-          "type": "string"
-        },
-        "driftType": {
-          "type": "string",
-          "enum": [
-            "feature_drift",
-            "prediction_drift",
-            "performance_drift"
-          ]
-        },
-        "severity": {
-          "type": "string",
-          "enum": [
-            "low",
-            "medium",
-            "high",
-            "critical"
-          ]
-        },
-        "detectedAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "ISO timestamp"
-        },
-        "metrics": {
-          "type": "object",
-          "properties": {
-            "driftScore": {
-              "type": "number",
-              "description": "Drift magnitude (0-1)"
-            },
-            "affectedFeatures": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "performanceChange": {
-              "type": "number",
-              "description": "Change in performance metric"
-            }
-          },
-          "required": [
-            "driftScore"
-          ],
-          "additionalProperties": false
-        },
-        "recommendation": {
-          "type": "string"
-        },
-        "autoRetrainTriggered": {
-          "type": "boolean",
-          "default": false
-        }
-      },
-      "required": [
-        "modelName",
-        "driftType",
-        "severity",
-        "detectedAt",
-        "metrics"
-      ],
-      "additionalProperties": false
-    }
+    "ModelDrift": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

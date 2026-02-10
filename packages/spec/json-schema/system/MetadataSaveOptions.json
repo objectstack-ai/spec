@@ -1,54 +1,7 @@
 {
   "$ref": "#/definitions/MetadataSaveOptions",
   "definitions": {
-    "MetadataSaveOptions": {
-      "type": "object",
-      "properties": {
-        "format": {
-          "type": "string",
-          "enum": [
-            "json",
-            "yaml",
-            "yml",
-            "ts",
-            "js",
-            "typescript",
-            "javascript"
-          ]
-        },
-        "create": {
-          "type": "boolean",
-          "default": true
-        },
-        "overwrite": {
-          "type": "boolean",
-          "default": true
-        },
-        "path": {
-          "type": "string"
-        },
-        "prettify": {
-          "type": "boolean"
-        },
-        "indent": {
-          "type": "number"
-        },
-        "sortKeys": {
-          "type": "boolean"
-        },
-        "backup": {
-          "type": "boolean"
-        },
-        "atomic": {
-          "type": "boolean"
-        },
-        "loader": {
-          "type": "string",
-          "description": "Specific loader to use (e.g. filesystem, database)"
-        }
-      },
-      "additionalProperties": false
-    }
+    "MetadataSaveOptions": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

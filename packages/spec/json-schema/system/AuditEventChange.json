@@ -1,25 +1,7 @@
 {
   "$ref": "#/definitions/AuditEventChange",
   "definitions": {
-    "AuditEventChange": {
-      "type": "object",
-      "properties": {
-        "field": {
-          "type": "string",
-          "description": "Changed field name"
-        },
-        "oldValue": {
-          "description": "Previous value"
-        },
-        "newValue": {
-          "description": "New value"
-        }
-      },
-      "required": [
-        "field"
-      ],
-      "additionalProperties": false
-    }
+    "AuditEventChange": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

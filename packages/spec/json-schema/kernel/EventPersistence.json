@@ -1,39 +1,7 @@
 {
   "$ref": "#/definitions/EventPersistence",
   "definitions": {
-    "EventPersistence": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable event persistence"
-        },
-        "retention": {
-          "type": "integer",
-          "exclusiveMinimum": 0,
-          "description": "Days to retain persisted events"
-        },
-        "filter": {
-          "description": "Optional filter function to select which events to persist"
-        },
-        "storage": {
-          "type": "string",
-          "enum": [
-            "database",
-            "file",
-            "s3",
-            "custom"
-          ],
-          "default": "database",
-          "description": "Storage backend for persisted events"
-        }
-      },
-      "required": [
-        "retention"
-      ],
-      "additionalProperties": false
-    }
+    "EventPersistence": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

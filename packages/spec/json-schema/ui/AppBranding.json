@@ -1,24 +1,7 @@
 {
   "$ref": "#/definitions/AppBranding",
   "definitions": {
-    "AppBranding": {
-      "type": "object",
-      "properties": {
-        "primaryColor": {
-          "type": "string",
-          "description": "Primary theme color hex code"
-        },
-        "logo": {
-          "type": "string",
-          "description": "Custom logo URL for this app"
-        },
-        "favicon": {
-          "type": "string",
-          "description": "Custom favicon URL for this app"
-        }
-      },
-      "additionalProperties": false
-    }
+    "AppBranding": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

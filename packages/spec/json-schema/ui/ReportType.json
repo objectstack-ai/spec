@@ -1,15 +1,7 @@
 {
   "$ref": "#/definitions/ReportType",
   "definitions": {
-    "ReportType": {
-      "type": "string",
-      "enum": [
-        "tabular",
-        "summary",
-        "matrix",
-        "joined"
-      ]
-    }
+    "ReportType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

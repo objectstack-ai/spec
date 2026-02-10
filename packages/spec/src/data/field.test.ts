@@ -208,7 +208,6 @@ describe('FieldSchema', () => {
       expect(result.unique).toBe(false);
       expect(result.hidden).toBe(false);
       expect(result.readonly).toBe(false);
-      expect(result.encryption).toBe(false);
       expect(result.index).toBe(false);
       expect(result.externalId).toBe(false);
     });
@@ -355,7 +354,6 @@ describe('FieldSchema', () => {
         type: 'password',
         hidden: true,
         readonly: true,
-        encryption: true,
       };
 
       expect(() => FieldSchema.parse(secureField)).not.toThrow();

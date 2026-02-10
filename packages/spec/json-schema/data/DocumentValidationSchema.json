@@ -1,39 +1,7 @@
 {
   "$ref": "#/definitions/DocumentValidationSchema",
   "definitions": {
-    "DocumentValidationSchema": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable schema validation"
-        },
-        "validationLevel": {
-          "type": "string",
-          "enum": [
-            "strict",
-            "moderate",
-            "off"
-          ],
-          "description": "Validation strictness"
-        },
-        "validationAction": {
-          "type": "string",
-          "enum": [
-            "error",
-            "warn"
-          ],
-          "description": "Action on validation failure"
-        },
-        "jsonSchema": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "JSON Schema for validation"
-        }
-      },
-      "additionalProperties": false
-    }
+    "DocumentValidationSchema": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

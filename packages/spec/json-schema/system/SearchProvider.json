@@ -1,17 +1,7 @@
 {
   "$ref": "#/definitions/SearchProvider",
   "definitions": {
-    "SearchProvider": {
-      "type": "string",
-      "enum": [
-        "elasticsearch",
-        "algolia",
-        "meilisearch",
-        "typesense",
-        "opensearch"
-      ],
-      "description": "Supported full-text search engine provider"
-    }
+    "SearchProvider": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

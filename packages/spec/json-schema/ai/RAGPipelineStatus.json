@@ -1,67 +1,7 @@
 {
   "$ref": "#/definitions/RAGPipelineStatus",
   "definitions": {
-    "RAGPipelineStatus": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "active",
-            "indexing",
-            "error",
-            "disabled"
-          ]
-        },
-        "documentsIndexed": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "lastIndexed": {
-          "type": "string",
-          "format": "date-time",
-          "description": "ISO timestamp"
-        },
-        "errorMessage": {
-          "type": "string"
-        },
-        "health": {
-          "type": "object",
-          "properties": {
-            "vectorStore": {
-              "type": "string",
-              "enum": [
-                "healthy",
-                "unhealthy",
-                "unknown"
-              ]
-            },
-            "embeddingService": {
-              "type": "string",
-              "enum": [
-                "healthy",
-                "unhealthy",
-                "unknown"
-              ]
-            }
-          },
-          "required": [
-            "vectorStore",
-            "embeddingService"
-          ],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "name",
-        "status",
-        "documentsIndexed"
-      ],
-      "additionalProperties": false
-    }
+    "RAGPipelineStatus": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

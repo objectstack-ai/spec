@@ -1,24 +1,7 @@
 {
   "$ref": "#/definitions/RestApiRouteCategory",
   "definitions": {
-    "RestApiRouteCategory": {
-      "type": "string",
-      "enum": [
-        "discovery",
-        "metadata",
-        "data",
-        "batch",
-        "permission",
-        "analytics",
-        "automation",
-        "workflow",
-        "ui",
-        "realtime",
-        "notification",
-        "ai",
-        "i18n"
-      ]
-    }
+    "RestApiRouteCategory": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

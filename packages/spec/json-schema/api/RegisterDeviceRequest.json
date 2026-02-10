@@ -1,37 +1,7 @@
 {
   "$ref": "#/definitions/RegisterDeviceRequest",
   "definitions": {
-    "RegisterDeviceRequest": {
-      "type": "object",
-      "properties": {
-        "token": {
-          "type": "string",
-          "description": "Device push notification token"
-        },
-        "platform": {
-          "type": "string",
-          "enum": [
-            "ios",
-            "android",
-            "web"
-          ],
-          "description": "Device platform"
-        },
-        "deviceId": {
-          "type": "string",
-          "description": "Unique device identifier"
-        },
-        "name": {
-          "type": "string",
-          "description": "Device friendly name"
-        }
-      },
-      "required": [
-        "token",
-        "platform"
-      ],
-      "additionalProperties": false
-    }
+    "RegisterDeviceRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

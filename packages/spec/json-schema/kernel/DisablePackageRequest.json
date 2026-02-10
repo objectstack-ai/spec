@@ -1,18 +1,7 @@
 {
   "$ref": "#/definitions/DisablePackageRequest",
   "definitions": {
-    "DisablePackageRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "id"
-      ],
-      "additionalProperties": false
-    }
+    "DisablePackageRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

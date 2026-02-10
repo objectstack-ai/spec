@@ -278,7 +278,14 @@ export const StudioPluginManifestSchema = z.object({
   author: z.string().optional().describe('Author'),
 
   /** Declarative contribution points */
-  contributes: StudioPluginContributionsSchema.default({}),
+  contributes: StudioPluginContributionsSchema.default({
+    metadataViewers: [],
+    sidebarGroups: [],
+    actions: [],
+    metadataIcons: [],
+    panels: [],
+    commands: [],
+  }),
 
   /** 
    * Activation events — when to load this plugin.

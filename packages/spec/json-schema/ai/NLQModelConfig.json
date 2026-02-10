@@ -1,78 +1,7 @@
 {
   "$ref": "#/definitions/NLQModelConfig",
   "definitions": {
-    "NLQModelConfig": {
-      "type": "object",
-      "properties": {
-        "modelId": {
-          "type": "string",
-          "description": "Model from registry"
-        },
-        "systemPrompt": {
-          "type": "string",
-          "description": "System prompt override"
-        },
-        "includeSchema": {
-          "type": "boolean",
-          "default": true,
-          "description": "Include object schema in prompt"
-        },
-        "includeExamples": {
-          "type": "boolean",
-          "default": true,
-          "description": "Include examples in prompt"
-        },
-        "enableIntentDetection": {
-          "type": "boolean",
-          "default": true
-        },
-        "intentThreshold": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1,
-          "default": 0.7
-        },
-        "enableEntityRecognition": {
-          "type": "boolean",
-          "default": true
-        },
-        "entityRecognitionModel": {
-          "type": "string"
-        },
-        "enableFuzzyMatching": {
-          "type": "boolean",
-          "default": true,
-          "description": "Fuzzy match field names"
-        },
-        "fuzzyMatchThreshold": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1,
-          "default": 0.8
-        },
-        "enableTimeframeDetection": {
-          "type": "boolean",
-          "default": true
-        },
-        "defaultTimeframe": {
-          "type": "string",
-          "description": "Default timeframe if not specified"
-        },
-        "enableCaching": {
-          "type": "boolean",
-          "default": true
-        },
-        "cacheTTL": {
-          "type": "integer",
-          "default": 3600,
-          "description": "Cache TTL in seconds"
-        }
-      },
-      "required": [
-        "modelId"
-      ],
-      "additionalProperties": false
-    }
+    "NLQModelConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

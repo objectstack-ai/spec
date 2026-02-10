@@ -1,36 +1,7 @@
 {
   "$ref": "#/definitions/SCIMMemberReference",
   "definitions": {
-    "SCIMMemberReference": {
-      "type": "object",
-      "properties": {
-        "value": {
-          "type": "string",
-          "description": "Member ID"
-        },
-        "$ref": {
-          "type": "string",
-          "format": "uri",
-          "description": "URI reference to the member"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "User",
-            "Group"
-          ],
-          "description": "Member type"
-        },
-        "display": {
-          "type": "string",
-          "description": "Member display name"
-        }
-      },
-      "required": [
-        "value"
-      ],
-      "additionalProperties": false
-    }
+    "SCIMMemberReference": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

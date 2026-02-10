@@ -1,34 +1,7 @@
 {
   "$ref": "#/definitions/OpsDomainModule",
   "definitions": {
-    "OpsDomainModule": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "description": "Module name (snake_case)"
-        },
-        "files": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "List of files in this module"
-        },
-        "metadata": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Custom metadata key-value pairs for extensibility"
-        }
-      },
-      "required": [
-        "name",
-        "files"
-      ],
-      "additionalProperties": false,
-      "description": "Scanned domain module representing a plugin folder"
-    }
+    "OpsDomainModule": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

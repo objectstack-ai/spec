@@ -1,46 +1,7 @@
 {
   "$ref": "#/definitions/Member",
   "definitions": {
-    "Member": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique member identifier"
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Organization ID"
-        },
-        "userId": {
-          "type": "string",
-          "description": "User ID"
-        },
-        "role": {
-          "type": "string",
-          "description": "Member role (e.g., owner, admin, member, guest)"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Member creation timestamp"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Last update timestamp"
-        }
-      },
-      "required": [
-        "id",
-        "organizationId",
-        "userId",
-        "role",
-        "createdAt",
-        "updatedAt"
-      ],
-      "additionalProperties": false
-    }
+    "Member": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

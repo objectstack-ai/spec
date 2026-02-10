@@ -1,15 +1,7 @@
 {
   "$ref": "#/definitions/MetadataState",
   "definitions": {
-    "MetadataState": {
-      "type": "string",
-      "enum": [
-        "draft",
-        "active",
-        "archived",
-        "deprecated"
-      ]
-    }
+    "MetadataState": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,32 +1,7 @@
 {
   "$ref": "#/definitions/RealtimeConnectRequest",
   "definitions": {
-    "RealtimeConnectRequest": {
-      "type": "object",
-      "properties": {
-        "transport": {
-          "type": "string",
-          "enum": [
-            "websocket",
-            "sse",
-            "polling"
-          ],
-          "description": "Preferred transport protocol"
-        },
-        "channels": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Channels to subscribe to on connect"
-        },
-        "token": {
-          "type": "string",
-          "description": "Authentication token"
-        }
-      },
-      "additionalProperties": false
-    }
+    "RealtimeConnectRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

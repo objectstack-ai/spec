@@ -1,54 +1,7 @@
 {
   "$ref": "#/definitions/DataEngineSort",
   "definitions": {
-    "DataEngineSort": {
-      "anyOf": [
-        {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string",
-            "enum": [
-              "asc",
-              "desc"
-            ]
-          }
-        },
-        {
-          "type": "object",
-          "additionalProperties": {
-            "type": "number",
-            "enum": [
-              1,
-              -1
-            ]
-          }
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "field": {
-                "type": "string"
-              },
-              "order": {
-                "type": "string",
-                "enum": [
-                  "asc",
-                  "desc"
-                ],
-                "default": "asc"
-              }
-            },
-            "required": [
-              "field"
-            ],
-            "additionalProperties": false
-          }
-        }
-      ],
-      "description": "Sort order definition"
-    }
+    "DataEngineSort": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

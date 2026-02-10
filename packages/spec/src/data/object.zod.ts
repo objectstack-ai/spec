@@ -292,14 +292,11 @@ const ObjectSchemaBase = z.object({
   
   /**
    * State Machine(s)
-   * Supports a single machine (legacy) or a named record of machines.
+   * Named record of state machines, where each key is a unique machine identifier.
    * Multiple machines allow parallel lifecycles (e.g., status + payment_status + approval_status).
    * 
-   * @example Single: stateMachine: { id: 'lifecycle', initial: 'draft', states: {...} }
-   * @example Multiple: stateMachines: { lifecycle: {...}, payment: {...}, approval: {...} }
+   * @example stateMachines: { lifecycle: {...}, payment: {...}, approval: {...} }
    */
-  /** @deprecated Use `stateMachines` (plural) instead. Will be removed in v2.0.0 */
-  stateMachine: StateMachineSchema.optional().describe('DEPRECATED: Use stateMachines (plural). Single state machine shorthand.'),
   stateMachines: z.record(z.string(), StateMachineSchema).optional().describe('Named state machines for parallel lifecycles (e.g., status, payment, approval)'),
 
   /** 

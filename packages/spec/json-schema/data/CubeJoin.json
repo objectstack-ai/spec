@@ -1,33 +1,7 @@
 {
   "$ref": "#/definitions/CubeJoin",
   "definitions": {
-    "CubeJoin": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Target cube name"
-        },
-        "relationship": {
-          "type": "string",
-          "enum": [
-            "one_to_one",
-            "one_to_many",
-            "many_to_one"
-          ],
-          "default": "many_to_one"
-        },
-        "sql": {
-          "type": "string",
-          "description": "Join condition (ON clause)"
-        }
-      },
-      "required": [
-        "name",
-        "sql"
-      ],
-      "additionalProperties": false
-    }
+    "CubeJoin": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1060,8 +1060,9 @@ export class ObjectStackClient {
 
         // 4. Handle Filters (Simple vs AST)
         if (options.filters) {
-             // If looks like AST (not plain object map)
-             // TODO: robust check. safely assuming map for simplified find, and recommending .query() for AST
+             // Detect AST filter format vs simple key-value map. AST filters use an array structure
+             // with [field, operator, value] or [logicOp, ...nodes] shape (see isFilterAST).
+             // For complex filter expressions, use .query() which builds a proper QueryAST.
              if (this.isFilterAST(options.filters)) {
                  queryParams.set('filters', JSON.stringify(options.filters));
              } else {

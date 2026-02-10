@@ -1,50 +1,7 @@
 {
   "$ref": "#/definitions/FileFilterConfig",
   "definitions": {
-    "FileFilterConfig": {
-      "type": "object",
-      "properties": {
-        "includePatterns": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "File patterns to include (glob)"
-        },
-        "excludePatterns": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "File patterns to exclude (glob)"
-        },
-        "minFileSize": {
-          "type": "number",
-          "minimum": 0,
-          "description": "Minimum file size in bytes"
-        },
-        "maxFileSize": {
-          "type": "number",
-          "minimum": 1,
-          "description": "Maximum file size in bytes"
-        },
-        "allowedExtensions": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Allowed file extensions"
-        },
-        "blockedExtensions": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Blocked file extensions"
-        }
-      },
-      "additionalProperties": false
-    }
+    "FileFilterConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

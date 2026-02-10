@@ -416,7 +416,14 @@ export class ObjectQL implements IDataEngine {
     
     if (options.skip !== undefined) ast.offset = options.skip;
 
-    // TODO: Handle populate/joins mapping if Driver supports it in QueryAST
+    // Map populate (relationship field names) to QueryAST expand entries
+    if (options.populate && options.populate.length > 0) {
+      ast.expand = {};
+      for (const rel of options.populate) {
+        ast.expand[rel] = { object: rel };
+      }
+    }
+
     return ast;
   }
 

@@ -1,33 +1,7 @@
 {
   "$ref": "#/definitions/OpsPluginStructure",
   "definitions": {
-    "OpsPluginStructure": {
-      "type": "object",
-      "properties": {
-        "root": {
-          "type": "string",
-          "description": "Root directory path of the plugin project"
-        },
-        "files": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "List of all file paths relative to root"
-        },
-        "metadata": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Custom metadata key-value pairs for extensibility"
-        }
-      },
-      "required": [
-        "root",
-        "files"
-      ],
-      "additionalProperties": false,
-      "description": "Full plugin project layout validated against OPS conventions"
-    }
+    "OpsPluginStructure": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

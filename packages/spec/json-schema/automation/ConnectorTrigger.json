@@ -1,54 +1,7 @@
 {
   "$ref": "#/definitions/ConnectorTrigger",
   "definitions": {
-    "ConnectorTrigger": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "pattern": "^[a-z_][a-z0-9_]*$",
-          "description": "Trigger ID (snake_case)"
-        },
-        "name": {
-          "type": "string",
-          "description": "Trigger name"
-        },
-        "description": {
-          "type": "string",
-          "description": "Trigger description"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "webhook",
-            "polling",
-            "stream"
-          ],
-          "description": "Trigger mechanism"
-        },
-        "config": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Trigger configuration"
-        },
-        "outputSchema": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Event payload schema"
-        },
-        "pollingIntervalMs": {
-          "type": "integer",
-          "minimum": 1000,
-          "description": "Polling interval in ms"
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "type"
-      ],
-      "additionalProperties": false
-    }
+    "ConnectorTrigger": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

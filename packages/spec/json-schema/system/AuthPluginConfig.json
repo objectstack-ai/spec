@@ -1,32 +1,7 @@
 {
   "$ref": "#/definitions/AuthPluginConfig",
   "definitions": {
-    "AuthPluginConfig": {
-      "type": "object",
-      "properties": {
-        "organization": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable Organization/Teams support"
-        },
-        "twoFactor": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable 2FA"
-        },
-        "passkeys": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable Passkey support"
-        },
-        "magicLink": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable Magic Link login"
-        }
-      },
-      "additionalProperties": false
-    }
+    "AuthPluginConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

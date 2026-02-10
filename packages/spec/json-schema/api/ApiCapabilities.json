@@ -1,53 +1,7 @@
 {
   "$ref": "#/definitions/ApiCapabilities",
   "definitions": {
-    "ApiCapabilities": {
-      "type": "object",
-      "properties": {
-        "graphql": {
-          "type": "boolean",
-          "default": false
-        },
-        "search": {
-          "type": "boolean",
-          "default": false
-        },
-        "websockets": {
-          "type": "boolean",
-          "default": false
-        },
-        "files": {
-          "type": "boolean",
-          "default": true
-        },
-        "analytics": {
-          "type": "boolean",
-          "default": false,
-          "description": "Is the Analytics/BI engine enabled?"
-        },
-        "ai": {
-          "type": "boolean",
-          "default": false,
-          "description": "Is the AI engine enabled?"
-        },
-        "workflow": {
-          "type": "boolean",
-          "default": false,
-          "description": "Is the Workflow engine enabled?"
-        },
-        "notifications": {
-          "type": "boolean",
-          "default": false,
-          "description": "Is the Notification service enabled?"
-        },
-        "i18n": {
-          "type": "boolean",
-          "default": false,
-          "description": "Is the i18n service enabled?"
-        }
-      },
-      "additionalProperties": false
-    }
+    "ApiCapabilities": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

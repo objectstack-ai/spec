@@ -1,44 +1,7 @@
 {
   "$ref": "#/definitions/SimplePresenceState",
   "definitions": {
-    "SimplePresenceState": {
-      "type": "object",
-      "properties": {
-        "userId": {
-          "type": "string",
-          "description": "User identifier"
-        },
-        "userName": {
-          "type": "string",
-          "description": "User display name"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "online",
-            "away",
-            "offline"
-          ],
-          "description": "User presence status"
-        },
-        "lastSeen": {
-          "type": "number",
-          "description": "Unix timestamp of last activity in milliseconds"
-        },
-        "metadata": {
-          "type": "object",
-          "additionalProperties": {},
-          "description": "Additional presence metadata (e.g., current page, custom status)"
-        }
-      },
-      "required": [
-        "userId",
-        "userName",
-        "status",
-        "lastSeen"
-      ],
-      "additionalProperties": false
-    }
+    "SimplePresenceState": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

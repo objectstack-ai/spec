@@ -1,31 +1,7 @@
 {
   "$ref": "#/definitions/KanbanConfig",
   "definitions": {
-    "KanbanConfig": {
-      "type": "object",
-      "properties": {
-        "groupByField": {
-          "type": "string",
-          "description": "Field to group columns by (usually status/select)"
-        },
-        "summarizeField": {
-          "type": "string",
-          "description": "Field to sum at top of column (e.g. amount)"
-        },
-        "columns": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Fields to show on cards"
-        }
-      },
-      "required": [
-        "groupByField",
-        "columns"
-      ],
-      "additionalProperties": false
-    }
+    "KanbanConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

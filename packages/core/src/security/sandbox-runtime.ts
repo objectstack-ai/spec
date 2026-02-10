@@ -1,5 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
+import nodePath from 'node:path';
+
 import type { 
   SandboxConfig
 } from '@objectstack/spec/kernel';
@@ -44,6 +46,8 @@ export interface SandboxContext {
  * and access controls
  */
 export class PluginSandboxRuntime {
+  private static readonly MONITORING_INTERVAL_MS = 5000;
+
   private logger: ObjectLogger;
   
   // Active sandboxes (pluginId -> context)
@@ -51,6 +55,10 @@ export class PluginSandboxRuntime {
   
   // Resource monitoring intervals
   private monitoringIntervals = new Map<string, NodeJS.Timeout>();
+
+  // Per-plugin resource baselines for delta tracking
+  private memoryBaselines = new Map<string, number>();
+  private cpuBaselines = new Map<string, { user: number; system: number }>();
 
   constructor(logger: ObjectLogger) {
     this.logger = logger.child({ component: 'SandboxRuntime' });
@@ -77,6 +85,11 @@ export class PluginSandboxRuntime {
 
     this.sandboxes.set(pluginId, context);
 
+    // Capture resource baselines for per-plugin delta tracking
+    const baselineMemory = getMemoryUsage();
+    this.memoryBaselines.set(pluginId, baselineMemory.heapUsed);
+    this.cpuBaselines.set(pluginId, process.cpuUsage());
+
     // Start resource monitoring
     this.startResourceMonitoring(pluginId);
 
@@ -102,6 +115,8 @@ export class PluginSandboxRuntime {
     // Stop monitoring
     this.stopResourceMonitoring(pluginId);
 
+    this.memoryBaselines.delete(pluginId);
+    this.cpuBaselines.delete(pluginId);
     this.sandboxes.delete(pluginId);
 
     this.logger.info('Sandbox destroyed', { pluginId });
@@ -142,12 +157,11 @@ export class PluginSandboxRuntime {
 
   /**
    * Check file system access
-   * WARNING: Uses simple prefix matching. For production, use proper path
-   * resolution with path.resolve() and path.normalize() to prevent traversal.
+   * Uses path.resolve() and path.normalize() to prevent directory traversal.
    */
   private checkFileAccess(
     config: SandboxConfig,
-    path?: string
+    filePath?: string
   ): { allowed: boolean; reason?: string } {
     if (config.level === 'none') {
       return { allowed: true };
@@ -158,36 +172,36 @@ export class PluginSandboxRuntime {
     }
 
     // If no path specified, check general access
-    if (!path) {
+    if (!filePath) {
       return { allowed: config.filesystem.mode !== 'none' };
     }
 
-    // TODO: Use path.resolve() and path.normalize() for production
-    // Check allowed paths
+    // Check allowed paths using proper path resolution to prevent directory traversal
     const allowedPaths = config.filesystem.allowedPaths || [];
+    const resolvedPath = nodePath.normalize(nodePath.resolve(filePath));
     const isAllowed = allowedPaths.some(allowed => {
-      // Simple prefix matching - vulnerable to traversal attacks
-      // TODO: Use proper path resolution
-      return path.startsWith(allowed);
+      const resolvedAllowed = nodePath.normalize(nodePath.resolve(allowed));
+      return resolvedPath.startsWith(resolvedAllowed);
     });
 
     if (allowedPaths.length > 0 && !isAllowed) {
       return { 
         allowed: false, 
-        reason: `Path not in allowed list: ${path}` 
+        reason: `Path not in allowed list: ${filePath}` 
       };
     }
 
-    // Check denied paths
+    // Check denied paths using proper path resolution
     const deniedPaths = config.filesystem.deniedPaths || [];
     const isDenied = deniedPaths.some(denied => {
-      return path.startsWith(denied);
+      const resolvedDenied = nodePath.normalize(nodePath.resolve(denied));
+      return resolvedPath.startsWith(resolvedDenied);
     });
 
     if (isDenied) {
       return { 
         allowed: false, 
-        reason: `Path is explicitly denied: ${path}` 
+        reason: `Path is explicitly denied: ${filePath}` 
       };
     }
 
@@ -196,8 +210,7 @@ export class PluginSandboxRuntime {
 
   /**
    * Check network access
-   * WARNING: Uses simple string matching. For production, use proper URL
-   * parsing with new URL() and check hostname property.
+   * Uses URL parsing to properly validate hostnames.
    */
   private checkNetworkAccess(
     config: SandboxConfig,
@@ -221,14 +234,19 @@ export class PluginSandboxRuntime {
       return { allowed: (config.network.mode as string) !== 'none' };
     }
 
-    // TODO: Use new URL() and check hostname property for production
+    // Parse URL and check hostname against allowed/denied hosts
+    let parsedHostname: string;
+    try {
+      parsedHostname = new URL(url).hostname;
+    } catch {
+      return { allowed: false, reason: `Invalid URL: ${url}` };
+    }
+
     // Check allowed hosts
     const allowedHosts = config.network.allowedHosts || [];
     if (allowedHosts.length > 0) {
       const isAllowed = allowedHosts.some(host => {
-        // Simple string matching - vulnerable to bypass
-        // TODO: Use proper URL parsing
-        return url.includes(host);
+        return parsedHostname === host;
       });
 
       if (!isAllowed) {
@@ -242,7 +260,7 @@ export class PluginSandboxRuntime {
     // Check denied hosts
     const deniedHosts = config.network.deniedHosts || [];
     const isDenied = deniedHosts.some(host => {
-      return url.includes(host);
+      return parsedHostname === host;
     });
 
     if (isDenied) {
@@ -352,10 +370,10 @@ export class PluginSandboxRuntime {
    * Start monitoring resource usage
    */
   private startResourceMonitoring(pluginId: string): void {
-    // Monitor every 5 seconds
+    // Monitor at the configured interval
     const interval = setInterval(() => {
       this.updateResourceUsage(pluginId);
-    }, 5000);
+    }, PluginSandboxRuntime.MONITORING_INTERVAL_MS);
 
     this.monitoringIntervals.set(pluginId, interval);
   }
@@ -374,10 +392,9 @@ export class PluginSandboxRuntime {
   /**
    * Update resource usage statistics
    * 
-   * NOTE: Currently uses global process.memoryUsage() which tracks the entire
-   * Node.js process, not individual plugins. For production, implement proper
-   * per-plugin tracking using V8 heap snapshots or allocation tracking at
-   * plugin boundaries.
+   * Tracks per-plugin memory and CPU usage using delta from baseline
+   * captured at sandbox creation time. This is an approximation since
+   * true per-plugin isolation isn't possible in a single Node.js process.
    */
   private updateResourceUsage(pluginId: string): void {
     const context = this.sandboxes.get(pluginId);
@@ -388,19 +405,27 @@ export class PluginSandboxRuntime {
     // In a real implementation, this would collect actual metrics
     // For now, this is a placeholder structure
     
-    // Update memory usage (global process memory - not per-plugin)
-    // TODO: Implement per-plugin memory tracking
+    // Update memory usage using delta from baseline for per-plugin approximation
     const memoryUsage = getMemoryUsage();
-    context.resourceUsage.memory.current = memoryUsage.heapUsed;
+    const memoryBaseline = this.memoryBaselines.get(pluginId) ?? 0;
+    const memoryDelta = Math.max(0, memoryUsage.heapUsed - memoryBaseline);
+    context.resourceUsage.memory.current = memoryDelta;
     context.resourceUsage.memory.peak = Math.max(
       context.resourceUsage.memory.peak,
-      memoryUsage.heapUsed
+      memoryDelta
     );
 
-    // Update CPU usage (would use process.cpuUsage() or similar)
-    // This is a placeholder - real implementation would track per-plugin CPU
-    // TODO: Implement per-plugin CPU tracking
-    context.resourceUsage.cpu.current = 0;
+    // Update CPU usage using delta from baseline for per-plugin approximation
+    const cpuBaseline = this.cpuBaselines.get(pluginId) ?? { user: 0, system: 0 };
+    const cpuCurrent = process.cpuUsage();
+    const cpuDeltaUser = cpuCurrent.user - cpuBaseline.user;
+    const cpuDeltaSystem = cpuCurrent.system - cpuBaseline.system;
+    // Convert microseconds to a percentage approximation over the monitoring interval
+    const totalCpuMicros = cpuDeltaUser + cpuDeltaSystem;
+    const intervalMicros = PluginSandboxRuntime.MONITORING_INTERVAL_MS * 1000;
+    context.resourceUsage.cpu.current = (totalCpuMicros / intervalMicros) * 100;
+    // Update baseline for next interval
+    this.cpuBaselines.set(pluginId, cpuCurrent);
 
     // Check for violations
     const { withinLimits, violations } = this.checkResourceLimits(pluginId);
@@ -429,6 +454,8 @@ export class PluginSandboxRuntime {
     }
 
     this.sandboxes.clear();
+    this.memoryBaselines.clear();
+    this.cpuBaselines.clear();
     
     this.logger.info('Sandbox runtime shutdown complete');
   }

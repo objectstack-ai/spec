@@ -1,24 +1,7 @@
 {
   "$ref": "#/definitions/HttpStatusCode",
   "definitions": {
-    "HttpStatusCode": {
-      "anyOf": [
-        {
-          "type": "integer",
-          "minimum": 100,
-          "maximum": 599
-        },
-        {
-          "type": "string",
-          "enum": [
-            "2xx",
-            "3xx",
-            "4xx",
-            "5xx"
-          ]
-        }
-      ]
-    }
+    "HttpStatusCode": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

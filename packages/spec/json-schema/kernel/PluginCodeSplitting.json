@@ -1,56 +1,7 @@
 {
   "$ref": "#/definitions/PluginCodeSplitting",
   "definitions": {
-    "PluginCodeSplitting": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": true
-        },
-        "strategy": {
-          "type": "string",
-          "enum": [
-            "route",
-            "feature",
-            "size",
-            "custom"
-          ],
-          "default": "feature"
-        },
-        "chunkNaming": {
-          "type": "string",
-          "enum": [
-            "hashed",
-            "named",
-            "sequential"
-          ],
-          "default": "hashed"
-        },
-        "maxChunkSize": {
-          "type": "integer",
-          "minimum": 10,
-          "description": "Max chunk size in KB"
-        },
-        "sharedDependencies": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": true
-            },
-            "minChunks": {
-              "type": "integer",
-              "minimum": 1,
-              "default": 2
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false,
-      "description": "Plugin code splitting configuration"
-    }
+    "PluginCodeSplitting": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

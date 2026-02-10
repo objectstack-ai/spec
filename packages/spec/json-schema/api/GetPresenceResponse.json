@@ -1,59 +1,7 @@
 {
   "$ref": "#/definitions/GetPresenceResponse",
   "definitions": {
-    "GetPresenceResponse": {
-      "type": "object",
-      "properties": {
-        "channel": {
-          "type": "string",
-          "description": "Channel name"
-        },
-        "members": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "userId": {
-                "type": "string",
-                "description": "User identifier"
-              },
-              "status": {
-                "type": "string",
-                "enum": [
-                  "online",
-                  "away",
-                  "busy",
-                  "offline"
-                ],
-                "description": "Current presence status"
-              },
-              "lastSeen": {
-                "type": "string",
-                "format": "date-time",
-                "description": "ISO 8601 datetime of last activity"
-              },
-              "metadata": {
-                "type": "object",
-                "additionalProperties": {},
-                "description": "Custom presence data (e.g., current page, custom status)"
-              }
-            },
-            "required": [
-              "userId",
-              "status",
-              "lastSeen"
-            ],
-            "additionalProperties": false
-          },
-          "description": "Active members and their presence state"
-        }
-      },
-      "required": [
-        "channel",
-        "members"
-      ],
-      "additionalProperties": false
-    }
+    "GetPresenceResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

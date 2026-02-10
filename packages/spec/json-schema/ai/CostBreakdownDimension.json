@@ -1,20 +1,7 @@
 {
   "$ref": "#/definitions/CostBreakdownDimension",
   "definitions": {
-    "CostBreakdownDimension": {
-      "type": "string",
-      "enum": [
-        "model",
-        "provider",
-        "user",
-        "agent",
-        "object",
-        "operation",
-        "date",
-        "hour",
-        "tag"
-      ]
-    }
+    "CostBreakdownDimension": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,37 +1,7 @@
 {
   "$ref": "#/definitions/EmailAlertAction",
   "definitions": {
-    "EmailAlertAction": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Action name"
-        },
-        "type": {
-          "type": "string",
-          "const": "email_alert"
-        },
-        "template": {
-          "type": "string",
-          "description": "Email template ID/DevName"
-        },
-        "recipients": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "List of recipient emails or user IDs"
-        }
-      },
-      "required": [
-        "name",
-        "type",
-        "template",
-        "recipients"
-      ],
-      "additionalProperties": false
-    }
+    "EmailAlertAction": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

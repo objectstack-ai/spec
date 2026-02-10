@@ -1,49 +1,7 @@
 {
   "$ref": "#/definitions/MetadataExportOptions",
   "definitions": {
-    "MetadataExportOptions": {
-      "type": "object",
-      "properties": {
-        "output": {
-          "type": "string",
-          "description": "Output file path"
-        },
-        "format": {
-          "type": "string",
-          "enum": [
-            "json",
-            "yaml",
-            "typescript",
-            "javascript"
-          ],
-          "default": "json",
-          "description": "Export format"
-        },
-        "filter": {
-          "type": "string",
-          "description": "Filter items to export"
-        },
-        "includeStats": {
-          "type": "boolean",
-          "default": false,
-          "description": "Include metadata statistics"
-        },
-        "compress": {
-          "type": "boolean",
-          "default": false,
-          "description": "Compress output (gzip)"
-        },
-        "prettify": {
-          "type": "boolean",
-          "default": true,
-          "description": "Pretty print output"
-        }
-      },
-      "required": [
-        "output"
-      ],
-      "additionalProperties": false
-    }
+    "MetadataExportOptions": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

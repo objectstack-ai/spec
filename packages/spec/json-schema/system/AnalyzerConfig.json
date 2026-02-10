@@ -1,46 +1,7 @@
 {
   "$ref": "#/definitions/AnalyzerConfig",
   "definitions": {
-    "AnalyzerConfig": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "standard",
-            "simple",
-            "whitespace",
-            "keyword",
-            "pattern",
-            "language"
-          ],
-          "description": "Text analyzer type"
-        },
-        "language": {
-          "type": "string",
-          "description": "Language for language-specific analysis"
-        },
-        "stopwords": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Custom stopwords to filter during analysis"
-        },
-        "customFilters": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Additional token filter names to apply"
-        }
-      },
-      "required": [
-        "type"
-      ],
-      "additionalProperties": false,
-      "description": "Text analyzer configuration for index tokenization and normalization"
-    }
+    "AnalyzerConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

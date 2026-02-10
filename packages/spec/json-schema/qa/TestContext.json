@@ -1,11 +1,7 @@
 {
   "$ref": "#/definitions/TestContext",
   "definitions": {
-    "TestContext": {
-      "type": "object",
-      "additionalProperties": {},
-      "description": "Initial context or variables for the test"
-    }
+    "TestContext": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

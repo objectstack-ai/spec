@@ -493,20 +493,22 @@ describe('ObjectSchema', () => {
         fields: {
           status: { type: 'text' }
         },
-        stateMachine: {
-          id: 'leave_flow',
-          initial: 'draft',
-          states: {
-            draft: { on: { SUBMIT: 'pending' } },
-            pending: { on: { APPROVE: 'approved' } },
-            approved: { type: 'final' }
+        stateMachines: {
+          leave_flow: {
+            id: 'leave_flow',
+            initial: 'draft',
+            states: {
+              draft: { on: { SUBMIT: 'pending' } },
+              pending: { on: { APPROVE: 'approved' } },
+              approved: { type: 'final' }
+            }
           }
         }
       };
       
       const result = ObjectSchema.parse(objectWithState);
-      expect(result.stateMachine).toBeDefined();
-      expect(result.stateMachine?.initial).toBe('draft');
+      expect(result.stateMachines).toBeDefined();
+      expect(result.stateMachines!.leave_flow.initial).toBe('draft');
     });
 
     it('should support multiple parallel state machines via stateMachines', () => {
@@ -559,21 +561,19 @@ describe('ObjectSchema', () => {
       expect(result.stateMachines!.approval.initial).toBe('pending');
     });
 
-    it('should allow both stateMachine and stateMachines to coexist', () => {
+    it('should allow multiple stateMachines', () => {
       const obj = {
         name: 'contract',
         fields: { status: { type: 'text' } },
-        // Legacy single shorthand
-        stateMachine: {
-          id: 'contract_lifecycle',
-          initial: 'draft',
-          states: {
-            draft: { on: { ACTIVATE: 'active' } },
-            active: { type: 'final' },
-          }
-        },
-        // Additional parallel machines
         stateMachines: {
+          contract_lifecycle: {
+            id: 'contract_lifecycle',
+            initial: 'draft',
+            states: {
+              draft: { on: { ACTIVATE: 'active' } },
+              active: { type: 'final' },
+            }
+          },
           billing: {
             id: 'contract_billing',
             initial: 'unbilled',
@@ -587,7 +587,7 @@ describe('ObjectSchema', () => {
       };
 
       const result = ObjectSchema.parse(obj);
-      expect(result.stateMachine?.initial).toBe('draft');
+      expect(result.stateMachines?.contract_lifecycle.initial).toBe('draft');
       expect(result.stateMachines?.billing.initial).toBe('unbilled');
     });
   });

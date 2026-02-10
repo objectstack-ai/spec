@@ -1,36 +1,7 @@
 {
   "$ref": "#/definitions/CodeGenerationTemplate",
   "definitions": {
-    "CodeGenerationTemplate": {
-      "type": "object",
-      "properties": {
-        "language": {
-          "type": "string",
-          "description": "Target language/framework (e.g., typescript, python, curl)"
-        },
-        "name": {
-          "type": "string",
-          "description": "Template name"
-        },
-        "template": {
-          "type": "string",
-          "description": "Code template with placeholders"
-        },
-        "variables": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Required template variables"
-        }
-      },
-      "required": [
-        "language",
-        "name",
-        "template"
-      ],
-      "additionalProperties": false
-    }
+    "CodeGenerationTemplate": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

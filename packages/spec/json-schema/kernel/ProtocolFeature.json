@@ -1,34 +1,7 @@
 {
   "$ref": "#/definitions/ProtocolFeature",
   "definitions": {
-    "ProtocolFeature": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Feature identifier within the protocol"
-        },
-        "enabled": {
-          "type": "boolean",
-          "default": true
-        },
-        "description": {
-          "type": "string"
-        },
-        "sinceVersion": {
-          "type": "string",
-          "description": "Version when this feature was added"
-        },
-        "deprecatedSince": {
-          "type": "string",
-          "description": "Version when deprecated"
-        }
-      },
-      "required": [
-        "name"
-      ],
-      "additionalProperties": false
-    }
+    "ProtocolFeature": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

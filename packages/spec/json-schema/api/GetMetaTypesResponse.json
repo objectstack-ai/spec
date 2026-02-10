@@ -1,22 +1,7 @@
 {
   "$ref": "#/definitions/GetMetaTypesResponse",
   "definitions": {
-    "GetMetaTypesResponse": {
-      "type": "object",
-      "properties": {
-        "types": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Available metadata type names (e.g., \"object\", \"plugin\", \"view\")"
-        }
-      },
-      "required": [
-        "types"
-      ],
-      "additionalProperties": false
-    }
+    "GetMetaTypesResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

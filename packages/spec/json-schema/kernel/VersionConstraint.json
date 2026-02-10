@@ -1,60 +1,7 @@
 {
   "$ref": "#/definitions/VersionConstraint",
   "definitions": {
-    "VersionConstraint": {
-      "anyOf": [
-        {
-          "type": "string",
-          "pattern": "^[\\d.]+$",
-          "description": "Exact version: `1.2.3`"
-        },
-        {
-          "type": "string",
-          "pattern": "^\\^[\\d.]+$",
-          "description": "Compatible with: `^1.2.3` (`>=1.2.3 <2.0.0`)"
-        },
-        {
-          "type": "string",
-          "pattern": "^~[\\d.]+$",
-          "description": "Approximately: `~1.2.3` (`>=1.2.3 <1.3.0`)"
-        },
-        {
-          "type": "string",
-          "pattern": "^>=[\\d.]+$",
-          "description": "Greater than or equal: `>=1.2.3`"
-        },
-        {
-          "type": "string",
-          "pattern": "^>[\\d.]+$",
-          "description": "Greater than: `>1.2.3`"
-        },
-        {
-          "type": "string",
-          "pattern": "^<=[\\d.]+$",
-          "description": "Less than or equal: `<=1.2.3`"
-        },
-        {
-          "type": "string",
-          "pattern": "^<[\\d.]+$",
-          "description": "Less than: `<1.2.3`"
-        },
-        {
-          "type": "string",
-          "pattern": "^[\\d.]+ - [\\d.]+$",
-          "description": "Range: `1.2.3 - 2.3.4`"
-        },
-        {
-          "type": "string",
-          "const": "*",
-          "description": "Any version"
-        },
-        {
-          "type": "string",
-          "const": "latest",
-          "description": "Latest stable version"
-        }
-      ]
-    }
+    "VersionConstraint": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

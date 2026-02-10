@@ -1,31 +1,7 @@
 {
   "$ref": "#/definitions/PageVariable",
   "definitions": {
-    "PageVariable": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Variable name"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "string",
-            "number",
-            "boolean",
-            "object",
-            "array"
-          ],
-          "default": "string"
-        },
-        "defaultValue": {}
-      },
-      "required": [
-        "name"
-      ],
-      "additionalProperties": false
-    }
+    "PageVariable": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

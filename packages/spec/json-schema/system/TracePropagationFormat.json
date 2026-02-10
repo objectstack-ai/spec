@@ -1,19 +1,7 @@
 {
   "$ref": "#/definitions/TracePropagationFormat",
   "definitions": {
-    "TracePropagationFormat": {
-      "type": "string",
-      "enum": [
-        "w3c",
-        "b3",
-        "b3_multi",
-        "jaeger",
-        "xray",
-        "ottrace",
-        "custom"
-      ],
-      "description": "Trace propagation format"
-    }
+    "TracePropagationFormat": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

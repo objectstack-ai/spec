@@ -1,0 +1,20 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+import { defineConfig } from 'vitest/config';
+import path from 'node:path';
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      '@objectstack/core': path.resolve(__dirname, '../core/src/index.ts'),
+      '@objectstack/spec/system': path.resolve(__dirname, '../spec/src/system/index.ts'),
+      '@objectstack/spec': path.resolve(__dirname, '../spec/src/index.ts'),
+      '@objectstack/types': path.resolve(__dirname, '../types/src/index.ts'),
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'node',
+    include: ['src/**/*.test.ts'],
+  },
+});

@@ -116,7 +116,12 @@ export class MetadataManager {
         try {
             const items = await loader.loadMany<T>(type, options);
             for (const item of items) {
-                // TODO: Deduplicate based on 'name' if property exists
+                // Deduplicate: skip items whose 'name' already exists in results
+                const itemAny = item as any;
+                if (itemAny && typeof itemAny.name === 'string') {
+                    const exists = results.some((r: any) => r && r.name === itemAny.name);
+                    if (exists) continue;
+                }
                 results.push(item);
             }
         } catch (e) {

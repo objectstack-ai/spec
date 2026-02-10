@@ -1,11 +1,7 @@
 {
   "$ref": "#/definitions/PluginLifecycle",
   "definitions": {
-    "PluginLifecycle": {
-      "type": "object",
-      "properties": {},
-      "additionalProperties": false
-    }
+    "PluginLifecycle": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

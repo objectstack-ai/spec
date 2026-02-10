@@ -1,20 +1,7 @@
 {
   "$ref": "#/definitions/ComponentActionType",
   "definitions": {
-    "ComponentActionType": {
-      "type": "string",
-      "enum": [
-        "open_modal",
-        "close_modal",
-        "open_sidebar",
-        "close_sidebar",
-        "show_notification",
-        "hide_notification",
-        "open_dropdown",
-        "close_dropdown",
-        "toggle_section"
-      ]
-    }
+    "ComponentActionType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

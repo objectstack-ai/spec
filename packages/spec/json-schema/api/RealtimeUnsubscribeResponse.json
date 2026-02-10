@@ -1,19 +1,7 @@
 {
   "$ref": "#/definitions/RealtimeUnsubscribeResponse",
   "definitions": {
-    "RealtimeUnsubscribeResponse": {
-      "type": "object",
-      "properties": {
-        "success": {
-          "type": "boolean",
-          "description": "Whether unsubscription succeeded"
-        }
-      },
-      "required": [
-        "success"
-      ],
-      "additionalProperties": false
-    }
+    "RealtimeUnsubscribeResponse": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

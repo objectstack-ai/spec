@@ -1,38 +1,7 @@
 {
   "$ref": "#/definitions/GetPresignedUrlRequest",
   "definitions": {
-    "GetPresignedUrlRequest": {
-      "type": "object",
-      "properties": {
-        "filename": {
-          "type": "string",
-          "description": "Original filename"
-        },
-        "mimeType": {
-          "type": "string",
-          "description": "File MIME type"
-        },
-        "size": {
-          "type": "number",
-          "description": "File size in bytes"
-        },
-        "scope": {
-          "type": "string",
-          "default": "user",
-          "description": "Target storage scope (e.g. user, private, public)"
-        },
-        "bucket": {
-          "type": "string",
-          "description": "Specific bucket override (admin only)"
-        }
-      },
-      "required": [
-        "filename",
-        "mimeType",
-        "size"
-      ],
-      "additionalProperties": false
-    }
+    "GetPresignedUrlRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

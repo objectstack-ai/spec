@@ -1,17 +1,7 @@
 {
   "$ref": "#/definitions/RouteCategory",
   "definitions": {
-    "RouteCategory": {
-      "type": "string",
-      "enum": [
-        "system",
-        "api",
-        "auth",
-        "static",
-        "webhook",
-        "plugin"
-      ]
-    }
+    "RouteCategory": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

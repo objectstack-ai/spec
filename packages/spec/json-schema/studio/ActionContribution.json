@@ -1,46 +1,7 @@
 {
   "$ref": "#/definitions/ActionContribution",
   "definitions": {
-    "ActionContribution": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique action identifier"
-        },
-        "label": {
-          "type": "string",
-          "description": "Action display label"
-        },
-        "icon": {
-          "type": "string",
-          "description": "Lucide icon name"
-        },
-        "location": {
-          "type": "string",
-          "enum": [
-            "toolbar",
-            "contextMenu",
-            "commandPalette"
-          ],
-          "description": "UI location"
-        },
-        "metadataTypes": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [],
-          "description": "Applicable metadata types"
-        }
-      },
-      "required": [
-        "id",
-        "label",
-        "location"
-      ],
-      "additionalProperties": false
-    }
+    "ActionContribution": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

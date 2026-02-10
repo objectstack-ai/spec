@@ -1,14 +1,7 @@
 {
   "$ref": "#/definitions/RealtimeAction",
   "definitions": {
-    "RealtimeAction": {
-      "type": "string",
-      "enum": [
-        "created",
-        "updated",
-        "deleted"
-      ]
-    }
+    "RealtimeAction": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

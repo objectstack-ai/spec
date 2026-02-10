@@ -1,23 +1,7 @@
 {
   "$ref": "#/definitions/PermissionAction",
   "definitions": {
-    "PermissionAction": {
-      "type": "string",
-      "enum": [
-        "create",
-        "read",
-        "update",
-        "delete",
-        "execute",
-        "manage",
-        "configure",
-        "share",
-        "export",
-        "import",
-        "admin"
-      ],
-      "description": "Type of action being permitted"
-    }
+    "PermissionAction": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

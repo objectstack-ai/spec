@@ -1,17 +1,7 @@
 {
   "$ref": "#/definitions/CacheInvalidationTarget",
   "definitions": {
-    "CacheInvalidationTarget": {
-      "type": "string",
-      "enum": [
-        "all",
-        "object",
-        "field",
-        "permission",
-        "layout",
-        "custom"
-      ]
-    }
+    "CacheInvalidationTarget": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,24 +1,7 @@
 {
   "$ref": "#/definitions/GetFieldLabelsRequest",
   "definitions": {
-    "GetFieldLabelsRequest": {
-      "type": "object",
-      "properties": {
-        "object": {
-          "type": "string",
-          "description": "Object name"
-        },
-        "locale": {
-          "type": "string",
-          "description": "BCP-47 locale code"
-        }
-      },
-      "required": [
-        "object",
-        "locale"
-      ],
-      "additionalProperties": false
-    }
+    "GetFieldLabelsRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

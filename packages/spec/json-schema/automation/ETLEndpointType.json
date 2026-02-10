@@ -1,19 +1,7 @@
 {
   "$ref": "#/definitions/ETLEndpointType",
   "definitions": {
-    "ETLEndpointType": {
-      "type": "string",
-      "enum": [
-        "database",
-        "api",
-        "file",
-        "stream",
-        "object",
-        "warehouse",
-        "storage",
-        "spreadsheet"
-      ]
-    }
+    "ETLEndpointType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

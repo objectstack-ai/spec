@@ -1,53 +1,7 @@
 {
   "$ref": "#/definitions/PluginInstallConfig",
   "definitions": {
-    "PluginInstallConfig": {
-      "type": "object",
-      "properties": {
-        "pluginId": {
-          "type": "string"
-        },
-        "version": {
-          "type": "string",
-          "description": "Defaults to latest"
-        },
-        "config": {
-          "type": "object",
-          "additionalProperties": {}
-        },
-        "autoUpdate": {
-          "type": "boolean",
-          "default": false
-        },
-        "options": {
-          "type": "object",
-          "properties": {
-            "skipDependencies": {
-              "type": "boolean",
-              "default": false
-            },
-            "force": {
-              "type": "boolean",
-              "default": false
-            },
-            "target": {
-              "type": "string",
-              "enum": [
-                "system",
-                "space",
-                "user"
-              ],
-              "default": "space"
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "pluginId"
-      ],
-      "additionalProperties": false
-    }
+    "PluginInstallConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

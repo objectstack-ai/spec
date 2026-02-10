@@ -1,35 +1,7 @@
 {
   "$ref": "#/definitions/PageCardProps",
   "definitions": {
-    "PageCardProps": {
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": "string"
-        },
-        "bordered": {
-          "type": "boolean",
-          "default": true
-        },
-        "actions": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "body": {
-          "type": "array",
-          "items": {},
-          "description": "Card content components (slot)"
-        },
-        "footer": {
-          "type": "array",
-          "items": {},
-          "description": "Card footer components (slot)"
-        }
-      },
-      "additionalProperties": false
-    }
+    "PageCardProps": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

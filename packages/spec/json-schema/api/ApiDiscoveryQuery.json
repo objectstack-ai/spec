@@ -1,57 +1,7 @@
 {
   "$ref": "#/definitions/ApiDiscoveryQuery",
   "definitions": {
-    "ApiDiscoveryQuery": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "rest",
-            "graphql",
-            "odata",
-            "websocket",
-            "file",
-            "auth",
-            "metadata",
-            "plugin",
-            "webhook",
-            "rpc"
-          ],
-          "description": "Filter by API protocol type"
-        },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Filter by tags (ANY match)"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "active",
-            "deprecated",
-            "experimental",
-            "beta"
-          ],
-          "description": "Filter by lifecycle status"
-        },
-        "pluginSource": {
-          "type": "string",
-          "description": "Filter by plugin name"
-        },
-        "search": {
-          "type": "string",
-          "description": "Full-text search in name/description"
-        },
-        "version": {
-          "type": "string",
-          "description": "Filter by specific version"
-        }
-      },
-      "additionalProperties": false
-    }
+    "ApiDiscoveryQuery": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

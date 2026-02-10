@@ -306,45 +306,65 @@ export class PluginPermissionEnforcer {
     });
   }
   
-  private checkFileRead(capabilities: PluginCapability[], _path: string): boolean {
+  private matchGlob(pattern: string, str: string): boolean {
+    const regexStr = pattern
+      .split('**')
+      .map(segment => {
+        const escaped = segment.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+        return escaped.replace(/\*/g, '[^/]*');
+      })
+      .join('.*');
+    return new RegExp(`^${regexStr}$`).test(str);
+  }
+  
+  private checkFileRead(capabilities: PluginCapability[], path: string): boolean {
     // Check if plugin has capability to read this file
     return capabilities.some(cap => {
       const protocolId = cap.protocol.id;
       
       // Check for file read capability
       if (protocolId.includes('protocol.filesystem.read')) {
-        // TODO: Add path pattern matching
-        return true;
+        const paths = cap.metadata?.paths;
+        if (!Array.isArray(paths) || paths.length === 0) {
+          return true;
+        }
+        return paths.some(p => typeof p === 'string' && this.matchGlob(p, path));
       }
       
       return false;
     });
   }
   
-  private checkFileWrite(capabilities: PluginCapability[], _path: string): boolean {
+  private checkFileWrite(capabilities: PluginCapability[], path: string): boolean {
     // Check if plugin has capability to write this file
     return capabilities.some(cap => {
       const protocolId = cap.protocol.id;
       
       // Check for file write capability
       if (protocolId.includes('protocol.filesystem.write')) {
-        // TODO: Add path pattern matching
-        return true;
+        const paths = cap.metadata?.paths;
+        if (!Array.isArray(paths) || paths.length === 0) {
+          return true;
+        }
+        return paths.some(p => typeof p === 'string' && this.matchGlob(p, path));
       }
       
       return false;
     });
   }
   
-  private checkNetworkAccess(capabilities: PluginCapability[], _url: string): boolean {
+  private checkNetworkAccess(capabilities: PluginCapability[], url: string): boolean {
     // Check if plugin has capability to access this URL
     return capabilities.some(cap => {
       const protocolId = cap.protocol.id;
       
       // Check for network capability
       if (protocolId.includes('protocol.network')) {
-        // TODO: Add URL pattern matching
-        return true;
+        const hosts = cap.metadata?.hosts;
+        if (!Array.isArray(hosts) || hosts.length === 0) {
+          return true;
+        }
+        return hosts.some(h => typeof h === 'string' && this.matchGlob(h, url));
       }
       
       return false;

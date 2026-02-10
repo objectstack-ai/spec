@@ -1,25 +1,7 @@
 {
   "$ref": "#/definitions/MessageQueueProvider",
   "definitions": {
-    "MessageQueueProvider": {
-      "type": "string",
-      "enum": [
-        "rabbitmq",
-        "kafka",
-        "redis_pubsub",
-        "redis_streams",
-        "aws_sqs",
-        "aws_sns",
-        "google_pubsub",
-        "azure_service_bus",
-        "azure_event_hubs",
-        "nats",
-        "pulsar",
-        "activemq",
-        "custom"
-      ],
-      "description": "Message queue provider type"
-    }
+    "MessageQueueProvider": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

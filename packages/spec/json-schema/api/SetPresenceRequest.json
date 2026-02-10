@@ -1,56 +1,7 @@
 {
   "$ref": "#/definitions/SetPresenceRequest",
   "definitions": {
-    "SetPresenceRequest": {
-      "type": "object",
-      "properties": {
-        "channel": {
-          "type": "string",
-          "description": "Channel to set presence in"
-        },
-        "state": {
-          "type": "object",
-          "properties": {
-            "userId": {
-              "type": "string",
-              "description": "User identifier"
-            },
-            "status": {
-              "type": "string",
-              "enum": [
-                "online",
-                "away",
-                "busy",
-                "offline"
-              ],
-              "description": "Current presence status"
-            },
-            "lastSeen": {
-              "type": "string",
-              "format": "date-time",
-              "description": "ISO 8601 datetime of last activity"
-            },
-            "metadata": {
-              "type": "object",
-              "additionalProperties": {},
-              "description": "Custom presence data (e.g., current page, custom status)"
-            }
-          },
-          "required": [
-            "userId",
-            "status",
-            "lastSeen"
-          ],
-          "additionalProperties": false,
-          "description": "Presence state to set"
-        }
-      },
-      "required": [
-        "channel",
-        "state"
-      ],
-      "additionalProperties": false
-    }
+    "SetPresenceRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

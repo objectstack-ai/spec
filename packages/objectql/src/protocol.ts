@@ -186,13 +186,51 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
     }
 
     async findData(request: { object: string, query?: any }) {
-        // TODO: Normalize query from HTTP Query params (string values) to DataEngineQueryOptions (typed)
-        // For now, we assume query is partially compatible or simple enough.
-        // We should parse 'top', 'skip', 'limit' to numbers if they are strings.
         const options: any = { ...request.query };
-        if (options.top) options.top = Number(options.top);
-        if (options.skip) options.skip = Number(options.skip);
-        if (options.limit) options.limit = Number(options.limit);
+
+        // Numeric fields
+        if (options.top != null) options.top = Number(options.top);
+        if (options.skip != null) options.skip = Number(options.skip);
+        if (options.limit != null) options.limit = Number(options.limit);
+
+        // Select: comma-separated string → array
+        if (typeof options.select === 'string') {
+            options.select = options.select.split(',').map((s: string) => s.trim()).filter(Boolean);
+        }
+
+        // Sort/orderBy: string → sort array (e.g. "name asc,created_at desc" or "name,-created_at")
+        const sortValue = options.orderBy ?? options.sort;
+        if (typeof sortValue === 'string') {
+            const parsed = sortValue.split(',').map((part: string) => {
+                const trimmed = part.trim();
+                if (trimmed.startsWith('-')) {
+                    return { field: trimmed.slice(1), order: 'desc' as const };
+                }
+                const [field, order] = trimmed.split(/\s+/);
+                return { field, order: (order?.toLowerCase() === 'desc' ? 'desc' : 'asc') as 'asc' | 'desc' };
+            }).filter((s: any) => s.field);
+            options.sort = parsed;
+            delete options.orderBy;
+        }
+
+        // Filter: JSON string → object
+        if (typeof options.filter === 'string') {
+            try { options.filter = JSON.parse(options.filter); } catch { /* keep as-is */ }
+        }
+        if (typeof options.filters === 'string') {
+            try { options.filter = JSON.parse(options.filters); delete options.filters; } catch { /* keep as-is */ }
+        }
+
+        // Populate: comma-separated string → array
+        if (typeof options.populate === 'string') {
+            options.populate = options.populate.split(',').map((s: string) => s.trim()).filter(Boolean);
+        }
+
+        // Boolean fields
+        for (const key of ['distinct', 'count']) {
+            if (options[key] === 'true') options[key] = true;
+            else if (options[key] === 'false') options[key] = false;
+        }
         
         // Handle OData style $filter if present, or flat filters
         // This is a naive implementation, a real OData parser is needed for complex scenarios.

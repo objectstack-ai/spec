@@ -1,16 +1,7 @@
 {
   "$ref": "#/definitions/RealtimeDisconnectRequest",
   "definitions": {
-    "RealtimeDisconnectRequest": {
-      "type": "object",
-      "properties": {
-        "connectionId": {
-          "type": "string",
-          "description": "Connection ID to disconnect"
-        }
-      },
-      "additionalProperties": false
-    }
+    "RealtimeDisconnectRequest": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,41 +1,7 @@
 {
   "$ref": "#/definitions/SemanticVersion",
   "definitions": {
-    "SemanticVersion": {
-      "type": "object",
-      "properties": {
-        "major": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Major version (breaking changes)"
-        },
-        "minor": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Minor version (backward compatible features)"
-        },
-        "patch": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Patch version (backward compatible fixes)"
-        },
-        "preRelease": {
-          "type": "string",
-          "description": "Pre-release identifier (alpha, beta, rc.1)"
-        },
-        "build": {
-          "type": "string",
-          "description": "Build metadata"
-        }
-      },
-      "required": [
-        "major",
-        "minor",
-        "patch"
-      ],
-      "additionalProperties": false,
-      "description": "Semantic version number"
-    }
+    "SemanticVersion": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,64 +1,7 @@
 {
   "$ref": "#/definitions/PluginInitialization",
   "definitions": {
-    "PluginInitialization": {
-      "type": "object",
-      "properties": {
-        "mode": {
-          "type": "string",
-          "enum": [
-            "sync",
-            "async",
-            "parallel",
-            "sequential"
-          ],
-          "default": "async"
-        },
-        "timeout": {
-          "type": "integer",
-          "minimum": 100,
-          "default": 30000
-        },
-        "priority": {
-          "type": "integer",
-          "minimum": 0,
-          "default": 100
-        },
-        "critical": {
-          "type": "boolean",
-          "default": false,
-          "description": "If true, kernel bootstrap fails if plugin fails"
-        },
-        "retry": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": false
-            },
-            "maxAttempts": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 5,
-              "default": 3
-            },
-            "backoffMs": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 1000
-            }
-          },
-          "additionalProperties": false
-        },
-        "healthCheckInterval": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Health check interval in ms (0 = disabled)"
-        }
-      },
-      "additionalProperties": false,
-      "description": "Plugin initialization configuration"
-    }
+    "PluginInitialization": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

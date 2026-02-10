@@ -1,77 +1,7 @@
 {
   "$ref": "#/definitions/PluginCaching",
   "definitions": {
-    "PluginCaching": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": true
-        },
-        "storage": {
-          "type": "string",
-          "enum": [
-            "memory",
-            "disk",
-            "indexeddb",
-            "hybrid"
-          ],
-          "default": "memory"
-        },
-        "keyStrategy": {
-          "type": "string",
-          "enum": [
-            "version",
-            "hash",
-            "timestamp"
-          ],
-          "default": "version"
-        },
-        "ttl": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Time to live in seconds (0 = infinite)"
-        },
-        "maxSize": {
-          "type": "integer",
-          "minimum": 1,
-          "description": "Max cache size in MB"
-        },
-        "invalidateOn": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "version-change",
-              "dependency-change",
-              "manual",
-              "error"
-            ]
-          }
-        },
-        "compression": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": false
-            },
-            "algorithm": {
-              "type": "string",
-              "enum": [
-                "gzip",
-                "brotli",
-                "deflate"
-              ],
-              "default": "gzip"
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false,
-      "description": "Plugin caching configuration"
-    }
+    "PluginCaching": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

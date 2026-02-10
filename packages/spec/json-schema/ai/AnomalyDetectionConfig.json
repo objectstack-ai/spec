@@ -1,72 +1,7 @@
 {
   "$ref": "#/definitions/AnomalyDetectionConfig",
   "definitions": {
-    "AnomalyDetectionConfig": {
-      "type": "object",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "default": true
-        },
-        "metrics": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "cpu-usage",
-              "memory-usage",
-              "response-time",
-              "error-rate",
-              "throughput",
-              "latency",
-              "connection-count",
-              "queue-depth"
-            ]
-          }
-        },
-        "algorithm": {
-          "type": "string",
-          "enum": [
-            "statistical",
-            "machine-learning",
-            "heuristic",
-            "hybrid"
-          ],
-          "default": "hybrid"
-        },
-        "sensitivity": {
-          "type": "string",
-          "enum": [
-            "low",
-            "medium",
-            "high"
-          ],
-          "default": "medium",
-          "description": "How aggressively to detect anomalies"
-        },
-        "timeWindow": {
-          "type": "integer",
-          "minimum": 60,
-          "default": 300,
-          "description": "Historical data window for anomaly detection"
-        },
-        "confidenceThreshold": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100,
-          "default": 80,
-          "description": "Minimum confidence to flag as anomaly"
-        },
-        "alertOnDetection": {
-          "type": "boolean",
-          "default": true
-        }
-      },
-      "required": [
-        "metrics"
-      ],
-      "additionalProperties": false
-    }
+    "AnomalyDetectionConfig": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

@@ -1,16 +1,7 @@
 {
   "$ref": "#/definitions/CostAlertType",
   "definitions": {
-    "CostAlertType": {
-      "type": "string",
-      "enum": [
-        "threshold_warning",
-        "threshold_critical",
-        "limit_exceeded",
-        "anomaly_detected",
-        "projection_exceeded"
-      ]
-    }
+    "CostAlertType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

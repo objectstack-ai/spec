@@ -1,21 +1,7 @@
 {
   "$ref": "#/definitions/ApiProtocolType",
   "definitions": {
-    "ApiProtocolType": {
-      "type": "string",
-      "enum": [
-        "rest",
-        "graphql",
-        "odata",
-        "websocket",
-        "file",
-        "auth",
-        "metadata",
-        "plugin",
-        "webhook",
-        "rpc"
-      ]
-    }
+    "ApiProtocolType": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

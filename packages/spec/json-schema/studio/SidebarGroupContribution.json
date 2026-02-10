@@ -1,41 +1,7 @@
 {
   "$ref": "#/definitions/SidebarGroupContribution",
   "definitions": {
-    "SidebarGroupContribution": {
-      "type": "object",
-      "properties": {
-        "key": {
-          "type": "string",
-          "description": "Unique group key"
-        },
-        "label": {
-          "type": "string",
-          "description": "Group display label"
-        },
-        "icon": {
-          "type": "string",
-          "description": "Lucide icon name"
-        },
-        "metadataTypes": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Metadata types in this group"
-        },
-        "order": {
-          "type": "number",
-          "default": 100,
-          "description": "Sort order (lower = higher)"
-        }
-      },
-      "required": [
-        "key",
-        "label",
-        "metadataTypes"
-      ],
-      "additionalProperties": false
-    }
+    "SidebarGroupContribution": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

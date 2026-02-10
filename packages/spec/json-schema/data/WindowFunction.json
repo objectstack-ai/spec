@@ -1,24 +1,7 @@
 {
   "$ref": "#/definitions/WindowFunction",
   "definitions": {
-    "WindowFunction": {
-      "type": "string",
-      "enum": [
-        "row_number",
-        "rank",
-        "dense_rank",
-        "percent_rank",
-        "lag",
-        "lead",
-        "first_value",
-        "last_value",
-        "sum",
-        "avg",
-        "count",
-        "min",
-        "max"
-      ]
-    }
+    "WindowFunction": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

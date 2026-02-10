@@ -1,49 +1,7 @@
 {
   "$ref": "#/definitions/OpenApiServer",
   "definitions": {
-    "OpenApiServer": {
-      "type": "object",
-      "properties": {
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "description": "Server base URL"
-        },
-        "description": {
-          "type": "string",
-          "description": "Server description"
-        },
-        "variables": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "object",
-            "properties": {
-              "default": {
-                "type": "string"
-              },
-              "description": {
-                "type": "string"
-              },
-              "enum": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            },
-            "required": [
-              "default"
-            ],
-            "additionalProperties": false
-          },
-          "description": "URL template variables"
-        }
-      },
-      "required": [
-        "url"
-      ],
-      "additionalProperties": false
-    }
+    "OpenApiServer": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

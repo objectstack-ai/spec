@@ -1,12 +1,7 @@
 {
   "$ref": "#/definitions/SnakeCaseIdentifier",
   "definitions": {
-    "SnakeCaseIdentifier": {
-      "type": "string",
-      "minLength": 2,
-      "pattern": "^[a-z][a-z0-9_]*$",
-      "description": "Snake case identifier (lowercase with underscores only)"
-    }
+    "SnakeCaseIdentifier": {}
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }

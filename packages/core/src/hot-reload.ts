@@ -1,5 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
+import { createHash } from 'node:crypto';
+
 import type { 
   HotReloadConfig, 
   PluginStateSnapshot 
@@ -136,21 +138,11 @@ class PluginStateManager {
   }
 
   /**
-   * Calculate simple checksum for state verification
-   * WARNING: This is a simple hash for demo purposes.
-   * In production, use a cryptographic hash like SHA-256.
+   * Calculate checksum for state verification using SHA-256.
    */
   private calculateChecksum(state: Record<string, any>): string {
-    // Simple checksum using JSON serialization
-    // TODO: Replace with crypto.createHash('sha256') for production
     const stateStr = JSON.stringify(state);
-    let hash = 0;
-    for (let i = 0; i < stateStr.length; i++) {
-      const char = stateStr.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
-    return hash.toString(16);
+    return createHash('sha256').update(stateStr).digest('hex');
   }
 
   /**
