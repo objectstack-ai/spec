@@ -1,5 +1,20 @@
 # @objectstack/studio
 
+## 2.0.3
+
+### Patch Changes
+
+- Patch release for maintenance and stability improvements
+- Updated dependencies
+  - @objectstack/spec@2.0.3
+  - @objectstack/client@2.0.3
+  - @objectstack/client-react@2.0.3
+  - @objectstack/metadata@2.0.3
+  - @objectstack/objectql@2.0.3
+  - @objectstack/runtime@2.0.3
+  - @objectstack/driver-memory@2.0.3
+  - @objectstack/plugin-msw@2.0.3
+
 ## 2.0.2
 
 ### Patch Changes
