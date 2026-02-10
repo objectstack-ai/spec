@@ -1,4 +1,4 @@
 {
   "title": "Guides",
-  "pages": ["index", "data-modeling", "business-logic", "security", "ai-capabilities", "api-reference", "client-sdk", "driver-configuration", "kernel-services", "standards"]
+  "pages": ["index", "data-modeling", "business-logic", "authentication", "security", "ai-capabilities", "api-reference", "client-sdk", "driver-configuration", "kernel-services", "standards"]
 }
