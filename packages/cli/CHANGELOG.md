@@ -1,5 +1,24 @@
 # @objectstack/cli
 
+## 2.0.2
+
+### Patch Changes
+
+- 1db8559: chore: exclude generated json-schema from git tracking
+
+  - Add `packages/spec/json-schema/` to `.gitignore` (1277 generated files, 5MB)
+  - JSON schema files are still generated during `pnpm build` and included in npm publish via `files` field
+  - Fix studio module resolution logic for better compatibility
+
+- Updated dependencies [1db8559]
+  - @objectstack/spec@2.0.2
+  - @objectstack/core@2.0.2
+  - @objectstack/objectql@2.0.2
+  - @objectstack/driver-memory@2.0.2
+  - @objectstack/plugin-hono-server@2.0.2
+  - @objectstack/rest@2.0.2
+  - @objectstack/runtime@2.0.2
+
 ## 2.0.1
 
 ### Patch Changes

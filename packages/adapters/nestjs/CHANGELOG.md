@@ -1,5 +1,11 @@
 # @objectstack/nestjs
 
+## 2.0.2
+
+### Patch Changes
+
+- @objectstack/runtime@2.0.2
+
 ## 2.0.1
 
 ### Patch Changes

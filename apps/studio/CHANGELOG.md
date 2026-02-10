@@ -1,5 +1,19 @@
 # @objectstack/studio
 
+## 2.0.2
+
+### Patch Changes
+
+- Updated dependencies [1db8559]
+  - @objectstack/spec@2.0.2
+  - @objectstack/client@2.0.2
+  - @objectstack/client-react@2.0.2
+  - @objectstack/metadata@2.0.2
+  - @objectstack/objectql@2.0.2
+  - @objectstack/driver-memory@2.0.2
+  - @objectstack/plugin-msw@2.0.2
+  - @objectstack/runtime@2.0.2
+
 ## 2.0.1
 
 ### Patch Changes
