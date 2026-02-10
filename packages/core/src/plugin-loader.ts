@@ -251,8 +251,12 @@ export class PluginLoader {
     /**
      * Replace an existing service instance.
      * Used by optimization plugins to swap kernel internals.
+     * @throws Error if service does not exist
      */
     replaceService(name: string, service: any): void {
+        if (!this.hasService(name)) {
+            throw new Error(`Service '${name}' not found`);
+        }
         this.serviceInstances.set(name, service);
     }
 
