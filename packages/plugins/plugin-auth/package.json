@@ -11,19 +11,12 @@
   },
   "dependencies": {
     "@objectstack/core": "workspace:*",
-    "@objectstack/spec": "workspace:*"
+    "@objectstack/spec": "workspace:*",
+    "better-auth": "^1.4.18"
   },
   "devDependencies": {
     "@types/node": "^25.2.2",
     "typescript": "^5.0.0",
     "vitest": "^4.0.18"
-  },
-  "peerDependencies": {
-    "better-auth": "^1.0.0"
-  },
-  "peerDependenciesMeta": {
-    "better-auth": {
-      "optional": true
-    }
   }
 }

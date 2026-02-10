@@ -2,6 +2,7 @@
 
 import { Plugin, PluginContext, IHttpServer } from '@objectstack/core';
 import { AuthConfig } from '@objectstack/spec/system';
+import { AuthManager } from './auth-manager.js';
 
 /**
  * Auth Plugin Options
@@ -37,9 +38,9 @@ export interface AuthPluginOptions extends Partial<AuthConfig> {
  * - `auth` service (auth manager instance)
  * - HTTP routes for authentication endpoints
  * 
- * @planned This is a stub implementation. Full better-auth integration
- * will be added in a future version. For now, it provides the plugin
- * structure and basic route registration.
+ * Integrates with better-auth library to provide comprehensive
+ * authentication capabilities including email/password, OAuth, 2FA,
+ * magic links, passkeys, and organization support.
  */
 export class AuthPlugin implements Plugin {
   name = 'com.objectstack.auth';
@@ -66,8 +67,17 @@ export class AuthPlugin implements Plugin {
       throw new Error('AuthPlugin: secret is required');
     }
 
-    // Initialize auth manager
-    this.authManager = new AuthManager(this.options);
+    // Get data engine service for database operations
+    const dataEngine = ctx.getService<any>('data');
+    if (!dataEngine) {
+      ctx.logger.warn('No data engine service found - auth will use in-memory storage');
+    }
+
+    // Initialize auth manager with data engine
+    this.authManager = new AuthManager({
+      ...this.options,
+      dataEngine,
+    });
 
     // Register auth service
     ctx.registerService('auth', this.authManager);
@@ -105,118 +115,80 @@ export class AuthPlugin implements Plugin {
 
   /**
    * Register authentication routes with HTTP server
+   * 
+   * Uses better-auth's universal handler for all authentication requests.
+   * This forwards all requests under basePath to better-auth, which handles:
+   * - Email/password authentication
+   * - OAuth providers (Google, GitHub, etc.)
+   * - Session management
+   * - Password reset
+   * - Email verification
+   * - 2FA, passkeys, magic links (if enabled)
    */
   private registerAuthRoutes(httpServer: IHttpServer, ctx: PluginContext): void {
     if (!this.authManager) return;
 
     const basePath = this.options.basePath || '/api/v1/auth';
 
-    // Login endpoint
-    httpServer.post(`${basePath}/login`, async (req, res) => {
+    // Get raw Hono app to use native wildcard routing
+    // Type assertion is safe here because we explicitly require Hono server as a dependency
+    if (!('getRawApp' in httpServer) || typeof (httpServer as any).getRawApp !== 'function') {
+      ctx.logger.error('HTTP server does not support getRawApp() - wildcard routing requires Hono server');
+      throw new Error(
+        'AuthPlugin requires HonoServerPlugin for wildcard routing support. ' +
+        'Please ensure HonoServerPlugin is loaded before AuthPlugin.'
+      );
+    }
+
+    const rawApp = (httpServer as any).getRawApp();
+
+    // Register wildcard route to forward all auth requests to better-auth
+    // Better-auth expects requests at its baseURL, so we need to preserve the full path
+    rawApp.all(`${basePath}/*`, async (c: any) => {
       try {
-        const body = req.body;
-        const result = await this.authManager!.login(body);
-        res.status(200).json(result);
+        // Get the Web standard Request from Hono context
+        const request = c.req.raw as Request;
+        
+        // Create a new Request with the path rewritten to match better-auth's expectations
+        // Better-auth expects paths like /sign-in/email, /sign-up/email, etc.
+        // We need to strip our basePath prefix
+        const url = new URL(request.url);
+        const authPath = url.pathname.replace(basePath, '');
+        const rewrittenUrl = new URL(authPath || '/', url.origin);
+        rewrittenUrl.search = url.search; // Preserve query params
+        
+        const rewrittenRequest = new Request(rewrittenUrl, {
+          method: request.method,
+          headers: request.headers,
+          body: request.body,
+          duplex: 'half' as any, // Required for Request with body
+        });
+
+        // Forward to better-auth handler
+        const response = await this.authManager!.handleRequest(rewrittenRequest);
+        
+        return response;
       } catch (error) {
         const err = error instanceof Error ? error : new Error(String(error));
-        ctx.logger.error('Login error:', err);
-        res.status(401).json({
-          success: false,
-          error: err.message,
-        });
+        ctx.logger.error('Auth request error:', err);
+        
+        // Return error response
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: err.message,
+          }),
+          {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
       }
     });
 
-    // Register endpoint
-    httpServer.post(`${basePath}/register`, async (req, res) => {
-      try {
-        const body = req.body;
-        const result = await this.authManager!.register(body);
-        res.status(201).json(result);
-      } catch (error) {
-        const err = error instanceof Error ? error : new Error(String(error));
-        ctx.logger.error('Registration error:', err);
-        res.status(400).json({
-          success: false,
-          error: err.message,
-        });
-      }
-    });
-
-    // Logout endpoint
-    httpServer.post(`${basePath}/logout`, async (req, res) => {
-      try {
-        const authHeader = req.headers['authorization'];
-        const token = typeof authHeader === 'string' ? authHeader.replace('Bearer ', '') : undefined;
-        await this.authManager!.logout(token);
-        res.status(200).json({ success: true });
-      } catch (error) {
-        const err = error instanceof Error ? error : new Error(String(error));
-        ctx.logger.error('Logout error:', err);
-        res.status(400).json({
-          success: false,
-          error: err.message,
-        });
-      }
-    });
-
-    // Session endpoint
-    httpServer.get(`${basePath}/session`, async (req, res) => {
-      try {
-        const authHeader = req.headers['authorization'];
-        const token = typeof authHeader === 'string' ? authHeader.replace('Bearer ', '') : undefined;
-        const session = await this.authManager!.getSession(token);
-        res.status(200).json({ success: true, data: session });
-      } catch (error) {
-        const err = error instanceof Error ? error : new Error(String(error));
-        res.status(401).json({
-          success: false,
-          error: err.message,
-        });
-      }
-    });
-
-    ctx.logger.debug('Auth routes registered:', {
-      basePath,
-      routes: [
-        `POST ${basePath}/login`,
-        `POST ${basePath}/register`,
-        `POST ${basePath}/logout`,
-        `GET ${basePath}/session`,
-      ],
-    });
+    ctx.logger.info(`Auth routes registered: All requests under ${basePath}/* forwarded to better-auth`);
   }
 }
 
-/**
- * Auth Manager
- * 
- * @planned This is a stub implementation. Real authentication logic
- * will be implemented using better-auth or similar library in future versions.
- */
-class AuthManager {
-  constructor(_config: AuthPluginOptions) {
-    // Store config for future use
-  }
 
-  async login(_credentials: any): Promise<any> {
-    // @planned Implement actual login logic with better-auth
-    throw new Error('Login not yet implemented');
-  }
-
-  async register(_userData: any): Promise<any> {
-    // @planned Implement actual registration logic with better-auth
-    throw new Error('Registration not yet implemented');
-  }
-
-  async logout(_token?: string): Promise<void> {
-    // @planned Implement actual logout logic
-    throw new Error('Logout not yet implemented');
-  }
-
-  async getSession(_token?: string): Promise<any> {
-    // @planned Implement actual session retrieval
-    throw new Error('Session retrieval not yet implemented');
-  }
-}
 

@@ -107,6 +107,10 @@ describe('AuthPlugin', () => {
     });
 
     it('should register routes with HTTP server when enabled', async () => {
+      const mockRawApp = {
+        all: vi.fn(),
+      };
+
       const mockHttpServer = {
         post: vi.fn(),
         get: vi.fn(),
@@ -114,6 +118,7 @@ describe('AuthPlugin', () => {
         delete: vi.fn(),
         patch: vi.fn(),
         use: vi.fn(),
+        getRawApp: vi.fn(() => mockRawApp),
       };
 
       mockContext.getService = vi.fn((name: string) => {
@@ -124,8 +129,8 @@ describe('AuthPlugin', () => {
       await authPlugin.start(mockContext);
 
       expect(mockContext.getService).toHaveBeenCalledWith('http-server');
-      expect(mockHttpServer.post).toHaveBeenCalled();
-      expect(mockHttpServer.get).toHaveBeenCalled();
+      expect(mockHttpServer.getRawApp).toHaveBeenCalled();
+      expect(mockRawApp.all).toHaveBeenCalledWith('/api/v1/auth/*', expect.any(Function));
       expect(mockContext.logger.info).toHaveBeenCalledWith(
         expect.stringContaining('Auth routes registered')
       );
@@ -179,6 +184,10 @@ describe('AuthPlugin', () => {
 
       await authPlugin.init(mockContext);
 
+      const mockRawApp = {
+        all: vi.fn(),
+      };
+
       const mockHttpServer = {
         post: vi.fn(),
         get: vi.fn(),
@@ -186,14 +195,15 @@ describe('AuthPlugin', () => {
         delete: vi.fn(),
         patch: vi.fn(),
         use: vi.fn(),
+        getRawApp: vi.fn(() => mockRawApp),
       };
 
       mockContext.getService = vi.fn(() => mockHttpServer);
 
       await authPlugin.start(mockContext);
 
-      expect(mockHttpServer.post).toHaveBeenCalledWith(
-        '/custom/auth/login',
+      expect(mockRawApp.all).toHaveBeenCalledWith(
+        '/custom/auth/*',
         expect.any(Function)
       );
     });
