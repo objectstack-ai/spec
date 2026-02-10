@@ -101,17 +101,23 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
   }
 
   return {
-    create: async <T extends Record<string, any>>({ model, data }: { model: string; data: T; select?: string[] }): Promise<T> => {
+    create: async <T extends Record<string, any>>({ model, data, select: _select }: { model: string; data: T; select?: string[] }): Promise<T> => {
       const objectName = toObjectName(model);
       const objectData = convertDataToObjectQL(data);
       
+      // Note: select parameter is currently not supported by ObjectQL's insert operation
+      // The full record is always returned after insertion
       const result = await dataEngine.insert(objectName, objectData);
       return convertDataFromObjectQL(result) as T;
     },
     
-    findOne: async <T>({ model, where, select }: { model: string; where: CleanedWhere[]; select?: string[]; join?: any }): Promise<T | null> => {
+    findOne: async <T>({ model, where, select, join: _join }: { model: string; where: CleanedWhere[]; select?: string[]; join?: any }): Promise<T | null> => {
       const objectName = toObjectName(model);
       const filter = convertWhere(where);
+      
+      // Note: join parameter is not currently supported by ObjectQL's findOne operation
+      // Joins/populate functionality is planned for future ObjectQL releases
+      // For now, related data must be fetched separately
       
       const result = await dataEngine.findOne(objectName, {
         filter,
@@ -121,9 +127,12 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
       return result ? convertDataFromObjectQL(result) as T : null;
     },
     
-    findMany: async <T>({ model, where, limit, offset, sortBy }: { model: string; where?: CleanedWhere[]; limit: number; offset?: number; sortBy?: { field: string; direction: 'asc' | 'desc' }; join?: any }): Promise<T[]> => {
+    findMany: async <T>({ model, where, limit, offset, sortBy, join: _join }: { model: string; where?: CleanedWhere[]; limit: number; offset?: number; sortBy?: { field: string; direction: 'asc' | 'desc' }; join?: any }): Promise<T[]> => {
       const objectName = toObjectName(model);
       const filter = where ? convertWhere(where) : {};
+      
+      // Note: join parameter is not currently supported by ObjectQL's find operation
+      // Joins/populate functionality is planned for future ObjectQL releases
       
       const sort = sortBy ? [{
         field: toFieldName(sortBy.field),
@@ -171,6 +180,10 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
       const filter = convertWhere(where);
       const updateData = convertDataToObjectQL(update);
       
+      // Note: Sequential updates are used here because ObjectQL's IDataEngine interface
+      // requires an ID for updates. A future optimization could use a bulk update
+      // operation if ObjectQL adds support for filter-based updates without IDs.
+      
       // Find all matching records
       const records = await dataEngine.find(objectName, { filter });
       
@@ -189,7 +202,9 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
       const objectName = toObjectName(model);
       const filter = convertWhere(where);
       
-      // Find the record first to get its ID
+      // Note: We need to find the record first to get its ID because ObjectQL's
+      // delete operation requires an ID. Direct filter-based delete would be more
+      // efficient if supported by ObjectQL in the future.
       const record = await dataEngine.findOne(objectName, { filter });
       if (!record) {
         return;
@@ -201,6 +216,10 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
     deleteMany: async ({ model, where }: { model: string; where: CleanedWhere[] }): Promise<number> => {
       const objectName = toObjectName(model);
       const filter = convertWhere(where);
+      
+      // Note: Sequential deletes are used here because ObjectQL's delete operation
+      // requires an ID in the filter. A future optimization could use a single
+      // delete call with the original filter if ObjectQL supports it.
       
       // Find all matching records
       const records = await dataEngine.find(objectName, { filter });
