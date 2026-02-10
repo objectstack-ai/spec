@@ -12,16 +12,19 @@ import { ObjectKernel } from '@objectstack/core';
 import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
 import { AuthPlugin } from '@objectstack/plugin-auth';
 
-// Create kernel with auth plugin
-const kernel = new ObjectKernel({
-  plugins: [
-    // HTTP server is required for auth routes
-    new HonoServerPlugin({
+// Create kernel
+const kernel = new ObjectKernel();
+
+// Initialize the kernel
+async function main() {
+  try {
+    // Register HTTP server plugin
+    await kernel.use(new HonoServerPlugin({
       port: 3000,
-    }),
+    }));
     
-    // Auth plugin configuration
-    new AuthPlugin({
+    // Register auth plugin
+    await kernel.use(new AuthPlugin({
       secret: process.env.AUTH_SECRET || 'your-secret-key-at-least-32-chars',
       baseUrl: process.env.BASE_URL || 'http://localhost:3000',
       databaseUrl: process.env.DATABASE_URL,
@@ -58,15 +61,10 @@ const kernel = new ObjectKernel({
       // Route configuration
       registerRoutes: true,
       basePath: '/api/v1/auth',
-    }),
-  ],
-});
+    }));
 
-// Initialize the kernel
-async function main() {
-  try {
-    await kernel.init();
-    await kernel.start();
+    // Bootstrap the kernel
+    await kernel.bootstrap();
     
     console.log('🚀 Server started with auth plugin');
     console.log('📍 Better-auth endpoints available at:');
@@ -101,7 +99,7 @@ async function main() {
 // Handle graceful shutdown
 process.on('SIGINT', async () => {
   console.log('\n🛑 Shutting down...');
-  await kernel.destroy();
+  await kernel.shutdown();
   process.exit(0);
 });
 

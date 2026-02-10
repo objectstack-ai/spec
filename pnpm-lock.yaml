@@ -324,6 +324,37 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
+  examples/minimal-auth:
+    dependencies:
+      '@objectstack/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@objectstack/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@objectstack/driver-memory':
+        specifier: workspace:*
+        version: link:../../packages/plugins/driver-memory
+      '@objectstack/objectql':
+        specifier: workspace:*
+        version: link:../../packages/objectql
+      '@objectstack/plugin-auth':
+        specifier: workspace:*
+        version: link:../../packages/plugins/plugin-auth
+      '@objectstack/plugin-hono-server':
+        specifier: workspace:*
+        version: link:../../packages/plugins/plugin-hono-server
+    devDependencies:
+      '@types/node':
+        specifier: ^25.2.2
+        version: 25.2.2
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.3.0
+        version: 5.9.3
+
   examples/plugin-bi:
     dependencies:
       '@objectstack/spec':

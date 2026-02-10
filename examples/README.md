@@ -10,7 +10,7 @@ Welcome to the ObjectStack examples catalog! This directory contains carefully c
 
 | Level | Examples | Description |
 |-------|----------|-------------|
-| 🟢 **Beginner** | [App Todo](#app-todo) | Start here - simple, focused examples |
+| 🟢 **Beginner** | [Minimal Auth](#minimal-auth), [App Todo](#app-todo) | Start here - simple, focused examples |
 | 🟡 **Intermediate** | [App CRM](#app-crm) | Real-world enterprise application |
 | 🔴 **Advanced** | [App Host](#app-host) | Server hosting & plugin orchestration |
 
@@ -18,6 +18,7 @@ Welcome to the ObjectStack examples catalog! This directory contains carefully c
 
 | Protocol | Examples | Status |
 |----------|----------|--------|
+| **Authentication** | [Minimal Auth](./minimal-auth/) | ✅ Complete |
 | **Data (ObjectQL)** | [App CRM](./app-crm/), [App Todo](./app-todo/) | ✅ Complete |
 | **UI (ObjectUI)** | [App CRM](./app-crm/), [App Todo](./app-todo/) | ✅ Complete |
 | **System (ObjectOS)** | [App Host](./app-host/), [App CRM](./app-crm/) | ✅ Complete |
@@ -26,6 +27,41 @@ Welcome to the ObjectStack examples catalog! This directory contains carefully c
 | **Hub & Marketplace** | _Coming soon_ | 🔴 Planned |
 
 ## 🎯 Example Descriptions
+
+### Minimal Auth
+**Path:** [`examples/minimal-auth/`](./minimal-auth/)  
+**Level:** 🟢 Beginner  
+**Protocols:** Authentication  
+
+A minimal example demonstrating authentication setup with `@objectstack/plugin-auth`.
+
+**What you'll learn:**
+- Setting up authentication in ObjectStack
+- Using the AuthPlugin with ObjectKernel
+- User registration and login
+- Session management
+- Password reset flow
+- Testing authentication with the ObjectStack client
+
+**Directory Structure:**
+```
+minimal-auth/
+├── src/
+│   ├── server.ts        # Server setup with AuthPlugin
+│   └── test-auth.ts     # Authentication flow test
+├── package.json
+└── README.md
+```
+
+**Quick Start:**
+```bash
+cd examples/minimal-auth
+pnpm install
+pnpm dev          # Start server
+pnpm test         # Test auth flow (in new terminal)
+```
+
+---
 
 ### App Todo
 **Path:** [`examples/app-todo/`](./app-todo/)  

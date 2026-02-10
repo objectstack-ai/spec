@@ -1,0 +1,596 @@
+---
+title: "Authentication Guide"
+description: "Complete guide to implementing authentication in ObjectStack using plugin-auth with Better-Auth"
+---
+
+# Authentication Guide
+
+Complete guide to implementing authentication in ObjectStack applications using the `@objectstack/plugin-auth` package powered by Better-Auth.
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Installation](#installation)
+3. [Basic Setup](#basic-setup)
+4. [Authentication Methods](#authentication-methods)
+5. [OAuth Providers](#oauth-providers)
+6. [Advanced Features](#advanced-features)
+7. [Client Integration](#client-integration)
+8. [API Reference](#api-reference)
+9. [Best Practices](#best-practices)
+
+---
+
+## Overview
+
+The `@objectstack/plugin-auth` package provides enterprise-grade authentication and identity management for ObjectStack applications. It's built on top of [Better-Auth](https://www.better-auth.com/), a modern authentication library, and seamlessly integrates with ObjectStack's kernel architecture.
+
+### Key Features
+
+- ✅ **Email/Password Authentication** - Traditional username/password login
+- ✅ **OAuth Providers** - Google, GitHub, and more
+- ✅ **Session Management** - Automatic session handling with configurable expiry
+- ✅ **Password Reset** - Email-based password reset flow
+- ✅ **Email Verification** - Email verification workflow
+- ✅ **2FA** - Two-factor authentication
+- ✅ **Passkeys** - WebAuthn/Passkey support
+- ✅ **Magic Links** - Passwordless authentication
+- ✅ **Organizations** - Multi-tenant support
+- ✅ **ObjectQL Integration** - Native ObjectStack data persistence (no ORM required)
+
+### Architecture
+
+The plugin uses a **direct forwarding** architecture where all authentication requests are forwarded to Better-Auth's universal handler. This ensures:
+
+- Full compatibility with all Better-Auth features
+- Minimal custom code to maintain
+- Easy updates when Better-Auth releases new features
+- Type-safe API access via `authManager.api`
+
+---
+
+## Installation
+
+Install the plugin in your ObjectStack project:
+
+```bash
+pnpm add @objectstack/plugin-auth
+```
+
+The plugin requires Better-Auth as a peer dependency, which will be automatically installed.
+
+---
+
+## Basic Setup
+
+### 1. Environment Variables
+
+Set up your authentication secret in `.env`:
+
+```bash
+# Required: Secret for session token encryption
+AUTH_SECRET=your-super-secret-key-min-32-chars
+
+# Optional: OAuth providers (if using)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
+
+> **Important**: Never commit `AUTH_SECRET` to version control. Use a strong random string (minimum 32 characters).
+
+### 2. Plugin Configuration
+
+Add the plugin to your kernel configuration:
+
+```typescript
+import { ObjectKernel } from '@objectstack/core';
+import { AuthPlugin } from '@objectstack/plugin-auth';
+import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
+
+const kernel = new ObjectKernel({
+  plugins: [
+    // HTTP server (required for auth routes)
+    new HonoServerPlugin({
+      port: 3000,
+    }),
+    
+    // Authentication plugin
+    new AuthPlugin({
+      secret: process.env.AUTH_SECRET,
+      baseUrl: 'http://localhost:3000',
+    }),
+  ]
+});
+
+await kernel.start();
+```
+
+That's it! Your authentication endpoints are now available at `/api/v1/auth/*`.
+
+### 3. ObjectQL Data Persistence
+
+The plugin automatically uses ObjectQL for data persistence. No additional database configuration is required - it works with your existing ObjectQL setup.
+
+The plugin creates the following auth objects:
+- `user` - User accounts
+- `session` - Active sessions
+- `account` - OAuth provider accounts
+- `verification` - Email/phone verification tokens
+
+---
+
+## Authentication Methods
+
+### Email/Password Authentication
+
+#### Sign Up
+
+```typescript
+// Client-side (using @objectstack/client)
+import { ObjectStackClient } from '@objectstack/client';
+
+const client = new ObjectStackClient({
+  baseUrl: 'http://localhost:3000'
+});
+
+const result = await client.auth.register({
+  email: 'user@example.com',
+  password: 'securePassword123',
+  name: 'John Doe'
+});
+
+console.log('User created:', result.data.user);
+console.log('Access token:', result.data.token);
+```
+
+#### Sign In
+
+```typescript
+const session = await client.auth.login({
+  type: 'email',
+  email: 'user@example.com',
+  password: 'securePassword123'
+});
+
+console.log('Logged in:', session.data.user);
+```
+
+#### Sign Out
+
+```typescript
+await client.auth.logout();
+```
+
+#### Get Current Session
+
+```typescript
+const session = await client.auth.me();
+console.log('Current user:', session.data.user);
+```
+
+### Password Management
+
+#### Request Password Reset
+
+```typescript
+// Direct API call
+const response = await fetch('http://localhost:3000/api/v1/auth/forget-password', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'user@example.com'
+  })
+});
+```
+
+#### Reset Password with Token
+
+```typescript
+const response = await fetch('http://localhost:3000/api/v1/auth/reset-password', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    token: 'reset-token-from-email',
+    password: 'newSecurePassword456'
+  })
+});
+```
+
+### Email Verification
+
+#### Send Verification Email
+
+```typescript
+const response = await fetch('http://localhost:3000/api/v1/auth/send-verification-email', {
+  method: 'POST',
+  headers: { 
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${accessToken}`
+  }
+});
+```
+
+#### Verify Email
+
+```typescript
+// User clicks link in email with token
+const response = await fetch(`http://localhost:3000/api/v1/auth/verify-email?token=${token}`);
+```
+
+---
+
+## OAuth Providers
+
+### Configuration
+
+Enable OAuth providers in your plugin configuration:
+
+```typescript
+new AuthPlugin({
+  secret: process.env.AUTH_SECRET,
+  baseUrl: 'http://localhost:3000',
+  providers: [
+    {
+      id: 'google',
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+    {
+      id: 'github',
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    }
+  ]
+})
+```
+
+### OAuth Flow
+
+#### 1. Initiate OAuth Login
+
+```typescript
+// Redirect user to OAuth provider
+window.location.href = 'http://localhost:3000/api/v1/auth/authorize/google';
+```
+
+#### 2. Handle Callback
+
+Better-Auth automatically handles the OAuth callback at `/api/v1/auth/callback/google` and redirects the user back to your application with a session.
+
+---
+
+## Advanced Features
+
+### Two-Factor Authentication (2FA)
+
+Enable 2FA in your configuration:
+
+```typescript
+new AuthPlugin({
+  secret: process.env.AUTH_SECRET,
+  baseUrl: 'http://localhost:3000',
+  plugins: {
+    twoFactor: true,  // Enable 2FA
+  }
+})
+```
+
+#### Enable 2FA for User
+
+```typescript
+const response = await fetch('http://localhost:3000/api/v1/auth/two-factor/enable', {
+  method: 'POST',
+  headers: { 
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${accessToken}`
+  }
+});
+
+const { qrCode, secret } = await response.json();
+// Display qrCode to user for scanning with authenticator app
+```
+
+#### Verify 2FA Code
+
+```typescript
+const response = await fetch('http://localhost:3000/api/v1/auth/two-factor/verify', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    code: '123456'  // Code from authenticator app
+  })
+});
+```
+
+### Passkeys (WebAuthn)
+
+Enable passkey support:
+
+```typescript
+new AuthPlugin({
+  secret: process.env.AUTH_SECRET,
+  baseUrl: 'http://localhost:3000',
+  plugins: {
+    passkeys: true,  // Enable passkey support
+  }
+})
+```
+
+#### Register a Passkey
+
+```typescript
+const response = await fetch('http://localhost:3000/api/v1/auth/passkey/register', {
+  method: 'POST',
+  headers: { 
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${accessToken}`
+  }
+});
+```
+
+#### Authenticate with Passkey
+
+```typescript
+const response = await fetch('http://localhost:3000/api/v1/auth/passkey/authenticate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' }
+});
+```
+
+### Magic Links
+
+Enable passwordless magic link authentication:
+
+```typescript
+new AuthPlugin({
+  secret: process.env.AUTH_SECRET,
+  baseUrl: 'http://localhost:3000',
+  plugins: {
+    magicLink: true,  // Enable magic links
+  }
+})
+```
+
+#### Send Magic Link
+
+```typescript
+const response = await fetch('http://localhost:3000/api/v1/auth/magic-link/send', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'user@example.com'
+  })
+});
+```
+
+#### Verify Magic Link
+
+```typescript
+// User clicks link in email
+const response = await fetch(`http://localhost:3000/api/v1/auth/magic-link/verify?token=${token}`);
+```
+
+### Organizations (Multi-Tenant)
+
+Enable organization/team support:
+
+```typescript
+new AuthPlugin({
+  secret: process.env.AUTH_SECRET,
+  baseUrl: 'http://localhost:3000',
+  plugins: {
+    organization: true,  // Enable organizations
+  }
+})
+```
+
+---
+
+## Client Integration
+
+### Using @objectstack/client
+
+The official ObjectStack client has built-in auth methods:
+
+```typescript
+import { ObjectStackClient } from '@objectstack/client';
+
+const client = new ObjectStackClient({
+  baseUrl: 'http://localhost:3000'
+});
+
+// Register
+await client.auth.register({
+  email: 'user@example.com',
+  password: 'password123',
+  name: 'John Doe'
+});
+
+// Login (auto-sets token)
+await client.auth.login({
+  type: 'email',
+  email: 'user@example.com',
+  password: 'password123'
+});
+
+// Now all subsequent requests include the auth token
+const tasks = await client.data.find('task', {});
+
+// Logout (clears token)
+await client.auth.logout();
+
+// Get current user
+const session = await client.auth.me();
+
+// Refresh token
+await client.auth.refreshToken('refresh-token-value');
+```
+
+### Direct API Calls
+
+All endpoints are available at `/api/v1/auth/*`:
+
+```typescript
+// Example: Login
+const response = await fetch('http://localhost:3000/api/v1/auth/sign-in/email', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'user@example.com',
+    password: 'password123'
+  })
+});
+
+const data = await response.json();
+const token = data.data.token;
+
+// Use token in subsequent requests
+const protectedResponse = await fetch('http://localhost:3000/api/v1/data/task', {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
+```
+
+---
+
+## API Reference
+
+### Authentication Endpoints
+
+All endpoints are available under `/api/v1/auth/*`:
+
+#### Email/Password
+
+- `POST /api/v1/auth/sign-in/email` - Sign in with email and password
+- `POST /api/v1/auth/sign-up/email` - Register new user
+- `POST /api/v1/auth/sign-out` - Sign out current user
+
+#### Session
+
+- `GET /api/v1/auth/get-session` - Get current user session
+
+#### Password Management
+
+- `POST /api/v1/auth/forget-password` - Request password reset email
+- `POST /api/v1/auth/reset-password` - Reset password with token
+
+#### Email Verification
+
+- `POST /api/v1/auth/send-verification-email` - Send verification email
+- `GET /api/v1/auth/verify-email` - Verify email with token
+
+#### OAuth
+
+- `GET /api/v1/auth/authorize/[provider]` - Start OAuth flow
+- `GET /api/v1/auth/callback/[provider]` - OAuth callback handler
+
+#### Two-Factor Authentication
+
+- `POST /api/v1/auth/two-factor/enable` - Enable 2FA for user
+- `POST /api/v1/auth/two-factor/verify` - Verify 2FA code
+
+#### Passkeys
+
+- `POST /api/v1/auth/passkey/register` - Register a passkey
+- `POST /api/v1/auth/passkey/authenticate` - Authenticate with passkey
+
+#### Magic Links
+
+- `POST /api/v1/auth/magic-link/send` - Send magic link email
+- `GET /api/v1/auth/magic-link/verify` - Verify magic link
+
+For complete API documentation, see the [Better-Auth API Reference](https://www.better-auth.com/docs).
+
+---
+
+## Best Practices
+
+### Security
+
+1. **Use Strong Secrets**: Generate a strong random secret for `AUTH_SECRET` (minimum 32 characters)
+   ```bash
+   # Generate a secure secret
+   openssl rand -base64 32
+   ```
+
+2. **HTTPS in Production**: Always use HTTPS for authentication endpoints in production
+   ```typescript
+   new AuthPlugin({
+     baseUrl: process.env.NODE_ENV === 'production' 
+       ? 'https://api.example.com'
+       : 'http://localhost:3000',
+   })
+   ```
+
+3. **Environment Variables**: Never commit secrets to version control
+   ```bash
+   # .env (not committed)
+   AUTH_SECRET=your-secret-here
+   GOOGLE_CLIENT_ID=your-client-id
+   ```
+
+4. **Session Expiry**: Configure appropriate session expiry times
+   ```typescript
+   new AuthPlugin({
+     secret: process.env.AUTH_SECRET,
+     baseUrl: 'http://localhost:3000',
+     session: {
+       expiresIn: 60 * 60 * 24 * 7,  // 7 days
+       updateAge: 60 * 60 * 24,       // Update every 24 hours
+     }
+   })
+   ```
+
+### User Experience
+
+1. **Email Verification**: Require email verification for sensitive operations
+2. **Password Requirements**: Enforce strong password policies
+3. **2FA for Admin**: Require 2FA for administrative accounts
+4. **OAuth Options**: Provide multiple OAuth providers for convenience
+
+### Error Handling
+
+```typescript
+try {
+  await client.auth.login({
+    type: 'email',
+    email: 'user@example.com',
+    password: 'wrong-password'
+  });
+} catch (error) {
+  if (error.response?.status === 401) {
+    console.error('Invalid credentials');
+  } else {
+    console.error('Login failed:', error.message);
+  }
+}
+```
+
+### Migration from Other Systems
+
+The plugin uses Better-Auth's native naming conventions (camelCase for fields, no table prefixes) to make migration from existing Better-Auth implementations seamless:
+
+- Table names: `user`, `session`, `account`, `verification` (no `auth_` prefix)
+- Field names: `emailVerified`, `createdAt`, `userId` (camelCase)
+
+If you're migrating from an existing Better-Auth setup, your data will work without modification.
+
+---
+
+## Next Steps
+
+- See [Security Guide](/docs/guides/security) for authorization and permissions
+- See [Client SDK Guide](/docs/guides/client-sdk) for client-side integration
+- See [API Reference](/docs/guides/api-reference) for complete API documentation
+- Visit [Better-Auth Documentation](https://www.better-auth.com/docs) for advanced features
+
+---
+
+## Examples
+
+Complete working examples are available in the repository:
+
+- [Basic Auth Example](https://github.com/objectstack-ai/spec/tree/main/packages/plugins/plugin-auth/examples/basic-usage.ts)
+- [Todo App with Auth](https://github.com/objectstack-ai/spec/tree/main/examples/app-todo)
+- [CRM App with Auth](https://github.com/objectstack-ai/spec/tree/main/examples/app-crm)
