@@ -150,6 +150,71 @@ describe('createRouteHandler', () => {
     });
   });
 
+  describe('Auth via AuthPlugin service', () => {
+    it('uses kernel.getService("auth") when available', async () => {
+      const mockHandleRequest = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ user: { id: '1' } }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      );
+      const kernelWithAuth = {
+        ...mockKernel,
+        getService: vi.fn().mockReturnValue({ handleRequest: mockHandleRequest }),
+      };
+      const handler = createRouteHandler({ kernel: kernelWithAuth });
+      const req = makeReq('http://localhost/api/auth/sign-in/email', 'POST', { email: 'a@b.com', password: 'pass' });
+      const res = await handler(req, { params: { objectstack: ['auth', 'sign-in', 'email'] } });
+      expect(res.status).toBe(200);
+      expect(kernelWithAuth.getService).toHaveBeenCalledWith('auth');
+      expect(mockHandleRequest).toHaveBeenCalled();
+      expect(mockDispatcher.handleAuth).not.toHaveBeenCalled();
+    });
+
+    it('falls back to dispatcher.handleAuth when auth service is not available', async () => {
+      const kernelWithoutAuth = {
+        ...mockKernel,
+        getService: vi.fn().mockReturnValue(null),
+      };
+      const handler = createRouteHandler({ kernel: kernelWithoutAuth });
+      const req = makeReq('http://localhost/api/auth/login', 'POST', { email: 'a@b.com' });
+      const res = await handler(req, { params: { objectstack: ['auth', 'login'] } });
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handleAuth).toHaveBeenCalled();
+    });
+
+    it('forwards GET requests to auth service', async () => {
+      const mockHandleRequest = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ session: { token: 'abc' } }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      );
+      const kernelWithAuth = {
+        ...mockKernel,
+        getService: vi.fn().mockReturnValue({ handleRequest: mockHandleRequest }),
+      };
+      const handler = createRouteHandler({ kernel: kernelWithAuth });
+      const req = makeReq('http://localhost/api/auth/get-session', 'GET');
+      const res = await handler(req, { params: { objectstack: ['auth', 'get-session'] } });
+      expect(res.status).toBe(200);
+      expect(mockHandleRequest).toHaveBeenCalled();
+    });
+
+    it('returns error when auth service throws', async () => {
+      const mockHandleRequest = vi.fn().mockRejectedValue(new Error('Auth failed'));
+      const kernelWithAuth = {
+        ...mockKernel,
+        getService: vi.fn().mockReturnValue({ handleRequest: mockHandleRequest }),
+      };
+      const handler = createRouteHandler({ kernel: kernelWithAuth });
+      const req = makeReq('http://localhost/api/auth/sign-in/email', 'POST', { email: 'a@b.com' });
+      const res = await handler(req, { params: { objectstack: ['auth', 'sign-in', 'email'] } });
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+  });
+
   describe('GraphQL Endpoint', () => {
     it('POST graphql calls handleGraphQL', async () => {
       const handler = createRouteHandler({ kernel: mockKernel });

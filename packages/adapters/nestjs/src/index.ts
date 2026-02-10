@@ -106,6 +106,39 @@ export class ObjectStackController {
   @All('auth/*')
   async auth(@Req() req: any, @Res() res: any, @Body() body: any) {
     try {
+        // Try AuthPlugin service first (preferred path)
+        const kernel = this.service.getKernel();
+        const authService = typeof kernel.getService === 'function'
+          ? kernel.getService('auth')
+          : null;
+
+        if (authService && typeof authService.handleRequest === 'function') {
+          // Construct a Web standard Request from the Express/Fastify request
+          const protocol = req.protocol || 'http';
+          const host = req.get?.('host') || req.headers?.host || 'localhost';
+          const url = `${protocol}://${host}${req.originalUrl || req.url}`;
+          const headers = new Headers();
+          if (req.headers) {
+            Object.entries(req.headers).forEach(([k, v]) => {
+              if (typeof v === 'string') headers.set(k, v);
+            });
+          }
+          const init: RequestInit = { method: req.method, headers };
+          if (req.method !== 'GET' && req.method !== 'HEAD' && body) {
+            init.body = JSON.stringify(body);
+            headers.set('content-type', 'application/json');
+          }
+          const webRequest = new Request(url, init);
+          const response = await authService.handleRequest(webRequest);
+
+          // Convert Web Response to Express/Fastify response
+          res.status(response.status);
+          response.headers.forEach((v: string, k: string) => res.setHeader(k, v));
+          const text = await response.text();
+          return res.send(text);
+        }
+
+        // Fallback to legacy dispatcher
         const path = req.params[0] || req.url.split('/auth/')[1]?.split('?')[0] || '';
         const result = await this.service.dispatcher.handleAuth(path, req.method, body, { request: req, response: res });
         return this.normalizeResponse(result, res);

@@ -61,6 +61,21 @@ export function createRouteHandler(options: NextAdapterOptions) {
 
         // --- 1. Auth ---
         if (segments[0] === 'auth') {
+           // Try AuthPlugin service first (preferred path)
+           const authService = typeof options.kernel.getService === 'function'
+             ? options.kernel.getService('auth')
+             : null;
+
+           if (authService && typeof authService.handleRequest === 'function') {
+             const response = await authService.handleRequest(req);
+             // Convert Web Response to NextResponse
+             const body = await response.text();
+             const headers: Record<string, string> = {};
+             response.headers.forEach((v: string, k: string) => { headers[k] = v; });
+             return new NextResponse(body, { status: response.status, headers });
+           }
+
+           // Fallback to legacy dispatcher
            const subPath = segments.slice(1).join('/');
            const body = method === 'POST' ? await req.json().catch(() => ({})) : {};
            const result = await dispatcher.handleAuth(subPath, method, body, { request: req });
