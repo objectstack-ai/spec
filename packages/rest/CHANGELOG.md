@@ -1,5 +1,13 @@
 # @objectstack/rest
 
+## 2.0.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/spec@2.0.5
+  - @objectstack/core@2.0.5
+
 ## 2.0.4
 
 ### Patch Changes

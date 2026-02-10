@@ -1,5 +1,19 @@
 # @objectstack/studio
 
+## 2.0.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/spec@2.0.5
+  - @objectstack/client@2.0.5
+  - @objectstack/client-react@2.0.5
+  - @objectstack/metadata@2.0.5
+  - @objectstack/objectql@2.0.5
+  - @objectstack/driver-memory@2.0.5
+  - @objectstack/plugin-msw@2.0.5
+  - @objectstack/runtime@2.0.5
+
 ## 2.0.4
 
 ### Patch Changes

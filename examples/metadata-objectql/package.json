@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/example-metadata-objectql",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Example demonstrating ObjectQL metadata service usage",
   "type": "module",

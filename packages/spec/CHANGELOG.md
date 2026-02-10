@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 2.0.5
+
+### Patch Changes
+
+- Unify all package versions with a patch release
+
 ## 2.0.4
 
 ### Patch Changes
