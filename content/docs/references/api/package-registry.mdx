@@ -21,60 +21,142 @@ const result = DisablePackageRequest.parse(data);
 
 ## DisablePackageRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+
 
 ---
 
 ## DisablePackageResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **package** | `Object` | ✅ |  |
+| **message** | `string` | optional |  |
 
 
 ---
 
 ## EnablePackageRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+
 
 ---
 
 ## EnablePackageResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **package** | `Object` | ✅ |  |
+| **message** | `string` | optional |  |
 
 
 ---
 
 ## GetPackageRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+
 
 ---
 
 ## GetPackageResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **package** | `Object` | ✅ |  |
 
 
 ---
 
 ## InstallPackageRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **manifest** | `Object` | ✅ |  |
+| **settings** | `Record<string, any>` | optional |  |
+| **enableOnInstall** | `boolean` | ✅ |  |
+
 
 ---
 
 ## InstallPackageResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **package** | `Object` | ✅ |  |
+| **message** | `string` | optional |  |
 
 
 ---
 
 ## ListPackagesRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **status** | `Enum<'installed' \| 'disabled' \| 'installing' \| 'uninstalling' \| 'error'>` | optional |  |
+| **type** | `Enum<'plugin' \| 'ui' \| 'driver' \| 'server' \| 'app' \| 'theme' \| 'agent' \| 'objectql' \| 'module' \| 'gateway' \| 'adapter'>` | optional | Type of package |
+| **enabled** | `boolean` | optional |  |
+
 
 ---
 
 ## ListPackagesResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **packages** | `Object[]` | ✅ |  |
+| **total** | `number` | ✅ |  |
 
 
 ---
 
 ## UninstallPackageRequest
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+
 
 ---
 
 ## UninstallPackageResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ |  |
+| **success** | `boolean` | ✅ |  |
+| **message** | `string` | optional |  |
 
 
 ---

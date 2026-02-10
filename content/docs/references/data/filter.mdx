@@ -40,66 +40,85 @@ Design Principles:
 ## TypeScript Usage
 
 ```typescript
-import { ComparisonOperator, EqualityOperator, FieldOperators, FieldReference, FilterCondition, NormalizedFilter, QueryFilter, RangeOperator, SetOperator, SpecialOperator, StringOperator } from '@objectstack/spec/data';
-import type { ComparisonOperator, EqualityOperator, FieldOperators, FieldReference, FilterCondition, NormalizedFilter, QueryFilter, RangeOperator, SetOperator, SpecialOperator, StringOperator } from '@objectstack/spec/data';
+import { EqualityOperator, FieldReference, FilterCondition, QueryFilter, SetOperator, SpecialOperator, StringOperator } from '@objectstack/spec/data';
+import type { EqualityOperator, FieldReference, FilterCondition, QueryFilter, SetOperator, SpecialOperator, StringOperator } from '@objectstack/spec/data';
 
 // Validate data
-const result = ComparisonOperator.parse(data);
+const result = EqualityOperator.parse(data);
 ```
-
----
-
-## ComparisonOperator
-
 
 ---
 
 ## EqualityOperator
 
+### Properties
 
----
-
-## FieldOperators
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **$eq** | `any` | optional |  |
+| **$ne** | `any` | optional |  |
 
 
 ---
 
 ## FieldReference
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **$field** | `string` | ✅ | Field Reference/Column Name |
+
 
 ---
-
-## FilterCondition
-
-
----
-
-## NormalizedFilter
 
 
 ---
 
 ## QueryFilter
 
+### Properties
 
----
-
-## RangeOperator
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **where** | `[__schema0](./__schema0)` | optional |  |
 
 
 ---
 
 ## SetOperator
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **$in** | `any[]` | optional |  |
+| **$nin** | `any[]` | optional |  |
+
 
 ---
 
 ## SpecialOperator
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **$null** | `boolean` | optional |  |
+| **$exists** | `boolean` | optional |  |
+
 
 ---
 
 ## StringOperator
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **$contains** | `string` | optional |  |
+| **$startsWith** | `string` | optional |  |
+| **$endsWith** | `string` | optional |  |
 
 
 ---

@@ -29,15 +29,33 @@ const result = OpsDomainModule.parse(data);
 
 ## OpsDomainModule
 
+Scanned domain module representing a plugin folder
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Module name (snake_case) |
+| **files** | `string[]` | ✅ | List of files in this module |
+| **metadata** | `Record<string, any>` | optional | Custom metadata key-value pairs for extensibility |
+
 
 ---
-
-## OpsFilePath
 
 
 ---
 
 ## OpsPluginStructure
+
+Full plugin project layout validated against OPS conventions
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **root** | `string` | ✅ | Root directory path of the plugin project |
+| **files** | `string[]` | ✅ | List of all file paths relative to root |
+| **metadata** | `Record<string, any>` | optional | Custom metadata key-value pairs for extensibility |
 
 
 ---

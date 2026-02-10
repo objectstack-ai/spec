@@ -115,70 +115,229 @@ const result = CICDPipelineConfig.parse(data);
 
 ## CICDPipelineConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Pipeline name |
+| **trigger** | `Enum<'push' \| 'pull_request' \| 'release' \| 'schedule' \| 'manual'>` | ✅ | Pipeline trigger |
+| **branches** | `string[]` | optional | Branches to run pipeline on |
+| **stages** | `Object[]` | ✅ | Pipeline stages |
+| **notifications** | `Object` | optional | Pipeline notifications |
+
 
 ---
 
 ## CodeGenerationConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable code generation |
+| **targets** | `Enum<'frontend' \| 'backend' \| 'api' \| 'database' \| 'tests' \| 'documentation' \| 'infrastructure'>[]` | ✅ | Code generation targets |
+| **templateRepo** | `string` | optional | Template repository for scaffolding |
+| **styleGuide** | `string` | optional | Code style guide to follow |
+| **includeTests** | `boolean` | ✅ | Generate tests with code |
+| **includeDocumentation** | `boolean` | ✅ | Generate documentation |
+| **validationMode** | `Enum<'strict' \| 'moderate' \| 'permissive'>` | ✅ | Code validation strictness |
 
 
 ---
 
 ## CodeGenerationTarget
 
+Code generation target
+
+### Allowed Values
+
+* `frontend`
+* `backend`
+* `api`
+* `database`
+* `tests`
+* `documentation`
+* `infrastructure`
+
 
 ---
 
 ## DeploymentStrategy
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'rolling' \| 'blue_green' \| 'canary' \| 'recreate'>` | ✅ | Deployment strategy |
+| **canaryPercentage** | `number` | ✅ | Canary deployment percentage |
+| **healthCheckUrl** | `string` | optional | Health check endpoint |
+| **healthCheckTimeout** | `integer` | ✅ | Health check timeout in seconds |
+| **autoRollback** | `boolean` | ✅ | Automatically rollback on failure |
+| **smokeTests** | `string[]` | optional | Smoke test commands to run post-deployment |
 
 
 ---
 
 ## DevOpsAgent
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Agent unique identifier |
+| **label** | `string` | ✅ | Agent display name |
+| **avatar** | `string` | optional |  |
+| **role** | `string` | ✅ | The persona/role (e.g. "Senior Support Engineer") |
+| **instructions** | `string` | ✅ | System Prompt / Prime Directives |
+| **model** | `Object` | optional |  |
+| **lifecycle** | `Object` | optional | State machine defining the agent conversation follow and constraints |
+| **tools** | `Object[]` | optional | Available tools |
+| **knowledge** | `Object` | optional | RAG access |
+| **active** | `boolean` | ✅ |  |
+| **access** | `string[]` | optional | Who can chat with this agent |
+| **tenantId** | `string` | optional | Tenant/Organization ID |
+| **visibility** | `Enum<'global' \| 'organization' \| 'private'>` | ✅ |  |
+| **developmentConfig** | `Object` | ✅ | Development configuration |
+| **pipelines** | `Object[]` | optional | CI/CD pipelines |
+| **versionManagement** | `Object` | optional | Version management configuration |
+| **deploymentStrategy** | `Object` | optional | Deployment strategy |
+| **monitoring** | `Object` | optional | Monitoring configuration |
+| **integrations** | `Object` | ✅ | Integration configurations |
+| **selfIteration** | `Object` | optional | Self-iteration configuration |
+
 
 ---
 
 ## DevOpsTool
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'action' \| 'flow' \| 'query' \| 'vector_search' \| 'git_operation' \| 'code_generation' \| 'test_execution' \| 'deployment' \| 'monitoring'>` | ✅ |  |
+| **name** | `string` | ✅ | Reference name (Action Name, Flow Name) |
+| **description** | `string` | optional | Override description for the LLM |
 
 
 ---
 
 ## DevelopmentConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **specificationSource** | `string` | ✅ | Path to ObjectStack specification |
+| **codeGeneration** | `Object` | ✅ | Code generation settings |
+| **testing** | `Object` | optional | Testing configuration |
+| **linting** | `Object` | optional | Code linting configuration |
+| **formatting** | `Object` | optional | Code formatting configuration |
+
 
 ---
 
 ## GitHubIntegration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **connector** | `string` | ✅ | GitHub connector name |
+| **repository** | `Object` | ✅ | Repository configuration |
+| **featureBranch** | `string` | ✅ | Default feature branch |
+| **pullRequest** | `Object` | optional | Pull request settings |
 
 
 ---
 
 ## IntegrationConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **github** | `Object` | ✅ | GitHub integration configuration |
+| **vercel** | `Object` | ✅ | Vercel integration configuration |
+| **additional** | `Record<string, any>` | optional | Additional integration configurations |
+
 
 ---
 
 ## MonitoringConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable monitoring |
+| **metrics** | `Enum<'performance' \| 'errors' \| 'usage' \| 'availability' \| 'latency'>[]` | ✅ | Metrics to monitor |
+| **alerts** | `Object[]` | optional | Alert configurations |
+| **integrations** | `string[]` | optional | Monitoring service integrations |
 
 
 ---
 
 ## PipelineStage
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Pipeline stage name |
+| **type** | `Enum<'build' \| 'test' \| 'lint' \| 'security_scan' \| 'deploy' \| 'smoke_test' \| 'rollback'>` | ✅ | Stage type |
+| **order** | `integer` | ✅ | Execution order |
+| **parallel** | `boolean` | ✅ | Can run in parallel with other stages |
+| **commands** | `string[]` | ✅ | Commands to execute |
+| **env** | `Record<string, string>` | optional | Stage-specific environment variables |
+| **timeout** | `integer` | ✅ | Stage timeout in seconds |
+| **retryOnFailure** | `boolean` | ✅ | Retry stage on failure |
+| **maxRetries** | `integer` | ✅ | Maximum retry attempts |
+
 
 ---
 
 ## TestingConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable automated testing |
+| **testTypes** | `Enum<'unit' \| 'integration' \| 'e2e' \| 'performance' \| 'security' \| 'accessibility'>[]` | ✅ | Types of tests to run |
+| **coverageThreshold** | `number` | ✅ | Minimum test coverage percentage |
+| **framework** | `string` | optional | Testing framework (e.g., vitest, jest, playwright) |
+| **preCommitTests** | `boolean` | ✅ | Run tests before committing |
+| **autoFix** | `boolean` | ✅ | Attempt to auto-fix failing tests |
 
 
 ---
 
 ## VercelIntegration
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **connector** | `string` | ✅ | Vercel connector name |
+| **project** | `string` | ✅ | Vercel project name |
+| **environments** | `Object` | optional | Environment mapping |
+| **deployment** | `Object` | optional | Deployment settings |
+
 
 ---
 
 ## VersionManagement
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **scheme** | `Enum<'semver' \| 'calver' \| 'custom'>` | ✅ | Versioning scheme |
+| **autoIncrement** | `Enum<'major' \| 'minor' \| 'patch' \| 'none'>` | ✅ | Auto-increment strategy |
+| **prefix** | `string` | ✅ | Version tag prefix |
+| **generateChangelog** | `boolean` | ✅ | Generate changelog automatically |
+| **changelogFormat** | `Enum<'conventional' \| 'keepachangelog' \| 'custom'>` | ✅ | Changelog format |
+| **tagReleases** | `boolean` | ✅ | Create Git tags for releases |
 
 
 ---

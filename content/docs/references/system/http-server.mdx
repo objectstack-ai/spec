@@ -35,40 +35,126 @@ const result = HttpServerConfig.parse(data);
 
 ## HttpServerConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **port** | `integer` | ✅ | Port number to listen on |
+| **host** | `string` | ✅ | Host address to bind to |
+| **cors** | `Object` | optional | CORS configuration |
+| **requestTimeout** | `integer` | ✅ | Request timeout in milliseconds |
+| **bodyLimit** | `string` | ✅ | Maximum request body size |
+| **compression** | `boolean` | ✅ | Enable response compression |
+| **security** | `Object` | optional | Security configuration |
+| **static** | `Object[]` | optional | Static file serving configuration |
+| **trustProxy** | `boolean` | ✅ | Trust X-Forwarded-* headers |
+
 
 ---
 
 ## MiddlewareConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Middleware name (snake_case) |
+| **type** | `Enum<'authentication' \| 'authorization' \| 'logging' \| 'validation' \| 'transformation' \| 'error' \| 'custom'>` | ✅ | Middleware type |
+| **enabled** | `boolean` | ✅ | Whether middleware is enabled |
+| **order** | `integer` | ✅ | Execution order priority |
+| **config** | `Record<string, any>` | optional | Middleware configuration object |
+| **paths** | `Object` | optional | Path filtering |
 
 
 ---
 
 ## MiddlewareType
 
+### Allowed Values
+
+* `authentication`
+* `authorization`
+* `logging`
+* `validation`
+* `transformation`
+* `error`
+* `custom`
+
 
 ---
 
 ## RouteHandlerMetadata
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'DELETE' \| 'PATCH' \| 'HEAD' \| 'OPTIONS'>` | ✅ | HTTP method |
+| **path** | `string` | ✅ | URL path pattern |
+| **handler** | `string` | ✅ | Handler identifier or name |
+| **metadata** | `Object` | optional |  |
+| **security** | `Object` | optional |  |
 
 
 ---
 
 ## ServerCapabilities
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **httpVersions** | `Enum<'1.0' \| '1.1' \| '2.0' \| '3.0'>[]` | ✅ | Supported HTTP versions |
+| **websocket** | `boolean` | ✅ | WebSocket support |
+| **sse** | `boolean` | ✅ | Server-Sent Events support |
+| **serverPush** | `boolean` | ✅ | HTTP/2 Server Push support |
+| **streaming** | `boolean` | ✅ | Response streaming support |
+| **middleware** | `boolean` | ✅ | Middleware chain support |
+| **routeParams** | `boolean` | ✅ | URL parameter support (/users/:id) |
+| **compression** | `boolean` | ✅ | Built-in compression support |
+
 
 ---
 
 ## ServerEvent
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'starting' \| 'started' \| 'stopping' \| 'stopped' \| 'request' \| 'response' \| 'error'>` | ✅ | Event type |
+| **timestamp** | `string` | ✅ | Event timestamp (ISO 8601) |
+| **data** | `Record<string, any>` | optional | Event-specific data |
 
 
 ---
 
 ## ServerEventType
 
+### Allowed Values
+
+* `starting`
+* `started`
+* `stopping`
+* `stopped`
+* `request`
+* `response`
+* `error`
+
 
 ---
 
 ## ServerStatus
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **state** | `Enum<'stopped' \| 'starting' \| 'running' \| 'stopping' \| 'error'>` | ✅ | Current server state |
+| **uptime** | `integer` | optional | Server uptime in milliseconds |
+| **server** | `Object` | optional |  |
+| **connections** | `Object` | optional |  |
+| **requests** | `Object` | optional |  |
 
 
 ---

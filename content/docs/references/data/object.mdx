@@ -23,55 +23,190 @@ const result = ApiMethod.parse(data);
 
 ## ApiMethod
 
+### Allowed Values
+
+* `get`
+* `list`
+* `create`
+* `update`
+* `delete`
+* `upsert`
+* `bulk`
+* `aggregate`
+* `history`
+* `search`
+* `restore`
+* `purge`
+* `import`
+* `export`
+
 
 ---
 
 ## CDCConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable Change Data Capture |
+| **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Event types to capture |
+| **destination** | `string` | ✅ | Destination endpoint (e.g., "kafka://topic", "webhook://url") |
 
 
 ---
 
 ## Index
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | optional | Index name (auto-generated if not provided) |
+| **fields** | `string[]` | ✅ | Fields included in the index |
+| **type** | `Enum<'btree' \| 'hash' \| 'gin' \| 'gist' \| 'fulltext'>` | ✅ | Index algorithm type |
+| **unique** | `boolean` | ✅ | Whether the index enforces uniqueness |
+| **partial** | `string` | optional | Partial index condition (SQL WHERE clause for conditional indexes) |
+
 
 ---
 
 ## Object
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Machine unique key (snake_case). Immutable. |
+| **label** | `string` | optional | Human readable singular label (e.g. "Account") |
+| **pluralLabel** | `string` | optional | Human readable plural label (e.g. "Accounts") |
+| **description** | `string` | optional | Developer documentation / description |
+| **icon** | `string` | optional | Icon name (Lucide/Material) for UI representation |
+| **tags** | `string[]` | optional | Categorization tags (e.g. "sales", "system", "reference") |
+| **active** | `boolean` | ✅ | Is the object active and usable |
+| **isSystem** | `boolean` | ✅ | Is system object (protected from deletion) |
+| **abstract** | `boolean` | ✅ | Is abstract base object (cannot be instantiated) |
+| **datasource** | `string` | ✅ | Target Datasource ID. "default" is the primary DB. |
+| **tableName** | `string` | optional | Physical table/collection name in the target datasource |
+| **fields** | `Record<string, Object>` | ✅ | Field definitions map. Keys must be snake_case identifiers. |
+| **indexes** | `Object[]` | optional | Database performance indexes |
+| **tenancy** | `Object` | optional | Multi-tenancy configuration for SaaS applications |
+| **softDelete** | `Object` | optional | Soft delete (trash/recycle bin) configuration |
+| **versioning** | `Object` | optional | Record versioning and history tracking configuration |
+| **partitioning** | `Object` | optional | Table partitioning configuration for performance |
+| **cdc** | `Object` | optional | Change Data Capture (CDC) configuration for real-time data streaming |
+| **validations** | `[__schema0](./__schema0)[]` | optional | Object-level validation rules |
+| **stateMachines** | `Record<string, Object>` | optional | Named state machines for parallel lifecycles (e.g., status, payment, approval) |
+| **titleFormat** | `string` | optional | Title expression (e.g. "`{name}` - `{code}`"). Overrides nameField. |
+| **compactLayout** | `string[]` | optional | Primary fields for hover/cards/lookups |
+| **search** | `Object` | optional | Search engine configuration |
+| **enable** | `Object` | optional | Enabled system features modules |
+| **recordTypes** | `string[]` | optional | Record type names for this object |
+| **sharingModel** | `Enum<'private' \| 'read' \| 'read_write' \| 'full'>` | optional | Default sharing model |
+| **keyPrefix** | `string` | optional | Short prefix for record IDs (e.g., "001" for Account) |
 
 
 ---
 
 ## ObjectCapabilities
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **trackHistory** | `boolean` | ✅ | Enable field history tracking for audit compliance |
+| **searchable** | `boolean` | ✅ | Index records for global search |
+| **apiEnabled** | `boolean` | ✅ | Expose object via automatic APIs |
+| **apiMethods** | `Enum<'get' \| 'list' \| 'create' \| 'update' \| 'delete' \| 'upsert' \| 'bulk' \| 'aggregate' \| 'history' \| 'search' \| 'restore' \| 'purge' \| 'import' \| 'export'>[]` | optional | Whitelist of allowed API operations |
+| **files** | `boolean` | ✅ | Enable file attachments and document management |
+| **feeds** | `boolean` | ✅ | Enable social feed, comments, and mentions (Chatter-like) |
+| **activities** | `boolean` | ✅ | Enable standard tasks and events tracking |
+| **trash** | `boolean` | ✅ | Enable soft-delete with restore capability |
+| **mru** | `boolean` | ✅ | Track Most Recently Used (MRU) list for users |
+| **clone** | `boolean` | ✅ | Allow record deep cloning |
+
 
 ---
 
 ## ObjectExtension
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **extend** | `string` | ✅ | Target object name (FQN) to extend |
+| **fields** | `Record<string, Object>` | optional | Fields to add/override |
+| **label** | `string` | optional |  |
+| **pluralLabel** | `string` | optional |  |
+| **description** | `string` | optional |  |
+| **validations** | `[__schema0](./__schema0)[]` | optional |  |
+| **indexes** | `Object[]` | optional |  |
+| **priority** | `integer` | ✅ | Merge priority (higher = applied later) |
 
 
 ---
 
 ## ObjectOwnershipEnum
 
+### Allowed Values
+
+* `own`
+* `extend`
+
 
 ---
 
 ## PartitioningConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable table partitioning |
+| **strategy** | `Enum<'range' \| 'hash' \| 'list'>` | ✅ | Partitioning strategy: range (date ranges), hash (consistent hashing), list (predefined values) |
+| **key** | `string` | ✅ | Field name to partition by |
+| **interval** | `string` | optional | Partition interval for range strategy (e.g., "1 month", "1 year") |
 
 
 ---
 
 ## SoftDeleteConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable soft delete (trash/recycle bin) |
+| **field** | `string` | ✅ | Field name for soft delete timestamp |
+| **cascadeDelete** | `boolean` | ✅ | Cascade soft delete to related records |
+
 
 ---
 
 ## TenancyConfig
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable multi-tenancy for this object |
+| **strategy** | `Enum<'shared' \| 'isolated' \| 'hybrid'>` | ✅ | Tenant isolation strategy: shared (single DB, row-level), isolated (separate DB per tenant), hybrid (mix) |
+| **tenantField** | `string` | ✅ | Field name for tenant identifier |
+| **crossTenantAccess** | `boolean` | ✅ | Allow cross-tenant data access (with explicit permission) |
+
 
 ---
 
 ## VersioningConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable record versioning |
+| **strategy** | `Enum<'snapshot' \| 'delta' \| 'event-sourcing'>` | ✅ | Versioning strategy: snapshot (full copy), delta (changes only), event-sourcing (event log) |
+| **retentionDays** | `number` | optional | Number of days to retain old versions (undefined = infinite) |
+| **versionField** | `string` | ✅ | Field name for version number/timestamp |
 
 
 ---

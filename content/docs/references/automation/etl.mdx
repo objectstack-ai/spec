@@ -147,45 +147,144 @@ const result = ETLDestination.parse(data);
 
 ## ETLDestination
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'database' \| 'api' \| 'file' \| 'stream' \| 'object' \| 'warehouse' \| 'storage' \| 'spreadsheet'>` | ✅ | Destination type |
+| **connector** | `string` | optional | Connector ID |
+| **config** | `Record<string, any>` | ✅ | Destination configuration |
+| **writeMode** | `Enum<'append' \| 'overwrite' \| 'upsert' \| 'merge'>` | ✅ | How to write data |
+| **primaryKey** | `string[]` | optional | Primary key fields |
+
 
 ---
 
 ## ETLEndpointType
+
+### Allowed Values
+
+* `database`
+* `api`
+* `file`
+* `stream`
+* `object`
+* `warehouse`
+* `storage`
+* `spreadsheet`
 
 
 ---
 
 ## ETLPipeline
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Pipeline identifier (snake_case) |
+| **label** | `string` | optional | Pipeline display name |
+| **description** | `string` | optional | Pipeline description |
+| **source** | `Object` | ✅ | Data source |
+| **destination** | `Object` | ✅ | Data destination |
+| **transformations** | `Object[]` | optional | Transformation pipeline |
+| **syncMode** | `Enum<'full' \| 'incremental' \| 'cdc'>` | ✅ | Sync mode |
+| **schedule** | `string` | optional | Cron schedule expression |
+| **enabled** | `boolean` | ✅ | Pipeline enabled status |
+| **retry** | `Object` | optional | Retry configuration |
+| **notifications** | `Object` | optional | Notification settings |
+| **tags** | `string[]` | optional | Pipeline tags |
+| **metadata** | `Record<string, any>` | optional | Custom metadata |
+
 
 ---
 
 ## ETLPipelineRun
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Run identifier |
+| **pipelineName** | `string` | ✅ | Pipeline name |
+| **status** | `Enum<'pending' \| 'running' \| 'succeeded' \| 'failed' \| 'cancelled' \| 'timeout'>` | ✅ | Run status |
+| **startedAt** | `string` | ✅ | Start time |
+| **completedAt** | `string` | optional | Completion time |
+| **durationMs** | `number` | optional | Duration in ms |
+| **stats** | `Object` | optional | Run statistics |
+| **error** | `Object` | optional | Error information |
+| **logs** | `string[]` | optional | Execution logs |
 
 
 ---
 
 ## ETLRunStatus
 
+### Allowed Values
+
+* `pending`
+* `running`
+* `succeeded`
+* `failed`
+* `cancelled`
+* `timeout`
+
 
 ---
 
 ## ETLSource
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'database' \| 'api' \| 'file' \| 'stream' \| 'object' \| 'warehouse' \| 'storage' \| 'spreadsheet'>` | ✅ | Source type |
+| **connector** | `string` | optional | Connector ID |
+| **config** | `Record<string, any>` | ✅ | Source configuration |
+| **incremental** | `Object` | optional | Incremental extraction config |
 
 
 ---
 
 ## ETLSyncMode
 
+### Allowed Values
+
+* `full`
+* `incremental`
+* `cdc`
+
 
 ---
 
 ## ETLTransformation
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | optional | Transformation name |
+| **type** | `Enum<'map' \| 'filter' \| 'aggregate' \| 'join' \| 'script' \| 'lookup' \| 'split' \| 'merge' \| 'normalize' \| 'deduplicate'>` | ✅ | Transformation type |
+| **config** | `Record<string, any>` | ✅ | Transformation config |
+| **continueOnError** | `boolean` | ✅ | Continue on error |
+
 
 ---
 
 ## ETLTransformationType
+
+### Allowed Values
+
+* `map`
+* `filter`
+* `aggregate`
+* `join`
+* `script`
+* `lookup`
+* `split`
+* `merge`
+* `normalize`
+* `deduplicate`
 
 
 ---

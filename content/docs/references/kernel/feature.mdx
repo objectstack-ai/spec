@@ -23,10 +23,31 @@ const result = FeatureFlag.parse(data);
 
 ## FeatureFlag
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Feature key (snake_case) |
+| **label** | `string` | optional | Display label |
+| **description** | `string` | optional |  |
+| **enabled** | `boolean` | ✅ | Is globally enabled |
+| **strategy** | `Enum<'boolean' \| 'percentage' \| 'user_list' \| 'group' \| 'custom'>` | ✅ |  |
+| **conditions** | `Object` | optional |  |
+| **environment** | `Enum<'dev' \| 'staging' \| 'prod' \| 'all'>` | ✅ | Environment validity |
+| **expiresAt** | `string` | optional | Feature flag expiration date |
+
 
 ---
 
 ## FeatureStrategy
+
+### Allowed Values
+
+* `boolean`
+* `percentage`
+* `user_list`
+* `group`
+* `custom`
 
 
 ---

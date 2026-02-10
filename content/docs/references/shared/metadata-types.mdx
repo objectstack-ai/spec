@@ -23,6 +23,17 @@ const result = BaseMetadataRecord.parse(data);
 
 ## BaseMetadataRecord
 
+Base metadata record fields shared across kernel and system
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique metadata record identifier |
+| **type** | `string` | ✅ | Metadata type (e.g. "object", "view", "flow") |
+| **name** | `string` | ✅ | Machine name (snake_case) |
+| **format** | `Enum<'yaml' \| 'json' \| 'typescript' \| 'javascript'>` | optional | Source file format |
+
 
 ---
 

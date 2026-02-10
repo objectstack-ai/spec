@@ -124,8 +124,19 @@ function getFileDescription(content: string): string {
 }
 
 function generateMarkdown(schemaName: string, schema: any, category: string, zodFile: string) {
-  const defs = schema.definitions || {};
-  const mainDef = defs[schemaName] || Object.values(defs)[0];
+  const defs = schema.definitions || schema.$defs || {};
+  let mainDef = defs[schemaName];
+
+  // If the schema name isn't in definitions, check if the root schema itself
+  // has type/properties/enum (JSON Schema 2020-12 puts content at root level)
+  if (!mainDef && (schema.properties || schema.enum || schema.anyOf || schema.oneOf)) {
+    mainDef = schema;
+  }
+
+  // Last resort: use first definition entry
+  if (!mainDef) {
+    mainDef = Object.values(defs)[0];
+  }
 
   if (!mainDef) return '';
 

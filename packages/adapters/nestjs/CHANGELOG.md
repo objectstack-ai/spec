@@ -1,5 +1,13 @@
 # @objectstack/nestjs
 
+## 2.0.3
+
+### Patch Changes
+
+- Patch release for maintenance and stability improvements
+- Updated dependencies
+  - @objectstack/runtime@2.0.3
+
 ## 2.0.2
 
 ### Patch Changes
