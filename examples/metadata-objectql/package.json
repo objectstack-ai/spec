@@ -10,6 +10,8 @@
     "example:view-crud": "tsx src/view-crud.ts",
     "example:migration": "tsx src/migration-example.ts",
     "dev": "tsx watch src/view-crud.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -22,7 +24,8 @@
   "devDependencies": {
     "@types/node": "^22.10.5",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
   },
   "keywords": [
     "objectstack",
