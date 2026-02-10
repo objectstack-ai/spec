@@ -1,135 +1,17 @@
 ---
 title: Auth
-description: Auth protocol schemas and endpoints
+description: Auth protocol schemas
 ---
 
 Authentication Service Protocol
 
 Defines the standard API contracts for Identity, Session Management,
+
 and Access Control.
 
 <Callout type="info">
-**Source:** `packages/spec/src/api/auth.zod.ts`, `packages/spec/src/api/auth-endpoints.zod.ts`
+**Source:** `packages/spec/src/api/auth.zod.ts`
 </Callout>
-
-## Endpoints
-
-The authentication service uses [better-auth](https://www.better-auth.com/) endpoints as the canonical API contract.
-All endpoints are relative to the auth base path (default: `/api/v1/auth`).
-
-### Email/Password Authentication
-
-| Endpoint | Method | Path | Description |
-| :--- | :--- | :--- | :--- |
-| **Sign In** | `POST` | `/sign-in/email` | Sign in with email and password |
-| **Sign Up** | `POST` | `/sign-up/email` | Register new user with email and password |
-| **Sign Out** | `POST` | `/sign-out` | Sign out current user |
-
-### Session Management
-
-| Endpoint | Method | Path | Description |
-| :--- | :--- | :--- | :--- |
-| **Get Session** | `GET` | `/get-session` | Get current user session |
-
-### Password Management
-
-| Endpoint | Method | Path | Description |
-| :--- | :--- | :--- | :--- |
-| **Forget Password** | `POST` | `/forget-password` | Request password reset email |
-| **Reset Password** | `POST` | `/reset-password` | Reset password with token |
-
-### Email Verification
-
-| Endpoint | Method | Path | Description |
-| :--- | :--- | :--- | :--- |
-| **Send Verification** | `POST` | `/send-verification-email` | Send email verification link |
-| **Verify Email** | `GET` | `/verify-email` | Verify email with token |
-
-### OAuth (when providers configured)
-
-| Endpoint | Method | Path | Description |
-| :--- | :--- | :--- | :--- |
-| **Authorize** | `GET` | `/authorize/:provider` | Start OAuth flow |
-| **Callback** | `GET` | `/callback/:provider` | OAuth callback |
-
-### 2FA (when enabled)
-
-| Endpoint | Method | Path | Description |
-| :--- | :--- | :--- | :--- |
-| **Enable 2FA** | `POST` | `/two-factor/enable` | Enable two-factor authentication |
-| **Verify 2FA** | `POST` | `/two-factor/verify` | Verify 2FA code |
-
-### Passkeys (when enabled)
-
-| Endpoint | Method | Path | Description |
-| :--- | :--- | :--- | :--- |
-| **Register Passkey** | `POST` | `/passkey/register` | Register a passkey |
-| **Authenticate** | `POST` | `/passkey/authenticate` | Authenticate with passkey |
-
-### Magic Links (when enabled)
-
-| Endpoint | Method | Path | Description |
-| :--- | :--- | :--- | :--- |
-| **Send Magic Link** | `POST` | `/magic-link/send` | Send magic link email |
-| **Verify Magic Link** | `GET` | `/magic-link/verify` | Verify magic link |
-
-## Usage Examples
-
-### Using the ObjectStack Client
-
-```typescript
-import { ObjectStackClient } from '@objectstack/client';
-
-const client = new ObjectStackClient({
-  baseUrl: 'http://localhost:3000'
-});
-
-// Register
-await client.auth.register({
-  email: 'user@example.com',
-  password: 'SecurePassword123!',
-  name: 'John Doe'
-});
-
-// Login
-await client.auth.login({
-  type: 'email',
-  email: 'user@example.com',
-  password: 'SecurePassword123!'
-});
-
-// Get session
-const session = await client.auth.me();
-
-// Logout
-await client.auth.logout();
-```
-
-### Using Direct API Calls
-
-```bash
-# Register
-curl -X POST http://localhost:3000/api/v1/auth/sign-up/email \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"SecurePassword123!","name":"John Doe"}'
-
-# Login
-curl -X POST http://localhost:3000/api/v1/auth/sign-in/email \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"SecurePassword123!"}'
-
-# Get session
-curl http://localhost:3000/api/v1/auth/get-session \
-  -H "Authorization: Bearer YOUR_TOKEN"
-
-# Logout
-curl -X POST http://localhost:3000/api/v1/auth/sign-out \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
-
----
-
-## Request/Response Schemas
 
 ## TypeScript Usage
 

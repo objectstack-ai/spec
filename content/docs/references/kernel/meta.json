@@ -3,6 +3,7 @@
   "pages": [
     "context",
     "events",
+    "execution-context",
     "feature",
     "manifest",
     "metadata-persistence",

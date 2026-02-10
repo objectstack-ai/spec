@@ -3,6 +3,7 @@
   "pages": [
     "analytics",
     "auth",
+    "auth-endpoints",
     "batch",
     "connector",
     "contract",
