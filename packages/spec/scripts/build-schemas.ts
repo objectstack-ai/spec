@@ -91,7 +91,19 @@ ensureDir(OUT_DIR);
 console.log(`Generating JSON Schemas to ${OUT_DIR}...`);
 
 let count = 0;
+let skippedCount = 0;
 let errorCount = 0;
+
+// Error messages for schema types that inherently cannot be represented in JSON Schema.
+// These are expected warnings, not build-breaking errors.
+const KNOWN_UNSUPPORTED_PATTERNS = [
+  'cannot be represented in JSON Schema',
+];
+
+function isKnownUnsupported(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message : String(error);
+  return KNOWN_UNSUPPORTED_PATTERNS.some((p) => msg.includes(p));
+}
 
 // Protocol now exports namespaces (Data, UI, System, AI, API)
 // We need to iterate through each namespace
@@ -126,21 +138,33 @@ for (const [namespaceName, namespaceExports] of Object.entries(Protocol)) {
           const filePath = path.join(categoryDir, fileName);
 
           writeFileWithRetry(filePath, JSON.stringify(jsonSchema, null, 2));
-          console.log(`✓ ${namespaceName.toLowerCase()}/${fileName}`);
+          console.log(`  ✓ ${namespaceName.toLowerCase()}/${fileName}`);
           count++;
         } catch (error) {
-          console.error(`Failed to generate schema for ${namespaceName}.${key}:`, error);
-          errorCount++;
+          if (isKnownUnsupported(error)) {
+            // Functions, transforms, Date types etc. have no JSON Schema representation — skip gracefully
+            const msg = error instanceof Error ? error.message : String(error);
+            console.warn(`  ⊘ ${namespaceName}.${key}: ${msg} (skipped)`);
+            skippedCount++;
+          } else {
+            console.error(`  ✗ Failed to generate schema for ${namespaceName}.${key}:`, error);
+            errorCount++;
+          }
         }
       }
     }
   }
 }
 
+console.log(`\n─── Summary ───`);
+console.log(`  Generated: ${count}`);
+if (skippedCount > 0) {
+  console.log(`  Skipped:   ${skippedCount} (unsupported types: function, transform, date)`);
+}
+
 if (errorCount > 0) {
-  console.error(`\n❌ Completed with ${errorCount} error(s). ${count} schemas generated successfully.`);
-  console.error(`\nNote: Partial schema generation occurred. Some schemas may be missing.`);
-  console.error(`This typically indicates a Zod schema definition error or file system issue.`);
+  console.error(`  Errors:    ${errorCount}`);
+  console.error(`\n❌ Build failed with ${errorCount} unexpected error(s).`);
   process.exit(1);
 }
 
