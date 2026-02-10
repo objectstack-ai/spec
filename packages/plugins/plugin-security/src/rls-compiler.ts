@@ -93,7 +93,10 @@ export class RLSCompiler {
       return { [field]: { $in: value } };
     }
 
-    // Unsupported expression: return null (no filter applied - fail-safe is to deny)
+    // Unsupported expression: return null (no additional RLS filter applied).
+    // Note: callers should treat absence of RLS policies as "allow all" only when
+    // no policies are defined. If policies exist but cannot be compiled, the caller
+    // may want to deny access as a safety measure.
     return null;
   }
 

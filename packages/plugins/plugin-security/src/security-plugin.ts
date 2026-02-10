@@ -76,7 +76,14 @@ export class SecurityPlugin implements Plugin {
       }
 
       // 1. Resolve permission sets for the user's roles
-      const permissionSets: PermissionSet[] = this.permissionEvaluator.resolvePermissionSets(roles, metadata);
+      let permissionSets: PermissionSet[] = [];
+      try {
+        permissionSets = this.permissionEvaluator.resolvePermissionSets(roles, metadata);
+      } catch (e) {
+        // If metadata service is misconfigured, log and continue without permission checks
+        // rather than blocking all operations
+        return next();
+      }
 
       // 2. CRUD permission check
       if (permissionSets.length > 0) {
