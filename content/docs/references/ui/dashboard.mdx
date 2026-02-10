@@ -25,34 +25,10 @@ const result = Dashboard.parse(data);
 
 ## Dashboard
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Dashboard unique name |
-| **label** | `string` | ✅ | Dashboard label |
-| **description** | `string` | optional | Dashboard description |
-| **widgets** | `Object[]` | ✅ | Widgets to display |
-
 
 ---
 
 ## DashboardWidget
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **title** | `string` | optional | Widget title |
-| **type** | `Enum<'bar' \| 'horizontal-bar' \| 'column' \| 'grouped-bar' \| 'stacked-bar' \| 'bi-polar-bar' \| 'line' \| 'area' \| 'stacked-area' \| 'step-line' \| 'spline' \| 'pie' \| 'donut' \| 'funnel' \| 'pyramid' \| 'scatter' \| 'bubble' \| 'treemap' \| 'sunburst' \| 'sankey' \| 'word-cloud' \| 'gauge' \| 'solid-gauge' \| 'metric' \| 'kpi' \| 'bullet' \| 'choropleth' \| 'bubble-map' \| 'gl-map' \| 'heatmap' \| 'radar' \| 'waterfall' \| 'box-plot' \| 'violin' \| 'candlestick' \| 'stock' \| 'table' \| 'pivot'>` | optional | Visualization type |
-| **chartConfig** | `Object` | optional | Chart visualization configuration |
-| **object** | `string` | optional | Data source object name |
-| **filter** | `any` | optional | Data filter criteria |
-| **categoryField** | `string` | optional | Field for grouping (X-Axis) |
-| **valueField** | `string` | optional | Field for values (Y-Axis) |
-| **aggregate** | `Enum<'count' \| 'sum' \| 'avg' \| 'min' \| 'max'>` | optional | Aggregate function |
-| **layout** | `Object` | ✅ | Grid layout position |
-| **options** | `any` | optional | Widget specific configuration |
 
 
 ---

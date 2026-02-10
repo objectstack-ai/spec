@@ -14,8 +14,8 @@ Defines what features are enabled on this ObjectOS instance.
 ## TypeScript Usage
 
 ```typescript
-import { ApiCapabilities, ApiRoutes, Discovery } from '@objectstack/spec/api';
-import type { ApiCapabilities, ApiRoutes, Discovery } from '@objectstack/spec/api';
+import { ApiCapabilities, ApiRoutes, Discovery, ServiceInfo } from '@objectstack/spec/api';
+import type { ApiCapabilities, ApiRoutes, Discovery, ServiceInfo } from '@objectstack/spec/api';
 
 // Validate data
 const result = ApiCapabilities.parse(data);
@@ -25,51 +25,20 @@ const result = ApiCapabilities.parse(data);
 
 ## ApiCapabilities
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **graphql** | `boolean` | optional |  |
-| **search** | `boolean` | optional |  |
-| **websockets** | `boolean` | optional |  |
-| **files** | `boolean` | optional |  |
-| **analytics** | `boolean` | optional | Is the Analytics/BI engine enabled? |
-| **hub** | `boolean` | optional | Is Hub management enabled? |
-
 
 ---
 
 ## ApiRoutes
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **data** | `string` | ✅ | e.g. /api/data |
-| **metadata** | `string` | ✅ | e.g. /api/meta |
-| **ui** | `string` | optional | e.g. /api/ui |
-| **auth** | `string` | ✅ | e.g. /api/auth |
-| **automation** | `string` | optional | e.g. /api/automation |
-| **storage** | `string` | optional | e.g. /api/storage |
-| **analytics** | `string` | optional | e.g. /api/analytics |
-| **hub** | `string` | optional | e.g. /api/hub |
-| **graphql** | `string` | optional | e.g. /graphql |
 
 
 ---
 
 ## Discovery
 
-### Properties
 
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ |  |
-| **version** | `string` | ✅ |  |
-| **environment** | `Enum<'production' \| 'sandbox' \| 'development'>` | ✅ |  |
-| **routes** | `Object` | ✅ |  |
-| **features** | `Object` | ✅ |  |
-| **locale** | `Object` | ✅ |  |
+---
+
+## ServiceInfo
 
 
 ---

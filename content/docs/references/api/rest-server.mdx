@@ -47,149 +47,50 @@ const result = BatchEndpointsConfig.parse(data);
 
 ## BatchEndpointsConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **maxBatchSize** | `integer` | optional | Maximum records per batch operation |
-| **enableBatchEndpoint** | `boolean` | optional | Enable POST /data/:object/batch endpoint |
-| **operations** | `Object` | optional | Enable/disable specific batch operations |
-| **defaultAtomic** | `boolean` | optional | Default atomic/transaction mode for batch operations |
-
 
 ---
 
 ## CrudEndpointPattern
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'DELETE' \| 'PATCH' \| 'HEAD' \| 'OPTIONS'>` | ✅ | HTTP method |
-| **path** | `string` | ✅ | URL path pattern |
-| **summary** | `string` | optional | Operation summary |
-| **description** | `string` | optional | Operation description |
 
 
 ---
 
 ## CrudEndpointsConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **operations** | `Object` | optional | Enable/disable operations |
-| **patterns** | `Record<string, any \| Object>` | optional | Custom URL patterns for operations |
-| **dataPrefix** | `string` | optional | URL prefix for data endpoints |
-| **objectParamStyle** | `Enum<'path' \| 'query'>` | optional | How object name is passed (path param or query param) |
-
 
 ---
 
 ## CrudOperation
-
-### Allowed Values
-
-* `create`
-* `read`
-* `update`
-* `delete`
-* `list`
 
 
 ---
 
 ## EndpointRegistry
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **endpoints** | `Object[]` | ✅ | All generated endpoints |
-| **total** | `integer` | ✅ | Total number of endpoints |
-| **byObject** | `Record<string, Object[]>` | optional | Endpoints grouped by object |
-| **byOperation** | `Record<string, Object[]>` | optional | Endpoints grouped by operation |
-
 
 ---
 
 ## GeneratedEndpoint
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Unique endpoint identifier |
-| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'DELETE' \| 'PATCH' \| 'HEAD' \| 'OPTIONS'>` | ✅ | HTTP method |
-| **path** | `string` | ✅ | Full URL path |
-| **object** | `string` | ✅ | Object name (snake_case) |
-| **operation** | `Enum<'create' \| 'read' \| 'update' \| 'delete' \| 'list'> \| string` | ✅ | Operation type |
-| **handler** | `string` | ✅ | Handler function identifier |
-| **metadata** | `Object` | optional |  |
 
 
 ---
 
 ## MetadataEndpointsConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **prefix** | `string` | optional | URL prefix for metadata endpoints |
-| **enableCache** | `boolean` | optional | Enable HTTP cache headers (ETag, Last-Modified) |
-| **cacheTtl** | `integer` | optional | Cache TTL in seconds |
-| **endpoints** | `Object` | optional | Enable/disable specific endpoints |
-
 
 ---
 
 ## RestApiConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **version** | `string` | optional | API version (e.g., v1, v2, 2024-01) |
-| **basePath** | `string` | optional | Base URL path for API |
-| **apiPath** | `string` | optional | Full API path (defaults to `{basePath}`/`{version}`) |
-| **enableCrud** | `boolean` | optional | Enable automatic CRUD endpoint generation |
-| **enableMetadata** | `boolean` | optional | Enable metadata API endpoints |
-| **enableUi** | `boolean` | optional | Enable UI API endpoints (Views, Menus, Layouts) |
-| **enableBatch** | `boolean` | optional | Enable batch operation endpoints |
-| **enableDiscovery** | `boolean` | optional | Enable API discovery endpoint |
-| **documentation** | `Object` | optional | OpenAPI/Swagger documentation config |
-| **responseFormat** | `Object` | optional | Response format options |
 
 
 ---
 
 ## RestServerConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **api** | `Object` | optional | REST API configuration |
-| **crud** | `Object` | optional | CRUD endpoints configuration |
-| **metadata** | `Object` | optional | Metadata endpoints configuration |
-| **batch** | `Object` | optional | Batch endpoints configuration |
-| **routes** | `Object` | optional | Route generation configuration |
-
 
 ---
 
 ## RouteGenerationConfig
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **includeObjects** | `string[]` | optional | Specific objects to generate routes for (empty = all) |
-| **excludeObjects** | `string[]` | optional | Objects to exclude from route generation |
-| **nameTransform** | `Enum<'none' \| 'plural' \| 'kebab-case' \| 'camelCase'>` | optional | Transform object names in URLs |
-| **overrides** | `Record<string, Object>` | optional | Per-object route customization |
 
 
 ---

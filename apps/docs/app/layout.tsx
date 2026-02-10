@@ -1,8 +1,6 @@
 import './global.css';
-import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
-import { i18n } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: {
@@ -16,11 +14,9 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  // Root layout is only used for redirects with middleware
-  // The actual layout is in [lang]/layout.tsx
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>{children}</body>
+      <body className="flex flex-col min-h-screen">{children}</body>
     </html>
   );
 }

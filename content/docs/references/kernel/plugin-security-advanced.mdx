@@ -3,79 +3,91 @@ title: Plugin Security Advanced
 description: Plugin Security Advanced protocol schemas
 ---
 
+# Plugin Security and Sandboxing Protocol
+
+Defines comprehensive security mechanisms for plugin isolation, permission
+
+management, and threat protection in the ObjectStack ecosystem.
+
+Features:
+
+- Fine-grained permission system
+
+- Resource access control
+
+- Sandboxing and isolation
+
+- Security scanning and verification
+
+- Runtime security monitoring
+
 <Callout type="info">
-**Source:** `packages/spec/src/kernel/plugin-security.zod.ts`
+**Source:** `packages/spec/src/kernel/plugin-security-advanced.zod.ts`
 </Callout>
 
 ## TypeScript Usage
 
 ```typescript
-import { SecurityPolicy, SecurityScanResult, SecurityVulnerability } from '@objectstack/spec/kernel';
-import type { SecurityPolicy, SecurityScanResult, SecurityVulnerability } from '@objectstack/spec/kernel';
+import { KernelSecurityPolicy, KernelSecurityScanResult, KernelSecurityVulnerability, Permission, PermissionAction, PermissionScope, PluginSecurityManifest, PluginTrustLevel, ResourceType, RuntimeConfig, SandboxConfig } from '@objectstack/spec/kernel';
+import type { KernelSecurityPolicy, KernelSecurityScanResult, KernelSecurityVulnerability, Permission, PermissionAction, PermissionScope, PluginSecurityManifest, PluginTrustLevel, ResourceType, RuntimeConfig, SandboxConfig } from '@objectstack/spec/kernel';
 
 // Validate data
-const result = SecurityPolicy.parse(data);
+const result = KernelSecurityPolicy.parse(data);
 ```
 
 ---
 
-## SecurityPolicy
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ |  |
-| **name** | `string` | ✅ |  |
-| **autoScan** | `Object` | ✅ |  |
-| **thresholds** | `Object` | ✅ |  |
-| **allowedLicenses** | `string[]` | optional |  |
-| **prohibitedLicenses** | `string[]` | optional |  |
-| **codeSigning** | `Object` | optional |  |
-| **sandbox** | `Object` | optional |  |
+## KernelSecurityPolicy
 
 
 ---
 
-## SecurityScanResult
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **scanId** | `string` | ✅ |  |
-| **plugin** | `Object` | ✅ |  |
-| **scannedAt** | `string` | ✅ |  |
-| **scanner** | `Object` | ✅ |  |
-| **status** | `Enum<'passed' \| 'failed' \| 'warning'>` | ✅ |  |
-| **vulnerabilities** | `Object[]` | ✅ |  |
-| **summary** | `Object` | ✅ |  |
-| **licenseIssues** | `Object[]` | optional |  |
-| **codeQuality** | `Object` | optional |  |
-| **nextScanAt** | `string` | optional |  |
+## KernelSecurityScanResult
 
 
 ---
 
-## SecurityVulnerability
+## KernelSecurityVulnerability
 
-### Properties
 
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **cve** | `string` | optional | CVE identifier |
-| **id** | `string` | ✅ | Vulnerability ID |
-| **title** | `string` | ✅ |  |
-| **description** | `string` | ✅ |  |
-| **severity** | `Enum<'critical' \| 'high' \| 'medium' \| 'low' \| 'info'>` | ✅ |  |
-| **cvss** | `number` | optional |  |
-| **package** | `Object` | ✅ |  |
-| **vulnerableVersions** | `string` | ✅ | Semver range of vulnerable versions |
-| **patchedVersions** | `string` | optional | Semver range of patched versions |
-| **references** | `Object[]` | optional |  |
-| **cwe** | `string[]` | optional |  |
-| **publishedAt** | `string` | optional |  |
-| **mitigation** | `string` | optional |  |
+---
+
+## Permission
+
+
+---
+
+## PermissionAction
+
+
+---
+
+## PermissionScope
+
+
+---
+
+## PluginSecurityManifest
+
+
+---
+
+## PluginTrustLevel
+
+
+---
+
+## ResourceType
+
+
+---
+
+## RuntimeConfig
+
+
+---
+
+## SandboxConfig
 
 
 ---

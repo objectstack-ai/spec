@@ -51,61 +51,20 @@ const result = ComparisonOperator.parse(data);
 
 ## ComparisonOperator
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **$gt** | `number \| string \| Object` | optional |  |
-| **$gte** | `number \| string \| Object` | optional |  |
-| **$lt** | `number \| string \| Object` | optional |  |
-| **$lte** | `number \| string \| Object` | optional |  |
-
 
 ---
 
 ## EqualityOperator
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **$eq** | `any` | optional |  |
-| **$ne** | `any` | optional |  |
 
 
 ---
 
 ## FieldOperators
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **$eq** | `any` | optional |  |
-| **$ne** | `any` | optional |  |
-| **$gt** | `number \| string \| Object` | optional |  |
-| **$gte** | `number \| string \| Object` | optional |  |
-| **$lt** | `number \| string \| Object` | optional |  |
-| **$lte** | `number \| string \| Object` | optional |  |
-| **$in** | `any[]` | optional |  |
-| **$nin** | `any[]` | optional |  |
-| **$between** | `any[]` | optional |  |
-| **$contains** | `string` | optional |  |
-| **$startsWith** | `string` | optional |  |
-| **$endsWith** | `string` | optional |  |
-| **$null** | `boolean` | optional |  |
-| **$exist** | `boolean` | optional |  |
-
 
 ---
 
 ## FieldReference
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **$field** | `string` | ✅ | Field Reference/Column Name |
 
 
 ---
@@ -117,72 +76,30 @@ const result = ComparisonOperator.parse(data);
 
 ## NormalizedFilter
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **$and** | `Record<string, Object> \| any[]` | optional |  |
-| **$or** | `Record<string, Object> \| any[]` | optional |  |
-| **$not** | `Record<string, Object> \| any` | optional |  |
-
 
 ---
 
 ## QueryFilter
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **where** | `any` | optional |  |
 
 
 ---
 
 ## RangeOperator
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **$between** | `any[]` | optional |  |
-
 
 ---
 
 ## SetOperator
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **$in** | `any[]` | optional |  |
-| **$nin** | `any[]` | optional |  |
 
 
 ---
 
 ## SpecialOperator
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **$null** | `boolean` | optional |  |
-| **$exist** | `boolean` | optional |  |
-
 
 ---
 
 ## StringOperator
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **$contains** | `string` | optional |  |
-| **$startsWith** | `string` | optional |  |
-| **$endsWith** | `string` | optional |  |
 
 
 ---

@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
-import { blog } from '@/app/source';
-import defaultMdxComponents from 'fumadocs-ui/mdx';
+import { blog } from '@/lib/source';
+import { getMDXComponents } from '@/mdx-components';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
-import { baseOptions } from '@/app/layout.config';
+import { baseOptions } from '@/lib/layout.shared';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
@@ -16,9 +16,7 @@ interface BlogPostData {
   body: React.ComponentType;
 }
 
-const components = {
-  ...defaultMdxComponents,
-} as any;
+const components = getMDXComponents() as any;
 
 export default async function BlogPage({
   params,
@@ -32,7 +30,7 @@ export default async function BlogPage({
     const posts = blog.getPages();
 
     return (
-      <HomeLayout {...baseOptions}>
+      <HomeLayout {...baseOptions()}>
         <main className="container max-w-5xl mx-auto px-4 py-16">
           <div className="mb-12">
             <h1 className="text-4xl font-bold mb-4">Blog</h1>
@@ -114,7 +112,7 @@ export default async function BlogPage({
   const MDX = page.data.body;
 
   return (
-    <HomeLayout {...baseOptions}>
+    <HomeLayout {...baseOptions()}>
       <main className="container max-w-4xl mx-auto px-4 py-16">
         <Link 
           href="/blog"

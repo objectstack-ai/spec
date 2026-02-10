@@ -23,82 +23,25 @@ const result = ApprovalAction.parse(data);
 
 ## ApprovalAction
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `Enum<'field_update' \| 'email_alert' \| 'webhook' \| 'script' \| 'connector_action'>` | ✅ |  |
-| **name** | `string` | ✅ | Action name |
-| **config** | `Record<string, any>` | ✅ | Action configuration |
-| **connectorId** | `string` | optional |  |
-| **actionId** | `string` | optional |  |
-
 
 ---
 
 ## ApprovalActionType
-
-### Allowed Values
-
-* `field_update`
-* `email_alert`
-* `webhook`
-* `script`
-* `connector_action`
 
 
 ---
 
 ## ApprovalProcess
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Unique process name |
-| **label** | `string` | ✅ | Human readable label |
-| **object** | `string` | ✅ | Target Object Name |
-| **active** | `boolean` | optional |  |
-| **description** | `string` | optional |  |
-| **entryCriteria** | `string` | optional | Formula to allow submission |
-| **lockRecord** | `boolean` | optional | Lock record from editing during approval |
-| **steps** | `Object[]` | ✅ | Sequence of approval steps |
-| **onSubmit** | `Object[]` | optional | Actions on initial submission |
-| **onFinalApprove** | `Object[]` | optional | Actions on final approval |
-| **onFinalReject** | `Object[]` | optional | Actions on final rejection |
-| **onRecall** | `Object[]` | optional | Actions on recall |
-
 
 ---
 
 ## ApprovalStep
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Step machine name |
-| **label** | `string` | ✅ | Step display label |
-| **description** | `string` | optional |  |
-| **entryCriteria** | `string` | optional | Formula expression to enter this step |
-| **approvers** | `Object[]` | ✅ | List of allowed approvers |
-| **behavior** | `Enum<'first_response' \| 'unanimous'>` | optional | How to handle multiple approvers |
-| **rejectionBehavior** | `Enum<'reject_process' \| 'back_to_previous'>` | optional | What happens if rejected |
-| **onApprove** | `Object[]` | optional | Actions on step approval |
-| **onReject** | `Object[]` | optional | Actions on step rejection |
-
 
 ---
 
 ## ApproverType
-
-### Allowed Values
-
-* `user`
-* `role`
-* `manager`
-* `field`
-* `queue`
 
 
 ---

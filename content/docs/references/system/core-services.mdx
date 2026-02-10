@@ -1,0 +1,58 @@
+---
+title: Core Services
+description: Core Services protocol schemas
+---
+
+# Service Registry Protocol
+
+Defines the standard built-in services that constitute the ObjectStack Kernel.
+
+This registry is used by the `ObjectKernel` and `HttpDispatcher` to:
+
+1. Verify service availability.
+
+2. Route requests to the correct service handler.
+
+3. Type-check service interactions.
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/core-services.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { CoreServiceName, KernelServiceMap, ServiceConfig, ServiceCriticality, ServiceStatus } from '@objectstack/spec/system';
+import type { CoreServiceName, KernelServiceMap, ServiceConfig, ServiceCriticality, ServiceStatus } from '@objectstack/spec/system';
+
+// Validate data
+const result = CoreServiceName.parse(data);
+```
+
+---
+
+## CoreServiceName
+
+
+---
+
+## KernelServiceMap
+
+
+---
+
+## ServiceConfig
+
+
+---
+
+## ServiceCriticality
+
+
+---
+
+## ServiceStatus
+
+
+---
+

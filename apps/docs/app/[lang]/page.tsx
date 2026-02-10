@@ -1,6 +1,6 @@
 import { Database, Monitor, HardDrive, ShieldCheck, Puzzle, Code2, Rocket, Users, Blocks, LucideIcon } from 'lucide-react';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
-import { baseOptions } from '@/app/layout.config';
+import { baseOptions } from '@/lib/layout.shared';
 import { getHomepageTranslations } from '@/lib/homepage-i18n';
 import { HeroSection } from '@/components/hero-section';
 import { CodePreview } from '@/components/code-preview';
@@ -91,7 +91,7 @@ export default async function HomePage({
   ];
 
   return (
-    <HomeLayout {...baseOptions} i18n>
+    <HomeLayout {...baseOptions()} i18n>
       <main className="flex min-h-screen flex-col items-center justify-center text-center px-4 py-16 sm:py-24 md:py-32 overflow-hidden bg-background text-foreground selection:bg-primary/20">
         
         {/* Hero Section */}

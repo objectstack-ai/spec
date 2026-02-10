@@ -1,14 +1,3 @@
-@import "tailwindcss";
-@import "fumadocs-ui/style.css";
-
-@layer base {
-  :root {
-    --radius: 0.5rem;
-  }
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';

@@ -27,93 +27,30 @@ const result = ChangeImpact.parse(data);
 
 ## ChangeImpact
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **level** | `Enum<'low' \| 'medium' \| 'high' \| 'critical'>` | ✅ | Impact level |
-| **affectedSystems** | `string[]` | ✅ | Affected systems |
-| **affectedUsers** | `number` | optional | Affected user count |
-| **downtime** | `Object` | optional | Downtime information |
-
 
 ---
 
 ## ChangePriority
-
-### Allowed Values
-
-* `critical`
-* `high`
-* `medium`
-* `low`
 
 
 ---
 
 ## ChangeRequest
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Change request ID |
-| **title** | `string` | ✅ | Change title |
-| **description** | `string` | ✅ | Change description |
-| **type** | `Enum<'standard' \| 'normal' \| 'emergency' \| 'major'>` | ✅ | Change type |
-| **priority** | `Enum<'critical' \| 'high' \| 'medium' \| 'low'>` | ✅ | Change priority |
-| **status** | `Enum<'draft' \| 'submitted' \| 'in-review' \| 'approved' \| 'scheduled' \| 'in-progress' \| 'completed' \| 'failed' \| 'rolled-back' \| 'cancelled'>` | ✅ | Change status |
-| **requestedBy** | `string` | ✅ | Requester user ID |
-| **requestedAt** | `number` | ✅ | Request timestamp |
-| **impact** | `Object` | ✅ | Impact assessment |
-| **implementation** | `Object` | ✅ | Implementation plan |
-| **rollbackPlan** | `Object` | ✅ | Rollback plan |
-| **schedule** | `Object` | optional | Schedule |
-| **approval** | `Object` | optional | Approval workflow |
-| **attachments** | `Object[]` | optional | Attachments |
-
 
 ---
 
 ## ChangeStatus
-
-### Allowed Values
-
-* `draft`
-* `submitted`
-* `in-review`
-* `approved`
-* `scheduled`
-* `in-progress`
-* `completed`
-* `failed`
-* `rolled-back`
-* `cancelled`
 
 
 ---
 
 ## ChangeType
 
-### Allowed Values
-
-* `standard`
-* `normal`
-* `emergency`
-* `major`
-
 
 ---
 
 ## RollbackPlan
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **description** | `string` | ✅ | Rollback description |
-| **steps** | `Object[]` | ✅ | Rollback steps |
-| **testProcedure** | `string` | optional | Test procedure |
 
 
 ---

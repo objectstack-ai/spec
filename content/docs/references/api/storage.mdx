@@ -29,55 +29,20 @@ const result = CompleteUploadRequest.parse(data);
 
 ## CompleteUploadRequest
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **fileId** | `string` | ✅ | File ID returned from presigned request |
-| **eTag** | `string` | optional | S3 ETag verification |
-
 
 ---
 
 ## FileUploadResponse
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ | Operation success status |
-| **error** | `Object` | optional | Error details if success is false |
-| **meta** | `Object` | optional | Response metadata |
-| **data** | `Object` | ✅ | Uploaded file metadata |
 
 
 ---
 
 ## GetPresignedUrlRequest
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **filename** | `string` | ✅ | Original filename |
-| **mimeType** | `string` | ✅ | File MIME type |
-| **size** | `number` | ✅ | File size in bytes |
-| **scope** | `string` | optional | Target storage scope (e.g. user, private, public) |
-| **bucket** | `string` | optional | Specific bucket override (admin only) |
-
 
 ---
 
 ## PresignedUrlResponse
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ | Operation success status |
-| **error** | `Object` | optional | Error details if success is false |
-| **meta** | `Object` | optional | Response metadata |
-| **data** | `Object` | ✅ |  |
 
 
 ---

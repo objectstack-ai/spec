@@ -27,358 +27,90 @@ const result = CodeContent.parse(data);
 
 ## CodeContent
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **text** | `string` | ✅ | Code snippet |
-| **language** | `string` | optional |  |
-| **metadata** | `Record<string, any>` | optional |  |
-
 
 ---
 
 ## ConversationAnalytics
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **sessionId** | `string` | ✅ |  |
-| **totalMessages** | `integer` | ✅ |  |
-| **userMessages** | `integer` | ✅ |  |
-| **assistantMessages** | `integer` | ✅ |  |
-| **systemMessages** | `integer` | ✅ |  |
-| **totalTokens** | `integer` | ✅ |  |
-| **averageTokensPerMessage** | `number` | ✅ |  |
-| **peakTokenUsage** | `integer` | ✅ |  |
-| **pruningEvents** | `integer` | optional |  |
-| **summarizationEvents** | `integer` | optional |  |
-| **tokensSavedByPruning** | `integer` | optional |  |
-| **tokensSavedBySummarization** | `integer` | optional |  |
-| **duration** | `number` | optional | Session duration in seconds |
-| **firstMessageAt** | `string` | optional | ISO 8601 timestamp |
-| **lastMessageAt** | `string` | optional | ISO 8601 timestamp |
 
 
 ---
 
 ## ConversationContext
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **sessionId** | `string` | ✅ | Conversation session ID |
-| **userId** | `string` | optional | User identifier |
-| **agentId** | `string` | optional | AI agent identifier |
-| **object** | `string` | optional | Related object (e.g., "case", "project") |
-| **recordId** | `string` | optional | Related record ID |
-| **scope** | `Record<string, any>` | optional | Additional context scope |
-| **systemMessage** | `string` | optional | System prompt/instructions |
-| **metadata** | `Record<string, any>` | optional |  |
-
 
 ---
 
 ## ConversationMessage
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Unique message ID |
-| **timestamp** | `string` | ✅ | ISO 8601 timestamp |
-| **role** | `Enum<'system' \| 'user' \| 'assistant' \| 'function' \| 'tool'>` | ✅ |  |
-| **content** | `Object \| Object \| Object \| Object[]` | ✅ | Message content (multimodal array) |
-| **functionCall** | `Object` | optional | Legacy function call |
-| **toolCalls** | `Object[]` | optional | Tool calls |
-| **toolCallId** | `string` | optional | Tool call ID this message responds to |
-| **name** | `string` | optional | Name of the function/user |
-| **tokens** | `Object` | optional | Token usage for this message |
-| **cost** | `number` | optional | Cost for this message in USD |
-| **pinned** | `boolean` | optional | Prevent removal during pruning |
-| **importance** | `number` | optional | Importance score for pruning |
-| **embedding** | `number[]` | optional | Vector embedding for semantic search |
-| **metadata** | `Record<string, any>` | optional |  |
 
 
 ---
 
 ## ConversationSession
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Unique session ID |
-| **name** | `string` | optional | Session name/title |
-| **context** | `Object` | ✅ |  |
-| **modelId** | `string` | optional | AI model ID |
-| **tokenBudget** | `Object` | ✅ |  |
-| **messages** | `Object[]` | optional |  |
-| **tokens** | `Object` | optional |  |
-| **totalTokens** | `Object` | optional | Total tokens across all messages |
-| **totalCost** | `number` | optional | Total cost for this session in USD |
-| **status** | `Enum<'active' \| 'paused' \| 'completed' \| 'archived'>` | optional |  |
-| **createdAt** | `string` | ✅ | ISO 8601 timestamp |
-| **updatedAt** | `string` | ✅ | ISO 8601 timestamp |
-| **expiresAt** | `string` | optional | ISO 8601 timestamp |
-| **metadata** | `Record<string, any>` | optional |  |
-
 
 ---
 
 ## ConversationSummary
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **summary** | `string` | ✅ | Conversation summary |
-| **keyPoints** | `string[]` | optional | Key discussion points |
-| **originalTokens** | `integer` | ✅ | Original token count |
-| **summaryTokens** | `integer` | ✅ | Summary token count |
-| **tokensSaved** | `integer` | ✅ | Tokens saved |
-| **messageRange** | `Object` | ✅ | Range of messages summarized |
-| **generatedAt** | `string` | ✅ | ISO 8601 timestamp |
-| **modelId** | `string` | optional | Model used for summarization |
 
 
 ---
 
 ## FileContent
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **fileUrl** | `string` | ✅ | File attachment URL |
-| **mimeType** | `string` | ✅ | MIME type |
-| **fileName** | `string` | optional |  |
-| **metadata** | `Record<string, any>` | optional |  |
-
 
 ---
 
 ## FunctionCall
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **name** | `string` | ✅ | Function name |
-| **arguments** | `string` | ✅ | JSON string of function arguments |
-| **result** | `string` | optional | Function execution result |
 
 
 ---
 
 ## ImageContent
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **imageUrl** | `string` | ✅ | Image URL |
-| **detail** | `Enum<'low' \| 'high' \| 'auto'>` | optional |  |
-| **metadata** | `Record<string, any>` | optional |  |
-
 
 ---
 
 ## MessageContent
-
-### Union Options
-
-This schema accepts one of the following structures:
-
-#### Option 1
-
-**Type:** `text`
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **text** | `string` | ✅ | Text content |
-| **metadata** | `Record<string, any>` | optional |  |
-
----
-
-#### Option 2
-
-**Type:** `image`
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **imageUrl** | `string` | ✅ | Image URL |
-| **detail** | `Enum<'low' \| 'high' \| 'auto'>` | optional |  |
-| **metadata** | `Record<string, any>` | optional |  |
-
----
-
-#### Option 3
-
-**Type:** `file`
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **fileUrl** | `string` | ✅ | File attachment URL |
-| **mimeType** | `string` | ✅ | MIME type |
-| **fileName** | `string` | optional |  |
-| **metadata** | `Record<string, any>` | optional |  |
-
----
-
-#### Option 4
-
-**Type:** `code`
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **text** | `string` | ✅ | Code snippet |
-| **language** | `string` | optional |  |
-| **metadata** | `Record<string, any>` | optional |  |
-
----
 
 
 ---
 
 ## MessageContentType
 
-### Allowed Values
-
-* `text`
-* `image`
-* `file`
-* `code`
-* `structured`
-
 
 ---
 
 ## MessagePruningEvent
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **timestamp** | `string` | ✅ | Event timestamp |
-| **prunedMessages** | `Object[]` | ✅ |  |
-| **tokensFreed** | `integer` | ✅ |  |
-| **messagesRemoved** | `integer` | ✅ |  |
-| **remainingTokens** | `integer` | ✅ |  |
-| **remainingMessages** | `integer` | ✅ |  |
 
 
 ---
 
 ## MessageRole
 
-### Allowed Values
-
-* `system`
-* `user`
-* `assistant`
-* `function`
-* `tool`
-
 
 ---
 
 ## TextContent
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `string` | ✅ |  |
-| **text** | `string` | ✅ | Text content |
-| **metadata** | `Record<string, any>` | optional |  |
 
 
 ---
 
 ## TokenBudgetConfig
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **maxTokens** | `integer` | ✅ | Maximum total tokens |
-| **maxPromptTokens** | `integer` | optional | Max tokens for prompt |
-| **maxCompletionTokens** | `integer` | optional | Max tokens for completion |
-| **reserveTokens** | `integer` | optional | Reserve tokens for system messages |
-| **bufferPercentage** | `number` | optional | Buffer percentage (0.1 = 10%) |
-| **strategy** | `Enum<'fifo' \| 'importance' \| 'semantic' \| 'sliding_window' \| 'summary'>` | optional |  |
-| **slidingWindowSize** | `integer` | optional | Number of recent messages to keep |
-| **minImportanceScore** | `number` | optional | Minimum importance to keep |
-| **semanticThreshold** | `number` | optional | Semantic similarity threshold |
-| **enableSummarization** | `boolean` | optional | Enable context summarization |
-| **summarizationThreshold** | `integer` | optional | Trigger summarization at N tokens |
-| **summaryModel** | `string` | optional | Model ID for summarization |
-| **warnThreshold** | `number` | optional | Warn at % of budget (0.8 = 80%) |
-
 
 ---
 
 ## TokenBudgetStrategy
-
-### Allowed Values
-
-* `fifo`
-* `importance`
-* `semantic`
-* `sliding_window`
-* `summary`
 
 
 ---
 
 ## TokenUsageStats
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **promptTokens** | `integer` | optional |  |
-| **completionTokens** | `integer` | optional |  |
-| **totalTokens** | `integer` | optional |  |
-| **budgetLimit** | `integer` | ✅ |  |
-| **budgetUsed** | `integer` | optional |  |
-| **budgetRemaining** | `integer` | ✅ |  |
-| **budgetPercentage** | `number` | ✅ | Usage as percentage of budget |
-| **messageCount** | `integer` | optional |  |
-| **prunedMessageCount** | `integer` | optional |  |
-| **summarizedMessageCount** | `integer` | optional |  |
-
 
 ---
 
 ## ToolCall
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ | Tool call ID |
-| **type** | `Enum<'function'>` | optional |  |
-| **function** | `Object` | ✅ |  |
 
 
 ---

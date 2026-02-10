@@ -27,77 +27,30 @@ const result = AnalyticsEndpoint.parse(data);
 
 ## AnalyticsEndpoint
 
-### Allowed Values
-
-* `/api/v1/analytics/query`
-* `/api/v1/analytics/meta`
-* `/api/v1/analytics/sql`
-
 
 ---
 
 ## AnalyticsMetadataResponse
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ | Operation success status |
-| **error** | `Object` | optional | Error details if success is false |
-| **meta** | `Object` | optional | Response metadata |
-| **data** | `Object` | ✅ |  |
 
 
 ---
 
 ## AnalyticsQueryRequest
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **query** | `Object` | ✅ |  The analytic query definition |
-| **cube** | `string` | ✅ | Target cube name |
-| **format** | `Enum<'json' \| 'csv' \| 'xlsx'>` | optional | Response format |
-
 
 ---
 
 ## AnalyticsResultResponse
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ | Operation success status |
-| **error** | `Object` | optional | Error details if success is false |
-| **meta** | `Object` | optional | Response metadata |
-| **data** | `Object` | ✅ |  |
 
 
 ---
 
 ## AnalyticsSqlResponse
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ | Operation success status |
-| **error** | `Object` | optional | Error details if success is false |
-| **meta** | `Object` | optional | Response metadata |
-| **data** | `Object` | ✅ |  |
-
 
 ---
 
 ## GetAnalyticsMetaRequest
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **cube** | `string` | optional | Optional cube name to filter |
 
 
 ---
