@@ -67,8 +67,17 @@ export class AuthPlugin implements Plugin {
       throw new Error('AuthPlugin: secret is required');
     }
 
-    // Initialize auth manager
-    this.authManager = new AuthManager(this.options);
+    // Get data engine service for database operations
+    const dataEngine = ctx.getService<any>('data');
+    if (!dataEngine) {
+      ctx.logger.warn('No data engine service found - auth will use in-memory storage');
+    }
+
+    // Initialize auth manager with data engine
+    this.authManager = new AuthManager({
+      ...this.options,
+      dataEngine,
+    });
 
     // Register auth service
     ctx.registerService('auth', this.authManager);

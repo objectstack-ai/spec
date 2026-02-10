@@ -5,8 +5,11 @@
  * 
  * Authentication & Identity Plugin for ObjectStack
  * Powered by better-auth for robust, secure authentication
+ * Uses ObjectQL for data persistence (no third-party ORM required)
  */
 
-export * from './auth-plugin';
-export * from './auth-manager';
+export * from './auth-plugin.js';
+export * from './auth-manager.js';
+export * from './objectql-adapter.js';
+export * from './objects/index.js';
 export type { AuthConfig, AuthProviderConfig, AuthPluginConfig } from '@objectstack/spec/system';

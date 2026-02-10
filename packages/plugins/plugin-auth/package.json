@@ -18,13 +18,5 @@
     "@types/node": "^25.2.2",
     "typescript": "^5.0.0",
     "vitest": "^4.0.18"
-  },
-  "peerDependencies": {
-    "drizzle-orm": "^0.41.0"
-  },
-  "peerDependenciesMeta": {
-    "drizzle-orm": {
-      "optional": true
-    }
   }
 }

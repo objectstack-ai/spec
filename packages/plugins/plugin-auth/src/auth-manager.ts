@@ -3,6 +3,8 @@
 import { betterAuth } from 'better-auth';
 import type { Auth, BetterAuthOptions } from 'better-auth';
 import type { AuthConfig } from '@objectstack/spec/system';
+import type { IDataEngine } from '@objectstack/core';
+import { createObjectQLAdapter } from './objectql-adapter.js';
 
 /**
  * Extended options for AuthManager
@@ -13,6 +15,12 @@ export interface AuthManagerOptions extends Partial<AuthConfig> {
    * If not provided, one will be created from config
    */
   authInstance?: Auth<any>;
+  
+  /**
+   * ObjectQL Data Engine instance
+   * Required for database operations using ObjectQL instead of third-party ORMs
+   */
+  dataEngine?: IDataEngine;
 }
 
 /**
@@ -82,25 +90,24 @@ export class AuthManager {
   }
 
   /**
-   * Create database configuration
-   * TODO: Implement proper database adapter when drizzle-orm is available
+   * Create database configuration using ObjectQL adapter
    */
   private createDatabaseConfig(): any {
-    // If databaseUrl is provided, we would use drizzle adapter
-    // For now, this is a placeholder configuration
-    if (this.config.databaseUrl) {
-      console.warn(
-        'Database URL provided but adapter integration not yet complete. ' +
-        'Install drizzle-orm and configure a proper adapter for production use.'
-      );
+    // Use ObjectQL adapter if dataEngine is provided
+    if (this.config.dataEngine) {
+      return createObjectQLAdapter(this.config.dataEngine);
     }
     
-    // Return a minimal configuration that better-auth can work with
-    // This will need to be replaced with a proper adapter
-    return {
-      // Placeholder - will be replaced with actual adapter
-      adapter: 'in-memory' as any,
-    };
+    // Fallback warning if no dataEngine is provided
+    console.warn(
+      '⚠️  WARNING: No dataEngine provided to AuthManager! ' +
+      'Using in-memory storage. This is NOT suitable for production. ' +
+      'Please provide a dataEngine instance (e.g., ObjectQL) in AuthManagerOptions.'
+    );
+    
+    // Return a minimal in-memory configuration as fallback
+    // This allows the system to work in development/testing without a real database
+    return undefined; // better-auth will use its default in-memory adapter
   }
 
   /**
