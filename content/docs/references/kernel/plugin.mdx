@@ -1,0 +1,45 @@
+---
+title: Plugin
+description: Plugin protocol schemas
+---
+
+Shared Plugin Types
+
+These are the specialized plugin types common between Manifest (Package) and Plugin (Runtime).
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/plugin.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ActivationEvent, Plugin, PluginContext, PluginLifecycle } from '@objectstack/spec/kernel';
+import type { ActivationEvent, Plugin, PluginContext, PluginLifecycle } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = ActivationEvent.parse(data);
+```
+
+---
+
+## ActivationEvent
+
+
+---
+
+## Plugin
+
+
+---
+
+## PluginContext
+
+
+---
+
+## PluginLifecycle
+
+
+---
+

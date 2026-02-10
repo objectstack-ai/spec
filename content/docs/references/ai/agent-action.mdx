@@ -1,0 +1,172 @@
+---
+title: Agent Action
+description: Agent Action protocol schemas
+---
+
+AI Agent Action Protocol
+
+Defines how AI agents can interact with the UI by mapping natural language intents
+
+to structured UI actions. This enables agents to not only query data but also
+
+manipulate the interface, navigate between views, and trigger workflows.
+
+Architecture Alignment:
+
+- Salesforce Einstein: Action recommendations and automated UI interactions
+
+- ServiceNow Virtual Agent: UI action automation
+
+- Microsoft Power Virtual Agents: Bot actions and UI integration
+
+Use Cases:
+
+- "Open the new account form" → Navigate to form view
+
+- "Show me all active opportunities" → Navigate to list view with filter
+
+- "Create a new task for John" → Open form with pre-filled data
+
+- "Switch to the kanban view" → Change view mode
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/agent-action.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AgentAction, AgentActionResult, AgentActionSequence, AgentActionSequenceResult, ComponentActionParams, ComponentActionType, ComponentAgentAction, DataActionParams, DataActionType, DataAgentAction, FormActionParams, FormActionType, FormAgentAction, IntentActionMapping, NavigationActionParams, NavigationActionType, NavigationAgentAction, TypedAgentAction, UIActionType, ViewActionParams, ViewActionType, ViewAgentAction, WorkflowActionParams, WorkflowActionType, WorkflowAgentAction } from '@objectstack/spec/ai';
+import type { AgentAction, AgentActionResult, AgentActionSequence, AgentActionSequenceResult, ComponentActionParams, ComponentActionType, ComponentAgentAction, DataActionParams, DataActionType, DataAgentAction, FormActionParams, FormActionType, FormAgentAction, IntentActionMapping, NavigationActionParams, NavigationActionType, NavigationAgentAction, TypedAgentAction, UIActionType, ViewActionParams, ViewActionType, ViewAgentAction, WorkflowActionParams, WorkflowActionType, WorkflowAgentAction } from '@objectstack/spec/ai';
+
+// Validate data
+const result = AgentAction.parse(data);
+```
+
+---
+
+## AgentAction
+
+
+---
+
+## AgentActionResult
+
+
+---
+
+## AgentActionSequence
+
+
+---
+
+## AgentActionSequenceResult
+
+
+---
+
+## ComponentActionParams
+
+
+---
+
+## ComponentActionType
+
+
+---
+
+## ComponentAgentAction
+
+
+---
+
+## DataActionParams
+
+
+---
+
+## DataActionType
+
+
+---
+
+## DataAgentAction
+
+
+---
+
+## FormActionParams
+
+
+---
+
+## FormActionType
+
+
+---
+
+## FormAgentAction
+
+
+---
+
+## IntentActionMapping
+
+
+---
+
+## NavigationActionParams
+
+
+---
+
+## NavigationActionType
+
+
+---
+
+## NavigationAgentAction
+
+
+---
+
+## TypedAgentAction
+
+
+---
+
+## UIActionType
+
+
+---
+
+## ViewActionParams
+
+
+---
+
+## ViewActionType
+
+
+---
+
+## ViewAgentAction
+
+
+---
+
+## WorkflowActionParams
+
+
+---
+
+## WorkflowActionType
+
+
+---
+
+## WorkflowAgentAction
+
+
+---
+

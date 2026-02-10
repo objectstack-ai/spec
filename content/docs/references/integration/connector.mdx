@@ -1,0 +1,181 @@
+---
+title: Connector
+description: Connector protocol schemas
+---
+
+Connector Protocol - LEVEL 3: Enterprise Connector
+
+Defines the standard connector specification for external system integration.
+
+Connectors enable ObjectStack to sync data with SaaS apps, databases, file storage,
+
+and message queues through a unified protocol.
+
+**Positioning in 3-Layer Architecture:**
+
+- **L1: Simple Sync** (automation/sync.zod.ts) - Business users - Sync Salesforce to Sheets
+
+- **L2: ETL Pipeline** (automation/etl.zod.ts) - Data engineers - Aggregate 10 sources to warehouse
+
+- **L3: Enterprise Connector** (THIS FILE) - System integrators - Full SAP integration
+
+**SCOPE: Most comprehensive integration layer.**
+
+Includes authentication, webhooks, rate limiting, field mapping, bidirectional sync,
+
+retry policies, and complete lifecycle management.
+
+This protocol supports multiple authentication strategies, bidirectional sync,
+
+field mapping, webhooks, and comprehensive rate limiting.
+
+Authentication is now imported from the canonical auth/config.zod.ts.
+
+## When to Use This Layer
+
+**Use Enterprise Connector when:**
+
+- Building enterprise-grade connectors (e.g., Salesforce, SAP, Oracle)
+
+- Complex OAuth2/SAML authentication required
+
+- Bidirectional sync with field mapping and transformations
+
+- Webhook management and rate limiting required
+
+- Full CRUD operations and data synchronization
+
+- Need comprehensive retry strategies and error handling
+
+**Examples:**
+
+- Full Salesforce integration with webhooks
+
+- SAP ERP connector with CDC (Change Data Capture)
+
+- Microsoft Dynamics 365 connector
+
+**When to downgrade:**
+
+- Simple field sync → Use [Simple Sync](../automation/sync.zod.ts)
+
+- Data transformation only → Use [ETL Pipeline](../automation/etl.zod.ts)
+
+@see [../automation/sync.zod.ts](../automation/sync.zod.ts) for Level 1 (simple sync)
+
+@see [../automation/etl.zod.ts](../automation/etl.zod.ts) for Level 2 (data engineering)
+
+## When to use Integration Connector vs. Trigger Registry?
+
+**Use `integration/connector.zod.ts` when:**
+
+- Building enterprise-grade connectors (e.g., Salesforce, SAP, Oracle)
+
+- Complex OAuth2/SAML authentication required
+
+- Bidirectional sync with field mapping and transformations
+
+- Webhook management and rate limiting required
+
+- Full CRUD operations and data synchronization
+
+- Need comprehensive retry strategies and error handling
+
+**Use `automation/trigger-registry.zod.ts` when:**
+
+- Building simple automation triggers (e.g., "when Slack message received, create task")
+
+- No complex authentication needed (simple API keys, basic auth)
+
+- Lightweight, single-purpose integrations
+
+- Quick setup with minimal configuration
+
+@see ../../automation/trigger-registry.zod.ts for lightweight automation triggers
+
+<Callout type="info">
+**Source:** `packages/spec/src/integration/connector.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ConflictResolution, Connector, ConnectorAction, ConnectorStatus, ConnectorTrigger, ConnectorType, DataSyncConfig, RateLimitStrategy, RetryConfig, RetryStrategy, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
+import type { ConflictResolution, Connector, ConnectorAction, ConnectorStatus, ConnectorTrigger, ConnectorType, DataSyncConfig, RateLimitStrategy, RetryConfig, RetryStrategy, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
+
+// Validate data
+const result = ConflictResolution.parse(data);
+```
+
+---
+
+## ConflictResolution
+
+
+---
+
+## Connector
+
+
+---
+
+## ConnectorAction
+
+
+---
+
+## ConnectorStatus
+
+
+---
+
+## ConnectorTrigger
+
+
+---
+
+## ConnectorType
+
+
+---
+
+## DataSyncConfig
+
+
+---
+
+## RateLimitStrategy
+
+
+---
+
+## RetryConfig
+
+
+---
+
+## RetryStrategy
+
+
+---
+
+## SyncStrategy
+
+
+---
+
+## WebhookConfig
+
+
+---
+
+## WebhookEvent
+
+
+---
+
+## WebhookSignatureAlgorithm
+
+
+---
+

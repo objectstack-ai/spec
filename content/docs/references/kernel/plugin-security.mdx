@@ -1,0 +1,106 @@
+---
+title: Plugin Security
+description: Plugin Security protocol schemas
+---
+
+# Plugin Security & Dependency Resolution Protocol
+
+Provides comprehensive security scanning, vulnerability management,
+
+and dependency resolution for the ObjectStack plugin ecosystem.
+
+Features:
+
+- CVE/vulnerability scanning
+
+- Dependency graph resolution
+
+- Semantic version conflict detection
+
+- Supply chain security
+
+- Plugin sandboxing policies
+
+- Trust and verification workflows
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/plugin-security.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { DependencyGraph, DependencyGraphNode, PackageDependency, PackageDependencyConflict, PackageDependencyResolutionResult, PluginProvenance, PluginTrustScore, SBOM, SBOMEntry, SecurityPolicy, SecurityScanResult, SecurityVulnerability, VulnerabilitySeverity } from '@objectstack/spec/kernel';
+import type { DependencyGraph, DependencyGraphNode, PackageDependency, PackageDependencyConflict, PackageDependencyResolutionResult, PluginProvenance, PluginTrustScore, SBOM, SBOMEntry, SecurityPolicy, SecurityScanResult, SecurityVulnerability, VulnerabilitySeverity } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = DependencyGraph.parse(data);
+```
+
+---
+
+## DependencyGraph
+
+
+---
+
+## DependencyGraphNode
+
+
+---
+
+## PackageDependency
+
+
+---
+
+## PackageDependencyConflict
+
+
+---
+
+## PackageDependencyResolutionResult
+
+
+---
+
+## PluginProvenance
+
+
+---
+
+## PluginTrustScore
+
+
+---
+
+## SBOM
+
+
+---
+
+## SBOMEntry
+
+
+---
+
+## SecurityPolicy
+
+
+---
+
+## SecurityScanResult
+
+
+---
+
+## SecurityVulnerability
+
+
+---
+
+## VulnerabilitySeverity
+
+
+---
+

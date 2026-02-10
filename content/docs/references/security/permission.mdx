@@ -1,0 +1,48 @@
+---
+title: Permission
+description: Permission protocol schemas
+---
+
+Entity (Object) Level Permissions
+
+Defines CRUD + VAMA (View All / Modify All) + Lifecycle access.
+
+Refined with enterprise data lifecycle controls:
+
+- Transfer (Ownership change)
+
+- Restore (Soft delete recovery)
+
+- Purge (Hard delete / Compliance)
+
+<Callout type="info">
+**Source:** `packages/spec/src/security/permission.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { FieldPermission, ObjectPermission, PermissionSet } from '@objectstack/spec/security';
+import type { FieldPermission, ObjectPermission, PermissionSet } from '@objectstack/spec/security';
+
+// Validate data
+const result = FieldPermission.parse(data);
+```
+
+---
+
+## FieldPermission
+
+
+---
+
+## ObjectPermission
+
+
+---
+
+## PermissionSet
+
+
+---
+

@@ -1,0 +1,42 @@
+---
+title: Http
+description: Http protocol schemas
+---
+
+Shared HTTP Schemas
+
+Common HTTP-related schemas used across API and System protocols.
+
+These schemas ensure consistency across different parts of the stack.
+
+<Callout type="info">
+**Source:** `packages/spec/src/shared/http.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { CorsConfig, RateLimitConfig, StaticMount } from '@objectstack/spec/shared';
+import type { CorsConfig, RateLimitConfig, StaticMount } from '@objectstack/spec/shared';
+
+// Validate data
+const result = CorsConfig.parse(data);
+```
+
+---
+
+## CorsConfig
+
+
+---
+
+## RateLimitConfig
+
+
+---
+
+## StaticMount
+
+
+---
+

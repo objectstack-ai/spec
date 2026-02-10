@@ -1,0 +1,77 @@
+---
+title: Tenant
+description: Tenant protocol schemas
+---
+
+Tenant Schema (Multi-Tenant Architecture)
+
+Defines the tenant/tenancy model for ObjectStack SaaS deployments.
+
+Supports different levels of data isolation to meet varying security,
+
+performance, and compliance requirements.
+
+Isolation Levels:
+
+- shared_schema: All tenants share the same database and schema (row-level isolation)
+
+- isolated_schema: Tenants have separate schemas within a shared database
+
+- isolated_db: Each tenant has a completely separate database
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/tenant.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { DatabaseLevelIsolationStrategy, LevelIsolationStrategySchema, RowLevelIsolationStrategy, Tenant, TenantIsolationConfig, TenantIsolationLevel, TenantQuota, TenantSecurityPolicy } from '@objectstack/spec/system';
+import type { DatabaseLevelIsolationStrategy, LevelIsolationStrategy, RowLevelIsolationStrategy, Tenant, TenantIsolationConfig, TenantIsolationLevel, TenantQuota, TenantSecurityPolicy } from '@objectstack/spec/system';
+
+// Validate data
+const result = DatabaseLevelIsolationStrategy.parse(data);
+```
+
+---
+
+## DatabaseLevelIsolationStrategy
+
+
+---
+
+## LevelIsolationStrategySchema
+
+
+---
+
+## RowLevelIsolationStrategy
+
+
+---
+
+## Tenant
+
+
+---
+
+## TenantIsolationConfig
+
+
+---
+
+## TenantIsolationLevel
+
+
+---
+
+## TenantQuota
+
+
+---
+
+## TenantSecurityPolicy
+
+
+---
+

@@ -1,0 +1,42 @@
+---
+title: Auth Config
+description: Auth Config protocol schemas
+---
+
+Better-Auth Configuration Protocol
+
+Defines the configuration required to initialize the Better-Auth kernel.
+
+Used in server-side configuration injection.
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/auth-config.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AuthConfig, AuthPluginConfig, AuthProviderConfig } from '@objectstack/spec/system';
+import type { AuthConfig, AuthPluginConfig, AuthProviderConfig } from '@objectstack/spec/system';
+
+// Validate data
+const result = AuthConfig.parse(data);
+```
+
+---
+
+## AuthConfig
+
+
+---
+
+## AuthPluginConfig
+
+
+---
+
+## AuthProviderConfig
+
+
+---
+

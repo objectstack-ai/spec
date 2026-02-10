@@ -1,0 +1,83 @@
+---
+title: App
+description: App protocol schemas
+---
+
+Base Navigation Item Schema
+
+Shared properties for all navigation types.
+
+**NAMING CONVENTION:**
+
+Navigation item IDs are used in URLs and configuration and must be lowercase snake_case.
+
+@example Good IDs
+
+- 'menu_accounts'
+
+- 'page_dashboard'
+
+- 'nav_settings'
+
+@example Bad IDs (will be rejected)
+
+- 'MenuAccounts' (PascalCase)
+
+- 'Page Dashboard' (spaces)
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/app.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { App, AppBranding, DashboardNavItem, GroupNavItem, NavigationItem, ObjectNavItem, PageNavItem, UrlNavItem } from '@objectstack/spec/ui';
+import type { App, AppBranding, DashboardNavItem, GroupNavItem, NavigationItem, ObjectNavItem, PageNavItem, UrlNavItem } from '@objectstack/spec/ui';
+
+// Validate data
+const result = App.parse(data);
+```
+
+---
+
+## App
+
+
+---
+
+## AppBranding
+
+
+---
+
+## DashboardNavItem
+
+
+---
+
+## GroupNavItem
+
+
+---
+
+## NavigationItem
+
+
+---
+
+## ObjectNavItem
+
+
+---
+
+## PageNavItem
+
+
+---
+
+## UrlNavItem
+
+
+---
+

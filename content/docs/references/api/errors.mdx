@@ -1,0 +1,64 @@
+---
+title: Errors
+description: Errors protocol schemas
+---
+
+Standardized Error Codes Protocol
+
+Implements P0 requirement for ObjectStack kernel.
+
+Provides consistent, machine-readable error codes across the platform.
+
+Features:
+
+- Categorized error codes (validation, authentication, authorization, etc.)
+
+- HTTP status code mapping
+
+- Localization support
+
+- Retry guidance
+
+Industry alignment: Google Cloud Errors, AWS Error Codes, Stripe API Errors
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/errors.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { EnhancedApiError, ErrorCategory, ErrorResponse, FieldError, StandardErrorCode } from '@objectstack/spec/api';
+import type { EnhancedApiError, ErrorCategory, ErrorResponse, FieldError, StandardErrorCode } from '@objectstack/spec/api';
+
+// Validate data
+const result = EnhancedApiError.parse(data);
+```
+
+---
+
+## EnhancedApiError
+
+
+---
+
+## ErrorCategory
+
+
+---
+
+## ErrorResponse
+
+
+---
+
+## FieldError
+
+
+---
+
+## StandardErrorCode
+
+
+---
+

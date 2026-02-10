@@ -1,0 +1,57 @@
+---
+title: Change Management
+description: Change Management protocol schemas
+---
+
+Change Type Enum
+
+Classification of change requests based on risk and approval requirements.
+
+Follows ITIL change management best practices.
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/change-management.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ChangeImpact, ChangePriority, ChangeRequest, ChangeStatus, ChangeType, RollbackPlan } from '@objectstack/spec/system';
+import type { ChangeImpact, ChangePriority, ChangeRequest, ChangeStatus, ChangeType, RollbackPlan } from '@objectstack/spec/system';
+
+// Validate data
+const result = ChangeImpact.parse(data);
+```
+
+---
+
+## ChangeImpact
+
+
+---
+
+## ChangePriority
+
+
+---
+
+## ChangeRequest
+
+
+---
+
+## ChangeStatus
+
+
+---
+
+## ChangeType
+
+
+---
+
+## RollbackPlan
+
+
+---
+

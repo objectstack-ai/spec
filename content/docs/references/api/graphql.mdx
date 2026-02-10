@@ -1,0 +1,205 @@
+---
+title: Graphql
+description: Graphql protocol schemas
+---
+
+GraphQL Protocol Support
+
+GraphQL is a query language for APIs and a runtime for executing those queries.
+
+It provides a complete and understandable description of the data in your API,
+
+gives clients the power to ask for exactly what they need, and enables powerful
+
+developer tools.
+
+## Overview
+
+GraphQL provides:
+
+- Type-safe schema definition
+
+- Precise data fetching (no over/under-fetching)
+
+- Introspection and documentation
+
+- Real-time subscriptions
+
+- Batched queries with DataLoader
+
+## Use Cases
+
+1. **Modern API Development**
+
+- Mobile and web applications
+
+- Microservices federation
+
+- Real-time dashboards
+
+2. **Data Aggregation**
+
+- Multi-source data integration
+
+- Complex nested queries
+
+- Efficient data loading
+
+3. **Developer Experience**
+
+- Self-documenting API
+
+- Type safety and validation
+
+- GraphQL playground
+
+@see https://graphql.org/
+
+@see https://spec.graphql.org/
+
+@example GraphQL Query
+
+```graphql
+
+query GetCustomer($id: ID!) {
+
+customer(id: $id) {
+
+id
+
+name
+
+email
+
+orders(limit: 10, status: "active") {
+
+id
+
+total
+
+items {
+
+product {
+
+name
+
+price
+
+}
+
+}
+
+}
+
+}
+
+}
+
+```
+
+@example GraphQL Mutation
+
+```graphql
+
+mutation CreateOrder($input: CreateOrderInput!) {
+
+createOrder(input: $input) {
+
+id
+
+orderNumber
+
+status
+
+}
+
+}
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/graphql.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { GraphQLConfig, GraphQLDataLoaderConfig, GraphQLDirectiveConfig, GraphQLDirectiveLocation, GraphQLMutationConfig, GraphQLPersistedQuery, GraphQLQueryComplexity, GraphQLQueryConfig, GraphQLQueryDepthLimit, GraphQLRateLimit, GraphQLResolverConfig, GraphQLScalarType, GraphQLSubscriptionConfig, GraphQLTypeConfig } from '@objectstack/spec/api';
+import type { GraphQLConfig, GraphQLDataLoaderConfig, GraphQLDirectiveConfig, GraphQLDirectiveLocation, GraphQLMutationConfig, GraphQLPersistedQuery, GraphQLQueryComplexity, GraphQLQueryConfig, GraphQLQueryDepthLimit, GraphQLRateLimit, GraphQLResolverConfig, GraphQLScalarType, GraphQLSubscriptionConfig, GraphQLTypeConfig } from '@objectstack/spec/api';
+
+// Validate data
+const result = GraphQLConfig.parse(data);
+```
+
+---
+
+## GraphQLConfig
+
+
+---
+
+## GraphQLDataLoaderConfig
+
+
+---
+
+## GraphQLDirectiveConfig
+
+
+---
+
+## GraphQLDirectiveLocation
+
+
+---
+
+## GraphQLMutationConfig
+
+
+---
+
+## GraphQLPersistedQuery
+
+
+---
+
+## GraphQLQueryComplexity
+
+
+---
+
+## GraphQLQueryConfig
+
+
+---
+
+## GraphQLQueryDepthLimit
+
+
+---
+
+## GraphQLRateLimit
+
+
+---
+
+## GraphQLResolverConfig
+
+
+---
+
+## GraphQLScalarType
+
+
+---
+
+## GraphQLSubscriptionConfig
+
+
+---
+
+## GraphQLTypeConfig
+
+
+---
+

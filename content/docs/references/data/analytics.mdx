@@ -1,0 +1,71 @@
+---
+title: Analytics
+description: Analytics protocol schemas
+---
+
+Analytics/Semantic Layer Protocol
+
+Defines the "Business Logic" for data analysis.
+
+Inspired by Cube.dev, LookML, and dbt MetricFlow.
+
+This layer decouples the "Physical Data" (Tables/Columns) from the
+
+"Business Data" (Metrics/Dimensions).
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/analytics.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AggregationMetricType, AnalyticsQuery, Cube, CubeJoin, Dimension, DimensionType, Metric, TimeUpdateInterval } from '@objectstack/spec/data';
+import type { AggregationMetricType, AnalyticsQuery, Cube, CubeJoin, Dimension, DimensionType, Metric, TimeUpdateInterval } from '@objectstack/spec/data';
+
+// Validate data
+const result = AggregationMetricType.parse(data);
+```
+
+---
+
+## AggregationMetricType
+
+
+---
+
+## AnalyticsQuery
+
+
+---
+
+## Cube
+
+
+---
+
+## CubeJoin
+
+
+---
+
+## Dimension
+
+
+---
+
+## DimensionType
+
+
+---
+
+## Metric
+
+
+---
+
+## TimeUpdateInterval
+
+
+---
+

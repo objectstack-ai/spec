@@ -1,0 +1,80 @@
+---
+title: Plugin Capability
+description: Plugin Capability protocol schemas
+---
+
+# Plugin Capability Protocol
+
+Defines the standard way plugins declare their capabilities, implementations,
+
+and conformance levels to ensure interoperability across vendors.
+
+Based on the Protocol-Oriented Architecture pattern similar to:
+
+- Kubernetes CRDs (Custom Resource Definitions)
+
+- OSGi Service Registry
+
+- Eclipse Extension Points
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/plugin-capability.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { CapabilityConformanceLevel, ExtensionPoint, PluginCapability, PluginCapabilityManifest, PluginDependency, PluginInterface, ProtocolFeature, ProtocolReference, ProtocolVersion } from '@objectstack/spec/kernel';
+import type { CapabilityConformanceLevel, ExtensionPoint, PluginCapability, PluginCapabilityManifest, PluginDependency, PluginInterface, ProtocolFeature, ProtocolReference, ProtocolVersion } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = CapabilityConformanceLevel.parse(data);
+```
+
+---
+
+## CapabilityConformanceLevel
+
+
+---
+
+## ExtensionPoint
+
+
+---
+
+## PluginCapability
+
+
+---
+
+## PluginCapabilityManifest
+
+
+---
+
+## PluginDependency
+
+
+---
+
+## PluginInterface
+
+
+---
+
+## ProtocolFeature
+
+
+---
+
+## ProtocolReference
+
+
+---
+
+## ProtocolVersion
+
+
+---
+

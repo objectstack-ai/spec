@@ -1,0 +1,19 @@
+{
+  "title": "AI Protocol",
+  "pages": [
+    "agent",
+    "agent-action",
+    "conversation",
+    "cost",
+    "devops-agent",
+    "feedback-loop",
+    "mcp",
+    "model-registry",
+    "nlq",
+    "orchestration",
+    "plugin-development",
+    "predictive",
+    "rag-pipeline",
+    "runtime-ops"
+  ]
+}

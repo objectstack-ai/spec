@@ -1,0 +1,132 @@
+---
+title: Documentation
+description: Documentation protocol schemas
+---
+
+API Documentation & Testing Interface Protocol
+
+Provides schemas for generating interactive API documentation and testing
+
+interfaces similar to Swagger UI, GraphQL Playground, Postman, etc.
+
+Features:
+
+- OpenAPI/Swagger specification generation
+
+- Interactive API testing playground
+
+- API versioning and changelog
+
+- Code generation templates
+
+- Mock server configuration
+
+Architecture Alignment:
+
+- Swagger UI: Interactive API documentation
+
+- Postman: API testing collections
+
+- GraphQL Playground: GraphQL-specific testing
+
+- Redoc: Documentation rendering
+
+@example Documentation Config
+
+```typescript
+
+const docConfig: ApiDocumentationConfig = {
+
+enabled: true,
+
+title: 'ObjectStack API',
+
+version: '1.0.0',
+
+servers: [{ url: 'https://api.example.com', description: 'Production' }],
+
+ui: {
+
+type: 'swagger-ui',
+
+theme: 'light',
+
+enableTryItOut: true
+
+}
+
+}
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/documentation.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ApiChangelogEntry, ApiDocumentationConfig, ApiTestCollection, ApiTestRequest, ApiTestingUiConfig, ApiTestingUiType, CodeGenerationTemplate, GeneratedApiDocumentation, OpenApiSecurityScheme, OpenApiServer, OpenApiSpec } from '@objectstack/spec/api';
+import type { ApiChangelogEntry, ApiDocumentationConfig, ApiTestCollection, ApiTestRequest, ApiTestingUiConfig, ApiTestingUiType, CodeGenerationTemplate, GeneratedApiDocumentation, OpenApiSecurityScheme, OpenApiServer, OpenApiSpec } from '@objectstack/spec/api';
+
+// Validate data
+const result = ApiChangelogEntry.parse(data);
+```
+
+---
+
+## ApiChangelogEntry
+
+
+---
+
+## ApiDocumentationConfig
+
+
+---
+
+## ApiTestCollection
+
+
+---
+
+## ApiTestRequest
+
+
+---
+
+## ApiTestingUiConfig
+
+
+---
+
+## ApiTestingUiType
+
+
+---
+
+## CodeGenerationTemplate
+
+
+---
+
+## GeneratedApiDocumentation
+
+
+---
+
+## OpenApiSecurityScheme
+
+
+---
+
+## OpenApiServer
+
+
+---
+
+## OpenApiSpec
+
+
+---
+

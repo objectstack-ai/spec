@@ -1,0 +1,185 @@
+---
+title: Devops Agent
+description: Devops Agent protocol schemas
+---
+
+DevOps Agent Protocol
+
+Defines autonomous DevOps agents that can self-iterate on enterprise
+
+management software development using the ObjectStack specification.
+
+This agent integrates with GitHub for version control and Vercel for
+
+deployment, enabling fully automated development, testing, and release cycles.
+
+Architecture:
+
+- Self-iterating development based on ObjectStack specifications
+
+- Automated code generation following best practices
+
+- Continuous integration and deployment
+
+- Version management and release automation
+
+- Monitoring and rollback capabilities
+
+Use Cases:
+
+- Automated feature development from specifications
+
+- Self-healing code based on test failures
+
+- Automated dependency updates
+
+- Continuous optimization and refactoring
+
+- Automated documentation generation
+
+@example
+
+```typescript
+
+import { DevOpsAgent } from '@objectstack/spec/ai';
+
+const agent: DevOpsAgent = {
+
+name: 'devops_automation_agent',
+
+label: 'DevOps Automation Agent',
+
+role: 'Senior Full-Stack DevOps Engineer',
+
+instructions: '...',
+
+developmentConfig: {
+
+specificationSource: 'packages/spec',
+
+codeGeneration: {
+
+enabled: true,
+
+targets: ['frontend', 'backend', 'api'],
+
+},
+
+},
+
+integrations: {
+
+github: {
+
+connector: 'github_production',
+
+repository: {
+
+owner: 'objectstack-ai',
+
+name: 'app',
+
+},
+
+},
+
+vercel: {
+
+connector: 'vercel_production',
+
+project: 'objectstack-app',
+
+},
+
+},
+
+};
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/devops-agent.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { CICDPipelineConfig, CodeGenerationConfig, CodeGenerationTarget, DeploymentStrategy, DevOpsAgent, DevOpsTool, DevelopmentConfig, GitHubIntegration, IntegrationConfig, MonitoringConfig, PipelineStage, TestingConfig, VercelIntegration, VersionManagement } from '@objectstack/spec/ai';
+import type { CICDPipelineConfig, CodeGenerationConfig, CodeGenerationTarget, DeploymentStrategy, DevOpsAgent, DevOpsTool, DevelopmentConfig, GitHubIntegration, IntegrationConfig, MonitoringConfig, PipelineStage, TestingConfig, VercelIntegration, VersionManagement } from '@objectstack/spec/ai';
+
+// Validate data
+const result = CICDPipelineConfig.parse(data);
+```
+
+---
+
+## CICDPipelineConfig
+
+
+---
+
+## CodeGenerationConfig
+
+
+---
+
+## CodeGenerationTarget
+
+
+---
+
+## DeploymentStrategy
+
+
+---
+
+## DevOpsAgent
+
+
+---
+
+## DevOpsTool
+
+
+---
+
+## DevelopmentConfig
+
+
+---
+
+## GitHubIntegration
+
+
+---
+
+## IntegrationConfig
+
+
+---
+
+## MonitoringConfig
+
+
+---
+
+## PipelineStage
+
+
+---
+
+## TestingConfig
+
+
+---
+
+## VercelIntegration
+
+
+---
+
+## VersionManagement
+
+
+---
+

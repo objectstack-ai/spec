@@ -1,0 +1,117 @@
+---
+title: Worker
+description: Worker protocol schemas
+---
+
+Worker System Protocol
+
+Background task processing system with queues, priorities, and retry logic.
+
+Provides a robust foundation for async task execution similar to:
+
+- Sidekiq (Ruby)
+
+- Celery (Python)
+
+- Bull/BullMQ (Node.js)
+
+- AWS SQS/Lambda
+
+Features:
+
+- Task queues with priorities
+
+- Task scheduling and retry logic
+
+- Batch processing
+
+- Dead letter queues
+
+- Task monitoring and logging
+
+@example Basic task
+
+```typescript
+
+const task: Task = {
+
+id: 'task-123',
+
+type: 'send_email',
+
+payload: { to: 'user@example.com', subject: 'Welcome' },
+
+queue: 'notifications',
+
+priority: 5
+
+};
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/worker.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { BatchProgress, BatchTask, QueueConfig, Task, TaskExecutionResult, TaskPriority, TaskRetryPolicy, TaskStatus, WorkerConfig, WorkerStats } from '@objectstack/spec/system';
+import type { BatchProgress, BatchTask, QueueConfig, Task, TaskExecutionResult, TaskPriority, TaskRetryPolicy, TaskStatus, WorkerConfig, WorkerStats } from '@objectstack/spec/system';
+
+// Validate data
+const result = BatchProgress.parse(data);
+```
+
+---
+
+## BatchProgress
+
+
+---
+
+## BatchTask
+
+
+---
+
+## QueueConfig
+
+
+---
+
+## Task
+
+
+---
+
+## TaskExecutionResult
+
+
+---
+
+## TaskPriority
+
+
+---
+
+## TaskRetryPolicy
+
+
+---
+
+## TaskStatus
+
+
+---
+
+## WorkerConfig
+
+
+---
+
+## WorkerStats
+
+
+---
+

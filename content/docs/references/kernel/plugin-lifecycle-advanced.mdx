@@ -1,0 +1,82 @@
+---
+title: Plugin Lifecycle Advanced
+description: Plugin Lifecycle Advanced protocol schemas
+---
+
+# Advanced Plugin Lifecycle Protocol
+
+Defines advanced lifecycle management capabilities including:
+
+- Hot reload and live updates
+
+- Graceful degradation and fallback mechanisms
+
+- Health monitoring and auto-recovery
+
+- State preservation during updates
+
+This protocol extends the basic plugin lifecycle with enterprise-grade
+
+features for production environments.
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/plugin-lifecycle-advanced.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AdvancedPluginLifecycleConfig, DistributedStateConfig, GracefulDegradation, HotReloadConfig, PluginHealthCheck, PluginHealthReport, PluginHealthStatus, PluginStateSnapshot, PluginUpdateStrategy } from '@objectstack/spec/kernel';
+import type { AdvancedPluginLifecycleConfig, DistributedStateConfig, GracefulDegradation, HotReloadConfig, PluginHealthCheck, PluginHealthReport, PluginHealthStatus, PluginStateSnapshot, PluginUpdateStrategy } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = AdvancedPluginLifecycleConfig.parse(data);
+```
+
+---
+
+## AdvancedPluginLifecycleConfig
+
+
+---
+
+## DistributedStateConfig
+
+
+---
+
+## GracefulDegradation
+
+
+---
+
+## HotReloadConfig
+
+
+---
+
+## PluginHealthCheck
+
+
+---
+
+## PluginHealthReport
+
+
+---
+
+## PluginHealthStatus
+
+
+---
+
+## PluginStateSnapshot
+
+
+---
+
+## PluginUpdateStrategy
+
+
+---
+

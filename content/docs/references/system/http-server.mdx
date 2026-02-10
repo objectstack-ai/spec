@@ -1,0 +1,75 @@
+---
+title: Http Server
+description: Http Server protocol schemas
+---
+
+HTTP Server Protocol
+
+Defines the runtime HTTP server configuration and capabilities.
+
+Provides abstractions for HTTP server implementations (Express, Fastify, Hono, etc.)
+
+Architecture alignment:
+
+- Kubernetes: Service and Ingress resources
+
+- AWS: API Gateway configuration
+
+- Spring Boot: Application properties
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/http-server.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { HttpServerConfig, MiddlewareConfig, MiddlewareType, RouteHandlerMetadata, ServerCapabilities, ServerEvent, ServerEventType, ServerStatus } from '@objectstack/spec/system';
+import type { HttpServerConfig, MiddlewareConfig, MiddlewareType, RouteHandlerMetadata, ServerCapabilities, ServerEvent, ServerEventType, ServerStatus } from '@objectstack/spec/system';
+
+// Validate data
+const result = HttpServerConfig.parse(data);
+```
+
+---
+
+## HttpServerConfig
+
+
+---
+
+## MiddlewareConfig
+
+
+---
+
+## MiddlewareType
+
+
+---
+
+## RouteHandlerMetadata
+
+
+---
+
+## ServerCapabilities
+
+
+---
+
+## ServerEvent
+
+
+---
+
+## ServerEventType
+
+
+---
+
+## ServerStatus
+
+
+---
+

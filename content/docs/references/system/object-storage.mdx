@@ -1,0 +1,116 @@
+---
+title: Object Storage
+description: Object Storage protocol schemas
+---
+
+Object Storage Protocol
+
+Unified storage protocol that combines:
+
+- Object storage systems (S3, Azure Blob, GCS, MinIO)
+
+- Scoped storage configuration (temp, cache, data, logs, config, public)
+
+- Multi-cloud storage providers
+
+- Bucket/container configuration
+
+- Access control and permissions
+
+- Lifecycle policies for data retention
+
+- Presigned URLs for secure direct access
+
+- Multipart uploads for large files
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/object-storage.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AccessControlConfig, BucketConfig, FileMetadata, LifecycleAction, LifecyclePolicyConfig, LifecyclePolicyRule, MultipartUploadConfig, ObjectMetadata, ObjectStorageConfig, PresignedUrlConfig, StorageAcl, StorageClass, StorageConnection, StorageProvider, StorageScope } from '@objectstack/spec/system';
+import type { AccessControlConfig, BucketConfig, FileMetadata, LifecycleAction, LifecyclePolicyConfig, LifecyclePolicyRule, MultipartUploadConfig, ObjectMetadata, ObjectStorageConfig, PresignedUrlConfig, StorageAcl, StorageClass, StorageConnection, StorageProvider, StorageScope } from '@objectstack/spec/system';
+
+// Validate data
+const result = AccessControlConfig.parse(data);
+```
+
+---
+
+## AccessControlConfig
+
+
+---
+
+## BucketConfig
+
+
+---
+
+## FileMetadata
+
+
+---
+
+## LifecycleAction
+
+
+---
+
+## LifecyclePolicyConfig
+
+
+---
+
+## LifecyclePolicyRule
+
+
+---
+
+## MultipartUploadConfig
+
+
+---
+
+## ObjectMetadata
+
+
+---
+
+## ObjectStorageConfig
+
+
+---
+
+## PresignedUrlConfig
+
+
+---
+
+## StorageAcl
+
+
+---
+
+## StorageClass
+
+
+---
+
+## StorageConnection
+
+
+---
+
+## StorageProvider
+
+
+---
+
+## StorageScope
+
+
+---
+

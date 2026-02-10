@@ -1,0 +1,49 @@
+---
+title: Organization
+description: Organization protocol schemas
+---
+
+Organization Schema (Multi-Tenant Architecture)
+
+Defines the standard organization/workspace model for ObjectStack.
+
+Supports B2B SaaS scenarios where users belong to multiple teams/workspaces.
+
+This aligns with better-auth's organization plugin capabilities.
+
+<Callout type="info">
+**Source:** `packages/spec/src/identity/organization.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { Invitation, InvitationStatus, Member, Organization } from '@objectstack/spec/identity';
+import type { Invitation, InvitationStatus, Member, Organization } from '@objectstack/spec/identity';
+
+// Validate data
+const result = Invitation.parse(data);
+```
+
+---
+
+## Invitation
+
+
+---
+
+## InvitationStatus
+
+
+---
+
+## Member
+
+
+---
+
+## Organization
+
+
+---
+

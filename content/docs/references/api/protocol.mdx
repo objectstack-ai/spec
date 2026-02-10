@@ -1,0 +1,565 @@
+---
+title: Protocol
+description: Protocol protocol schemas
+---
+
+ObjectStack Protocol - Zod Schema Definitions
+
+Defines the runtime-validated contract for interacting with ObjectStack metadata and data.
+
+Used by API adapters (HTTP, WebSocket, gRPC) to fetch data/metadata without knowing engine internals.
+
+This protocol enables:
+
+- Runtime request/response validation at API gateway level
+
+- Automatic API documentation generation
+
+- Type-safe RPC communication between microservices
+
+- Client SDK generation from schemas
+
+Architecture Alignment:
+
+- Salesforce: REST API Request/Response schemas
+
+- Kubernetes: API Resource schemas with runtime validation
+
+- GraphQL: Schema-first API design
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/protocol.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AiChatRequest, AiChatResponse, AiInsightsRequest, AiInsightsResponse, AiNlqRequest, AiNlqResponse, AiSuggestRequest, AiSuggestResponse, AutomationTriggerRequest, AutomationTriggerResponse, BatchDataRequest, BatchDataResponse, CheckPermissionRequest, CheckPermissionResponse, CreateDataRequest, CreateDataResponse, CreateManyDataRequest, CreateManyDataResponse, CreateViewRequest, CreateViewResponse, DeleteDataRequest, DeleteDataResponse, DeleteManyDataRequest, DeleteManyDataResponse, DeleteViewRequest, DeleteViewResponse, FindDataRequest, FindDataResponse, GetDataRequest, GetDataResponse, GetDiscoveryRequest, GetDiscoveryResponse, GetEffectivePermissionsRequest, GetEffectivePermissionsResponse, GetFieldLabelsRequest, GetFieldLabelsResponse, GetLocalesRequest, GetLocalesResponse, GetMetaItemCachedRequest, GetMetaItemCachedResponse, GetMetaItemRequest, GetMetaItemResponse, GetMetaItemsRequest, GetMetaItemsResponse, GetMetaTypesRequest, GetMetaTypesResponse, GetNotificationPreferencesRequest, GetNotificationPreferencesResponse, GetObjectPermissionsRequest, GetObjectPermissionsResponse, GetPresenceRequest, GetPresenceResponse, GetTranslationsRequest, GetTranslationsResponse, GetUiViewRequest, GetUiViewResponse, GetViewRequest, GetViewResponse, GetWorkflowConfigRequest, GetWorkflowConfigResponse, GetWorkflowStateRequest, GetWorkflowStateResponse, ListNotificationsRequest, ListNotificationsResponse, ListViewsRequest, ListViewsResponse, MarkAllNotificationsReadRequest, MarkAllNotificationsReadResponse, MarkNotificationsReadRequest, MarkNotificationsReadResponse, Notification, NotificationPreferences, ObjectStackProtocol, RealtimeConnectRequest, RealtimeConnectResponse, RealtimeDisconnectRequest, RealtimeDisconnectResponse, RealtimeSubscribeRequest, RealtimeSubscribeResponse, RealtimeUnsubscribeRequest, RealtimeUnsubscribeResponse, RegisterDeviceRequest, RegisterDeviceResponse, SaveMetaItemRequest, SaveMetaItemResponse, SetPresenceRequest, SetPresenceResponse, UnregisterDeviceRequest, UnregisterDeviceResponse, UpdateDataRequest, UpdateDataResponse, UpdateManyDataRequest, UpdateManyDataResponse, UpdateNotificationPreferencesRequest, UpdateNotificationPreferencesResponse, UpdateViewRequest, UpdateViewResponse, WorkflowApproveRequest, WorkflowApproveResponse, WorkflowRejectRequest, WorkflowRejectResponse, WorkflowState, WorkflowTransitionRequest, WorkflowTransitionResponse } from '@objectstack/spec/api';
+import type { AiChatRequest, AiChatResponse, AiInsightsRequest, AiInsightsResponse, AiNlqRequest, AiNlqResponse, AiSuggestRequest, AiSuggestResponse, AutomationTriggerRequest, AutomationTriggerResponse, BatchDataRequest, BatchDataResponse, CheckPermissionRequest, CheckPermissionResponse, CreateDataRequest, CreateDataResponse, CreateManyDataRequest, CreateManyDataResponse, CreateViewRequest, CreateViewResponse, DeleteDataRequest, DeleteDataResponse, DeleteManyDataRequest, DeleteManyDataResponse, DeleteViewRequest, DeleteViewResponse, FindDataRequest, FindDataResponse, GetDataRequest, GetDataResponse, GetDiscoveryRequest, GetDiscoveryResponse, GetEffectivePermissionsRequest, GetEffectivePermissionsResponse, GetFieldLabelsRequest, GetFieldLabelsResponse, GetLocalesRequest, GetLocalesResponse, GetMetaItemCachedRequest, GetMetaItemCachedResponse, GetMetaItemRequest, GetMetaItemResponse, GetMetaItemsRequest, GetMetaItemsResponse, GetMetaTypesRequest, GetMetaTypesResponse, GetNotificationPreferencesRequest, GetNotificationPreferencesResponse, GetObjectPermissionsRequest, GetObjectPermissionsResponse, GetPresenceRequest, GetPresenceResponse, GetTranslationsRequest, GetTranslationsResponse, GetUiViewRequest, GetUiViewResponse, GetViewRequest, GetViewResponse, GetWorkflowConfigRequest, GetWorkflowConfigResponse, GetWorkflowStateRequest, GetWorkflowStateResponse, ListNotificationsRequest, ListNotificationsResponse, ListViewsRequest, ListViewsResponse, MarkAllNotificationsReadRequest, MarkAllNotificationsReadResponse, MarkNotificationsReadRequest, MarkNotificationsReadResponse, Notification, NotificationPreferences, ObjectStackProtocol, RealtimeConnectRequest, RealtimeConnectResponse, RealtimeDisconnectRequest, RealtimeDisconnectResponse, RealtimeSubscribeRequest, RealtimeSubscribeResponse, RealtimeUnsubscribeRequest, RealtimeUnsubscribeResponse, RegisterDeviceRequest, RegisterDeviceResponse, SaveMetaItemRequest, SaveMetaItemResponse, SetPresenceRequest, SetPresenceResponse, UnregisterDeviceRequest, UnregisterDeviceResponse, UpdateDataRequest, UpdateDataResponse, UpdateManyDataRequest, UpdateManyDataResponse, UpdateNotificationPreferencesRequest, UpdateNotificationPreferencesResponse, UpdateViewRequest, UpdateViewResponse, WorkflowApproveRequest, WorkflowApproveResponse, WorkflowRejectRequest, WorkflowRejectResponse, WorkflowState, WorkflowTransitionRequest, WorkflowTransitionResponse } from '@objectstack/spec/api';
+
+// Validate data
+const result = AiChatRequest.parse(data);
+```
+
+---
+
+## AiChatRequest
+
+
+---
+
+## AiChatResponse
+
+
+---
+
+## AiInsightsRequest
+
+
+---
+
+## AiInsightsResponse
+
+
+---
+
+## AiNlqRequest
+
+
+---
+
+## AiNlqResponse
+
+
+---
+
+## AiSuggestRequest
+
+
+---
+
+## AiSuggestResponse
+
+
+---
+
+## AutomationTriggerRequest
+
+
+---
+
+## AutomationTriggerResponse
+
+
+---
+
+## BatchDataRequest
+
+
+---
+
+## BatchDataResponse
+
+
+---
+
+## CheckPermissionRequest
+
+
+---
+
+## CheckPermissionResponse
+
+
+---
+
+## CreateDataRequest
+
+
+---
+
+## CreateDataResponse
+
+
+---
+
+## CreateManyDataRequest
+
+
+---
+
+## CreateManyDataResponse
+
+
+---
+
+## CreateViewRequest
+
+
+---
+
+## CreateViewResponse
+
+
+---
+
+## DeleteDataRequest
+
+
+---
+
+## DeleteDataResponse
+
+
+---
+
+## DeleteManyDataRequest
+
+
+---
+
+## DeleteManyDataResponse
+
+
+---
+
+## DeleteViewRequest
+
+
+---
+
+## DeleteViewResponse
+
+
+---
+
+## FindDataRequest
+
+
+---
+
+## FindDataResponse
+
+
+---
+
+## GetDataRequest
+
+
+---
+
+## GetDataResponse
+
+
+---
+
+## GetDiscoveryRequest
+
+
+---
+
+## GetDiscoveryResponse
+
+
+---
+
+## GetEffectivePermissionsRequest
+
+
+---
+
+## GetEffectivePermissionsResponse
+
+
+---
+
+## GetFieldLabelsRequest
+
+
+---
+
+## GetFieldLabelsResponse
+
+
+---
+
+## GetLocalesRequest
+
+
+---
+
+## GetLocalesResponse
+
+
+---
+
+## GetMetaItemCachedRequest
+
+
+---
+
+## GetMetaItemCachedResponse
+
+
+---
+
+## GetMetaItemRequest
+
+
+---
+
+## GetMetaItemResponse
+
+
+---
+
+## GetMetaItemsRequest
+
+
+---
+
+## GetMetaItemsResponse
+
+
+---
+
+## GetMetaTypesRequest
+
+
+---
+
+## GetMetaTypesResponse
+
+
+---
+
+## GetNotificationPreferencesRequest
+
+
+---
+
+## GetNotificationPreferencesResponse
+
+
+---
+
+## GetObjectPermissionsRequest
+
+
+---
+
+## GetObjectPermissionsResponse
+
+
+---
+
+## GetPresenceRequest
+
+
+---
+
+## GetPresenceResponse
+
+
+---
+
+## GetTranslationsRequest
+
+
+---
+
+## GetTranslationsResponse
+
+
+---
+
+## GetUiViewRequest
+
+
+---
+
+## GetUiViewResponse
+
+
+---
+
+## GetViewRequest
+
+
+---
+
+## GetViewResponse
+
+
+---
+
+## GetWorkflowConfigRequest
+
+
+---
+
+## GetWorkflowConfigResponse
+
+
+---
+
+## GetWorkflowStateRequest
+
+
+---
+
+## GetWorkflowStateResponse
+
+
+---
+
+## ListNotificationsRequest
+
+
+---
+
+## ListNotificationsResponse
+
+
+---
+
+## ListViewsRequest
+
+
+---
+
+## ListViewsResponse
+
+
+---
+
+## MarkAllNotificationsReadRequest
+
+
+---
+
+## MarkAllNotificationsReadResponse
+
+
+---
+
+## MarkNotificationsReadRequest
+
+
+---
+
+## MarkNotificationsReadResponse
+
+
+---
+
+## Notification
+
+
+---
+
+## NotificationPreferences
+
+
+---
+
+## ObjectStackProtocol
+
+
+---
+
+## RealtimeConnectRequest
+
+
+---
+
+## RealtimeConnectResponse
+
+
+---
+
+## RealtimeDisconnectRequest
+
+
+---
+
+## RealtimeDisconnectResponse
+
+
+---
+
+## RealtimeSubscribeRequest
+
+
+---
+
+## RealtimeSubscribeResponse
+
+
+---
+
+## RealtimeUnsubscribeRequest
+
+
+---
+
+## RealtimeUnsubscribeResponse
+
+
+---
+
+## RegisterDeviceRequest
+
+
+---
+
+## RegisterDeviceResponse
+
+
+---
+
+## SaveMetaItemRequest
+
+
+---
+
+## SaveMetaItemResponse
+
+
+---
+
+## SetPresenceRequest
+
+
+---
+
+## SetPresenceResponse
+
+
+---
+
+## UnregisterDeviceRequest
+
+
+---
+
+## UnregisterDeviceResponse
+
+
+---
+
+## UpdateDataRequest
+
+
+---
+
+## UpdateDataResponse
+
+
+---
+
+## UpdateManyDataRequest
+
+
+---
+
+## UpdateManyDataResponse
+
+
+---
+
+## UpdateNotificationPreferencesRequest
+
+
+---
+
+## UpdateNotificationPreferencesResponse
+
+
+---
+
+## UpdateViewRequest
+
+
+---
+
+## UpdateViewResponse
+
+
+---
+
+## WorkflowApproveRequest
+
+
+---
+
+## WorkflowApproveResponse
+
+
+---
+
+## WorkflowRejectRequest
+
+
+---
+
+## WorkflowRejectResponse
+
+
+---
+
+## WorkflowState
+
+
+---
+
+## WorkflowTransitionRequest
+
+
+---
+
+## WorkflowTransitionResponse
+
+
+---
+

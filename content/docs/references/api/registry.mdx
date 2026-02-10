@@ -1,0 +1,142 @@
+---
+title: Registry
+description: Registry protocol schemas
+---
+
+Unified API Registry Protocol
+
+Provides a centralized registry for managing all API endpoints across different
+
+API types (REST, GraphQL, OData, WebSocket, Auth, File, Plugin-registered).
+
+This enables:
+
+- Unified API discovery and documentation (similar to Swagger/OpenAPI)
+
+- API testing interfaces
+
+- API governance and monitoring
+
+- Plugin API registration
+
+- Multi-protocol support
+
+Architecture Alignment:
+
+- Kubernetes: Service Discovery & API Server
+
+- AWS API Gateway: Unified API Management
+
+- Kong Gateway: Plugin-based API Management
+
+@example API Registry Entry
+
+```typescript
+
+const apiEntry: ApiRegistryEntry = {
+
+id: 'customer_crud',
+
+name: 'Customer CRUD API',
+
+type: 'rest',
+
+version: 'v1',
+
+basePath: '/api/v1/data/customer',
+
+endpoints: [...],
+
+metadata: {
+
+owner: 'sales_team',
+
+tags: ['customer', 'crm']
+
+}
+
+}
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/registry.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ApiDiscoveryQuery, ApiDiscoveryResponse, ApiEndpointRegistration, ApiMetadata, ApiParameter, ApiProtocolType, ApiRegistry, ApiRegistryEntry, ApiResponse, ConflictResolutionStrategy, HttpStatusCode, ObjectQLReference, SchemaDefinition } from '@objectstack/spec/api';
+import type { ApiDiscoveryQuery, ApiDiscoveryResponse, ApiEndpointRegistration, ApiMetadata, ApiParameter, ApiProtocolType, ApiRegistry, ApiRegistryEntry, ApiResponse, ConflictResolutionStrategy, HttpStatusCode, ObjectQLReference, SchemaDefinition } from '@objectstack/spec/api';
+
+// Validate data
+const result = ApiDiscoveryQuery.parse(data);
+```
+
+---
+
+## ApiDiscoveryQuery
+
+
+---
+
+## ApiDiscoveryResponse
+
+
+---
+
+## ApiEndpointRegistration
+
+
+---
+
+## ApiMetadata
+
+
+---
+
+## ApiParameter
+
+
+---
+
+## ApiProtocolType
+
+
+---
+
+## ApiRegistry
+
+
+---
+
+## ApiRegistryEntry
+
+
+---
+
+## ApiResponse
+
+
+---
+
+## ConflictResolutionStrategy
+
+
+---
+
+## HttpStatusCode
+
+
+---
+
+## ObjectQLReference
+
+
+---
+
+## SchemaDefinition
+
+
+---
+

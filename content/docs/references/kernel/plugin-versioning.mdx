@@ -1,0 +1,92 @@
+---
+title: Plugin Versioning
+description: Plugin Versioning protocol schemas
+---
+
+# Plugin Versioning and Compatibility Protocol
+
+Defines comprehensive versioning, compatibility checking, and dependency
+
+resolution mechanisms for the plugin ecosystem.
+
+Based on semantic versioning (SemVer) with extensions for:
+
+- Compatibility matrices
+
+- Breaking change detection
+
+- Migration paths
+
+- Multi-version support
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/plugin-versioning.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { BreakingChange, CompatibilityLevel, CompatibilityMatrixEntry, DependencyConflict, DependencyResolutionResult, DeprecationNotice, MultiVersionSupport, PluginCompatibilityMatrix, PluginVersionMetadata, SemanticVersion, VersionConstraint } from '@objectstack/spec/kernel';
+import type { BreakingChange, CompatibilityLevel, CompatibilityMatrixEntry, DependencyConflict, DependencyResolutionResult, DeprecationNotice, MultiVersionSupport, PluginCompatibilityMatrix, PluginVersionMetadata, SemanticVersion, VersionConstraint } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = BreakingChange.parse(data);
+```
+
+---
+
+## BreakingChange
+
+
+---
+
+## CompatibilityLevel
+
+
+---
+
+## CompatibilityMatrixEntry
+
+
+---
+
+## DependencyConflict
+
+
+---
+
+## DependencyResolutionResult
+
+
+---
+
+## DeprecationNotice
+
+
+---
+
+## MultiVersionSupport
+
+
+---
+
+## PluginCompatibilityMatrix
+
+
+---
+
+## PluginVersionMetadata
+
+
+---
+
+## SemanticVersion
+
+
+---
+
+## VersionConstraint
+
+
+---
+

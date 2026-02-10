@@ -1,0 +1,83 @@
+---
+title: Widget
+description: Widget protocol schemas
+---
+
+Widget Lifecycle Hooks Schema
+
+Defines lifecycle callbacks for custom widgets inspired by Web Components and React.
+
+These hooks allow widgets to perform initialization, cleanup, and respond to changes.
+
+@see https://developer.mozilla.org/en-US/docs/Web/API/Web_components
+
+@see https://react.dev/reference/react/Component#component-lifecycle
+
+@example
+
+```typescript
+
+const widget = {
+
+lifecycle: {
+
+onMount: "console.log('Widget mounted')",
+
+onUpdate: "if (prevProps.value !== props.value) { updateUI() }",
+
+onUnmount: "cleanup()",
+
+onValidate: "return value.length > 0 ? null : 'Required field'"
+
+}
+
+}
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/widget.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { FieldWidgetProps, WidgetEvent, WidgetLifecycle, WidgetManifest, WidgetProperty, WidgetSource } from '@objectstack/spec/ui';
+import type { FieldWidgetProps, WidgetEvent, WidgetLifecycle, WidgetManifest, WidgetProperty, WidgetSource } from '@objectstack/spec/ui';
+
+// Validate data
+const result = FieldWidgetProps.parse(data);
+```
+
+---
+
+## FieldWidgetProps
+
+
+---
+
+## WidgetEvent
+
+
+---
+
+## WidgetLifecycle
+
+
+---
+
+## WidgetManifest
+
+
+---
+
+## WidgetProperty
+
+
+---
+
+## WidgetSource
+
+
+---
+

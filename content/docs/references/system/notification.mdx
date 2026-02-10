@@ -1,0 +1,89 @@
+---
+title: Notification
+description: Notification protocol schemas
+---
+
+Email Template Schema
+
+Defines the structure and content of email notifications.
+
+Supports variables for personalization and file attachments.
+
+@example
+
+```json
+
+{
+
+"id": "welcome-email",
+
+"subject": "Welcome to {{company_name}}",
+
+"body": "<h1>Welcome {{user_name}}!</h1>",
+
+"bodyType": "html",
+
+"variables": ["company_name", "user_name"],
+
+"attachments": [
+
+{
+
+"name": "guide.pdf",
+
+"url": "https://example.com/guide.pdf"
+
+}
+
+]
+
+}
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/notification.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { EmailTemplate, InAppNotification, NotificationChannel, NotificationConfig, PushNotification, SMSTemplate } from '@objectstack/spec/system';
+import type { EmailTemplate, InAppNotification, NotificationChannel, NotificationConfig, PushNotification, SMSTemplate } from '@objectstack/spec/system';
+
+// Validate data
+const result = EmailTemplate.parse(data);
+```
+
+---
+
+## EmailTemplate
+
+
+---
+
+## InAppNotification
+
+
+---
+
+## NotificationChannel
+
+
+---
+
+## NotificationConfig
+
+
+---
+
+## PushNotification
+
+
+---
+
+## SMSTemplate
+
+
+---
+

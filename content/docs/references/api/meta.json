@@ -1,0 +1,32 @@
+{
+  "title": "API Protocol",
+  "pages": [
+    "analytics",
+    "auth",
+    "batch",
+    "connector",
+    "contract",
+    "discovery",
+    "dispatcher",
+    "documentation",
+    "endpoint",
+    "errors",
+    "graphql",
+    "http-cache",
+    "identity",
+    "metadata",
+    "object",
+    "odata",
+    "package-registry",
+    "plugin-rest-api",
+    "protocol",
+    "realtime",
+    "registry",
+    "rest-server",
+    "router",
+    "storage",
+    "versioning",
+    "view",
+    "websocket"
+  ]
+}

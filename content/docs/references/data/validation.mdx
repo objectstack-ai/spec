@@ -1,0 +1,139 @@
+---
+title: Validation
+description: Validation protocol schemas
+---
+
+# ObjectStack Validation Protocol
+
+This module defines the validation schema protocol for ObjectStack, providing a comprehensive
+
+type-safe validation system similar to Salesforce's validation rules but with enhanced capabilities.
+
+## Overview
+
+Validation rules are applied at the data layer to ensure data integrity and enforce business logic.
+
+The system supports multiple validation types:
+
+1. **Script Validation**: Formula-based validation using expressions
+
+2. **Uniqueness Validation**: Enforce unique constraints across fields
+
+3. **State Machine Validation**: Control allowed state transitions
+
+4. **Format Validation**: Validate field formats (email, URL, regex, etc.)
+
+5. **Cross-Field Validation**: Validate relationships between multiple fields
+
+6. **Async Validation**: Remote validation via API calls
+
+7. **Custom Validation**: User-defined validation functions
+
+8. **Conditional Validation**: Apply validations based on conditions
+
+## Salesforce Comparison
+
+ObjectStack validation rules are inspired by Salesforce validation rules but enhanced:
+
+- Salesforce: Formula-based validation with `Error Condition Formula`
+
+- ObjectStack: Multiple validation types with composable rules
+
+Example Salesforce validation rule:
+
+```
+
+Rule Name: Discount_Cannot_Exceed_40_Percent
+
+Error Condition Formula: Discount_Percent__c > 0.40
+
+Error Message: Discount cannot exceed 40%.
+
+```
+
+Equivalent ObjectStack rule:
+
+```typescript
+
+{
+
+type: 'script',
+
+name: 'discount_cannot_exceed_40_percent',
+
+condition: 'discount_percent > 0.40',
+
+message: 'Discount cannot exceed 40%',
+
+severity: 'error'
+
+}
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/validation.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AsyncValidation, ConditionalValidation, CrossFieldValidation, CustomValidator, FormatValidation, JSONValidation, ScriptValidation, StateMachineValidation, UniquenessValidation, ValidationRule } from '@objectstack/spec/data';
+import type { AsyncValidation, ConditionalValidation, CrossFieldValidation, CustomValidator, FormatValidation, JSONValidation, ScriptValidation, StateMachineValidation, UniquenessValidation, ValidationRule } from '@objectstack/spec/data';
+
+// Validate data
+const result = AsyncValidation.parse(data);
+```
+
+---
+
+## AsyncValidation
+
+
+---
+
+## ConditionalValidation
+
+
+---
+
+## CrossFieldValidation
+
+
+---
+
+## CustomValidator
+
+
+---
+
+## FormatValidation
+
+
+---
+
+## JSONValidation
+
+
+---
+
+## ScriptValidation
+
+
+---
+
+## StateMachineValidation
+
+
+---
+
+## UniquenessValidation
+
+
+---
+
+## ValidationRule
+
+
+---
+

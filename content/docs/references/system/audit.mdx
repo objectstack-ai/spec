@@ -1,0 +1,94 @@
+---
+title: Audit
+description: Audit protocol schemas
+---
+
+Audit Log Architecture
+
+Comprehensive audit logging system for compliance and security.
+
+Supports SOX, HIPAA, GDPR, and other regulatory requirements.
+
+Features:
+
+- Records all CRUD operations on data
+
+- Tracks authentication events (login, logout, password reset)
+
+- Monitors authorization changes (permissions, roles)
+
+- Configurable retention policies (180-day GDPR requirement)
+
+- Suspicious activity detection and alerting
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/audit.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AuditConfig, AuditEvent, AuditEventActor, AuditEventChange, AuditEventFilter, AuditEventSeverity, AuditEventTarget, AuditEventType, AuditRetentionPolicy, AuditStorageConfig, SuspiciousActivityRule } from '@objectstack/spec/system';
+import type { AuditConfig, AuditEvent, AuditEventActor, AuditEventChange, AuditEventFilter, AuditEventSeverity, AuditEventTarget, AuditEventType, AuditRetentionPolicy, AuditStorageConfig, SuspiciousActivityRule } from '@objectstack/spec/system';
+
+// Validate data
+const result = AuditConfig.parse(data);
+```
+
+---
+
+## AuditConfig
+
+
+---
+
+## AuditEvent
+
+
+---
+
+## AuditEventActor
+
+
+---
+
+## AuditEventChange
+
+
+---
+
+## AuditEventFilter
+
+
+---
+
+## AuditEventSeverity
+
+
+---
+
+## AuditEventTarget
+
+
+---
+
+## AuditEventType
+
+
+---
+
+## AuditRetentionPolicy
+
+
+---
+
+## AuditStorageConfig
+
+
+---
+
+## SuspiciousActivityRule
+
+
+---
+

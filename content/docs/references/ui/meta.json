@@ -1,0 +1,15 @@
+{
+  "title": "UI Protocol",
+  "pages": [
+    "action",
+    "app",
+    "chart",
+    "component",
+    "dashboard",
+    "page",
+    "report",
+    "theme",
+    "view",
+    "widget"
+  ]
+}

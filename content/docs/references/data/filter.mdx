@@ -1,0 +1,106 @@
+---
+title: Filter
+description: Filter protocol schemas
+---
+
+Unified Query DSL Specification
+
+Based on industry best practices from:
+
+- Prisma ORM
+
+- Strapi CMS
+
+- TypeORM
+
+- LoopBack Framework
+
+Version: 1.0.0
+
+Status: Draft
+
+Objective: Define a JSON-based, database-agnostic query syntax standard
+
+for data filtering interactions between frontend and backend APIs.
+
+Design Principles:
+
+1. Declarative: Frontend describes "what data to get", not "how to query"
+
+2. Database Agnostic: Syntax contains no database-specific directives
+
+3. Type Safe: Structure can be statically inferred by TypeScript
+
+4. Convention over Configuration: Implicit syntax for common queries
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/filter.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ComparisonOperator, EqualityOperator, FieldOperators, FieldReference, FilterCondition, NormalizedFilter, QueryFilter, RangeOperator, SetOperator, SpecialOperator, StringOperator } from '@objectstack/spec/data';
+import type { ComparisonOperator, EqualityOperator, FieldOperators, FieldReference, FilterCondition, NormalizedFilter, QueryFilter, RangeOperator, SetOperator, SpecialOperator, StringOperator } from '@objectstack/spec/data';
+
+// Validate data
+const result = ComparisonOperator.parse(data);
+```
+
+---
+
+## ComparisonOperator
+
+
+---
+
+## EqualityOperator
+
+
+---
+
+## FieldOperators
+
+
+---
+
+## FieldReference
+
+
+---
+
+## FilterCondition
+
+
+---
+
+## NormalizedFilter
+
+
+---
+
+## QueryFilter
+
+
+---
+
+## RangeOperator
+
+
+---
+
+## SetOperator
+
+
+---
+
+## SpecialOperator
+
+
+---
+
+## StringOperator
+
+
+---
+

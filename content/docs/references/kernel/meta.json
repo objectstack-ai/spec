@@ -1,0 +1,26 @@
+{
+  "title": "Kernel Protocol",
+  "pages": [
+    "context",
+    "events",
+    "feature",
+    "manifest",
+    "metadata-persistence",
+    "package-registry",
+    "permission",
+    "plugin",
+    "plugin-capability",
+    "plugin-lifecycle-advanced",
+    "plugin-lifecycle-events",
+    "plugin-loading",
+    "plugin-registry",
+    "plugin-runtime",
+    "plugin-security",
+    "plugin-security-advanced",
+    "plugin-structure",
+    "plugin-validator",
+    "plugin-versioning",
+    "service-registry",
+    "startup-orchestrator"
+  ]
+}

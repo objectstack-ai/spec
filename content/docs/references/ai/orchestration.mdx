@@ -1,0 +1,86 @@
+---
+title: Orchestration
+description: Orchestration protocol schemas
+---
+
+AI Agentic Orchestration Protocol
+
+Defines intelligent orchestration flows where AI Agents leverage cognitive skills
+
+to automate business processes with dynamic reasoning, planning, and execution.
+
+Distinction from Standard Workflows:
+
+- Standard Workflow: Deterministic (If X then Y). defined in src/data/workflow.zod.ts
+
+- AI Orchestration: Probabilistic & Agentic (Goal -> Plan -> Execute).
+
+Use Cases:
+
+- Complex Support Triage (Analyze sentiment + intent -> Draft response -> Route)
+
+- Intelligent Document Processing (OCR -> Extract Entities -> Validate -> Entry)
+
+- Research Agent (Search Web -> Summarize -> Generate Report)
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/orchestration.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AIOrchestration, AIOrchestrationExecutionResult, AIOrchestrationTrigger, AITask, AITaskType, BatchAIOrchestrationExecution, PostProcessingAction, WorkflowFieldCondition, WorkflowSchedule } from '@objectstack/spec/ai';
+import type { AIOrchestration, AIOrchestrationExecutionResult, AIOrchestrationTrigger, AITask, AITaskType, BatchAIOrchestrationExecution, PostProcessingAction, WorkflowFieldCondition, WorkflowSchedule } from '@objectstack/spec/ai';
+
+// Validate data
+const result = AIOrchestration.parse(data);
+```
+
+---
+
+## AIOrchestration
+
+
+---
+
+## AIOrchestrationExecutionResult
+
+
+---
+
+## AIOrchestrationTrigger
+
+
+---
+
+## AITask
+
+
+---
+
+## AITaskType
+
+
+---
+
+## BatchAIOrchestrationExecution
+
+
+---
+
+## PostProcessingAction
+
+
+---
+
+## WorkflowFieldCondition
+
+
+---
+
+## WorkflowSchedule
+
+
+---
+

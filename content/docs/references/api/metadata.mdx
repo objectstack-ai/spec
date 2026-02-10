@@ -1,0 +1,42 @@
+---
+title: Metadata
+description: Metadata protocol schemas
+---
+
+Metadata Service Protocol
+
+Defines the standard API contracts for fetching system metadata.
+
+Frontend, IDEs, and Mobile apps use this to build dynamic UIs.
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/metadata.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AppDefinitionResponse, ConceptListResponse, ObjectDefinitionResponse } from '@objectstack/spec/api';
+import type { AppDefinitionResponse, ConceptListResponse, ObjectDefinitionResponse } from '@objectstack/spec/api';
+
+// Validate data
+const result = AppDefinitionResponse.parse(data);
+```
+
+---
+
+## AppDefinitionResponse
+
+
+---
+
+## ConceptListResponse
+
+
+---
+
+## ObjectDefinitionResponse
+
+
+---
+

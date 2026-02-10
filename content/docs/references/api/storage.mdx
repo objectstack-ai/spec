@@ -1,0 +1,49 @@
+---
+title: Storage
+description: Storage protocol schemas
+---
+
+Storage Service Protocol
+
+Defines the API contract for client-side file operations.
+
+Focuses on secure, direct-to-cloud uploads (Presigned URLs)
+
+rather than proxying bytes through the API server.
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/storage.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { CompleteUploadRequest, FileUploadResponse, GetPresignedUrlRequest, PresignedUrlResponse } from '@objectstack/spec/api';
+import type { CompleteUploadRequest, FileUploadResponse, GetPresignedUrlRequest, PresignedUrlResponse } from '@objectstack/spec/api';
+
+// Validate data
+const result = CompleteUploadRequest.parse(data);
+```
+
+---
+
+## CompleteUploadRequest
+
+
+---
+
+## FileUploadResponse
+
+
+---
+
+## GetPresignedUrlRequest
+
+
+---
+
+## PresignedUrlResponse
+
+
+---
+

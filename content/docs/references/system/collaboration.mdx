@@ -1,0 +1,176 @@
+---
+title: Collaboration
+description: Collaboration protocol schemas
+---
+
+Real-Time Collaboration Protocol
+
+Defines schemas for real-time collaborative editing in ObjectStack.
+
+Supports Operational Transformation (OT), CRDT (Conflict-free Replicated Data Types),
+
+cursor sharing, and awareness state for collaborative applications.
+
+Industry alignment: Google Docs, Figma, VSCode Live Share, Yjs
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/collaboration.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AwarenessEvent, AwarenessSession, AwarenessUpdate, AwarenessUserState, CRDTMergeResult, CRDTState, CRDTType, CollaborationMode, CollaborationSession, CollaborationSessionConfig, CollaborativeCursor, CounterOperation, CursorColorPreset, CursorSelection, CursorStyle, CursorUpdate, GCounter, LWWRegister, ORSet, ORSetElement, OTComponent, OTOperation, OTOperationType, OTTransformResult, PNCounter, TextCRDTOperation, TextCRDTState, UserActivityStatus, VectorClock } from '@objectstack/spec/system';
+import type { AwarenessEvent, AwarenessSession, AwarenessUpdate, AwarenessUserState, CRDTMergeResult, CRDTState, CRDTType, CollaborationMode, CollaborationSession, CollaborationSessionConfig, CollaborativeCursor, CounterOperation, CursorColorPreset, CursorSelection, CursorStyle, CursorUpdate, GCounter, LWWRegister, ORSet, ORSetElement, OTComponent, OTOperation, OTOperationType, OTTransformResult, PNCounter, TextCRDTOperation, TextCRDTState, UserActivityStatus, VectorClock } from '@objectstack/spec/system';
+
+// Validate data
+const result = AwarenessEvent.parse(data);
+```
+
+---
+
+## AwarenessEvent
+
+
+---
+
+## AwarenessSession
+
+
+---
+
+## AwarenessUpdate
+
+
+---
+
+## AwarenessUserState
+
+
+---
+
+## CRDTMergeResult
+
+
+---
+
+## CRDTState
+
+
+---
+
+## CRDTType
+
+
+---
+
+## CollaborationMode
+
+
+---
+
+## CollaborationSession
+
+
+---
+
+## CollaborationSessionConfig
+
+
+---
+
+## CollaborativeCursor
+
+
+---
+
+## CounterOperation
+
+
+---
+
+## CursorColorPreset
+
+
+---
+
+## CursorSelection
+
+
+---
+
+## CursorStyle
+
+
+---
+
+## CursorUpdate
+
+
+---
+
+## GCounter
+
+
+---
+
+## LWWRegister
+
+
+---
+
+## ORSet
+
+
+---
+
+## ORSetElement
+
+
+---
+
+## OTComponent
+
+
+---
+
+## OTOperation
+
+
+---
+
+## OTOperationType
+
+
+---
+
+## OTTransformResult
+
+
+---
+
+## PNCounter
+
+
+---
+
+## TextCRDTOperation
+
+
+---
+
+## TextCRDTState
+
+
+---
+
+## UserActivityStatus
+
+
+---
+
+## VectorClock
+
+
+---
+

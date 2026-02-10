@@ -1,0 +1,54 @@
+---
+title: Translation
+description: Translation protocol schemas
+---
+
+Translation Schema
+
+Supports i18n for labels, messages, and options.
+
+Example structure:
+
+```json
+
+{
+
+"en": { "objects": { "account": { "label": "Account" } } },
+
+"zh-CN": { "objects": { "account": { "label": "客户" } } }
+
+}
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/translation.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { Locale, TranslationBundle, TranslationData } from '@objectstack/spec/system';
+import type { Locale, TranslationBundle, TranslationData } from '@objectstack/spec/system';
+
+// Validate data
+const result = Locale.parse(data);
+```
+
+---
+
+## Locale
+
+
+---
+
+## TranslationBundle
+
+
+---
+
+## TranslationData
+
+
+---
+

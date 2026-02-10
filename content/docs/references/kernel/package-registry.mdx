@@ -1,0 +1,121 @@
+---
+title: Package Registry
+description: Package Registry protocol schemas
+---
+
+# Package Registry Protocol
+
+Defines the runtime state and lifecycle operations for installed packages.
+
+## Key Distinction: Package vs App
+
+- **Package (Manifest)**: The unit of installation — a deployable artifact containing
+
+metadata (objects, actions, flows, etc.) and optionally one or more Apps.
+
+- **App (AppSchema)**: A UI navigation shell defined inside a package.
+
+A package may contain:
+
+- Zero apps (pure functionality plugin, e.g. a storage driver)
+
+- One app (typical business application)
+
+- Multiple apps (suite of applications)
+
+## Architecture Alignment
+
+- **Salesforce**: Managed Packages with install/uninstall lifecycle
+
+- **VS Code**: Extension marketplace with enable/disable per-workspace
+
+- **Kubernetes**: Helm charts with release state tracking
+
+- **npm**: Package registry with install/uninstall/version management
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/package-registry.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { DisablePackageRequest, DisablePackageResponse, EnablePackageRequest, EnablePackageResponse, GetPackageRequest, GetPackageResponse, InstallPackageRequest, InstallPackageResponse, InstalledPackage, ListPackagesRequest, ListPackagesResponse, PackageStatusEnum, UninstallPackageRequest, UninstallPackageResponse } from '@objectstack/spec/kernel';
+import type { DisablePackageRequest, DisablePackageResponse, EnablePackageRequest, EnablePackageResponse, GetPackageRequest, GetPackageResponse, InstallPackageRequest, InstallPackageResponse, InstalledPackage, ListPackagesRequest, ListPackagesResponse, PackageStatusEnum, UninstallPackageRequest, UninstallPackageResponse } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = DisablePackageRequest.parse(data);
+```
+
+---
+
+## DisablePackageRequest
+
+
+---
+
+## DisablePackageResponse
+
+
+---
+
+## EnablePackageRequest
+
+
+---
+
+## EnablePackageResponse
+
+
+---
+
+## GetPackageRequest
+
+
+---
+
+## GetPackageResponse
+
+
+---
+
+## InstallPackageRequest
+
+
+---
+
+## InstallPackageResponse
+
+
+---
+
+## InstalledPackage
+
+
+---
+
+## ListPackagesRequest
+
+
+---
+
+## ListPackagesResponse
+
+
+---
+
+## PackageStatusEnum
+
+
+---
+
+## UninstallPackageRequest
+
+
+---
+
+## UninstallPackageResponse
+
+
+---
+

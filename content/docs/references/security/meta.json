@@ -1,0 +1,10 @@
+{
+  "title": "Security Protocol",
+  "pages": [
+    "permission",
+    "policy",
+    "rls",
+    "sharing",
+    "territory"
+  ]
+}

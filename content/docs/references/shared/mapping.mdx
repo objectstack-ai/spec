@@ -1,0 +1,81 @@
+---
+title: Mapping
+description: Mapping protocol schemas
+---
+
+Base Field Mapping Protocol
+
+Shared by: ETL, Sync, Connector, External Lookup
+
+This module provides the canonical field mapping schema used across
+
+ObjectStack for data transformation and synchronization.
+
+**Use Cases:**
+
+- ETL pipelines (data/mapping.zod.ts)
+
+- Data synchronization (automation/sync.zod.ts)
+
+- Integration connectors (integration/connector.zod.ts)
+
+- External lookups (data/external-lookup.zod.ts)
+
+@example Basic field mapping
+
+```typescript
+
+const mapping: FieldMapping = {
+
+source: 'external_user_id',
+
+target: 'user_id',
+
+};
+
+```
+
+@example With transformation
+
+```typescript
+
+const mapping: FieldMapping = {
+
+source: 'user_name',
+
+target: 'name',
+
+transform: { type: 'cast', targetType: 'string' },
+
+defaultValue: 'Unknown'
+
+};
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/shared/mapping.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { FieldMapping, TransformType } from '@objectstack/spec/shared';
+import type { FieldMapping, TransformType } from '@objectstack/spec/shared';
+
+// Validate data
+const result = FieldMapping.parse(data);
+```
+
+---
+
+## FieldMapping
+
+
+---
+
+## TransformType
+
+
+---
+

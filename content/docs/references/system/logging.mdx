@@ -1,0 +1,107 @@
+---
+title: Logging
+description: Logging protocol schemas
+---
+
+Logging Protocol - Comprehensive Observability Logging
+
+Unified logging protocol that combines:
+
+- Basic kernel logging (LoggerConfig)
+
+- Enterprise-grade features (LoggingConfig)
+
+- Multiple log destinations (file, console, external services)
+
+- Structured logging with enrichment
+
+- Log aggregation and forwarding
+
+- Integration with external log management systems
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/logging.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ConsoleDestinationConfig, ExtendedLogLevel, ExternalServiceDestinationConfig, FileDestinationConfig, HttpDestinationConfig, LogDestination, LogDestinationType, LogEnrichmentConfig, LogEntry, LogFormat, LogLevel, LoggerConfig, LoggingConfig, StructuredLogEntry } from '@objectstack/spec/system';
+import type { ConsoleDestinationConfig, ExtendedLogLevel, ExternalServiceDestinationConfig, FileDestinationConfig, HttpDestinationConfig, LogDestination, LogDestinationType, LogEnrichmentConfig, LogEntry, LogFormat, LogLevel, LoggerConfig, LoggingConfig, StructuredLogEntry } from '@objectstack/spec/system';
+
+// Validate data
+const result = ConsoleDestinationConfig.parse(data);
+```
+
+---
+
+## ConsoleDestinationConfig
+
+
+---
+
+## ExtendedLogLevel
+
+
+---
+
+## ExternalServiceDestinationConfig
+
+
+---
+
+## FileDestinationConfig
+
+
+---
+
+## HttpDestinationConfig
+
+
+---
+
+## LogDestination
+
+
+---
+
+## LogDestinationType
+
+
+---
+
+## LogEnrichmentConfig
+
+
+---
+
+## LogEntry
+
+
+---
+
+## LogFormat
+
+
+---
+
+## LogLevel
+
+
+---
+
+## LoggerConfig
+
+
+---
+
+## LoggingConfig
+
+
+---
+
+## StructuredLogEntry
+
+
+---
+
