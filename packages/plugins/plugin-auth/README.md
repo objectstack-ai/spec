@@ -2,7 +2,7 @@
 
 Authentication & Identity Plugin for ObjectStack.
 
-> **⚠️ Current Status:** This is an initial implementation providing the plugin structure and API route scaffolding. Full better-auth integration and actual authentication logic will be added in a future release.
+> **✨ Status:** Better-Auth library successfully integrated! Core authentication structure is in place with better-auth v1.4.18. Full API integration and advanced features are in active development.
 
 ## Features
 
@@ -11,17 +11,24 @@ Authentication & Identity Plugin for ObjectStack.
 - ✅ HTTP route registration for auth endpoints
 - ✅ Service registration in ObjectKernel
 - ✅ Configuration schema support
+- ✅ **Better-Auth library integration (v1.4.18)**
+- ✅ **AuthManager class with lazy initialization**
+- ✅ **TypeScript types for all auth methods**
 - ✅ Comprehensive test coverage (11/11 tests passing)
 
-### Planned for Future Releases
+### In Active Development
+- 🔄 **API Integration** - Connecting better-auth API methods to routes
+- 🔄 **Database Adapter** - Drizzle ORM integration for data persistence
 - 🔄 **Session Management** - Secure session handling with automatic refresh
 - 🔄 **User Management** - User registration, login, profile management
-- 🔄 **Multiple Auth Providers** - Support for OAuth (Google, GitHub, etc.), email/password, magic links
-- 🔄 **Organization Support** - Multi-tenant organization and team management
-- 🔄 **Security** - 2FA, passkeys, rate limiting, and security best practices
-- 🔄 **Database Integration** - Works with any database supported by better-auth
 
-The plugin is designed to eventually use [better-auth](https://www.better-auth.com/) for robust authentication functionality.
+### Planned for Future Releases
+- 📋 **Multiple Auth Providers** - Support for OAuth (Google, GitHub, etc.), email/password, magic links
+- 📋 **Organization Support** - Multi-tenant organization and team management
+- 📋 **Security** - 2FA, passkeys, rate limiting, and security best practices
+- 📋 **Advanced Features** - Magic links, passkeys, two-factor authentication
+
+The plugin uses [better-auth](https://www.better-auth.com/) for robust, production-ready authentication functionality.
 
 ## Installation
 
@@ -83,27 +90,29 @@ The plugin accepts configuration via `AuthConfig` schema from `@objectstack/spec
 
 ## API Routes
 
-The plugin registers the following API route scaffolding (implementation to be completed):
+The plugin registers the following authentication endpoints:
 
-- `POST /api/v1/auth/login` - User login (stub)
-- `POST /api/v1/auth/register` - User registration (stub)
-- `POST /api/v1/auth/logout` - User logout (stub)
-- `GET /api/v1/auth/session` - Get current session (stub)
+- `POST /api/v1/auth/login` - User login with email/password
+- `POST /api/v1/auth/register` - User registration
+- `POST /api/v1/auth/logout` - User logout
+- `GET /api/v1/auth/session` - Get current session
 
-Additional routes for OAuth providers will be added when better-auth integration is complete.
+**Note:** Routes are currently wired up and returning placeholder responses while better-auth API integration is completed. OAuth provider routes will be added in upcoming releases.
 
 ## Implementation Status
 
-This package provides the foundational plugin structure for authentication in ObjectStack. The actual authentication logic using better-auth will be implemented in upcoming releases. Current implementation includes:
+This package provides authentication services powered by better-auth. Current implementation status:
 
 1. ✅ Plugin lifecycle (init, start, destroy)
 2. ✅ HTTP route registration
 3. ✅ Configuration validation
 4. ✅ Service registration
-5. ⏳ Actual authentication logic (planned)
-6. ⏳ Database integration (planned)
-7. ⏳ OAuth providers (planned)
-8. ⏳ Session management (planned)
+5. ✅ Better-auth library integration (v1.4.18)
+6. ✅ AuthManager class with lazy initialization
+7. 🔄 Better-auth API method integration (in progress)
+8. ⏳ Database adapter integration (planned)
+9. ⏳ OAuth providers (planned)
+10. ⏳ Advanced features (2FA, passkeys, magic links)
 
 ## Development
 

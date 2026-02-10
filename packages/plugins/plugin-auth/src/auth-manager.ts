@@ -28,18 +28,28 @@ export interface AuthManagerOptions extends Partial<AuthConfig> {
  * - Organization/teams
  */
 export class AuthManager {
-  private auth: Auth<any>;
+  private auth: Auth<any> | null = null;
   private config: AuthManagerOptions;
 
   constructor(config: AuthManagerOptions) {
     this.config = config;
     
-    // Use provided auth instance or create a new one
+    // Use provided auth instance
     if (config.authInstance) {
       this.auth = config.authInstance;
-    } else {
+    }
+    // Don't create auth instance automatically to avoid database initialization errors
+    // It will be created lazily when needed
+  }
+
+  /**
+   * Get or create the better-auth instance (lazy initialization)
+   */
+  private getOrCreateAuth(): Auth<any> {
+    if (!this.auth) {
       this.auth = this.createAuthInstance();
     }
+    return this.auth;
   }
 
   /**
@@ -88,7 +98,7 @@ export class AuthManager {
    * Useful for advanced use cases
    */
   getAuthInstance(): Auth<any> {
-    return this.auth;
+    return this.getOrCreateAuth();
   }
 
   /**
