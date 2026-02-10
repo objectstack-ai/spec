@@ -13,6 +13,7 @@
 5. [Plugin System](#plugin-system)
 6. [Dependency Graph](#dependency-graph)
 7. [Design Decisions](#design-decisions)
+8. [Additional Resources](#additional-resources)
 
 ---
 
@@ -636,6 +637,20 @@ export type Field = z.infer<typeof FieldSchema>;
 ```typescript
 { name: 'first_name', object: 'project_task' }
 ```
+
+---
+
+## Additional Resources
+
+### Architecture Decision Records (ADRs)
+
+Important architectural decisions are documented as ADRs in `docs/adr/`:
+
+- [ADR-0001: Metadata Service Architecture](docs/adr/0001-metadata-service-architecture.md) - Explains why both ObjectQL and MetadataPlugin can provide metadata service and how they work together
+
+### Component-Specific Documentation
+
+- [Metadata Flow Documentation](docs/METADATA_FLOW.md) - Detailed explanation of how metadata flows from definition to runtime, including configuration examples and troubleshooting
 
 ---
 
