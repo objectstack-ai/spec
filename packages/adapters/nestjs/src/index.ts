@@ -12,6 +12,13 @@ export const ConnectReq = createParamDecorator(
   },
 );
 
+/**
+ * Auth service interface with handleRequest method
+ */
+interface AuthService {
+  handleRequest(request: Request): Promise<Response>;
+}
+
 // --- Service ---
 
 @Injectable()
@@ -109,7 +116,7 @@ export class ObjectStackController {
         // Try AuthPlugin service first (preferred path)
         const kernel = this.service.getKernel();
         const authService = typeof kernel.getService === 'function'
-          ? kernel.getService('auth')
+          ? kernel.getService<AuthService>('auth')
           : null;
 
         if (authService && typeof authService.handleRequest === 'function') {
