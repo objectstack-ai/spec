@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/SBOM",
-  "definitions": {
-    "SBOM": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

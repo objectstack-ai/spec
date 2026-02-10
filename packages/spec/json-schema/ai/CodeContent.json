@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/CodeContent",
-  "definitions": {
-    "CodeContent": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/Spacing",
-  "definitions": {
-    "Spacing": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

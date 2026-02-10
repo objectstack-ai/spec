@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/DriverDefinition",
-  "definitions": {
-    "DriverDefinition": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

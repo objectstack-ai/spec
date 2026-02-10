@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/Plugin",
-  "definitions": {
-    "Plugin": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

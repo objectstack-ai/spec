@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/Query",
-  "definitions": {
-    "Query": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

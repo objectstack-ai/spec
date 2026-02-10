@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/FindDataResponse",
-  "definitions": {
-    "FindDataResponse": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

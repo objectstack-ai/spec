@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/TaskExecutionResult",
-  "definitions": {
-    "TaskExecutionResult": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

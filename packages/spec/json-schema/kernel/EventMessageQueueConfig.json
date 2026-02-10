@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/EventMessageQueueConfig",
-  "definitions": {
-    "EventMessageQueueConfig": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

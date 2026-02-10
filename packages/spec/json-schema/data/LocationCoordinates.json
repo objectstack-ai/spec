@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/LocationCoordinates",
-  "definitions": {
-    "LocationCoordinates": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

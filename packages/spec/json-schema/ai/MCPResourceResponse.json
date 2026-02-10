@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/MCPResourceResponse",
-  "definitions": {
-    "MCPResourceResponse": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

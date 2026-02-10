@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/VectorConfig",
-  "definitions": {
-    "VectorConfig": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

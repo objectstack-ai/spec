@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/NotificationPreferences",
-  "definitions": {
-    "NotificationPreferences": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

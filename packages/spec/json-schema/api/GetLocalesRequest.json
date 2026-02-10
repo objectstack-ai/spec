@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/GetLocalesRequest",
-  "definitions": {
-    "GetLocalesRequest": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

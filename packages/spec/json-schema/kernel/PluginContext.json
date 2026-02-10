@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/PluginContext",
-  "definitions": {
-    "PluginContext": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

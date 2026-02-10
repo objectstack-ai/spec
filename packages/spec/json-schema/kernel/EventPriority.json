@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/EventPriority",
-  "definitions": {
-    "EventPriority": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

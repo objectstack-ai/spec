@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/JoinNode",
-  "definitions": {
-    "JoinNode": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

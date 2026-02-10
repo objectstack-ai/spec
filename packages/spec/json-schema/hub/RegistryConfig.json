@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/RegistryConfig",
-  "definitions": {
-    "RegistryConfig": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

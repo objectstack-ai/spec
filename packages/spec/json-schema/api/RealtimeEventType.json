@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/RealtimeEventType",
-  "definitions": {
-    "RealtimeEventType": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

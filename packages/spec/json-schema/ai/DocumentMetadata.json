@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/DocumentMetadata",
-  "definitions": {
-    "DocumentMetadata": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

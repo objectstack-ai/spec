@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/AutoScalingPolicy",
-  "definitions": {
-    "AutoScalingPolicy": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

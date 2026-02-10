@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/CursorSelection",
-  "definitions": {
-    "CursorSelection": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

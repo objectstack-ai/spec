@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ApiError",
-  "definitions": {
-    "ApiError": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

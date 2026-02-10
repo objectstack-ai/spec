@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/MaskingConfig",
-  "definitions": {
-    "MaskingConfig": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

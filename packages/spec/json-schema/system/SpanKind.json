@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/SpanKind",
-  "definitions": {
-    "SpanKind": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

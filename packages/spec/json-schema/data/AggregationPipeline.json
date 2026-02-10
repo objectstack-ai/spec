@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/AggregationPipeline",
-  "definitions": {
-    "AggregationPipeline": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

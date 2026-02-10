@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/TaskStatus",
-  "definitions": {
-    "TaskStatus": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

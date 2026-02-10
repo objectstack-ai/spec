@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/StorageClass",
-  "definitions": {
-    "StorageClass": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ValidationRule",
-  "definitions": {
-    "ValidationRule": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

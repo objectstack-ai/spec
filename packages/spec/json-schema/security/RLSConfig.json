@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/RLSConfig",
-  "definitions": {
-    "RLSConfig": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

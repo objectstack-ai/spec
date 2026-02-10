@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/TaskPriority",
-  "definitions": {
-    "TaskPriority": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

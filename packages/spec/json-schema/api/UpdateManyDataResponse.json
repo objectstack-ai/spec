@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/UpdateManyDataResponse",
-  "definitions": {
-    "UpdateManyDataResponse": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

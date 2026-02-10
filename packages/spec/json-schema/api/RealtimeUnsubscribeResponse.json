@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/RealtimeUnsubscribeResponse",
-  "definitions": {
-    "RealtimeUnsubscribeResponse": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

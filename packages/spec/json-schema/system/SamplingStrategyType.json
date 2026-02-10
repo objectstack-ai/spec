@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/SamplingStrategyType",
-  "definitions": {
-    "SamplingStrategyType": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

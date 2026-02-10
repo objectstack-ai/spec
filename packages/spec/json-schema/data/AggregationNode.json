@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/AggregationNode",
-  "definitions": {
-    "AggregationNode": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

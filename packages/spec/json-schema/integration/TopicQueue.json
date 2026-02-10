@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/TopicQueue",
-  "definitions": {
-    "TopicQueue": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

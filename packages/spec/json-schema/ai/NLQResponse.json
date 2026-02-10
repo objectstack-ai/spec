@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/NLQResponse",
-  "definitions": {
-    "NLQResponse": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

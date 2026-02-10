@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/KernelSecurityPolicy",
-  "definitions": {
-    "KernelSecurityPolicy": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

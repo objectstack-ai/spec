@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ConnectorOperation",
-  "definitions": {
-    "ConnectorOperation": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

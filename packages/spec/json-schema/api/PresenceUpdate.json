@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/PresenceUpdate",
-  "definitions": {
-    "PresenceUpdate": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

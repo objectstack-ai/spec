@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/IntentActionMapping",
-  "definitions": {
-    "IntentActionMapping": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

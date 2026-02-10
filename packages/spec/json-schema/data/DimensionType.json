@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/DimensionType",
-  "definitions": {
-    "DimensionType": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ServerCapabilities",
-  "definitions": {
-    "ServerCapabilities": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

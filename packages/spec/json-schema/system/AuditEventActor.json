@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/AuditEventActor",
-  "definitions": {
-    "AuditEventActor": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

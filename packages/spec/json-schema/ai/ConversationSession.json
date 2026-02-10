@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ConversationSession",
-  "definitions": {
-    "ConversationSession": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

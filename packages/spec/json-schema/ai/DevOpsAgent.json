@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/DevOpsAgent",
-  "definitions": {
-    "DevOpsAgent": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

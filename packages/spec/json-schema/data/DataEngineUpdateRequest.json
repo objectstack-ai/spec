@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/DataEngineUpdateRequest",
-  "definitions": {
-    "DataEngineUpdateRequest": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

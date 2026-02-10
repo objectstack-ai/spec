@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/WebhookTriggerType",
-  "definitions": {
-    "WebhookTriggerType": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

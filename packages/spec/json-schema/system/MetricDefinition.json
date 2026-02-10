@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/MetricDefinition",
-  "definitions": {
-    "MetricDefinition": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

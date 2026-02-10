@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ApiEndpoint",
-  "definitions": {
-    "ApiEndpoint": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

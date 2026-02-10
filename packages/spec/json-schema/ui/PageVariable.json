@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/PageVariable",
-  "definitions": {
-    "PageVariable": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

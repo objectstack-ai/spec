@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/PermissionScope",
-  "definitions": {
-    "PermissionScope": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

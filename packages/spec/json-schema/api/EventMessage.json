@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/EventMessage",
-  "definitions": {
-    "EventMessage": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

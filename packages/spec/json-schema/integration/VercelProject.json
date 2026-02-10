@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/VercelProject",
-  "definitions": {
-    "VercelProject": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

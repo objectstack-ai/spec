@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/KanbanConfig",
-  "definitions": {
-    "KanbanConfig": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

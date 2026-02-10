@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/RouteHandlerMetadata",
-  "definitions": {
-    "RouteHandlerMetadata": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

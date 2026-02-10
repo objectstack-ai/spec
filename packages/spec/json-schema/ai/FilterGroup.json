@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/FilterGroup",
-  "definitions": {
-    "FilterGroup": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

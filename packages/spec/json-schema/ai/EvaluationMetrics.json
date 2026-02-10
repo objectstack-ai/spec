@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/EvaluationMetrics",
-  "definitions": {
-    "EvaluationMetrics": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/StateMachineValidation",
-  "definitions": {
-    "StateMachineValidation": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/RootCauseAnalysisRequest",
-  "definitions": {
-    "RootCauseAnalysisRequest": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

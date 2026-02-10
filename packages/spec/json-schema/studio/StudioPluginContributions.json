@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/StudioPluginContributions",
-  "definitions": {
-    "StudioPluginContributions": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

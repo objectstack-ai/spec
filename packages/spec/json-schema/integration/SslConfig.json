@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/SslConfig",
-  "definitions": {
-    "SslConfig": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ComponentActionType",
-  "definitions": {
-    "ComponentActionType": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

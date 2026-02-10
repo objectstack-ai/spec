@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/WebhookEvent",
-  "definitions": {
-    "WebhookEvent": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

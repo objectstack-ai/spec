@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ListRecordResponse",
-  "definitions": {
-    "ListRecordResponse": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

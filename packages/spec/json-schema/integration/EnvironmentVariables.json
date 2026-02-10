@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/EnvironmentVariables",
-  "definitions": {
-    "EnvironmentVariables": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

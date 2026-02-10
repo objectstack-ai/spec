@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ConnectorInstance",
-  "definitions": {
-    "ConnectorInstance": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

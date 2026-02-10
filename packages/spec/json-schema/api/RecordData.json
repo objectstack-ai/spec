@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/RecordData",
-  "definitions": {
-    "RecordData": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/DeleteDataRequest",
-  "definitions": {
-    "DeleteDataRequest": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

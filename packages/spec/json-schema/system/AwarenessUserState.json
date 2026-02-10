@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/AwarenessUserState",
-  "definitions": {
-    "AwarenessUserState": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/PluginHotReload",
-  "definitions": {
-    "PluginHotReload": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ChartType",
-  "definitions": {
-    "ChartType": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/GitHubReleaseConfig",
-  "definitions": {
-    "GitHubReleaseConfig": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

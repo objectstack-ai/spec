@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/InAppNotification",
-  "definitions": {
-    "InAppNotification": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

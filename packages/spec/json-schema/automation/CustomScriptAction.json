@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/CustomScriptAction",
-  "definitions": {
-    "CustomScriptAction": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

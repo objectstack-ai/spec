@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/MetadataSaveOptions",
-  "definitions": {
-    "MetadataSaveOptions": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

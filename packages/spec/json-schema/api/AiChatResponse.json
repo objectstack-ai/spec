@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/AiChatResponse",
-  "definitions": {
-    "AiChatResponse": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

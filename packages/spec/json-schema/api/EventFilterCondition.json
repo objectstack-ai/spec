@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/EventFilterCondition",
-  "definitions": {
-    "EventFilterCondition": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

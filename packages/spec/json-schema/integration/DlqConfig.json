@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/DlqConfig",
-  "definitions": {
-    "DlqConfig": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

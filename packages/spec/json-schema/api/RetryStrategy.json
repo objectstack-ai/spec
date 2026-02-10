@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/RetryStrategy",
-  "definitions": {
-    "RetryStrategy": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

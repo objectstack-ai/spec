@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/PluginHealthCheck",
-  "definitions": {
-    "PluginHealthCheck": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

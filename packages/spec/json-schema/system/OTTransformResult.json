@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/OTTransformResult",
-  "definitions": {
-    "OTTransformResult": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

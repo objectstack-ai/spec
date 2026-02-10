@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/TranslationBundle",
-  "definitions": {
-    "TranslationBundle": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

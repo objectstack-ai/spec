@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/KernelEventBase",
-  "definitions": {
-    "KernelEventBase": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

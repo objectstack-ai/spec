@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ServiceScopeType",
-  "definitions": {
-    "ServiceScopeType": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

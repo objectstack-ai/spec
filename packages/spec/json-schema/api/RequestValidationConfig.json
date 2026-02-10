@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/RequestValidationConfig",
-  "definitions": {
-    "RequestValidationConfig": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

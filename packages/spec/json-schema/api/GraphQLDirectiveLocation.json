@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/GraphQLDirectiveLocation",
-  "definitions": {
-    "GraphQLDirectiveLocation": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

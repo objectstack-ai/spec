@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/UninstallPackageRequest",
-  "definitions": {
-    "UninstallPackageRequest": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

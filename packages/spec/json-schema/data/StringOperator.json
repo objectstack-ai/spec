@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/StringOperator",
-  "definitions": {
-    "StringOperator": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

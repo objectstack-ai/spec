@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/FormActionParams",
-  "definitions": {
-    "FormActionParams": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

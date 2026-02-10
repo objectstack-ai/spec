@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/EventMetadata",
-  "definitions": {
-    "EventMetadata": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

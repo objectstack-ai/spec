@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ConflictResolution",
-  "definitions": {
-    "ConflictResolution": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

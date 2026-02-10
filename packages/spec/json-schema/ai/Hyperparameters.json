@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/Hyperparameters",
-  "definitions": {
-    "Hyperparameters": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

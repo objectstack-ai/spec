@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/NavigationMode",
-  "definitions": {
-    "NavigationMode": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

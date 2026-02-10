@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/GetMetaTypesResponse",
-  "definitions": {
-    "GetMetaTypesResponse": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

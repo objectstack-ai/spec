@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/TransformType",
-  "definitions": {
-    "TransformType": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

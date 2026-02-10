@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/MCPTransportConfig",
-  "definitions": {
-    "MCPTransportConfig": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

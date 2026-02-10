@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ODataMetadata",
-  "definitions": {
-    "ODataMetadata": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

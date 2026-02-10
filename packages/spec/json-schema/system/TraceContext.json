@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/TraceContext",
-  "definitions": {
-    "TraceContext": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

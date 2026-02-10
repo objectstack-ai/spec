@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/WindowSpec",
-  "definitions": {
-    "WindowSpec": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

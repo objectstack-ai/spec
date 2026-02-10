@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/BatchDataResponse",
-  "definitions": {
-    "BatchDataResponse": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

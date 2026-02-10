@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/MetadataManagerConfig",
-  "definitions": {
-    "MetadataManagerConfig": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

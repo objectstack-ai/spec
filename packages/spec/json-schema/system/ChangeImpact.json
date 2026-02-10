@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ChangeImpact",
-  "definitions": {
-    "ChangeImpact": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

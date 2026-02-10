@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/AIModelConfig",
-  "definitions": {
-    "AIModelConfig": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

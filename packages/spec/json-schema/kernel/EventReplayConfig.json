@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/EventReplayConfig",
-  "definitions": {
-    "EventReplayConfig": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

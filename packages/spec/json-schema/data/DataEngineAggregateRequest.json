@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/DataEngineAggregateRequest",
-  "definitions": {
-    "DataEngineAggregateRequest": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

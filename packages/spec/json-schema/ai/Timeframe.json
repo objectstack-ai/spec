@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/Timeframe",
-  "definitions": {
-    "Timeframe": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

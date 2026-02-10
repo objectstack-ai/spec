@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ETLSyncMode",
-  "definitions": {
-    "ETLSyncMode": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/ZIndex",
-  "definitions": {
-    "ZIndex": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

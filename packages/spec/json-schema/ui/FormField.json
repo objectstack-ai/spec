@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/FormField",
-  "definitions": {
-    "FormField": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/AuthField",
-  "definitions": {
-    "AuthField": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}

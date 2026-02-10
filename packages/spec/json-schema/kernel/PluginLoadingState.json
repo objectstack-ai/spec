@@ -1,7 +1,0 @@
-{
-  "$ref": "#/definitions/PluginLoadingState",
-  "definitions": {
-    "PluginLoadingState": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-}
