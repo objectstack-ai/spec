@@ -85,6 +85,9 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0
     devDependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
       '@tailwindcss/postcss':
         specifier: ^4.1.18
         version: 4.1.18
