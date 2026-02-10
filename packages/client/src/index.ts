@@ -537,8 +537,9 @@ export class ObjectStackClient {
     /**
      * Refresh an authentication token
      * Note: better-auth handles token refresh automatically via /get-session
+     * @param _refreshToken - Not used (better-auth handles refresh automatically)
      */
-    refreshToken: async (refreshToken: string): Promise<SessionResponse> => {
+    refreshToken: async (_refreshToken: string): Promise<SessionResponse> => {
       const route = this.getRoute('auth');
       // better-auth doesn't have a separate refresh endpoint
       // Session refresh is handled automatically when calling /get-session
