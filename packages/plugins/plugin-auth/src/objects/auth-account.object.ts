@@ -69,19 +69,16 @@ export const AuthAccount = ObjectSchema.create({
     access_token: Field.textarea({
       label: 'Access Token',
       required: false,
-      encrypted: true, // Sensitive data should be encrypted
     }),
     
     refresh_token: Field.textarea({
       label: 'Refresh Token',
       required: false,
-      encrypted: true,
     }),
     
     id_token: Field.textarea({
       label: 'ID Token',
       required: false,
-      encrypted: true,
     }),
     
     access_token_expires_at: Field.datetime({
@@ -102,7 +99,6 @@ export const AuthAccount = ObjectSchema.create({
     password: Field.text({
       label: 'Password Hash',
       required: false,
-      encrypted: true,
       description: 'Hashed password for email/password provider',
     }),
   },

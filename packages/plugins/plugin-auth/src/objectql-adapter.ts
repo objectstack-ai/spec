@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import type { IDataEngine } from '@objectstack/core';
-import { createAdapter, type CleanedWhere, type JoinConfig } from 'better-auth/adapters';
+import type { CleanedWhere } from 'better-auth/adapters';
 
 /**
  * ObjectQL Adapter for better-auth
@@ -11,7 +11,7 @@ import { createAdapter, type CleanedWhere, type JoinConfig } from 'better-auth/a
  * third-party ORMs like drizzle-orm.
  * 
  * @param dataEngine - ObjectQL data engine instance
- * @returns better-auth Adapter instance
+ * @returns better-auth CustomAdapter
  */
 export function createObjectQLAdapter(dataEngine: IDataEngine) {
   /**
@@ -100,58 +100,54 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
     return converted;
   }
 
-  return createAdapter({
-    id: 'objectql',
-    
-    async create({ model, data, select }) {
+  return {
+    create: async <T extends Record<string, any>>({ model, data }: { model: string; data: T; select?: string[] }): Promise<T> => {
       const objectName = toObjectName(model);
       const objectData = convertDataToObjectQL(data);
       
       const result = await dataEngine.insert(objectName, objectData);
-      return convertDataFromObjectQL(result);
+      return convertDataFromObjectQL(result) as T;
     },
     
-    async findOne({ model, where, select, join }) {
+    findOne: async <T>({ model, where, select }: { model: string; where: CleanedWhere[]; select?: string[]; join?: any }): Promise<T | null> => {
       const objectName = toObjectName(model);
       const filter = convertWhere(where);
       
-      const fields = select?.map(toFieldName);
-      
       const result = await dataEngine.findOne(objectName, {
         filter,
-        fields,
+        select: select?.map(toFieldName),
       });
       
-      return result ? convertDataFromObjectQL(result) : null;
+      return result ? convertDataFromObjectQL(result) as T : null;
     },
     
-    async findMany({ model, where, limit, offset, sortBy, join }) {
+    findMany: async <T>({ model, where, limit, offset, sortBy }: { model: string; where?: CleanedWhere[]; limit: number; offset?: number; sortBy?: { field: string; direction: 'asc' | 'desc' }; join?: any }): Promise<T[]> => {
       const objectName = toObjectName(model);
       const filter = where ? convertWhere(where) : {};
       
-      const sort = sortBy ? {
+      const sort = sortBy ? [{
         field: toFieldName(sortBy.field),
-        direction: sortBy.direction,
-      } : undefined;
+        order: sortBy.direction as 'asc' | 'desc',
+      }] : undefined;
       
       const results = await dataEngine.find(objectName, {
         filter,
         limit: limit || 100,
-        offset,
-        sort: sort ? [sort] : undefined,
+        skip: offset,
+        sort,
       });
       
-      return results.map(convertDataFromObjectQL);
+      return results.map(r => convertDataFromObjectQL(r)) as T[];
     },
     
-    async count({ model, where }) {
+    count: async ({ model, where }: { model: string; where?: CleanedWhere[] }): Promise<number> => {
       const objectName = toObjectName(model);
       const filter = where ? convertWhere(where) : {};
       
       return await dataEngine.count(objectName, { filter });
     },
     
-    async update({ model, where, update }) {
+    update: async <T>({ model, where, update }: { model: string; where: CleanedWhere[]; update: Record<string, any> }): Promise<T | null> => {
       const objectName = toObjectName(model);
       const filter = convertWhere(where);
       const updateData = convertDataToObjectQL(update);
@@ -167,10 +163,10 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
         id: record.id,
       });
       
-      return result ? convertDataFromObjectQL(result) : null;
+      return result ? convertDataFromObjectQL(result) as T : null;
     },
     
-    async updateMany({ model, where, update }) {
+    updateMany: async ({ model, where, update }: { model: string; where: CleanedWhere[]; update: Record<string, any> }): Promise<number> => {
       const objectName = toObjectName(model);
       const filter = convertWhere(where);
       const updateData = convertDataToObjectQL(update);
@@ -189,7 +185,7 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
       return records.length;
     },
     
-    async delete({ model, where }) {
+    delete: async ({ model, where }: { model: string; where: CleanedWhere[] }): Promise<void> => {
       const objectName = toObjectName(model);
       const filter = convertWhere(where);
       
@@ -202,7 +198,7 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
       await dataEngine.delete(objectName, { filter: { id: record.id } });
     },
     
-    async deleteMany({ model, where }) {
+    deleteMany: async ({ model, where }: { model: string; where: CleanedWhere[] }): Promise<number> => {
       const objectName = toObjectName(model);
       const filter = convertWhere(where);
       
@@ -216,17 +212,5 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
       
       return records.length;
     },
-  }, {
-    // Adapter configuration
-    adapterId: 'objectql',
-    adapterName: 'ObjectQL',
-    supportsNumericIds: false,
-    supportsUUIDs: true,
-    supportsJSON: true,
-    supportsDates: true,
-    supportsBooleans: true,
-    supportsArrays: false,
-    // ObjectQL handles ID generation
-    disableIdGeneration: false,
-  });
+  };
 }

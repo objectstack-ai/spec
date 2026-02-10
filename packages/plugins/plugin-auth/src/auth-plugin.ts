@@ -3,7 +3,6 @@
 import { Plugin, PluginContext, IHttpServer } from '@objectstack/core';
 import { AuthConfig } from '@objectstack/spec/system';
 import { AuthManager } from './auth-manager.js';
-import { AuthUser, AuthSession, AuthAccount, AuthVerification } from './objects/index.js';
 
 /**
  * Auth Plugin Options
