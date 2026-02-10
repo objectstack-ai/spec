@@ -1,0 +1,59 @@
+---
+title: Execution Context
+description: Execution Context protocol schemas
+---
+
+Execution Context Schema
+
+Defines the runtime context that flows from HTTP request → data operations.
+
+This is the "identity + environment" envelope that every data operation can carry.
+
+Design:
+
+- All fields are optional for backward compatibility
+
+- `isSystem` bypasses permission checks (for internal/migration operations)
+
+- `transaction` carries the database transaction handle for atomicity
+
+- `traceId` enables distributed tracing across microservices
+
+Usage:
+
+engine.find('account', { context: { userId: '...', tenantId: '...' } })
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/execution-context.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ExecutionContext } from '@objectstack/spec/kernel';
+import type { ExecutionContext } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = ExecutionContext.parse(data);
+```
+
+---
+
+## ExecutionContext
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **userId** | `string` | optional |  |
+| **tenantId** | `string` | optional |  |
+| **roles** | `string[]` | ✅ |  |
+| **permissions** | `string[]` | ✅ |  |
+| **isSystem** | `boolean` | ✅ |  |
+| **accessToken** | `string` | optional |  |
+| **transaction** | `any` | optional |  |
+| **traceId** | `string` | optional |  |
+
+
+---
+

@@ -1,0 +1,51 @@
+---
+title: Auth Endpoints
+description: Auth Endpoints protocol schemas
+---
+
+Authentication Endpoint Specification
+
+Defines the canonical HTTP endpoints for the authentication service.
+
+Based on better-auth v1.4.18 endpoint conventions.
+
+NOTE: ObjectStack's auth implementation uses better-auth library which has
+
+established endpoint conventions. This spec documents those conventions as
+
+the canonical API contract.
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/auth-endpoints.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AuthEndpoint } from '@objectstack/spec/api';
+import type { AuthEndpoint } from '@objectstack/spec/api';
+
+// Validate data
+const result = AuthEndpoint.parse(data);
+```
+
+---
+
+## AuthEndpoint
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **signInEmail** | `Object` | ✅ |  |
+| **signUpEmail** | `Object` | ✅ |  |
+| **signOut** | `Object` | ✅ |  |
+| **getSession** | `Object` | ✅ |  |
+| **forgetPassword** | `Object` | ✅ |  |
+| **resetPassword** | `Object` | ✅ |  |
+| **sendVerificationEmail** | `Object` | ✅ |  |
+| **verifyEmail** | `Object` | ✅ |  |
+
+
+---
+
