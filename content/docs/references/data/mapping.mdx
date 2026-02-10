@@ -25,15 +25,49 @@ const result = FieldMapping.parse(data);
 
 ## FieldMapping
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **source** | `string \| string[]` | ✅ | Source column header(s) |
+| **target** | `string \| string[]` | ✅ | Target object field(s) |
+| **transform** | `Enum<'none' \| 'constant' \| 'lookup' \| 'split' \| 'join' \| 'javascript' \| 'map'>` | ✅ |  |
+| **params** | `Object` | optional |  |
+
 
 ---
 
 ## Mapping
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Mapping unique name (lowercase snake_case) |
+| **label** | `string` | optional |  |
+| **sourceFormat** | `Enum<'csv' \| 'json' \| 'xml' \| 'sql'>` | ✅ |  |
+| **targetObject** | `string` | ✅ | Target Object Name |
+| **fieldMapping** | `Object[]` | ✅ |  |
+| **mode** | `Enum<'insert' \| 'update' \| 'upsert'>` | ✅ |  |
+| **upsertKey** | `string[]` | optional | Fields to match for upsert (e.g. email) |
+| **extractQuery** | `[__schema0](./__schema0)` | optional | Query to run for export only |
+| **errorPolicy** | `Enum<'skip' \| 'abort' \| 'retry'>` | ✅ |  |
+| **batchSize** | `number` | ✅ |  |
+
 
 ---
 
 ## TransformType
+
+### Allowed Values
+
+* `none`
+* `constant`
+* `lookup`
+* `split`
+* `join`
+* `javascript`
+* `map`
 
 
 ---

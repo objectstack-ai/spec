@@ -23,55 +23,292 @@ const result = ConnectorActionRef.parse(data);
 
 ## ConnectorActionRef
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **connectorId** | `string` | ✅ | Target Connector ID (e.g. slack, twilio) |
+| **actionId** | `string` | ✅ | Target Action ID (e.g. send_message) |
+| **input** | `Record<string, any>` | ✅ | Input parameters matching the action schema |
+
 
 ---
 
 ## CustomScriptAction
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **language** | `Enum<'javascript' \| 'typescript' \| 'python'>` | ✅ | Script language |
+| **code** | `string` | ✅ | Script code to execute |
+| **timeout** | `number` | ✅ | Execution timeout in milliseconds |
+| **context** | `Record<string, any>` | optional | Additional context variables |
 
 
 ---
 
 ## EmailAlertAction
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **template** | `string` | ✅ | Email template ID/DevName |
+| **recipients** | `string[]` | ✅ | List of recipient emails or user IDs |
+
 
 ---
 
 ## FieldUpdateAction
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **field** | `string` | ✅ | Field to update |
+| **value** | `any` | ✅ | Value or Formula to set |
 
 
 ---
 
 ## HttpCallAction
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **url** | `string` | ✅ | Target URL |
+| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'DELETE' \| 'PATCH'>` | ✅ | HTTP Method |
+| **headers** | `Record<string, string>` | optional | HTTP Headers |
+| **body** | `string` | optional | Request body (JSON or text) |
+
 
 ---
 
 ## PushNotificationAction
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **title** | `string` | ✅ | Notification title |
+| **body** | `string` | ✅ | Notification body text |
+| **recipients** | `string[]` | ✅ | User IDs or device tokens |
+| **data** | `Record<string, any>` | optional | Additional data payload |
+| **badge** | `number` | optional | Badge count (iOS) |
+| **sound** | `string` | optional | Notification sound |
+| **clickAction** | `string` | optional | Action/URL when notification is clicked |
 
 
 ---
 
 ## TaskCreationAction
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **taskObject** | `string` | ✅ | Task object name (e.g., "task", "project_task") |
+| **subject** | `string` | ✅ | Task subject/title |
+| **description** | `string` | optional | Task description |
+| **assignedTo** | `string` | optional | User ID or field reference for assignee |
+| **dueDate** | `string` | optional | Due date (ISO string or formula) |
+| **priority** | `string` | optional | Task priority |
+| **relatedTo** | `string` | optional | Related record ID or field reference |
+| **additionalFields** | `Record<string, any>` | optional | Additional custom fields |
+
 
 ---
 
 ## TimeTrigger
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Unique identifier |
+| **timeLength** | `integer` | ✅ | Duration amount (e.g. 1, 30) |
+| **timeUnit** | `Enum<'minutes' \| 'hours' \| 'days'>` | ✅ | Unit of time |
+| **offsetDirection** | `Enum<'before' \| 'after'>` | ✅ | Before or After the reference date |
+| **offsetFrom** | `Enum<'trigger_date' \| 'date_field'>` | ✅ | Basis for calculation |
+| **dateField** | `string` | optional | Date field to calculate from (required if offsetFrom is date_field) |
+| **actions** | `Object \| Object \| Object \| Object \| Object \| Object \| Object[]` | ✅ | Actions to execute at the scheduled time |
 
 
 ---
 
 ## WorkflowAction
 
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+**Type:** `field_update`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **field** | `string` | ✅ | Field to update |
+| **value** | `any` | ✅ | Value or Formula to set |
+
+---
+
+#### Option 2
+
+**Type:** `email_alert`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **template** | `string` | ✅ | Email template ID/DevName |
+| **recipients** | `string[]` | ✅ | List of recipient emails or user IDs |
+
+---
+
+#### Option 3
+
+**Type:** `http_call`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **url** | `string` | ✅ | Target URL |
+| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'DELETE' \| 'PATCH'>` | ✅ | HTTP Method |
+| **headers** | `Record<string, string>` | optional | HTTP Headers |
+| **body** | `string` | optional | Request body (JSON or text) |
+
+---
+
+#### Option 4
+
+**Type:** `connector_action`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **connectorId** | `string` | ✅ | Target Connector ID (e.g. slack, twilio) |
+| **actionId** | `string` | ✅ | Target Action ID (e.g. send_message) |
+| **input** | `Record<string, any>` | ✅ | Input parameters matching the action schema |
+
+---
+
+#### Option 5
+
+**Type:** `task_creation`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **taskObject** | `string` | ✅ | Task object name (e.g., "task", "project_task") |
+| **subject** | `string` | ✅ | Task subject/title |
+| **description** | `string` | optional | Task description |
+| **assignedTo** | `string` | optional | User ID or field reference for assignee |
+| **dueDate** | `string` | optional | Due date (ISO string or formula) |
+| **priority** | `string` | optional | Task priority |
+| **relatedTo** | `string` | optional | Related record ID or field reference |
+| **additionalFields** | `Record<string, any>` | optional | Additional custom fields |
+
+---
+
+#### Option 6
+
+**Type:** `push_notification`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **title** | `string` | ✅ | Notification title |
+| **body** | `string` | ✅ | Notification body text |
+| **recipients** | `string[]` | ✅ | User IDs or device tokens |
+| **data** | `Record<string, any>` | optional | Additional data payload |
+| **badge** | `number` | optional | Badge count (iOS) |
+| **sound** | `string` | optional | Notification sound |
+| **clickAction** | `string` | optional | Action/URL when notification is clicked |
+
+---
+
+#### Option 7
+
+**Type:** `custom_script`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Action name |
+| **type** | `string` | ✅ |  |
+| **language** | `Enum<'javascript' \| 'typescript' \| 'python'>` | ✅ | Script language |
+| **code** | `string` | ✅ | Script code to execute |
+| **timeout** | `number` | ✅ | Execution timeout in milliseconds |
+| **context** | `Record<string, any>` | optional | Additional context variables |
+
+---
+
 
 ---
 
 ## WorkflowRule
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique workflow name (lowercase snake_case) |
+| **objectName** | `string` | ✅ | Target Object |
+| **triggerType** | `Enum<'on_create' \| 'on_update' \| 'on_create_or_update' \| 'on_delete' \| 'schedule'>` | ✅ | When to evaluate |
+| **criteria** | `string` | optional | Formula condition. If TRUE, actions execute. |
+| **actions** | `Object \| Object \| Object \| Object \| Object \| Object \| Object[]` | optional | Immediate actions |
+| **timeTriggers** | `Object[]` | optional | Scheduled actions relative to trigger or date field |
+| **active** | `boolean` | ✅ | Whether this workflow is active |
+| **reevaluateOnChange** | `boolean` | ✅ | Re-evaluate rule if field updates change the record validity |
+
 
 ---
 
 ## WorkflowTriggerType
+
+### Allowed Values
+
+* `on_create`
+* `on_update`
+* `on_create_or_update`
+* `on_delete`
+* `schedule`
 
 
 ---

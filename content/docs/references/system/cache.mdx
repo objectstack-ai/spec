@@ -55,20 +55,67 @@ const result = CacheConfig.parse(data);
 
 ## CacheConfig
 
+Top-level application cache configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable application-level caching |
+| **tiers** | `Object[]` | ✅ | Ordered cache tier hierarchy |
+| **invalidation** | `Object[]` | ✅ | Cache invalidation rules |
+| **prefetch** | `boolean` | ✅ | Enable cache prefetching |
+| **compression** | `boolean` | ✅ | Enable data compression in cache |
+| **encryption** | `boolean` | ✅ | Enable encryption for cached data |
+
 
 ---
 
 ## CacheInvalidation
+
+Rule defining when and how cached entries are invalidated
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **trigger** | `Enum<'create' \| 'update' \| 'delete' \| 'manual'>` | ✅ | Event that triggers invalidation |
+| **scope** | `Enum<'key' \| 'pattern' \| 'tag' \| 'all'>` | ✅ | Invalidation scope |
+| **pattern** | `string` | optional | Key pattern for pattern-based invalidation |
+| **tags** | `string[]` | optional | Cache tags to invalidate |
 
 
 ---
 
 ## CacheStrategy
 
+Cache eviction strategy
+
+### Allowed Values
+
+* `lru`
+* `lfu`
+* `fifo`
+* `ttl`
+* `adaptive`
+
 
 ---
 
 ## CacheTier
+
+Configuration for a single cache tier in the hierarchy
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique cache tier name |
+| **type** | `Enum<'memory' \| 'redis' \| 'memcached' \| 'cdn'>` | ✅ | Cache backend type |
+| **maxSize** | `number` | optional | Max size in MB |
+| **ttl** | `number` | ✅ | Default TTL in seconds |
+| **strategy** | `Enum<'lru' \| 'lfu' \| 'fifo' \| 'ttl' \| 'adaptive'>` | ✅ | Eviction strategy |
+| **warmup** | `boolean` | ✅ | Pre-populate cache on startup |
 
 
 ---

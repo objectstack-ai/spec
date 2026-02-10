@@ -33,15 +33,49 @@ const result = FieldPermission.parse(data);
 
 ## FieldPermission
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **readable** | `boolean` | ✅ | Field read access |
+| **editable** | `boolean` | ✅ | Field edit access |
+
 
 ---
 
 ## ObjectPermission
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **allowCreate** | `boolean` | ✅ | Create permission |
+| **allowRead** | `boolean` | ✅ | Read permission |
+| **allowEdit** | `boolean` | ✅ | Edit permission |
+| **allowDelete** | `boolean` | ✅ | Delete permission |
+| **allowTransfer** | `boolean` | ✅ | Change record ownership |
+| **allowRestore** | `boolean` | ✅ | Restore from trash (Undelete) |
+| **allowPurge** | `boolean` | ✅ | Permanently delete (Hard Delete/GDPR) |
+| **viewAllRecords** | `boolean` | ✅ | View All Data (Bypass Sharing) |
+| **modifyAllRecords** | `boolean` | ✅ | Modify All Data (Bypass Sharing) |
+
 
 ---
 
 ## PermissionSet
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Permission set unique name (lowercase snake_case) |
+| **label** | `string` | optional | Display label |
+| **isProfile** | `boolean` | ✅ | Whether this is a user profile |
+| **objects** | `Record<string, Object>` | ✅ | Entity permissions |
+| **fields** | `Record<string, Object>` | optional | Field level security |
+| **systemPermissions** | `string[]` | optional | System level capabilities |
+| **rowLevelSecurity** | `Object[]` | optional | Row-level security policies (see rls.zod.ts for full spec) |
+| **contextVariables** | `Record<string, any>` | optional | Context variables for RLS evaluation |
 
 
 ---

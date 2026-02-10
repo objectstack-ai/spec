@@ -1,23 +1,14 @@
-import { source } from '@/app/source';
+import { source } from '@/lib/source';
 import type { Metadata } from 'next';
-import { DocsPage, DocsBody } from 'fumadocs-ui/page';
+import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/layouts/docs/page';
 import { notFound } from 'next/navigation';
-import defaultMdxComponents from 'fumadocs-ui/mdx';
+import { getMDXComponents } from '@/mdx-components';
+import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 import { File, Folder, Files } from 'fumadocs-ui/components/files';
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
-
-const components = {
-  ...defaultMdxComponents,
-  Step,
-  Steps,
-  File,
-  Folder,
-  Files,
-  FileTree: Files,
-  Tab,
-  Tabs,
-};
+import { LLMCopyButton, ViewOptions } from '@/components/ai/page-actions';
+import { gitConfig } from '@/lib/layout.shared';
 
 export default async function Page(props: {
   params: Promise<{ lang: string; slug?: string[] }>;
@@ -26,19 +17,33 @@ export default async function Page(props: {
   const page = source.getPage(params.slug ?? [], params.lang);
   if (!page) notFound();
 
-  const data = page.data as any;
-  const Content = data.body;
+  const MDX = page.data.body;
 
   return (
-    <DocsPage toc={data.toc} full={data.full}>
+    <DocsPage toc={page.data.toc} full={page.data.full}>
+      <DocsTitle>{page.data.title}</DocsTitle>
+      <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
+      <div className="flex flex-row gap-2 items-center border-b pb-6">
+        <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
+        <ViewOptions
+          markdownUrl={`${page.url}.mdx`}
+          githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/docs/${page.path}`}
+        />
+      </div>
       <DocsBody>
-        <h1 className="mb-2 text-3xl font-bold text-foreground">{page.data.title}</h1>
-        {page.data.description && (
-          <p className="mb-8 text-lg text-muted-foreground">
-            {page.data.description}
-          </p>
-        )}
-        <Content components={components} />
+        <MDX
+          components={getMDXComponents({
+            a: createRelativeLink(source, page),
+            Step,
+            Steps,
+            File,
+            Folder,
+            Files,
+            FileTree: Files,
+            Tab,
+            Tabs,
+          })}
+        />
       </DocsBody>
     </DocsPage>
   );

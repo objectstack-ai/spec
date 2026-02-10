@@ -23,25 +23,84 @@ const result = AuditLogConfig.parse(data);
 
 ## AuditLogConfig
 
+Audit log configuration for compliance and security monitoring
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable audit logging |
+| **retentionDays** | `number` | ✅ | Number of days to retain audit logs |
+| **immutable** | `boolean` | ✅ | Prevent modification or deletion of audit logs |
+| **signLogs** | `boolean` | ✅ | Cryptographically sign log entries for tamper detection |
+| **events** | `Enum<'create' \| 'read' \| 'update' \| 'delete' \| 'export' \| 'permission-change' \| 'login' \| 'logout' \| 'failed-login'>[]` | ✅ | Event types to capture in the audit log |
+
 
 ---
 
 ## ComplianceConfig
+
+Unified compliance configuration spanning GDPR, HIPAA, and PCI-DSS
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **gdpr** | `Object` | optional | GDPR compliance settings |
+| **hipaa** | `Object` | optional | HIPAA compliance settings |
+| **pciDss** | `Object` | optional | PCI-DSS compliance settings |
+| **auditLog** | `Object` | ✅ | Audit log configuration |
 
 
 ---
 
 ## GDPRConfig
 
+GDPR (General Data Protection Regulation) compliance configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable GDPR compliance controls |
+| **dataSubjectRights** | `Object` | ✅ | Data subject rights configuration per GDPR Articles 15-21 |
+| **legalBasis** | `Enum<'consent' \| 'contract' \| 'legal-obligation' \| 'vital-interests' \| 'public-task' \| 'legitimate-interests'>` | ✅ | Legal basis for data processing under GDPR Article 6 |
+| **consentTracking** | `boolean` | ✅ | Track and record user consent |
+| **dataRetentionDays** | `number` | optional | Maximum data retention period in days |
+| **dataProcessingAgreement** | `string` | optional | URL or reference to the data processing agreement |
+
 
 ---
 
 ## HIPAAConfig
 
+HIPAA (Health Insurance Portability and Accountability Act) compliance configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable HIPAA compliance controls |
+| **phi** | `Object` | ✅ | Protected Health Information safeguards |
+| **businessAssociateAgreement** | `boolean` | ✅ | BAA is in place with third-party processors |
+
 
 ---
 
 ## PCIDSSConfig
+
+PCI-DSS (Payment Card Industry Data Security Standard) compliance configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable PCI-DSS compliance controls |
+| **level** | `Enum<'1' \| '2' \| '3' \| '4'>` | ✅ | PCI-DSS compliance level (1 = highest) |
+| **cardDataFields** | `string[]` | ✅ | Field names containing cardholder data |
+| **tokenization** | `boolean` | ✅ | Replace card data with secure tokens |
+| **encryptionInTransit** | `boolean` | ✅ | Encrypt cardholder data during transmission |
+| **encryptionAtRest** | `boolean` | ✅ | Encrypt stored cardholder data |
 
 
 ---

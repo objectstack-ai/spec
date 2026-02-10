@@ -18,21 +18,17 @@ export default async function LanguageLayout({
   const { lang } = await params;
   
   return (
-    <html lang={lang} suppressHydrationWarning>
-      <body>
-        <RootProvider
-          i18n={{
-            locale: lang,
-            locales: i18n.languages.map((l) => ({
-              name: LANGUAGE_NAMES[l] || l,
-              locale: l,
-            })),
-          }}
-        >
-          {children}
-        </RootProvider>
-      </body>
-    </html>
+    <RootProvider
+      i18n={{
+        locale: lang,
+        locales: i18n.languages.map((l) => ({
+          name: LANGUAGE_NAMES[l] || l,
+          locale: l,
+        })),
+      }}
+    >
+      {children}
+    </RootProvider>
   );
 }
 

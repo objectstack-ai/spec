@@ -37,55 +37,256 @@ const result = BreakingChange.parse(data);
 
 ## BreakingChange
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **introducedIn** | `string` | ✅ | Version that introduced this breaking change |
+| **type** | `Enum<'api-removed' \| 'api-renamed' \| 'api-signature-changed' \| 'behavior-changed' \| 'dependency-changed' \| 'configuration-changed' \| 'protocol-changed'>` | ✅ |  |
+| **description** | `string` | ✅ |  |
+| **migrationGuide** | `string` | optional | How to migrate from old to new |
+| **deprecatedIn** | `string` | optional | Version where old API was deprecated |
+| **removedIn** | `string` | optional | Version where old API will be removed |
+| **automatedMigration** | `boolean` | ✅ | Whether automated migration tool is available |
+| **severity** | `Enum<'critical' \| 'major' \| 'minor'>` | ✅ | Impact severity |
+
 
 ---
 
 ## CompatibilityLevel
+
+Compatibility level between versions
+
+### Allowed Values
+
+* `fully-compatible`
+* `backward-compatible`
+* `deprecated-compatible`
+* `breaking-changes`
+* `incompatible`
 
 
 ---
 
 ## CompatibilityMatrixEntry
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **from** | `string` | ✅ | Version being upgraded from |
+| **to** | `string` | ✅ | Version being upgraded to |
+| **compatibility** | `Enum<'fully-compatible' \| 'backward-compatible' \| 'deprecated-compatible' \| 'breaking-changes' \| 'incompatible'>` | ✅ | Compatibility level between versions |
+| **breakingChanges** | `Object[]` | optional |  |
+| **migrationRequired** | `boolean` | ✅ |  |
+| **migrationComplexity** | `Enum<'trivial' \| 'simple' \| 'moderate' \| 'complex' \| 'major'>` | optional |  |
+| **estimatedMigrationTime** | `number` | optional |  |
+| **migrationScript** | `string` | optional | Path to migration script |
+| **testCoverage** | `number` | optional | Percentage of migration covered by tests |
+
 
 ---
 
 ## DependencyConflict
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'version-mismatch' \| 'missing-dependency' \| 'circular-dependency' \| 'incompatible-versions' \| 'conflicting-interfaces'>` | ✅ |  |
+| **plugins** | `Object[]` | ✅ |  |
+| **description** | `string` | ✅ |  |
+| **resolutions** | `Object[]` | optional |  |
+| **severity** | `Enum<'critical' \| 'error' \| 'warning' \| 'info'>` | ✅ |  |
 
 
 ---
 
 ## DependencyResolutionResult
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ |  |
+| **resolved** | `Object[]` | optional |  |
+| **conflicts** | `Object[]` | optional |  |
+| **warnings** | `string[]` | optional |  |
+| **installationOrder** | `string[]` | optional | Plugin IDs in order they should be installed |
+| **dependencyGraph** | `Record<string, string[]>` | optional | Map of plugin ID to its dependencies |
+
 
 ---
 
 ## DeprecationNotice
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **feature** | `string` | ✅ | Deprecated feature identifier |
+| **deprecatedIn** | `string` | ✅ |  |
+| **removeIn** | `string` | optional |  |
+| **reason** | `string` | ✅ |  |
+| **alternative** | `string` | optional | What to use instead |
+| **migrationPath** | `string` | optional | How to migrate to alternative |
 
 
 ---
 
 ## MultiVersionSupport
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ |  |
+| **maxConcurrentVersions** | `integer` | ✅ | How many versions can run at the same time |
+| **selectionStrategy** | `Enum<'latest' \| 'stable' \| 'compatible' \| 'pinned' \| 'canary' \| 'custom'>` | ✅ |  |
+| **routing** | `Object[]` | optional |  |
+| **rollout** | `Object` | optional |  |
+
 
 ---
 
 ## PluginCompatibilityMatrix
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **pluginId** | `string` | ✅ |  |
+| **currentVersion** | `string` | ✅ |  |
+| **compatibilityMatrix** | `Object[]` | ✅ |  |
+| **supportedVersions** | `Object[]` | ✅ |  |
+| **minimumCompatibleVersion** | `string` | optional | Oldest version that can be directly upgraded |
 
 
 ---
 
 ## PluginVersionMetadata
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **pluginId** | `string` | ✅ |  |
+| **version** | `Object` | ✅ | Semantic version number |
+| **versionString** | `string` | ✅ | Full version string (e.g., 1.2.3-beta.1+build.123) |
+| **releaseDate** | `string` | ✅ |  |
+| **releaseNotes** | `string` | optional |  |
+| **breakingChanges** | `Object[]` | optional |  |
+| **deprecations** | `Object[]` | optional |  |
+| **compatibilityMatrix** | `Object[]` | optional |  |
+| **securityFixes** | `Object[]` | optional |  |
+| **statistics** | `Object` | optional |  |
+| **support** | `Object` | ✅ |  |
+
 
 ---
 
 ## SemanticVersion
 
+Semantic version number
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **major** | `integer` | ✅ | Major version (breaking changes) |
+| **minor** | `integer` | ✅ | Minor version (backward compatible features) |
+| **patch** | `integer` | ✅ | Patch version (backward compatible fixes) |
+| **preRelease** | `string` | optional | Pre-release identifier (alpha, beta, rc.1) |
+| **build** | `string` | optional | Build metadata |
+
 
 ---
 
 ## VersionConstraint
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+Exact version: `1.2.3`
+
+Type: `string`
+
+---
+
+#### Option 2
+
+Compatible with: `^1.2.3` (`>=1.2.3 <2.0.0`)
+
+Type: `string`
+
+---
+
+#### Option 3
+
+Approximately: `~1.2.3` (`>=1.2.3 <1.3.0`)
+
+Type: `string`
+
+---
+
+#### Option 4
+
+Greater than or equal: `>=1.2.3`
+
+Type: `string`
+
+---
+
+#### Option 5
+
+Greater than: `>1.2.3`
+
+Type: `string`
+
+---
+
+#### Option 6
+
+Less than or equal: `<=1.2.3`
+
+Type: `string`
+
+---
+
+#### Option 7
+
+Less than: `<1.2.3`
+
+Type: `string`
+
+---
+
+#### Option 8
+
+Range: `1.2.3 - 2.3.4`
+
+Type: `string`
+
+---
+
+#### Option 9
+
+Any version
+
+Type: `string`
+
+---
+
+#### Option 10
+
+Latest stable version
+
+Type: `string`
+
+---
 
 
 ---

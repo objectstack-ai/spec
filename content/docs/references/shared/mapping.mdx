@@ -71,10 +71,100 @@ const result = FieldMapping.parse(data);
 
 ## FieldMapping
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **source** | `string` | ✅ | Source field name |
+| **target** | `string` | ✅ | Target field name |
+| **transform** | `Object \| Object \| Object \| Object \| Object` | optional | Transformation to apply |
+| **defaultValue** | `any` | optional | Default if source is null/undefined |
+
 
 ---
 
 ## TransformType
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+Set a constant value
+
+**Type:** `constant`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **value** | `any` | ✅ | Constant value to use |
+
+---
+
+#### Option 2
+
+Cast to a specific data type
+
+**Type:** `cast`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **targetType** | `Enum<'string' \| 'number' \| 'boolean' \| 'date'>` | ✅ | Target data type |
+
+---
+
+#### Option 3
+
+Lookup value from another table
+
+**Type:** `lookup`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **table** | `string` | ✅ | Lookup table name |
+| **keyField** | `string` | ✅ | Field to match on |
+| **valueField** | `string` | ✅ | Field to retrieve |
+
+---
+
+#### Option 4
+
+Custom JavaScript transformation
+
+**Type:** `javascript`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **expression** | `string` | ✅ | JavaScript expression (e.g., "value.toUpperCase()") |
+
+---
+
+#### Option 5
+
+Map values using a dictionary
+
+**Type:** `map`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ |  |
+| **mappings** | `Record<string, any>` | ✅ | Value mappings (e.g., `{"Active": "active"}`) |
+
+---
 
 
 ---

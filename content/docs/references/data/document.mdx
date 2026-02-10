@@ -51,20 +51,70 @@ const result = Document.parse(data);
 
 ## Document
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Document ID |
+| **name** | `string` | ✅ | Document name |
+| **description** | `string` | optional | Document description |
+| **fileType** | `string` | ✅ | File MIME type |
+| **fileSize** | `number` | ✅ | File size in bytes |
+| **category** | `string` | optional | Document category |
+| **tags** | `string[]` | optional | Document tags |
+| **versioning** | `Object` | optional | Version control |
+| **template** | `Object` | optional | Document template |
+| **eSignature** | `Object` | optional | E-signature config |
+| **access** | `Object` | optional | Access control |
+| **metadata** | `Record<string, any>` | optional | Custom metadata |
+
 
 ---
 
 ## DocumentTemplate
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Template ID |
+| **name** | `string` | ✅ | Template name |
+| **description** | `string` | optional | Template description |
+| **fileUrl** | `string` | ✅ | Template file URL |
+| **fileType** | `string` | ✅ | File MIME type |
+| **placeholders** | `Object[]` | ✅ | Template placeholders |
 
 
 ---
 
 ## DocumentVersion
 
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **versionNumber** | `number` | ✅ | Version number |
+| **createdAt** | `number` | ✅ | Creation timestamp |
+| **createdBy** | `string` | ✅ | Creator user ID |
+| **size** | `number` | ✅ | File size in bytes |
+| **checksum** | `string` | ✅ | File checksum |
+| **downloadUrl** | `string` | ✅ | Download URL |
+| **isLatest** | `boolean` | ✅ | Is latest version |
+
 
 ---
 
 ## ESignatureConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **provider** | `Enum<'docusign' \| 'adobe-sign' \| 'hellosign' \| 'custom'>` | ✅ | E-signature provider |
+| **enabled** | `boolean` | ✅ | E-signature enabled |
+| **signers** | `Object[]` | ✅ | Document signers |
+| **expirationDays** | `number` | ✅ | Expiration days |
+| **reminderDays** | `number` | ✅ | Reminder interval days |
 
 
 ---
