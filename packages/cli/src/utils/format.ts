@@ -188,7 +188,7 @@ export function printServerReady(opts: ServerReadyOptions) {
   console.log('');
   console.log(chalk.bold.green('  ✓ Server is ready'));
   console.log('');
-  console.log(chalk.cyan('  ➜') + chalk.bold('  API:     ') + chalk.cyan(base + '/'));
+  console.log(chalk.cyan('  ➜') + chalk.bold('  API:     ') + chalk.cyan(base + '/api/v1'));
   if (opts.uiEnabled && opts.studioPath) {
     console.log(chalk.cyan('  ➜') + chalk.bold('  Studio:  ') + chalk.cyan(base + opts.studioPath + '/'));
   }
