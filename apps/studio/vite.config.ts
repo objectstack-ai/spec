@@ -47,8 +47,21 @@ export default defineConfig({
   },
   plugins: [react()],
   server: {
-    port: parseInt(process.env.VITE_PORT || '3000'),
+    // Default to 5173 (Vite default) to avoid conflict with ObjectStack API server on 3000.
+    // Use VITE_PORT env var to override (e.g. when embedded in CLI via --ui).
+    port: parseInt(process.env.VITE_PORT || '5173'),
     hmr: hmrConfig,
+    // Proxy API requests to the ObjectStack server when running standalone
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+      '/.well-known': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+    },
   },
   optimizeDeps: {
     include: [
