@@ -268,6 +268,92 @@ export class ObjectQL implements IDataEngine {
             this.logger.debug('Registered Kind', { kind: kind.name || kind.type, from: id });
           }
        }
+
+      // 7. Recursively register nested plugins
+      if (Array.isArray(manifest.plugins) && manifest.plugins.length > 0) {
+          this.logger.debug('Processing nested plugins', { id, count: manifest.plugins.length });
+          for (const plugin of manifest.plugins) {
+              if (plugin && typeof plugin === 'object') {
+                  const pluginName = plugin.name || plugin.id || 'unnamed-plugin';
+                  this.logger.debug('Registering nested plugin', { pluginName, parentId: id });
+                  this.registerPlugin(plugin, id, namespace);
+              }
+          }
+      }
+  }
+
+  /**
+   * Register a nested plugin's metadata (objects, actions, views, etc.)
+   *
+   * Unlike registerApp(), this does NOT call SchemaRegistry.installPackage()
+   * because plugins are not formal manifests — they are lightweight config
+   * bundles with objects, actions, triggers, and navigation.
+   *
+   * @param plugin - The plugin config object
+   * @param parentId - The parent package ID (for ownership tracking)
+   * @param parentNamespace - The parent package's namespace (for FQN resolution)
+   */
+  private registerPlugin(plugin: any, parentId: string, parentNamespace?: string) {
+      const pluginName = plugin.name || plugin.id || 'unnamed';
+      const pluginNamespace = plugin.namespace || parentNamespace;
+
+      // Use parentId as the owning package for namespace consistency.
+      // The parent package already claimed the namespace — nested plugins
+      // contribute objects UNDER the parent's ownership.
+      const ownerId = parentId;
+
+      // Register objects (supports both Array and Map formats)
+      if (plugin.objects) {
+          try {
+              if (Array.isArray(plugin.objects)) {
+                  this.logger.debug('Registering plugin objects (Array)', { pluginName, count: plugin.objects.length });
+                  for (const objDef of plugin.objects) {
+                      const fqn = SchemaRegistry.registerObject(objDef, ownerId, pluginNamespace, 'own');
+                      this.logger.debug('Registered Object', { fqn, from: pluginName });
+                  }
+              } else {
+                  const entries = Object.entries(plugin.objects);
+                  this.logger.debug('Registering plugin objects (Map)', { pluginName, count: entries.length });
+                  for (const [name, objDef] of entries) {
+                      (objDef as any).name = name;
+                      const fqn = SchemaRegistry.registerObject(objDef as any, ownerId, pluginNamespace, 'own');
+                      this.logger.debug('Registered Object', { fqn, from: pluginName });
+                  }
+              }
+          } catch (err: any) {
+              this.logger.warn('Failed to register plugin objects', { pluginName, error: err.message });
+          }
+      }
+
+      // Register plugin as app if it has navigation (for sidebar display)
+      if (plugin.name && plugin.navigation) {
+          try {
+              SchemaRegistry.registerApp(plugin, ownerId);
+              this.logger.debug('Registered plugin-as-app', { app: plugin.name, from: pluginName });
+          } catch (err: any) {
+              this.logger.warn('Failed to register plugin as app', { pluginName, error: err.message });
+          }
+      }
+
+      // Register metadata arrays (actions, views, triggers, etc.)
+      const metadataArrayKeys = [
+          'actions', 'views', 'pages', 'dashboards', 'reports', 'themes',
+          'flows', 'workflows', 'approvals', 'webhooks',
+          'roles', 'permissions', 'profiles', 'sharingRules', 'policies',
+          'agents', 'ragPipelines', 'apis',
+          'hooks', 'mappings', 'analyticsCubes', 'connectors',
+      ];
+      for (const key of metadataArrayKeys) {
+          const items = (plugin as any)[key];
+          if (Array.isArray(items) && items.length > 0) {
+              for (const item of items) {
+                  const itemName = item.name || item.id;
+                  if (itemName) {
+                      SchemaRegistry.registerItem(key, item, 'name' as any, ownerId);
+                  }
+              }
+          }
+      }
   }
 
   /**
