@@ -197,4 +197,52 @@ describe('LiteKernel with Configurable Logger', () => {
             await browserKernel.shutdown();
         });
     });
+
+    describe('Service Replacement', () => {
+        it('should replace an existing service via replaceService', async () => {
+            const originalService = { value: 'original' };
+            const replacementService = { value: 'replaced' };
+
+            const plugin: Plugin = {
+                name: 'register-plugin',
+                init: async (ctx) => {
+                    ctx.registerService('metadata', originalService);
+                },
+            };
+
+            const optimizationPlugin: Plugin = {
+                name: 'optimization-plugin',
+                dependencies: ['register-plugin'],
+                init: async (ctx) => {
+                    const existing = ctx.getService('metadata');
+                    expect(existing).toBe(originalService);
+                    ctx.replaceService('metadata', replacementService);
+                },
+            };
+
+            kernel.use(plugin);
+            kernel.use(optimizationPlugin);
+            await kernel.bootstrap();
+
+            const result = kernel.getService('metadata');
+            expect(result).toBe(replacementService);
+
+            await kernel.shutdown();
+        });
+
+        it('should throw when replacing a non-existent service', async () => {
+            const plugin: Plugin = {
+                name: 'bad-replace-plugin',
+                init: async (ctx) => {
+                    expect(() => {
+                        ctx.replaceService('nonexistent', { value: 'test' });
+                    }).toThrow("Service 'nonexistent' not found");
+                },
+            };
+
+            kernel.use(plugin);
+            await kernel.bootstrap();
+            await kernel.shutdown();
+        });
+    });
 });

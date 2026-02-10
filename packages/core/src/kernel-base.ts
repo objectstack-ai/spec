@@ -85,6 +85,21 @@ export abstract class ObjectKernelBase {
                     return this.services.get<T>(name);
                 }
             },
+            replaceService: <T>(name: string, implementation: T): void => {
+                if (this.services instanceof Map) {
+                    if (!this.services.has(name)) {
+                        throw new Error(`[Kernel] Service '${name}' not found. Use registerService() to add new services.`);
+                    }
+                    this.services.set(name, implementation);
+                } else {
+                    // IServiceRegistry implementation
+                    if (!this.services.has(name)) {
+                        throw new Error(`[Kernel] Service '${name}' not found. Use registerService() to add new services.`);
+                    }
+                    this.services.register(name, implementation);
+                }
+                this.logger.info(`Service '${name}' replaced`, { service: name });
+            },
             hook: (name, handler) => {
                 if (!this.hooks.has(name)) {
                     this.hooks.set(name, []);

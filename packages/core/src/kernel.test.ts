@@ -534,4 +534,91 @@ describe('ObjectKernel', () => {
             }).rejects.toThrow('not running');
         });
     });
+
+    describe('Service Replacement', () => {
+        it('should replace an existing service via replaceService', async () => {
+            const originalService = { value: 'original' };
+            const replacementService = { value: 'replaced' };
+
+            const plugin: Plugin = {
+                name: 'register-plugin',
+                version: '1.0.0',
+                init: async (ctx) => {
+                    ctx.registerService('metadata', originalService);
+                },
+            };
+
+            const optimizationPlugin: Plugin = {
+                name: 'optimization-plugin',
+                version: '1.0.0',
+                dependencies: ['register-plugin'],
+                init: async (ctx) => {
+                    const existing = ctx.getService('metadata');
+                    expect(existing).toBe(originalService);
+                    ctx.replaceService('metadata', replacementService);
+                },
+            };
+
+            await kernel.use(plugin);
+            await kernel.use(optimizationPlugin);
+            await kernel.bootstrap();
+
+            const result = kernel.getService('metadata');
+            expect(result).toBe(replacementService);
+
+            await kernel.shutdown();
+        });
+
+        it('should throw when replacing a non-existent service', async () => {
+            const plugin: Plugin = {
+                name: 'bad-replace-plugin',
+                version: '1.0.0',
+                init: async (ctx) => {
+                    expect(() => {
+                        ctx.replaceService('nonexistent', { value: 'test' });
+                    }).toThrow("Service 'nonexistent' not found");
+                },
+            };
+
+            await kernel.use(plugin);
+            await kernel.bootstrap();
+            await kernel.shutdown();
+        });
+
+        it('should allow decorator pattern via replaceService', async () => {
+            const original = {
+                getData: () => 'raw-data',
+            };
+
+            const plugin: Plugin = {
+                name: 'data-plugin',
+                version: '1.0.0',
+                init: async (ctx) => {
+                    ctx.registerService('data', original);
+                },
+            };
+
+            const wrapperPlugin: Plugin = {
+                name: 'wrapper-plugin',
+                version: '1.0.0',
+                dependencies: ['data-plugin'],
+                init: async (ctx) => {
+                    const existing = ctx.getService<typeof original>('data');
+                    const decorated = {
+                        getData: () => `cached(${existing.getData()})`,
+                    };
+                    ctx.replaceService('data', decorated);
+                },
+            };
+
+            await kernel.use(plugin);
+            await kernel.use(wrapperPlugin);
+            await kernel.bootstrap();
+
+            const result = kernel.getService<typeof original>('data');
+            expect(result.getData()).toBe('cached(raw-data)');
+
+            await kernel.shutdown();
+        });
+    });
 });

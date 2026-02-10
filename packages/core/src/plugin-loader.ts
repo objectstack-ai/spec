@@ -249,6 +249,14 @@ export class PluginLoader {
     }
 
     /**
+     * Replace an existing service instance.
+     * Used by optimization plugins to swap kernel internals.
+     */
+    replaceService(name: string, service: any): void {
+        this.serviceInstances.set(name, service);
+    }
+
+    /**
      * Check if a service is registered (either as instance or factory)
      */
     hasService(name: string): boolean {
