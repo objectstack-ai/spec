@@ -271,12 +271,10 @@ export class ObjectQL implements IDataEngine {
 
       // 7. Recursively register nested plugins
       if (Array.isArray(manifest.plugins) && manifest.plugins.length > 0) {
-          console.log(`[ObjectQL] Processing ${manifest.plugins.length} nested plugins from ${id}`);
           this.logger.debug('Processing nested plugins', { id, count: manifest.plugins.length });
           for (const plugin of manifest.plugins) {
               if (plugin && typeof plugin === 'object') {
                   const pluginName = plugin.name || plugin.id || 'unnamed-plugin';
-                  console.log(`[ObjectQL] Registering nested plugin: ${pluginName}, has objects: ${!!plugin.objects}, objects type: ${typeof plugin.objects}`);
                   this.logger.debug('Registering nested plugin', { pluginName, parentId: id });
                   this.registerPlugin(plugin, id, namespace);
               }
@@ -296,41 +294,44 @@ export class ObjectQL implements IDataEngine {
    * @param parentNamespace - The parent package's namespace (for FQN resolution)
    */
   private registerPlugin(plugin: any, parentId: string, parentNamespace?: string) {
-      const pluginId = plugin.id || plugin.name || parentId;
+      const pluginName = plugin.name || plugin.id || 'unnamed';
       const pluginNamespace = plugin.namespace || parentNamespace;
+
+      // Use parentId as the owning package for namespace consistency.
+      // The parent package already claimed the namespace — nested plugins
+      // contribute objects UNDER the parent's ownership.
+      const ownerId = parentId;
 
       // Register objects (supports both Array and Map formats)
       if (plugin.objects) {
           try {
               if (Array.isArray(plugin.objects)) {
-                  console.log(`[ObjectQL] Registering ${plugin.objects.length} objects (Array) for plugin ${pluginId}`);
+                  this.logger.debug('Registering plugin objects (Array)', { pluginName, count: plugin.objects.length });
                   for (const objDef of plugin.objects) {
-                      const fqn = SchemaRegistry.registerObject(objDef, pluginId, pluginNamespace, 'own');
-                      console.log(`[ObjectQL] Registered Object: ${fqn}`);
+                      const fqn = SchemaRegistry.registerObject(objDef, ownerId, pluginNamespace, 'own');
+                      this.logger.debug('Registered Object', { fqn, from: pluginName });
                   }
               } else {
                   const entries = Object.entries(plugin.objects);
-                  console.log(`[ObjectQL] Registering ${entries.length} objects (Map) for plugin ${pluginId}, namespace: ${pluginNamespace}`);
+                  this.logger.debug('Registering plugin objects (Map)', { pluginName, count: entries.length });
                   for (const [name, objDef] of entries) {
                       (objDef as any).name = name;
-                      const fqn = SchemaRegistry.registerObject(objDef as any, pluginId, pluginNamespace, 'own');
-                      console.log(`[ObjectQL] Registered Object: ${fqn}`);
+                      const fqn = SchemaRegistry.registerObject(objDef as any, ownerId, pluginNamespace, 'own');
+                      this.logger.debug('Registered Object', { fqn, from: pluginName });
                   }
               }
           } catch (err: any) {
-              console.error(`[ObjectQL] Failed to register plugin objects for ${pluginId}:`, err.message);
+              this.logger.warn('Failed to register plugin objects', { pluginName, error: err.message });
           }
-      } else {
-          console.log(`[ObjectQL] Plugin ${pluginId} has no objects`);
       }
 
       // Register plugin as app if it has navigation (for sidebar display)
       if (plugin.name && plugin.navigation) {
           try {
-              SchemaRegistry.registerApp(plugin, pluginId);
-              this.logger.debug('Registered plugin-as-app', { app: plugin.name, from: pluginId });
+              SchemaRegistry.registerApp(plugin, ownerId);
+              this.logger.debug('Registered plugin-as-app', { app: plugin.name, from: pluginName });
           } catch (err: any) {
-              this.logger.warn('Failed to register plugin as app', { pluginId, error: err.message });
+              this.logger.warn('Failed to register plugin as app', { pluginName, error: err.message });
           }
       }
 
@@ -348,7 +349,7 @@ export class ObjectQL implements IDataEngine {
               for (const item of items) {
                   const itemName = item.name || item.id;
                   if (itemName) {
-                      SchemaRegistry.registerItem(key, item, 'name' as any, pluginId);
+                      SchemaRegistry.registerItem(key, item, 'name' as any, ownerId);
                   }
               }
           }
