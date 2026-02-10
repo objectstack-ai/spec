@@ -121,12 +121,15 @@ export class ObjectStackController {
           if (req.headers) {
             Object.entries(req.headers).forEach(([k, v]) => {
               if (typeof v === 'string') headers.set(k, v);
+              else if (Array.isArray(v)) headers.set(k, v.join(', '));
             });
           }
           const init: RequestInit = { method: req.method, headers };
           if (req.method !== 'GET' && req.method !== 'HEAD' && body) {
             init.body = JSON.stringify(body);
-            headers.set('content-type', 'application/json');
+            if (!headers.has('content-type')) {
+              headers.set('content-type', 'application/json');
+            }
           }
           const webRequest = new Request(url, init);
           const response = await authService.handleRequest(webRequest);
