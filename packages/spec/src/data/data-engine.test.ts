@@ -644,6 +644,82 @@ describe('DataEngineRequestSchema', () => {
 });
 
 describe('Integration Tests', () => {
+  it('should support context in query options', () => {
+    const options = DataEngineQueryOptionsSchema.parse({
+      filter: { status: 'active' },
+      context: {
+        userId: 'user_123',
+        tenantId: 'org_456',
+        roles: ['admin'],
+      },
+    });
+
+    expect(options.context?.userId).toBe('user_123');
+    expect(options.context?.tenantId).toBe('org_456');
+    expect(options.context?.roles).toEqual(['admin']);
+  });
+
+  it('should support context in insert options', () => {
+    const options = DataEngineInsertOptionsSchema.parse({
+      returning: true,
+      context: { userId: 'user_1', isSystem: false },
+    });
+
+    expect(options.context?.userId).toBe('user_1');
+  });
+
+  it('should support context in update options', () => {
+    const options = DataEngineUpdateOptionsSchema.parse({
+      filter: { id: '1' },
+      context: { userId: 'user_1', tenantId: 'org_1' },
+    });
+
+    expect(options.context?.tenantId).toBe('org_1');
+  });
+
+  it('should support context in delete options', () => {
+    const options = DataEngineDeleteOptionsSchema.parse({
+      filter: { id: '1' },
+      context: { isSystem: true },
+    });
+
+    expect(options.context?.isSystem).toBe(true);
+  });
+
+  it('should support context in count options', () => {
+    const options = DataEngineCountOptionsSchema.parse({
+      filter: { status: 'active' },
+      context: { userId: 'u1' },
+    });
+
+    expect(options.context?.userId).toBe('u1');
+  });
+
+  it('should support context in aggregate options', () => {
+    const options = DataEngineAggregateOptionsSchema.parse({
+      groupBy: ['status'],
+      context: { userId: 'u1', roles: ['analyst'] },
+    });
+
+    expect(options.context?.roles).toEqual(['analyst']);
+  });
+
+  it('should accept options without context (backward compatible)', () => {
+    const queryOpts = DataEngineQueryOptionsSchema.parse({ filter: { x: 1 } });
+    const insertOpts = DataEngineInsertOptionsSchema.parse({ returning: true });
+    const updateOpts = DataEngineUpdateOptionsSchema.parse({ upsert: true });
+    const deleteOpts = DataEngineDeleteOptionsSchema.parse({ multi: true });
+    const countOpts = DataEngineCountOptionsSchema.parse({});
+    const aggOpts = DataEngineAggregateOptionsSchema.parse({ groupBy: ['a'] });
+
+    expect(queryOpts.context).toBeUndefined();
+    expect(insertOpts.context).toBeUndefined();
+    expect(updateOpts.context).toBeUndefined();
+    expect(deleteOpts.context).toBeUndefined();
+    expect(countOpts.context).toBeUndefined();
+    expect(aggOpts.context).toBeUndefined();
+  });
+
   it('should support complete CRUD workflow', () => {
     // Create
     const insertRequest = DataEngineInsertRequestSchema.parse({

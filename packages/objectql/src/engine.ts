@@ -9,11 +9,42 @@ import {
   DataEngineAggregateOptions,
   DataEngineCountOptions 
 } from '@objectstack/spec/data';
+import { ExecutionContext, ExecutionContextSchema } from '@objectstack/spec/kernel';
 import { DriverInterface, IDataEngine, Logger, createLogger } from '@objectstack/core';
 import { CoreServiceName } from '@objectstack/spec/system';
 import { SchemaRegistry } from './registry.js';
 
 export type HookHandler = (context: HookContext) => Promise<void> | void;
+
+/**
+ * Per-object hook entry with priority support
+ */
+export interface HookEntry {
+  handler: HookHandler;
+  object?: string | string[];  // undefined = global hook
+  priority: number;
+}
+
+/**
+ * Operation Context for Middleware Chain
+ */
+export interface OperationContext {
+  object: string;
+  operation: 'find' | 'findOne' | 'insert' | 'update' | 'delete' | 'count' | 'aggregate';
+  ast?: QueryAST;
+  data?: any;
+  options?: any;
+  context?: ExecutionContext;
+  result?: any;
+}
+
+/**
+ * Engine Middleware (Onion model)
+ */
+export type EngineMiddleware = (
+  ctx: OperationContext,
+  next: () => Promise<void>
+) => Promise<void>;
 
 /**
  * Host Context provided to plugins (Internal ObjectQL Plugin System)
@@ -38,13 +69,19 @@ export class ObjectQL implements IDataEngine {
   private defaultDriver: string | null = null;
   private logger: Logger;
   
-  // Hooks Registry
-  private hooks: Record<string, HookHandler[]> = {
-    'beforeFind': [], 'afterFind': [],
-    'beforeInsert': [], 'afterInsert': [],
-    'beforeUpdate': [], 'afterUpdate': [],
-    'beforeDelete': [], 'afterDelete': [],
-  };
+  // Per-object hooks with priority support
+  private hooks: Map<string, HookEntry[]> = new Map([
+    ['beforeFind', []], ['afterFind', []],
+    ['beforeInsert', []], ['afterInsert', []],
+    ['beforeUpdate', []], ['afterUpdate', []],
+    ['beforeDelete', []], ['afterDelete', []],
+  ]);
+
+  // Middleware chain (onion model)
+  private middlewares: Array<{
+    fn: EngineMiddleware;
+    object?: string;
+  }> = [];
   
   // Host provided context additions (e.g. Server router)
   private hostContext: Record<string, any> = {};
@@ -116,28 +153,92 @@ export class ObjectQL implements IDataEngine {
    * Register a hook
    * @param event The event name (e.g. 'beforeFind', 'afterInsert')
    * @param handler The handler function
+   * @param options Optional: target object(s) and priority
    */
-  registerHook(event: string, handler: HookHandler) {
-    if (!this.hooks[event]) {
-        this.hooks[event] = [];
+  registerHook(event: string, handler: HookHandler, options?: {
+    object?: string | string[];
+    priority?: number;
+  }) {
+    if (!this.hooks.has(event)) {
+        this.hooks.set(event, []);
     }
-    this.hooks[event].push(handler);
-    this.logger.debug('Registered hook', { event, totalHandlers: this.hooks[event].length });
+    const entries = this.hooks.get(event)!;
+    entries.push({
+      handler,
+      object: options?.object,
+      priority: options?.priority ?? 100,
+    });
+    // Sort by priority (lower runs first)
+    entries.sort((a, b) => a.priority - b.priority);
+    this.logger.debug('Registered hook', { event, object: options?.object, priority: options?.priority ?? 100, totalHandlers: entries.length });
   }
 
   public async triggerHooks(event: string, context: HookContext) {
-    const handlers = this.hooks[event] || [];
+    const entries = this.hooks.get(event) || [];
     
-    if (handlers.length === 0) {
+    if (entries.length === 0) {
       this.logger.debug('No hooks registered for event', { event });
       return;
     }
 
-    this.logger.debug('Triggering hooks', { event, count: handlers.length });
+    this.logger.debug('Triggering hooks', { event, count: entries.length });
     
-    for (const handler of handlers) {
-      await handler(context);
+    for (const entry of entries) {
+      // Per-object matching
+      if (entry.object) {
+        const targets = Array.isArray(entry.object) ? entry.object : [entry.object];
+        if (!targets.includes('*') && !targets.includes(context.object)) {
+          continue; // Skip non-matching hooks
+        }
+      }
+      await entry.handler(context);
     }
+  }
+
+  /**
+   * Register a middleware function
+   * Middlewares execute in onion model around every data operation.
+   * @param fn The middleware function
+   * @param options Optional: target object filter
+   */
+  registerMiddleware(fn: EngineMiddleware, options?: { object?: string }): void {
+    this.middlewares.push({ fn, object: options?.object });
+    this.logger.debug('Registered middleware', { object: options?.object, total: this.middlewares.length });
+  }
+
+  /**
+   * Execute an operation through the middleware chain
+   */
+  private async executeWithMiddleware(ctx: OperationContext, executor: () => Promise<any>): Promise<any> {
+    const applicable = this.middlewares.filter(m =>
+      !m.object || m.object === '*' || m.object === ctx.object
+    );
+
+    let index = 0;
+    const next = async (): Promise<void> => {
+      if (index < applicable.length) {
+        const mw = applicable[index++];
+        await mw.fn(ctx, next);
+      } else {
+        ctx.result = await executor();
+      }
+    };
+
+    await next();
+    return ctx.result;
+  }
+
+  /**
+   * Build a HookContext.session from ExecutionContext
+   */
+  private buildSession(execCtx?: ExecutionContext): HookContext['session'] {
+    if (!execCtx) return undefined;
+    return {
+      userId: execCtx.userId,
+      tenantId: execCtx.tenantId,
+      roles: execCtx.roles,
+      accessToken: execCtx.accessToken,
+    };
   }
 
   /**
@@ -523,26 +624,40 @@ export class ObjectQL implements IDataEngine {
     const driver = this.getDriver(object);
     const ast = this.toQueryAST(object, query);
 
-    const hookContext: HookContext = {
-        object,
-        event: 'beforeFind',
-        input: { ast, options: undefined }, // Should map options?
-        ql: this
+    const opCtx: OperationContext = {
+      object,
+      operation: 'find',
+      ast,
+      options: query,
+      context: query?.context,
     };
-    await this.triggerHooks('beforeFind', hookContext);
 
-    try {
-        const result = await driver.find(object, hookContext.input.ast as QueryAST, hookContext.input.options as any);
-        
-        hookContext.event = 'afterFind';
-        hookContext.result = result;
-        await this.triggerHooks('afterFind', hookContext);
-        
-        return hookContext.result as any[];
-    } catch (e) {
-        this.logger.error('Find operation failed', e as Error, { object });
-        throw e;
-    }
+    await this.executeWithMiddleware(opCtx, async () => {
+      const hookContext: HookContext = {
+          object,
+          event: 'beforeFind',
+          input: { ast: opCtx.ast, options: opCtx.options },
+          session: this.buildSession(opCtx.context),
+          transaction: opCtx.context?.transaction,
+          ql: this
+      };
+      await this.triggerHooks('beforeFind', hookContext);
+
+      try {
+          const result = await driver.find(object, hookContext.input.ast as QueryAST, hookContext.input.options as any);
+          
+          hookContext.event = 'afterFind';
+          hookContext.result = result;
+          await this.triggerHooks('afterFind', hookContext);
+          
+          return hookContext.result;
+      } catch (e) {
+          this.logger.error('Find operation failed', e as Error, { object });
+          throw e;
+      }
+    });
+
+    return opCtx.result as any[];
   }
 
   async findOne(objectName: string, query?: DataEngineQueryOptions): Promise<any> {
@@ -552,9 +667,19 @@ export class ObjectQL implements IDataEngine {
     const ast = this.toQueryAST(objectName, query);
     ast.limit = 1;
 
-    // Reuse find logic or call generic driver.findOne if available
-    // Assuming driver has findOne
-    return driver.findOne(objectName, ast);
+    const opCtx: OperationContext = {
+      object: objectName,
+      operation: 'findOne',
+      ast,
+      options: query,
+      context: query?.context,
+    };
+
+    await this.executeWithMiddleware(opCtx, async () => {
+      return driver.findOne(objectName, opCtx.ast as QueryAST);
+    });
+
+    return opCtx.result;
   }
 
   async insert(object: string, data: any | any[], options?: DataEngineInsertOptions): Promise<any> {
@@ -562,85 +687,107 @@ export class ObjectQL implements IDataEngine {
     this.logger.debug('Insert operation starting', { object, isBatch: Array.isArray(data) });
     const driver = this.getDriver(object);
 
-    const hookContext: HookContext = {
-        object,
-        event: 'beforeInsert',
-        input: { data, options },
-        ql: this
+    const opCtx: OperationContext = {
+      object,
+      operation: 'insert',
+      data,
+      options,
+      context: options?.context,
     };
-    await this.triggerHooks('beforeInsert', hookContext);
 
-    try {
-      let result;
-      if (Array.isArray(hookContext.input.data)) {
-        // Bulk Create
-        if (driver.bulkCreate) {
-             result = await driver.bulkCreate(object, hookContext.input.data as any[], hookContext.input.options as any);
+    await this.executeWithMiddleware(opCtx, async () => {
+      const hookContext: HookContext = {
+          object,
+          event: 'beforeInsert',
+          input: { data: opCtx.data, options: opCtx.options },
+          session: this.buildSession(opCtx.context),
+          transaction: opCtx.context?.transaction,
+          ql: this
+      };
+      await this.triggerHooks('beforeInsert', hookContext);
+
+      try {
+        let result;
+        if (Array.isArray(hookContext.input.data)) {
+          // Bulk Create
+          if (driver.bulkCreate) {
+               result = await driver.bulkCreate(object, hookContext.input.data as any[], hookContext.input.options as any);
+          } else {
+               // Fallback loop
+               result = await Promise.all((hookContext.input.data as any[]).map((item: any) => driver.create(object, item, hookContext.input.options as any)));
+          }
         } else {
-             // Fallback loop
-             result = await Promise.all((hookContext.input.data as any[]).map((item: any) => driver.create(object, item, hookContext.input.options as any)));
+          result = await driver.create(object, hookContext.input.data, hookContext.input.options as any);
         }
-      } else {
-        result = await driver.create(object, hookContext.input.data, hookContext.input.options as any);
+
+        hookContext.event = 'afterInsert';
+        hookContext.result = result;
+        await this.triggerHooks('afterInsert', hookContext);
+
+        return hookContext.result;
+      } catch (e) {
+        this.logger.error('Insert operation failed', e as Error, { object });
+        throw e;
       }
+    });
 
-      hookContext.event = 'afterInsert';
-      hookContext.result = result;
-      await this.triggerHooks('afterInsert', hookContext);
-
-      return hookContext.result;
-    } catch (e) {
-      this.logger.error('Insert operation failed', e as Error, { object });
-      throw e;
-    }
+    return opCtx.result;
   }
 
   async update(object: string, data: any, options?: DataEngineUpdateOptions): Promise<any> {
      object = this.resolveObjectName(object);
-     // NOTE: This signature is tricky because Driver expects (obj, id, data) usually.
-     // DataEngine protocol puts filter in options.
      this.logger.debug('Update operation starting', { object });
      const driver = this.getDriver(object);
      
      // 1. Extract ID from data or filter if it's a single update by ID
-     // This is a simplification. Real implementation needs robust filter handling.
      let id = data.id || data._id;
      if (!id && options?.filter) {
-         // Optimization: If filter is simple ID check, extract it
          if (typeof options.filter === 'string') id = options.filter;
          else if (options.filter._id) id = options.filter._id;
          else if (options.filter.id) id = options.filter.id;
      }
 
-     const hookContext: HookContext = {
-        object,
-        event: 'beforeUpdate',
-        input: { id, data, options },
-        ql: this
-    };
-    await this.triggerHooks('beforeUpdate', hookContext);
+     const opCtx: OperationContext = {
+       object,
+       operation: 'update',
+       data,
+       options,
+       context: options?.context,
+     };
 
-     try {
-         let result;
-         if (hookContext.input.id) {
-             // Single update by ID
-             result = await driver.update(object, hookContext.input.id as string, hookContext.input.data, hookContext.input.options as any);
-         } else if (options?.multi && driver.updateMany) {
-             // Bulk update by Query
-             const ast = this.toQueryAST(object, { filter: options.filter });
-             result = await driver.updateMany(object, ast, hookContext.input.data, hookContext.input.options as any);
-         } else {
-             throw new Error('Update requires an ID or options.multi=true');
-         }
+     await this.executeWithMiddleware(opCtx, async () => {
+       const hookContext: HookContext = {
+          object,
+          event: 'beforeUpdate',
+          input: { id, data: opCtx.data, options: opCtx.options },
+          session: this.buildSession(opCtx.context),
+          transaction: opCtx.context?.transaction,
+          ql: this
+       };
+       await this.triggerHooks('beforeUpdate', hookContext);
 
-         hookContext.event = 'afterUpdate';
-         hookContext.result = result;
-         await this.triggerHooks('afterUpdate', hookContext);
-         return hookContext.result;
-     } catch (e) {
-        this.logger.error('Update operation failed', e as Error, { object });
-        throw e;
-     }
+       try {
+           let result;
+           if (hookContext.input.id) {
+               result = await driver.update(object, hookContext.input.id as string, hookContext.input.data, hookContext.input.options as any);
+           } else if (options?.multi && driver.updateMany) {
+               const ast = this.toQueryAST(object, { filter: options.filter });
+               result = await driver.updateMany(object, ast, hookContext.input.data, hookContext.input.options as any);
+           } else {
+               throw new Error('Update requires an ID or options.multi=true');
+           }
+
+           hookContext.event = 'afterUpdate';
+           hookContext.result = result;
+           await this.triggerHooks('afterUpdate', hookContext);
+           return hookContext.result;
+       } catch (e) {
+          this.logger.error('Update operation failed', e as Error, { object });
+          throw e;
+       }
+     });
+
+     return opCtx.result;
   }
 
   async delete(object: string, options?: DataEngineDeleteOptions): Promise<any> {
@@ -656,45 +803,70 @@ export class ObjectQL implements IDataEngine {
          else if (options.filter.id) id = options.filter.id;
     }
 
-    const hookContext: HookContext = {
-        object,
-        event: 'beforeDelete',
-        input: { id, options },
-        ql: this
+    const opCtx: OperationContext = {
+      object,
+      operation: 'delete',
+      options,
+      context: options?.context,
     };
-    await this.triggerHooks('beforeDelete', hookContext);
 
-    try {
-        let result;
-        if (hookContext.input.id) {
-            result = await driver.delete(object, hookContext.input.id as string, hookContext.input.options as any);
-        } else if (options?.multi && driver.deleteMany) {
-             const ast = this.toQueryAST(object, { filter: options.filter });
-             result = await driver.deleteMany(object, ast, hookContext.input.options as any);
-        } else {
-             throw new Error('Delete requires an ID or options.multi=true');
-        }
+    await this.executeWithMiddleware(opCtx, async () => {
+      const hookContext: HookContext = {
+          object,
+          event: 'beforeDelete',
+          input: { id, options: opCtx.options },
+          session: this.buildSession(opCtx.context),
+          transaction: opCtx.context?.transaction,
+          ql: this
+      };
+      await this.triggerHooks('beforeDelete', hookContext);
 
-        hookContext.event = 'afterDelete';
-        hookContext.result = result;
-        await this.triggerHooks('afterDelete', hookContext);
-        return hookContext.result;
-    } catch (e) {
-        this.logger.error('Delete operation failed', e as Error, { object });
-        throw e;
-    }
+      try {
+          let result;
+          if (hookContext.input.id) {
+              result = await driver.delete(object, hookContext.input.id as string, hookContext.input.options as any);
+          } else if (options?.multi && driver.deleteMany) {
+               const ast = this.toQueryAST(object, { filter: options.filter });
+               result = await driver.deleteMany(object, ast, hookContext.input.options as any);
+          } else {
+               throw new Error('Delete requires an ID or options.multi=true');
+          }
+
+          hookContext.event = 'afterDelete';
+          hookContext.result = result;
+          await this.triggerHooks('afterDelete', hookContext);
+          return hookContext.result;
+      } catch (e) {
+          this.logger.error('Delete operation failed', e as Error, { object });
+          throw e;
+      }
+    });
+
+    return opCtx.result;
   }
 
   async count(object: string, query?: DataEngineCountOptions): Promise<number> {
      object = this.resolveObjectName(object);
      const driver = this.getDriver(object);
-     if (driver.count) {
-         const ast = this.toQueryAST(object, { filter: query?.filter });
-         return driver.count(object, ast);
-     }
-     // Fallback to find().length
-     const res = await this.find(object, { filter: query?.filter, select: ['_id'] });
-     return res.length;
+
+     const opCtx: OperationContext = {
+       object,
+       operation: 'count',
+       options: query,
+       context: query?.context,
+     };
+
+     await this.executeWithMiddleware(opCtx, async () => {
+       if (driver.count) {
+           const ast = this.toQueryAST(object, { filter: query?.filter });
+           return driver.count(object, ast);
+       }
+       // Fallback to find().length
+       const res = await this.find(object, { filter: query?.filter, select: ['_id'] });
+       return res.length;
+     });
+
+     return opCtx.result as number;
   }
 
   async aggregate(object: string, query: DataEngineAggregateOptions): Promise<any[]> {
@@ -702,21 +874,29 @@ export class ObjectQL implements IDataEngine {
       const driver = this.getDriver(object);
       this.logger.debug(`Aggregate on ${object} using ${driver.name}`, query);
 
-      // Build a QueryAST with groupBy and aggregations, delegate to driver.find()
-      // Drivers that support aggregation (e.g. InMemoryDriver) handle groupBy/aggregations
-      // in their find() implementation via performAggregation().
-      const ast: QueryAST = {
-          object,
-          where: query.filter,
-          groupBy: query.groupBy,
-          aggregations: query.aggregations?.map(agg => ({
-              function: agg.method,
-              field: agg.field,
-              alias: agg.alias || `${agg.method}_${agg.field || 'all'}`,
-          })),
+      const opCtx: OperationContext = {
+        object,
+        operation: 'aggregate',
+        options: query,
+        context: query?.context,
       };
 
-      return driver.find(object, ast);
+      await this.executeWithMiddleware(opCtx, async () => {
+        const ast: QueryAST = {
+            object,
+            where: query.filter,
+            groupBy: query.groupBy,
+            aggregations: query.aggregations?.map(agg => ({
+                function: agg.method,
+                field: agg.field,
+                alias: agg.alias || `${agg.method}_${agg.field || 'all'}`,
+            })),
+        };
+
+        return driver.find(object, ast);
+      });
+
+      return opCtx.result as any[];
   }
   
   async execute(command: any, options?: Record<string, any>): Promise<any> {
@@ -731,4 +911,98 @@ export class ObjectQL implements IDataEngine {
       }
       throw new Error('Execute requires options.object to select driver');
   }
+
+  /**
+   * Create a scoped execution context bound to this engine.
+   * 
+   * Usage:
+   *   const ctx = engine.createContext({ userId: '...', tenantId: '...' });
+   *   const users = ctx.object('user');
+   *   await users.find({ filter: { status: 'active' } });
+   */
+  createContext(ctx: Partial<ExecutionContext>): ScopedContext {
+    return new ScopedContext(
+      ExecutionContextSchema.parse(ctx),
+      this
+    );
+  }
+}
+
+/**
+ * Repository scoped to a single object, bound to an execution context.
+ */
+export class ObjectRepository {
+  constructor(
+    private objectName: string,
+    private context: ExecutionContext,
+    private engine: IDataEngine
+  ) {}
+
+  async find(query: any = {}): Promise<any[]> {
+    return this.engine.find(this.objectName, {
+      ...query,
+      context: this.context,
+    });
+  }
+
+  async findOne(query: any = {}): Promise<any> {
+    return this.engine.findOne(this.objectName, {
+      ...query,
+      context: this.context,
+    });
+  }
+
+  async insert(data: any): Promise<any> {
+    return this.engine.insert(this.objectName, data, {
+      context: this.context,
+    });
+  }
+
+  async update(data: any, options: any = {}): Promise<any> {
+    return this.engine.update(this.objectName, data, {
+      ...options,
+      context: this.context,
+    });
+  }
+
+  async delete(options: any = {}): Promise<any> {
+    return this.engine.delete(this.objectName, {
+      ...options,
+      context: this.context,
+    });
+  }
+
+  async count(query: any = {}): Promise<number> {
+    return this.engine.count(this.objectName, {
+      ...query,
+      context: this.context,
+    });
+  }
+}
+
+/**
+ * Scoped execution context with object() accessor.
+ */
+export class ScopedContext {
+  constructor(
+    private executionContext: ExecutionContext,
+    private engine: IDataEngine
+  ) {}
+
+  /** Get a repository scoped to this context */
+  object(name: string): ObjectRepository {
+    return new ObjectRepository(name, this.executionContext, this.engine);
+  }
+
+  /** Create an elevated (system) context */
+  sudo(): ScopedContext {
+    return new ScopedContext(
+      { ...this.executionContext, isSystem: true },
+      this.engine
+    );
+  }
+
+  get userId() { return this.executionContext.userId; }
+  get tenantId() { return this.executionContext.tenantId; }
+  get roles() { return this.executionContext.roles; }
 }

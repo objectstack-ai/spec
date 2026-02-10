@@ -15,10 +15,11 @@ export type { ObjectContributor } from './registry.js';
 export { ObjectStackProtocolImplementation } from './protocol.js';
 
 // Export Engine
-export { ObjectQL } from './engine.js';
-export type { ObjectQLHostContext, HookHandler } from './engine.js';
+export { ObjectQL, ObjectRepository, ScopedContext } from './engine.js';
+export type { ObjectQLHostContext, HookHandler, HookEntry, OperationContext, EngineMiddleware } from './engine.js';
+
+// Export MetadataFacade
+export { MetadataFacade } from './metadata-facade.js';
 
 // Export Plugin Shim
 export { ObjectQLPlugin } from './plugin.js';
-
-// Moved logic to engine.ts

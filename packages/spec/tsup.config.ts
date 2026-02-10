@@ -16,6 +16,7 @@ export default defineConfig({
     'src/hub/index.ts',
     'src/ai/index.ts',
     'src/permission/index.ts',
+    'src/security/index.ts',
     'src/contracts/index.ts',
     'src/integration/index.ts',
     'src/studio/index.ts'

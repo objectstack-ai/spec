@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { ObjectQL } from './engine.js';
+import { MetadataFacade } from './metadata-facade.js';
 import { ObjectStackProtocolImplementation } from './protocol.js';
 import { Plugin, PluginContext } from '@objectstack/core';
 
@@ -33,7 +34,7 @@ export class ObjectQLPlugin implements Plugin {
     // Register as provider for Core Kernel Services
     ctx.registerService('objectql', this.ql);
     
-    // Respect existing metadata service (e.g. from MetadataPlugin)
+    // Register MetadataFacade as metadata service (unless external service exists)
     let hasMetadata = false;
     let metadataProvider = 'objectql';
     try {
@@ -47,8 +48,9 @@ export class ObjectQLPlugin implements Plugin {
 
     if (!hasMetadata) {
         try {
-            ctx.registerService('metadata', this.ql);
-            ctx.logger.info('ObjectQL providing metadata service (fallback mode)', {
+            const metadataFacade = new MetadataFacade();
+            ctx.registerService('metadata', metadataFacade);
+            ctx.logger.info('MetadataFacade registered as metadata service', {
                 mode: 'in-memory',
                 features: ['registry', 'fast-lookup']
             });
@@ -88,7 +90,8 @@ export class ObjectQLPlugin implements Plugin {
     // Check if we should load from external metadata service
     try {
         const metadataService = ctx.getService('metadata') as any;
-        if (metadataService && metadataService !== this.ql && this.ql) {
+        // Only sync if metadata service is external (not our own MetadataFacade)
+        if (metadataService && !(metadataService instanceof MetadataFacade) && this.ql) {
             await this.loadMetadataFromService(metadataService, ctx);
         }
     } catch (e: any) {
@@ -112,11 +115,117 @@ export class ObjectQLPlugin implements Plugin {
             }
         }
     }
+
+    // Register built-in audit hooks
+    this.registerAuditHooks(ctx);
+
+    // Register tenant isolation middleware
+    this.registerTenantMiddleware(ctx);
     
     ctx.logger.info('ObjectQL engine started', {
         driversRegistered: this.ql?.['drivers']?.size || 0,
         objectsRegistered: this.ql?.registry?.getAllObjects?.()?.length || 0
     });
+  }
+
+  /**
+   * Register built-in audit hooks for auto-stamping createdBy/modifiedBy
+   * and fetching previousData for update/delete operations.
+   */
+  private registerAuditHooks(ctx: PluginContext) {
+    if (!this.ql) return;
+
+    // Auto-stamp createdBy/modifiedBy on insert
+    this.ql.registerHook('beforeInsert', async (hookCtx) => {
+      if (hookCtx.session?.userId && hookCtx.input?.data) {
+        const data = hookCtx.input.data as Record<string, any>;
+        if (typeof data === 'object' && data !== null) {
+          data.created_by = data.created_by ?? hookCtx.session.userId;
+          data.modified_by = hookCtx.session.userId;
+          data.created_at = data.created_at ?? new Date().toISOString();
+          data.modified_at = new Date().toISOString();
+          if (hookCtx.session.tenantId) {
+            data.space_id = data.space_id ?? hookCtx.session.tenantId;
+          }
+        }
+      }
+    }, { object: '*', priority: 10 });
+
+    // Auto-stamp modifiedBy on update
+    this.ql.registerHook('beforeUpdate', async (hookCtx) => {
+      if (hookCtx.session?.userId && hookCtx.input?.data) {
+        const data = hookCtx.input.data as Record<string, any>;
+        if (typeof data === 'object' && data !== null) {
+          data.modified_by = hookCtx.session.userId;
+          data.modified_at = new Date().toISOString();
+        }
+      }
+    }, { object: '*', priority: 10 });
+
+    // Auto-fetch previousData for update hooks
+    this.ql.registerHook('beforeUpdate', async (hookCtx) => {
+      if (hookCtx.input?.id && !hookCtx.previous) {
+        try {
+          const existing = await this.ql!.findOne(hookCtx.object, {
+            filter: { _id: hookCtx.input.id }
+          });
+          if (existing) {
+            hookCtx.previous = existing;
+          }
+        } catch (_e) {
+          // Non-fatal: some objects may not support findOne
+        }
+      }
+    }, { object: '*', priority: 5 });
+
+    // Auto-fetch previousData for delete hooks
+    this.ql.registerHook('beforeDelete', async (hookCtx) => {
+      if (hookCtx.input?.id && !hookCtx.previous) {
+        try {
+          const existing = await this.ql!.findOne(hookCtx.object, {
+            filter: { _id: hookCtx.input.id }
+          });
+          if (existing) {
+            hookCtx.previous = existing;
+          }
+        } catch (_e) {
+          // Non-fatal
+        }
+      }
+    }, { object: '*', priority: 5 });
+
+    ctx.logger.debug('Audit hooks registered (createdBy/modifiedBy, previousData)');
+  }
+
+  /**
+   * Register tenant isolation middleware that auto-injects space_id filter
+   * for multi-tenant operations.
+   */
+  private registerTenantMiddleware(ctx: PluginContext) {
+    if (!this.ql) return;
+
+    this.ql.registerMiddleware(async (opCtx, next) => {
+      // Only apply to operations with tenantId that are not system-level
+      if (!opCtx.context?.tenantId || opCtx.context?.isSystem) {
+        return next();
+      }
+
+      // Read operations: inject space_id filter into AST
+      if (['find', 'findOne', 'count', 'aggregate'].includes(opCtx.operation)) {
+        if (opCtx.ast) {
+          const tenantFilter = { space_id: opCtx.context.tenantId };
+          if (opCtx.ast.where) {
+            opCtx.ast.where = { $and: [opCtx.ast.where, tenantFilter] };
+          } else {
+            opCtx.ast.where = tenantFilter;
+          }
+        }
+      }
+
+      await next();
+    });
+
+    ctx.logger.debug('Tenant isolation middleware registered');
   }
 
   /**

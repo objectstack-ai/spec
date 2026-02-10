@@ -105,6 +105,24 @@ export class AuthPlugin implements Plugin {
       }
     }
 
+    // Register auth middleware on ObjectQL engine (if available)
+    try {
+      const ql = ctx.getService<any>('objectql');
+      if (ql && typeof ql.registerMiddleware === 'function') {
+        ql.registerMiddleware(async (opCtx: any, next: () => Promise<void>) => {
+          // If context already has userId or isSystem, skip auth resolution
+          if (opCtx.context?.userId || opCtx.context?.isSystem) {
+            return next();
+          }
+          // Future: resolve session from AsyncLocalStorage or request context
+          await next();
+        });
+        ctx.logger.info('Auth middleware registered on ObjectQL engine');
+      }
+    } catch (_e) {
+      ctx.logger.debug('ObjectQL engine not available, skipping auth middleware registration');
+    }
+
     ctx.logger.info('Auth Plugin started successfully');
   }
 

@@ -1,0 +1,28 @@
+{
+  "name": "@objectstack/plugin-security",
+  "version": "2.0.4",
+  "license": "Apache-2.0",
+  "description": "Security Plugin for ObjectStack — RBAC, RLS, and Field-Level Security Runtime",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup --config ../../../tsup.config.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@objectstack/core": "workspace:*",
+    "@objectstack/spec": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.2",
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.18"
+  }
+}
