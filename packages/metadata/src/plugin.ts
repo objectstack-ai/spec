@@ -33,21 +33,29 @@ export class MetadataPlugin implements Plugin {
     }
 
     init = async (ctx: PluginContext) => {
-        ctx.logger.info('Initializing Metadata Manager', { root: this.options.rootDir || process.cwd() });
+        ctx.logger.info('Initializing Metadata Manager', { 
+            root: this.options.rootDir || process.cwd(),
+            watch: this.options.watch
+        });
         
-        // Register Metadata Manager as a service
-        // This allows other plugins to query raw metadata or listen to changes
+        // Register Metadata Manager as primary metadata service provider
+        // This takes precedence over ObjectQL's fallback metadata service
         ctx.registerService('metadata', this.manager);
+        ctx.logger.info('MetadataPlugin providing metadata service (primary mode)', {
+            mode: 'file-system',
+            features: ['watch', 'persistence', 'multi-format']
+        });
     }
 
     start = async (ctx: PluginContext) => {
-        ctx.logger.info('Loading metadata...');
+        ctx.logger.info('Loading metadata from file system...');
         
         // Define metadata types directly from the Protocol Definition
         // This ensures the loader is always in sync with the Spec
         const metadataTypes = Object.keys(ObjectStackDefinitionSchema.shape)
             .filter(key => key !== 'manifest'); // Manifest is handled separately
 
+        let totalLoaded = 0;
         for (const type of metadataTypes) {
             try {
                 // Try to load metadata of this type
@@ -56,37 +64,18 @@ export class MetadataPlugin implements Plugin {
                 });
 
                 if (items.length > 0) {
-                     ctx.logger.info(`Loaded ${items.length} ${type}`);
-                     
-                     // Helper: Register with ObjectQL Registry
-                     const ql = ctx.getService('objectql') as any;
-                     if (ql && ql.registry) {
-                        items.forEach((item: any) => {
-                            // Determine key field (id or name)
-                            const keyField = item.id ? 'id' : 'name';
-                            
-                            // Map plural type to singular/registry type if needed
-                            // For now, we use the singular form for standard types: 
-                            // objects -> object, apps -> app, etc.
-                            // But Registry seems to accept arbitrary strings.
-                            // To match Protocol standard, we might want to normalize.
-                            // Let's use the directory name (plural) as the type for now,
-                            // OR map 'objects' -> 'object' specifically.
-                            
-                            let registryType = type;
-                            if (type === 'objects') registryType = 'object';
-                            if (type === 'apps') registryType = 'app';
-                            if (type === 'plugins') registryType = 'plugin';
-                            if (type === 'functions') registryType = 'function';
-                            
-                            ql.registry.registerItem(registryType, item, keyField);
-                        });
-                     }
+                     ctx.logger.info(`Loaded ${items.length} ${type} from file system`);
+                     totalLoaded += items.length;
                 }
             } catch (e: any) {
                 // Ignore missing directories or errors
-                // ctx.logger.debug(`No metadata found for type: ${type}`);
+                ctx.logger.debug(`No ${type} metadata found`, { error: e.message });
             }
         }
+        
+        ctx.logger.info('Metadata loading complete', { 
+            totalItems: totalLoaded,
+            note: 'ObjectQL will sync these into its registry during its start phase'
+        });
     }
 }
