@@ -15,3 +15,8 @@ export * from './plugin-validator.js';
 export * from './startup-orchestrator.js';
 export * from './plugin-lifecycle-events.js';
 export * from './schema-driver.js';
+export * from './cache-service.js';
+export * from './search-service.js';
+export * from './queue-service.js';
+export * from './notification-service.js';
+export * from './storage-service.js';
