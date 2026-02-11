@@ -14,6 +14,14 @@ import {
   ViewDataSchema,
   HttpRequestSchema,
   HttpMethodSchema,
+  ColumnSummarySchema,
+  RowHeightSchema,
+  GroupingConfigSchema,
+  GroupingFieldSchema,
+  GalleryConfigSchema,
+  TimelineConfigSchema,
+  ViewSharingSchema,
+  RowColorConfigSchema,
   type View,
   type ListView,
   type FormView,
@@ -1367,5 +1375,472 @@ describe('Real-World Enhanced View Examples', () => {
     };
 
     expect(() => ViewSchema.parse(projectViews)).not.toThrow();
+  });
+});
+
+describe('ColumnSummarySchema', () => {
+  it('should accept all summary functions', () => {
+    const functions = [
+      'none', 'count', 'count_empty', 'count_filled', 'count_unique',
+      'percent_empty', 'percent_filled', 'sum', 'avg', 'min', 'max',
+    ] as const;
+
+    functions.forEach(fn => {
+      expect(() => ColumnSummarySchema.parse(fn)).not.toThrow();
+    });
+  });
+
+  it('should reject invalid summary function', () => {
+    expect(() => ColumnSummarySchema.parse('median')).toThrow();
+  });
+});
+
+describe('RowHeightSchema', () => {
+  it('should accept all row height options', () => {
+    const heights = ['compact', 'short', 'medium', 'tall', 'extra_tall'] as const;
+
+    heights.forEach(h => {
+      expect(() => RowHeightSchema.parse(h)).not.toThrow();
+    });
+  });
+
+  it('should reject invalid row height', () => {
+    expect(() => RowHeightSchema.parse('huge')).toThrow();
+  });
+});
+
+describe('GroupingConfigSchema', () => {
+  it('should accept single field grouping', () => {
+    const grouping = {
+      fields: [{ field: 'status' }],
+    };
+
+    const result = GroupingConfigSchema.parse(grouping);
+    expect(result.fields[0].order).toBe('asc');
+    expect(result.fields[0].collapsed).toBe(false);
+  });
+
+  it('should accept multi-level grouping', () => {
+    const grouping = {
+      fields: [
+        { field: 'department', order: 'asc' as const },
+        { field: 'status', order: 'desc' as const, collapsed: true },
+      ],
+    };
+
+    expect(() => GroupingConfigSchema.parse(grouping)).not.toThrow();
+  });
+
+  it('should reject empty fields array', () => {
+    const grouping = { fields: [] };
+
+    expect(() => GroupingConfigSchema.parse(grouping)).toThrow();
+  });
+});
+
+describe('GroupingFieldSchema', () => {
+  it('should accept minimal grouping field', () => {
+    const field = { field: 'category' };
+
+    const result = GroupingFieldSchema.parse(field);
+    expect(result.order).toBe('asc');
+    expect(result.collapsed).toBe(false);
+  });
+
+  it('should accept full grouping field config', () => {
+    const field = { field: 'priority', order: 'desc' as const, collapsed: true };
+
+    expect(() => GroupingFieldSchema.parse(field)).not.toThrow();
+  });
+});
+
+describe('GalleryConfigSchema', () => {
+  it('should accept minimal gallery config', () => {
+    const gallery = {};
+
+    const result = GalleryConfigSchema.parse(gallery);
+    expect(result.coverFit).toBe('cover');
+    expect(result.cardSize).toBe('medium');
+  });
+
+  it('should accept full gallery config', () => {
+    const gallery = {
+      coverField: 'photo',
+      coverFit: 'contain' as const,
+      cardSize: 'large' as const,
+      titleField: 'name',
+      visibleFields: ['status', 'category', 'owner'],
+    };
+
+    expect(() => GalleryConfigSchema.parse(gallery)).not.toThrow();
+  });
+
+  it('should accept all card sizes', () => {
+    const sizes = ['small', 'medium', 'large'] as const;
+
+    sizes.forEach(size => {
+      expect(() => GalleryConfigSchema.parse({ cardSize: size })).not.toThrow();
+    });
+  });
+
+  it('should accept all cover fit modes', () => {
+    const fits = ['cover', 'contain'] as const;
+
+    fits.forEach(fit => {
+      expect(() => GalleryConfigSchema.parse({ coverFit: fit })).not.toThrow();
+    });
+  });
+});
+
+describe('TimelineConfigSchema', () => {
+  it('should accept minimal timeline config', () => {
+    const timeline = {
+      startDateField: 'start_date',
+      titleField: 'name',
+    };
+
+    const result = TimelineConfigSchema.parse(timeline);
+    expect(result.scale).toBe('week');
+  });
+
+  it('should accept full timeline config', () => {
+    const timeline = {
+      startDateField: 'start_date',
+      endDateField: 'end_date',
+      titleField: 'project_name',
+      groupByField: 'team',
+      colorField: 'priority',
+      scale: 'month' as const,
+    };
+
+    expect(() => TimelineConfigSchema.parse(timeline)).not.toThrow();
+  });
+
+  it('should accept all scale options', () => {
+    const scales = ['hour', 'day', 'week', 'month', 'quarter', 'year'] as const;
+
+    scales.forEach(scale => {
+      expect(() => TimelineConfigSchema.parse({
+        startDateField: 'start_date',
+        titleField: 'name',
+        scale,
+      })).not.toThrow();
+    });
+  });
+
+  it('should require startDateField and titleField', () => {
+    expect(() => TimelineConfigSchema.parse({})).toThrow();
+    expect(() => TimelineConfigSchema.parse({ startDateField: 'start' })).toThrow();
+    expect(() => TimelineConfigSchema.parse({ titleField: 'name' })).toThrow();
+  });
+});
+
+describe('ViewSharingSchema', () => {
+  it('should default to collaborative', () => {
+    const sharing = {};
+
+    const result = ViewSharingSchema.parse(sharing);
+    expect(result.type).toBe('collaborative');
+  });
+
+  it('should accept personal view', () => {
+    const sharing = {
+      type: 'personal' as const,
+      lockedBy: 'user_123',
+    };
+
+    expect(() => ViewSharingSchema.parse(sharing)).not.toThrow();
+  });
+
+  it('should accept collaborative view with lock', () => {
+    const sharing = {
+      type: 'collaborative' as const,
+      lockedBy: 'admin_user',
+    };
+
+    expect(() => ViewSharingSchema.parse(sharing)).not.toThrow();
+  });
+});
+
+describe('RowColorConfigSchema', () => {
+  it('should accept minimal row color config', () => {
+    const rowColor = { field: 'status' };
+
+    expect(() => RowColorConfigSchema.parse(rowColor)).not.toThrow();
+  });
+
+  it('should accept row color config with color map', () => {
+    const rowColor = {
+      field: 'priority',
+      colors: {
+        high: '#ff0000',
+        medium: '#ffaa00',
+        low: '#00cc00',
+      },
+    };
+
+    expect(() => RowColorConfigSchema.parse(rowColor)).not.toThrow();
+  });
+
+  it('should require field', () => {
+    expect(() => RowColorConfigSchema.parse({})).toThrow();
+  });
+});
+
+describe('ListColumnSchema pinned and summary', () => {
+  it('should accept pinned column', () => {
+    const column: ListColumn = {
+      field: 'name',
+      pinned: 'left',
+    };
+
+    expect(() => ListColumnSchema.parse(column)).not.toThrow();
+  });
+
+  it('should accept right-pinned column', () => {
+    const column: ListColumn = {
+      field: 'actions',
+      pinned: 'right',
+    };
+
+    expect(() => ListColumnSchema.parse(column)).not.toThrow();
+  });
+
+  it('should accept column with summary', () => {
+    const column: ListColumn = {
+      field: 'amount',
+      summary: 'sum',
+    };
+
+    expect(() => ListColumnSchema.parse(column)).not.toThrow();
+  });
+
+  it('should accept column with pinned and summary', () => {
+    const column: ListColumn = {
+      field: 'revenue',
+      pinned: 'left',
+      summary: 'avg',
+      align: 'right',
+      type: 'currency',
+    };
+
+    expect(() => ListColumnSchema.parse(column)).not.toThrow();
+  });
+
+  it('should reject invalid pinned value', () => {
+    const column = {
+      field: 'test_field',
+      pinned: 'top',
+    };
+
+    expect(() => ListColumnSchema.parse(column)).toThrow();
+  });
+});
+
+describe('Airtable-style ListView enhancements', () => {
+  it('should accept list view with row height', () => {
+    const listView: ListView = {
+      columns: ['name', 'status'],
+      rowHeight: 'compact',
+    };
+
+    expect(() => ListViewSchema.parse(listView)).not.toThrow();
+  });
+
+  it('should accept list view with grouping', () => {
+    const listView: ListView = {
+      columns: ['name', 'status', 'department'],
+      grouping: {
+        fields: [
+          { field: 'department', order: 'asc' },
+          { field: 'status', order: 'desc', collapsed: true },
+        ],
+      },
+    };
+
+    expect(() => ListViewSchema.parse(listView)).not.toThrow();
+  });
+
+  it('should accept list view with row color', () => {
+    const listView: ListView = {
+      columns: ['name', 'priority'],
+      rowColor: {
+        field: 'priority',
+        colors: {
+          critical: '#ff0000',
+          high: '#ff8800',
+          medium: '#ffcc00',
+          low: '#00cc00',
+        },
+      },
+    };
+
+    expect(() => ListViewSchema.parse(listView)).not.toThrow();
+  });
+
+  it('should accept list view with hidden fields and field order', () => {
+    const listView: ListView = {
+      columns: ['name', 'status', 'owner'],
+      hiddenFields: ['internal_notes', 'system_id'],
+      fieldOrder: ['name', 'status', 'owner', 'created_at'],
+    };
+
+    expect(() => ListViewSchema.parse(listView)).not.toThrow();
+  });
+
+  it('should accept list view with description and sharing', () => {
+    const listView: ListView = {
+      name: 'my_pipeline',
+      label: 'My Pipeline',
+      columns: ['name', 'stage'],
+      description: 'Personal view for tracking deals',
+      sharing: {
+        type: 'personal',
+      },
+    };
+
+    expect(() => ListViewSchema.parse(listView)).not.toThrow();
+  });
+
+  it('should accept gallery view with gallery config', () => {
+    const galleryView: ListView = {
+      type: 'gallery',
+      columns: ['name', 'photo', 'category'],
+      gallery: {
+        coverField: 'photo',
+        coverFit: 'cover',
+        cardSize: 'large',
+        titleField: 'name',
+        visibleFields: ['category', 'price'],
+      },
+    };
+
+    expect(() => ListViewSchema.parse(galleryView)).not.toThrow();
+  });
+
+  it('should accept timeline view with timeline config', () => {
+    const timelineView: ListView = {
+      type: 'timeline',
+      columns: ['name', 'start_date', 'end_date', 'team'],
+      timeline: {
+        startDateField: 'start_date',
+        endDateField: 'end_date',
+        titleField: 'name',
+        groupByField: 'team',
+        colorField: 'status',
+        scale: 'month',
+      },
+    };
+
+    expect(() => ListViewSchema.parse(timelineView)).not.toThrow();
+  });
+
+  it('should accept full Airtable-style grid view', () => {
+    const airtableView: ListView = {
+      name: 'project_tracker',
+      label: 'Project Tracker',
+      description: 'Main project tracking view with all features',
+      type: 'grid',
+      columns: [
+        { field: 'project_name', pinned: 'left', sortable: true, width: 250 },
+        { field: 'status', width: 120, summary: 'count_unique' },
+        { field: 'priority', width: 100 },
+        { field: 'budget', align: 'right', type: 'currency', summary: 'sum' },
+        { field: 'completion', align: 'right', type: 'percent', summary: 'avg' },
+      ],
+      filter: [{ field: 'archived', operator: 'equals', value: false }],
+      sort: [{ field: 'priority', order: 'asc' }],
+      grouping: {
+        fields: [
+          { field: 'department', order: 'asc' },
+        ],
+      },
+      rowHeight: 'medium',
+      rowColor: {
+        field: 'status',
+        colors: {
+          on_track: '#22c55e',
+          at_risk: '#f59e0b',
+          blocked: '#ef4444',
+        },
+      },
+      hiddenFields: ['internal_id', 'sys_updated_at'],
+      fieldOrder: ['project_name', 'status', 'priority', 'budget', 'completion', 'department'],
+      sharing: {
+        type: 'collaborative',
+        lockedBy: 'admin',
+      },
+      resizable: true,
+      selection: { type: 'multiple' },
+      pagination: { pageSize: 50, pageSizeOptions: [25, 50, 100] },
+      inlineEdit: true,
+      exportOptions: ['csv', 'xlsx'],
+    };
+
+    expect(() => ListViewSchema.parse(airtableView)).not.toThrow();
+  });
+
+  it('should accept complete Airtable-style View container with multiple view types', () => {
+    const views: View = {
+      list: {
+        type: 'grid',
+        columns: [
+          { field: 'name', pinned: 'left', sortable: true },
+          { field: 'status', summary: 'count' },
+          { field: 'amount', summary: 'sum', align: 'right' },
+        ],
+        rowHeight: 'short',
+        grouping: {
+          fields: [{ field: 'category' }],
+        },
+      },
+      listViews: {
+        kanban: {
+          type: 'kanban',
+          columns: ['name', 'amount', 'owner'],
+          kanban: {
+            groupByField: 'stage',
+            summarizeField: 'amount',
+            columns: ['name', 'owner', 'close_date'],
+          },
+          sharing: { type: 'collaborative' },
+        },
+        gallery: {
+          type: 'gallery',
+          columns: ['name', 'photo', 'price'],
+          gallery: {
+            coverField: 'photo',
+            cardSize: 'medium',
+            titleField: 'name',
+            visibleFields: ['price', 'category'],
+          },
+          rowHeight: 'tall',
+        },
+        timeline: {
+          type: 'timeline',
+          columns: ['name', 'start_date', 'end_date'],
+          timeline: {
+            startDateField: 'start_date',
+            endDateField: 'end_date',
+            titleField: 'name',
+            scale: 'week',
+          },
+        },
+        calendar: {
+          type: 'calendar',
+          columns: ['subject', 'date'],
+          calendar: {
+            startDateField: 'date',
+            titleField: 'subject',
+          },
+        },
+      },
+      form: {
+        type: 'simple',
+        sections: [{ fields: ['name', 'status', 'amount'] }],
+      },
+    };
+
+    expect(() => ViewSchema.parse(views)).not.toThrow();
   });
 });
