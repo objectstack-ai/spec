@@ -41,9 +41,9 @@ Use Cases:
 
 ```typescript
 
-import { DevOpsAgent } from '@objectstack/spec/ai';
+import \{ DevOpsAgent \} from '@objectstack/spec/ai';
 
-const agent: DevOpsAgent = {
+const agent: DevOpsAgent = \{
 
 name: 'devops_automation_agent',
 
@@ -53,47 +53,47 @@ role: 'Senior Full-Stack DevOps Engineer',
 
 instructions: '...',
 
-developmentConfig: {
+developmentConfig: \{
 
 specificationSource: 'packages/spec',
 
-codeGeneration: {
+codeGeneration: \{
 
 enabled: true,
 
 targets: ['frontend', 'backend', 'api'],
 
-},
+\},
 
-},
+\},
 
-integrations: {
+integrations: \{
 
-github: {
+github: \{
 
 connector: 'github_production',
 
-repository: {
+repository: \{
 
 owner: 'objectstack-ai',
 
 name: 'app',
 
-},
+\},
 
-},
+\},
 
-vercel: {
+vercel: \{
 
 connector: 'vercel_production',
 
 project: 'objectstack-app',
 
-},
+\},
 
-},
+\},
 
-};
+\};
 
 ```
 

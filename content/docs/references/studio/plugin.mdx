@@ -59,9 +59,9 @@ Like VS Code extensions, Studio plugins have two layers:
 
 ```typescript
 
-import { StudioPluginManifestSchema } from '@objectstack/spec/studio';
+import \{ StudioPluginManifestSchema \} from '@objectstack/spec/studio';
 
-const manifest = StudioPluginManifestSchema.parse({
+const manifest = StudioPluginManifestSchema.parse(\{
 
 id: 'objectstack.object-designer',
 
@@ -69,9 +69,9 @@ name: 'Object Designer',
 
 version: '1.0.0',
 
-contributes: {
+contributes: \{
 
-metadataViewers: [{
+metadataViewers: [\{
 
 id: 'object-explorer',
 
@@ -83,11 +83,11 @@ priority: 100,
 
 modes: ['preview', 'design', 'data'],
 
-}],
+\}],
 
-},
+\},
 
-});
+\});
 
 ```
 

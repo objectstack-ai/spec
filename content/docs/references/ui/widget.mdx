@@ -17,21 +17,21 @@ These hooks allow widgets to perform initialization, cleanup, and respond to cha
 
 ```typescript
 
-const widget = {
+const widget = \{
 
-lifecycle: {
+lifecycle: \{
 
 onMount: "console.log('Widget mounted')",
 
-onUpdate: "if (prevProps.value !== props.value) { updateUI() }",
+onUpdate: "if (prevProps.value !== props.value) \{ updateUI() \}",
 
 onUnmount: "cleanup()",
 
 onValidate: "return value.length > 0 ? null : 'Required field'"
 
-}
+\}
 
-}
+\}
 
 ```
 

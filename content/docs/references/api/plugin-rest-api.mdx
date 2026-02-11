@@ -43,7 +43,7 @@ Architecture Alignment:
 
 ```typescript
 
-{
+\{
 
 "name": "rest_api",
 
@@ -51,11 +51,11 @@ Architecture Alignment:
 
 "type": "server",
 
-"contributes": {
+"contributes": \{
 
 "routes": [
 
-{
+\{
 
 "prefix": "/api/v1/discovery",
 
@@ -65,13 +65,13 @@ Architecture Alignment:
 
 "middleware": [
 
-{ "name": "response_envelope", "type": "transformation", "enabled": true }
+\{ "name": "response_envelope", "type": "transformation", "enabled": true \}
 
 ]
 
-},
+\},
 
-{
+\{
 
 "prefix": "/api/v1/meta",
 
@@ -81,15 +81,15 @@ Architecture Alignment:
 
 "middleware": [
 
-{ "name": "auth", "type": "authentication", "enabled": true },
+\{ "name": "auth", "type": "authentication", "enabled": true \},
 
-{ "name": "request_validation", "type": "validation", "enabled": true }
+\{ "name": "request_validation", "type": "validation", "enabled": true \}
 
 ]
 
-},
+\},
 
-{
+\{
 
 "prefix": "/api/v1/data",
 
@@ -97,13 +97,13 @@ Architecture Alignment:
 
 "methods": ["findData", "getData", "createData", "updateData", "deleteData"]
 
-}
+\}
 
 ]
 
-}
+\}
 
-}
+\}
 
 ```
 

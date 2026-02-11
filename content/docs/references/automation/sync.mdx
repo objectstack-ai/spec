@@ -93,27 +93,27 @@ For complex transformations (joins, aggregates, custom SQL), use ETL Pipeline (L
 
 ```typescript
 
-const contactSync: DataSyncConfig = {
+const contactSync: DataSyncConfig = \{
 
 name: 'salesforce_contact_sync',
 
 label: 'Salesforce Contact Sync',
 
-source: {
+source: \{
 
 object: 'contact',
 
-filters: { status: 'active' }
+filters: \{ status: 'active' \}
 
-},
+\},
 
-destination: {
+destination: \{
 
 connector: 'salesforce',
 
 operation: 'upsert_contact',
 
-mapping: {
+mapping: \{
 
 first_name: 'FirstName',
 
@@ -121,15 +121,15 @@ last_name: 'LastName',
 
 email: 'Email'
 
-}
+\}
 
-},
+\},
 
 syncMode: 'incremental',
 
 schedule: '0 * * * *' // Hourly
 
-}
+\}
 
 ```
 
