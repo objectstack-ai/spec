@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/plugin-dev",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "license": "Apache-2.0",
   "description": "Development Mode Plugin for ObjectStack — auto-enables all services with in-memory implementations",
   "main": "dist/index.js",
@@ -30,13 +30,27 @@
     "@objectstack/rest": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@objectstack/driver-memory": { "optional": true },
-    "@objectstack/objectql": { "optional": true },
-    "@objectstack/runtime": { "optional": true },
-    "@objectstack/plugin-auth": { "optional": true },
-    "@objectstack/plugin-hono-server": { "optional": true },
-    "@objectstack/plugin-security": { "optional": true },
-    "@objectstack/rest": { "optional": true }
+    "@objectstack/driver-memory": {
+      "optional": true
+    },
+    "@objectstack/objectql": {
+      "optional": true
+    },
+    "@objectstack/runtime": {
+      "optional": true
+    },
+    "@objectstack/plugin-auth": {
+      "optional": true
+    },
+    "@objectstack/plugin-hono-server": {
+      "optional": true
+    },
+    "@objectstack/plugin-security": {
+      "optional": true
+    },
+    "@objectstack/rest": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@objectstack/driver-memory": "workspace:*",
