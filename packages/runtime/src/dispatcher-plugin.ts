@@ -91,6 +91,11 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
                 res.json({ data: dispatcher.getDiscoveryInfo(prefix) });
             });
 
+            // ── Discovery (versioned API path) ──────────────────────────
+            server.get(`${prefix}/discovery`, async (_req: any, res: any) => {
+                res.json({ data: dispatcher.getDiscoveryInfo(prefix) });
+            });
+
             // ── Auth ────────────────────────────────────────────────────
             server.post(`${prefix}/auth/login`, async (req: any, res: any) => {
                 try {

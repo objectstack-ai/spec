@@ -216,10 +216,7 @@ export class RestServer {
      * Register discovery endpoints
      */
     private registerDiscoveryEndpoints(basePath: string): void {
-        this.routeManager.register({
-            method: 'GET',
-            path: basePath,
-            handler: async (_req: any, res: any) => {
+        const discoveryHandler = async (_req: any, res: any) => {
                 try {
                     const discovery = await this.protocol.getDiscovery();
                     
@@ -250,7 +247,24 @@ export class RestServer {
                 } catch (error: any) {
                     res.status(500).json({ error: error.message });
                 }
+            };
+
+        // Register at basePath (e.g. /api/v1)
+        this.routeManager.register({
+            method: 'GET',
+            path: basePath,
+            handler: discoveryHandler,
+            metadata: {
+                summary: 'Get API discovery information',
+                tags: ['discovery'],
             },
+        });
+
+        // Register at basePath/discovery (e.g. /api/v1/discovery)
+        this.routeManager.register({
+            method: 'GET',
+            path: `${basePath}/discovery`,
+            handler: discoveryHandler,
             metadata: {
                 summary: 'Get API discovery information',
                 tags: ['discovery'],

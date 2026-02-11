@@ -309,8 +309,9 @@ describe('RestServer', () => {
 
       // Expect at least discovery + metadata + CRUD routes
       const paths = routes.map((r) => r.path);
-      // Discovery
+      // Discovery (both basePath and basePath/discovery)
       expect(paths).toContain('/api/v1');
+      expect(paths).toContain('/api/v1/discovery');
       // Metadata
       expect(paths.some((p) => p.includes('/meta'))).toBe(true);
       // CRUD
@@ -356,7 +357,7 @@ describe('RestServer', () => {
       rest.registerRoutes();
 
       const routes = rest.getRoutes();
-      // Discovery route is the basePath itself (e.g. /api/v1)
+      // Neither basePath nor basePath/discovery should be registered
       const discoveryRoutes = routes.filter((r) =>
         r.metadata?.tags?.includes('discovery'),
       );
