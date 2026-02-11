@@ -1,6 +1,11 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
+import { PresenceStatus, RealtimeRecordAction, BasePresenceSchema } from './realtime-shared.zod';
+
+// Re-export shared types for backward compatibility
+export { PresenceStatus, RealtimeRecordAction, BasePresenceSchema } from './realtime-shared.zod';
+export type { BasePresence } from './realtime-shared.zod';
 
 /**
  * Transport Protocol Enum
@@ -52,39 +57,28 @@ export type Subscription = z.infer<typeof SubscriptionSchema>;
 
 /**
  * Presence Status Enum
- * User online/offline status
+ * @deprecated Use `PresenceStatus` from `realtime-shared.zod.ts` instead.
+ * Kept for backward compatibility.
  */
-export const RealtimePresenceStatus = z.enum([
-  'online',
-  'away',
-  'busy',
-  'offline',
-]);
+export const RealtimePresenceStatus = PresenceStatus;
 
 export type RealtimePresenceStatus = z.infer<typeof RealtimePresenceStatus>;
 
 /**
  * Presence Schema
- * Tracks user online status and metadata
+ * Tracks user online status and metadata.
+ * Extends the shared BasePresenceSchema for transport-level presence tracking.
  */
-export const RealtimePresenceSchema = z.object({
-  userId: z.string().describe('User identifier'),
-  status: RealtimePresenceStatus.describe('Current presence status'),
-  lastSeen: z.string().datetime().describe('ISO 8601 datetime of last activity'),
-  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom presence data (e.g., current page, custom status)'),
-});
+export const RealtimePresenceSchema = BasePresenceSchema;
 
 export type RealtimePresence = z.infer<typeof RealtimePresenceSchema>;
 
 /**
  * Realtime Action Enum
- * Actions that can occur on records
+ * @deprecated Use `RealtimeRecordAction` from `realtime-shared.zod.ts` instead.
+ * Kept for backward compatibility.
  */
-export const RealtimeAction = z.enum([
-  'created',
-  'updated',
-  'deleted',
-]);
+export const RealtimeAction = RealtimeRecordAction;
 
 export type RealtimeAction = z.infer<typeof RealtimeAction>;
 

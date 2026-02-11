@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
+import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 
 /**
  * Empty Properties Schema
@@ -14,31 +15,37 @@ const EmptyProps = z.object({});
  */
 
 export const PageHeaderProps = z.object({
-  title: z.string().describe('Page title'),
-  subtitle: z.string().optional().describe('Page subtitle'),
+  title: I18nLabelSchema.describe('Page title'),
+  subtitle: I18nLabelSchema.optional().describe('Page subtitle'),
   icon: z.string().optional().describe('Icon name'),
   breadcrumb: z.boolean().default(true).describe('Show breadcrumb'),
   actions: z.array(z.string()).optional().describe('Action IDs to show in header'),
+  /** ARIA accessibility */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
 });
 
 export const PageTabsProps = z.object({
   type: z.enum(['line', 'card', 'pill']).default('line'),
   position: z.enum(['top', 'left']).default('top'),
   items: z.array(z.object({
-    label: z.string(),
+    label: I18nLabelSchema,
     icon: z.string().optional(),
     children: z.array(z.unknown()).describe('Child components')
-  }))
+  })),
+  /** ARIA accessibility */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
 });
 
 export const PageCardProps = z.object({
-  title: z.string().optional(),
+  title: I18nLabelSchema.optional(),
   bordered: z.boolean().default(true),
   actions: z.array(z.string()).optional(),
   /** Slot for nested content in the Card body */
   body: z.array(z.unknown()).optional().describe('Card content components (slot)'),
   /** Slot for footer content */
   footer: z.array(z.unknown()).optional().describe('Card footer components (slot)'),
+  /** ARIA accessibility */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
 });
 
 /**

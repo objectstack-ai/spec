@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
+import { I18nLabelSchema } from './i18n.zod';
 
 /**
  * HTTP Method Enum
@@ -48,7 +49,7 @@ export const ViewDataSchema = z.discriminatedUnion('provider', [
  */
 export const ListColumnSchema = z.object({
   field: z.string().describe('Field name (snake_case)'),
-  label: z.string().optional().describe('Display label override'),
+  label: I18nLabelSchema.optional().describe('Display label override'),
   width: z.number().positive().optional().describe('Column width in pixels'),
   align: z.enum(['left', 'center', 'right']).optional().describe('Text alignment'),
   hidden: z.boolean().optional().describe('Hide column by default'),
@@ -167,7 +168,7 @@ export const NavigationConfigSchema = z.object({
  */
 export const ListViewSchema = z.object({
   name: SnakeCaseIdentifierSchema.optional().describe('Internal view name (lowercase snake_case)'),
-  label: z.string().optional(), // Display label override
+  label: I18nLabelSchema.optional(), // Display label override (supports i18n)
   type: z.enum([
     'grid',       // Standard Data Table
     'kanban',     // Board / Columns
@@ -239,8 +240,8 @@ export const ListViewSchema = z.object({
 
   /** Empty State */
   emptyState: z.object({
-    title: z.string().optional(),
-    message: z.string().optional(),
+    title: I18nLabelSchema.optional(),
+    message: I18nLabelSchema.optional(),
     icon: z.string().optional(),
   }).optional().describe('Empty state configuration when no records found'),
 });
@@ -251,9 +252,9 @@ export const ListViewSchema = z.object({
  */
 export const FormFieldSchema = z.object({
   field: z.string().describe('Field name (snake_case)'),
-  label: z.string().optional().describe('Display label override'),
-  placeholder: z.string().optional().describe('Placeholder text'),
-  helpText: z.string().optional().describe('Help/hint text'),
+  label: I18nLabelSchema.optional().describe('Display label override'),
+  placeholder: I18nLabelSchema.optional().describe('Placeholder text'),
+  helpText: I18nLabelSchema.optional().describe('Help/hint text'),
   readonly: z.boolean().optional().describe('Read-only override'),
   required: z.boolean().optional().describe('Required override'),
   hidden: z.boolean().optional().describe('Hidden override'),
@@ -267,7 +268,7 @@ export const FormFieldSchema = z.object({
  * Form Layout Section
  */
 export const FormSectionSchema = z.object({
-  label: z.string().optional(),
+  label: I18nLabelSchema.optional(),
   collapsible: z.boolean().default(false),
   collapsed: z.boolean().default(false),
   columns: z.enum(['1', '2', '3', '4']).default('2').transform(val => parseInt(val) as 1 | 2 | 3 | 4),
