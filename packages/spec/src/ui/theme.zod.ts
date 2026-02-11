@@ -181,6 +181,18 @@ export const ZIndexSchema = z.object({
 export const ThemeMode = z.enum(['light', 'dark', 'auto']);
 
 /**
+ * Density Mode Enum
+ * Controls spacing and sizing for different use cases.
+ */
+export const DensityMode = z.enum(['compact', 'regular', 'spacious']);
+
+/**
+ * WCAG Contrast Level
+ * Web Content Accessibility Guidelines color contrast requirements.
+ */
+export const WcagContrastLevel = z.enum(['AA', 'AAA']);
+
+/**
  * Theme Configuration Schema
  * Complete theme definition for brand customization.
  */
@@ -228,6 +240,15 @@ export const ThemeSchema = z.object({
   
   /** Extends another theme */
   extends: z.string().optional().describe('Base theme to extend from'),
+
+  /** Display density mode */
+  density: DensityMode.optional().describe('Display density: compact, regular, or spacious'),
+
+  /** WCAG contrast level requirement */
+  wcagContrast: WcagContrastLevel.optional().describe('WCAG color contrast level (AA or AAA)'),
+
+  /** Right-to-left language support */
+  rtl: z.boolean().optional().describe('Enable right-to-left layout direction'),
 });
 
 export type Theme = z.infer<typeof ThemeSchema>;
@@ -240,3 +261,5 @@ export type Breakpoints = z.infer<typeof BreakpointsSchema>;
 export type Animation = z.infer<typeof AnimationSchema>;
 export type ZIndex = z.infer<typeof ZIndexSchema>;
 export type ThemeMode = z.infer<typeof ThemeMode>;
+export type DensityMode = z.infer<typeof DensityMode>;
+export type WcagContrastLevel = z.infer<typeof WcagContrastLevel>;

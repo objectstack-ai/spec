@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
+import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 
 /**
  * Unified Chart Type Taxonomy
@@ -82,7 +83,7 @@ export const ChartAxisSchema = z.object({
   field: z.string().describe('Data field key'),
   
   /** Axis title */
-  title: z.string().optional().describe('Axis display title'),
+  title: I18nLabelSchema.optional().describe('Axis display title'),
 
   /** Value formatting (d3-format or similar) */
   format: z.string().optional().describe('Value format string (e.g., "$0,0.00")'),
@@ -109,7 +110,7 @@ export const ChartSeriesSchema = z.object({
   name: z.string().describe('Field name or series identifier'),
   
   /** Display label */
-  label: z.string().optional().describe('Series display label'),
+  label: I18nLabelSchema.optional().describe('Series display label'),
   
   /** Series type override (combo charts) */
   type: ChartTypeSchema.optional().describe('Override chart type for this series'),
@@ -134,7 +135,7 @@ export const ChartAnnotationSchema = z.object({
   value: z.union([z.number(), z.string()]).describe('Start value'),
   endValue: z.union([z.number(), z.string()]).optional().describe('End value for regions'),
   color: z.string().optional(),
-  label: z.string().optional(),
+  label: I18nLabelSchema.optional(),
   style: z.enum(['solid', 'dashed', 'dotted']).default('dashed'),
 });
 
@@ -157,9 +158,9 @@ export const ChartConfigSchema = z.object({
   type: ChartTypeSchema,
   
   /** Titles */
-  title: z.string().optional().describe('Chart title'),
-  subtitle: z.string().optional().describe('Chart subtitle'),
-  description: z.string().optional().describe('Accessibility description'),
+  title: I18nLabelSchema.optional().describe('Chart title'),
+  subtitle: I18nLabelSchema.optional().describe('Chart subtitle'),
+  description: I18nLabelSchema.optional().describe('Accessibility description'),
   
   /** Axes Mapping */
   xAxis: ChartAxisSchema.optional().describe('X-Axis configuration'),
@@ -181,6 +182,9 @@ export const ChartConfigSchema = z.object({
   
   /** Interactions */
   interaction: ChartInteractionSchema.optional(),
+
+  /** ARIA accessibility attributes */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
 });
 
 export type ChartConfig = z.infer<typeof ChartConfigSchema>;

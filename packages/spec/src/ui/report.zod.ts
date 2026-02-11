@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { FilterConditionSchema } from '../data/filter.zod';
 import { ChartConfigSchema } from './chart.zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
+import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
+import { ResponsiveConfigSchema, PerformanceConfigSchema } from './responsive.zod';
 
 /**
  * Report Type Enum
@@ -20,8 +22,10 @@ export const ReportType = z.enum([
  */
 export const ReportColumnSchema = z.object({
   field: z.string().describe('Field name'),
-  label: z.string().optional().describe('Override label'),
+  label: I18nLabelSchema.optional().describe('Override label'),
   aggregate: z.enum(['sum', 'avg', 'max', 'min', 'count', 'unique']).optional().describe('Aggregation function'),
+  /** Responsive visibility/priority per breakpoint */
+  responsive: ResponsiveConfigSchema.optional().describe('Responsive visibility for this column'),
 });
 
 /**
@@ -51,8 +55,8 @@ export const ReportChartSchema = ChartConfigSchema.extend({
 export const ReportSchema = z.object({
   /** Identity */
   name: SnakeCaseIdentifierSchema.describe('Report unique name'),
-  label: z.string().describe('Report label'),
-  description: z.string().optional(),
+  label: I18nLabelSchema.describe('Report label'),
+  description: I18nLabelSchema.optional(),
   
   /** Data Source */
   objectName: z.string().describe('Primary object'),
@@ -71,6 +75,12 @@ export const ReportSchema = z.object({
   
   /** Visualization */
   chart: ReportChartSchema.optional().describe('Embedded chart configuration'),
+
+  /** ARIA accessibility attributes */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
+
+  /** Performance optimization settings */
+  performance: PerformanceConfigSchema.optional().describe('Performance optimization settings'),
 });
 
 /**
