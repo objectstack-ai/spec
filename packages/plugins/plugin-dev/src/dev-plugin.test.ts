@@ -193,10 +193,10 @@ describe('DevPlugin', () => {
 
     // ── Verify IMetadataService contract (stub fallback) ──
     const metadata = registeredServices.get('metadata');
-    metadata.register('object', { name: 'account' });
-    expect(metadata.get('object', 'account')).toBeDefined();
-    expect(Array.isArray(metadata.list('object'))).toBe(true);
-    expect(Array.isArray(metadata.listObjects())).toBe(true);
+    await metadata.register('object', { name: 'account' });
+    expect(await metadata.get('object', 'account')).toBeDefined();
+    expect(Array.isArray(await metadata.list('object'))).toBe(true);
+    expect(Array.isArray(await metadata.listObjects())).toBe(true);
 
     // Security sub-services are registered by either the real SecurityPlugin
     // or dev stubs (when security is disabled, they're skipped entirely).
@@ -263,5 +263,314 @@ describe('DevPlugin', () => {
   it('should destroy without errors', async () => {
     const plugin = new DevPlugin();
     await expect(plugin.destroy()).resolves.not.toThrow();
+  });
+
+  // ── Driver-backed stub tests ────────────────────────────────────────────
+
+  /**
+   * Helper: create a DevPlugin with only dev stubs (no real plugins),
+   * init it, and return the registered services map.
+   */
+  async function initDevStubs() {
+    const registeredServices = new Map<string, any>();
+    const ctx: any = {
+      logger: {
+        info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(),
+      },
+      getService: vi.fn().mockImplementation((name: string) => {
+        if (registeredServices.has(name)) return registeredServices.get(name);
+        throw new Error('not found');
+      }),
+      getServices: vi.fn().mockReturnValue(new Map()),
+      registerService: vi.fn().mockImplementation((name: string, svc: any) => {
+        registeredServices.set(name, svc);
+      }),
+      hook: vi.fn(), trigger: vi.fn(), getKernel: vi.fn(),
+    };
+
+    const plugin = new DevPlugin({
+      seedAdminUser: false,
+      services: {
+        objectql: false, driver: false, auth: false, security: false,
+        server: false, rest: false, dispatcher: false,
+      },
+    });
+
+    await plugin.init(ctx);
+    return { registeredServices, plugin, ctx };
+  }
+
+  describe('IMetadataService (driver-backed)', () => {
+    it('should CRUD metadata with full query support', async () => {
+      const { registeredServices, plugin } = await initDevStubs();
+      const meta = registeredServices.get('metadata');
+
+      // Register multiple objects
+      await meta.register('object', { name: 'account', label: 'Account', fields: [] });
+      await meta.register('object', { name: 'contact', label: 'Contact', fields: [] });
+      await meta.register('object', { name: 'opportunity', label: 'Opportunity', fields: [] });
+
+      // Get single
+      const account = await meta.get('object', 'account');
+      expect(account).toBeDefined();
+      expect(account.name).toBe('account');
+      expect(account.label).toBe('Account');
+
+      // List all
+      const all = await meta.list('object');
+      expect(all).toHaveLength(3);
+
+      // List with pagination
+      const page = await meta.list('object', { limit: 2 });
+      expect(page).toHaveLength(2);
+
+      // Update
+      const updated = await meta.update('object', 'account', { label: 'Account (Updated)' });
+      expect(updated).toBeDefined();
+      expect(updated.label).toBe('Account (Updated)');
+      expect(updated.name).toBe('account'); // name preserved
+
+      // Verify update persisted
+      const refetched = await meta.get('object', 'account');
+      expect(refetched.label).toBe('Account (Updated)');
+
+      // Count
+      const count = await meta.count('object');
+      expect(count).toBe(3);
+
+      // Unregister
+      await meta.unregister('object', 'contact');
+      const afterDelete = await meta.list('object');
+      expect(afterDelete).toHaveLength(2);
+      expect(await meta.get('object', 'contact')).toBeNull();
+
+      // Count after delete
+      expect(await meta.count('object')).toBe(2);
+
+      await plugin.destroy();
+    });
+
+    it('should handle multiple metadata types independently', async () => {
+      const { registeredServices, plugin } = await initDevStubs();
+      const meta = registeredServices.get('metadata');
+
+      await meta.register('object', { name: 'account' });
+      await meta.register('view', { name: 'account_list', object: 'account', type: 'list' });
+      await meta.register('flow', { name: 'approval_flow', trigger: 'record_create' });
+
+      expect(await meta.list('object')).toHaveLength(1);
+      expect(await meta.list('view')).toHaveLength(1);
+      expect(await meta.list('flow')).toHaveLength(1);
+
+      // getObject convenience
+      const obj = await meta.getObject('account');
+      expect(obj).toBeDefined();
+      expect(obj.name).toBe('account');
+
+      // listObjects convenience
+      const objs = await meta.listObjects();
+      expect(objs).toHaveLength(1);
+
+      await plugin.destroy();
+    });
+
+    it('should upsert on re-register', async () => {
+      const { registeredServices, plugin } = await initDevStubs();
+      const meta = registeredServices.get('metadata');
+
+      await meta.register('object', { name: 'account', label: 'V1' });
+      await meta.register('object', { name: 'account', label: 'V2' });
+
+      const all = await meta.list('object');
+      expect(all).toHaveLength(1);
+      expect(all[0].label).toBe('V2');
+
+      await plugin.destroy();
+    });
+
+    it('should return null for update on non-existent item', async () => {
+      const { registeredServices, plugin } = await initDevStubs();
+      const meta = registeredServices.get('metadata');
+
+      const result = await meta.update('object', 'nonexistent', { label: 'Test' });
+      expect(result).toBeNull();
+
+      await plugin.destroy();
+    });
+  });
+
+  describe('IDataEngine (driver-backed)', () => {
+    it('should perform full CRUD operations', async () => {
+      const { registeredServices, plugin } = await initDevStubs();
+      const data = registeredServices.get('data');
+
+      // Insert
+      const record = await data.insert('user', { data: { name: 'Alice', email: 'alice@test.com', role: 'admin' } });
+      expect(record).toBeDefined();
+      expect(record.id).toBeDefined();
+      expect(record.name).toBe('Alice');
+
+      // Find
+      const found = await data.find('user');
+      expect(found).toHaveLength(1);
+      expect(found[0].name).toBe('Alice');
+
+      // FindOne
+      const one = await data.findOne('user', { filter: { name: 'Alice' } });
+      expect(one).toBeDefined();
+      expect(one.email).toBe('alice@test.com');
+
+      // Update
+      const updated = await data.update('user', record.id, { data: { role: 'superadmin' } });
+      expect(updated.role).toBe('superadmin');
+      expect(updated.name).toBe('Alice'); // original fields preserved
+
+      // Count
+      expect(await data.count('user')).toBe(1);
+
+      // Delete
+      const deleted = await data.delete('user', record.id);
+      expect(deleted).toBe(true);
+      expect(await data.count('user')).toBe(0);
+
+      await plugin.destroy();
+    });
+
+    it('should support query filtering and sorting', async () => {
+      const { registeredServices, plugin } = await initDevStubs();
+      const data = registeredServices.get('data');
+
+      // Insert multiple records
+      await data.insert('product', { data: { name: 'Widget', price: 10 } });
+      await data.insert('product', { data: { name: 'Gadget', price: 25 } });
+      await data.insert('product', { data: { name: 'Doohickey', price: 5 } });
+
+      // Filter
+      const expensive = await data.find('product', { filter: { price: { $gt: 8 } } });
+      expect(expensive).toHaveLength(2);
+
+      // Sort (ascending)
+      const sorted = await data.find('product', {
+        orderBy: [{ field: 'price', order: 'asc' }],
+      });
+      expect(sorted[0].name).toBe('Doohickey');
+      expect(sorted[2].name).toBe('Gadget');
+
+      // Pagination
+      const page = await data.find('product', { limit: 2 });
+      expect(page).toHaveLength(2);
+
+      await plugin.destroy();
+    });
+
+    it('should support bulk insert', async () => {
+      const { registeredServices, plugin } = await initDevStubs();
+      const data = registeredServices.get('data');
+
+      const result = await data.insert('item', [
+        { name: 'A' }, { name: 'B' }, { name: 'C' },
+      ]);
+      expect(result).toHaveLength(3);
+      expect(await data.count('item')).toBe(3);
+
+      await plugin.destroy();
+    });
+
+    it('should support aggregation', async () => {
+      const { registeredServices, plugin } = await initDevStubs();
+      const data = registeredServices.get('data');
+
+      await data.insert('order', { data: { customer: 'Alice', amount: 100 } });
+      await data.insert('order', { data: { customer: 'Bob', amount: 200 } });
+      await data.insert('order', { data: { customer: 'Alice', amount: 50 } });
+
+      const result = await data.aggregate('order', [
+        { $group: { _id: '$customer', total: { $sum: '$amount' } } },
+        { $sort: { _id: 1 } },
+      ]);
+      expect(result).toHaveLength(2);
+      expect(result[0]._id).toBe('Alice');
+      expect(result[0].total).toBe(150);
+      expect(result[1]._id).toBe('Bob');
+      expect(result[1].total).toBe(200);
+
+      await plugin.destroy();
+    });
+  });
+
+  describe('ISearchService (driver-backed)', () => {
+    it('should index, search and remove documents', async () => {
+      const { registeredServices, plugin } = await initDevStubs();
+      const search = registeredServices.get('search');
+
+      // Index documents
+      await search.index('products', 'p1', { title: 'Widget Pro', category: 'electronics' });
+      await search.index('products', 'p2', { title: 'Gadget Max', category: 'electronics' });
+      await search.index('products', 'p3', { title: 'Book of Knowledge', category: 'books' });
+
+      // Search by text
+      const result = await search.search('products', 'widget');
+      expect(result.hits).toHaveLength(1);
+      expect(result.hits[0].id).toBe('p1');
+      expect(result.totalHits).toBe(1);
+
+      // Search broader
+      const electronics = await search.search('products', 'electronics');
+      expect(electronics.hits).toHaveLength(2);
+
+      // Remove and verify
+      await search.remove('products', 'p1');
+      const afterRemove = await search.search('products', 'widget');
+      expect(afterRemove.hits).toHaveLength(0);
+
+      await plugin.destroy();
+    });
+
+    it('should support bulk indexing', async () => {
+      const { registeredServices, plugin } = await initDevStubs();
+      const search = registeredServices.get('search');
+
+      await search.bulkIndex('users', [
+        { id: 'u1', document: { name: 'Alice Johnson' } },
+        { id: 'u2', document: { name: 'Bob Smith' } },
+        { id: 'u3', document: { name: 'Charlie Johnson' } },
+      ]);
+
+      const result = await search.search('users', 'johnson');
+      expect(result.hits).toHaveLength(2);
+
+      // Delete entire index
+      await search.deleteIndex('users');
+      const afterDelete = await search.search('users', 'johnson');
+      expect(afterDelete.hits).toHaveLength(0);
+
+      await plugin.destroy();
+    });
+  });
+
+  describe('shared InMemoryDriver', () => {
+    it('data and metadata use the same driver (isolated tables)', async () => {
+      const { registeredServices, plugin } = await initDevStubs();
+      const data = registeredServices.get('data');
+      const meta = registeredServices.get('metadata');
+
+      // Insert business data
+      await data.insert('account', { data: { name: 'Acme Corp' } });
+
+      // Register metadata
+      await meta.register('object', { name: 'account', label: 'Account' });
+
+      // Data and metadata are in separate tables
+      const accounts = await data.find('account');
+      expect(accounts).toHaveLength(1);
+      expect(accounts[0].name).toBe('Acme Corp');
+
+      const objects = await meta.listObjects();
+      expect(objects).toHaveLength(1);
+      expect(objects[0].name).toBe('account');
+      expect(objects[0].label).toBe('Account');
+
+      await plugin.destroy();
+    });
   });
 });

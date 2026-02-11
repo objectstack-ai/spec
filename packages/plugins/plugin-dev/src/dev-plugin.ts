@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { Plugin, PluginContext } from '@objectstack/core';
+import { InMemoryDriver } from '@objectstack/driver-memory';
 
 /**
  * All 17 core kernel service names as defined in CoreServiceName.
@@ -119,31 +120,53 @@ function createStorageStub() {
   };
 }
 
-/** ISearchService — in-memory full-text search stub */
-function createSearchStub() {
-  const indexes = new Map<string, Map<string, Record<string, unknown>>>();
+/** ISearchService — InMemoryDriver-backed full-text search stub.
+ *
+ * Uses InMemoryDriver for persistent document storage and queries.
+ * Text search uses Mingo's $regex for case-insensitive matching,
+ * providing more realistic search behavior than a simple Map.
+ */
+function createSearchStub(driver: InMemoryDriver) {
+  const indexTable = (object: string) => `_search_${object}`;
   return {
     _dev: true, _serviceName: 'search',
     async index(object: string, id: string, document: Record<string, unknown>): Promise<void> {
-      if (!indexes.has(object)) indexes.set(object, new Map());
-      indexes.get(object)!.set(id, document);
+      await driver.upsert(indexTable(object), {
+        ...document,
+        _docId: id,
+        _searchText: JSON.stringify(document).toLowerCase(),
+      }, ['_docId']);
     },
-    async remove(object: string, id: string): Promise<void> { indexes.get(object)?.delete(id); },
+    async remove(object: string, id: string): Promise<void> {
+      const tbl = indexTable(object);
+      const existing = await driver.findOne(tbl, { object: tbl, where: { _docId: id } });
+      if (existing?.id) await driver.delete(tbl, existing.id);
+    },
     async search(object: string, query: string) {
-      const docs = indexes.get(object) ?? new Map();
+      const tbl = indexTable(object);
       const q = query.toLowerCase();
-      const hits = [...docs.entries()]
-        .filter(([, doc]) => JSON.stringify(doc).toLowerCase().includes(q))
-        .map(([id, doc]) => ({ id, score: 1, document: doc }));
+      const all = await driver.find(tbl, {
+        object: tbl,
+        where: { _searchText: { $regex: new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') } },
+      });
+      const hits = all.map((doc: any) => {
+        const { id: _id, _docId, _searchText, created_at, updated_at, ...document } = doc;
+        return { id: _docId, score: 1, document };
+      });
       return { hits, totalHits: hits.length, processingTimeMs: 0 };
     },
     async bulkIndex(object: string, documents: Array<{ id: string; document: Record<string, unknown> }>): Promise<void> {
-      if (!indexes.has(object)) indexes.set(object, new Map());
       for (const d of documents) {
-        indexes.get(object)!.set(d.id, d.document);
+        await driver.upsert(indexTable(object), {
+          ...d.document,
+          _docId: d.id,
+          _searchText: JSON.stringify(d.document).toLowerCase(),
+        }, ['_docId']);
       }
     },
-    async deleteIndex(object: string): Promise<void> { indexes.delete(object); },
+    async deleteIndex(object: string): Promise<void> {
+      await driver.dropTable(indexTable(object));
+    },
   };
 }
 
@@ -271,21 +294,85 @@ function createWorkflowStub() {
   };
 }
 
-/** IMetadataService — in-memory metadata registry stub (fallback) */
-function createMetadataStub() {
-  const store = new Map<string, Map<string, unknown>>(); // type → (name → def)
+/**
+ * IMetadataService — InMemoryDriver-backed metadata registry.
+ *
+ * Uses InMemoryDriver for full CRUD with query/filter/sort support.
+ * Metadata items are stored per-type in a shared driver instance,
+ * enabling MongoDB-style queries, pagination, and aggregation on metadata.
+ */
+function createMetadataStub(driver: InMemoryDriver) {
+  const tablePrefix = '_meta_';
+  const tableName = (type: string) => `${tablePrefix}${type}`;
+
   return {
     _dev: true, _serviceName: 'metadata',
-    register(type: string, definition: any) {
-      if (!store.has(type)) store.set(type, new Map());
-      store.get(type)!.set(definition.name ?? '', definition);
+
+    /** Register (upsert) a metadata definition */
+    async register(type: string, definition: any) {
+      const name = definition.name ?? '';
+      await driver.upsert(tableName(type), { ...definition, name }, ['name']);
     },
-    get(type: string, name: string) { return store.get(type)?.get(name); },
-    list(type: string) { return [...(store.get(type)?.values() ?? [])]; },
-    unregister(type: string, name: string) { store.get(type)?.delete(name); },
-    getObject(name: string) { return store.get('object')?.get(name); },
-    listObjects() { return [...(store.get('object')?.values() ?? [])]; },
-    unregisterPackage() {},
+
+    /** Get a single metadata item by type and name */
+    async get(type: string, name: string) {
+      const tbl = tableName(type);
+      return driver.findOne(tbl, { object: tbl, where: { name } });
+    },
+
+    /** List all metadata items of a given type, with optional filter/sort/pagination */
+    async list(type: string, query?: { filter?: any; orderBy?: any; limit?: number; offset?: number }) {
+      const tbl = tableName(type);
+      return driver.find(tbl, {
+        object: tbl,
+        where: query?.filter,
+        orderBy: query?.orderBy,
+        limit: query?.limit,
+        offset: query?.offset,
+      });
+    },
+
+    /** Remove a metadata item by type and name */
+    async unregister(type: string, name: string) {
+      const tbl = tableName(type);
+      const existing = await driver.findOne(tbl, { object: tbl, where: { name } });
+      if (existing?.id) await driver.delete(tbl, existing.id);
+    },
+
+    /** Convenience: get an object definition by name */
+    async getObject(name: string) {
+      const tbl = tableName('object');
+      return driver.findOne(tbl, { object: tbl, where: { name } });
+    },
+
+    /** Convenience: list all object definitions */
+    async listObjects() {
+      const tbl = tableName('object');
+      return driver.find(tbl, { object: tbl });
+    },
+
+    /** Update a metadata item (partial merge) */
+    async update(type: string, name: string, data: any) {
+      const tbl = tableName(type);
+      const existing = await driver.findOne(tbl, { object: tbl, where: { name } });
+      if (!existing?.id) return null;
+      return driver.update(tbl, existing.id, { ...data, name });
+    },
+
+    /** Count metadata items of a given type */
+    async count(type: string, filter?: any) {
+      const tbl = tableName(type);
+      return driver.count(tbl, filter ? { object: tbl, where: filter } : undefined);
+    },
+
+    /** Unregister all metadata items from a package */
+    async unregisterPackage(packageName: string) {
+      const types = Object.keys((driver as any).db || {})
+        .filter(t => t.startsWith(tablePrefix));
+      for (const t of types) {
+        await driver.deleteMany(t, { object: t, where: { package: packageName } });
+      }
+    },
   };
 }
 
@@ -300,17 +387,51 @@ function createAuthStub() {
   };
 }
 
-/** IDataEngine — minimal no-op data stub (fallback) */
-function createDataStub() {
+/**
+ * IDataEngine — InMemoryDriver-backed data engine.
+ *
+ * Uses InMemoryDriver for realistic CRUD operations with full
+ * query/filter/sort/pagination/aggregation support (via Mingo).
+ * This makes the dev data service behave like a real database,
+ * enabling integration testing and dev workflows without external DBs.
+ */
+function createDataStub(driver: InMemoryDriver) {
   return {
     _dev: true, _serviceName: 'data',
-    async find() { return []; },
-    async findOne() { return undefined; },
-    async insert(_obj: string, params: any) { return { id: `dev-${Date.now()}`, ...params?.data }; },
-    async update(_obj: string, _id: string, params: any) { return params?.data ?? {}; },
-    async delete() { return true; },
-    async count() { return 0; },
-    async aggregate() { return []; },
+    async find(object: string, params?: any) {
+      return driver.find(object, {
+        object,
+        where: params?.filter,
+        orderBy: params?.orderBy ?? params?.sort,
+        limit: params?.limit,
+        offset: params?.offset,
+        fields: params?.fields ?? params?.select,
+      });
+    },
+    async findOne(object: string, params?: any) {
+      return driver.findOne(object, {
+        object,
+        where: params?.filter ?? params?.where,
+      });
+    },
+    async insert(object: string, params: any) {
+      const data = params?.data ?? params;
+      if (Array.isArray(data)) return driver.bulkCreate(object, data);
+      return driver.create(object, data);
+    },
+    async update(object: string, id: string, params?: any) {
+      const data = params?.data ?? params ?? {};
+      return driver.update(object, id, data);
+    },
+    async delete(object: string, id: string) {
+      return driver.delete(object, id);
+    },
+    async count(object: string, params?: any) {
+      return driver.count(object, params?.filter ? { object, where: params.filter } : undefined);
+    },
+    async aggregate(object: string, pipeline?: any[]) {
+      return driver.aggregate(object, pipeline ?? []);
+    },
   };
 }
 
@@ -347,7 +468,6 @@ const DEV_STUB_FACTORIES: Record<string, () => Record<string, any>> = {
   'queue':       createQueueStub,
   'job':         createJobStub,
   'file-storage': createStorageStub,
-  'search':      createSearchStub,
   'automation':  createAutomationStub,
   'graphql':     createGraphQLStub,
   'analytics':   createAnalyticsStub,
@@ -357,13 +477,22 @@ const DEV_STUB_FACTORIES: Record<string, () => Record<string, any>> = {
   'i18n':        createI18nStub,
   'ui':          createUIStub,
   'workflow':    createWorkflowStub,
-  'metadata':    createMetadataStub,
-  'data':        createDataStub,
   'auth':        createAuthStub,
   // Security sub-services
   'security.permissions': createSecurityPermissionsStub,
   'security.rls':         createSecurityRLSStub,
   'security.fieldMasker': createSecurityFieldMaskerStub,
+};
+
+/**
+ * Services that require an InMemoryDriver instance for realistic behavior.
+ * These factories receive the shared driver and return contract-compliant stubs
+ * with full query/filter/sort/pagination/aggregation support.
+ */
+const DRIVER_BACKED_FACTORIES: Record<string, (driver: InMemoryDriver) => Record<string, any>> = {
+  'metadata':    createMetadataStub,
+  'data':        createDataStub,
+  'search':      createSearchStub,
 };
 
 /**
@@ -486,12 +615,15 @@ export interface DevPluginOptions {
  * as a contract-compliant dev stub that implements the interface from
  * `packages/spec/src/contracts/`. Each stub returns correct types:
  *
- * `cache` (Map-backed), `queue` (in-memory pub/sub), `job` (no-op scheduler),
- * `file-storage` (Map-backed), `search` (in-memory text search),
- * `automation` (no-op flows), `graphql` (placeholder), `analytics` (empty results),
- * `realtime` (in-memory pub/sub), `notification` (log), `ai` (placeholder),
- * `i18n` (Map-backed translations), `ui` (Map-backed views/dashboards),
- * `workflow` (Map-backed state machine)
+ * **Driver-backed** (powered by InMemoryDriver with Mingo query engine):
+ * `metadata` (full CRUD with query/filter/sort), `data` (realistic DB operations),
+ * `search` (indexed document storage with text matching)
+ *
+ * **Map-backed**: `cache`, `queue` (pub/sub), `job` (scheduler),
+ * `file-storage`, `automation` (flows), `graphql` (placeholder),
+ * `analytics` (empty results), `realtime` (pub/sub), `notification` (log),
+ * `ai` (placeholder), `i18n` (translations), `ui` (views/dashboards),
+ * `workflow` (state machine)
  *
  * All services can be individually disabled via `options.services`.
  * Peer packages are loaded via dynamic import and silently skipped if missing.
@@ -500,6 +632,13 @@ export class DevPlugin implements Plugin {
   name = 'com.objectstack.plugin.dev';
   type = 'standard';
   version = '1.0.0';
+
+  /**
+   * Shared InMemoryDriver instance used by driver-backed dev stubs
+   * (metadata, data, search). Provides full query/aggregation support
+   * via Mingo, making dev stubs behave like a real database.
+   */
+  private devDriver: InMemoryDriver;
 
   private options: Required<
     Pick<DevPluginOptions, 'port' | 'seedAdminUser' | 'authSecret' | 'verbose'>
@@ -516,6 +655,7 @@ export class DevPlugin implements Plugin {
       ...options,
       authBaseUrl: options.authBaseUrl ?? `http://localhost:${options.port ?? 3000}`,
     };
+    this.devDriver = new InMemoryDriver();
   }
 
   /**
@@ -656,6 +796,11 @@ export class DevPlugin implements Plugin {
     // dev stub (implementing the interface from packages/spec/src/contracts/)
     // so that the full kernel service map is populated and downstream code
     // receives correct return types (arrays, booleans, objects — not undefined).
+    //
+    // Driver-backed stubs (metadata, data, search) use the shared InMemoryDriver
+    // for full CRUD with Mingo-powered query/filter/sort/aggregation support.
+
+    await this.devDriver.connect();
 
     const stubNames: string[] = [];
 
@@ -665,8 +810,13 @@ export class DevPlugin implements Plugin {
         ctx.getService(svc);
         // Already registered by a real plugin — skip
       } catch {
-        const factory = DEV_STUB_FACTORIES[svc];
-        ctx.registerService(svc, factory ? factory() : { _dev: true, _serviceName: svc });
+        const driverFactory = DRIVER_BACKED_FACTORIES[svc];
+        if (driverFactory) {
+          ctx.registerService(svc, driverFactory(this.devDriver));
+        } else {
+          const factory = DEV_STUB_FACTORIES[svc];
+          ctx.registerService(svc, factory ? factory() : { _dev: true, _serviceName: svc });
+        }
         stubNames.push(svc);
       }
     }
@@ -738,6 +888,8 @@ export class DevPlugin implements Plugin {
         }
       }
     }
+    // Disconnect the shared dev driver
+    await this.devDriver.disconnect().catch(() => {});
   }
 
   /**

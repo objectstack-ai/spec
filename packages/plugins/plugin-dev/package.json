@@ -18,10 +18,10 @@
   },
   "dependencies": {
     "@objectstack/core": "workspace:*",
+    "@objectstack/driver-memory": "workspace:*",
     "@objectstack/spec": "workspace:*"
   },
   "peerDependencies": {
-    "@objectstack/driver-memory": "workspace:*",
     "@objectstack/objectql": "workspace:*",
     "@objectstack/runtime": "workspace:*",
     "@objectstack/plugin-auth": "workspace:*",
@@ -30,7 +30,6 @@
     "@objectstack/rest": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@objectstack/driver-memory": { "optional": true },
     "@objectstack/objectql": { "optional": true },
     "@objectstack/runtime": { "optional": true },
     "@objectstack/plugin-auth": { "optional": true },
@@ -39,7 +38,6 @@
     "@objectstack/rest": { "optional": true }
   },
   "devDependencies": {
-    "@objectstack/driver-memory": "workspace:*",
     "@objectstack/objectql": "workspace:*",
     "@objectstack/runtime": "workspace:*",
     "@objectstack/plugin-auth": "workspace:*",

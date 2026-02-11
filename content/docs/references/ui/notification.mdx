@@ -1,0 +1,126 @@
+---
+title: Notification
+description: Notification protocol schemas
+---
+
+Notification Type Schema
+
+Defines the visual presentation style of the notification.
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/notification.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { Notification, NotificationAction, NotificationConfig, NotificationPosition, NotificationSeverity, NotificationType } from '@objectstack/spec/ui';
+import type { Notification, NotificationAction, NotificationConfig, NotificationPosition, NotificationSeverity, NotificationType } from '@objectstack/spec/ui';
+
+// Validate data
+const result = Notification.parse(data);
+```
+
+---
+
+## Notification
+
+Notification instance definition
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'toast' \| 'snackbar' \| 'banner' \| 'alert' \| 'inline'>` | ✅ | Notification presentation style |
+| **severity** | `Enum<'info' \| 'success' \| 'warning' \| 'error'>` | ✅ | Notification severity level |
+| **title** | `string \| Object` | optional | Notification title |
+| **message** | `string \| Object` | ✅ | Notification message body |
+| **icon** | `string` | optional | Icon name override |
+| **duration** | `number` | optional | Auto-dismiss duration in ms, omit for persistent |
+| **dismissible** | `boolean` | ✅ | Allow user to dismiss the notification |
+| **actions** | `Object[]` | optional | Action buttons |
+| **position** | `Enum<'top_left' \| 'top_center' \| 'top_right' \| 'bottom_left' \| 'bottom_center' \| 'bottom_right'>` | optional | Override default position |
+| **ariaLabel** | `string \| Object` | optional | Accessible label for screen readers (WAI-ARIA aria-label) |
+| **ariaDescribedBy** | `string` | optional | ID of element providing additional description (WAI-ARIA aria-describedby) |
+| **role** | `string` | optional | WAI-ARIA role attribute (e.g., "dialog", "navigation", "alert") |
+
+
+---
+
+## NotificationAction
+
+Notification action button
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **label** | `string \| Object` | ✅ | Action button label |
+| **action** | `string` | ✅ | Action identifier to execute |
+| **variant** | `Enum<'primary' \| 'secondary' \| 'link'>` | ✅ | Button variant style |
+
+
+---
+
+## NotificationConfig
+
+Global notification system configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **defaultPosition** | `Enum<'top_left' \| 'top_center' \| 'top_right' \| 'bottom_left' \| 'bottom_center' \| 'bottom_right'>` | ✅ | Default screen position for notifications |
+| **defaultDuration** | `number` | ✅ | Default auto-dismiss duration in ms |
+| **maxVisible** | `number` | ✅ | Maximum number of notifications visible at once |
+| **stackDirection** | `Enum<'up' \| 'down'>` | ✅ | Stack direction for multiple notifications |
+| **pauseOnHover** | `boolean` | ✅ | Pause auto-dismiss timer on hover |
+
+
+---
+
+## NotificationPosition
+
+Screen position for notification placement
+
+### Allowed Values
+
+* `top_left`
+* `top_center`
+* `top_right`
+* `bottom_left`
+* `bottom_center`
+* `bottom_right`
+
+
+---
+
+## NotificationSeverity
+
+Notification severity level
+
+### Allowed Values
+
+* `info`
+* `success`
+* `warning`
+* `error`
+
+
+---
+
+## NotificationType
+
+Notification presentation style
+
+### Allowed Values
+
+* `toast`
+* `snackbar`
+* `banner`
+* `alert`
+* `inline`
+
+
+---
+

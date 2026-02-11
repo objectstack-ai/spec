@@ -1,0 +1,122 @@
+---
+title: Query Adapter
+description: Query Adapter protocol schemas
+---
+
+API Query DSL Adapter Protocol
+
+Defines mapping rules between the internal unified query DSL
+
+(defined in `data/query.zod.ts`) and external API protocol formats:
+
+REST, GraphQL, and OData.
+
+This enables ObjectStack to expose a single internal query representation
+
+while supporting multiple API standards for external consumers.
+
+@see data/query.zod.ts - Unified internal query DSL
+
+@see api/rest-server.zod.ts - REST API configuration
+
+@see api/graphql.zod.ts - GraphQL API configuration
+
+@see api/odata.zod.ts - OData API configuration
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/query-adapter.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { GraphQLQueryAdapter, ODataQueryAdapter, OperatorMapping, QueryAdapterConfig, QueryAdapterTarget, RestQueryAdapter } from '@objectstack/spec/api';
+import type { GraphQLQueryAdapter, ODataQueryAdapter, OperatorMapping, QueryAdapterConfig, QueryAdapterTarget, RestQueryAdapter } from '@objectstack/spec/api';
+
+// Validate data
+const result = GraphQLQueryAdapter.parse(data);
+```
+
+---
+
+## GraphQLQueryAdapter
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **filterArgName** | `string` | ✅ | GraphQL filter argument name |
+| **filterStyle** | `Enum<'nested' \| 'flat' \| 'array'>` | ✅ | GraphQL filter nesting style |
+| **pagination** | `Object` | optional | Pagination argument name mappings |
+| **sorting** | `Object` | optional | Sort argument mapping |
+
+
+---
+
+## ODataQueryAdapter
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **version** | `Enum<'v2' \| 'v4'>` | ✅ | OData version |
+| **usePrefix** | `boolean` | ✅ | Use $ prefix for system query options ($filter vs filter) |
+| **stringFunctions** | `Enum<'contains' \| 'startswith' \| 'endswith' \| 'tolower' \| 'toupper' \| 'trim' \| 'concat' \| 'substring' \| 'length'>[]` | optional | Supported OData string functions |
+| **expand** | `Object` | optional | $expand configuration |
+
+
+---
+
+## OperatorMapping
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **operator** | `string` | ✅ | Unified DSL operator |
+| **rest** | `string` | optional | REST query parameter template |
+| **graphql** | `string` | optional | GraphQL where clause template |
+| **odata** | `string` | optional | OData $filter expression template |
+
+
+---
+
+## QueryAdapterConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **operatorMappings** | `Object[]` | optional | Custom operator mappings |
+| **rest** | `Object` | optional | REST query adapter configuration |
+| **graphql** | `Object` | optional | GraphQL query adapter configuration |
+| **odata** | `Object` | optional | OData query adapter configuration |
+
+
+---
+
+## QueryAdapterTarget
+
+### Allowed Values
+
+* `rest`
+* `graphql`
+* `odata`
+
+
+---
+
+## RestQueryAdapter
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **filterStyle** | `Enum<'bracket' \| 'dot' \| 'flat' \| 'rsql'>` | ✅ | REST filter parameter encoding style |
+| **pagination** | `Object` | optional | Pagination parameter name mappings |
+| **sorting** | `Object` | optional | Sort parameter mapping |
+| **fieldsParam** | `string` | ✅ | Field selection parameter name |
+
+
+---
+
