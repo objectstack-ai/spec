@@ -15,6 +15,8 @@ import {
   MetadataExportOptionsSchema,
   MetadataImportOptionsSchema,
   MetadataManagerConfigSchema,
+  MetadataFallbackStrategySchema,
+  MetadataSourceSchema,
 } from './metadata-persistence.zod';
 
 describe('MetadataScopeSchema', () => {
@@ -60,9 +62,10 @@ describe('MetadataRecordSchema', () => {
     expect(record.scope).toBe('platform');
     expect(record.strategy).toBe('merge');
     expect(record.state).toBe('active');
+    expect(record.version).toBe(1);
   });
 
-  it('should accept full record', () => {
+  it('should accept full record with new ADR-0002 fields', () => {
     const record = MetadataRecordSchema.parse({
       id: 'abc-123',
       name: 'account_list_view',
@@ -74,6 +77,11 @@ describe('MetadataRecordSchema', () => {
       strategy: 'replace',
       owner: 'user-1',
       state: 'draft',
+      tenantId: 'tenant-acme',
+      version: 3,
+      checksum: 'sha256:abc123',
+      source: 'database',
+      tags: ['crm', 'custom'],
       createdBy: 'admin',
       createdAt: '2025-01-01T00:00:00Z',
       updatedBy: 'admin',
@@ -85,6 +93,42 @@ describe('MetadataRecordSchema', () => {
     expect(record.extends).toBe('base_view');
     expect(record.strategy).toBe('replace');
     expect(record.state).toBe('draft');
+    expect(record.tenantId).toBe('tenant-acme');
+    expect(record.version).toBe(3);
+    expect(record.checksum).toBe('sha256:abc123');
+    expect(record.source).toBe('database');
+    expect(record.tags).toEqual(['crm', 'custom']);
+  });
+
+  it('should default version to 1', () => {
+    const record = MetadataRecordSchema.parse({
+      id: 'x', name: 'y', type: 'z', metadata: {},
+    });
+    expect(record.version).toBe(1);
+  });
+
+  it('should accept all valid source origins', () => {
+    const sources = ['filesystem', 'database', 'api', 'migration'];
+    sources.forEach((source) => {
+      const record = MetadataRecordSchema.parse({
+        id: 'x', name: 'y', type: 'z', metadata: {}, source,
+      });
+      expect(record.source).toBe(source);
+    });
+  });
+
+  it('should reject invalid source origin', () => {
+    expect(() => MetadataRecordSchema.parse({
+      id: 'x', name: 'y', type: 'z', metadata: {}, source: 'unknown',
+    })).toThrow();
+  });
+
+  it('should accept tags as string array', () => {
+    const record = MetadataRecordSchema.parse({
+      id: 'x', name: 'y', type: 'z', metadata: {},
+      tags: ['important', 'v2'],
+    });
+    expect(record.tags).toEqual(['important', 'v2']);
   });
 
   it('should reject missing required fields', () => {
@@ -171,6 +215,32 @@ describe('MetadataLoaderContractSchema', () => {
 
     expect(loader.description).toBe('Loads metadata over HTTP');
     expect(loader.supportedFormats).toEqual(['json', 'yaml']);
+  });
+
+  it('should accept datasource protocol', () => {
+    const loader = MetadataLoaderContractSchema.parse({
+      name: 'database',
+      protocol: 'datasource:',
+      capabilities: { read: true, write: true, watch: false, list: true },
+    });
+
+    expect(loader.protocol).toBe('datasource:');
+    expect(loader.capabilities.write).toBe(true);
+  });
+
+  it('should accept all valid protocols', () => {
+    const protocols = ['file:', 'http:', 's3:', 'datasource:'];
+    protocols.forEach((protocol) => {
+      expect(() => MetadataLoaderContractSchema.parse({
+        name: 'test', protocol, capabilities: {},
+      })).not.toThrow();
+    });
+  });
+
+  it('should reject invalid protocol', () => {
+    expect(() => MetadataLoaderContractSchema.parse({
+      name: 'test', protocol: 'ftp:', capabilities: {},
+    })).toThrow();
   });
 
   it('should reject missing required fields', () => {
@@ -376,23 +446,75 @@ describe('MetadataImportOptionsSchema', () => {
 });
 
 describe('MetadataManagerConfigSchema', () => {
-  it('should accept empty object (all optional)', () => {
+  it('should accept empty object with defaults', () => {
     const config = MetadataManagerConfigSchema.parse({});
     expect(config).toBeDefined();
+    expect(config.tableName).toBe('sys_metadata');
+    expect(config.fallback).toBe('none');
   });
 
-  it('should accept full config', () => {
+  it('should accept datasource-backed config', () => {
     const config = MetadataManagerConfigSchema.parse({
-      loaders: [{ name: 'fs' }],
-      watch: true,
-      cache: true,
-      basePath: '/app/metadata',
-      rootDir: '/app',
-      formats: ['json', 'yaml'],
-      watchOptions: { persistent: true },
+      datasource: 'default',
+      tableName: 'custom_metadata',
+      fallback: 'filesystem',
+      rootDir: '/app/metadata',
     });
 
+    expect(config.datasource).toBe('default');
+    expect(config.tableName).toBe('custom_metadata');
+    expect(config.fallback).toBe('filesystem');
+    expect(config.rootDir).toBe('/app/metadata');
+  });
+
+  it('should accept filesystem-only config', () => {
+    const config = MetadataManagerConfigSchema.parse({
+      rootDir: '/app',
+      watch: true,
+      cache: true,
+      formats: ['json', 'yaml'],
+    });
+
+    expect(config.rootDir).toBe('/app');
     expect(config.watch).toBe(true);
     expect(config.formats).toEqual(['json', 'yaml']);
+  });
+
+  it('should accept all fallback strategies', () => {
+    const strategies = ['filesystem', 'memory', 'none'];
+    strategies.forEach((fallback) => {
+      const config = MetadataManagerConfigSchema.parse({ fallback });
+      expect(config.fallback).toBe(fallback);
+    });
+  });
+
+  it('should reject invalid fallback strategy', () => {
+    expect(() => MetadataManagerConfigSchema.parse({ fallback: 'redis' })).toThrow();
+  });
+});
+
+describe('MetadataFallbackStrategySchema', () => {
+  it('should accept valid fallback strategies', () => {
+    const strategies = ['filesystem', 'memory', 'none'];
+    strategies.forEach((s) => {
+      expect(() => MetadataFallbackStrategySchema.parse(s)).not.toThrow();
+    });
+  });
+
+  it('should reject invalid strategy', () => {
+    expect(() => MetadataFallbackStrategySchema.parse('redis')).toThrow();
+  });
+});
+
+describe('MetadataSourceSchema', () => {
+  it('should accept valid sources', () => {
+    const sources = ['filesystem', 'database', 'api', 'migration'];
+    sources.forEach((s) => {
+      expect(() => MetadataSourceSchema.parse(s)).not.toThrow();
+    });
+  });
+
+  it('should reject invalid source', () => {
+    expect(() => MetadataSourceSchema.parse('unknown')).toThrow();
   });
 });
