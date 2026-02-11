@@ -24,8 +24,8 @@ describe('Discovery & Connection', () => {
       
       expect(discovery.version).toBeDefined();
       expect(discovery.apiName).toBeDefined();
-      expect(discovery.capabilities).toBeDefined();
-      expect(discovery.endpoints).toBeDefined();
+      expect(discovery.routes).toBeDefined();
+      expect(discovery.services).toBeDefined();
     });
   });
 

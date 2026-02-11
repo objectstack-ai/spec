@@ -32,7 +32,7 @@ async function testDiscovery() {
   let discovery = await protocol.getDiscovery();
   console.log('  - Auth service enabled:', discovery.services?.auth?.enabled);
   console.log('  - Auth service status:', discovery.services?.auth?.status);
-  console.log('  - Auth endpoint:', discovery.endpoints?.auth || 'undefined');
+  console.log('  - Auth route:', discovery.routes?.auth || 'undefined');
   console.log('');
   
   // 5. Register auth plugin
@@ -49,7 +49,7 @@ async function testDiscovery() {
   console.log('  - Auth service status:', discovery.services?.auth?.status);
   console.log('  - Auth service route:', discovery.services?.auth?.route);
   console.log('  - Auth service provider:', discovery.services?.auth?.provider);
-  console.log('  - Auth endpoint:', discovery.endpoints?.auth);
+  console.log('  - Auth route:', discovery.routes?.auth);
   console.log('');
 
   // 7. Verify the results

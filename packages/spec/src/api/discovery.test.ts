@@ -10,7 +10,7 @@ import {
   type ServiceInfo,
 } from './discovery.zod';
 
-describe('ApiCapabilitiesSchema', () => {
+describe('ApiCapabilitiesSchema (deprecated — kept for backward compatibility)', () => {
   it('should accept valid capabilities', () => {
     const capabilities: ApiCapabilities = {
       graphql: false,
@@ -125,6 +125,12 @@ describe('ApiRoutesSchema', () => {
   });
 });
 
+/** Minimal services map used as base fixture for DiscoverySchema tests */
+const minimalServices = {
+  data: { enabled: true, status: 'available' as const, route: '/api/v1/data', provider: 'objectql' },
+  metadata: { enabled: true, status: 'available' as const, route: '/api/v1/meta', provider: 'objectql' },
+};
+
 describe('DiscoverySchema', () => {
   it('should accept valid minimal discovery response', () => {
     const discovery: DiscoveryResponse = {
@@ -136,12 +142,7 @@ describe('DiscoverySchema', () => {
         metadata: '/api/v1/meta',
         auth: '/api/v1/auth',
       },
-      features: {
-        graphql: false,
-        search: false,
-        websockets: false,
-        files: true,
-      },
+      services: minimalServices,
       locale: {
         default: 'en-US',
         supported: ['en-US', 'zh-CN'],
@@ -165,11 +166,10 @@ describe('DiscoverySchema', () => {
         storage: '/api/v1/storage',
         graphql: '/api/v1/graphql',
       },
-      features: {
-        graphql: true,
-        search: true,
-        websockets: true,
-        files: true,
+      services: {
+        ...minimalServices,
+        graphql: { enabled: true, status: 'available' as const, route: '/api/v1/graphql', provider: 'plugin-graphql' },
+        search: { enabled: true, status: 'available' as const, route: '/api/v1/search', provider: 'plugin-search' },
       },
       locale: {
         default: 'en-US',
@@ -195,7 +195,7 @@ describe('DiscoverySchema', () => {
           metadata: '/api/v1/meta',
           auth: '/api/v1/auth',
         },
-        features: {},
+        services: minimalServices,
         locale: {
           default: 'en-US',
           supported: ['en-US'],
@@ -216,7 +216,7 @@ describe('DiscoverySchema', () => {
         metadata: '/api/v1/meta',
         auth: '/api/v1/auth',
       },
-      features: {},
+      services: minimalServices,
       locale: {
         default: 'en-US',
         supported: ['en-US'],
@@ -235,11 +235,10 @@ describe('DiscoverySchema', () => {
         metadata: '/api/v1/meta',
         auth: '/api/v1/auth',
       },
-      features: {
-        graphql: true,
-        search: true,
-        websockets: true,
-        files: true,
+      services: {
+        ...minimalServices,
+        graphql: { enabled: true, status: 'available' as const, route: '/graphql', provider: 'plugin-graphql' },
+        search: { enabled: true, status: 'available' as const, route: '/api/v1/search', provider: 'plugin-search' },
       },
       locale: {
         default: 'en-US',
@@ -261,7 +260,7 @@ describe('DiscoverySchema', () => {
         metadata: '/api/v1/meta',
         auth: '/api/v1/auth',
       },
-      features: {},
+      services: minimalServices,
       locale: {
         default: 'en-US',
         supported: ['en-US'],
@@ -282,7 +281,7 @@ describe('DiscoverySchema', () => {
         metadata: '/api/v1/meta',
         auth: '/api/v1/auth',
       },
-      features: {},
+      services: minimalServices,
       locale: {
         default: 'en-US',
         supported: ['en-US'],
@@ -303,7 +302,7 @@ describe('DiscoverySchema', () => {
         metadata: '/api/v1/meta',
         auth: '/api/v1/auth',
       },
-      features: {},
+      services: minimalServices,
       locale: {
         default: 'zh-CN',
         supported: ['en-US', 'zh-CN', 'ja-JP'],
@@ -336,7 +335,7 @@ describe('DiscoverySchema', () => {
           metadata: '/api/v1/meta',
           auth: '/api/v1/auth',
         },
-        features: {},
+        services: minimalServices,
         locale: {
           default: 'en-US',
           supported: ['en-US'],
@@ -357,7 +356,7 @@ describe('DiscoverySchema', () => {
         metadata: '/api/v1/meta',
         auth: '/api/v1/auth',
       },
-      features: {},
+      services: minimalServices,
       locale: {
         default: 'en-US',
         supported: [
@@ -379,7 +378,7 @@ describe('DiscoverySchema', () => {
     expect(discovery.locale.supported).toHaveLength(10);
   });
 
-  it('should handle GraphQL-enabled instance', () => {
+  it('should handle GraphQL-enabled instance via services', () => {
     const discovery = DiscoverySchema.parse({
       name: 'ObjectStack',
       version: '1.0.0',
@@ -390,11 +389,9 @@ describe('DiscoverySchema', () => {
         auth: '/api/v1/auth',
         graphql: '/api/v1/graphql',
       },
-      features: {
-        graphql: true,
-        search: true,
-        websockets: false,
-        files: true,
+      services: {
+        ...minimalServices,
+        graphql: { enabled: true, status: 'available' as const, route: '/api/v1/graphql', provider: 'plugin-graphql' },
       },
       locale: {
         default: 'en-US',
@@ -403,7 +400,7 @@ describe('DiscoverySchema', () => {
       },
     });
 
-    expect(discovery.features.graphql).toBe(true);
+    expect(discovery.services['graphql'].enabled).toBe(true);
     expect(discovery.routes.graphql).toBe('/api/v1/graphql');
   });
 
@@ -416,7 +413,7 @@ describe('DiscoverySchema', () => {
         metadata: '/api/v1/meta',
         auth: '/api/v1/auth',
       },
-      features: {},
+      services: minimalServices,
       locale: {
         default: 'en-US',
         supported: ['en-US'],
@@ -432,7 +429,24 @@ describe('DiscoverySchema', () => {
         metadata: '/api/v1/meta',
         auth: '/api/v1/auth',
       },
-      features: {},
+      services: minimalServices,
+      locale: {
+        default: 'en-US',
+        supported: ['en-US'],
+        timezone: 'UTC',
+      },
+    })).toThrow();
+  });
+
+  it('should reject discovery without services (now required)', () => {
+    expect(() => DiscoverySchema.parse({
+      name: 'ObjectStack',
+      version: '1.0.0',
+      environment: 'production',
+      routes: {
+        data: '/api/v1/data',
+        metadata: '/api/v1/meta',
+      },
       locale: {
         default: 'en-US',
         supported: ['en-US'],
@@ -503,22 +517,13 @@ describe('DiscoverySchema with services', () => {
       metadata: '/api/v1/meta',
       auth: '/api/v1/auth',
     },
-    features: {
-      graphql: false,
-      search: false,
-      websockets: false,
-      files: true,
-    },
+    services: minimalServices,
     locale: {
       default: 'en-US',
       supported: ['en-US'],
       timezone: 'UTC',
     },
   };
-
-  it('should accept discovery without services (backward compat)', () => {
-    expect(() => DiscoverySchema.parse(baseDiscovery)).not.toThrow();
-  });
 
   it('should accept discovery with services map', () => {
     const discovery = DiscoverySchema.parse({
@@ -533,10 +538,10 @@ describe('DiscoverySchema with services', () => {
     });
 
     expect(discovery.services).toBeDefined();
-    expect(discovery.services!['metadata'].enabled).toBe(true);
-    expect(discovery.services!['metadata'].status).toBe('available');
-    expect(discovery.services!['workflow'].enabled).toBe(false);
-    expect(discovery.services!['analytics'].status).toBe('stub');
+    expect(discovery.services['metadata'].enabled).toBe(true);
+    expect(discovery.services['metadata'].status).toBe('available');
+    expect(discovery.services['workflow'].enabled).toBe(false);
+    expect(discovery.services['analytics'].status).toBe('stub');
   });
 
   it('should allow clients to enumerate available vs unavailable services', () => {
@@ -552,14 +557,29 @@ describe('DiscoverySchema with services', () => {
       },
     });
 
-    const available = Object.entries(discovery.services!)
+    const available = Object.entries(discovery.services)
       .filter(([, s]) => s.enabled)
       .map(([name]) => name);
-    const unavailable = Object.entries(discovery.services!)
+    const unavailable = Object.entries(discovery.services)
       .filter(([, s]) => !s.enabled)
       .map(([name]) => name);
 
     expect(available).toEqual(['metadata', 'data', 'auth', 'cache']);
     expect(unavailable).toEqual(['workflow', 'ai']);
+  });
+
+  it('should derive capabilities from services (no dedicated capabilities field needed)', () => {
+    const discovery = DiscoverySchema.parse({
+      ...baseDiscovery,
+      services: {
+        ...minimalServices,
+        graphql: { enabled: true, status: 'available', route: '/graphql', provider: 'plugin-graphql' },
+        ai: { enabled: false, status: 'unavailable', message: 'Not installed' },
+      },
+    });
+
+    // Capability can be derived from service.enabled
+    expect(discovery.services['graphql'].enabled).toBe(true);
+    expect(discovery.services['ai'].enabled).toBe(false);
   });
 });

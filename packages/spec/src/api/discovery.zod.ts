@@ -4,7 +4,10 @@ import { z } from 'zod';
 
 /**
  * API Capabilities Schema
- * Defines what features are enabled on this ObjectOS instance.
+ * 
+ * @deprecated Capabilities are now derived from `services` map.
+ * Each service's `enabled` field replaces the corresponding capability flag.
+ * Kept for backward compatibility; will be removed in a future major version.
  */
 export const ApiCapabilitiesSchema = z.object({
   graphql: z.boolean().default(false),
@@ -89,6 +92,14 @@ export const ApiRoutesSchema = z.object({
 /**
  * Discovery Response Schema
  * The root object returned by the Metadata Discovery Endpoint.
+ * 
+ * Design rationale:
+ * - `services` is the single source of truth for service availability.
+ *   Each service entry includes `enabled`, `status`, `route`, and `provider`.
+ * - `routes` is a convenience shortcut: a flat map of service-name → route-path
+ *   so that clients can resolve endpoints without iterating the services map.
+ * - `capabilities`/`features` was removed because it was fully derivable
+ *   from `services[x].enabled`. Use `services` to determine feature availability.
  */
 export const DiscoverySchema = z.object({
   /** System Identity */
@@ -96,11 +107,8 @@ export const DiscoverySchema = z.object({
   version: z.string(),
   environment: z.enum(['production', 'sandbox', 'development']),
   
-  /** Dynamic Routing */
+  /** Dynamic Routing — convenience shortcut derived from services */
   routes: ApiRoutesSchema,
-  
-  /** Feature Flags */
-  features: ApiCapabilitiesSchema,
   
   /** Localization Info (helping frontend init i18n) */
   locale: z.object({
@@ -111,10 +119,11 @@ export const DiscoverySchema = z.object({
   
   /**
    * Per-service status map.
+   * This is the **single source of truth** for service availability.
    * Clients use this to determine which features are available,
    * show/hide UI elements, and display appropriate messages.
    */
-  services: z.record(z.string(), ServiceInfoSchema).optional().describe(
+  services: z.record(z.string(), ServiceInfoSchema).describe(
     'Per-service availability map keyed by CoreServiceName'
   ),
 
