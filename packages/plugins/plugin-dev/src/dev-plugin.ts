@@ -149,9 +149,13 @@ function createSearchStub(driver: InMemoryDriver) {
         object: tbl,
         where: { _searchText: { $regex: new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') } },
       });
+      const internalKeys = new Set(['id', '_docId', '_searchText', 'created_at', 'updated_at']);
       const hits = all.map((doc: any) => {
-        const { id: _id, _docId, _searchText, created_at, updated_at, ...document } = doc;
-        return { id: _docId, score: 1, document };
+        const document: Record<string, unknown> = {};
+        for (const [k, v] of Object.entries(doc)) {
+          if (!internalKeys.has(k)) document[k] = v;
+        }
+        return { id: doc._docId, score: 1, document };
       });
       return { hits, totalHits: hits.length, processingTimeMs: 0 };
     },
@@ -304,6 +308,7 @@ function createWorkflowStub() {
 function createMetadataStub(driver: InMemoryDriver) {
   const tablePrefix = '_meta_';
   const tableName = (type: string) => `${tablePrefix}${type}`;
+  const registeredTypes = new Set<string>();
 
   return {
     _dev: true, _serviceName: 'metadata',
@@ -311,6 +316,7 @@ function createMetadataStub(driver: InMemoryDriver) {
     /** Register (upsert) a metadata definition */
     async register(type: string, definition: any) {
       const name = definition.name ?? '';
+      registeredTypes.add(type);
       await driver.upsert(tableName(type), { ...definition, name }, ['name']);
     },
 
@@ -367,10 +373,9 @@ function createMetadataStub(driver: InMemoryDriver) {
 
     /** Unregister all metadata items from a package */
     async unregisterPackage(packageName: string) {
-      const types = Object.keys((driver as any).db || {})
-        .filter(t => t.startsWith(tablePrefix));
-      for (const t of types) {
-        await driver.deleteMany(t, { object: t, where: { package: packageName } });
+      for (const type of registeredTypes) {
+        const tbl = tableName(type);
+        await driver.deleteMany(tbl, { object: tbl, where: { package: packageName } });
       }
     },
   };
