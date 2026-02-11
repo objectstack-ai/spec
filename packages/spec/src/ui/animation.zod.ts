@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
+import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 
 /**
  * Transition Preset Schema
@@ -70,13 +71,14 @@ export type AnimationTrigger = z.infer<typeof AnimationTriggerSchema>;
  * Animation configuration for an individual UI component.
  */
 export const ComponentAnimationSchema = z.object({
+  label: I18nLabelSchema.optional().describe('Descriptive label for this animation configuration'),
   enter: TransitionConfigSchema.optional().describe('Enter/mount animation'),
   exit: TransitionConfigSchema.optional().describe('Exit/unmount animation'),
   hover: TransitionConfigSchema.optional().describe('Hover state animation'),
   trigger: AnimationTriggerSchema.optional().describe('When to trigger the animation'),
   reducedMotion: z.enum(['respect', 'disable', 'alternative']).default('respect')
     .describe('Accessibility: how to handle prefers-reduced-motion'),
-}).describe('Component-level animation configuration');
+}).merge(AriaPropsSchema.partial()).describe('Component-level animation configuration');
 
 export type ComponentAnimation = z.infer<typeof ComponentAnimationSchema>;
 
@@ -98,6 +100,7 @@ export type PageTransition = z.infer<typeof PageTransitionSchema>;
  * Top-level animation and motion design configuration.
  */
 export const MotionConfigSchema = z.object({
+  label: I18nLabelSchema.optional().describe('Descriptive label for the motion configuration'),
   defaultTransition: TransitionConfigSchema.optional().describe('Default transition applied to all animations'),
   pageTransitions: PageTransitionSchema.optional().describe('Page navigation transition settings'),
   componentAnimations: z.record(z.string(), ComponentAnimationSchema).optional()

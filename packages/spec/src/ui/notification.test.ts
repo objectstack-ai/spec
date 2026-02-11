@@ -168,3 +168,30 @@ describe('Type exports', () => {
     expect(config).toBeDefined();
   });
 });
+
+describe('ARIA integration', () => {
+  it('should accept ARIA props on NotificationSchema', () => {
+    const result = NotificationSchema.parse({
+      message: 'File saved',
+      ariaLabel: 'Success notification',
+      role: 'alert',
+    });
+    expect(result.ariaLabel).toBe('Success notification');
+    expect(result.role).toBe('alert');
+  });
+
+  it('should accept I18n ariaLabel on NotificationSchema', () => {
+    const result = NotificationSchema.parse({
+      message: 'Error occurred',
+      ariaLabel: { key: 'notifications.error_alert', defaultValue: 'Error alert' },
+    });
+    expect(result.ariaLabel).toEqual({ key: 'notifications.error_alert', defaultValue: 'Error alert' });
+  });
+
+  it('should leave ARIA fields undefined when not provided', () => {
+    const result = NotificationSchema.parse({ message: 'Test' });
+    expect(result.ariaLabel).toBeUndefined();
+    expect(result.ariaDescribedBy).toBeUndefined();
+    expect(result.role).toBeUndefined();
+  });
+});

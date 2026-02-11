@@ -188,3 +188,50 @@ describe('Type exports', () => {
     expect(config).toBeDefined();
   });
 });
+
+describe('I18n and ARIA integration', () => {
+  it('should accept I18n label on DropZoneSchema', () => {
+    const result = DropZoneSchema.parse({
+      accept: ['card'],
+      label: { key: 'dnd.drop_zone', defaultValue: 'Drop items here' },
+    });
+    expect(result.label).toEqual({ key: 'dnd.drop_zone', defaultValue: 'Drop items here' });
+  });
+
+  it('should accept ARIA props on DropZoneSchema', () => {
+    const result = DropZoneSchema.parse({
+      accept: ['task'],
+      ariaLabel: 'Task drop zone',
+      role: 'region',
+    });
+    expect(result.ariaLabel).toBe('Task drop zone');
+    expect(result.role).toBe('region');
+  });
+
+  it('should accept I18n label on DragItemSchema', () => {
+    const result = DragItemSchema.parse({
+      type: 'card',
+      label: 'Drag this card',
+    });
+    expect(result.label).toBe('Drag this card');
+  });
+
+  it('should accept ARIA props on DragItemSchema', () => {
+    const result = DragItemSchema.parse({
+      type: 'row',
+      ariaLabel: { key: 'dnd.drag_row', defaultValue: 'Draggable row' },
+      ariaDescribedBy: 'row-desc',
+    });
+    expect(result.ariaLabel).toEqual({ key: 'dnd.drag_row', defaultValue: 'Draggable row' });
+    expect(result.ariaDescribedBy).toBe('row-desc');
+  });
+
+  it('should leave I18n/ARIA fields undefined when not provided', () => {
+    const zone = DropZoneSchema.parse({ accept: ['item'] });
+    expect(zone.label).toBeUndefined();
+    expect(zone.ariaLabel).toBeUndefined();
+    const item = DragItemSchema.parse({ type: 'card' });
+    expect(item.label).toBeUndefined();
+    expect(item.ariaLabel).toBeUndefined();
+  });
+});

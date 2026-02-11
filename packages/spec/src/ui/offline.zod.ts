@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
+import { I18nLabelSchema } from './i18n.zod';
 
 /**
  * Offline Strategy Schema
@@ -87,6 +88,7 @@ export const OfflineConfigSchema = z.object({
   cache: OfflineCacheConfigSchema.optional().describe('Cache settings for offline data'),
   sync: SyncConfigSchema.optional().describe('Sync settings for offline mutations'),
   offlineIndicator: z.boolean().default(true).describe('Show a visual indicator when offline'),
+  offlineMessage: I18nLabelSchema.optional().describe('Customizable offline status message shown to users'),
   queueMaxSize: z.number().optional().describe('Maximum number of queued offline mutations'),
 }).describe('Offline support configuration');
 

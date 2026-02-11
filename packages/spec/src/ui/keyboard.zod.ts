@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
+import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 
 /**
  * Focus Trap Configuration Schema
@@ -22,7 +23,7 @@ export type FocusTrapConfig = z.infer<typeof FocusTrapConfigSchema>;
 export const KeyboardShortcutSchema = z.object({
   key: z.string().describe('Key combination (e.g., "Ctrl+S", "Alt+N", "Escape")'),
   action: z.string().describe('Action identifier to invoke when shortcut is triggered'),
-  description: z.string().optional().describe('Human-readable description of what the shortcut does'),
+  description: I18nLabelSchema.optional().describe('Human-readable description of what the shortcut does'),
   scope: z.enum(['global', 'view', 'form', 'modal', 'list']).default('global')
     .describe('Scope in which this shortcut is active'),
 }).describe('Keyboard shortcut binding');
@@ -54,6 +55,6 @@ export const KeyboardNavigationConfigSchema = z.object({
   focusManagement: FocusManagementSchema.optional().describe('Focus and tab order management'),
   rovingTabindex: z.boolean().default(false)
     .describe('Enable roving tabindex pattern for composite widgets'),
-}).describe('Keyboard navigation and shortcut configuration');
+}).merge(AriaPropsSchema.partial()).describe('Keyboard navigation and shortcut configuration');
 
 export type KeyboardNavigationConfig = z.infer<typeof KeyboardNavigationConfigSchema>;

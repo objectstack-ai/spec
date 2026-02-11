@@ -31,6 +31,7 @@ export * from './auth-config.zod';
 export * from './compliance.zod';
 export * from './encryption.zod';
 export * from './masking.zod';
+export * from './security-context.zod';
 
 // Runtime Services
 export * from './job.zod';
