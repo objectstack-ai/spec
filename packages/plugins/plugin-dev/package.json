@@ -42,6 +42,7 @@
     "@objectstack/runtime": "workspace:*",
     "@objectstack/plugin-auth": "workspace:*",
     "@objectstack/plugin-hono-server": "workspace:*",
+    "@objectstack/rest": "workspace:*",
     "@types/node": "^25.2.2",
     "typescript": "^5.0.0",
     "vitest": "^4.0.18"

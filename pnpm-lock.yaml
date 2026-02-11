@@ -690,9 +690,6 @@ importers:
       '@objectstack/core':
         specifier: workspace:*
         version: link:../../core
-      '@objectstack/rest':
-        specifier: workspace:*
-        version: link:../../rest
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../spec
@@ -709,6 +706,9 @@ importers:
       '@objectstack/plugin-hono-server':
         specifier: workspace:*
         version: link:../plugin-hono-server
+      '@objectstack/rest':
+        specifier: workspace:*
+        version: link:../../rest
       '@objectstack/runtime':
         specifier: workspace:*
         version: link:../../runtime
