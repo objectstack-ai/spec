@@ -10,8 +10,8 @@ description: Feedback Loop protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { FeedbackLoop, Issue, MetadataSource, Resolution } from '@objectstack/spec/ai';
-import type { FeedbackLoop, Issue, MetadataSource, Resolution } from '@objectstack/spec/ai';
+import { FeedbackLoop, Issue, Resolution } from '@objectstack/spec/ai';
+import type { FeedbackLoop, Issue, Resolution } from '@objectstack/spec/ai';
 
 // Validate data
 const result = FeedbackLoop.parse(data);
@@ -47,23 +47,6 @@ const result = FeedbackLoop.parse(data);
 | **userId** | `string` | optional |  |
 | **context** | `Record<string, any>` | optional |  |
 | **source** | `Object` | optional |  |
-
-
----
-
-## MetadataSource
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **file** | `string` | optional |  |
-| **line** | `number` | optional |  |
-| **column** | `number` | optional |  |
-| **package** | `string` | optional |  |
-| **object** | `string` | optional |  |
-| **field** | `string` | optional |  |
-| **component** | `string` | optional |  |
 
 
 ---

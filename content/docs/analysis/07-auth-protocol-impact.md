@@ -1,3 +1,8 @@
+---
+title: Auth Protocol Impact Analysis
+description: Deep analysis of the auth protocol and AI-powered permission governance
+---
+
 # Auth Protocol 深度解析:AI 赋能的智能权限治理体系
 
 ## 概述

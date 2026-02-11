@@ -44,12 +44,27 @@ Supports Memory, Redis, Memcached, and CDN.
 ## TypeScript Usage
 
 ```typescript
-import { CacheConfig, CacheInvalidation, CacheStrategy, CacheTier } from '@objectstack/spec/system';
-import type { CacheConfig, CacheInvalidation, CacheStrategy, CacheTier } from '@objectstack/spec/system';
+import { CacheAvalanchePrevention, CacheConfig, CacheConsistency, CacheInvalidation, CacheStrategy, CacheTier, CacheWarmup, DistributedCacheConfig } from '@objectstack/spec/system';
+import type { CacheAvalanchePrevention, CacheConfig, CacheConsistency, CacheInvalidation, CacheStrategy, CacheTier, CacheWarmup, DistributedCacheConfig } from '@objectstack/spec/system';
 
 // Validate data
-const result = CacheConfig.parse(data);
+const result = CacheAvalanchePrevention.parse(data);
 ```
+
+---
+
+## CacheAvalanchePrevention
+
+Cache avalanche/stampede prevention configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **jitterTtl** | `Object` | optional | TTL jitter to prevent simultaneous expiration |
+| **circuitBreaker** | `Object` | optional | Circuit breaker for backend protection |
+| **lockout** | `Object` | optional | Lock-based stampede prevention |
+
 
 ---
 
@@ -67,6 +82,20 @@ Top-level application cache configuration
 | **prefetch** | `boolean` | ✅ | Enable cache prefetching |
 | **compression** | `boolean` | ✅ | Enable data compression in cache |
 | **encryption** | `boolean` | ✅ | Enable encryption for cached data |
+
+
+---
+
+## CacheConsistency
+
+Distributed cache write consistency strategy
+
+### Allowed Values
+
+* `write_through`
+* `write_behind`
+* `write_around`
+* `refresh_ahead`
 
 
 ---
@@ -116,6 +145,44 @@ Configuration for a single cache tier in the hierarchy
 | **ttl** | `number` | ✅ | Default TTL in seconds |
 | **strategy** | `Enum<'lru' \| 'lfu' \| 'fifo' \| 'ttl' \| 'adaptive'>` | ✅ | Eviction strategy |
 | **warmup** | `boolean` | ✅ | Pre-populate cache on startup |
+
+
+---
+
+## CacheWarmup
+
+Cache warmup strategy
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable cache warmup |
+| **strategy** | `Enum<'eager' \| 'lazy' \| 'scheduled'>` | ✅ | Warmup strategy: eager (at startup), lazy (on first access), scheduled (cron) |
+| **schedule** | `string` | optional | Cron expression for scheduled warmup |
+| **patterns** | `string[]` | optional | Key patterns to warm up (e.g., "user:*", "config:*") |
+| **concurrency** | `number` | ✅ | Maximum concurrent warmup operations |
+
+
+---
+
+## DistributedCacheConfig
+
+Distributed cache configuration with consistency and avalanche prevention
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable application-level caching |
+| **tiers** | `Object[]` | ✅ | Ordered cache tier hierarchy |
+| **invalidation** | `Object[]` | ✅ | Cache invalidation rules |
+| **prefetch** | `boolean` | ✅ | Enable cache prefetching |
+| **compression** | `boolean` | ✅ | Enable data compression in cache |
+| **encryption** | `boolean` | ✅ | Enable encryption for cached data |
+| **consistency** | `Enum<'write_through' \| 'write_behind' \| 'write_around' \| 'refresh_ahead'>` | optional | Distributed cache consistency strategy |
+| **avalanchePrevention** | `Object` | optional | Cache avalanche and stampede prevention |
+| **warmup** | `Object` | optional | Cache warmup strategy |
 
 
 ---

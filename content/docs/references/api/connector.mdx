@@ -10,12 +10,29 @@ description: Connector protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { RetryStrategy } from '@objectstack/spec/api';
-import type { RetryStrategy } from '@objectstack/spec/api';
+import { ErrorCategory, RetryStrategy, WebhookConfig, WebhookEvent } from '@objectstack/spec/api';
+import type { ErrorCategory, RetryStrategy, WebhookConfig, WebhookEvent } from '@objectstack/spec/api';
 
 // Validate data
-const result = RetryStrategy.parse(data);
+const result = ErrorCategory.parse(data);
 ```
+
+---
+
+## ErrorCategory
+
+### Allowed Values
+
+* `validation`
+* `authentication`
+* `authorization`
+* `not_found`
+* `conflict`
+* `rate_limit`
+* `server`
+* `external`
+* `maintenance`
+
 
 ---
 
@@ -27,6 +44,36 @@ const result = RetryStrategy.parse(data);
 * `retry_immediate`
 * `retry_backoff`
 * `retry_after`
+
+
+---
+
+## WebhookConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable webhook support |
+| **events** | `Object[]` | ✅ | Registered webhook events |
+| **deliveryConfig** | `Object` | ✅ | Webhook delivery configuration |
+| **registrationEndpoint** | `string` | ✅ | URL path for webhook registration |
+
+
+---
+
+## WebhookEvent
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Webhook event identifier (snake_case) |
+| **description** | `string` | ✅ | Human-readable event description |
+| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'DELETE' \| 'PATCH' \| 'HEAD' \| 'OPTIONS'>` | ✅ | HTTP method for webhook delivery |
+| **payloadSchema** | `string` | ✅ | JSON Schema $ref for the webhook payload |
+| **headers** | `Record<string, string>` | optional | Custom headers to include in webhook delivery |
+| **security** | `Enum<'hmac_sha256' \| 'basic' \| 'bearer' \| 'api_key'>[]` | ✅ | Supported authentication methods for webhook verification |
 
 
 ---

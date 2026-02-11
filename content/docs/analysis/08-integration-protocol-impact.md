@@ -1,3 +1,8 @@
+---
+title: Integration Protocol Impact Analysis
+description: Deep analysis of the integration protocol and AI-driven data interconnection
+---
+
 # Integration Protocol 深度解析:AI 驱动的智能数据互联
 
 ## 概述

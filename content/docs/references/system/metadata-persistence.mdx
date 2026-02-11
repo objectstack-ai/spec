@@ -14,8 +14,8 @@ Defines the lifecycle and mutability of a metadata item.
 ## TypeScript Usage
 
 ```typescript
-import { MetadataCollectionInfo, MetadataExportOptions, MetadataFormat, MetadataImportOptions, MetadataLoadOptions, MetadataLoadResult, MetadataLoaderContract, MetadataManagerConfig, MetadataRecord, MetadataSaveOptions, MetadataSaveResult, MetadataScope, MetadataState, MetadataStats, MetadataWatchEvent } from '@objectstack/spec/system';
-import type { MetadataCollectionInfo, MetadataExportOptions, MetadataFormat, MetadataImportOptions, MetadataLoadOptions, MetadataLoadResult, MetadataLoaderContract, MetadataManagerConfig, MetadataRecord, MetadataSaveOptions, MetadataSaveResult, MetadataScope, MetadataState, MetadataStats, MetadataWatchEvent } from '@objectstack/spec/system';
+import { MetadataCollectionInfo, MetadataExportOptions, MetadataFallbackStrategy, MetadataFormat, MetadataImportOptions, MetadataLoadOptions, MetadataLoadResult, MetadataLoaderContract, MetadataManagerConfig, MetadataRecord, MetadataSaveOptions, MetadataSaveResult, MetadataScope, MetadataSource, MetadataState, MetadataStats, MetadataWatchEvent } from '@objectstack/spec/system';
+import type { MetadataCollectionInfo, MetadataExportOptions, MetadataFallbackStrategy, MetadataFormat, MetadataImportOptions, MetadataLoadOptions, MetadataLoadResult, MetadataLoaderContract, MetadataManagerConfig, MetadataRecord, MetadataSaveOptions, MetadataSaveResult, MetadataScope, MetadataSource, MetadataState, MetadataStats, MetadataWatchEvent } from '@objectstack/spec/system';
 
 // Validate data
 const result = MetadataCollectionInfo.parse(data);
@@ -46,6 +46,17 @@ const result = MetadataCollectionInfo.parse(data);
 | **namespaces** | `string[]` | optional |  |
 | **output** | `string` | ✅ | Output directory or file |
 | **format** | `Enum<'json' \| 'yaml' \| 'yml' \| 'ts' \| 'js' \| 'typescript' \| 'javascript'>` | ✅ |  |
+
+
+---
+
+## MetadataFallbackStrategy
+
+### Allowed Values
+
+* `filesystem`
+* `memory`
+* `none`
 
 
 ---
@@ -124,7 +135,7 @@ const result = MetadataCollectionInfo.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ |  |
-| **protocol** | `string` | ✅ |  |
+| **protocol** | `Enum<'file:' \| 'http:' \| 's3:' \| 'datasource:' \| 'memory:'>` | ✅ | Loader protocol identifier |
 | **description** | `string` | optional |  |
 | **supportedFormats** | `string[]` | optional |  |
 | **supportsWatch** | `boolean` | optional |  |
@@ -141,13 +152,14 @@ const result = MetadataCollectionInfo.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **loaders** | `any[]` | optional |  |
-| **watch** | `boolean` | optional |  |
-| **cache** | `boolean` | optional |  |
-| **basePath** | `string` | optional |  |
-| **rootDir** | `string` | optional |  |
-| **formats** | `Enum<'json' \| 'yaml' \| 'yml' \| 'ts' \| 'js' \| 'typescript' \| 'javascript'>[]` | optional |  |
-| **watchOptions** | `any` | optional |  |
+| **datasource** | `string` | optional | Datasource name reference for database persistence |
+| **tableName** | `string` | ✅ | Database table name for metadata storage |
+| **fallback** | `Enum<'filesystem' \| 'memory' \| 'none'>` | ✅ | Fallback strategy when datasource is unavailable |
+| **rootDir** | `string` | optional | Root directory for filesystem-based metadata |
+| **formats** | `Enum<'json' \| 'yaml' \| 'yml' \| 'ts' \| 'js' \| 'typescript' \| 'javascript'>[]` | optional | Enabled metadata formats |
+| **watch** | `boolean` | optional | Enable file watching for filesystem loaders |
+| **cache** | `boolean` | optional | Enable metadata caching |
+| **watchOptions** | `Object` | optional | File watcher options |
 
 
 ---
@@ -168,6 +180,11 @@ const result = MetadataCollectionInfo.parse(data);
 | **strategy** | `Enum<'merge' \| 'replace'>` | ✅ |  |
 | **owner** | `string` | optional |  |
 | **state** | `Enum<'draft' \| 'active' \| 'archived' \| 'deprecated'>` | ✅ |  |
+| **tenantId** | `string` | optional | Tenant identifier for multi-tenant isolation |
+| **version** | `number` | ✅ | Record version for optimistic concurrency control |
+| **checksum** | `string` | optional | Content checksum for change detection |
+| **source** | `Enum<'filesystem' \| 'database' \| 'api' \| 'migration'>` | optional | Origin of this metadata record |
+| **tags** | `string[]` | optional | Classification tags for filtering and grouping |
 | **createdBy** | `string` | optional |  |
 | **createdAt** | `string` | optional | Creation timestamp |
 | **updatedBy** | `string` | optional |  |
@@ -220,6 +237,18 @@ const result = MetadataCollectionInfo.parse(data);
 * `system`
 * `platform`
 * `user`
+
+
+---
+
+## MetadataSource
+
+### Allowed Values
+
+* `filesystem`
+* `database`
+* `api`
+* `migration`
 
 
 ---

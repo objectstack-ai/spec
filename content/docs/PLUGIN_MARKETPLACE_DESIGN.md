@@ -1,3 +1,8 @@
+---
+title: Plugin Marketplace Design
+description: ObjectStack plugin marketplace design report
+---
+
 # ObjectStack 插件市场设计报告
 # ObjectStack Plugin Marketplace Design Report
 

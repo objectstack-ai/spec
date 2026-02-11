@@ -2,14 +2,21 @@
   "title": "UI Protocol",
   "pages": [
     "action",
+    "animation",
     "app",
     "chart",
     "component",
     "dashboard",
+    "dnd",
     "i18n",
+    "keyboard",
+    "notification",
+    "offline",
     "page",
     "report",
+    "responsive",
     "theme",
+    "touch",
     "view",
     "widget"
   ]

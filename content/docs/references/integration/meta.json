@@ -6,6 +6,7 @@
     "mapping",
     "message-queue",
     "misc",
-    "object-storage"
+    "object-storage",
+    "offline"
   ]
 }

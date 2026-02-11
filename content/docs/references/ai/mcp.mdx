@@ -38,8 +38,8 @@ Use Cases:
 ## TypeScript Usage
 
 ```typescript
-import { MCPCapability, MCPClientConfig, MCPPrompt, MCPPromptArgument, MCPPromptMessage, MCPPromptRequest, MCPPromptResponse, MCPResource, MCPResourceRequest, MCPResourceResponse, MCPResourceTemplate, MCPResourceType, MCPServerConfig, MCPServerInfo, MCPTool, MCPToolCallRequest, MCPToolCallResponse, MCPToolParameter, MCPTransportConfig, MCPTransportType } from '@objectstack/spec/ai';
-import type { MCPCapability, MCPClientConfig, MCPPrompt, MCPPromptArgument, MCPPromptMessage, MCPPromptRequest, MCPPromptResponse, MCPResource, MCPResourceRequest, MCPResourceResponse, MCPResourceTemplate, MCPResourceType, MCPServerConfig, MCPServerInfo, MCPTool, MCPToolCallRequest, MCPToolCallResponse, MCPToolParameter, MCPTransportConfig, MCPTransportType } from '@objectstack/spec/ai';
+import { MCPCapability, MCPClientConfig, MCPPrompt, MCPPromptArgument, MCPPromptMessage, MCPPromptRequest, MCPPromptResponse, MCPResource, MCPResourceRequest, MCPResourceResponse, MCPResourceTemplate, MCPResourceType, MCPRootEntry, MCPRootsConfig, MCPSamplingConfig, MCPServerConfig, MCPServerInfo, MCPStreamingConfig, MCPTool, MCPToolApproval, MCPToolCallRequest, MCPToolCallResponse, MCPToolParameter, MCPTransportConfig, MCPTransportType } from '@objectstack/spec/ai';
+import type { MCPCapability, MCPClientConfig, MCPPrompt, MCPPromptArgument, MCPPromptMessage, MCPPromptRequest, MCPPromptResponse, MCPResource, MCPResourceRequest, MCPResourceResponse, MCPResourceTemplate, MCPResourceType, MCPRootEntry, MCPRootsConfig, MCPSamplingConfig, MCPServerConfig, MCPServerInfo, MCPStreamingConfig, MCPTool, MCPToolApproval, MCPToolCallRequest, MCPToolCallResponse, MCPToolParameter, MCPTransportConfig, MCPTransportType } from '@objectstack/spec/ai';
 
 // Validate data
 const result = MCPCapability.parse(data);
@@ -77,6 +77,7 @@ const result = MCPCapability.parse(data);
 | **retryDelay** | `integer` | ✅ |  |
 | **enableLogging** | `boolean` | ✅ |  |
 | **logLevel** | `Enum<'debug' \| 'info' \| 'warn' \| 'error'>` | ✅ |  |
+| **roots** | `Object` | optional | Root directories/resources configuration |
 
 
 ---
@@ -225,6 +226,54 @@ const result = MCPCapability.parse(data);
 
 ---
 
+## MCPRootEntry
+
+A single root directory or resource
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **uri** | `string` | ✅ | Root URI (e.g., file:///path/to/project) |
+| **name** | `string` | optional | Human-readable root name |
+| **readOnly** | `boolean` | optional | Whether the root is read-only |
+
+
+---
+
+## MCPRootsConfig
+
+Roots configuration for MCP client
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **roots** | `Object[]` | ✅ | Root directories or resources available to the client |
+| **watchForChanges** | `boolean` | ✅ | Watch root directories for filesystem changes |
+| **notifyOnChange** | `boolean` | ✅ | Notify server when root contents change |
+
+
+---
+
+## MCPSamplingConfig
+
+Sampling configuration for MCP
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable LLM sampling |
+| **maxTokens** | `integer` | ✅ | Maximum tokens to generate |
+| **temperature** | `number` | optional | Sampling temperature |
+| **stopSequences** | `string[]` | optional | Stop sequences to end generation |
+| **modelPreferences** | `string[]` | optional | Preferred model IDs in priority order |
+| **systemPrompt** | `string` | optional | System prompt for sampling context |
+
+
+---
+
 ## MCPServerConfig
 
 ### Properties
@@ -250,6 +299,9 @@ const result = MCPCapability.parse(data);
 | **version** | `string` | ✅ |  |
 | **createdAt** | `string` | optional |  |
 | **updatedAt** | `string` | optional |  |
+| **streaming** | `Object` | optional | Streaming configuration |
+| **toolApproval** | `Object` | optional | Tool approval configuration |
+| **sampling** | `Object` | optional | LLM sampling configuration |
 
 
 ---
@@ -268,6 +320,22 @@ const result = MCPCapability.parse(data);
 | **vendor** | `string` | optional | Server vendor/provider |
 | **homepage** | `string` | optional | Server homepage URL |
 | **documentation** | `string` | optional | Documentation URL |
+
+
+---
+
+## MCPStreamingConfig
+
+Streaming configuration for MCP communication
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable streaming for MCP communication |
+| **chunkSize** | `integer` | optional | Size of each streamed chunk in bytes |
+| **heartbeatIntervalMs** | `integer` | ✅ | Heartbeat interval in milliseconds |
+| **backpressure** | `Enum<'drop' \| 'buffer' \| 'block'>` | optional | Backpressure handling strategy |
 
 
 ---
@@ -293,6 +361,22 @@ const result = MCPCapability.parse(data);
 | **tags** | `string[]` | optional |  |
 | **deprecated** | `boolean` | ✅ |  |
 | **version** | `string` | ✅ |  |
+
+
+---
+
+## MCPToolApproval
+
+Tool approval configuration for MCP
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **requireApproval** | `boolean` | ✅ | Require approval before tool execution |
+| **approvalStrategy** | `Enum<'human_in_loop' \| 'auto_approve' \| 'policy_based'>` | ✅ | Approval strategy for tool execution |
+| **dangerousToolPatterns** | `string[]` | optional | Regex patterns for tools needing approval |
+| **autoApproveTimeout** | `integer` | optional | Auto-approve timeout in seconds |
 
 
 ---

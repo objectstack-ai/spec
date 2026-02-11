@@ -14,8 +14,8 @@ Defines brand colors and their variants.
 ## TypeScript Usage
 
 ```typescript
-import { Animation, BorderRadius, Breakpoints, ColorPalette, Shadow, Spacing, Theme, ThemeMode, Typography, ZIndex } from '@objectstack/spec/ui';
-import type { Animation, BorderRadius, Breakpoints, ColorPalette, Shadow, Spacing, Theme, ThemeMode, Typography, ZIndex } from '@objectstack/spec/ui';
+import { Animation, BorderRadius, Breakpoints, ColorPalette, DensityMode, Shadow, Spacing, Theme, ThemeMode, Typography, WcagContrastLevel, ZIndex } from '@objectstack/spec/ui';
+import type { Animation, BorderRadius, Breakpoints, ColorPalette, DensityMode, Shadow, Spacing, Theme, ThemeMode, Typography, WcagContrastLevel, ZIndex } from '@objectstack/spec/ui';
 
 // Validate data
 const result = Animation.parse(data);
@@ -96,6 +96,17 @@ const result = Animation.parse(data);
 
 ---
 
+## DensityMode
+
+### Allowed Values
+
+* `compact`
+* `regular`
+* `spacious`
+
+
+---
+
 ## Shadow
 
 ### Properties
@@ -158,6 +169,11 @@ const result = Animation.parse(data);
 | **customVars** | `Record<string, string>` | optional | Custom CSS variables (key-value pairs) |
 | **logo** | `Object` | optional | Logo assets |
 | **extends** | `string` | optional | Base theme to extend from |
+| **density** | `Enum<'compact' \| 'regular' \| 'spacious'>` | optional | Display density: compact, regular, or spacious |
+| **wcagContrast** | `Enum<'AA' \| 'AAA'>` | optional | WCAG color contrast level (AA or AAA) |
+| **rtl** | `boolean` | optional | Enable right-to-left layout direction |
+| **touchTarget** | `Object` | optional | Touch target sizing defaults |
+| **keyboardNavigation** | `Object` | optional | Keyboard focus management settings |
 
 
 ---
@@ -184,6 +200,16 @@ const result = Animation.parse(data);
 | **fontWeight** | `Object` | optional |  |
 | **lineHeight** | `Object` | optional |  |
 | **letterSpacing** | `Object` | optional |  |
+
+
+---
+
+## WcagContrastLevel
+
+### Allowed Values
+
+* `AA`
+* `AAA`
 
 
 ---

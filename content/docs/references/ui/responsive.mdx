@@ -1,0 +1,109 @@
+---
+title: Responsive
+description: Responsive protocol schemas
+---
+
+Breakpoint Name Enum
+
+Matches the breakpoint names defined in theme.zod.ts BreakpointsSchema.
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/responsive.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { BreakpointColumnMap, BreakpointName, BreakpointOrderMap, PerformanceConfig, ResponsiveConfig } from '@objectstack/spec/ui';
+import type { BreakpointColumnMap, BreakpointName, BreakpointOrderMap, PerformanceConfig, ResponsiveConfig } from '@objectstack/spec/ui';
+
+// Validate data
+const result = BreakpointColumnMap.parse(data);
+```
+
+---
+
+## BreakpointColumnMap
+
+Grid columns per breakpoint (1-12)
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **xs** | `number` | optional |  |
+| **sm** | `number` | optional |  |
+| **md** | `number` | optional |  |
+| **lg** | `number` | optional |  |
+| **xl** | `number` | optional |  |
+| **2xl** | `number` | optional |  |
+
+
+---
+
+## BreakpointName
+
+### Allowed Values
+
+* `xs`
+* `sm`
+* `md`
+* `lg`
+* `xl`
+* `2xl`
+
+
+---
+
+## BreakpointOrderMap
+
+Display order per breakpoint
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **xs** | `number` | optional |  |
+| **sm** | `number` | optional |  |
+| **md** | `number` | optional |  |
+| **lg** | `number` | optional |  |
+| **xl** | `number` | optional |  |
+| **2xl** | `number` | optional |  |
+
+
+---
+
+## PerformanceConfig
+
+Performance optimization configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **lazyLoad** | `boolean` | optional | Enable lazy loading (defer rendering until visible) |
+| **virtualScroll** | `Object` | optional | Virtual scrolling configuration |
+| **cacheStrategy** | `Enum<'none' \| 'cache-first' \| 'network-first' \| 'stale-while-revalidate'>` | optional | Client-side data caching strategy |
+| **prefetch** | `boolean` | optional | Prefetch data before component is visible |
+| **pageSize** | `number` | optional | Number of items per page for pagination |
+| **debounceMs** | `number` | optional | Debounce interval for user interactions in milliseconds |
+
+
+---
+
+## ResponsiveConfig
+
+Responsive layout configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **breakpoint** | `Enum<'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl' \| '2xl'>` | optional | Minimum breakpoint for visibility |
+| **hiddenOn** | `Enum<'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl' \| '2xl'>[]` | optional | Hide on these breakpoints |
+| **columns** | `Object` | optional | Grid columns per breakpoint |
+| **order** | `Object` | optional | Display order per breakpoint |
+
+
+---
+

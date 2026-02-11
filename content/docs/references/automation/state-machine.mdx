@@ -16,8 +16,8 @@ Prevent AI "hallucinations" by enforcing valid valid transitions.
 ## TypeScript Usage
 
 ```typescript
-import { ActionRef, GuardRef, StateMachine, StateNode, Transition } from '@objectstack/spec/automation';
-import type { ActionRef, GuardRef, StateMachine, StateNode, Transition } from '@objectstack/spec/automation';
+import { ActionRef, Event, GuardRef, StateMachine, StateNode, Transition } from '@objectstack/spec/automation';
+import type { ActionRef, Event, GuardRef, StateMachine, StateNode, Transition } from '@objectstack/spec/automation';
 
 // Validate data
 const result = ActionRef.parse(data);
@@ -49,6 +49,18 @@ Type: `string`
 | **params** | `Record<string, any>` | optional |  |
 
 ---
+
+
+---
+
+## Event
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Event Type (e.g. "APPROVE", "REJECT", "Submit") |
+| **schema** | `Record<string, any>` | optional | Expected event payload structure |
 
 
 ---

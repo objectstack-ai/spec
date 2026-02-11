@@ -1,3 +1,8 @@
+---
+title: Plugin Ecosystem Map
+description: ObjectStack plugin ecosystem architecture and integration map
+---
+
 # ObjectStack Plugin Ecosystem Map
 
 ```

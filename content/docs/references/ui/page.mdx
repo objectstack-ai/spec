@@ -30,8 +30,8 @@ const result = Page.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Page unique name (lowercase snake_case) |
-| **label** | `string` | ✅ |  |
-| **description** | `string` | optional |  |
+| **label** | `string \| Object` | ✅ | Display label: plain string or i18n translation object |
+| **description** | `string \| Object` | optional | Display label: plain string or i18n translation object |
 | **type** | `Enum<'record' \| 'home' \| 'app' \| 'utility'>` | ✅ |  |
 | **variables** | `Object[]` | optional | Local page state variables |
 | **object** | `string` | optional | Bound object (for Record pages) |
@@ -39,6 +39,7 @@ const result = Page.parse(data);
 | **regions** | `Object[]` | ✅ | Defined regions with components |
 | **isDefault** | `boolean` | ✅ |  |
 | **assignedProfiles** | `string[]` | optional |  |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
 
 
 ---
@@ -51,12 +52,14 @@ const result = Page.parse(data);
 | :--- | :--- | :--- | :--- |
 | **type** | `Enum<'page:header' \| 'page:footer' \| 'page:sidebar' \| 'page:tabs' \| 'page:accordion' \| 'page:card' \| 'page:section' \| 'record:details' \| 'record:highlights' \| 'record:related_list' \| 'record:activity' \| 'record:chatter' \| 'record:path' \| 'app:launcher' \| 'nav:menu' \| 'nav:breadcrumb' \| 'global:search' \| 'global:notifications' \| 'user:profile' \| 'ai:chat_window' \| 'ai:suggestion'> \| string` | ✅ | Component Type (Standard enum or custom string) |
 | **id** | `string` | optional | Unique instance ID |
-| **label** | `string` | optional |  |
+| **label** | `string \| Object` | optional | Display label: plain string or i18n translation object |
 | **properties** | `Record<string, any>` | ✅ | Component props passed to the widget. See component.zod.ts for schemas. |
 | **events** | `Record<string, string>` | optional | Event handlers map |
 | **style** | `Record<string, string>` | optional | Inline styles or utility classes |
 | **className** | `string` | optional | CSS class names |
 | **visibility** | `string` | optional | Visibility filter/formula |
+| **responsive** | `Object` | optional | Responsive layout configuration |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
 
 
 ---

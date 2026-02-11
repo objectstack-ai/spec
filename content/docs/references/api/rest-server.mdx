@@ -36,8 +36,8 @@ Architecture alignment:
 ## TypeScript Usage
 
 ```typescript
-import { BatchEndpointsConfig, CrudEndpointPattern, CrudEndpointsConfig, CrudOperation, EndpointRegistry, GeneratedEndpoint, MetadataEndpointsConfig, RestApiConfig, RestServerConfig, RouteGenerationConfig } from '@objectstack/spec/api';
-import type { BatchEndpointsConfig, CrudEndpointPattern, CrudEndpointsConfig, CrudOperation, EndpointRegistry, GeneratedEndpoint, MetadataEndpointsConfig, RestApiConfig, RestServerConfig, RouteGenerationConfig } from '@objectstack/spec/api';
+import { BatchEndpointsConfig, Callback, CrudEndpointPattern, CrudEndpointsConfig, CrudOperation, EndpointRegistry, GeneratedEndpoint, MetadataEndpointsConfig, OpenApi31Extensions, RestApiConfig, RestServerConfig, RouteGenerationConfig } from '@objectstack/spec/api';
+import type { BatchEndpointsConfig, Callback, CrudEndpointPattern, CrudEndpointsConfig, CrudOperation, EndpointRegistry, GeneratedEndpoint, MetadataEndpointsConfig, OpenApi31Extensions, RestApiConfig, RestServerConfig, RouteGenerationConfig } from '@objectstack/spec/api';
 
 // Validate data
 const result = BatchEndpointsConfig.parse(data);
@@ -55,6 +55,20 @@ const result = BatchEndpointsConfig.parse(data);
 | **enableBatchEndpoint** | `boolean` | ✅ | Enable POST /data/:object/batch endpoint |
 | **operations** | `Object` | optional | Enable/disable specific batch operations |
 | **defaultAtomic** | `boolean` | ✅ | Default atomic/transaction mode for batch operations |
+
+
+---
+
+## Callback
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Callback identifier (snake_case) |
+| **expression** | `string` | ✅ | Runtime expression (e.g., `{$request.body#/callbackUrl}`) |
+| **method** | `Enum<'GET' \| 'POST' \| 'PUT' \| 'DELETE' \| 'PATCH' \| 'HEAD' \| 'OPTIONS'>` | ✅ | HTTP method for callback request |
+| **url** | `string` | ✅ | Callback URL template with runtime expressions |
 
 
 ---
@@ -145,6 +159,20 @@ const result = BatchEndpointsConfig.parse(data);
 
 ---
 
+## OpenApi31Extensions
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **webhooks** | `Record<string, Object>` | optional | OpenAPI 3.1 webhooks (top-level webhook definitions) |
+| **callbacks** | `Record<string, Object[]>` | optional | OpenAPI 3.1 callbacks (async response definitions) |
+| **jsonSchemaDialect** | `string` | ✅ | JSON Schema dialect for schema definitions |
+| **pathItemReferences** | `boolean` | ✅ | Allow $ref in path items (OpenAPI 3.1 feature) |
+
+
+---
+
 ## RestApiConfig
 
 ### Properties
@@ -176,6 +204,7 @@ const result = BatchEndpointsConfig.parse(data);
 | **metadata** | `Object` | optional | Metadata endpoints configuration |
 | **batch** | `Object` | optional | Batch endpoints configuration |
 | **routes** | `Object` | optional | Route generation configuration |
+| **openApi31** | `Object` | optional | OpenAPI 3.1 extensions configuration |
 
 
 ---

@@ -12,8 +12,8 @@ HTTP Method Enum
 ## TypeScript Usage
 
 ```typescript
-import { CalendarConfig, FormField, GanttConfig, HttpMethod, HttpRequest, KanbanConfig, ListColumn, ListView, NavigationConfig, NavigationMode, PaginationConfig, SelectionConfig, ViewData } from '@objectstack/spec/ui';
-import type { CalendarConfig, FormField, GanttConfig, HttpMethod, HttpRequest, KanbanConfig, ListColumn, ListView, NavigationConfig, NavigationMode, PaginationConfig, SelectionConfig, ViewData } from '@objectstack/spec/ui';
+import { CalendarConfig, ColumnSummary, FormField, GalleryConfig, GanttConfig, GroupingConfig, GroupingField, HttpMethod, HttpRequest, KanbanConfig, ListColumn, ListView, NavigationConfig, NavigationMode, PaginationConfig, RowColorConfig, RowHeight, SelectionConfig, TimelineConfig, ViewData, ViewSharing } from '@objectstack/spec/ui';
+import type { CalendarConfig, ColumnSummary, FormField, GalleryConfig, GanttConfig, GroupingConfig, GroupingField, HttpMethod, HttpRequest, KanbanConfig, ListColumn, ListView, NavigationConfig, NavigationMode, PaginationConfig, RowColorConfig, RowHeight, SelectionConfig, TimelineConfig, ViewData, ViewSharing } from '@objectstack/spec/ui';
 
 // Validate data
 const result = CalendarConfig.parse(data);
@@ -31,6 +31,27 @@ const result = CalendarConfig.parse(data);
 | **endDateField** | `string` | optional |  |
 | **titleField** | `string` | ✅ |  |
 | **colorField** | `string` | optional |  |
+
+
+---
+
+## ColumnSummary
+
+Aggregation function for column footer summary
+
+### Allowed Values
+
+* `none`
+* `count`
+* `count_empty`
+* `count_filled`
+* `count_unique`
+* `percent_empty`
+* `percent_filled`
+* `sum`
+* `avg`
+* `min`
+* `max`
 
 
 ---
@@ -56,6 +77,23 @@ const result = CalendarConfig.parse(data);
 
 ---
 
+## GalleryConfig
+
+Gallery/card view configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **coverField** | `string` | optional | Attachment/image field to display as card cover |
+| **coverFit** | `Enum<'cover' \| 'contain'>` | ✅ | Image fit mode for card cover |
+| **cardSize** | `Enum<'small' \| 'medium' \| 'large'>` | ✅ | Card size in gallery view |
+| **titleField** | `string` | optional | Field to display as card title |
+| **visibleFields** | `string[]` | optional | Fields to display on card body |
+
+
+---
+
 ## GanttConfig
 
 ### Properties
@@ -67,6 +105,32 @@ const result = CalendarConfig.parse(data);
 | **titleField** | `string` | ✅ |  |
 | **progressField** | `string` | optional |  |
 | **dependenciesField** | `string` | optional |  |
+
+
+---
+
+## GroupingConfig
+
+Record grouping configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **fields** | `Object[]` | ✅ | Fields to group by (supports up to 3 levels) |
+
+
+---
+
+## GroupingField
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Field name to group by |
+| **order** | `Enum<'asc' \| 'desc'>` | ✅ | Group sort order |
+| **collapsed** | `boolean` | ✅ | Collapse groups by default |
 
 
 ---
@@ -127,6 +191,8 @@ const result = CalendarConfig.parse(data);
 | **resizable** | `boolean` | optional | Allow resizing this column |
 | **wrap** | `boolean` | optional | Allow text wrapping |
 | **type** | `string` | optional | Renderer type override (e.g., "currency", "date") |
+| **pinned** | `Enum<'left' \| 'right'>` | optional | Pin/freeze column to left or right side |
+| **summary** | `Enum<'none' \| 'count' \| 'count_empty' \| 'count_filled' \| 'count_unique' \| 'percent_empty' \| 'percent_filled' \| 'sum' \| 'avg' \| 'min' \| 'max'>` | optional | Footer aggregation function for this column |
 | **link** | `boolean` | optional | Functions as the primary navigation link (triggers View navigation) |
 | **action** | `string` | optional | Registered Action ID to execute when clicked |
 
@@ -157,6 +223,15 @@ const result = CalendarConfig.parse(data);
 | **kanban** | `Object` | optional |  |
 | **calendar** | `Object` | optional |  |
 | **gantt** | `Object` | optional |  |
+| **gallery** | `Object` | optional | Gallery/card view configuration |
+| **timeline** | `Object` | optional | Timeline view configuration |
+| **description** | `string \| Object` | optional | View description for documentation/tooltips |
+| **sharing** | `Object` | optional | View sharing and access configuration |
+| **rowHeight** | `Enum<'compact' \| 'short' \| 'medium' \| 'tall' \| 'extra_tall'>` | optional | Row height / density setting |
+| **grouping** | `Object` | optional | Group records by one or more fields |
+| **rowColor** | `Object` | optional | Color rows based on field value |
+| **hiddenFields** | `string[]` | optional | Fields to hide in this specific view |
+| **fieldOrder** | `string[]` | optional | Explicit field display order for this view |
 | **rowActions** | `string[]` | optional | Actions available for individual row items |
 | **bulkActions** | `string[]` | optional | Actions available when multiple rows are selected |
 | **virtualScroll** | `boolean` | optional | Enable virtual scrolling for large datasets |
@@ -164,6 +239,7 @@ const result = CalendarConfig.parse(data);
 | **inlineEdit** | `boolean` | optional | Allow inline editing of records directly in the list view |
 | **exportOptions** | `Enum<'csv' \| 'xlsx' \| 'pdf' \| 'json'>[]` | optional | Available export format options |
 | **emptyState** | `Object` | optional | Empty state configuration when no records found |
+| **aria** | `Object` | optional | ARIA accessibility attributes for the list view |
 
 
 ---
@@ -210,6 +286,35 @@ const result = CalendarConfig.parse(data);
 
 ---
 
+## RowColorConfig
+
+Row color configuration based on field values
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Field to derive color from (typically a select/status field) |
+| **colors** | `Record<string, string>` | optional | Map of field value to color (hex/token) |
+
+
+---
+
+## RowHeight
+
+Row height / density setting for list view
+
+### Allowed Values
+
+* `compact`
+* `short`
+* `medium`
+* `tall`
+* `extra_tall`
+
+
+---
+
 ## SelectionConfig
 
 ### Properties
@@ -217,6 +322,24 @@ const result = CalendarConfig.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **type** | `Enum<'none' \| 'single' \| 'multiple'>` | ✅ | Selection mode |
+
+
+---
+
+## TimelineConfig
+
+Timeline view configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **startDateField** | `string` | ✅ | Field for timeline item start date |
+| **endDateField** | `string` | optional | Field for timeline item end date |
+| **titleField** | `string` | ✅ | Field to display as timeline item title |
+| **groupByField** | `string` | optional | Field to group timeline rows |
+| **colorField** | `string` | optional | Field to determine item color |
+| **scale** | `Enum<'hour' \| 'day' \| 'week' \| 'month' \| 'quarter' \| 'year'>` | ✅ | Default timeline scale |
 
 
 ---
@@ -260,6 +383,20 @@ This schema accepts one of the following structures:
 | **items** | `any[]` | ✅ | Static data array |
 
 ---
+
+
+---
+
+## ViewSharing
+
+View sharing and access configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'personal' \| 'collaborative'>` | ✅ | View ownership type |
+| **lockedBy** | `string` | optional | User who locked the view configuration |
 
 
 ---

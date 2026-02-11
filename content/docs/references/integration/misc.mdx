@@ -102,6 +102,8 @@ Message acknowledgment mode
 | **requestTimeoutMs** | `number` | ✅ | Request timeout in ms |
 | **status** | `Enum<'active' \| 'inactive' \| 'error' \| 'configuring'>` | ✅ | Connector status |
 | **enabled** | `boolean` | ✅ | Enable connector |
+| **errorMapping** | `Object` | optional | Error mapping configuration |
+| **health** | `Object` | optional | Health and resilience configuration |
 | **metadata** | `Record<string, any>` | optional | Custom connector metadata |
 | **provider** | `Enum<'postgresql' \| 'mysql' \| 'mariadb' \| 'mssql' \| 'oracle' \| 'mongodb' \| 'redis' \| 'cassandra' \| 'snowflake' \| 'bigquery' \| 'redshift' \| 'custom'>` | ✅ | Database provider type |
 | **connectionConfig** | `Object` | ✅ | Database connection configuration |
@@ -327,6 +329,8 @@ File access pattern
 | **requestTimeoutMs** | `number` | ✅ | Request timeout in ms |
 | **status** | `Enum<'active' \| 'inactive' \| 'error' \| 'configuring'>` | ✅ | Connector status |
 | **enabled** | `boolean` | ✅ | Enable connector |
+| **errorMapping** | `Object` | optional | Error mapping configuration |
+| **health** | `Object` | optional | Health and resilience configuration |
 | **metadata** | `Record<string, any>` | optional | Custom connector metadata |
 | **provider** | `Enum<'s3' \| 'azure_blob' \| 'gcs' \| 'dropbox' \| 'box' \| 'onedrive' \| 'google_drive' \| 'sharepoint' \| 'ftp' \| 'local' \| 'custom'>` | ✅ | File storage provider type |
 | **storageConfig** | `Object` | optional | Storage configuration |
@@ -431,6 +435,8 @@ File storage provider type
 | **requestTimeoutMs** | `number` | ✅ | Request timeout in ms |
 | **status** | `Enum<'active' \| 'inactive' \| 'error' \| 'configuring'>` | ✅ | Connector status |
 | **enabled** | `boolean` | ✅ | Enable connector |
+| **errorMapping** | `Object` | optional | Error mapping configuration |
+| **health** | `Object` | optional | Health and resilience configuration |
 | **metadata** | `Record<string, any>` | optional | Custom connector metadata |
 | **provider** | `Enum<'github' \| 'github_enterprise'>` | ✅ | GitHub provider |
 | **baseUrl** | `string` | ✅ | GitHub API base URL |
@@ -576,6 +582,8 @@ Message format/serialization
 | **requestTimeoutMs** | `number` | ✅ | Request timeout in ms |
 | **status** | `Enum<'active' \| 'inactive' \| 'error' \| 'configuring'>` | ✅ | Connector status |
 | **enabled** | `boolean` | ✅ | Enable connector |
+| **errorMapping** | `Object` | optional | Error mapping configuration |
+| **health** | `Object` | optional | Health and resilience configuration |
 | **metadata** | `Record<string, any>` | optional | Custom connector metadata |
 | **provider** | `Enum<'rabbitmq' \| 'kafka' \| 'redis_pubsub' \| 'redis_streams' \| 'aws_sqs' \| 'aws_sns' \| 'google_pubsub' \| 'azure_service_bus' \| 'azure_event_hubs' \| 'nats' \| 'pulsar' \| 'activemq' \| 'custom'>` | ✅ | Message queue provider type |
 | **brokerConfig** | `Object` | ✅ | Broker connection configuration |
@@ -633,6 +641,8 @@ Message format/serialization
 | **requestTimeoutMs** | `number` | ✅ | Request timeout in ms |
 | **status** | `Enum<'active' \| 'inactive' \| 'error' \| 'configuring'>` | ✅ | Connector status |
 | **enabled** | `boolean` | ✅ | Enable connector |
+| **errorMapping** | `Object` | optional | Error mapping configuration |
+| **health** | `Object` | optional | Health and resilience configuration |
 | **metadata** | `Record<string, any>` | optional | Custom connector metadata |
 | **provider** | `Enum<'salesforce' \| 'hubspot' \| 'stripe' \| 'shopify' \| 'zendesk' \| 'intercom' \| 'mailchimp' \| 'slack' \| 'microsoft_dynamics' \| 'servicenow' \| 'netsuite' \| 'custom'>` | ✅ | SaaS provider type |
 | **baseUrl** | `string` | ✅ | API base URL |
@@ -765,6 +775,8 @@ SaaS provider type
 | **requestTimeoutMs** | `number` | ✅ | Request timeout in ms |
 | **status** | `Enum<'active' \| 'inactive' \| 'error' \| 'configuring'>` | ✅ | Connector status |
 | **enabled** | `boolean` | ✅ | Enable connector |
+| **errorMapping** | `Object` | optional | Error mapping configuration |
+| **health** | `Object` | optional | Health and resilience configuration |
 | **metadata** | `Record<string, any>` | optional | Custom connector metadata |
 | **provider** | `Enum<'vercel'>` | ✅ | Vercel provider |
 | **baseUrl** | `string` | ✅ | Vercel API base URL |

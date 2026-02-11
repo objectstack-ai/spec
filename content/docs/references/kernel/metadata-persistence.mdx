@@ -10,8 +10,8 @@ description: Metadata Persistence protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { MetadataCollectionInfo, MetadataExportOptions, MetadataFormat, MetadataImportOptions, MetadataLoadOptions, MetadataLoadResult, MetadataLoaderContract, MetadataManagerConfig, MetadataSaveOptions, MetadataSaveResult, MetadataStats, MetadataWatchEvent } from '@objectstack/spec/kernel';
-import type { MetadataCollectionInfo, MetadataExportOptions, MetadataFormat, MetadataImportOptions, MetadataLoadOptions, MetadataLoadResult, MetadataLoaderContract, MetadataManagerConfig, MetadataSaveOptions, MetadataSaveResult, MetadataStats, MetadataWatchEvent } from '@objectstack/spec/kernel';
+import { MetadataCollectionInfo, MetadataExportOptions, MetadataFallbackStrategy, MetadataFormat, MetadataImportOptions, MetadataLoadOptions, MetadataLoadResult, MetadataLoaderContract, MetadataManagerConfig, MetadataSaveOptions, MetadataSaveResult, MetadataStats, MetadataWatchEvent } from '@objectstack/spec/kernel';
+import type { MetadataCollectionInfo, MetadataExportOptions, MetadataFallbackStrategy, MetadataFormat, MetadataImportOptions, MetadataLoadOptions, MetadataLoadResult, MetadataLoaderContract, MetadataManagerConfig, MetadataSaveOptions, MetadataSaveResult, MetadataStats, MetadataWatchEvent } from '@objectstack/spec/kernel';
 
 // Validate data
 const result = MetadataCollectionInfo.parse(data);
@@ -47,6 +47,17 @@ const result = MetadataCollectionInfo.parse(data);
 | **includeStats** | `boolean` | ✅ | Include metadata statistics |
 | **compress** | `boolean` | ✅ | Compress output (gzip) |
 | **prettify** | `boolean` | ✅ | Pretty print output |
+
+
+---
+
+## MetadataFallbackStrategy
+
+### Allowed Values
+
+* `filesystem`
+* `memory`
+* `none`
 
 
 ---
@@ -119,7 +130,7 @@ const result = MetadataCollectionInfo.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Loader identifier |
-| **protocol** | `string` | ✅ | Protocol identifier |
+| **protocol** | `Enum<'file:' \| 'http:' \| 's3:' \| 'datasource:' \| 'memory:'>` | ✅ | Protocol identifier |
 | **capabilities** | `Object` | ✅ | Loader capabilities |
 | **supportedFormats** | `Enum<'json' \| 'yaml' \| 'typescript' \| 'javascript'>[]` | ✅ | Supported formats |
 | **supportsWatch** | `boolean` | ✅ | Supports file watching |
@@ -135,6 +146,9 @@ const result = MetadataCollectionInfo.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+| **datasource** | `string` | optional | Datasource name reference for database persistence |
+| **tableName** | `string` | ✅ | Database table name for metadata storage |
+| **fallback** | `Enum<'filesystem' \| 'memory' \| 'none'>` | ✅ | Fallback strategy when datasource is unavailable |
 | **rootDir** | `string` | optional | Root directory path |
 | **formats** | `Enum<'json' \| 'yaml' \| 'typescript' \| 'javascript'>[]` | ✅ | Enabled formats |
 | **cache** | `Object` | optional | Cache settings |

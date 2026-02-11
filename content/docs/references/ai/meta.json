@@ -8,6 +8,7 @@
     "devops-agent",
     "feedback-loop",
     "mcp",
+    "metadata-persistence",
     "model-registry",
     "nlq",
     "orchestration",

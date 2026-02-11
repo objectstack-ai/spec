@@ -30,11 +30,13 @@ const result = Dashboard.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Dashboard unique name |
-| **label** | `string` | ✅ | Dashboard label |
-| **description** | `string` | optional | Dashboard description |
+| **label** | `string \| Object` | ✅ | Dashboard label |
+| **description** | `string \| Object` | optional | Dashboard description |
 | **widgets** | `Object[]` | ✅ | Widgets to display |
 | **refreshInterval** | `number` | optional | Auto-refresh interval in seconds |
 | **globalFilters** | `Object[]` | optional | Global filters that apply to all widgets in the dashboard |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+| **performance** | `Object` | optional | Performance optimization settings |
 
 
 ---
@@ -45,7 +47,7 @@ const result = Dashboard.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **title** | `string` | optional | Widget title |
+| **title** | `string \| Object` | optional | Widget title |
 | **type** | `Enum<'bar' \| 'horizontal-bar' \| 'column' \| 'grouped-bar' \| 'stacked-bar' \| 'bi-polar-bar' \| 'line' \| 'area' \| 'stacked-area' \| 'step-line' \| 'spline' \| 'pie' \| 'donut' \| 'funnel' \| 'pyramid' \| 'scatter' \| 'bubble' \| 'treemap' \| 'sunburst' \| 'sankey' \| 'word-cloud' \| 'gauge' \| 'solid-gauge' \| 'metric' \| 'kpi' \| 'bullet' \| 'choropleth' \| 'bubble-map' \| 'gl-map' \| 'heatmap' \| 'radar' \| 'waterfall' \| 'box-plot' \| 'violin' \| 'candlestick' \| 'stock' \| 'table' \| 'pivot'>` | ✅ | Visualization type |
 | **chartConfig** | `Object` | optional | Chart visualization configuration |
 | **object** | `string` | optional | Data source object name |
@@ -55,6 +57,8 @@ const result = Dashboard.parse(data);
 | **aggregate** | `Enum<'count' \| 'sum' \| 'avg' \| 'min' \| 'max'>` | ✅ | Aggregate function |
 | **layout** | `Object` | ✅ | Grid layout position |
 | **options** | `any` | optional | Widget specific configuration |
+| **responsive** | `Object` | optional | Responsive layout configuration |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
 
 
 ---

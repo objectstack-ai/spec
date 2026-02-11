@@ -10,25 +10,12 @@ description: Connector protocol schemas
 ## TypeScript Usage
 
 ```typescript
-import { ConflictResolution, Connector, ConnectorTrigger, DataSyncConfig } from '@objectstack/spec/automation';
-import type { ConflictResolution, Connector, ConnectorTrigger, DataSyncConfig } from '@objectstack/spec/automation';
+import { Connector, ConnectorTrigger, DataSyncConfig } from '@objectstack/spec/automation';
+import type { Connector, ConnectorTrigger, DataSyncConfig } from '@objectstack/spec/automation';
 
 // Validate data
-const result = ConflictResolution.parse(data);
+const result = Connector.parse(data);
 ```
-
----
-
-## ConflictResolution
-
-### Allowed Values
-
-* `source_wins`
-* `destination_wins`
-* `latest_wins`
-* `manual`
-* `merge`
-
 
 ---
 

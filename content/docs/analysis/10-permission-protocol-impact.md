@@ -1,3 +1,8 @@
+---
+title: Permission Protocol Impact Analysis
+description: Deep analysis of the permission protocol and fine-grained security controls
+---
+
 # Permission Protocol 深度解析:AI 赋能的细粒度安全控制
 
 ## 概述
