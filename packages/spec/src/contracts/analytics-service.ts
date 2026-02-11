@@ -35,10 +35,14 @@ export interface AnalyticsQuery {
         granularity?: string;
         dateRange?: string | string[];
     }>;
+    /** Sort order for results */
+    order?: Record<string, 'asc' | 'desc'>;
     /** Result limit */
     limit?: number;
     /** Result offset */
     offset?: number;
+    /** Timezone for date/time calculations */
+    timezone?: string;
 }
 
 /**

@@ -5,6 +5,9 @@ import { InMemoryDriver } from './memory-driver.js';
 export { InMemoryDriver }; // Export class for direct usage
 export type { InMemoryDriverConfig } from './memory-driver.js';
 
+export { MemoryAnalyticsService } from './memory-analytics.js';
+export type { MemoryAnalyticsConfig } from './memory-analytics.js';
+
 export default {
   id: 'com.objectstack.driver.memory',
   version: '1.0.0',
