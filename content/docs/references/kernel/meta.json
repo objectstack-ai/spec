@@ -1,6 +1,7 @@
 {
   "title": "Kernel Protocol",
   "pages": [
+    "cli-extension",
     "context",
     "events",
     "execution-context",

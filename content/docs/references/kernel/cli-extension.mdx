@@ -1,0 +1,122 @@
+---
+title: Cli Extension
+description: Cli Extension protocol schemas
+---
+
+# CLI Extension Protocol
+
+Defines the contract for plugins that extend the ObjectStack CLI with
+
+custom commands. This enables third-party packages (e.g., marketplace,
+
+deployment tools) to register new top-level or nested CLI commands.
+
+## How It Works
+
+1. **Declare** — Plugin's manifest declares `contributes.commands` entries.
+
+2. **Discover** — The CLI scans installed plugins for command contributions.
+
+3. **Load** — The CLI dynamically imports the plugin module and registers
+
+exported Commander.js `Command` instances.
+
+## Plugin Module Contract
+
+The plugin must export commands in one of these forms:
+
+```typescript
+
+// Form 1: Named export array
+
+export const commands = [marketplaceCommand, deployCommand];
+
+// Form 2: Default export (single command)
+
+export default marketplaceCommand;
+
+// Form 3: Default export (array)
+
+export default [marketplaceCommand, deployCommand];
+
+```
+
+@example
+
+```typescript
+
+// In @acme/plugin-marketplace/src/cli.ts
+
+import \{ Command \} from 'commander';
+
+const marketplaceCommand = new Command('marketplace')
+
+.description('Manage marketplace applications')
+
+.addCommand(
+
+new Command('publish')
+
+.description('Publish app to marketplace')
+
+.action(async () => \{ ... \})
+
+)
+
+.addCommand(
+
+new Command('search')
+
+.description('Search marketplace apps')
+
+.argument('<query>', 'Search query')
+
+.action(async (query) => \{ ... \})
+
+);
+
+export const commands = [marketplaceCommand];
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/cli-extension.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { CLICommandContribution, CLIExtensionExport } from '@objectstack/spec/kernel';
+import type { CLICommandContribution, CLIExtensionExport } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = CLICommandContribution.parse(data);
+```
+
+---
+
+## CLICommandContribution
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | CLI command name |
+| **description** | `string` | optional | Command description for help text |
+| **module** | `string` | optional | Module path exporting Commander.js commands |
+
+
+---
+
+## CLIExtensionExport
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **commands** | `any[]` | optional | Array of Commander.js Command instances |
+| **default** | `any \| any[]` | optional | Default export: Command or Command[] |
+
+
+---
+

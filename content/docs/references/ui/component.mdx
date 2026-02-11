@@ -27,11 +27,12 @@ const result = PageCardProps.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **title** | `string` | optional |  |
+| **title** | `string \| Object` | optional | Display label: plain string or i18n translation object |
 | **bordered** | `boolean` | ✅ |  |
 | **actions** | `string[]` | optional |  |
 | **body** | `any[]` | optional | Card content components (slot) |
 | **footer** | `any[]` | optional | Card footer components (slot) |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
 
 
 ---
@@ -42,11 +43,12 @@ const result = PageCardProps.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **title** | `string` | ✅ | Page title |
-| **subtitle** | `string` | optional | Page subtitle |
+| **title** | `string \| Object` | ✅ | Page title |
+| **subtitle** | `string \| Object` | optional | Page subtitle |
 | **icon** | `string` | optional | Icon name |
 | **breadcrumb** | `boolean` | ✅ | Show breadcrumb |
 | **actions** | `string[]` | optional | Action IDs to show in header |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
 
 
 ---
@@ -60,6 +62,7 @@ const result = PageCardProps.parse(data);
 | **type** | `Enum<'line' \| 'card' \| 'pill'>` | ✅ |  |
 | **position** | `Enum<'top' \| 'left'>` | ✅ |  |
 | **items** | `Object[]` | ✅ |  |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
 
 
 ---
