@@ -22,3 +22,6 @@ export * from './page.zod';
 export * from './widget.zod';
 export * from './component.zod';
 export * from './theme.zod';
+export * from './touch.zod';
+export * from './offline.zod';
+export * from './keyboard.zod';
