@@ -409,26 +409,16 @@ describe('MetadataDatasourceConfigSchema', () => {
     });
 
     expect(config.datasource).toBe('main_db');
-    expect(config.table).toBe('_framework_metadata');
-    expect(config.autoMigrate).toBe(true);
+    expect(config.object).toBe('_framework_metadata');
   });
 
-  it('should accept custom table name', () => {
+  it('should accept custom object name', () => {
     const config = MetadataDatasourceConfigSchema.parse({
       datasource: 'main_db',
-      table: 'custom_metadata',
+      object: 'custom_metadata',
     });
 
-    expect(config.table).toBe('custom_metadata');
-  });
-
-  it('should accept schema name', () => {
-    const config = MetadataDatasourceConfigSchema.parse({
-      datasource: 'main_db',
-      schema: 'public',
-    });
-
-    expect(config.schema).toBe('public');
+    expect(config.object).toBe('custom_metadata');
   });
 
   it('should accept cache configuration', () => {
@@ -437,13 +427,11 @@ describe('MetadataDatasourceConfigSchema', () => {
       cache: {
         enabled: true,
         ttlSeconds: 7200,
-        invalidateOnWrite: false,
       },
     });
 
     expect(config.cache!.enabled).toBe(true);
     expect(config.cache!.ttlSeconds).toBe(7200);
-    expect(config.cache!.invalidateOnWrite).toBe(false);
   });
 
   it('should use default cache values', () => {
@@ -454,41 +442,14 @@ describe('MetadataDatasourceConfigSchema', () => {
 
     expect(config.cache!.enabled).toBe(true);
     expect(config.cache!.ttlSeconds).toBe(3600);
-    expect(config.cache!.invalidateOnWrite).toBe(true);
-  });
-
-  it('should accept query options', () => {
-    const config = MetadataDatasourceConfigSchema.parse({
-      datasource: 'main_db',
-      queryOptions: {
-        batchSize: 200,
-        useIndexes: false,
-        parallelLoad: true,
-      },
-    });
-
-    expect(config.queryOptions!.batchSize).toBe(200);
-    expect(config.queryOptions!.useIndexes).toBe(false);
-    expect(config.queryOptions!.parallelLoad).toBe(true);
-  });
-
-  it('should use default query option values', () => {
-    const config = MetadataDatasourceConfigSchema.parse({
-      datasource: 'main_db',
-      queryOptions: {},
-    });
-
-    expect(config.queryOptions!.batchSize).toBe(100);
-    expect(config.queryOptions!.useIndexes).toBe(true);
-    expect(config.queryOptions!.parallelLoad).toBe(false);
   });
 });
 
 describe('MetadataLoaderContractSchema - Enhanced', () => {
   it('should accept datasourceConfig', () => {
     const contract = MetadataLoaderContractSchema.parse({
-      name: 'database-loader',
-      protocol: 'database:',
+      name: 'objectql-loader',
+      protocol: 'objectql:',
       capabilities: {
         read: true,
         write: true,
@@ -497,12 +458,12 @@ describe('MetadataLoaderContractSchema - Enhanced', () => {
       },
       datasourceConfig: {
         datasource: 'main_db',
-        table: 'metadata',
+        object: 'metadata',
       },
     });
 
-    expect(contract.name).toBe('database-loader');
-    expect(contract.protocol).toBe('database:');
+    expect(contract.name).toBe('objectql-loader');
+    expect(contract.protocol).toBe('objectql:');
     expect(contract.datasourceConfig!.datasource).toBe('main_db');
   });
 

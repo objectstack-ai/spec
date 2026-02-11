@@ -113,31 +113,33 @@ export const MetadataStatsSchema = z.object({
 
 /**
  * Metadata Datasource Configuration
- * Configuration for database-backed metadata storage.
- * Allows metadata to be loaded from and saved to any datasource.
+ * Configuration for ObjectQL-based metadata storage.
+ * 
+ * Uses ObjectQL's universal data layer to store metadata in any database
+ * without creating custom database drivers. ObjectQL handles cross-database
+ * abstraction through datasources.
  */
 export const MetadataDatasourceConfigSchema = z.object({
   /**
-   * Datasource name (references a configured datasource)
-   * This decouples metadata storage from specific driver implementation
+   * Datasource name (references a configured ObjectQL datasource)
+   * This datasource must be defined in the manifest's datasources array.
+   * 
+   * @example
+   * // In objectstack.config.ts:
+   * datasources: [
+   *   { name: 'metadata_db', driver: 'postgres', config: {...} }
+   * ]
    */
-  datasource: z.string().describe('Datasource name for metadata storage'),
+  datasource: z.string().describe('ObjectQL datasource name for metadata storage'),
   
   /**
-   * Table/Collection name for metadata storage
-   * Default: '_framework_metadata' or 'metadata'
+   * ObjectQL object name for metadata storage
+   * Default: '_framework_metadata'
+   * 
+   * This object should be defined in the metadata schema with fields:
+   * id, name, type, namespace, scope, metadata, state, etc.
    */
-  table: z.string().default('_framework_metadata').describe('Table/collection name'),
-  
-  /**
-   * Schema name (for databases that support schemas)
-   */
-  schema: z.string().optional().describe('Database schema name'),
-  
-  /**
-   * Enable automatic table creation/migration
-   */
-  autoMigrate: z.boolean().default(true).describe('Automatically create/update table schema'),
+  object: z.string().default('_framework_metadata').describe('ObjectQL object name for metadata'),
   
   /**
    * Cache configuration for database-backed metadata
@@ -145,17 +147,7 @@ export const MetadataDatasourceConfigSchema = z.object({
   cache: z.object({
     enabled: z.boolean().default(true).describe('Enable metadata caching'),
     ttlSeconds: z.number().default(3600).describe('Cache TTL in seconds'),
-    invalidateOnWrite: z.boolean().default(true).describe('Invalidate cache on write'),
   }).optional().describe('Caching configuration'),
-  
-  /**
-   * Query optimization options
-   */
-  queryOptions: z.object({
-    batchSize: z.number().default(100).describe('Batch size for bulk operations'),
-    useIndexes: z.boolean().default(true).describe('Use database indexes'),
-    parallelLoad: z.boolean().default(false).describe('Load metadata types in parallel'),
-  }).optional().describe('Query optimization options'),
 });
 
 /**
