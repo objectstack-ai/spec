@@ -47,6 +47,7 @@ ${chalk.bold.cyan('◆ ObjectStack CLI')} ${chalk.dim(`v${pkg.version}`)}
 ${chalk.bold('Workflow:')}
   ${chalk.dim('$')} os init                      ${chalk.dim('# Create a new project')}
   ${chalk.dim('$')} os generate object task       ${chalk.dim('# Add metadata')}
+  ${chalk.dim('$')} os plugin add <package>       ${chalk.dim('# Add a plugin')}
   ${chalk.dim('$')} os validate                   ${chalk.dim('# Check configuration')}
   ${chalk.dim('$')} os dev                        ${chalk.dim('# Start dev server')}
   ${chalk.dim('$')} os studio                     ${chalk.dim('# Dev server + Studio UI')}
