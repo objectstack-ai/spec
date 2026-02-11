@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 2.0.6
+
+### Patch Changes
+
+- Patch release for maintenance and stability improvements
+
 ## 2.0.5
 
 ### Patch Changes
