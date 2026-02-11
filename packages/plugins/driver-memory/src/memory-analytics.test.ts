@@ -29,6 +29,9 @@ describe('MemoryAnalyticsService', () => {
       }
     });
 
+    // Connect the driver to load initial data
+    await driver.connect();
+
     // Define cubes
     const cubes: Cube[] = [
       {

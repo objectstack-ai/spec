@@ -140,27 +140,28 @@ export class MemoryAnalyticsService implements IAnalyticsService {
 
     pipeline.push({ $group: groupStage });
 
-    // Stage 4: $project to reshape results
+    // Stage 4: $project to reshape results (use short names, we'll fix them later)
     const projectStage: Record<string, any> = { _id: 0 };
     if (query.dimensions && query.dimensions.length > 0) {
       for (const dim of query.dimensions) {
         const dimName = this.getShortName(dim);
-        projectStage[dim] = `$_id.${dimName}`;
+        projectStage[dimName] = `$_id.${dimName}`;
       }
     }
     if (query.measures && query.measures.length > 0) {
       for (const measure of query.measures) {
         const measureName = this.getShortName(measure);
-        projectStage[measure] = `$${measureName}`;
+        projectStage[measureName] = `$${measureName}`;
       }
     }
     pipeline.push({ $project: projectStage });
 
-    // Stage 5: $sort
+    // Stage 5: $sort (use short names)
     if (query.order && Object.keys(query.order).length > 0) {
       const sortStage: Record<string, any> = {};
       for (const [field, direction] of Object.entries(query.order)) {
-        sortStage[field] = direction === 'asc' ? 1 : -1;
+        const shortName = this.getShortName(field);
+        sortStage[shortName] = direction === 'asc' ? 1 : -1;
       }
       pipeline.push({ $sort: sortStage });
     }
@@ -175,7 +176,34 @@ export class MemoryAnalyticsService implements IAnalyticsService {
 
     // Execute the aggregation pipeline
     const tableName = this.extractTableName(cube.sql);
-    const rows = await this.driver.aggregate(tableName, pipeline);
+    const rawRows = await this.driver.aggregate(tableName, pipeline);
+
+    // Rename fields from short names to full cube.field names
+    const rows = rawRows.map(row => {
+      const renamedRow: Record<string, unknown> = {};
+      
+      // Rename dimensions
+      if (query.dimensions) {
+        for (const dim of query.dimensions) {
+          const shortName = this.getShortName(dim);
+          if (shortName in row) {
+            renamedRow[dim] = row[shortName];
+          }
+        }
+      }
+      
+      // Rename measures
+      if (query.measures) {
+        for (const measure of query.measures) {
+          const shortName = this.getShortName(measure);
+          if (shortName in row) {
+            renamedRow[measure] = row[shortName];
+          }
+        }
+      }
+      
+      return renamedRow;
+    });
 
     // Build field metadata
     const fields: Array<{ name: string; type: string }> = [];
