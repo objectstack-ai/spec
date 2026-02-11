@@ -29,6 +29,17 @@ export interface PluginContext {
     getService<T>(name: string): T;
 
     /**
+     * Replace an existing service with a new implementation.
+     * Useful for optimization plugins that wrap or swap kernel internals
+     * (e.g., metadata registry, connection pooling).
+     * 
+     * @param name - Service name to replace
+     * @param implementation - New service implementation
+     * @throws Error if the service does not exist
+     */
+    replaceService<T>(name: string, implementation: T): void;
+
+    /**
      * Get all registered services
      */
     getServices(): Map<string, any>;

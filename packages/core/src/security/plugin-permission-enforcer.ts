@@ -394,6 +394,12 @@ export class SecurePluginContext implements PluginContext {
     return this.baseContext.getService<T>(name);
   }
   
+  replaceService<T>(name: string, implementation: T): void {
+    // Check permission before replacing service
+    this.permissionEnforcer.enforceServiceAccess(this.pluginName, name);
+    this.baseContext.replaceService(name, implementation);
+  }
+  
   getServices(): Map<string, any> {
     // Return all services (no permission check for listing)
     return this.baseContext.getServices();
