@@ -223,23 +223,23 @@ export class RestServer {
                     // Override discovery information with actual server configuration
                     discovery.version = this.config.api.version;
                     
-                    if (discovery.endpoints) {
-                        // Ensure endpoints match the actual mounted paths
+                    if (discovery.routes) {
+                        // Ensure routes match the actual mounted paths
                         if (this.config.api.enableCrud) {
-                            discovery.endpoints.data = `${basePath}${this.config.crud.dataPrefix}`;
+                            discovery.routes.data = `${basePath}${this.config.crud.dataPrefix}`;
                         }
                         
                         if (this.config.api.enableMetadata) {
-                            discovery.endpoints.metadata = `${basePath}${this.config.metadata.prefix}`;
+                            discovery.routes.metadata = `${basePath}${this.config.metadata.prefix}`;
                         }
 
                         if (this.config.api.enableUi) {
-                            discovery.endpoints.ui = `${basePath}/ui`;
+                            discovery.routes.ui = `${basePath}/ui`;
                         }
 
-                        // Align auth endpoint with the versioned base path if present
-                        if (discovery.endpoints.auth) {
-                            discovery.endpoints.auth = `${basePath}/auth`;
+                        // Align auth route with the versioned base path if present
+                        if (discovery.routes.auth) {
+                            discovery.routes.auth = `${basePath}/auth`;
                         }
                     }
 

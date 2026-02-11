@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { ViewSchema } from '../ui/view.zod';
-import { ApiCapabilitiesSchema, ApiRoutesSchema, ServiceInfoSchema } from './discovery.zod';
+import { ApiRoutesSchema, ServiceInfoSchema } from './discovery.zod';
 import { BatchUpdateRequestSchema, BatchUpdateResponseSchema, BatchOptionsSchema } from './batch.zod';
 import { MetadataCacheRequestSchema, MetadataCacheResponseSchema } from './http-cache.zod';
 import { QuerySchema } from '../data/query.zod';
@@ -88,13 +88,16 @@ export const GetDiscoveryRequestSchema = z.object({});
 
 /**
  * Get API Discovery Response
- * Returns API version information and capabilities
+ * Returns API version information and service availability.
+ * 
+ * - `routes` provides a flat endpoint map for client routing.
+ * - `services` is the single source of truth for service availability.
+ * - `capabilities` was removed — derive from `services[x].enabled`.
  */
 export const GetDiscoveryResponseSchema = z.object({
   version: z.string().describe('API version (e.g., "v1", "2024-01")'),
   apiName: z.string().describe('API name'),
-  capabilities: ApiCapabilitiesSchema.optional().describe('Supported features/capabilities'),
-  endpoints: ApiRoutesSchema.optional().describe('Available endpoint paths'),
+  routes: ApiRoutesSchema.optional().describe('Available endpoint paths'),
   services: z.record(z.string(), ServiceInfoSchema).optional().describe('Per-service availability map'),
 });
 

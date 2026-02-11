@@ -22,7 +22,9 @@ describe('ObjectStackProtocolImplementation - Dynamic Service Discovery', () => 
     expect(discovery.services.auth.enabled).toBe(false);
     expect(discovery.services.auth.status).toBe('unavailable');
     expect(discovery.services.auth.message).toContain('plugin-auth');
-    expect(discovery.capabilities.workflow).toBe(false);
+    // capabilities removed — derive from services
+    expect(discovery.services.workflow).toBeDefined();
+    expect(discovery.services.workflow.enabled).toBe(false);
   });
 
   it('should return available auth service when auth is registered', async () => {
@@ -39,10 +41,10 @@ describe('ObjectStackProtocolImplementation - Dynamic Service Discovery', () => 
     expect(discovery.services.auth.status).toBe('available');
     expect(discovery.services.auth.route).toBe('/api/v1/auth');
     expect(discovery.services.auth.provider).toBe('plugin-auth');
-    expect(discovery.endpoints.auth).toBe('/api/v1/auth');
+    expect(discovery.routes.auth).toBe('/api/v1/auth');
   });
 
-  it('should return available workflow when automation service is registered', async () => {
+  it('should return available automation service when registered', async () => {
     const mockServices = new Map<string, any>();
     mockServices.set('automation', { /* mock automation service */ });
     
@@ -53,7 +55,6 @@ describe('ObjectStackProtocolImplementation - Dynamic Service Discovery', () => 
     expect(discovery.services.automation).toBeDefined();
     expect(discovery.services.automation.enabled).toBe(true);
     expect(discovery.services.automation.status).toBe('available');
-    expect(discovery.capabilities.workflow).toBe(true);
   });
 
   it('should return multiple available services when registered', async () => {
@@ -73,17 +74,15 @@ describe('ObjectStackProtocolImplementation - Dynamic Service Discovery', () => 
     // Check realtime
     expect(discovery.services.realtime.enabled).toBe(true);
     expect(discovery.services.realtime.status).toBe('available');
-    expect(discovery.capabilities.websockets).toBe(true);
     
     // Check AI
     expect(discovery.services.ai.enabled).toBe(true);
     expect(discovery.services.ai.status).toBe('available');
-    expect(discovery.capabilities.ai).toBe(true);
     
-    // Endpoints should include available services
-    expect(discovery.endpoints.auth).toBe('/api/v1/auth');
-    expect(discovery.endpoints.realtime).toBe('/api/v1/realtime');
-    expect(discovery.endpoints.ai).toBe('/api/v1/ai');
+    // Routes should include available services
+    expect(discovery.routes.auth).toBe('/api/v1/auth');
+    expect(discovery.routes.realtime).toBe('/api/v1/realtime');
+    expect(discovery.routes.ai).toBe('/api/v1/ai');
   });
 
   it('should always show core services as available', async () => {
@@ -98,12 +97,9 @@ describe('ObjectStackProtocolImplementation - Dynamic Service Discovery', () => 
     expect(discovery.services.data.status).toBe('available');
     expect(discovery.services.analytics.enabled).toBe(true);
     expect(discovery.services.analytics.status).toBe('available');
-    
-    // Core capabilities
-    expect(discovery.capabilities.analytics).toBe(true);
   });
 
-  it('should map file-storage service to storage endpoint', async () => {
+  it('should map file-storage service to storage route', async () => {
     const mockServices = new Map<string, any>();
     mockServices.set('file-storage', {});
     
@@ -113,25 +109,45 @@ describe('ObjectStackProtocolImplementation - Dynamic Service Discovery', () => 
     
     expect(discovery.services['file-storage'].enabled).toBe(true);
     expect(discovery.services['file-storage'].status).toBe('available');
-    expect(discovery.endpoints.storage).toBe('/api/v1/storage');
-    expect(discovery.capabilities.files).toBe(true);
+    expect(discovery.routes.storage).toBe('/api/v1/storage');
   });
 
-  it('should handle workflow capability from either automation or workflow service', async () => {
-    // Test with workflow service
-    const mockServicesWithWorkflow = new Map<string, any>();
-    mockServicesWithWorkflow.set('workflow', {});
+  it('should use consistent /api/v1/ route prefix for all services', async () => {
+    const mockServices = new Map<string, any>();
+    mockServices.set('auth', {});
+    mockServices.set('automation', {});
+    mockServices.set('ai', {});
     
-    protocol = new ObjectStackProtocolImplementation(engine, () => mockServicesWithWorkflow);
-    let discovery = await protocol.getDiscovery();
-    expect(discovery.capabilities.workflow).toBe(true);
+    protocol = new ObjectStackProtocolImplementation(engine, () => mockServices);
     
-    // Test with automation service
-    const mockServicesWithAutomation = new Map<string, any>();
-    mockServicesWithAutomation.set('automation', {});
+    const discovery = await protocol.getDiscovery();
     
-    protocol = new ObjectStackProtocolImplementation(engine, () => mockServicesWithAutomation);
-    discovery = await protocol.getDiscovery();
-    expect(discovery.capabilities.workflow).toBe(true);
+    // All routes should use consistent /api/v1/ prefix
+    expect(discovery.routes.data).toBe('/api/v1/data');
+    expect(discovery.routes.metadata).toBe('/api/v1/meta');
+    expect(discovery.routes.auth).toBe('/api/v1/auth');
+    expect(discovery.routes.automation).toBe('/api/v1/automation');
+    expect(discovery.routes.ai).toBe('/api/v1/ai');
+    expect(discovery.routes.analytics).toBe('/api/v1/analytics');
+    
+    // Service routes should match the routes map
+    expect(discovery.services.data.route).toBe('/api/v1/data');
+    expect(discovery.services.metadata.route).toBe('/api/v1/meta');
+    expect(discovery.services.auth.route).toBe('/api/v1/auth');
+    expect(discovery.services.analytics.route).toBe('/api/v1/analytics');
+  });
+
+  it('should not return capabilities field (removed — use services instead)', async () => {
+    const mockServices = new Map<string, any>();
+    mockServices.set('workflow', {});
+    
+    protocol = new ObjectStackProtocolImplementation(engine, () => mockServices);
+    const discovery = await protocol.getDiscovery();
+    
+    // capabilities field should no longer exist in the response
+    const keys = Object.keys(discovery);
+    expect(keys).not.toContain('capabilities');
+    // Use services to check availability instead
+    expect(discovery.services.workflow.enabled).toBe(true);
   });
 });

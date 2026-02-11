@@ -229,7 +229,7 @@ export class ObjectStackClient {
       this.logger.info('Connected to ObjectStack server', { 
         version: data.version,
         apiName: data.apiName,
-        capabilities: data.capabilities 
+        services: data.services 
       });
       
       return data as DiscoveryResult;
@@ -1288,9 +1288,8 @@ export class ObjectStackClient {
    */
   private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth' | 'analytics' | 'storage' | 'automation' | 'packages' | 'permissions' | 'realtime' | 'workflow' | 'views' | 'notifications' | 'ai' | 'i18n'): string {
     // 1. Use discovered routes if available
-    // Note: Spec uses 'endpoints', mapped dynamically
-    if (this.discoveryInfo?.endpoints && (this.discoveryInfo.endpoints as any)[type]) {
-        return (this.discoveryInfo.endpoints as any)[type];
+    if (this.discoveryInfo?.routes && (this.discoveryInfo.routes as any)[type]) {
+        return (this.discoveryInfo.routes as any)[type];
     }
 
     // 2. Fallback to conventions

@@ -31,21 +31,21 @@ function simpleHash(str: string): string {
  * Service Configuration for Discovery
  * Maps service names to their routes and plugin providers
  */
-const SERVICE_CONFIG: Record<string, { route: string; plugin: string; capability?: string }> = {
+const SERVICE_CONFIG: Record<string, { route: string; plugin: string }> = {
     auth:         { route: '/api/v1/auth', plugin: 'plugin-auth' },
-    automation:   { route: '/api/v1/automation', plugin: 'plugin-automation', capability: 'workflow' },
+    automation:   { route: '/api/v1/automation', plugin: 'plugin-automation' },
     cache:        { route: '/api/v1/cache', plugin: 'plugin-redis' },
     queue:        { route: '/api/v1/queue', plugin: 'plugin-bullmq' },
     job:          { route: '/api/v1/jobs', plugin: 'job-scheduler' },
     ui:           { route: '/api/v1/ui', plugin: 'ui-plugin' },
-    workflow:     { route: '/api/v1/workflow', plugin: 'plugin-workflow', capability: 'workflow' },
-    realtime:     { route: '/api/v1/realtime', plugin: 'plugin-realtime', capability: 'websockets' },
-    notification: { route: '/api/v1/notifications', plugin: 'plugin-notifications', capability: 'notifications' },
-    ai:           { route: '/api/v1/ai', plugin: 'plugin-ai', capability: 'ai' },
-    i18n:         { route: '/api/v1/i18n', plugin: 'plugin-i18n', capability: 'i18n' },
-    graphql:      { route: '/graphql', plugin: 'plugin-graphql', capability: 'graphql' },
-    'file-storage': { route: '/api/v1/storage', plugin: 'plugin-storage', capability: 'files' },
-    search:       { route: '/api/v1/search', plugin: 'plugin-search', capability: 'search' },
+    workflow:     { route: '/api/v1/workflow', plugin: 'plugin-workflow' },
+    realtime:     { route: '/api/v1/realtime', plugin: 'plugin-realtime' },
+    notification: { route: '/api/v1/notifications', plugin: 'plugin-notifications' },
+    ai:           { route: '/api/v1/ai', plugin: 'plugin-ai' },
+    i18n:         { route: '/api/v1/i18n', plugin: 'plugin-i18n' },
+    graphql:      { route: '/graphql', plugin: 'plugin-graphql' },  // GraphQL uses /graphql by convention (not versioned REST)
+    'file-storage': { route: '/api/v1/storage', plugin: 'plugin-storage' },
+    search:       { route: '/api/v1/search', plugin: 'plugin-search' },
 };
 
 export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
@@ -64,9 +64,9 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         // Build dynamic service info with proper typing
         const services: Record<string, ServiceInfo> = {
             // --- Kernel-provided (objectql is an example kernel implementation) ---
-            metadata:  { enabled: true, status: 'degraded' as const, route: '/api/meta', provider: 'objectql', message: 'In-memory registry only; DB persistence not yet implemented' },
-            data:      { enabled: true, status: 'available' as const, route: '/api/data', provider: 'objectql' },
-            analytics: { enabled: true, status: 'available' as const, route: '/api/analytics', provider: 'objectql' },
+            metadata:  { enabled: true, status: 'degraded' as const, route: '/api/v1/meta', provider: 'objectql', message: 'In-memory registry only; DB persistence not yet implemented' },
+            data:      { enabled: true, status: 'available' as const, route: '/api/v1/data', provider: 'objectql' },
+            analytics: { enabled: true, status: 'available' as const, route: '/api/v1/analytics', provider: 'objectql' },
         };
 
         // Check which services are actually registered
@@ -89,22 +89,8 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
             }
         }
 
-        // Build capabilities based on available services
-        const capabilities = {
-            graphql: registeredServices.has('graphql'),
-            search: registeredServices.has('search'),
-            websockets: registeredServices.has('realtime'),
-            files: registeredServices.has('file-storage'),
-            analytics: true, // Always available via objectql
-            ai: registeredServices.has('ai'),
-            workflow: registeredServices.has('workflow') || registeredServices.has('automation'),
-            notifications: registeredServices.has('notification'),
-            i18n: registeredServices.has('i18n'),
-        };
-
-        // Build endpoints (only include available services)
-        // Map service names to ApiRoutes keys
-        const serviceToEndpointKey: Record<string, keyof ApiRoutes> = {
+        // Build routes from services — a flat convenience map for client routing
+        const serviceToRouteKey: Record<string, keyof ApiRoutes> = {
             auth: 'auth',
             automation: 'automation',
             ui: 'ui',
@@ -117,31 +103,30 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
             'file-storage': 'storage',
         };
 
-        const optionalEndpoints: Partial<ApiRoutes> = {
-            analytics: '/api/analytics',
+        const optionalRoutes: Partial<ApiRoutes> = {
+            analytics: '/api/v1/analytics',
         };
 
         // Add routes for available plugin services
         for (const [serviceName, config] of Object.entries(SERVICE_CONFIG)) {
             if (registeredServices.has(serviceName)) {
-                const endpointKey = serviceToEndpointKey[serviceName];
-                if (endpointKey) {
-                    optionalEndpoints[endpointKey] = config.route;
+                const routeKey = serviceToRouteKey[serviceName];
+                if (routeKey) {
+                    optionalRoutes[routeKey] = config.route;
                 }
             }
         }
 
-        const endpoints: ApiRoutes = {
-            data: '/api/data',
-            metadata: '/api/meta',
-            ...optionalEndpoints,
+        const routes: ApiRoutes = {
+            data: '/api/v1/data',
+            metadata: '/api/v1/meta',
+            ...optionalRoutes,
         };
 
         return {
             version: '1.0',
             apiName: 'ObjectStack API',
-            capabilities,
-            endpoints,
+            routes,
             services,
         };
     }
