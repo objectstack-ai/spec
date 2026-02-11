@@ -118,7 +118,7 @@ export class NodeMetadataManager extends MetadataManager {
       name,
       path: filePath,
       data,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
     };
 
     this.notifyWatchers(type, event);

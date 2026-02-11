@@ -229,7 +229,7 @@ describe('MetadataLoaderContractSchema', () => {
   });
 
   it('should accept all valid protocols', () => {
-    const protocols = ['file:', 'http:', 's3:', 'datasource:'];
+    const protocols = ['file:', 'http:', 's3:', 'datasource:', 'memory:'];
     protocols.forEach((protocol) => {
       expect(() => MetadataLoaderContractSchema.parse({
         name: 'test', protocol, capabilities: {},

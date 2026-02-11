@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { MetadataManager, type MetadataManagerOptions } from './metadata-manager';
+import { MetadataManager } from './metadata-manager';
 import { MemoryLoader } from './loaders/memory-loader';
 import type { MetadataLoader } from './loaders/loader-interface';
 
@@ -109,7 +109,7 @@ describe('MetadataManager', () => {
 
     it('should throw when no writable loader is available', async () => {
       const readOnlyLoader: MetadataLoader = {
-        contract: { name: 'readonly', protocol: 'test', capabilities: { read: true, write: false, watch: false, list: true } },
+        contract: { name: 'readonly', protocol: 'memory:' as const, capabilities: { read: true, write: false, watch: false, list: true } },
         load: vi.fn().mockResolvedValue({ data: null }),
         loadMany: vi.fn().mockResolvedValue([]),
         exists: vi.fn().mockResolvedValue(false),
@@ -163,7 +163,7 @@ describe('MetadataManager', () => {
 
     it('should deduplicate across loaders', async () => {
       const loader1: MetadataLoader = {
-        contract: { name: 'l1', protocol: 'test', capabilities: { read: true, write: false, watch: false, list: true } },
+        contract: { name: 'l1', protocol: 'memory:' as const, capabilities: { read: true, write: false, watch: false, list: true } },
         load: vi.fn().mockResolvedValue({ data: null }),
         loadMany: vi.fn().mockResolvedValue([]),
         exists: vi.fn().mockResolvedValue(false),
@@ -171,7 +171,7 @@ describe('MetadataManager', () => {
         list: vi.fn().mockResolvedValue(['account', 'contact']),
       };
       const loader2: MetadataLoader = {
-        contract: { name: 'l2', protocol: 'test', capabilities: { read: true, write: false, watch: false, list: true } },
+        contract: { name: 'l2', protocol: 'memory:' as const, capabilities: { read: true, write: false, watch: false, list: true } },
         load: vi.fn().mockResolvedValue({ data: null }),
         loadMany: vi.fn().mockResolvedValue([]),
         exists: vi.fn().mockResolvedValue(false),
@@ -269,7 +269,7 @@ describe('MemoryLoader', () => {
 
   it('should have correct contract', () => {
     expect(loader.contract.name).toBe('memory');
-    expect(loader.contract.protocol).toBe('memory');
+    expect(loader.contract.protocol).toBe('memory:');
     expect(loader.contract.capabilities.read).toBe(true);
     expect(loader.contract.capabilities.write).toBe(true);
   });
@@ -356,7 +356,7 @@ describe('MetadataPlugin', () => {
   }));
 
   it('should have correct plugin metadata', async () => {
-    const { MetadataPlugin } = await import('./plugin');
+    const { MetadataPlugin } = await import('./plugin.js');
     const plugin = new MetadataPlugin({ rootDir: '/tmp/test', watch: false });
     expect(plugin.name).toBe('com.objectstack.metadata');
     expect(plugin.version).toBe('1.0.0');
@@ -364,7 +364,7 @@ describe('MetadataPlugin', () => {
   });
 
   it('should call init and register metadata service', async () => {
-    const { MetadataPlugin } = await import('./plugin');
+    const { MetadataPlugin } = await import('./plugin.js');
     const plugin = new MetadataPlugin({ rootDir: '/tmp/test', watch: false });
 
     const ctx = createMockPluginContext();
@@ -374,7 +374,7 @@ describe('MetadataPlugin', () => {
   });
 
   it('should call start and attempt to load metadata types', async () => {
-    const { MetadataPlugin } = await import('./plugin');
+    const { MetadataPlugin } = await import('./plugin.js');
     const plugin = new MetadataPlugin({ rootDir: '/tmp/test', watch: false });
 
     const ctx = createMockPluginContext();
@@ -390,7 +390,7 @@ describe('MetadataPlugin', () => {
 
 function createMockLoader(name: string, data: any, shouldFail = false): MetadataLoader {
   return {
-    contract: { name, protocol: 'test', capabilities: { read: true, write: false, watch: false, list: true } },
+    contract: { name, protocol: 'memory:' as const, capabilities: { read: true, write: false, watch: false, list: true } },
     load: shouldFail
       ? vi.fn().mockRejectedValue(new Error('loader failed'))
       : vi.fn().mockResolvedValue({ data }),
@@ -403,7 +403,7 @@ function createMockLoader(name: string, data: any, shouldFail = false): Metadata
 
 function createMockLoaderMany(name: string, items: any[], shouldFail = false): MetadataLoader {
   return {
-    contract: { name, protocol: 'test', capabilities: { read: true, write: false, watch: false, list: true } },
+    contract: { name, protocol: 'memory:' as const, capabilities: { read: true, write: false, watch: false, list: true } },
     load: vi.fn().mockResolvedValue({ data: null }),
     loadMany: shouldFail
       ? vi.fn().mockRejectedValue(new Error('loader failed'))
@@ -417,6 +417,7 @@ function createMockLoaderMany(name: string, items: any[], shouldFail = false): M
 function createMockPluginContext() {
   return {
     registerService: vi.fn(),
+    replaceService: vi.fn(),
     getService: vi.fn().mockReturnValue(null),
     getServices: vi.fn().mockReturnValue(new Map()),
     hook: vi.fn(),

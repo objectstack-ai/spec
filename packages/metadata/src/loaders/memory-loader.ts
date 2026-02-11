@@ -20,7 +20,7 @@ import type { MetadataLoader } from './loader-interface.js';
 export class MemoryLoader implements MetadataLoader {
   readonly contract: MetadataLoaderContract = {
     name: 'memory',
-    protocol: 'memory',
+    protocol: 'memory:',
     capabilities: {
       read: true,
       write: true,

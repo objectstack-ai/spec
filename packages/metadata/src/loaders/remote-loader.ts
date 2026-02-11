@@ -20,7 +20,7 @@ import type { MetadataLoader } from './loader-interface.js';
 export class RemoteLoader implements MetadataLoader {
   readonly contract: MetadataLoaderContract = {
     name: 'remote',
-    protocol: 'http',
+    protocol: 'http:',
     capabilities: {
       read: true,
       write: true,
