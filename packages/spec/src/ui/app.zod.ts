@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
-import { I18nLabelSchema } from './i18n.zod';
+import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 
 /**
  * Base Navigation Item Schema
@@ -212,6 +212,9 @@ export const AppSchema = z.object({
     bottomNavItems: z.array(z.string()).optional()
       .describe('Navigation item IDs to show in bottom nav (max 5)'),
   }).optional().describe('Mobile-specific navigation configuration'),
+
+  /** ARIA accessibility attributes */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes for the application'),
 });
 
 /**

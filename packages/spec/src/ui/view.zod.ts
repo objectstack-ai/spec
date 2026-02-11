@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
-import { I18nLabelSchema } from './i18n.zod';
+import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 
 /**
  * HTTP Method Enum
@@ -244,6 +244,9 @@ export const ListViewSchema = z.object({
     message: I18nLabelSchema.optional(),
     icon: z.string().optional(),
   }).optional().describe('Empty state configuration when no records found'),
+
+  /** ARIA accessibility attributes */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes for the list view'),
 });
 
 /**
@@ -313,6 +316,9 @@ export const FormViewSchema = z.object({
   
   sections: z.array(FormSectionSchema).optional(), // For simple layout
   groups: z.array(FormSectionSchema).optional(), // Legacy support -> alias to sections
+
+  /** ARIA accessibility attributes */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes for the form view'),
 });
 
 /**
