@@ -445,3 +445,38 @@ describe('WorkflowRuleSchema', () => {
     expect(() => WorkflowRuleSchema.parse(rule)).toThrow();
   });
 });
+
+// ============================================================================
+// Protocol Improvement Tests: Workflow executionOrder
+// ============================================================================
+
+describe('WorkflowRuleSchema - executionOrder', () => {
+  it('should accept workflow with custom executionOrder', () => {
+    const result = WorkflowRuleSchema.parse({
+      name: 'first_workflow',
+      objectName: 'order',
+      triggerType: 'on_create',
+      executionOrder: 10,
+    });
+    expect(result.executionOrder).toBe(10);
+  });
+
+  it('should default executionOrder to 100', () => {
+    const result = WorkflowRuleSchema.parse({
+      name: 'default_order',
+      objectName: 'order',
+      triggerType: 'on_create',
+    });
+    expect(result.executionOrder).toBe(100);
+  });
+
+  it('should accept executionOrder of 0', () => {
+    const result = WorkflowRuleSchema.parse({
+      name: 'first_ever',
+      objectName: 'lead',
+      triggerType: 'on_update',
+      executionOrder: 0,
+    });
+    expect(result.executionOrder).toBe(0);
+  });
+});

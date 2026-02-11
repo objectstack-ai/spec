@@ -80,6 +80,9 @@ export const ActionSchema = z.object({
   /** User Input Requirements */
   params: z.array(ActionParamSchema).optional().describe('Input parameters required from user'),
   
+  /** Visual Style */
+  variant: z.enum(['primary', 'secondary', 'danger', 'ghost', 'link']).optional().describe('Button visual variant for styling (primary = highlighted, danger = destructive, ghost = transparent)'),
+
   /** UX Behavior */
   confirmText: I18nLabelSchema.optional().describe('Confirmation message before execution'),
   successMessage: I18nLabelSchema.optional().describe('Success message to show after execution'),

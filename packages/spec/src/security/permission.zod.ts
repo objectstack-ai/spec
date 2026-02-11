@@ -95,6 +95,22 @@ export const PermissionSetSchema = z.object({
   /** System permissions (e.g., "manage_users") */
   systemPermissions: z.array(z.string()).optional().describe('System level capabilities'),
   
+  /**
+   * Tab/App Visibility Permissions (Salesforce Pattern)
+   * Controls which app tabs are visible, hidden, or set as default for this permission set.
+   * 
+   * @example
+   * ```typescript
+   * tabPermissions: {
+   *   'app_crm': 'visible',
+   *   'app_admin': 'hidden',
+   *   'app_sales': 'default_on'
+   * }
+   * ```
+   */
+  tabPermissions: z.record(z.string(), z.enum(['visible', 'hidden', 'default_on', 'default_off'])).optional()
+    .describe('App/tab visibility: visible, hidden, default_on (shown by default), default_off (available but hidden initially)'),
+  
   /** 
    * Row-Level Security Rules
    * 

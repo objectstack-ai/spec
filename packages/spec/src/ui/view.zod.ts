@@ -297,6 +297,14 @@ export const ListViewSchema = z.object({
   searchableFields: z.array(z.string()).optional().describe('Fields enabled for search'),
   filterableFields: z.array(z.string()).optional().describe('Fields enabled for end-user filtering in the top bar'),
 
+  /** Quick Filters (One-click filter chips, Salesforce ListFilter pattern) */
+  quickFilters: z.array(z.object({
+    field: z.string().describe('Field name to filter by'),
+    label: z.string().optional().describe('Display label for the chip'),
+    operator: z.enum(['equals', 'not_equals', 'contains', 'in', 'is_null', 'is_not_null']).default('equals').describe('Filter operator'),
+    value: z.unknown().optional().describe('Preset filter value'),
+  })).optional().describe('One-click filter chips for quick record filtering'),
+
   /** Grid Features */
   resizable: z.boolean().optional().describe('Enable column resizing'),
   striped: z.boolean().optional().describe('Striped row styling'),
@@ -432,6 +440,12 @@ export const FormViewSchema = z.object({
   
   sections: z.array(FormSectionSchema).optional(), // For simple layout
   groups: z.array(FormSectionSchema).optional(), // Legacy support -> alias to sections
+
+  /** Default Sort for Related Lists (e.g., sort child records by date) */
+  defaultSort: z.array(z.object({
+    field: z.string().describe('Field name to sort by'),
+    order: z.enum(['asc', 'desc']).default('desc').describe('Sort direction'),
+  })).optional().describe('Default sort order for related list views within this form'),
 
   /** ARIA accessibility attributes */
   aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes for the form view'),

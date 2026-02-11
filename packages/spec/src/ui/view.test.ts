@@ -1844,3 +1844,74 @@ describe('Airtable-style ListView enhancements', () => {
     expect(() => ViewSchema.parse(views)).not.toThrow();
   });
 });
+
+// ============================================================================
+// Protocol Improvement Tests: quickFilters and FormView defaultSort
+// ============================================================================
+
+describe('ListViewSchema - quickFilters', () => {
+  it('should accept quickFilters configuration', () => {
+    const result = ListViewSchema.parse({
+      columns: ['name', 'status'],
+      quickFilters: [
+        { field: 'status', label: 'Active', operator: 'equals', value: 'active' },
+        { field: 'owner_id', label: 'My Records', operator: 'equals', value: '{current_user_id}' },
+        { field: 'category', operator: 'is_not_null' },
+      ],
+    });
+    expect(result.quickFilters).toHaveLength(3);
+    expect(result.quickFilters![0].field).toBe('status');
+    expect(result.quickFilters![0].operator).toBe('equals');
+    expect(result.quickFilters![2].operator).toBe('is_not_null');
+  });
+
+  it('should default quickFilter operator to equals', () => {
+    const result = ListViewSchema.parse({
+      columns: ['name'],
+      quickFilters: [
+        { field: 'status' },
+      ],
+    });
+    expect(result.quickFilters![0].operator).toBe('equals');
+  });
+
+  it('should accept list view without quickFilters (optional)', () => {
+    const result = ListViewSchema.parse({
+      columns: ['name', 'status'],
+    });
+    expect(result.quickFilters).toBeUndefined();
+  });
+});
+
+describe('FormViewSchema - defaultSort', () => {
+  it('should accept defaultSort configuration', () => {
+    const result = FormViewSchema.parse({
+      type: 'simple',
+      sections: [{ fields: ['name'] }],
+      defaultSort: [
+        { field: 'created_at', order: 'desc' },
+        { field: 'name', order: 'asc' },
+      ],
+    });
+    expect(result.defaultSort).toHaveLength(2);
+    expect(result.defaultSort![0].field).toBe('created_at');
+    expect(result.defaultSort![0].order).toBe('desc');
+  });
+
+  it('should default sort order to desc', () => {
+    const result = FormViewSchema.parse({
+      type: 'simple',
+      sections: [{ fields: ['name'] }],
+      defaultSort: [{ field: 'updated_at' }],
+    });
+    expect(result.defaultSort![0].order).toBe('desc');
+  });
+
+  it('should accept form view without defaultSort (optional)', () => {
+    const result = FormViewSchema.parse({
+      type: 'simple',
+      sections: [{ fields: ['name'] }],
+    });
+    expect(result.defaultSort).toBeUndefined();
+  });
+});

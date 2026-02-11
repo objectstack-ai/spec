@@ -86,6 +86,16 @@ export const HookSchema = z.object({
   async: z.boolean().default(false).describe('Run specifically as fire-and-forget'),
 
   /**
+   * Declarative Condition
+   * Formula expression evaluated before the handler runs.
+   * If provided and evaluates to FALSE, the hook is skipped entirely.
+   * Useful for filtering by record data without writing handler code.
+   * 
+   * @example "status = 'active' AND amount > 1000"
+   */
+  condition: z.string().optional().describe('Formula expression; hook runs only when TRUE (e.g., "status = \'closed\' AND amount > 1000")'),
+
+  /**
    * Human-readable description
    */
   description: z.string().optional().describe('Human-readable description of what this hook does'),

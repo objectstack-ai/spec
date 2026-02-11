@@ -525,3 +525,75 @@ describe('FlowSchema', () => {
     });
   });
 });
+
+// ============================================================================
+// Protocol Improvement Tests: Flow errorHandling
+// ============================================================================
+
+describe('FlowSchema - errorHandling', () => {
+  it('should accept flow with errorHandling config', () => {
+    const result = FlowSchema.parse({
+      name: 'resilient_flow',
+      label: 'Resilient Flow',
+      type: 'autolaunched',
+      nodes: [
+        { id: 'start', type: 'start', label: 'Start' },
+        { id: 'end', type: 'end', label: 'End' },
+      ],
+      edges: [{ id: 'e1', source: 'start', target: 'end' }],
+      errorHandling: {
+        strategy: 'retry',
+        maxRetries: 3,
+        retryDelayMs: 2000,
+      },
+    });
+    expect(result.errorHandling?.strategy).toBe('retry');
+    expect(result.errorHandling?.maxRetries).toBe(3);
+    expect(result.errorHandling?.retryDelayMs).toBe(2000);
+  });
+
+  it('should default errorHandling strategy to fail', () => {
+    const result = FlowSchema.parse({
+      name: 'default_flow',
+      label: 'Default',
+      type: 'autolaunched',
+      nodes: [
+        { id: 'start', type: 'start', label: 'Start' },
+      ],
+      edges: [],
+      errorHandling: {},
+    });
+    expect(result.errorHandling?.strategy).toBe('fail');
+    expect(result.errorHandling?.maxRetries).toBe(0);
+  });
+
+  it('should accept continue strategy with fallback node', () => {
+    const result = FlowSchema.parse({
+      name: 'fallback_flow',
+      label: 'Fallback',
+      type: 'autolaunched',
+      nodes: [
+        { id: 'start', type: 'start', label: 'Start' },
+        { id: 'fallback', type: 'end', label: 'Fallback' },
+      ],
+      edges: [],
+      errorHandling: {
+        strategy: 'continue',
+        fallbackNodeId: 'fallback',
+      },
+    });
+    expect(result.errorHandling?.strategy).toBe('continue');
+    expect(result.errorHandling?.fallbackNodeId).toBe('fallback');
+  });
+
+  it('should accept flow without errorHandling (optional)', () => {
+    const result = FlowSchema.parse({
+      name: 'simple_flow',
+      label: 'Simple',
+      type: 'autolaunched',
+      nodes: [{ id: 'start', type: 'start', label: 'Start' }],
+      edges: [],
+    });
+    expect(result.errorHandling).toBeUndefined();
+  });
+});
