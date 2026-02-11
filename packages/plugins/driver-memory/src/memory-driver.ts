@@ -3,25 +3,59 @@
 import { QueryAST, QueryInput } from '@objectstack/spec/data';
 import { DriverOptions } from '@objectstack/spec/data';
 import { DriverInterface, Logger, createLogger } from '@objectstack/core';
-import { match, getValueByPath } from './memory-matcher.js';
+import { Query, Aggregator } from 'mingo';
+import { getValueByPath } from './memory-matcher.js';
 
 /**
- * Example: In-Memory Driver
+ * Configuration options for the InMemory driver.
+ * Aligned with @objectstack/spec MemoryConfigSchema.
+ */
+export interface InMemoryDriverConfig {
+  /** Optional: Initial data to populate the store */
+  initialData?: Record<string, Record<string, unknown>[]>;
+  /** Optional: Enable strict mode (throw on missing records) */
+  strictMode?: boolean;
+  /** Optional: Logger instance */
+  logger?: Logger;
+}
+
+/**
+ * Snapshot for in-memory transactions.
+ */
+interface MemoryTransaction {
+  id: string;
+  snapshot: Record<string, any[]>;
+}
+
+/**
+ * In-Memory Driver for ObjectStack
  * 
- * A minimal reference implementation of the ObjectStack Driver Protocol.
- * This driver stores data in a simple JavaScript object (Heap).
+ * A production-ready implementation of the ObjectStack Driver Protocol
+ * powered by Mingo — a MongoDB-compatible query and aggregation engine.
+ * 
+ * Features:
+ * - MongoDB-compatible query engine (Mingo) for filtering, projection, aggregation
+ * - Full CRUD and bulk operations
+ * - Aggregation pipeline support ($match, $group, $sort, $project, $unwind, etc.)
+ * - Snapshot-based transactions (begin/commit/rollback)
+ * - Field projection and distinct values
+ * - Strict mode and initial data loading
+ * 
+ * Reference: objectql/packages/drivers/memory
  */
 export class InMemoryDriver implements DriverInterface {
   name = 'com.objectstack.driver.memory';
   type = 'driver';
-  version = '0.0.1';
-  private config: any;
+  version = '1.0.0';
+  private config: InMemoryDriverConfig;
   private logger: Logger;
+  private idCounters: Map<string, number> = new Map();
+  private transactions: Map<string, MemoryTransaction> = new Map();
 
-  constructor(config?: any) {
+  constructor(config?: InMemoryDriverConfig) {
     this.config = config || {};
     this.logger = config?.logger || createLogger({ level: 'info', format: 'pretty' });
-    this.logger.debug('InMemory driver instance created', { config: this.config });
+    this.logger.debug('InMemory driver instance created');
   }
 
   // Duck-typed RuntimePlugin hook
@@ -37,11 +71,11 @@ export class InMemoryDriver implements DriverInterface {
   
   supports = {
     // Transaction & Connection Management
-    transactions: false, 
+    transactions: true,          // Snapshot-based transactions
     
     // Query Operations
     queryFilters: true,          // Implemented via memory-matcher
-    queryAggregations: true,    // Implemented
+    queryAggregations: true,     // Implemented
     querySorting: true,          // Implemented via JS sort
     queryPagination: true,       // Implemented
     queryWindowFunctions: false, // @planned: Window functions (ROW_NUMBER, RANK, etc.)
@@ -66,7 +100,21 @@ export class InMemoryDriver implements DriverInterface {
   // ===================================
 
   async connect() {
-    this.logger.info('InMemory Database Connected (Virtual)');
+    // Load initial data if provided
+    if (this.config.initialData) {
+      for (const [objectName, records] of Object.entries(this.config.initialData)) {
+        const table = this.getTable(objectName);
+        for (const record of records) {
+          const id = (record as any).id || this.generateId(objectName);
+          table.push({ ...record, id });
+        }
+      }
+      this.logger.info('InMemory Database Connected with initial data', {
+        tables: Object.keys(this.config.initialData).length,
+      });
+    } else {
+      this.logger.info('InMemory Database Connected (Virtual)');
+    }
   }
 
   async disconnect() {
@@ -105,11 +153,15 @@ export class InMemoryDriver implements DriverInterface {
     this.logger.debug('Find operation', { object, query });
     
     const table = this.getTable(object);
-    let results = table;
+    let results = [...table]; // Work on copy
 
-    // 1. Filter
+    // 1. Filter using Mingo
     if (query.where) {
-        results = results.filter(record => match(record, query.where));
+        const mongoQuery = this.convertToMongoQuery(query.where);
+        if (mongoQuery && Object.keys(mongoQuery).length > 0) {
+          const mingoQuery = new Query(mongoQuery);
+          results = mingoQuery.find(results).all();
+        }
     }
 
     // 1.5 Aggregation & Grouping
@@ -119,21 +171,8 @@ export class InMemoryDriver implements DriverInterface {
 
     // 2. Sort
     if (query.orderBy) {
-        // Normalize sort to array
         const sortFields = Array.isArray(query.orderBy) ? query.orderBy : [query.orderBy];
-        
-        results.sort((a, b) => {
-            for (const { field, order } of sortFields) {
-                const valA = getValueByPath(a, field);
-                const valB = getValueByPath(b, field);
-                
-                if (valA === valB) continue;
-                
-                const comparison = valA > valB ? 1 : -1;
-                return order === 'desc' ? -comparison : comparison;
-            }
-            return 0;
-        });
+        results = this.applySort(results, sortFields);
     }
 
     // 3. Pagination (Offset)
@@ -144,6 +183,11 @@ export class InMemoryDriver implements DriverInterface {
     // 4. Pagination (Limit)
     if (query.limit) {
       results = results.slice(0, query.limit);
+    }
+
+    // 5. Field Projection
+    if (query.fields && Array.isArray(query.fields) && query.fields.length > 0) {
+      results = results.map(record => this.projectFields(record, query.fields as string[]));
     }
 
     this.logger.debug('Find completed', { object, resultCount: results.length });
@@ -174,17 +218,16 @@ export class InMemoryDriver implements DriverInterface {
     
     const table = this.getTable(object);
     
-    // COMPATIBILITY: Driver must return 'id' as string
     const newRecord = {
-      id: data.id || this.generateId(),
+      id: data.id || this.generateId(object),
       ...data,
-      created_at: data.created_at || new Date(),
-      updated_at: data.updated_at || new Date(),
+      created_at: data.created_at || new Date().toISOString(),
+      updated_at: data.updated_at || new Date().toISOString(),
     };
 
     table.push(newRecord);
     this.logger.debug('Record created', { object, id: newRecord.id, tableSize: table.length });
-    return newRecord;
+    return { ...newRecord };
   }
 
   async update(object: string, id: string | number, data: Record<string, any>, options?: DriverOptions) {
@@ -194,19 +237,24 @@ export class InMemoryDriver implements DriverInterface {
     const index = table.findIndex(r => r.id == id);
     
     if (index === -1) {
-      this.logger.warn('Record not found for update', { object, id });
-      throw new Error(`Record with ID ${id} not found in ${object}`);
+      if (this.config.strictMode) {
+        this.logger.warn('Record not found for update', { object, id });
+        throw new Error(`Record with ID ${id} not found in ${object}`);
+      }
+      return null;
     }
 
     const updatedRecord = {
       ...table[index],
       ...data,
-      updated_at: new Date()
+      id: table[index].id, // Preserve original ID
+      created_at: table[index].created_at, // Preserve created_at
+      updated_at: new Date().toISOString(),
     };
     
     table[index] = updatedRecord;
     this.logger.debug('Record updated', { object, id });
-    return updatedRecord;
+    return { ...updatedRecord };
   }
 
   async upsert(object: string, data: Record<string, any>, conflictKeys?: string[], options?: DriverOptions) {
@@ -237,6 +285,9 @@ export class InMemoryDriver implements DriverInterface {
     const index = table.findIndex(r => r.id == id);
     
     if (index === -1) {
+      if (this.config.strictMode) {
+        throw new Error(`Record with ID ${id} not found in ${object}`);
+      }
       this.logger.warn('Record not found for deletion', { object, id });
       return false;
     }
@@ -247,11 +298,15 @@ export class InMemoryDriver implements DriverInterface {
   }
 
   async count(object: string, query?: QueryInput, options?: DriverOptions) {
-    let results = this.getTable(object);
+    let records = this.getTable(object);
     if (query?.where) {
-        results = results.filter(record => match(record, query.where));
+        const mongoQuery = this.convertToMongoQuery(query.where);
+        if (mongoQuery && Object.keys(mongoQuery).length > 0) {
+          const mingoQuery = new Query(mongoQuery);
+          records = mingoQuery.find(records).all();
+        }
     }
-    const count = results.length;
+    const count = records.length;
     this.logger.debug('Count operation', { object, count });
     return count;
   }
@@ -274,20 +329,22 @@ export class InMemoryDriver implements DriverInterface {
       let targetRecords = table;
       
       if (query && query.where) {
-          targetRecords = targetRecords.filter(r => match(r, query.where));
+          const mongoQuery = this.convertToMongoQuery(query.where);
+          if (mongoQuery && Object.keys(mongoQuery).length > 0) {
+            const mingoQuery = new Query(mongoQuery);
+            targetRecords = mingoQuery.find(targetRecords).all();
+          }
       }
       
       const count = targetRecords.length;
       
-      // Update each record
       for (const record of targetRecords) {
-          // Find index in original table
           const index = table.findIndex(r => r.id === record.id);
           if (index !== -1) {
               const updated = {
                   ...table[index],
                   ...data,
-                  updated_at: new Date()
+                  updated_at: new Date().toISOString()
               };
               table[index] = updated;
           }
@@ -303,20 +360,23 @@ export class InMemoryDriver implements DriverInterface {
       const table = this.getTable(object);
       const initialLength = table.length;
       
-      // Filter IN PLACE or create new array?
-      // Creating new array is safer for now.
+      if (query && query.where) {
+          const mongoQuery = this.convertToMongoQuery(query.where);
+          if (mongoQuery && Object.keys(mongoQuery).length > 0) {
+            const mingoQuery = new Query(mongoQuery);
+            const matched = mingoQuery.find(table).all();
+            const matchedIds = new Set(matched.map((r: any) => r.id));
+            this.db[object] = table.filter(r => !matchedIds.has(r.id));
+          } else {
+            // Empty query = delete all
+            this.db[object] = [];
+          }
+      } else {
+          // No where clause = delete all
+          this.db[object] = [];
+      }
       
-      const remaining = table.filter(r => {
-          if (!query || !query.where) return false; // Delete all? No, standard safety implies explicit empty filter for delete all.
-          // Wait, normally deleteMany({}) deletes all.
-          // Let's assume if query passed, use it.
-          const matches = match(r, query.where);
-          return !matches; // Keep if it DOES NOT match
-      });
-      
-      this.db[object] = remaining;
-      const count = initialLength - remaining.length;
-      
+      const count = initialLength - this.db[object].length;
       this.logger.debug('DeleteMany completed', { object, count });
       return { count };
   }
@@ -336,30 +396,236 @@ export class InMemoryDriver implements DriverInterface {
   }
 
   // ===================================
-  // Schema & Transactions
+  // Transaction Management
   // ===================================
 
-  async syncSchema(object: string, schema: any, options?: DriverOptions) {
-    if (!this.db[object]) {
-      this.db[object] = [];
-      this.logger.info('Created in-memory table', { object });
-    }
-  }
-
-  async dropTable(object: string, options?: DriverOptions) {
-    if (this.db[object]) {
-      const recordCount = this.db[object].length;
-      delete this.db[object];
-      this.logger.info('Dropped in-memory table', { object, recordCount });
-    }
-  }
-
   async beginTransaction() {
-    throw new Error('Transactions not supported in InMemoryDriver');
+    const txId = `tx_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+    // Deep-clone current database state as a snapshot
+    const snapshot: Record<string, any[]> = {};
+    for (const [table, records] of Object.entries(this.db)) {
+      snapshot[table] = records.map(r => ({ ...r }));
+    }
+
+    const transaction: MemoryTransaction = { id: txId, snapshot };
+    this.transactions.set(txId, transaction);
+    this.logger.debug('Transaction started', { txId });
+    return { id: txId };
   }
 
-  async commit() { /* No-op */ }
-  async rollback() { /* No-op */ }
+  async commit(txHandle?: unknown) {
+    const txId = (txHandle as any)?.id;
+    if (!txId || !this.transactions.has(txId)) {
+      this.logger.warn('Commit called with unknown transaction');
+      return;
+    }
+    // Data is already in the store; just remove the snapshot
+    this.transactions.delete(txId);
+    this.logger.debug('Transaction committed', { txId });
+  }
+
+  async rollback(txHandle?: unknown) {
+    const txId = (txHandle as any)?.id;
+    if (!txId || !this.transactions.has(txId)) {
+      this.logger.warn('Rollback called with unknown transaction');
+      return;
+    }
+    const tx = this.transactions.get(txId)!;
+    // Restore the snapshot
+    this.db = tx.snapshot;
+    this.transactions.delete(txId);
+    this.logger.debug('Transaction rolled back', { txId });
+  }
+
+  // ===================================
+  // Utility Methods
+  // ===================================
+
+  /**
+   * Remove all data from the store.
+   */
+  async clear() {
+    this.db = {};
+    this.idCounters.clear();
+    this.logger.debug('All data cleared');
+  }
+
+  /**
+   * Get total number of records across all tables.
+   */
+  getSize(): number {
+    return Object.values(this.db).reduce((sum, table) => sum + table.length, 0);
+  }
+
+  /**
+   * Get distinct values for a field, optionally filtered.
+   */
+  async distinct(object: string, field: string, query?: QueryInput): Promise<any[]> {
+    let records = this.getTable(object);
+    if (query?.where) {
+      const mongoQuery = this.convertToMongoQuery(query.where);
+      if (mongoQuery && Object.keys(mongoQuery).length > 0) {
+        const mingoQuery = new Query(mongoQuery);
+        records = mingoQuery.find(records).all();
+      }
+    }
+    const values = new Set<any>();
+    for (const record of records) {
+      const value = getValueByPath(record, field);
+      if (value !== undefined && value !== null) {
+        values.add(value);
+      }
+    }
+    return Array.from(values);
+  }
+
+  /**
+   * Execute a MongoDB-style aggregation pipeline using Mingo.
+   * 
+   * Supports all standard MongoDB pipeline stages:
+   * - $match, $group, $sort, $project, $unwind, $limit, $skip
+   * - $addFields, $replaceRoot, $lookup (limited), $count
+   * - Accumulator operators: $sum, $avg, $min, $max, $first, $last, $push, $addToSet
+   * 
+   * @example
+   * // Group by status and count
+   * const results = await driver.aggregate('orders', [
+   *   { $match: { status: 'completed' } },
+   *   { $group: { _id: '$customer', totalAmount: { $sum: '$amount' } } }
+   * ]);
+   * 
+   * @example
+   * // Calculate average with filter
+   * const results = await driver.aggregate('products', [
+   *   { $match: { category: 'electronics' } },
+   *   { $group: { _id: null, avgPrice: { $avg: '$price' } } }
+   * ]);
+   */
+  async aggregate(object: string, pipeline: Record<string, any>[], options?: DriverOptions): Promise<any[]> {
+    this.logger.debug('Aggregate operation', { object, stageCount: pipeline.length });
+    
+    const records = this.getTable(object).map(r => ({ ...r }));
+    const aggregator = new Aggregator(pipeline);
+    const results = aggregator.run(records);
+    
+    this.logger.debug('Aggregate completed', { object, resultCount: results.length });
+    return results;
+  }
+
+  // ===================================
+  // Query Conversion (ObjectQL → MongoDB)
+  // ===================================
+
+  /**
+   * Convert ObjectQL filter format to MongoDB query format for Mingo.
+   * 
+   * Supports:
+   * 1. AST Comparison Node: { type: 'comparison', field, operator, value }
+   * 2. AST Logical Node: { type: 'logical', operator: 'and'|'or', conditions: [...] }
+   * 3. Legacy Array Format: [['field', 'op', value], 'and', ['field2', 'op', value2]]
+   * 4. MongoDB Format: { field: value } or { field: { $eq: value } } (passthrough)
+   */
+  private convertToMongoQuery(filters?: any): Record<string, any> {
+    if (!filters) return {};
+
+    // AST node format (ObjectQL QueryAST)
+    if (!Array.isArray(filters) && typeof filters === 'object') {
+      if (filters.type === 'comparison') {
+        return this.convertConditionToMongo(filters.field, filters.operator, filters.value) || {};
+      }
+      if (filters.type === 'logical') {
+        const conditions = filters.conditions?.map((c: any) => this.convertToMongoQuery(c)) || [];
+        if (conditions.length === 0) return {};
+        if (conditions.length === 1) return conditions[0];
+        const op = filters.operator === 'or' ? '$or' : '$and';
+        return { [op]: conditions };
+      }
+      // MongoDB format passthrough: { field: value } or { field: { $eq: value } }
+      return filters;
+    }
+
+    // Legacy array format
+    if (!Array.isArray(filters) || filters.length === 0) return {};
+
+    const logicGroups: { logic: 'and' | 'or'; conditions: Record<string, any>[] }[] = [
+      { logic: 'and', conditions: [] },
+    ];
+    let currentLogic: 'and' | 'or' = 'and';
+
+    for (const item of filters) {
+      if (typeof item === 'string') {
+        const newLogic = item.toLowerCase() as 'and' | 'or';
+        if (newLogic !== currentLogic) {
+          currentLogic = newLogic;
+          logicGroups.push({ logic: currentLogic, conditions: [] });
+        }
+      } else if (Array.isArray(item)) {
+        const [field, operator, value] = item;
+        const cond = this.convertConditionToMongo(field, operator, value);
+        if (cond) logicGroups[logicGroups.length - 1].conditions.push(cond);
+      }
+    }
+
+    const allConditions: Record<string, any>[] = [];
+    for (const group of logicGroups) {
+      if (group.conditions.length === 0) continue;
+      if (group.conditions.length === 1) {
+        allConditions.push(group.conditions[0]);
+      } else {
+        const op = group.logic === 'or' ? '$or' : '$and';
+        allConditions.push({ [op]: group.conditions });
+      }
+    }
+
+    if (allConditions.length === 0) return {};
+    if (allConditions.length === 1) return allConditions[0];
+    return { $and: allConditions };
+  }
+
+  /**
+   * Convert a single ObjectQL condition to MongoDB operator format.
+   */
+  private convertConditionToMongo(field: string, operator: string, value: any): Record<string, any> | null {
+    switch (operator) {
+      case '=': case '==':
+        return { [field]: value };
+      case '!=': case '<>':
+        return { [field]: { $ne: value } };
+      case '>':
+        return { [field]: { $gt: value } };
+      case '>=':
+        return { [field]: { $gte: value } };
+      case '<':
+        return { [field]: { $lt: value } };
+      case '<=':
+        return { [field]: { $lte: value } };
+      case 'in':
+        return { [field]: { $in: value } };
+      case 'nin': case 'not in':
+        return { [field]: { $nin: value } };
+      case 'contains': case 'like':
+        return { [field]: { $regex: new RegExp(this.escapeRegex(value), 'i') } };
+      case 'startswith': case 'starts_with':
+        return { [field]: { $regex: new RegExp(`^${this.escapeRegex(value)}`, 'i') } };
+      case 'endswith': case 'ends_with':
+        return { [field]: { $regex: new RegExp(`${this.escapeRegex(value)}$`, 'i') } };
+      case 'between':
+        if (Array.isArray(value) && value.length === 2) {
+          return { [field]: { $gte: value[0], $lte: value[1] } };
+        }
+        return null;
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Escape special regex characters for safe literal matching.
+   */
+  private escapeRegex(str: string): string {
+    return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
 
   // ===================================
   // Aggregation Logic
@@ -385,20 +651,13 @@ export class InMemoryDriver implements DriverInterface {
             groups.get(key)!.push(record);
         }
     } else {
-        // No grouping -> Single group containing all records
-        // If aggregation is requested without group by, it runs on whole set (even if empty)
-        if (aggregations && aggregations.length > 0) {
-             groups.set('all', records);
-        } else {
-             // Should not be here if performAggregation called correctly
-             groups.set('all', records);
-        }
+        groups.set('all', records);
     }
 
     // 2. Compute aggregates for each group
     const resultRows: any[] = [];
     
-    for (const [key, groupRecords] of groups.entries()) {
+    for (const [_key, groupRecords] of groups.entries()) {
         const row: any = {};
         
         // A. Add Group fields to row (if groupBy exists)
@@ -474,8 +733,76 @@ export class InMemoryDriver implements DriverInterface {
   }
 
   // ===================================
+  // Schema Management
+  // ===================================
+
+  async syncSchema(object: string, schema: any, options?: DriverOptions) {
+    if (!this.db[object]) {
+      this.db[object] = [];
+      this.logger.info('Created in-memory table', { object });
+    }
+  }
+
+  async dropTable(object: string, options?: DriverOptions) {
+    if (this.db[object]) {
+      const recordCount = this.db[object].length;
+      delete this.db[object];
+      this.logger.info('Dropped in-memory table', { object, recordCount });
+    }
+  }
+
+  // ===================================
   // Helpers
   // ===================================
+
+  /**
+   * Apply manual sorting (Mingo sort has CJS build issues).
+   */
+  private applySort(records: any[], sortFields: any[]): any[] {
+    const sorted = [...records];
+    for (let i = sortFields.length - 1; i >= 0; i--) {
+      const sortItem = sortFields[i];
+      let field: string;
+      let direction: string;
+      if (typeof sortItem === 'object' && !Array.isArray(sortItem)) {
+        field = sortItem.field;
+        direction = sortItem.order || sortItem.direction || 'asc';
+      } else if (Array.isArray(sortItem)) {
+        [field, direction] = sortItem;
+      } else {
+        continue;
+      }
+      sorted.sort((a, b) => {
+        const aVal = getValueByPath(a, field);
+        const bVal = getValueByPath(b, field);
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
+        if (aVal < bVal) return direction === 'desc' ? 1 : -1;
+        if (aVal > bVal) return direction === 'desc' ? -1 : 1;
+        return 0;
+      });
+    }
+    return sorted;
+  }
+
+  /**
+   * Project specific fields from a record.
+   */
+  private projectFields(record: any, fields: string[]): any {
+    const result: any = {};
+    for (const field of fields) {
+      const value = getValueByPath(record, field);
+      if (value !== undefined) {
+        result[field] = value;
+      }
+    }
+    // Always include id if not explicitly listed
+    if (!fields.includes('id') && record.id !== undefined) {
+      result.id = record.id;
+    }
+    return result;
+  }
 
   private getTable(name: string) {
     if (!this.db[name]) {
@@ -484,7 +811,11 @@ export class InMemoryDriver implements DriverInterface {
     return this.db[name];
   }
 
-  private generateId() {
-    return Math.random().toString(36).substring(2, 15);
+  private generateId(objectName?: string) {
+    const key = objectName || '_global';
+    const counter = (this.idCounters.get(key) || 0) + 1;
+    this.idCounters.set(key, counter);
+    const timestamp = Date.now();
+    return `${key}-${timestamp}-${counter}`;
   }
 }
