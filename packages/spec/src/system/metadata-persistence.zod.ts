@@ -131,7 +131,7 @@ export const MetadataStatsSchema = z.object({
  */
 export const MetadataLoaderContractSchema = z.object({
   name: z.string(),
-  protocol: z.enum(['file:', 'http:', 's3:', 'datasource:']).describe('Loader protocol identifier'),
+  protocol: z.enum(['file:', 'http:', 's3:', 'datasource:', 'memory:']).describe('Loader protocol identifier'),
   description: z.string().optional(),
   supportedFormats: z.array(z.string()).optional(),
   supportsWatch: z.boolean().optional(),
@@ -311,11 +311,19 @@ export const MetadataManagerConfigSchema = z.object({
    * Cache configuration
    */
   cache: z.boolean().optional().describe('Enable metadata caching'),
+
+  /**
+   * Watch options
+   */
+  watchOptions: z.object({
+    ignored: z.array(z.string()).optional().describe('Patterns to ignore'),
+    persistent: z.boolean().default(true).describe('Keep process running'),
+  }).optional().describe('File watcher options'),
 });
 
 export type MetadataFormat = z.infer<typeof MetadataFormatSchema>;
 export type MetadataStats = z.infer<typeof MetadataStatsSchema>;
-export type MetadataLoaderContract = z.infer<typeof MetadataLoaderContractSchema>;
+export type MetadataLoaderContract = z.input<typeof MetadataLoaderContractSchema>;
 export type MetadataLoadOptions = z.infer<typeof MetadataLoadOptionsSchema>;
 export type MetadataLoadResult = z.infer<typeof MetadataLoadResultSchema>;
 export type MetadataSaveOptions = z.infer<typeof MetadataSaveOptionsSchema>;
@@ -324,6 +332,6 @@ export type MetadataWatchEvent = z.infer<typeof MetadataWatchEventSchema>;
 export type MetadataCollectionInfo = z.infer<typeof MetadataCollectionInfoSchema>;
 export type MetadataExportOptions = z.infer<typeof MetadataExportOptionsSchema>;
 export type MetadataImportOptions = z.infer<typeof MetadataImportOptionsSchema>;
-export type MetadataManagerConfig = z.infer<typeof MetadataManagerConfigSchema>;
+export type MetadataManagerConfig = z.input<typeof MetadataManagerConfigSchema>;
 export type MetadataFallbackStrategy = z.infer<typeof MetadataFallbackStrategySchema>;
 export type MetadataSource = z.infer<typeof MetadataSourceSchema>;

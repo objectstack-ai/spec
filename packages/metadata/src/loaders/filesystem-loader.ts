@@ -26,7 +26,7 @@ import type { MetadataSerializer } from '../serializers/serializer-interface.js'
 export class FilesystemLoader implements MetadataLoader {
   readonly contract: MetadataLoaderContract = {
     name: 'filesystem',
-    protocol: 'file',
+    protocol: 'file:',
     capabilities: {
       read: true,
       write: true,
@@ -224,7 +224,7 @@ export class FilesystemLoader implements MetadataLoader {
 
       return {
         size: stats.size,
-        modifiedAt: stats.mtime,
+        modifiedAt: stats.mtime.toISOString(),
         etag,
         format,
         path: filePath,

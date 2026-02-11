@@ -374,7 +374,7 @@ export const MetadataLoaderContractSchema = z.object({
   /**
    * Protocol handled by this loader (e.g. 'file:', 'http:', 's3:', 'datasource:')
    */
-  protocol: z.enum(['file:', 'http:', 's3:', 'datasource:']).describe('Protocol identifier'),
+  protocol: z.enum(['file:', 'http:', 's3:', 'datasource:', 'memory:']).describe('Protocol identifier'),
 
   /**
    * Detailed capabilities
@@ -498,6 +498,6 @@ export type MetadataLoadResult = z.infer<typeof MetadataLoadResultSchema>;
 export type MetadataSaveResult = z.infer<typeof MetadataSaveResultSchema>;
 export type MetadataWatchEvent = z.infer<typeof MetadataWatchEventSchema>;
 export type MetadataCollectionInfo = z.infer<typeof MetadataCollectionInfoSchema>;
-export type MetadataLoaderContract = z.infer<typeof MetadataLoaderContractSchema>;
-export type MetadataManagerConfig = z.infer<typeof MetadataManagerConfigSchema>;
+export type MetadataLoaderContract = z.input<typeof MetadataLoaderContractSchema>;
+export type MetadataManagerConfig = z.input<typeof MetadataManagerConfigSchema>;
 export type MetadataFallbackStrategy = z.infer<typeof MetadataFallbackStrategySchema>;
