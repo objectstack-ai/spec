@@ -44,6 +44,24 @@ export const ViewDataSchema = z.discriminatedUnion('provider', [
 ]);
 
 /**
+ * Column Summary Function Schema
+ * Aggregation function for column footer (Airtable-style column summaries)
+ */
+export const ColumnSummarySchema = z.enum([
+  'none',
+  'count',
+  'count_empty',
+  'count_filled',
+  'count_unique',
+  'percent_empty',
+  'percent_filled',
+  'sum',
+  'avg',
+  'min',
+  'max',
+]).describe('Aggregation function for column footer summary');
+
+/**
  * List Column Configuration Schema
  * Detailed configuration for individual list view columns
  */
@@ -57,6 +75,12 @@ export const ListColumnSchema = z.object({
   resizable: z.boolean().optional().describe('Allow resizing this column'),
   wrap: z.boolean().optional().describe('Allow text wrapping'),
   type: z.string().optional().describe('Renderer type override (e.g., "currency", "date")'),
+
+  /** Pinning (Airtable-style frozen columns) */
+  pinned: z.enum(['left', 'right']).optional().describe('Pin/freeze column to left or right side'),
+
+  /** Column Footer Summary (Airtable-style aggregation) */
+  summary: ColumnSummarySchema.optional().describe('Footer aggregation function for this column'),
 
   /** Interaction */
   link: z.boolean().optional().describe('Functions as the primary navigation link (triggers View navigation)'),
@@ -77,6 +101,79 @@ export const PaginationConfigSchema = z.object({
   pageSize: z.number().int().positive().default(25).describe('Number of records per page'),
   pageSizeOptions: z.array(z.number().int().positive()).optional().describe('Available page size options'),
 });
+
+/**
+ * Row Height / Density Schema (Airtable-style)
+ * Controls the visual density of rows in a list view.
+ */
+export const RowHeightSchema = z.enum([
+  'compact',     // Minimal padding, single line
+  'short',       // Reduced padding
+  'medium',      // Default padding
+  'tall',        // Extra padding, multi-line preview
+  'extra_tall',  // Maximum padding, rich content preview
+]).describe('Row height / density setting for list view');
+
+/**
+ * Grouping Field Configuration
+ * Defines a single grouping level for record grouping.
+ */
+export const GroupingFieldSchema = z.object({
+  field: z.string().describe('Field name to group by'),
+  order: z.enum(['asc', 'desc']).default('asc').describe('Group sort order'),
+  collapsed: z.boolean().default(false).describe('Collapse groups by default'),
+});
+
+/**
+ * Grouping Configuration Schema (Airtable-style)
+ * Supports multi-level grouping for grid/gallery views.
+ */
+export const GroupingConfigSchema = z.object({
+  fields: z.array(GroupingFieldSchema).min(1).describe('Fields to group by (supports up to 3 levels)'),
+}).describe('Record grouping configuration');
+
+/**
+ * Gallery View Configuration (Airtable-style)
+ * Configures card layout for gallery/card views.
+ */
+export const GalleryConfigSchema = z.object({
+  coverField: z.string().optional().describe('Attachment/image field to display as card cover'),
+  coverFit: z.enum(['cover', 'contain']).default('cover').describe('Image fit mode for card cover'),
+  cardSize: z.enum(['small', 'medium', 'large']).default('medium').describe('Card size in gallery view'),
+  titleField: z.string().optional().describe('Field to display as card title'),
+  visibleFields: z.array(z.string()).optional().describe('Fields to display on card body'),
+}).describe('Gallery/card view configuration');
+
+/**
+ * Timeline View Configuration (Airtable-style)
+ * Configures timeline/chronological views.
+ */
+export const TimelineConfigSchema = z.object({
+  startDateField: z.string().describe('Field for timeline item start date'),
+  endDateField: z.string().optional().describe('Field for timeline item end date'),
+  titleField: z.string().describe('Field to display as timeline item title'),
+  groupByField: z.string().optional().describe('Field to group timeline rows'),
+  colorField: z.string().optional().describe('Field to determine item color'),
+  scale: z.enum(['hour', 'day', 'week', 'month', 'quarter', 'year']).default('week').describe('Default timeline scale'),
+}).describe('Timeline view configuration');
+
+/**
+ * View Sharing Configuration (Airtable-style)
+ * Defines who can see and modify a view.
+ */
+export const ViewSharingSchema = z.object({
+  type: z.enum(['personal', 'collaborative']).default('collaborative').describe('View ownership type'),
+  lockedBy: z.string().optional().describe('User who locked the view configuration'),
+}).describe('View sharing and access configuration');
+
+/**
+ * Row Color Configuration (Airtable-style)
+ * Defines how rows are colored based on field values.
+ */
+export const RowColorConfigSchema = z.object({
+  field: z.string().describe('Field to derive color from (typically a select/status field)'),
+  colors: z.record(z.string(), z.string()).optional().describe('Map of field value to color (hex/token)'),
+}).describe('Row color configuration based on field values');
 
 /**
  * Kanban Settings
@@ -218,6 +315,25 @@ export const ListViewSchema = z.object({
   kanban: KanbanConfigSchema.optional(),
   calendar: CalendarConfigSchema.optional(),
   gantt: GanttConfigSchema.optional(),
+  gallery: GalleryConfigSchema.optional(),
+  timeline: TimelineConfigSchema.optional(),
+
+  /** View Metadata (Airtable-style view management) */
+  description: I18nLabelSchema.optional().describe('View description for documentation/tooltips'),
+  sharing: ViewSharingSchema.optional().describe('View sharing and access configuration'),
+
+  /** Row Height / Density (Airtable-style) */
+  rowHeight: RowHeightSchema.optional().describe('Row height / density setting'),
+
+  /** Record Grouping (Airtable-style) */
+  grouping: GroupingConfigSchema.optional().describe('Group records by one or more fields'),
+
+  /** Row Color (Airtable-style) */
+  rowColor: RowColorConfigSchema.optional().describe('Color rows based on field value'),
+
+  /** Field Visibility & Ordering per View (Airtable-style) */
+  hiddenFields: z.array(z.string()).optional().describe('Fields to hide in this specific view'),
+  fieldOrder: z.array(z.string()).optional().describe('Explicit field display order for this view'),
 
   /** Row & Bulk Actions */
   rowActions: z.array(z.string()).optional().describe('Actions available for individual row items'),
@@ -358,3 +474,10 @@ export type PaginationConfig = z.infer<typeof PaginationConfigSchema>;
 export type ViewData = z.infer<typeof ViewDataSchema>;
 export type HttpRequest = z.infer<typeof HttpRequestSchema>;
 export type HttpMethod = z.infer<typeof HttpMethodSchema>;
+export type ColumnSummary = z.infer<typeof ColumnSummarySchema>;
+export type RowHeight = z.infer<typeof RowHeightSchema>;
+export type GroupingConfig = z.infer<typeof GroupingConfigSchema>;
+export type GalleryConfig = z.infer<typeof GalleryConfigSchema>;
+export type TimelineConfig = z.infer<typeof TimelineConfigSchema>;
+export type ViewSharing = z.infer<typeof ViewSharingSchema>;
+export type RowColorConfig = z.infer<typeof RowColorConfigSchema>;
