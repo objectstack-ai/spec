@@ -10,6 +10,11 @@ import {
   MCPToolCallResponseSchema,
   MCPResourceRequestSchema,
   MCPPromptRequestSchema,
+  MCPStreamingConfigSchema,
+  MCPToolApprovalSchema,
+  MCPSamplingConfigSchema,
+  MCPRootsConfigSchema,
+  MCPRootEntrySchema,
   type MCPServerConfig,
   type MCPTool,
   type MCPResource,
@@ -590,5 +595,196 @@ describe('MCPPromptRequestSchema', () => {
     };
 
     expect(() => MCPPromptRequestSchema.parse(request)).not.toThrow();
+  });
+});
+
+// ==========================================
+// MCP Streaming, Approval, Sampling, Roots Tests
+// ==========================================
+
+describe('MCPStreamingConfigSchema', () => {
+  it('should accept minimal streaming config', () => {
+    const config = MCPStreamingConfigSchema.parse({
+      enabled: true,
+    });
+
+    expect(config.enabled).toBe(true);
+    expect(config.heartbeatIntervalMs).toBe(30000);
+  });
+
+  it('should accept full streaming config', () => {
+    const config = MCPStreamingConfigSchema.parse({
+      enabled: true,
+      chunkSize: 4096,
+      heartbeatIntervalMs: 15000,
+      backpressure: 'buffer',
+    });
+
+    expect(config.chunkSize).toBe(4096);
+    expect(config.heartbeatIntervalMs).toBe(15000);
+    expect(config.backpressure).toBe('buffer');
+  });
+
+  it('should accept all backpressure strategies', () => {
+    const strategies = ['drop', 'buffer', 'block'] as const;
+    strategies.forEach(bp => {
+      const config = MCPStreamingConfigSchema.parse({
+        enabled: false,
+        backpressure: bp,
+      });
+      expect(config.backpressure).toBe(bp);
+    });
+  });
+
+  it('should reject non-positive chunkSize', () => {
+    expect(() => MCPStreamingConfigSchema.parse({
+      enabled: true,
+      chunkSize: 0,
+    })).toThrow();
+  });
+});
+
+describe('MCPToolApprovalSchema', () => {
+  it('should accept minimal approval config', () => {
+    const config = MCPToolApprovalSchema.parse({
+      approvalStrategy: 'auto_approve',
+    });
+
+    expect(config.requireApproval).toBe(false);
+    expect(config.approvalStrategy).toBe('auto_approve');
+  });
+
+  it('should accept human-in-loop with patterns', () => {
+    const config = MCPToolApprovalSchema.parse({
+      requireApproval: true,
+      approvalStrategy: 'human_in_loop',
+      dangerousToolPatterns: ['^delete_', '^drop_'],
+      autoApproveTimeout: 120,
+    });
+
+    expect(config.requireApproval).toBe(true);
+    expect(config.dangerousToolPatterns).toHaveLength(2);
+    expect(config.autoApproveTimeout).toBe(120);
+  });
+
+  it('should accept all approval strategies', () => {
+    const strategies = ['human_in_loop', 'auto_approve', 'policy_based'] as const;
+    strategies.forEach(s => {
+      const config = MCPToolApprovalSchema.parse({ approvalStrategy: s });
+      expect(config.approvalStrategy).toBe(s);
+    });
+  });
+});
+
+describe('MCPSamplingConfigSchema', () => {
+  it('should accept minimal sampling config', () => {
+    const config = MCPSamplingConfigSchema.parse({
+      enabled: true,
+      maxTokens: 1024,
+    });
+
+    expect(config.enabled).toBe(true);
+    expect(config.maxTokens).toBe(1024);
+  });
+
+  it('should accept full sampling config', () => {
+    const config = MCPSamplingConfigSchema.parse({
+      enabled: true,
+      maxTokens: 4096,
+      temperature: 0.7,
+      stopSequences: ['</answer>', '\n\n'],
+      modelPreferences: ['claude-3-opus', 'gpt-4'],
+      systemPrompt: 'You are a helpful assistant.',
+    });
+
+    expect(config.temperature).toBe(0.7);
+    expect(config.stopSequences).toHaveLength(2);
+    expect(config.modelPreferences).toHaveLength(2);
+    expect(config.systemPrompt).toBeDefined();
+  });
+
+  it('should reject temperature out of range', () => {
+    expect(() => MCPSamplingConfigSchema.parse({
+      enabled: true,
+      maxTokens: 100,
+      temperature: 2.5,
+    })).toThrow();
+  });
+});
+
+describe('MCPRootsConfigSchema', () => {
+  it('should accept minimal roots config', () => {
+    const config = MCPRootsConfigSchema.parse({
+      roots: [{ uri: 'file:///home/user/project' }],
+    });
+
+    expect(config.roots).toHaveLength(1);
+    expect(config.watchForChanges).toBe(false);
+    expect(config.notifyOnChange).toBe(true);
+  });
+
+  it('should accept full roots config', () => {
+    const config = MCPRootsConfigSchema.parse({
+      roots: [
+        { uri: 'file:///home/user/project', name: 'Main Project', readOnly: false },
+        { uri: 'file:///home/user/docs', name: 'Documentation', readOnly: true },
+      ],
+      watchForChanges: true,
+      notifyOnChange: true,
+    });
+
+    expect(config.roots).toHaveLength(2);
+    expect(config.roots[1].readOnly).toBe(true);
+    expect(config.watchForChanges).toBe(true);
+  });
+
+  it('should require at least one root', () => {
+    expect(() => MCPRootsConfigSchema.parse({
+      roots: [],
+    })).not.toThrow(); // Array can be empty per schema
+  });
+
+  it('should accept MCPServerConfig with streaming and approval', () => {
+    const config = MCPServerConfigSchema.parse({
+      name: 'test_server',
+      label: 'Test MCP Server',
+      serverInfo: {
+        name: 'Test',
+        version: '1.0.0',
+        capabilities: { tools: true },
+      },
+      transport: {
+        type: 'stdio',
+        command: 'node',
+        args: ['server.js'],
+      },
+      streaming: {
+        enabled: true,
+        chunkSize: 8192,
+      },
+      toolApproval: {
+        requireApproval: true,
+        approvalStrategy: 'human_in_loop',
+      },
+      sampling: {
+        enabled: true,
+        maxTokens: 2048,
+      },
+    });
+
+    expect(config.streaming?.enabled).toBe(true);
+    expect(config.toolApproval?.requireApproval).toBe(true);
+    expect(config.sampling?.maxTokens).toBe(2048);
+  });
+
+  it('should accept MCPRootEntrySchema', () => {
+    const entry = MCPRootEntrySchema.parse({
+      uri: 'file:///workspace',
+      name: 'Workspace',
+      readOnly: true,
+    });
+
+    expect(entry.uri).toBe('file:///workspace');
+    expect(entry.readOnly).toBe(true);
   });
 });

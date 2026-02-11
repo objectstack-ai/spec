@@ -4,6 +4,8 @@ import {
   AIModelConfigSchema,
   AIToolSchema,
   AIKnowledgeSchema,
+  StructuredOutputFormatSchema,
+  StructuredOutputConfigSchema,
   type Agent,
 } from './agent.zod';
 
@@ -568,5 +570,118 @@ Be precise, data-driven, and clear in your explanations.`,
       expect(agent.guardrails?.maxExecutionTimeSec).toBe(60);
       expect(agent.guardrails?.blockedTopics).toContain('financial_advice');
     });
+  });
+
+  describe('Structured Output', () => {
+    it('should accept agent with structuredOutput', () => {
+      const agent = AgentSchema.parse({
+        name: 'json_agent',
+        label: 'JSON Agent',
+        role: 'Data Formatter',
+        instructions: 'Always return JSON.',
+        structuredOutput: {
+          format: 'json_object',
+        },
+      });
+
+      expect(agent.structuredOutput?.format).toBe('json_object');
+      expect(agent.structuredOutput?.strict).toBe(false);
+      expect(agent.structuredOutput?.retryOnValidationFailure).toBe(true);
+      expect(agent.structuredOutput?.maxRetries).toBe(3);
+    });
+
+    it('should accept agent with full structuredOutput config', () => {
+      const agent = AgentSchema.parse({
+        name: 'strict_agent',
+        label: 'Strict Agent',
+        role: 'Validator',
+        instructions: 'Return strict JSON.',
+        structuredOutput: {
+          format: 'json_schema',
+          schema: { type: 'object', properties: { name: { type: 'string' } } },
+          strict: true,
+          retryOnValidationFailure: false,
+          maxRetries: 5,
+          fallbackFormat: 'json_object',
+          transformPipeline: ['trim', 'parse_json', 'validate'],
+        },
+      });
+
+      expect(agent.structuredOutput?.strict).toBe(true);
+      expect(agent.structuredOutput?.fallbackFormat).toBe('json_object');
+      expect(agent.structuredOutput?.transformPipeline).toHaveLength(3);
+    });
+  });
+});
+
+// ==========================================
+// Structured Output Schema Tests
+// ==========================================
+
+describe('StructuredOutputFormatSchema', () => {
+  it('should accept all output formats', () => {
+    const formats = ['json_object', 'json_schema', 'regex', 'grammar', 'xml'] as const;
+    formats.forEach(format => {
+      expect(StructuredOutputFormatSchema.parse(format)).toBe(format);
+    });
+  });
+
+  it('should reject invalid format', () => {
+    expect(() => StructuredOutputFormatSchema.parse('yaml')).toThrow();
+  });
+});
+
+describe('StructuredOutputConfigSchema', () => {
+  it('should accept minimal config', () => {
+    const config = StructuredOutputConfigSchema.parse({
+      format: 'json_object',
+    });
+
+    expect(config.format).toBe('json_object');
+    expect(config.strict).toBe(false);
+    expect(config.retryOnValidationFailure).toBe(true);
+    expect(config.maxRetries).toBe(3);
+  });
+
+  it('should accept config with schema', () => {
+    const config = StructuredOutputConfigSchema.parse({
+      format: 'json_schema',
+      schema: {
+        type: 'object',
+        properties: {
+          result: { type: 'string' },
+          confidence: { type: 'number' },
+        },
+        required: ['result'],
+      },
+    });
+
+    expect(config.schema).toBeDefined();
+    expect(config.schema?.type).toBe('object');
+  });
+
+  it('should accept config with transform pipeline', () => {
+    const config = StructuredOutputConfigSchema.parse({
+      format: 'json_object',
+      transformPipeline: ['trim', 'parse_json', 'validate', 'coerce_types'],
+    });
+
+    expect(config.transformPipeline).toHaveLength(4);
+  });
+
+  it('should enforce maxRetries min constraint', () => {
+    expect(() => StructuredOutputConfigSchema.parse({
+      format: 'json_object',
+      maxRetries: -1,
+    })).toThrow();
+  });
+
+  it('should accept fallbackFormat', () => {
+    const config = StructuredOutputConfigSchema.parse({
+      format: 'regex',
+      fallbackFormat: 'json_object',
+    });
+
+    expect(config.fallbackFormat).toBe('json_object');
   });
 });

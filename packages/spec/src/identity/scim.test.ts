@@ -10,6 +10,9 @@ import {
   SCIMEmailSchema,
   SCIMPhoneNumberSchema,
   SCIMAddressSchema,
+  SCIMBulkOperationSchema,
+  SCIMBulkRequestSchema,
+  SCIMBulkResponseSchema,
   SCIM_SCHEMAS,
   SCIM,
   type SCIMUser,
@@ -745,8 +748,6 @@ describe('SCIM 2.0 Protocol', () => {
 
   describe('SCIM Filter Validation', () => {
     it('should support common filter patterns', () => {
-      // These are filter strings that would be in query parameters
-      // The actual filtering logic would be implemented separately
       const commonFilters = [
         'userName eq "bjensen"',
         'name.familyName co "O\'Malley"',
@@ -754,11 +755,151 @@ describe('SCIM 2.0 Protocol', () => {
         'meta.lastModified gt "2011-05-13T04:42:34Z"',
       ];
 
-      // Just verify the filters are valid strings for now
       commonFilters.forEach(filter => {
         expect(typeof filter).toBe('string');
         expect(filter.length).toBeGreaterThan(0);
       });
+    });
+  });
+
+  // ─── SCIM 2.0 Bulk Operations Tests ──────────────────────────────
+
+  describe('SCIMBulkOperationSchema', () => {
+    it('should accept POST operation with data', () => {
+      const op = SCIMBulkOperationSchema.parse({
+        method: 'POST',
+        path: '/Users',
+        bulkId: 'user-1',
+        data: { userName: 'newuser', active: true },
+      });
+
+      expect(op.method).toBe('POST');
+      expect(op.path).toBe('/Users');
+      expect(op.bulkId).toBe('user-1');
+    });
+
+    it('should accept DELETE operation without data', () => {
+      const op = SCIMBulkOperationSchema.parse({
+        method: 'DELETE',
+        path: '/Users/abc-123',
+      });
+
+      expect(op.method).toBe('DELETE');
+      expect(op.data).toBeUndefined();
+    });
+
+    it('should accept PATCH operation with version', () => {
+      const op = SCIMBulkOperationSchema.parse({
+        method: 'PATCH',
+        path: '/Users/abc-123',
+        data: { active: false },
+        version: 'W/"v1"',
+      });
+
+      expect(op.version).toBe('W/"v1"');
+    });
+
+    it('should accept all valid methods', () => {
+      const methods = ['POST', 'PUT', 'PATCH', 'DELETE'] as const;
+      methods.forEach(method => {
+        expect(() => SCIMBulkOperationSchema.parse({
+          method,
+          path: '/Users',
+        })).not.toThrow();
+      });
+    });
+
+    it('should reject invalid methods', () => {
+      expect(() => SCIMBulkOperationSchema.parse({
+        method: 'GET',
+        path: '/Users',
+      })).toThrow();
+    });
+  });
+
+  describe('SCIMBulkRequestSchema', () => {
+    it('should accept valid bulk request', () => {
+      const request = SCIMBulkRequestSchema.parse({
+        operations: [
+          { method: 'POST', path: '/Users', bulkId: 'u1', data: { userName: 'user1' } },
+          { method: 'POST', path: '/Users', bulkId: 'u2', data: { userName: 'user2' } },
+        ],
+      });
+
+      expect(request.schemas).toEqual([SCIM_SCHEMAS.BULK_REQUEST]);
+      expect(request.operations).toHaveLength(2);
+    });
+
+    it('should accept bulk request with failOnErrors', () => {
+      const request = SCIMBulkRequestSchema.parse({
+        operations: [
+          { method: 'DELETE', path: '/Users/abc' },
+        ],
+        failOnErrors: 5,
+      });
+
+      expect(request.failOnErrors).toBe(5);
+    });
+
+    it('should require at least one operation', () => {
+      expect(() => SCIMBulkRequestSchema.parse({
+        operations: [],
+      })).toThrow();
+    });
+
+    it('should accept mixed operation types', () => {
+      const request = SCIMBulkRequestSchema.parse({
+        operations: [
+          { method: 'POST', path: '/Users', bulkId: 'u1', data: { userName: 'new' } },
+          { method: 'PATCH', path: '/Users/abc', data: { active: false } },
+          { method: 'DELETE', path: '/Groups/xyz' },
+        ],
+      });
+
+      expect(request.operations).toHaveLength(3);
+    });
+  });
+
+  describe('SCIMBulkResponseSchema', () => {
+    it('should accept valid bulk response', () => {
+      const response = SCIMBulkResponseSchema.parse({
+        operations: [
+          { method: 'POST', bulkId: 'u1', status: '201', location: 'https://example.com/scim/v2/Users/new-id' },
+          { method: 'DELETE', status: '204' },
+        ],
+      });
+
+      expect(response.schemas).toEqual([SCIM_SCHEMAS.BULK_RESPONSE]);
+      expect(response.operations).toHaveLength(2);
+      expect(response.operations[0].status).toBe('201');
+    });
+
+    it('should accept response with error details', () => {
+      const response = SCIMBulkResponseSchema.parse({
+        operations: [
+          {
+            method: 'POST',
+            bulkId: 'u1',
+            status: '400',
+            response: {
+              schemas: [SCIM_SCHEMAS.ERROR],
+              status: 400,
+              detail: 'userName is required',
+            },
+          },
+        ],
+      });
+
+      expect(response.operations[0].status).toBe('400');
+      expect(response.operations[0].response).toBeDefined();
+    });
+
+    it('should accept empty operations array', () => {
+      const response = SCIMBulkResponseSchema.parse({
+        operations: [],
+      });
+
+      expect(response.operations).toHaveLength(0);
     });
   });
 });

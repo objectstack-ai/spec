@@ -21,6 +21,16 @@ import {
   ConnectorSchema,
   ConnectorTypeSchema,
   ConnectorStatusSchema,
+
+  // Error Mapping
+  ErrorMappingConfigSchema,
+  ErrorMappingRuleSchema,
+  ErrorCategorySchema,
+
+  // Health & Circuit Breaker
+  HealthCheckConfigSchema,
+  CircuitBreakerConfigSchema,
+  ConnectorHealthSchema,
   
   // Types
   type Connector,
@@ -424,5 +434,239 @@ describe('ConnectorSchema', () => {
     expect(parsed.fieldMappings).toHaveLength(1);
     expect(parsed.webhooks).toHaveLength(1);
     expect(parsed.metadata?.version).toBe('1.0');
+  });
+});
+
+// ============================================================================
+// Error Mapping Configuration Tests
+// ============================================================================
+
+describe('ErrorMappingConfigSchema', () => {
+  it('should accept valid error mapping config', () => {
+    const config = ErrorMappingConfigSchema.parse({
+      rules: [
+        {
+          sourceCode: 404,
+          targetCode: 'RESOURCE_NOT_FOUND',
+          targetCategory: 'not_found',
+          severity: 'low',
+          retryable: false,
+        },
+      ],
+      unmappedBehavior: 'generic_error',
+    });
+
+    expect(config.rules).toHaveLength(1);
+    expect(config.defaultCategory).toBe('integration_error');
+    expect(config.logUnmapped).toBe(true);
+  });
+
+  it('should accept rules with string source codes', () => {
+    const config = ErrorMappingConfigSchema.parse({
+      rules: [
+        {
+          sourceCode: 'INVALID_TOKEN',
+          sourceMessage: 'Token has expired',
+          targetCode: 'AUTH_EXPIRED',
+          targetCategory: 'authorization',
+          severity: 'high',
+          retryable: true,
+          userMessage: 'Your session has expired. Please log in again.',
+        },
+      ],
+      unmappedBehavior: 'passthrough',
+    });
+
+    expect(config.rules[0].sourceCode).toBe('INVALID_TOKEN');
+    expect(config.rules[0].userMessage).toBeDefined();
+  });
+
+  it('should accept all unmapped behaviors', () => {
+    const behaviors = ['passthrough', 'generic_error', 'throw'] as const;
+    behaviors.forEach(behavior => {
+      const config = ErrorMappingConfigSchema.parse({
+        rules: [],
+        unmappedBehavior: behavior,
+      });
+      expect(config.unmappedBehavior).toBe(behavior);
+    });
+  });
+
+  it('should accept all error categories', () => {
+    const categories = ['validation', 'authorization', 'not_found', 'conflict', 'rate_limit', 'timeout', 'server_error', 'integration_error'] as const;
+    categories.forEach(cat => {
+      expect(() => ErrorCategorySchema.parse(cat)).not.toThrow();
+    });
+  });
+
+  it('should accept all severity levels', () => {
+    const severities = ['low', 'medium', 'high', 'critical'] as const;
+    severities.forEach(severity => {
+      const rule = ErrorMappingRuleSchema.parse({
+        sourceCode: 500,
+        targetCode: 'ERROR',
+        targetCategory: 'server_error',
+        severity,
+        retryable: false,
+      });
+      expect(rule.severity).toBe(severity);
+    });
+  });
+});
+
+// ============================================================================
+// Health Check Configuration Tests
+// ============================================================================
+
+describe('HealthCheckConfigSchema', () => {
+  it('should accept minimal health check config', () => {
+    const config = HealthCheckConfigSchema.parse({
+      enabled: true,
+    });
+
+    expect(config.enabled).toBe(true);
+    expect(config.intervalMs).toBe(60000);
+    expect(config.timeoutMs).toBe(5000);
+    expect(config.expectedStatus).toBe(200);
+    expect(config.unhealthyThreshold).toBe(3);
+    expect(config.healthyThreshold).toBe(1);
+  });
+
+  it('should accept full health check config', () => {
+    const config = HealthCheckConfigSchema.parse({
+      enabled: true,
+      intervalMs: 30000,
+      timeoutMs: 10000,
+      endpoint: '/health',
+      method: 'HEAD',
+      expectedStatus: 204,
+      unhealthyThreshold: 5,
+      healthyThreshold: 2,
+    });
+
+    expect(config.endpoint).toBe('/health');
+    expect(config.method).toBe('HEAD');
+    expect(config.expectedStatus).toBe(204);
+  });
+
+  it('should accept all HTTP methods for health check', () => {
+    const methods = ['GET', 'HEAD', 'OPTIONS'] as const;
+    methods.forEach(method => {
+      const config = HealthCheckConfigSchema.parse({ enabled: true, method });
+      expect(config.method).toBe(method);
+    });
+  });
+});
+
+// ============================================================================
+// Circuit Breaker Configuration Tests
+// ============================================================================
+
+describe('CircuitBreakerConfigSchema', () => {
+  it('should accept minimal circuit breaker config', () => {
+    const config = CircuitBreakerConfigSchema.parse({
+      enabled: true,
+    });
+
+    expect(config.enabled).toBe(true);
+    expect(config.failureThreshold).toBe(5);
+    expect(config.resetTimeoutMs).toBe(30000);
+    expect(config.halfOpenMaxRequests).toBe(1);
+    expect(config.monitoringWindow).toBe(60000);
+  });
+
+  it('should accept full circuit breaker config', () => {
+    const config = CircuitBreakerConfigSchema.parse({
+      enabled: true,
+      failureThreshold: 10,
+      resetTimeoutMs: 60000,
+      halfOpenMaxRequests: 3,
+      monitoringWindow: 120000,
+      fallbackStrategy: 'cache',
+    });
+
+    expect(config.failureThreshold).toBe(10);
+    expect(config.fallbackStrategy).toBe('cache');
+  });
+
+  it('should accept all fallback strategies', () => {
+    const strategies = ['cache', 'default_value', 'error', 'queue'] as const;
+    strategies.forEach(strategy => {
+      const config = CircuitBreakerConfigSchema.parse({
+        enabled: true,
+        fallbackStrategy: strategy,
+      });
+      expect(config.fallbackStrategy).toBe(strategy);
+    });
+  });
+});
+
+// ============================================================================
+// Connector Health Configuration Tests
+// ============================================================================
+
+describe('ConnectorHealthSchema', () => {
+  it('should accept empty health config', () => {
+    const health = ConnectorHealthSchema.parse({});
+
+    expect(health.healthCheck).toBeUndefined();
+    expect(health.circuitBreaker).toBeUndefined();
+  });
+
+  it('should accept combined health check and circuit breaker', () => {
+    const health = ConnectorHealthSchema.parse({
+      healthCheck: {
+        enabled: true,
+        intervalMs: 30000,
+        endpoint: '/ping',
+      },
+      circuitBreaker: {
+        enabled: true,
+        failureThreshold: 3,
+        fallbackStrategy: 'queue',
+      },
+    });
+
+    expect(health.healthCheck?.enabled).toBe(true);
+    expect(health.circuitBreaker?.fallbackStrategy).toBe('queue');
+  });
+
+  it('should accept connector with health config', () => {
+    const connector = ConnectorSchema.parse({
+      name: 'resilient_connector',
+      label: 'Resilient Connector',
+      type: 'api',
+      authentication: { type: 'none' },
+      health: {
+        healthCheck: { enabled: true },
+        circuitBreaker: { enabled: true, failureThreshold: 5 },
+      },
+    });
+
+    expect(connector.health?.healthCheck?.enabled).toBe(true);
+    expect(connector.health?.circuitBreaker?.failureThreshold).toBe(5);
+  });
+
+  it('should accept connector with error mapping', () => {
+    const connector = ConnectorSchema.parse({
+      name: 'mapped_connector',
+      label: 'Mapped Connector',
+      type: 'saas',
+      authentication: { type: 'api-key', key: 'test' },
+      errorMapping: {
+        rules: [
+          {
+            sourceCode: 429,
+            targetCode: 'RATE_LIMITED',
+            targetCategory: 'rate_limit',
+            severity: 'medium',
+            retryable: true,
+          },
+        ],
+        unmappedBehavior: 'generic_error',
+      },
+    });
+
+    expect(connector.errorMapping?.rules).toHaveLength(1);
   });
 });
