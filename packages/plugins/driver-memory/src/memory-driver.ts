@@ -3,7 +3,8 @@
 import { QueryAST, QueryInput } from '@objectstack/spec/data';
 import { DriverOptions } from '@objectstack/spec/data';
 import { DriverInterface, Logger, createLogger } from '@objectstack/core';
-import { match, getValueByPath } from './memory-matcher.js';
+import { Query, Aggregator } from 'mingo';
+import { getValueByPath } from './memory-matcher.js';
 
 /**
  * Configuration options for the InMemory driver.
@@ -29,10 +30,13 @@ interface MemoryTransaction {
 /**
  * In-Memory Driver for ObjectStack
  * 
- * A production-ready implementation of the ObjectStack Driver Protocol.
- * Stores data in JavaScript objects with support for:
+ * A production-ready implementation of the ObjectStack Driver Protocol
+ * powered by Mingo — a MongoDB-compatible query and aggregation engine.
+ * 
+ * Features:
+ * - MongoDB-compatible query engine (Mingo) for filtering, projection, aggregation
  * - Full CRUD and bulk operations
- * - Filtering, sorting, pagination, aggregation
+ * - Aggregation pipeline support ($match, $group, $sort, $project, $unwind, etc.)
  * - Snapshot-based transactions (begin/commit/rollback)
  * - Field projection and distinct values
  * - Strict mode and initial data loading
@@ -149,11 +153,15 @@ export class InMemoryDriver implements DriverInterface {
     this.logger.debug('Find operation', { object, query });
     
     const table = this.getTable(object);
-    let results = table;
+    let results = [...table]; // Work on copy
 
-    // 1. Filter
+    // 1. Filter using Mingo
     if (query.where) {
-        results = results.filter(record => match(record, query.where));
+        const mongoQuery = this.convertToMongoQuery(query.where);
+        if (mongoQuery && Object.keys(mongoQuery).length > 0) {
+          const mingoQuery = new Query(mongoQuery);
+          results = mingoQuery.find(results).all();
+        }
     }
 
     // 1.5 Aggregation & Grouping
@@ -163,21 +171,8 @@ export class InMemoryDriver implements DriverInterface {
 
     // 2. Sort
     if (query.orderBy) {
-        // Normalize sort to array
         const sortFields = Array.isArray(query.orderBy) ? query.orderBy : [query.orderBy];
-        
-        results.sort((a, b) => {
-            for (const { field, order } of sortFields) {
-                const valA = getValueByPath(a, field);
-                const valB = getValueByPath(b, field);
-                
-                if (valA === valB) continue;
-                
-                const comparison = valA > valB ? 1 : -1;
-                return order === 'desc' ? -comparison : comparison;
-            }
-            return 0;
-        });
+        results = this.applySort(results, sortFields);
     }
 
     // 3. Pagination (Offset)
@@ -303,11 +298,15 @@ export class InMemoryDriver implements DriverInterface {
   }
 
   async count(object: string, query?: QueryInput, options?: DriverOptions) {
-    let results = this.getTable(object);
+    let records = this.getTable(object);
     if (query?.where) {
-        results = results.filter(record => match(record, query.where));
+        const mongoQuery = this.convertToMongoQuery(query.where);
+        if (mongoQuery && Object.keys(mongoQuery).length > 0) {
+          const mingoQuery = new Query(mongoQuery);
+          records = mingoQuery.find(records).all();
+        }
     }
-    const count = results.length;
+    const count = records.length;
     this.logger.debug('Count operation', { object, count });
     return count;
   }
@@ -330,20 +329,22 @@ export class InMemoryDriver implements DriverInterface {
       let targetRecords = table;
       
       if (query && query.where) {
-          targetRecords = targetRecords.filter(r => match(r, query.where));
+          const mongoQuery = this.convertToMongoQuery(query.where);
+          if (mongoQuery && Object.keys(mongoQuery).length > 0) {
+            const mingoQuery = new Query(mongoQuery);
+            targetRecords = mingoQuery.find(targetRecords).all();
+          }
       }
       
       const count = targetRecords.length;
       
-      // Update each record
       for (const record of targetRecords) {
-          // Find index in original table
           const index = table.findIndex(r => r.id === record.id);
           if (index !== -1) {
               const updated = {
                   ...table[index],
                   ...data,
-                  updated_at: new Date()
+                  updated_at: new Date().toISOString()
               };
               table[index] = updated;
           }
@@ -359,20 +360,23 @@ export class InMemoryDriver implements DriverInterface {
       const table = this.getTable(object);
       const initialLength = table.length;
       
-      // Filter IN PLACE or create new array?
-      // Creating new array is safer for now.
+      if (query && query.where) {
+          const mongoQuery = this.convertToMongoQuery(query.where);
+          if (mongoQuery && Object.keys(mongoQuery).length > 0) {
+            const mingoQuery = new Query(mongoQuery);
+            const matched = mingoQuery.find(table).all();
+            const matchedIds = new Set(matched.map((r: any) => r.id));
+            this.db[object] = table.filter(r => !matchedIds.has(r.id));
+          } else {
+            // Empty query = delete all
+            this.db[object] = [];
+          }
+      } else {
+          // No where clause = delete all
+          this.db[object] = [];
+      }
       
-      const remaining = table.filter(r => {
-          if (!query || !query.where) return false; // Delete all? No, standard safety implies explicit empty filter for delete all.
-          // Wait, normally deleteMany({}) deletes all.
-          // Let's assume if query passed, use it.
-          const matches = match(r, query.where);
-          return !matches; // Keep if it DOES NOT match
-      });
-      
-      this.db[object] = remaining;
-      const count = initialLength - remaining.length;
-      
+      const count = initialLength - this.db[object].length;
       this.logger.debug('DeleteMany completed', { object, count });
       return { count };
   }
@@ -460,7 +464,11 @@ export class InMemoryDriver implements DriverInterface {
   async distinct(object: string, field: string, query?: QueryInput): Promise<any[]> {
     let records = this.getTable(object);
     if (query?.where) {
-      records = records.filter(record => match(record, query.where));
+      const mongoQuery = this.convertToMongoQuery(query.where);
+      if (mongoQuery && Object.keys(mongoQuery).length > 0) {
+        const mingoQuery = new Query(mongoQuery);
+        records = mingoQuery.find(records).all();
+      }
     }
     const values = new Set<any>();
     for (const record of records) {
@@ -470,6 +478,153 @@ export class InMemoryDriver implements DriverInterface {
       }
     }
     return Array.from(values);
+  }
+
+  /**
+   * Execute a MongoDB-style aggregation pipeline using Mingo.
+   * 
+   * Supports all standard MongoDB pipeline stages:
+   * - $match, $group, $sort, $project, $unwind, $limit, $skip
+   * - $addFields, $replaceRoot, $lookup (limited), $count
+   * - Accumulator operators: $sum, $avg, $min, $max, $first, $last, $push, $addToSet
+   * 
+   * @example
+   * // Group by status and count
+   * const results = await driver.aggregate('orders', [
+   *   { $match: { status: 'completed' } },
+   *   { $group: { _id: '$customer', totalAmount: { $sum: '$amount' } } }
+   * ]);
+   * 
+   * @example
+   * // Calculate average with filter
+   * const results = await driver.aggregate('products', [
+   *   { $match: { category: 'electronics' } },
+   *   { $group: { _id: null, avgPrice: { $avg: '$price' } } }
+   * ]);
+   */
+  async aggregate(object: string, pipeline: Record<string, any>[], options?: DriverOptions): Promise<any[]> {
+    this.logger.debug('Aggregate operation', { object, stageCount: pipeline.length });
+    
+    const records = this.getTable(object).map(r => ({ ...r }));
+    const aggregator = new Aggregator(pipeline);
+    const results = aggregator.run(records);
+    
+    this.logger.debug('Aggregate completed', { object, resultCount: results.length });
+    return results;
+  }
+
+  // ===================================
+  // Query Conversion (ObjectQL → MongoDB)
+  // ===================================
+
+  /**
+   * Convert ObjectQL filter format to MongoDB query format for Mingo.
+   * 
+   * Supports:
+   * 1. AST Comparison Node: { type: 'comparison', field, operator, value }
+   * 2. AST Logical Node: { type: 'logical', operator: 'and'|'or', conditions: [...] }
+   * 3. Legacy Array Format: [['field', 'op', value], 'and', ['field2', 'op', value2]]
+   * 4. MongoDB Format: { field: value } or { field: { $eq: value } } (passthrough)
+   */
+  private convertToMongoQuery(filters?: any): Record<string, any> {
+    if (!filters) return {};
+
+    // AST node format (ObjectQL QueryAST)
+    if (!Array.isArray(filters) && typeof filters === 'object') {
+      if (filters.type === 'comparison') {
+        return this.convertConditionToMongo(filters.field, filters.operator, filters.value) || {};
+      }
+      if (filters.type === 'logical') {
+        const conditions = filters.conditions?.map((c: any) => this.convertToMongoQuery(c)) || [];
+        if (conditions.length === 0) return {};
+        if (conditions.length === 1) return conditions[0];
+        const op = filters.operator === 'or' ? '$or' : '$and';
+        return { [op]: conditions };
+      }
+      // MongoDB format passthrough: { field: value } or { field: { $eq: value } }
+      return filters;
+    }
+
+    // Legacy array format
+    if (!Array.isArray(filters) || filters.length === 0) return {};
+
+    const logicGroups: { logic: 'and' | 'or'; conditions: Record<string, any>[] }[] = [
+      { logic: 'and', conditions: [] },
+    ];
+    let currentLogic: 'and' | 'or' = 'and';
+
+    for (const item of filters) {
+      if (typeof item === 'string') {
+        const newLogic = item.toLowerCase() as 'and' | 'or';
+        if (newLogic !== currentLogic) {
+          currentLogic = newLogic;
+          logicGroups.push({ logic: currentLogic, conditions: [] });
+        }
+      } else if (Array.isArray(item)) {
+        const [field, operator, value] = item;
+        const cond = this.convertConditionToMongo(field, operator, value);
+        if (cond) logicGroups[logicGroups.length - 1].conditions.push(cond);
+      }
+    }
+
+    const allConditions: Record<string, any>[] = [];
+    for (const group of logicGroups) {
+      if (group.conditions.length === 0) continue;
+      if (group.conditions.length === 1) {
+        allConditions.push(group.conditions[0]);
+      } else {
+        const op = group.logic === 'or' ? '$or' : '$and';
+        allConditions.push({ [op]: group.conditions });
+      }
+    }
+
+    if (allConditions.length === 0) return {};
+    if (allConditions.length === 1) return allConditions[0];
+    return { $and: allConditions };
+  }
+
+  /**
+   * Convert a single ObjectQL condition to MongoDB operator format.
+   */
+  private convertConditionToMongo(field: string, operator: string, value: any): Record<string, any> | null {
+    switch (operator) {
+      case '=': case '==':
+        return { [field]: value };
+      case '!=': case '<>':
+        return { [field]: { $ne: value } };
+      case '>':
+        return { [field]: { $gt: value } };
+      case '>=':
+        return { [field]: { $gte: value } };
+      case '<':
+        return { [field]: { $lt: value } };
+      case '<=':
+        return { [field]: { $lte: value } };
+      case 'in':
+        return { [field]: { $in: value } };
+      case 'nin': case 'not in':
+        return { [field]: { $nin: value } };
+      case 'contains': case 'like':
+        return { [field]: { $regex: new RegExp(this.escapeRegex(value), 'i') } };
+      case 'startswith': case 'starts_with':
+        return { [field]: { $regex: new RegExp(`^${this.escapeRegex(value)}`, 'i') } };
+      case 'endswith': case 'ends_with':
+        return { [field]: { $regex: new RegExp(`${this.escapeRegex(value)}$`, 'i') } };
+      case 'between':
+        if (Array.isArray(value) && value.length === 2) {
+          return { [field]: { $gte: value[0], $lte: value[1] } };
+        }
+        return null;
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Escape special regex characters for safe literal matching.
+   */
+  private escapeRegex(str: string): string {
+    return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
   // ===================================
@@ -599,6 +754,37 @@ export class InMemoryDriver implements DriverInterface {
   // ===================================
   // Helpers
   // ===================================
+
+  /**
+   * Apply manual sorting (Mingo sort has CJS build issues).
+   */
+  private applySort(records: any[], sortFields: any[]): any[] {
+    const sorted = [...records];
+    for (let i = sortFields.length - 1; i >= 0; i--) {
+      const sortItem = sortFields[i];
+      let field: string;
+      let direction: string;
+      if (typeof sortItem === 'object' && !Array.isArray(sortItem)) {
+        field = sortItem.field;
+        direction = sortItem.order || sortItem.direction || 'asc';
+      } else if (Array.isArray(sortItem)) {
+        [field, direction] = sortItem;
+      } else {
+        continue;
+      }
+      sorted.sort((a, b) => {
+        const aVal = a[field];
+        const bVal = b[field];
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
+        if (aVal < bVal) return direction === 'desc' ? 1 : -1;
+        if (aVal > bVal) return direction === 'desc' ? -1 : 1;
+        return 0;
+      });
+    }
+    return sorted;
+  }
 
   /**
    * Project specific fields from a record.

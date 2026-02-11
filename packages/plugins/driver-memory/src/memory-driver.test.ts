@@ -378,4 +378,157 @@ describe('InMemoryDriver', () => {
       expect(driver.version).toBe('1.0.0');
     });
   });
+
+  describe('Mingo Aggregation Pipeline', () => {
+    beforeEach(async () => {
+      // Seed order data for aggregation tests
+      await driver.create('orders', { id: '1', customer: 'alice', amount: 100, status: 'completed' });
+      await driver.create('orders', { id: '2', customer: 'bob',   amount: 200, status: 'completed' });
+      await driver.create('orders', { id: '3', customer: 'alice', amount: 150, status: 'pending' });
+      await driver.create('orders', { id: '4', customer: 'bob',   amount: 300, status: 'completed' });
+      await driver.create('orders', { id: '5', customer: 'charlie', amount: 50, status: 'cancelled' });
+    });
+
+    it('should $group and $sum', async () => {
+      const results = await driver.aggregate('orders', [
+        { $match: { status: 'completed' } },
+        { $group: { _id: '$customer', totalAmount: { $sum: '$amount' } } },
+        { $sort: { _id: 1 } },
+      ]);
+
+      expect(results).toHaveLength(2);
+      expect(results[0]._id).toBe('alice');
+      expect(results[0].totalAmount).toBe(100);
+      expect(results[1]._id).toBe('bob');
+      expect(results[1].totalAmount).toBe(500);
+    });
+
+    it('should $group with $avg', async () => {
+      const results = await driver.aggregate('orders', [
+        { $group: { _id: null, avgAmount: { $avg: '$amount' } } },
+      ]);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].avgAmount).toBe(160); // (100+200+150+300+50)/5
+    });
+
+    it('should $group with $min and $max', async () => {
+      const results = await driver.aggregate('orders', [
+        { $group: { _id: null, minAmount: { $min: '$amount' }, maxAmount: { $max: '$amount' } } },
+      ]);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].minAmount).toBe(50);
+      expect(results[0].maxAmount).toBe(300);
+    });
+
+    it('should $group with $count', async () => {
+      const results = await driver.aggregate('orders', [
+        { $match: { status: 'completed' } },
+        { $count: 'completedCount' },
+      ]);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].completedCount).toBe(3);
+    });
+
+    it('should $sort pipeline stage', async () => {
+      const results = await driver.aggregate('orders', [
+        { $sort: { amount: -1 } },
+        { $limit: 3 },
+      ]);
+
+      expect(results).toHaveLength(3);
+      expect(results[0].amount).toBe(300);
+      expect(results[1].amount).toBe(200);
+      expect(results[2].amount).toBe(150);
+    });
+
+    it('should $project pipeline stage', async () => {
+      const results = await driver.aggregate('orders', [
+        { $match: { customer: 'alice' } },
+        { $project: { customer: 1, amount: 1, _id: 0 } },
+        { $sort: { amount: 1 } },
+      ]);
+
+      expect(results).toHaveLength(2);
+      expect(results[0]).toEqual({ customer: 'alice', amount: 100 });
+      expect(results[1]).toEqual({ customer: 'alice', amount: 150 });
+    });
+
+    it('should $group with $push (collect values)', async () => {
+      const results = await driver.aggregate('orders', [
+        { $match: { status: 'completed' } },
+        { $group: { _id: '$customer', amounts: { $push: '$amount' } } },
+        { $sort: { _id: 1 } },
+      ]);
+
+      expect(results).toHaveLength(2);
+      expect(results[0]._id).toBe('alice');
+      expect(results[0].amounts).toEqual([100]);
+      expect(results[1]._id).toBe('bob');
+      expect(results[1].amounts).toEqual([200, 300]);
+    });
+  });
+
+  describe('Mingo Query Operators', () => {
+    beforeEach(async () => {
+      await driver.create(testTable, { id: '1', name: 'Alice', age: 30, score: 85 });
+      await driver.create(testTable, { id: '2', name: 'Bob', age: 25, score: 92 });
+      await driver.create(testTable, { id: '3', name: 'Charlie', age: 35, score: 78 });
+      await driver.create(testTable, { id: '4', name: 'Diana', age: 28, score: 95 });
+    });
+
+    it('should filter with $gt operator', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { age: { $gt: 28 } },
+      });
+      expect(results).toHaveLength(2);
+      expect(results.map((r: any) => r.name).sort()).toEqual(['Alice', 'Charlie']);
+    });
+
+    it('should filter with $in operator', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { name: { $in: ['Alice', 'Diana'] } },
+      });
+      expect(results).toHaveLength(2);
+    });
+
+    it('should filter with $and operator', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { $and: [{ age: { $gte: 28 } }, { score: { $gt: 80 } }] },
+      });
+      expect(results).toHaveLength(2);
+      expect(results.map((r: any) => r.name).sort()).toEqual(['Alice', 'Diana']);
+    });
+
+    it('should filter with $or operator', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { $or: [{ age: { $lt: 26 } }, { score: { $gte: 95 } }] },
+      });
+      expect(results).toHaveLength(2);
+      expect(results.map((r: any) => r.name).sort()).toEqual(['Bob', 'Diana']);
+    });
+
+    it('should filter with $regex operator', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { name: { $regex: /^[AB]/ } },
+      });
+      expect(results).toHaveLength(2);
+      expect(results.map((r: any) => r.name).sort()).toEqual(['Alice', 'Bob']);
+    });
+
+    it('should count with complex filter', async () => {
+      const count = await driver.count(testTable, {
+        object: testTable,
+        where: { age: { $gte: 30 } },
+      });
+      expect(count).toBe(2);
+    });
+  });
 });

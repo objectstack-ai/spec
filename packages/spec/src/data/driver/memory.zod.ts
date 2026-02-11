@@ -113,7 +113,7 @@ export const MemoryConfigSchema = z.object({
 export const MemoryDriverSpec = DriverDefinitionSchema.parse({
   id: 'memory',
   label: 'In-Memory',
-  description: 'High-performance in-memory driver for testing, development, and edge environments. Zero dependencies, instant startup.',
+  description: 'High-performance in-memory driver powered by Mingo (MongoDB-compatible query engine). Supports filtering, aggregation pipelines, sorting, projection.',
   icon: 'memory',
   configSchema: {},
   capabilities: {

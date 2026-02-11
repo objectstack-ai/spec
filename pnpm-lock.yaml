@@ -652,6 +652,9 @@ importers:
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../spec
+      mingo:
+        specifier: ^7.1.1
+        version: 7.2.0
     devDependencies:
       '@types/node':
         specifier: ^25.2.2
@@ -4170,6 +4173,9 @@ packages:
   micromatch@4.0.8:
     resolution: {integrity: sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==}
     engines: {node: '>=8.6'}
+
+  mingo@7.2.0:
+    resolution: {integrity: sha512-UeX942qZpofn5L97h295SkS7j/ADf7Qac8gdRCMBPxi0/1m70aeB2owLFvWbyuMj1dowonlivlVRQVDx+6h+7Q==}
 
   minimatch@10.1.2:
     resolution: {integrity: sha512-fu656aJ0n2kcXwsnwnv9g24tkU5uSmOlTjd6WyyaKm2Z+h1qmY6bAjrcaIxF/BslFqbZ8UBtbJi7KgQOZD2PTw==}
@@ -8486,6 +8492,8 @@ snapshots:
     dependencies:
       braces: 3.0.3
       picomatch: 2.3.1
+
+  mingo@7.2.0: {}
 
   minimatch@10.1.2:
     dependencies:

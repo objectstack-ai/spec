@@ -19,11 +19,12 @@
   },
   "dependencies": {
     "@objectstack/core": "workspace:*",
-    "@objectstack/spec": "workspace:*"
+    "@objectstack/spec": "workspace:*",
+    "mingo": "^7.1.1"
   },
   "devDependencies": {
+    "@types/node": "^25.2.2",
     "typescript": "^5.0.0",
-    "vitest": "^4.0.18",
-    "@types/node": "^25.2.2"
+    "vitest": "^4.0.18"
   }
 }
