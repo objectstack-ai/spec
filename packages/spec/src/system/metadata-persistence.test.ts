@@ -15,6 +15,7 @@ import {
   MetadataExportOptionsSchema,
   MetadataImportOptionsSchema,
   MetadataManagerConfigSchema,
+  MetadataDatasourceConfigSchema,
 } from './metadata-persistence.zod';
 
 describe('MetadataScopeSchema', () => {
@@ -394,5 +395,227 @@ describe('MetadataManagerConfigSchema', () => {
 
     expect(config.watch).toBe(true);
     expect(config.formats).toEqual(['json', 'yaml']);
+  });
+});
+
+describe('MetadataDatasourceConfigSchema', () => {
+  it('should require datasource', () => {
+    expect(() => MetadataDatasourceConfigSchema.parse({})).toThrow();
+  });
+
+  it('should accept minimal configuration', () => {
+    const config = MetadataDatasourceConfigSchema.parse({
+      datasource: 'main_db',
+    });
+
+    expect(config.datasource).toBe('main_db');
+    expect(config.table).toBe('_framework_metadata');
+    expect(config.autoMigrate).toBe(true);
+  });
+
+  it('should accept custom table name', () => {
+    const config = MetadataDatasourceConfigSchema.parse({
+      datasource: 'main_db',
+      table: 'custom_metadata',
+    });
+
+    expect(config.table).toBe('custom_metadata');
+  });
+
+  it('should accept schema name', () => {
+    const config = MetadataDatasourceConfigSchema.parse({
+      datasource: 'main_db',
+      schema: 'public',
+    });
+
+    expect(config.schema).toBe('public');
+  });
+
+  it('should accept cache configuration', () => {
+    const config = MetadataDatasourceConfigSchema.parse({
+      datasource: 'main_db',
+      cache: {
+        enabled: true,
+        ttlSeconds: 7200,
+        invalidateOnWrite: false,
+      },
+    });
+
+    expect(config.cache!.enabled).toBe(true);
+    expect(config.cache!.ttlSeconds).toBe(7200);
+    expect(config.cache!.invalidateOnWrite).toBe(false);
+  });
+
+  it('should use default cache values', () => {
+    const config = MetadataDatasourceConfigSchema.parse({
+      datasource: 'main_db',
+      cache: {},
+    });
+
+    expect(config.cache!.enabled).toBe(true);
+    expect(config.cache!.ttlSeconds).toBe(3600);
+    expect(config.cache!.invalidateOnWrite).toBe(true);
+  });
+
+  it('should accept query options', () => {
+    const config = MetadataDatasourceConfigSchema.parse({
+      datasource: 'main_db',
+      queryOptions: {
+        batchSize: 200,
+        useIndexes: false,
+        parallelLoad: true,
+      },
+    });
+
+    expect(config.queryOptions!.batchSize).toBe(200);
+    expect(config.queryOptions!.useIndexes).toBe(false);
+    expect(config.queryOptions!.parallelLoad).toBe(true);
+  });
+
+  it('should use default query option values', () => {
+    const config = MetadataDatasourceConfigSchema.parse({
+      datasource: 'main_db',
+      queryOptions: {},
+    });
+
+    expect(config.queryOptions!.batchSize).toBe(100);
+    expect(config.queryOptions!.useIndexes).toBe(true);
+    expect(config.queryOptions!.parallelLoad).toBe(false);
+  });
+});
+
+describe('MetadataLoaderContractSchema - Enhanced', () => {
+  it('should accept datasourceConfig', () => {
+    const contract = MetadataLoaderContractSchema.parse({
+      name: 'database-loader',
+      protocol: 'database:',
+      capabilities: {
+        read: true,
+        write: true,
+        watch: false,
+        list: true,
+      },
+      datasourceConfig: {
+        datasource: 'main_db',
+        table: 'metadata',
+      },
+    });
+
+    expect(contract.name).toBe('database-loader');
+    expect(contract.protocol).toBe('database:');
+    expect(contract.datasourceConfig!.datasource).toBe('main_db');
+  });
+
+  it('should accept loader without datasourceConfig', () => {
+    const contract = MetadataLoaderContractSchema.parse({
+      name: 'file-loader',
+      protocol: 'file:',
+      capabilities: {
+        read: true,
+        write: true,
+        watch: true,
+        list: true,
+      },
+    });
+
+    expect(contract.name).toBe('file-loader');
+    expect(contract.datasourceConfig).toBeUndefined();
+  });
+});
+
+describe('MetadataLoadOptionsSchema - Enhanced', () => {
+  it('should accept datasource option', () => {
+    const options = MetadataLoadOptionsSchema.parse({
+      datasource: 'main_db',
+    });
+
+    expect(options.datasource).toBe('main_db');
+  });
+
+  it('should accept database filters', () => {
+    const options = MetadataLoadOptionsSchema.parse({
+      datasource: 'main_db',
+      filters: {
+        type: 'object',
+        namespace: 'crm',
+      },
+    });
+
+    expect(options.filters).toBeDefined();
+    expect(options.filters!.type).toBe('object');
+  });
+
+  it('should accept sort configuration', () => {
+    const options = MetadataLoadOptionsSchema.parse({
+      datasource: 'main_db',
+      sort: {
+        field: 'name',
+        order: 'desc',
+      },
+    });
+
+    expect(options.sort!.field).toBe('name');
+    expect(options.sort!.order).toBe('desc');
+  });
+
+  it('should use default sort order', () => {
+    const options = MetadataLoadOptionsSchema.parse({
+      sort: {
+        field: 'createdAt',
+      },
+    });
+
+    expect(options.sort!.order).toBe('asc');
+  });
+});
+
+describe('MetadataSaveOptionsSchema - Enhanced', () => {
+  it('should accept datasource option', () => {
+    const options = MetadataSaveOptionsSchema.parse({
+      datasource: 'main_db',
+    });
+
+    expect(options.datasource).toBe('main_db');
+  });
+
+  it('should accept transaction configuration', () => {
+    const options = MetadataSaveOptionsSchema.parse({
+      datasource: 'main_db',
+      transaction: {
+        enabled: true,
+        isolationLevel: 'serializable',
+      },
+    });
+
+    expect(options.transaction!.enabled).toBe(true);
+    expect(options.transaction!.isolationLevel).toBe('serializable');
+  });
+
+  it('should validate isolation levels', () => {
+    const levels = ['read_uncommitted', 'read_committed', 'repeatable_read', 'serializable'];
+
+    levels.forEach((level) => {
+      expect(() =>
+        MetadataSaveOptionsSchema.parse({
+          transaction: { isolationLevel: level },
+        })
+      ).not.toThrow();
+    });
+  });
+
+  it('should accept onConflict option', () => {
+    const strategies = ['error', 'skip', 'update', 'replace'];
+
+    strategies.forEach((strategy) => {
+      const options = MetadataSaveOptionsSchema.parse({
+        onConflict: strategy,
+      });
+      expect(options.onConflict).toBe(strategy);
+    });
+  });
+
+  it('should use default onConflict value', () => {
+    const options = MetadataSaveOptionsSchema.parse({});
+    expect(options.onConflict).toBe('update');
   });
 });

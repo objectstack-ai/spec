@@ -86,6 +86,7 @@ export const MetadataRecordSchema = z.object({
 
 export type MetadataRecord = z.infer<typeof MetadataRecordSchema>;
 export type MetadataScope = z.infer<typeof MetadataScopeSchema>;
+export type MetadataDatasourceConfig = z.infer<typeof MetadataDatasourceConfigSchema>;
 
 /**
  * Metadata Format
@@ -111,12 +112,59 @@ export const MetadataStatsSchema = z.object({
 });
 
 /**
+ * Metadata Datasource Configuration
+ * Configuration for database-backed metadata storage.
+ * Allows metadata to be loaded from and saved to any datasource.
+ */
+export const MetadataDatasourceConfigSchema = z.object({
+  /**
+   * Datasource name (references a configured datasource)
+   * This decouples metadata storage from specific driver implementation
+   */
+  datasource: z.string().describe('Datasource name for metadata storage'),
+  
+  /**
+   * Table/Collection name for metadata storage
+   * Default: '_framework_metadata' or 'metadata'
+   */
+  table: z.string().default('_framework_metadata').describe('Table/collection name'),
+  
+  /**
+   * Schema name (for databases that support schemas)
+   */
+  schema: z.string().optional().describe('Database schema name'),
+  
+  /**
+   * Enable automatic table creation/migration
+   */
+  autoMigrate: z.boolean().default(true).describe('Automatically create/update table schema'),
+  
+  /**
+   * Cache configuration for database-backed metadata
+   */
+  cache: z.object({
+    enabled: z.boolean().default(true).describe('Enable metadata caching'),
+    ttlSeconds: z.number().default(3600).describe('Cache TTL in seconds'),
+    invalidateOnWrite: z.boolean().default(true).describe('Invalidate cache on write'),
+  }).optional().describe('Caching configuration'),
+  
+  /**
+   * Query optimization options
+   */
+  queryOptions: z.object({
+    batchSize: z.number().default(100).describe('Batch size for bulk operations'),
+    useIndexes: z.boolean().default(true).describe('Use database indexes'),
+    parallelLoad: z.boolean().default(false).describe('Load metadata types in parallel'),
+  }).optional().describe('Query optimization options'),
+});
+
+/**
  * Metadata Loader Contract
  * Describes the capabilities and identity of a metadata loader.
  */
 export const MetadataLoaderContractSchema = z.object({
   name: z.string(),
-  protocol: z.string(), // e.g. 'file:', 'http:', 's3:'
+  protocol: z.string(), // e.g. 'file:', 'http:', 's3:', 'database:'
   description: z.string().optional(),
   supportedFormats: z.array(z.string()).optional(),
   supportsWatch: z.boolean().optional(),
@@ -128,6 +176,12 @@ export const MetadataLoaderContractSchema = z.object({
     watch: z.boolean().default(false),
     list: z.boolean().default(true),
   }),
+  
+  /**
+   * Datasource configuration (for database-backed loaders)
+   * When specified, this loader will use the datasource for storage
+   */
+  datasourceConfig: MetadataDatasourceConfigSchema.optional().describe('Database datasource configuration'),
 });
 
 /**
@@ -145,6 +199,26 @@ export const MetadataLoadOptionsSchema = z.object({
   limit: z.number().optional(),
   patterns: z.array(z.string()).optional(),
   loader: z.string().optional().describe('Specific loader to use (e.g. filesystem, database)'),
+  
+  /**
+   * Datasource name for database-backed loading
+   * When specified, metadata will be loaded from the datasource instead of filesystem
+   */
+  datasource: z.string().optional().describe('Datasource name for database-backed loading'),
+  
+  /**
+   * Database query filters (for database-backed loaders)
+   * Applied as WHERE clause when loading from database
+   */
+  filters: z.record(z.string(), z.unknown()).optional().describe('Database query filters'),
+  
+  /**
+   * Sort order (for database-backed loaders)
+   */
+  sort: z.object({
+    field: z.string().describe('Field to sort by'),
+    order: z.enum(['asc', 'desc']).default('asc').describe('Sort order'),
+  }).optional().describe('Sort configuration'),
 });
 
 /**
@@ -175,6 +249,29 @@ export const MetadataSaveOptionsSchema = z.object({
   backup: z.boolean().optional(),
   atomic: z.boolean().optional(),
   loader: z.string().optional().describe('Specific loader to use (e.g. filesystem, database)'),
+  
+  /**
+   * Datasource name for database-backed saving
+   * When specified, metadata will be saved to the datasource instead of filesystem
+   */
+  datasource: z.string().optional().describe('Datasource name for database-backed saving'),
+  
+  /**
+   * Transaction configuration (for database-backed savers)
+   */
+  transaction: z.object({
+    enabled: z.boolean().default(false).describe('Use database transaction'),
+    isolationLevel: z.enum(['read_uncommitted', 'read_committed', 'repeatable_read', 'serializable'])
+      .optional()
+      .describe('Transaction isolation level'),
+  }).optional().describe('Transaction configuration'),
+  
+  /**
+   * Conflict resolution strategy (for database-backed savers)
+   */
+  onConflict: z.enum(['error', 'skip', 'update', 'replace'])
+    .default('update')
+    .describe('How to handle conflicts on save'),
 });
 
 /**
