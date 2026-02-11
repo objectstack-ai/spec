@@ -19,6 +19,7 @@
       "@objectstack/plugin-auth",
       "@objectstack/plugin-hono-server",
       "@objectstack/plugin-msw",
+      "@objectstack/plugin-dev",
       "@objectstack/plugin-security",
       "@objectstack/hono",
       "@objectstack/nestjs",
