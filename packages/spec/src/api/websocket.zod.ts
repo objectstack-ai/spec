@@ -2,7 +2,10 @@
 
 import { z } from 'zod';
 import { EventNameSchema } from '../shared/identifiers.zod';
-import { RealtimePresenceStatus } from './realtime.zod';
+import { PresenceStatus } from './realtime-shared.zod';
+
+// Re-export shared PresenceStatus for backward compatibility
+export { PresenceStatus } from './realtime-shared.zod';
 
 /**
  * WebSocket Event Protocol
@@ -136,9 +139,9 @@ export type UnsubscribeRequest = z.infer<typeof UnsubscribeRequestSchema>;
 
 /**
  * Presence Status Enum
- * Re-exported from realtime.zod.ts for backward compatibility
+ * Re-exported from realtime-shared.zod.ts for backward compatibility
  */
-export const WebSocketPresenceStatus = RealtimePresenceStatus;
+export const WebSocketPresenceStatus = PresenceStatus;
 
 export type WebSocketPresenceStatus = z.infer<typeof WebSocketPresenceStatus>;
 
