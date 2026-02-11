@@ -25,3 +25,4 @@ export * from './theme.zod';
 export * from './touch.zod';
 export * from './offline.zod';
 export * from './keyboard.zod';
+export * from './animation.zod';
