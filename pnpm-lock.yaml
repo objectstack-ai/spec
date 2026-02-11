@@ -706,6 +706,9 @@ importers:
       '@objectstack/plugin-hono-server':
         specifier: workspace:*
         version: link:../plugin-hono-server
+      '@objectstack/plugin-security':
+        specifier: workspace:*
+        version: link:../plugin-security
       '@objectstack/rest':
         specifier: workspace:*
         version: link:../../rest

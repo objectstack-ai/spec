@@ -3,6 +3,43 @@
 import { Plugin, PluginContext } from '@objectstack/core';
 
 /**
+ * All 17 core kernel service names as defined in CoreServiceName.
+ * @see packages/spec/src/system/core-services.zod.ts
+ */
+const CORE_SERVICE_NAMES = [
+  'metadata', 'data', 'auth',
+  'file-storage', 'search', 'cache', 'queue',
+  'automation', 'graphql', 'analytics', 'realtime',
+  'job', 'notification', 'ai', 'i18n', 'ui', 'workflow',
+] as const;
+
+/**
+ * Security sub-services registered by the SecurityPlugin.
+ */
+const SECURITY_SERVICE_NAMES = [
+  'security.permissions', 'security.rls', 'security.fieldMasker',
+] as const;
+
+/**
+ * Creates a no-op stub that logs calls in development.
+ * Returned object accepts any method invocation and returns
+ * sensible defaults (empty arrays, empty objects, undefined).
+ */
+function createDevStub(serviceName: string): Record<string, any> {
+  return new Proxy({
+    _dev: true,
+    _serviceName: serviceName,
+  }, {
+    get(target, prop) {
+      if (prop in target) return (target as any)[prop];
+      if (typeof prop === 'symbol') return undefined;
+      // Return a function that resolves to a sensible default
+      return (..._args: any[]) => Promise.resolve(undefined);
+    },
+  });
+}
+
+/**
  * Dev Plugin Options
  *
  * Configuration for the development-mode plugin.
@@ -44,7 +81,9 @@ export interface DevPluginOptions {
    * Override which services to enable. By default all core services are enabled.
    * Set a service name to `false` to skip it.
    *
-   * Available services: 'objectql', 'driver', 'auth', 'server', 'rest', 'dispatcher'
+   * Available services: 'objectql', 'driver', 'auth', 'server', 'rest',
+   * 'dispatcher', 'security', plus any of the 17 CoreServiceName values
+   * (e.g. 'cache', 'queue', 'job', 'ui', 'automation', 'workflow', …).
    */
   services?: Partial<Record<string, boolean>>;
 
@@ -77,7 +116,7 @@ export interface DevPluginOptions {
  * Development Mode Plugin for ObjectStack
  *
  * A convenience plugin that auto-configures the **entire** platform stack
- * for local development, simulating all kernel services so developers
+ * for local development, simulating **all 17+ kernel services** so developers
  * can work in a full-featured API environment without external dependencies.
  *
  * Instead of manually wiring:
@@ -90,6 +129,7 @@ export interface DevPluginOptions {
  *   new HonoServerPlugin({ port: 3000 }),
  *   createRestApiPlugin(),
  *   createDispatcherPlugin(),
+ *   new SecurityPlugin(),
  *   new AppPlugin(config),
  * ]
  * ```
@@ -100,17 +140,26 @@ export interface DevPluginOptions {
  * plugins: [new DevPlugin()]
  * ```
  *
- * ## Services enabled
+ * ## Core services (real implementations)
  *
  * | Service      | Package                           | Description                               |
  * |--------------|-----------------------------------|-------------------------------------------|
  * | ObjectQL     | `@objectstack/objectql`           | Data engine (query, CRUD, hooks)          |
  * | Driver       | `@objectstack/driver-memory`      | In-memory database (no DB install)        |
  * | Auth         | `@objectstack/plugin-auth`        | Authentication with dev credentials       |
+ * | Security     | `@objectstack/plugin-security`    | RBAC, RLS, field-level masking            |
  * | HTTP Server  | `@objectstack/plugin-hono-server` | HTTP server on configured port            |
  * | REST API     | `@objectstack/rest`               | Auto-generated CRUD + metadata endpoints  |
  * | Dispatcher   | `@objectstack/runtime`            | Auth, GraphQL, analytics, packages, etc.  |
  * | App/Metadata | `@objectstack/runtime`            | Project metadata (objects, views, apps)   |
+ *
+ * ## Stub services (in-memory / no-op for dev)
+ *
+ * Any core service not provided by a real plugin is automatically registered
+ * as a dev stub. This ensures the full kernel service map is populated:
+ *
+ * `cache`, `queue`, `job`, `file-storage`, `search`, `automation`, `graphql`,
+ * `analytics`, `realtime`, `notification`, `ai`, `i18n`, `ui`, `workflow`
  *
  * All services can be individually disabled via `options.services`.
  * Peer packages are loaded via dynamic import and silently skipped if missing.
@@ -204,7 +253,19 @@ export class DevPlugin implements Plugin {
       }
     }
 
-    // 5. Hono HTTP Server
+    // 5. Security Plugin (RBAC, RLS, field-level masking)
+    if (enabled('security')) {
+      try {
+        const { SecurityPlugin } = await import('@objectstack/plugin-security') as any;
+        const securityPlugin = new SecurityPlugin();
+        this.childPlugins.push(securityPlugin);
+        ctx.logger.info('  ✔ Security plugin enabled (RBAC, RLS, field masking)');
+      } catch {
+        ctx.logger.debug('  ℹ @objectstack/plugin-security not installed — skipping security');
+      }
+    }
+
+    // 6. Hono HTTP Server
     if (enabled('server')) {
       try {
         const { HonoServerPlugin } = await import('@objectstack/plugin-hono-server') as any;
@@ -218,7 +279,7 @@ export class DevPlugin implements Plugin {
       }
     }
 
-    // 6. REST API endpoints (CRUD + metadata read/write)
+    // 7. REST API endpoints (CRUD + metadata read/write)
     if (enabled('rest')) {
       try {
         const { createRestApiPlugin } = await import('@objectstack/rest') as any;
@@ -230,7 +291,7 @@ export class DevPlugin implements Plugin {
       }
     }
 
-    // 7. Dispatcher (auth routes, GraphQL, analytics, packages, storage, automation)
+    // 8. Dispatcher (auth routes, GraphQL, analytics, packages, storage, automation)
     if (enabled('dispatcher')) {
       try {
         const { createDispatcherPlugin } = await import('@objectstack/runtime') as any;
@@ -256,7 +317,43 @@ export class DevPlugin implements Plugin {
       }
     }
 
-    ctx.logger.info(`DevPlugin initialized ${this.childPlugins.length} service(s)`);
+    // ── Register dev stubs for all remaining kernel services ──────────
+    // The kernel defines 17 core services + 3 security services.
+    // Real plugins (ObjectQL, Auth, Security, etc.) already registered some.
+    // For any service NOT yet registered, we create a no-op dev stub so that
+    // the full kernel service map is populated and dependent features
+    // (UI permissions, automation, cache, queue, etc.) don't crash.
+
+    const stubNames: string[] = [];
+
+    for (const svc of CORE_SERVICE_NAMES) {
+      if (!enabled(svc)) continue;
+      try {
+        ctx.getService(svc);
+        // Already registered by a real plugin — skip
+      } catch {
+        ctx.registerService(svc, createDevStub(svc));
+        stubNames.push(svc);
+      }
+    }
+
+    // Security sub-services (if SecurityPlugin wasn't loaded)
+    if (enabled('security')) {
+      for (const svc of SECURITY_SERVICE_NAMES) {
+        try {
+          ctx.getService(svc);
+        } catch {
+          ctx.registerService(svc, createDevStub(svc));
+          stubNames.push(svc);
+        }
+      }
+    }
+
+    if (stubNames.length > 0) {
+      ctx.logger.info(`  ✔ Dev stubs registered for: ${stubNames.join(', ')}`);
+    }
+
+    ctx.logger.info(`DevPlugin initialized ${this.childPlugins.length} plugin(s) + ${stubNames.length} dev stub(s)`);
   }
 
   /**
