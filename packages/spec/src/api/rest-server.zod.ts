@@ -349,6 +349,75 @@ export type RouteGenerationConfig = z.infer<typeof RouteGenerationConfigSchema>;
 export type RouteGenerationConfigInput = z.input<typeof RouteGenerationConfigSchema>;
 
 // ==========================================
+// OpenAPI 3.1 Webhooks & Callbacks
+// ==========================================
+
+/**
+ * Webhook Event Schema
+ * Defines an event that can trigger a webhook delivery
+ */
+export const WebhookEventSchema = z.object({
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Webhook event identifier (snake_case)'),
+  description: z.string().describe('Human-readable event description'),
+  method: HttpMethod.default('POST').describe('HTTP method for webhook delivery'),
+  payloadSchema: z.string().describe('JSON Schema $ref for the webhook payload'),
+  headers: z.record(z.string(), z.string()).optional().describe('Custom headers to include in webhook delivery'),
+  security: z.array(
+    z.enum(['hmac_sha256', 'basic', 'bearer', 'api_key'])
+  ).describe('Supported authentication methods for webhook verification'),
+});
+
+export type WebhookEvent = z.infer<typeof WebhookEventSchema>;
+
+/**
+ * Webhook Configuration Schema
+ * Top-level webhook configuration for the REST API
+ */
+export const WebhookConfigSchema = z.object({
+  enabled: z.boolean().default(false).describe('Enable webhook support'),
+  events: z.array(WebhookEventSchema).describe('Registered webhook events'),
+  deliveryConfig: z.object({
+    maxRetries: z.number().int().default(3).describe('Maximum delivery retry attempts'),
+    retryIntervalMs: z.number().int().default(5000).describe('Milliseconds between retry attempts'),
+    timeoutMs: z.number().int().default(30000).describe('Delivery request timeout in milliseconds'),
+    signatureHeader: z.string().default('X-Signature-256').describe('Header name for webhook signature'),
+  }).describe('Webhook delivery configuration'),
+  registrationEndpoint: z.string().default('/webhooks').describe('URL path for webhook registration'),
+});
+
+export type WebhookConfig = z.infer<typeof WebhookConfigSchema>;
+
+/**
+ * Callback Schema
+ * OpenAPI 3.1 callback definition for asynchronous API responses
+ */
+export const CallbackSchema = z.object({
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Callback identifier (snake_case)'),
+  expression: z.string().describe('Runtime expression (e.g., {$request.body#/callbackUrl})'),
+  method: HttpMethod.describe('HTTP method for callback request'),
+  url: z.string().describe('Callback URL template with runtime expressions'),
+});
+
+export type Callback = z.infer<typeof CallbackSchema>;
+
+/**
+ * OpenAPI 3.1 Extensions Schema
+ * Extensions specific to OpenAPI 3.1 specification
+ */
+export const OpenApi31ExtensionsSchema = z.object({
+  webhooks: z.record(z.string(), WebhookEventSchema).optional()
+    .describe('OpenAPI 3.1 webhooks (top-level webhook definitions)'),
+  callbacks: z.record(z.string(), z.array(CallbackSchema)).optional()
+    .describe('OpenAPI 3.1 callbacks (async response definitions)'),
+  jsonSchemaDialect: z.string().default('https://json-schema.org/draft/2020-12/schema')
+    .describe('JSON Schema dialect for schema definitions'),
+  pathItemReferences: z.boolean().default(false)
+    .describe('Allow $ref in path items (OpenAPI 3.1 feature)'),
+});
+
+export type OpenApi31Extensions = z.infer<typeof OpenApi31ExtensionsSchema>;
+
+// ==========================================
 // Complete REST Server Configuration
 // ==========================================
 
@@ -405,6 +474,11 @@ export const RestServerConfigSchema = z.object({
    * Route generation configuration
    */
   routes: RouteGenerationConfigSchema.optional().describe('Route generation configuration'),
+  
+  /**
+   * OpenAPI 3.1 extensions (webhooks, callbacks)
+   */
+  openApi31: OpenApi31ExtensionsSchema.optional().describe('OpenAPI 3.1 extensions configuration'),
 });
 
 export type RestServerConfig = z.infer<typeof RestServerConfigSchema>;

@@ -169,6 +169,50 @@ export const StandardApiContracts = {
   }
 };
 
+// ==========================================
+// 5. DataLoader / N+1 Query Prevention
+// ==========================================
+
+/**
+ * DataLoader Configuration Schema
+ * Batch loading configuration to prevent N+1 query problems
+ */
+export const DataLoaderConfigSchema = z.object({
+  maxBatchSize: z.number().int().default(100).describe('Maximum number of keys per batch load'),
+  batchScheduleFn: z.enum(['microtask', 'timeout', 'manual']).default('microtask')
+    .describe('Scheduling strategy for collecting batch keys'),
+  cacheEnabled: z.boolean().default(true).describe('Enable per-request result caching'),
+  cacheKeyFn: z.string().optional().describe('Name or identifier of the cache key function'),
+  cacheTtl: z.number().min(0).optional().describe('Cache time-to-live in seconds (0 = no expiration)'),
+  coalesceRequests: z.boolean().default(true).describe('Deduplicate identical requests within a batch window'),
+  maxConcurrency: z.number().int().optional().describe('Maximum parallel batch requests'),
+});
+
+/**
+ * Batch Loading Strategy Schema
+ * Defines how batched data loading is orchestrated
+ */
+export const BatchLoadingStrategySchema = z.object({
+  strategy: z.enum(['dataloader', 'windowed', 'prefetch']).describe('Batch loading strategy type'),
+  windowMs: z.number().optional().describe('Collection window duration in milliseconds (for windowed strategy)'),
+  prefetchDepth: z.number().int().optional().describe('Depth of relation prefetching (for prefetch strategy)'),
+  associationLoading: z.enum(['lazy', 'eager', 'batch']).default('batch')
+    .describe('How to load related associations'),
+});
+
+/**
+ * Query Optimization Configuration Schema
+ * Top-level configuration for N+1 prevention and query optimization
+ */
+export const QueryOptimizationConfigSchema = z.object({
+  preventNPlusOne: z.boolean().describe('Enable N+1 query detection and prevention'),
+  dataLoader: DataLoaderConfigSchema.optional().describe('DataLoader batch loading configuration'),
+  batchStrategy: BatchLoadingStrategySchema.optional().describe('Batch loading strategy configuration'),
+  maxQueryDepth: z.number().int().describe('Maximum depth for nested relation queries'),
+  queryComplexityLimit: z.number().optional().describe('Maximum allowed query complexity score'),
+  enableQueryPlan: z.boolean().default(false).describe('Log query execution plans for debugging'),
+});
+
 export type ApiError = z.infer<typeof ApiErrorSchema>;
 export type BaseResponse = z.infer<typeof BaseResponseSchema>;
 export type RecordData = z.infer<typeof RecordDataSchema>;
@@ -182,3 +226,6 @@ export type IdRequest = z.infer<typeof IdRequestSchema>;
 export type ModificationResult = z.infer<typeof ModificationResultSchema>;
 export type BulkResponse = z.infer<typeof BulkResponseSchema>;
 export type DeleteResponse = z.infer<typeof DeleteResponseSchema>;
+export type DataLoaderConfig = z.infer<typeof DataLoaderConfigSchema>;
+export type BatchLoadingStrategy = z.infer<typeof BatchLoadingStrategySchema>;
+export type QueryOptimizationConfig = z.infer<typeof QueryOptimizationConfigSchema>;
