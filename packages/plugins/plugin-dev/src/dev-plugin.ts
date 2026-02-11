@@ -21,23 +21,342 @@ const SECURITY_SERVICE_NAMES = [
 ] as const;
 
 /**
- * Creates a no-op stub that logs calls in development.
- * Returned object accepts any method invocation and returns
- * sensible defaults (empty arrays, empty objects, undefined).
+ * Contract-compliant dev stub implementations.
+ *
+ * Each stub implements the interface defined in `packages/spec/src/contracts/`
+ * (e.g. ICacheService, IQueueService, IAutomationService, …) so that
+ * downstream code calling these services in dev mode receives the correct
+ * return types — not just `undefined`.
+ *
+ * Where an interface method is optional (marked with `?`), the stub only
+ * implements the required methods plus any optional ones that have
+ * a trivially useful implementation.
  */
-function createDevStub(serviceName: string): Record<string, any> {
-  return new Proxy({
-    _dev: true,
-    _serviceName: serviceName,
-  }, {
-    get(target, prop) {
-      if (prop in target) return (target as any)[prop];
-      if (typeof prop === 'symbol') return undefined;
-      // Return a function that resolves to a sensible default
-      return (..._args: any[]) => Promise.resolve(undefined);
+
+/** ICacheService — in-memory Map-backed stub */
+function createCacheStub() {
+  const store = new Map<string, { value: unknown; expires?: number }>();
+  let hits = 0;
+  let misses = 0;
+  return {
+    _dev: true, _serviceName: 'cache',
+    async get<T = unknown>(key: string): Promise<T | undefined> {
+      const entry = store.get(key);
+      if (!entry || (entry.expires && Date.now() > entry.expires)) {
+        store.delete(key); misses++; return undefined;
+      }
+      hits++;
+      return entry.value as T;
     },
-  });
+    async set<T = unknown>(key: string, value: T, ttl?: number): Promise<void> {
+      store.set(key, { value, expires: ttl ? Date.now() + ttl * 1000 : undefined });
+    },
+    async delete(key: string): Promise<boolean> { return store.delete(key); },
+    async has(key: string): Promise<boolean> { return store.has(key); },
+    async clear(): Promise<void> { store.clear(); },
+    async stats() { return { hits, misses, keyCount: store.size }; },
+  };
 }
+
+/** IQueueService — in-memory publish/subscribe stub */
+function createQueueStub() {
+  const handlers = new Map<string, Function[]>();
+  let msgId = 0;
+  return {
+    _dev: true, _serviceName: 'queue',
+    async publish<T = unknown>(queue: string, data: T): Promise<string> {
+      const id = `dev-msg-${++msgId}`;
+      const fns = handlers.get(queue) ?? [];
+      for (const fn of fns) fn({ id, data, attempts: 1, timestamp: Date.now() });
+      return id;
+    },
+    async subscribe(queue: string, handler: (msg: any) => Promise<void>): Promise<void> {
+      handlers.set(queue, [...(handlers.get(queue) ?? []), handler]);
+    },
+    async unsubscribe(queue: string): Promise<void> { handlers.delete(queue); },
+    async getQueueSize(): Promise<number> { return 0; },
+    async purge(queue: string): Promise<void> { handlers.delete(queue); },
+  };
+}
+
+/** IJobService — no-op job scheduler stub */
+function createJobStub() {
+  const jobs = new Map<string, any>();
+  return {
+    _dev: true, _serviceName: 'job',
+    async schedule(name: string, schedule: any, handler: any): Promise<void> { jobs.set(name, { schedule, handler }); },
+    async cancel(name: string): Promise<void> { jobs.delete(name); },
+    async trigger(name: string, data?: unknown): Promise<void> {
+      const job = jobs.get(name);
+      if (job?.handler) await job.handler({ jobId: name, data });
+    },
+    async getExecutions(): Promise<any[]> { return []; },
+    async listJobs(): Promise<string[]> { return [...jobs.keys()]; },
+  };
+}
+
+/** IStorageService — in-memory file storage stub */
+function createStorageStub() {
+  const files = new Map<string, { data: Buffer; meta: any }>();
+  return {
+    _dev: true, _serviceName: 'file-storage',
+    async upload(key: string, data: any, options?: any): Promise<void> {
+      files.set(key, { data: Buffer.from(data), meta: { contentType: options?.contentType, metadata: options?.metadata } });
+    },
+    async download(key: string): Promise<Buffer> { return files.get(key)?.data ?? Buffer.alloc(0); },
+    async delete(key: string): Promise<void> { files.delete(key); },
+    async exists(key: string): Promise<boolean> { return files.has(key); },
+    async getInfo(key: string) {
+      const f = files.get(key);
+      return { key, size: f?.data?.length ?? 0, contentType: f?.meta?.contentType, lastModified: new Date(), metadata: f?.meta?.metadata };
+    },
+    async list(prefix: string) {
+      return [...files.entries()].filter(([k]) => k.startsWith(prefix)).map(([key, f]) =>
+        ({ key, size: f.data.length, contentType: f.meta?.contentType, lastModified: new Date() }));
+    },
+  };
+}
+
+/** ISearchService — in-memory full-text search stub */
+function createSearchStub() {
+  const indexes = new Map<string, Map<string, Record<string, unknown>>>();
+  return {
+    _dev: true, _serviceName: 'search',
+    async index(object: string, id: string, document: Record<string, unknown>): Promise<void> {
+      if (!indexes.has(object)) indexes.set(object, new Map());
+      indexes.get(object)!.set(id, document);
+    },
+    async remove(object: string, id: string): Promise<void> { indexes.get(object)?.delete(id); },
+    async search(object: string, query: string) {
+      const docs = indexes.get(object) ?? new Map();
+      const q = query.toLowerCase();
+      const hits = [...docs.entries()]
+        .filter(([, doc]) => JSON.stringify(doc).toLowerCase().includes(q))
+        .map(([id, doc]) => ({ id, score: 1, document: doc }));
+      return { hits, totalHits: hits.length, processingTimeMs: 0 };
+    },
+    async bulkIndex(object: string, documents: Array<{ id: string; document: Record<string, unknown> }>): Promise<void> {
+      for (const d of documents) { if (!indexes.has(object)) indexes.set(object, new Map()); indexes.get(object)!.set(d.id, d.document); }
+    },
+    async deleteIndex(object: string): Promise<void> { indexes.delete(object); },
+  };
+}
+
+/** IAutomationService — no-op flow execution stub */
+function createAutomationStub() {
+  const flows = new Map<string, unknown>();
+  return {
+    _dev: true, _serviceName: 'automation',
+    async execute(_flowName: string) { return { success: true, output: undefined, durationMs: 0 }; },
+    async listFlows(): Promise<string[]> { return [...flows.keys()]; },
+    registerFlow(name: string, definition: unknown) { flows.set(name, definition); },
+    unregisterFlow(name: string) { flows.delete(name); },
+  };
+}
+
+/** IGraphQLService — dev stub returning empty data */
+function createGraphQLStub() {
+  return {
+    _dev: true, _serviceName: 'graphql',
+    async execute() { return { data: null, errors: [{ message: 'GraphQL not available in dev stub mode' }] }; },
+    getSchema() { return 'type Query { _dev: Boolean }'; },
+  };
+}
+
+/** IAnalyticsService — dev stub returning empty results */
+function createAnalyticsStub() {
+  return {
+    _dev: true, _serviceName: 'analytics',
+    async query() { return { rows: [], fields: [] }; },
+    async getMeta() { return []; },
+    async generateSql() { return { sql: '', params: [] }; },
+  };
+}
+
+/** IRealtimeService — in-memory pub/sub stub */
+function createRealtimeStub() {
+  const subs = new Map<string, Function>();
+  let subId = 0;
+  return {
+    _dev: true, _serviceName: 'realtime',
+    async publish(event: any): Promise<void> { for (const fn of subs.values()) fn(event); },
+    async subscribe(_channel: string, handler: Function): Promise<string> {
+      const id = `dev-sub-${++subId}`; subs.set(id, handler); return id;
+    },
+    async unsubscribe(subscriptionId: string): Promise<void> { subs.delete(subscriptionId); },
+  };
+}
+
+/** INotificationService — in-memory log stub */
+function createNotificationStub() {
+  const sent: any[] = [];
+  return {
+    _dev: true, _serviceName: 'notification',
+    async send(message: any) { sent.push(message); return { success: true, messageId: `dev-notif-${sent.length}` }; },
+    async sendBatch(messages: any[]) { return messages.map(m => { sent.push(m); return { success: true, messageId: `dev-notif-${sent.length}` }; }); },
+    getChannels() { return ['email', 'in-app'] as const; },
+  };
+}
+
+/** IAIService — dev stub returning placeholder responses */
+function createAIStub() {
+  return {
+    _dev: true, _serviceName: 'ai',
+    async chat() { return { content: '[dev-stub] AI not available in development mode', model: 'dev-stub' }; },
+    async complete() { return { content: '[dev-stub] AI not available in development mode', model: 'dev-stub' }; },
+    async embed() { return [[0]]; },
+    async listModels() { return ['dev-stub']; },
+  };
+}
+
+/** II18nService — in-memory translation stub */
+function createI18nStub() {
+  const translations = new Map<string, Record<string, unknown>>();
+  let defaultLocale = 'en';
+  return {
+    _dev: true, _serviceName: 'i18n',
+    t(key: string, locale: string, params?: Record<string, unknown>): string {
+      const t = translations.get(locale);
+      const val = t?.[key];
+      if (typeof val === 'string') {
+        return params ? val.replace(/\{\{(\w+)\}\}/g, (_, k) => String(params[k] ?? `{{${k}}}`)) : val;
+      }
+      return key;
+    },
+    getTranslations(locale: string): Record<string, unknown> { return translations.get(locale) ?? {}; },
+    loadTranslations(locale: string, data: Record<string, unknown>) { translations.set(locale, { ...translations.get(locale), ...data }); },
+    getLocales() { return [...translations.keys()]; },
+    getDefaultLocale() { return defaultLocale; },
+    setDefaultLocale(locale: string) { defaultLocale = locale; },
+  };
+}
+
+/** IUIService — in-memory UI metadata stub */
+function createUIStub() {
+  const views = new Map<string, any>();
+  const dashboards = new Map<string, any>();
+  return {
+    _dev: true, _serviceName: 'ui',
+    getView(name: string) { return views.get(name); },
+    listViews(object?: string) {
+      const all = [...views.values()];
+      return object ? all.filter(v => v.object === object) : all;
+    },
+    getDashboard(name: string) { return dashboards.get(name); },
+    listDashboards() { return [...dashboards.values()]; },
+    registerView(name: string, definition: unknown) { views.set(name, definition); },
+    registerDashboard(name: string, definition: unknown) { dashboards.set(name, definition); },
+  };
+}
+
+/** IWorkflowService — in-memory workflow state stub */
+function createWorkflowStub() {
+  const states = new Map<string, string>(); // recordKey → currentState
+  const key = (obj: string, id: string) => `${obj}:${id}`;
+  return {
+    _dev: true, _serviceName: 'workflow',
+    async transition(t: any) {
+      states.set(key(t.object, t.recordId), t.targetState);
+      return { success: true, currentState: t.targetState };
+    },
+    async getStatus(object: string, recordId: string) {
+      return { recordId, object, currentState: states.get(key(object, recordId)) ?? 'draft', availableTransitions: [] };
+    },
+    async getHistory() { return []; },
+  };
+}
+
+/** IMetadataService — in-memory metadata registry stub (fallback) */
+function createMetadataStub() {
+  const store = new Map<string, Map<string, unknown>>(); // type → (name → def)
+  return {
+    _dev: true, _serviceName: 'metadata',
+    register(type: string, definition: any) { if (!store.has(type)) store.set(type, new Map()); store.get(type)!.set(definition.name ?? '', definition); },
+    get(type: string, name: string) { return store.get(type)?.get(name); },
+    list(type: string) { return [...(store.get(type)?.values() ?? [])]; },
+    unregister(type: string, name: string) { store.get(type)?.delete(name); },
+    getObject(name: string) { return store.get('object')?.get(name); },
+    listObjects() { return [...(store.get('object')?.values() ?? [])]; },
+    unregisterPackage() {},
+  };
+}
+
+/** IAuthService — dev auth stub returning success for all */
+function createAuthStub() {
+  return {
+    _dev: true, _serviceName: 'auth',
+    async handleRequest() { return new Response(JSON.stringify({ success: true }), { status: 200 }); },
+    async verify() { return { success: true, user: { id: 'dev-admin', email: 'admin@dev.local', name: 'Admin', roles: ['admin'] } }; },
+    async logout() {},
+    async getCurrentUser() { return { id: 'dev-admin', email: 'admin@dev.local', name: 'Admin', roles: ['admin'] }; },
+  };
+}
+
+/** IDataEngine — minimal no-op data stub (fallback) */
+function createDataStub() {
+  return {
+    _dev: true, _serviceName: 'data',
+    async find() { return []; },
+    async findOne() { return undefined; },
+    async insert(_obj: string, params: any) { return { id: `dev-${Date.now()}`, ...params?.data }; },
+    async update(_obj: string, _id: string, params: any) { return params?.data ?? {}; },
+    async delete() { return true; },
+    async count() { return 0; },
+    async aggregate() { return []; },
+  };
+}
+
+/** Security sub-service stubs (PermissionEvaluator, RLSCompiler, FieldMasker) */
+function createSecurityPermissionsStub() {
+  return {
+    _dev: true, _serviceName: 'security.permissions',
+    resolvePermissionSets() { return []; },
+    checkObjectPermission() { return true; },
+    getFieldPermissions() { return {}; },
+  };
+}
+function createSecurityRLSStub() {
+  return {
+    _dev: true, _serviceName: 'security.rls',
+    compileFilter() { return null; },
+    getApplicablePolicies() { return []; },
+  };
+}
+function createSecurityFieldMaskerStub() {
+  return {
+    _dev: true, _serviceName: 'security.fieldMasker',
+    maskResults(results: any) { return results; },
+  };
+}
+
+/**
+ * Map of service names → contract-compliant stub factory functions.
+ * Each factory creates a new instance implementing the protocol interface
+ * from `packages/spec/src/contracts/`.
+ */
+const DEV_STUB_FACTORIES: Record<string, () => Record<string, any>> = {
+  'cache':       createCacheStub,
+  'queue':       createQueueStub,
+  'job':         createJobStub,
+  'file-storage': createStorageStub,
+  'search':      createSearchStub,
+  'automation':  createAutomationStub,
+  'graphql':     createGraphQLStub,
+  'analytics':   createAnalyticsStub,
+  'realtime':    createRealtimeStub,
+  'notification': createNotificationStub,
+  'ai':          createAIStub,
+  'i18n':        createI18nStub,
+  'ui':          createUIStub,
+  'workflow':    createWorkflowStub,
+  'metadata':    createMetadataStub,
+  'data':        createDataStub,
+  'auth':        createAuthStub,
+  // Security sub-services
+  'security.permissions': createSecurityPermissionsStub,
+  'security.rls':         createSecurityRLSStub,
+  'security.fieldMasker': createSecurityFieldMaskerStub,
+};
 
 /**
  * Dev Plugin Options
@@ -153,13 +472,18 @@ export interface DevPluginOptions {
  * | Dispatcher   | `@objectstack/runtime`            | Auth, GraphQL, analytics, packages, etc.  |
  * | App/Metadata | `@objectstack/runtime`            | Project metadata (objects, views, apps)   |
  *
- * ## Stub services (in-memory / no-op for dev)
+ * ## Stub services (contract-compliant in-memory implementations)
  *
  * Any core service not provided by a real plugin is automatically registered
- * as a dev stub. This ensures the full kernel service map is populated:
+ * as a contract-compliant dev stub that implements the interface from
+ * `packages/spec/src/contracts/`. Each stub returns correct types:
  *
- * `cache`, `queue`, `job`, `file-storage`, `search`, `automation`, `graphql`,
- * `analytics`, `realtime`, `notification`, `ai`, `i18n`, `ui`, `workflow`
+ * `cache` (Map-backed), `queue` (in-memory pub/sub), `job` (no-op scheduler),
+ * `file-storage` (Map-backed), `search` (in-memory text search),
+ * `automation` (no-op flows), `graphql` (placeholder), `analytics` (empty results),
+ * `realtime` (in-memory pub/sub), `notification` (log), `ai` (placeholder),
+ * `i18n` (Map-backed translations), `ui` (Map-backed views/dashboards),
+ * `workflow` (Map-backed state machine)
  *
  * All services can be individually disabled via `options.services`.
  * Peer packages are loaded via dynamic import and silently skipped if missing.
@@ -317,12 +641,13 @@ export class DevPlugin implements Plugin {
       }
     }
 
-    // ── Register dev stubs for all remaining kernel services ──────────
+    // ── Register contract-compliant dev stubs for remaining services ────
     // The kernel defines 17 core services + 3 security services.
     // Real plugins (ObjectQL, Auth, Security, etc.) already registered some.
-    // For any service NOT yet registered, we create a no-op dev stub so that
-    // the full kernel service map is populated and dependent features
-    // (UI permissions, automation, cache, queue, etc.) don't crash.
+    // For any service NOT yet registered, we create a contract-compliant
+    // dev stub (implementing the interface from packages/spec/src/contracts/)
+    // so that the full kernel service map is populated and downstream code
+    // receives correct return types (arrays, booleans, objects — not undefined).
 
     const stubNames: string[] = [];
 
@@ -332,7 +657,8 @@ export class DevPlugin implements Plugin {
         ctx.getService(svc);
         // Already registered by a real plugin — skip
       } catch {
-        ctx.registerService(svc, createDevStub(svc));
+        const factory = DEV_STUB_FACTORIES[svc];
+        ctx.registerService(svc, factory ? factory() : { _dev: true, _serviceName: svc });
         stubNames.push(svc);
       }
     }
@@ -343,14 +669,15 @@ export class DevPlugin implements Plugin {
         try {
           ctx.getService(svc);
         } catch {
-          ctx.registerService(svc, createDevStub(svc));
+          const factory = DEV_STUB_FACTORIES[svc];
+          ctx.registerService(svc, factory ? factory() : { _dev: true, _serviceName: svc });
           stubNames.push(svc);
         }
       }
     }
 
     if (stubNames.length > 0) {
-      ctx.logger.info(`  ✔ Dev stubs registered for: ${stubNames.join(', ')}`);
+      ctx.logger.info(`  ✔ Contract-compliant dev stubs registered for: ${stubNames.join(', ')}`);
     }
 
     ctx.logger.info(`DevPlugin initialized ${this.childPlugins.length} plugin(s) + ${stubNames.length} dev stub(s)`);
