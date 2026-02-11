@@ -110,6 +110,55 @@ os generate          # Scaffold objects, views, flows
 os doctor            # Check environment health
 ```
 
+## 🗄️ Database-Backed Metadata
+
+ObjectStack now supports storing metadata in databases instead of being locked to filesystem storage. This enables:
+
+- **Dynamic metadata**: Change metadata without redeployment
+- **Multi-tenant**: Isolated metadata per tenant
+- **Scalability**: Distribute metadata across multiple databases
+- **Flexibility**: Switch between PostgreSQL, MySQL, MongoDB, etc.
+
+### Quick Example
+
+```typescript
+import { defineConfig } from '@objectstack/spec';
+
+export default defineConfig({
+  datasources: [
+    {
+      name: 'metadata_db',
+      driver: 'postgres',
+      config: {
+        host: 'localhost',
+        database: 'objectstack_metadata',
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+      },
+    },
+  ],
+  
+  metadata: {
+    loaders: [
+      {
+        name: 'database-loader',
+        protocol: 'database:',
+        datasourceConfig: {
+          datasource: 'metadata_db',
+          table: '_framework_metadata',
+          autoMigrate: true,
+        },
+      },
+    ],
+  },
+});
+```
+
+**Documentation:**
+- [📖 Metadata Datasource Guide](./docs/METADATA_DATASOURCE.md) — Complete protocol documentation
+- [🔄 Migration Guide](./docs/METADATA_MIGRATION_GUIDE.md) — Migrate from filesystem to database
+- [📝 Configuration Examples](./examples/metadata-datasource-config.example.ts) — Multiple scenarios
+
 ## 📦 Monorepo Structure
 
 ### Core Packages
