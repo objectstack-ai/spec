@@ -531,4 +531,62 @@ describe('InMemoryDriver', () => {
       expect(count).toBe(2);
     });
   });
+
+  describe('Aggregation Edge Cases', () => {
+    it('should aggregate empty collection', async () => {
+      const results = await driver.aggregate('empty_table', [
+        { $group: { _id: null, total: { $sum: '$amount' } } },
+      ]);
+      expect(results).toHaveLength(0);
+    });
+
+    it('should handle pipeline with only $match', async () => {
+      await driver.create(testTable, { id: '1', status: 'active' });
+      await driver.create(testTable, { id: '2', status: 'inactive' });
+
+      const results = await driver.aggregate(testTable, [
+        { $match: { status: 'active' } },
+      ]);
+      expect(results).toHaveLength(1);
+      expect(results[0].status).toBe('active');
+    });
+  });
+
+  describe('AST Filter Conversion', () => {
+    beforeEach(async () => {
+      await driver.create(testTable, { id: '1', name: 'Alice', age: 30 });
+      await driver.create(testTable, { id: '2', name: 'Bob', age: 25 });
+      await driver.create(testTable, { id: '3', name: 'Charlie', age: 35 });
+    });
+
+    it('should handle AST comparison node filter', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { type: 'comparison', field: 'age', operator: '>', value: 28 },
+      });
+      expect(results).toHaveLength(2);
+    });
+
+    it('should handle AST logical node filter', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: {
+          type: 'logical',
+          operator: 'or',
+          conditions: [
+            { type: 'comparison', field: 'name', operator: '=', value: 'Alice' },
+            { type: 'comparison', field: 'name', operator: '=', value: 'Charlie' },
+          ],
+        },
+      });
+      expect(results).toHaveLength(2);
+    });
+
+    it('should handle empty where clause', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+      });
+      expect(results).toHaveLength(3);
+    });
+  });
 });
