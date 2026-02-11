@@ -1,0 +1,90 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+/**
+ * IJobService - Background Job Service Contract
+ *
+ * Defines the interface for scheduling and managing background jobs
+ * in ObjectStack. Concrete implementations (BullMQ, node-cron, etc.)
+ * should implement this interface.
+ *
+ * Follows Dependency Inversion Principle - plugins depend on this interface,
+ * not on concrete job scheduler implementations.
+ *
+ * Aligned with CoreServiceName 'job' in core-services.zod.ts.
+ */
+
+/**
+ * Schedule definition for a job
+ */
+export interface JobSchedule {
+    /** Schedule type */
+    type: 'cron' | 'interval' | 'once';
+    /** Cron expression (when type is 'cron') */
+    expression?: string;
+    /** Timezone for cron (when type is 'cron') */
+    timezone?: string;
+    /** Interval in milliseconds (when type is 'interval') */
+    intervalMs?: number;
+    /** ISO 8601 datetime (when type is 'once') */
+    at?: string;
+}
+
+/**
+ * Job handler function
+ */
+export type JobHandler = (context: { jobId: string; data?: unknown }) => Promise<void>;
+
+/**
+ * Status of a job execution
+ */
+export interface JobExecution {
+    /** Job identifier */
+    jobId: string;
+    /** Execution status */
+    status: 'running' | 'success' | 'failed' | 'timeout';
+    /** Start time (ISO 8601) */
+    startedAt: string;
+    /** Completion time (ISO 8601) */
+    completedAt?: string;
+    /** Error message if failed */
+    error?: string;
+    /** Duration in milliseconds */
+    durationMs?: number;
+}
+
+export interface IJobService {
+    /**
+     * Schedule a recurring or one-time job
+     * @param name - Job name (snake_case)
+     * @param schedule - Schedule configuration
+     * @param handler - Job handler function
+     */
+    schedule(name: string, schedule: JobSchedule, handler: JobHandler): Promise<void>;
+
+    /**
+     * Cancel a scheduled job
+     * @param name - Job name
+     */
+    cancel(name: string): Promise<void>;
+
+    /**
+     * Trigger a job to run immediately (outside its normal schedule)
+     * @param name - Job name
+     * @param data - Optional data to pass to the handler
+     */
+    trigger(name: string, data?: unknown): Promise<void>;
+
+    /**
+     * Get the status of recent job executions
+     * @param name - Job name
+     * @param limit - Maximum number of executions to return
+     * @returns Array of job execution records
+     */
+    getExecutions?(name: string, limit?: number): Promise<JobExecution[]>;
+
+    /**
+     * List all registered job names
+     * @returns Array of job names
+     */
+    listJobs?(): Promise<string[]>;
+}
