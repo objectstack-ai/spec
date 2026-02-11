@@ -7,6 +7,8 @@ import {
   SpacingSchema,
   BorderRadiusSchema,
   ShadowSchema,
+  DensityMode,
+  WcagContrastLevel,
   type Theme,
   type ColorPalette,
 } from './theme.zod';
@@ -475,5 +477,67 @@ describe('Real-World Theme Examples', () => {
     };
 
     expect(() => ThemeSchema.parse(theme)).not.toThrow();
+  });
+});
+
+describe('DensityMode', () => {
+  it('should accept all density modes', () => {
+    const modes = ['compact', 'regular', 'spacious'] as const;
+    modes.forEach(mode => {
+      expect(() => DensityMode.parse(mode)).not.toThrow();
+    });
+  });
+  it('should reject invalid density mode', () => {
+    expect(() => DensityMode.parse('tight')).toThrow();
+  });
+});
+
+describe('WcagContrastLevel', () => {
+  it('should accept AA and AAA', () => {
+    expect(() => WcagContrastLevel.parse('AA')).not.toThrow();
+    expect(() => WcagContrastLevel.parse('AAA')).not.toThrow();
+  });
+  it('should reject invalid level', () => {
+    expect(() => WcagContrastLevel.parse('A')).toThrow();
+  });
+});
+
+describe('Theme Density, WCAG, and RTL', () => {
+  it('should accept theme with density mode', () => {
+    expect(() => ThemeSchema.parse({
+      name: 'dense_theme',
+      label: 'Dense Theme',
+      colors: { primary: '#1a73e8' },
+      density: 'compact',
+    })).not.toThrow();
+  });
+  it('should accept theme with WCAG contrast level', () => {
+    expect(() => ThemeSchema.parse({
+      name: 'accessible_theme',
+      label: 'Accessible Theme',
+      colors: { primary: '#000000' },
+      wcagContrast: 'AAA',
+    })).not.toThrow();
+  });
+  it('should accept theme with RTL', () => {
+    expect(() => ThemeSchema.parse({
+      name: 'arabic_theme',
+      label: 'Arabic Theme',
+      colors: { primary: '#1a73e8' },
+      rtl: true,
+    })).not.toThrow();
+  });
+  it('should accept theme with all new properties', () => {
+    const theme = ThemeSchema.parse({
+      name: 'full_theme',
+      label: 'Full Theme',
+      colors: { primary: '#1a73e8' },
+      density: 'spacious',
+      wcagContrast: 'AA',
+      rtl: false,
+    });
+    expect(theme.density).toBe('spacious');
+    expect(theme.wcagContrast).toBe('AA');
+    expect(theme.rtl).toBe(false);
   });
 });

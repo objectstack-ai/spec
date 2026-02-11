@@ -12,6 +12,7 @@
 
 // Infrastructure Services
 export * from './cache.zod';
+export * from './disaster-recovery.zod';
 export * from './message-queue.zod';
 export * from './object-storage.zod';
 export * from './search-engine.zod';

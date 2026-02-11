@@ -208,3 +208,31 @@ describe('Real-World Chart Configuration Examples', () => {
     expect(() => ChartConfigSchema.parse(config)).not.toThrow();
   });
 });
+
+describe('Chart I18n Integration', () => {
+  it('should accept i18n object as chart title', () => {
+    const result = ChartConfigSchema.parse({
+      type: 'bar',
+      title: { key: 'charts.sales', defaultValue: 'Sales Chart' },
+    });
+    expect(typeof result.title).toBe('object');
+  });
+  it('should accept i18n as chart subtitle and description', () => {
+    expect(() => ChartConfigSchema.parse({
+      type: 'line',
+      title: 'Revenue',
+      subtitle: { key: 'charts.subtitle', defaultValue: 'Monthly breakdown' },
+      description: { key: 'charts.desc', defaultValue: 'Revenue over time' },
+    })).not.toThrow();
+  });
+});
+
+describe('Chart ARIA Integration', () => {
+  it('should accept chart with ARIA attributes', () => {
+    expect(() => ChartConfigSchema.parse({
+      type: 'pie',
+      title: 'Revenue by Region',
+      aria: { ariaLabel: 'Pie chart showing revenue by region', role: 'img' },
+    })).not.toThrow();
+  });
+});

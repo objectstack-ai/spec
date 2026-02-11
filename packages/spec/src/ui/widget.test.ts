@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
+import { z } from 'zod';
 import { FieldWidgetPropsSchema, type FieldWidgetProps } from './widget.zod';
+import { WidgetManifestSchema, type WidgetManifest } from './widget.zod';
 import { Field } from '../data/field.zod';
 
 describe('FieldWidgetPropsSchema', () => {
@@ -324,5 +326,42 @@ describe('FieldWidgetPropsSchema', () => {
       const result = FieldWidgetPropsSchema.safeParse(props);
       expect(result.success).toBe(false);
     });
+  });
+});
+
+describe('Widget I18n Integration', () => {
+  it('should accept i18n object as widget manifest label', () => {
+    const manifest: z.input<typeof WidgetManifestSchema> = {
+      name: 'i18n_widget',
+      label: { key: 'widgets.date_picker', defaultValue: 'Date Picker' },
+    };
+    expect(() => WidgetManifestSchema.parse(manifest)).not.toThrow();
+  });
+  it('should accept i18n as widget description', () => {
+    expect(() => WidgetManifestSchema.parse({
+      name: 'desc_widget',
+      label: 'Test Widget',
+      description: { key: 'widgets.test.desc', defaultValue: 'A test widget' },
+    })).not.toThrow();
+  });
+});
+
+describe('Widget ARIA Integration', () => {
+  it('should accept widget manifest with ARIA attributes', () => {
+    expect(() => WidgetManifestSchema.parse({
+      name: 'accessible_widget',
+      label: 'Accessible Widget',
+      aria: { ariaLabel: 'Custom date picker widget', role: 'widget' },
+    })).not.toThrow();
+  });
+});
+
+describe('Widget Performance Integration', () => {
+  it('should accept widget with performance config', () => {
+    expect(() => WidgetManifestSchema.parse({
+      name: 'perf_widget',
+      label: 'Performance Widget',
+      performance: { lazyLoad: true, virtualScroll: { enabled: true } },
+    })).not.toThrow();
   });
 });

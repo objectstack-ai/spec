@@ -460,3 +460,36 @@ describe('AppSchema', () => {
     });
   });
 });
+
+describe('App Mobile Navigation', () => {
+  it('should accept app with mobile navigation', () => {
+    const app = AppSchema.parse({
+      name: 'mobile_app',
+      label: 'Mobile App',
+      mobileNavigation: {
+        mode: 'bottom_nav',
+        bottomNavItems: ['nav_home', 'nav_contacts', 'nav_settings'],
+      },
+    });
+    expect(app.mobileNavigation?.mode).toBe('bottom_nav');
+    expect(app.mobileNavigation?.bottomNavItems).toHaveLength(3);
+  });
+  it('should accept all mobile navigation modes', () => {
+    const modes = ['drawer', 'bottom_nav', 'hamburger'] as const;
+    modes.forEach(mode => {
+      expect(() => AppSchema.parse({
+        name: 'mobile_test',
+        label: 'Test',
+        mobileNavigation: { mode },
+      })).not.toThrow();
+    });
+  });
+  it('should default to drawer mode', () => {
+    const app = AppSchema.parse({
+      name: 'default_mobile',
+      label: 'Default Mobile',
+      mobileNavigation: {},
+    });
+    expect(app.mobileNavigation?.mode).toBe('drawer');
+  });
+});

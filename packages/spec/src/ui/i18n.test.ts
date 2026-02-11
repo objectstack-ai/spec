@@ -1,11 +1,18 @@
 import { describe, it, expect } from 'vitest';
+import { z } from 'zod';
 import {
   I18nObjectSchema,
   I18nLabelSchema,
   AriaPropsSchema,
+  PluralRuleSchema,
+  NumberFormatSchema,
+  DateFormatSchema,
+  LocaleConfigSchema,
   type I18nObject,
   type I18nLabel,
   type AriaProps,
+  type PluralRule,
+  type LocaleConfig,
 } from './i18n.zod';
 
 describe('I18nObjectSchema', () => {
@@ -145,5 +152,95 @@ describe('I18n Integration (backward compatibility)', () => {
     labels.forEach(label => {
       expect(() => I18nLabelSchema.parse(label)).not.toThrow();
     });
+  });
+});
+
+describe('PluralRuleSchema', () => {
+  it('should accept minimal plural rule', () => {
+    const rule: PluralRule = {
+      key: 'items.count',
+      other: '{count} items',
+    };
+    expect(() => PluralRuleSchema.parse(rule)).not.toThrow();
+  });
+  it('should accept full plural rule', () => {
+    const rule = PluralRuleSchema.parse({
+      key: 'items.count',
+      zero: 'No items',
+      one: '{count} item',
+      two: '{count} items',
+      few: '{count} items',
+      many: '{count} items',
+      other: '{count} items',
+    });
+    expect(rule.zero).toBe('No items');
+    expect(rule.one).toBe('{count} item');
+  });
+  it('should reject rule without key', () => {
+    expect(() => PluralRuleSchema.parse({ other: 'items' })).toThrow();
+  });
+  it('should reject rule without other', () => {
+    expect(() => PluralRuleSchema.parse({ key: 'test' })).toThrow();
+  });
+});
+
+describe('NumberFormatSchema', () => {
+  it('should accept minimal number format', () => {
+    const result = NumberFormatSchema.parse({});
+    expect(result.style).toBe('decimal');
+  });
+  it('should accept currency format', () => {
+    const result = NumberFormatSchema.parse({
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+    });
+    expect(result.currency).toBe('USD');
+  });
+  it('should accept percent format', () => {
+    expect(() => NumberFormatSchema.parse({ style: 'percent' })).not.toThrow();
+  });
+});
+
+describe('DateFormatSchema', () => {
+  it('should accept empty date format', () => {
+    expect(() => DateFormatSchema.parse({})).not.toThrow();
+  });
+  it('should accept full date format', () => {
+    const result = DateFormatSchema.parse({
+      dateStyle: 'medium',
+      timeStyle: 'short',
+      timeZone: 'America/New_York',
+      hour12: true,
+    });
+    expect(result.dateStyle).toBe('medium');
+    expect(result.timeZone).toBe('America/New_York');
+  });
+});
+
+describe('LocaleConfigSchema', () => {
+  it('should accept minimal locale config', () => {
+    const result = LocaleConfigSchema.parse({ code: 'en-US' });
+    expect(result.code).toBe('en-US');
+    expect(result.direction).toBe('ltr');
+  });
+  it('should accept RTL locale', () => {
+    const result = LocaleConfigSchema.parse({ code: 'ar-SA', direction: 'rtl' });
+    expect(result.direction).toBe('rtl');
+  });
+  it('should accept locale with fallback chain', () => {
+    const config: z.input<typeof LocaleConfigSchema> = {
+      code: 'zh-CN',
+      fallbackChain: ['zh-TW', 'en'],
+      direction: 'ltr',
+      numberFormat: { style: 'decimal', useGrouping: true },
+      dateFormat: { dateStyle: 'medium', timeStyle: 'short' },
+    };
+    const result = LocaleConfigSchema.parse(config);
+    expect(result.fallbackChain).toEqual(['zh-TW', 'en']);
+    expect(result.numberFormat?.useGrouping).toBe(true);
+  });
+  it('should reject locale without code', () => {
+    expect(() => LocaleConfigSchema.parse({})).toThrow();
   });
 });
