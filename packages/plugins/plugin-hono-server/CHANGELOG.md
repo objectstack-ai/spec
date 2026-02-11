@@ -1,5 +1,13 @@
 # @objectstack/plugin-hono-server
 
+## 2.0.7
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/spec@2.0.7
+  - @objectstack/core@2.0.7
+
 ## 2.0.6
 
 ### Patch Changes

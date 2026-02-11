@@ -1,5 +1,21 @@
 # @objectstack/spec
 
+## 2.0.7
+
+### Patch Changes
+
+- Modularized kernel/events.zod.ts into 6 focused sub-modules for better tree-shaking and maintainability:
+
+  - events/core.zod.ts: Priority, metadata, type definition, base event
+  - events/handlers.zod.ts: Event handlers, routes, persistence
+  - events/queue.zod.ts: Queue config, replay, sourcing
+  - events/dlq.zod.ts: Dead letter queue, event log entries
+  - events/integrations.zod.ts: Webhooks, message queues, notifications
+  - events/bus.zod.ts: Complete event bus config and helpers
+
+  kernel/events.zod.ts now re-exports from sub-modules (backward compatible).
+  Created v3.0 migration guide.
+
 ## 2.0.6
 
 ### Patch Changes
