@@ -91,41 +91,41 @@ Supports complex operations: joins, aggregations, filtering, custom SQL.
 
 ```typescript
 
-const salesforceToDB: ETLPipeline = {
+const salesforceToDB: ETLPipeline = \{
 
 name: 'salesforce_to_postgres',
 
 label: 'Salesforce Accounts to PostgreSQL',
 
-source: {
+source: \{
 
 type: 'api',
 
 connector: 'salesforce',
 
-config: { object: 'Account' }
+config: \{ object: 'Account' \}
 
-},
+\},
 
-destination: {
+destination: \{
 
 type: 'database',
 
 connector: 'postgres',
 
-config: { table: 'accounts' }
+config: \{ table: 'accounts' \}
 
-},
+\},
 
 transformations: [
 
-{ type: 'map', config: { 'Name': 'account_name' } }
+\{ type: 'map', config: \{ 'Name': 'account_name' \} \}
 
 ],
 
 schedule: '0 2 * * *' // Daily at 2 AM
 
-}
+\}
 
 ```
 

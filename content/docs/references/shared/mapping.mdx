@@ -25,13 +25,13 @@ ObjectStack for data transformation and synchronization.
 
 ```typescript
 
-const mapping: FieldMapping = {
+const mapping: FieldMapping = \{
 
 source: 'external_user_id',
 
 target: 'user_id',
 
-};
+\};
 
 ```
 
@@ -39,17 +39,17 @@ target: 'user_id',
 
 ```typescript
 
-const mapping: FieldMapping = {
+const mapping: FieldMapping = \{
 
 source: 'user_name',
 
 target: 'name',
 
-transform: { type: 'cast', targetType: 'string' },
+transform: \{ type: 'cast', targetType: 'string' \},
 
 defaultValue: 'Unknown'
 
-};
+\};
 
 ```
 

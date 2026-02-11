@@ -61,9 +61,9 @@ GraphQL provides:
 
 ```graphql
 
-query GetCustomer($id: ID!) {
+query GetCustomer($id: ID!) \{
 
-customer(id: $id) {
+customer(id: $id) \{
 
 id
 
@@ -71,29 +71,29 @@ name
 
 email
 
-orders(limit: 10, status: "active") {
+orders(limit: 10, status: "active") \{
 
 id
 
 total
 
-items {
+items \{
 
-product {
+product \{
 
 name
 
 price
 
-}
+\}
 
-}
+\}
 
-}
+\}
 
-}
+\}
 
-}
+\}
 
 ```
 
@@ -101,9 +101,9 @@ price
 
 ```graphql
 
-mutation CreateOrder($input: CreateOrderInput!) {
+mutation CreateOrder($input: CreateOrderInput!) \{
 
-createOrder(input: $input) {
+createOrder(input: $input) \{
 
 id
 
@@ -111,9 +111,9 @@ orderNumber
 
 status
 
-}
+\}
 
-}
+\}
 
 ```
 

@@ -71,7 +71,7 @@ Inspired by Zapier, n8n, and Workato connector architectures.
 
 ```typescript
 
-const slackNotifier: Connector = {
+const slackNotifier: Connector = \{
 
 id: 'slack_notify',
 
@@ -79,21 +79,21 @@ name: 'Slack Notification',
 
 category: 'communication',
 
-authentication: {
+authentication: \{
 
 type: 'apiKey',
 
-fields: [{ name: 'webhook_url', label: 'Webhook URL', type: 'url' }]
+fields: [\{ name: 'webhook_url', label: 'Webhook URL', type: 'url' \}]
 
-},
+\},
 
 operations: [
 
-{ id: 'send_message', name: 'Send Message', type: 'action' }
+\{ id: 'send_message', name: 'Send Message', type: 'action' \}
 
 ]
 
-}
+\}
 
 ```
 

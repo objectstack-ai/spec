@@ -119,6 +119,7 @@ function getFileDescription(content: string): string {
       .replace(/\{@link\s+([^|]+?)\s*\|\s*([^}]+?)\s*\}/g, '[$2]($1)') // {@link url | text} -> [text](url)
       .replace(/\{@link\s+([^}]+?)\s*\}/g, '[$1]($1)') // {@link url} -> [url](url)
       .replace(/file:\/\//g, '') // Remove file:// protocol
+      .replace(/\{/g, '\\{').replace(/\}/g, '\\}') // Escape { } for MDX
   }
   return '';
 }
