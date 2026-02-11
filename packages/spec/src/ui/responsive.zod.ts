@@ -27,6 +27,34 @@ export type BreakpointName = z.infer<typeof BreakpointName>;
  * };
  * ```
  */
+/**
+ * Breakpoint Column Map Schema
+ * Maps breakpoint names to grid column counts (1-12).
+ * All entries are optional — only specified breakpoints are configured.
+ */
+export const BreakpointColumnMapSchema = z.object({
+  xs: z.number().min(1).max(12).optional(),
+  sm: z.number().min(1).max(12).optional(),
+  md: z.number().min(1).max(12).optional(),
+  lg: z.number().min(1).max(12).optional(),
+  xl: z.number().min(1).max(12).optional(),
+  '2xl': z.number().min(1).max(12).optional(),
+}).describe('Grid columns per breakpoint (1-12)');
+
+/**
+ * Breakpoint Order Map Schema
+ * Maps breakpoint names to display order numbers.
+ * All entries are optional — only specified breakpoints are configured.
+ */
+export const BreakpointOrderMapSchema = z.object({
+  xs: z.number().optional(),
+  sm: z.number().optional(),
+  md: z.number().optional(),
+  lg: z.number().optional(),
+  xl: z.number().optional(),
+  '2xl': z.number().optional(),
+}).describe('Display order per breakpoint');
+
 export const ResponsiveConfigSchema = z.object({
   /** Minimum breakpoint for visibility */
   breakpoint: BreakpointName.optional()
@@ -37,16 +65,10 @@ export const ResponsiveConfigSchema = z.object({
     .describe('Hide on these breakpoints'),
 
   /** Grid columns per breakpoint (1-12 column grid) */
-  columns: z.record(
-    BreakpointName,
-    z.number().min(1).max(12),
-  ).optional().describe('Grid columns per breakpoint'),
+  columns: BreakpointColumnMapSchema.optional().describe('Grid columns per breakpoint'),
 
   /** Display order per breakpoint */
-  order: z.record(
-    BreakpointName,
-    z.number(),
-  ).optional().describe('Display order per breakpoint'),
+  order: BreakpointOrderMapSchema.optional().describe('Display order per breakpoint'),
 }).describe('Responsive layout configuration');
 
 export type ResponsiveConfig = z.infer<typeof ResponsiveConfigSchema>;

@@ -4,6 +4,10 @@ import {
   CacheTierSchema,
   CacheInvalidationSchema,
   CacheConfigSchema,
+  CacheConsistencySchema,
+  CacheAvalanchePreventionSchema,
+  CacheWarmupSchema,
+  DistributedCacheConfigSchema,
 } from './cache.zod';
 
 describe('CacheStrategySchema', () => {
@@ -156,5 +160,139 @@ describe('CacheConfigSchema', () => {
   it('should reject missing required fields', () => {
     expect(() => CacheConfigSchema.parse({})).toThrow();
     expect(() => CacheConfigSchema.parse({ tiers: [] })).toThrow();
+  });
+});
+
+describe('CacheConsistencySchema', () => {
+  it('should accept all consistency strategies', () => {
+    const strategies = ['write_through', 'write_behind', 'write_around', 'refresh_ahead'] as const;
+    strategies.forEach(strategy => {
+      expect(() => CacheConsistencySchema.parse(strategy)).not.toThrow();
+    });
+  });
+
+  it('should reject invalid strategy', () => {
+    expect(() => CacheConsistencySchema.parse('read_through')).toThrow();
+  });
+});
+
+describe('CacheAvalanchePreventionSchema', () => {
+  it('should accept empty config', () => {
+    expect(() => CacheAvalanchePreventionSchema.parse({})).not.toThrow();
+  });
+
+  it('should accept jitter TTL config', () => {
+    const result = CacheAvalanchePreventionSchema.parse({
+      jitterTtl: { enabled: true, maxJitterSeconds: 30 },
+    });
+    expect(result.jitterTtl?.enabled).toBe(true);
+    expect(result.jitterTtl?.maxJitterSeconds).toBe(30);
+  });
+
+  it('should accept circuit breaker config', () => {
+    const result = CacheAvalanchePreventionSchema.parse({
+      circuitBreaker: { enabled: true, failureThreshold: 10, resetTimeout: 60 },
+    });
+    expect(result.circuitBreaker?.failureThreshold).toBe(10);
+  });
+
+  it('should accept lockout config', () => {
+    const result = CacheAvalanchePreventionSchema.parse({
+      lockout: { enabled: true, lockTimeoutMs: 3000 },
+    });
+    expect(result.lockout?.lockTimeoutMs).toBe(3000);
+  });
+
+  it('should accept full prevention config', () => {
+    expect(() => CacheAvalanchePreventionSchema.parse({
+      jitterTtl: { enabled: true },
+      circuitBreaker: { enabled: true },
+      lockout: { enabled: true },
+    })).not.toThrow();
+  });
+});
+
+describe('CacheWarmupSchema', () => {
+  it('should accept minimal warmup config', () => {
+    const result = CacheWarmupSchema.parse({});
+    expect(result.enabled).toBe(false);
+    expect(result.strategy).toBe('lazy');
+  });
+
+  it('should accept eager warmup with patterns', () => {
+    const result = CacheWarmupSchema.parse({
+      enabled: true,
+      strategy: 'eager',
+      patterns: ['config:*', 'user:*'],
+      concurrency: 20,
+    });
+    expect(result.strategy).toBe('eager');
+    expect(result.patterns).toHaveLength(2);
+    expect(result.concurrency).toBe(20);
+  });
+
+  it('should accept scheduled warmup', () => {
+    const result = CacheWarmupSchema.parse({
+      enabled: true,
+      strategy: 'scheduled',
+      schedule: '0 0 * * *',
+    });
+    expect(result.schedule).toBe('0 0 * * *');
+  });
+});
+
+describe('DistributedCacheConfigSchema', () => {
+  it('should accept basic distributed cache', () => {
+    const config = DistributedCacheConfigSchema.parse({
+      enabled: true,
+      tiers: [
+        { name: 'l1', type: 'memory', maxSize: 100 },
+        { name: 'l2', type: 'redis', maxSize: 1000 },
+      ],
+      invalidation: [{ trigger: 'update', scope: 'key' }],
+      consistency: 'write_through',
+    });
+
+    expect(config.consistency).toBe('write_through');
+  });
+
+  it('should accept full distributed cache config', () => {
+    const config = DistributedCacheConfigSchema.parse({
+      enabled: true,
+      tiers: [
+        { name: 'l1', type: 'memory', maxSize: 100, ttl: 60, strategy: 'lru' },
+        { name: 'l2', type: 'redis', maxSize: 1000, ttl: 300, strategy: 'lru' },
+      ],
+      invalidation: [{ trigger: 'update', scope: 'key' }],
+      consistency: 'write_behind',
+      avalanchePrevention: {
+        jitterTtl: { enabled: true, maxJitterSeconds: 30 },
+        circuitBreaker: { enabled: true, failureThreshold: 5 },
+        lockout: { enabled: true },
+      },
+      warmup: {
+        enabled: true,
+        strategy: 'eager',
+        patterns: ['config:*'],
+      },
+    });
+
+    expect(config.consistency).toBe('write_behind');
+    expect(config.avalanchePrevention?.jitterTtl?.enabled).toBe(true);
+    expect(config.warmup?.strategy).toBe('eager');
+  });
+
+  it('should extend CacheConfigSchema fields', () => {
+    const config = DistributedCacheConfigSchema.parse({
+      enabled: true,
+      tiers: [{ name: 'test', type: 'memory' }],
+      invalidation: [{ trigger: 'update', scope: 'key' }],
+      prefetch: true,
+      compression: true,
+      encryption: true,
+    });
+
+    expect(config.prefetch).toBe(true);
+    expect(config.compression).toBe(true);
   });
 });
