@@ -372,9 +372,9 @@ export const MetadataLoaderContractSchema = z.object({
   name: z.string().describe('Loader identifier'),
 
   /**
-   * Protocol handled by this loader (e.g. 'file', 'http', 's3', 'datasource')
+   * Protocol handled by this loader (e.g. 'file:', 'http:', 's3:', 'datasource:')
    */
-  protocol: z.enum(['file', 'http', 's3', 'datasource']).describe('Protocol identifier'),
+  protocol: z.enum(['file:', 'http:', 's3:', 'datasource:']).describe('Protocol identifier'),
 
   /**
    * Detailed capabilities

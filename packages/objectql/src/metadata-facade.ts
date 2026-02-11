@@ -17,7 +17,9 @@ export class MetadataFacade {
    * Register a metadata item
    */
   async register(type: string, name: string, data: any): Promise<void> {
-    const definition = typeof data === 'object' && data !== null ? { ...data, name } : data;
+    const definition = typeof data === 'object' && data !== null
+      ? { ...data, name: data.name ?? name }
+      : data;
     if (type === 'object') {
       SchemaRegistry.registerItem(type, definition, 'name' as any);
     } else {

@@ -332,7 +332,7 @@ describe('MetadataLoaderProtocol', () => {
     it('should validate loader contract', () => {
       const contract = {
         name: 'filesystem',
-        protocol: 'file',
+        protocol: 'file:',
         capabilities: {
           read: true,
           write: true,
@@ -344,7 +344,7 @@ describe('MetadataLoaderProtocol', () => {
       
       const validated = MetadataLoaderContractSchema.parse(contract);
       expect(validated.name).toBe('filesystem');
-      expect(validated.protocol).toBe('file');
+      expect(validated.protocol).toBe('file:');
       expect(validated.supportsWatch).toBe(false); // default
       expect(validated.supportsWrite).toBe(true); // default
       expect(validated.supportsCache).toBe(true); // default
@@ -353,7 +353,7 @@ describe('MetadataLoaderProtocol', () => {
     it('should allow custom capabilities', () => {
       const contract = {
         name: 'http',
-        protocol: 'http',
+        protocol: 'http:',
         capabilities: {
           read: true,
           write: false,
@@ -367,7 +367,7 @@ describe('MetadataLoaderProtocol', () => {
       };
       
       const validated = MetadataLoaderContractSchema.parse(contract);
-      expect(validated.protocol).toBe('http');
+      expect(validated.protocol).toBe('http:');
       expect(validated.supportsWrite).toBe(false);
       expect(validated.supportsCache).toBe(true);
     });
@@ -375,18 +375,18 @@ describe('MetadataLoaderProtocol', () => {
     it('should accept datasource protocol', () => {
       const contract = {
         name: 'database',
-        protocol: 'datasource',
+        protocol: 'datasource:',
         capabilities: { read: true, write: true, watch: false, list: true },
         supportedFormats: ['json'] as const,
       };
       
       const validated = MetadataLoaderContractSchema.parse(contract);
-      expect(validated.protocol).toBe('datasource');
+      expect(validated.protocol).toBe('datasource:');
       expect(validated.capabilities.write).toBe(true);
     });
 
     it('should accept all valid protocols', () => {
-      const protocols = ['file', 'http', 's3', 'datasource'];
+      const protocols = ['file:', 'http:', 's3:', 'datasource:'];
       protocols.forEach((protocol) => {
         expect(() => MetadataLoaderContractSchema.parse({
           name: 'test', protocol, capabilities: {}, supportedFormats: ['json'],
@@ -396,7 +396,7 @@ describe('MetadataLoaderProtocol', () => {
 
     it('should reject invalid protocol', () => {
       expect(() => MetadataLoaderContractSchema.parse({
-        name: 'test', protocol: 'ftp', capabilities: {}, supportedFormats: ['json'],
+        name: 'test', protocol: 'ftp:', capabilities: {}, supportedFormats: ['json'],
       })).toThrow();
     });
   });
