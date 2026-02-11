@@ -2,6 +2,8 @@
 
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
+import { TouchTargetConfigSchema } from './touch.zod';
+import { FocusManagementSchema } from './keyboard.zod';
 
 /**
  * Color Palette Schema
@@ -249,6 +251,12 @@ export const ThemeSchema = z.object({
 
   /** Right-to-left language support */
   rtl: z.boolean().optional().describe('Enable right-to-left layout direction'),
+
+  /** Touch target accessibility configuration */
+  touchTarget: TouchTargetConfigSchema.optional().describe('Touch target sizing defaults'),
+
+  /** Keyboard navigation and focus management */
+  keyboardNavigation: FocusManagementSchema.optional().describe('Keyboard focus management settings'),
 });
 
 export type Theme = z.infer<typeof ThemeSchema>;

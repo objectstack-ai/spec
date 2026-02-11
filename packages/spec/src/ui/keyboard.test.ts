@@ -1,0 +1,152 @@
+import { describe, it, expect } from 'vitest';
+import {
+  FocusTrapConfigSchema,
+  KeyboardShortcutSchema,
+  FocusManagementSchema,
+  KeyboardNavigationConfigSchema,
+  type FocusTrapConfig,
+  type KeyboardShortcut,
+  type FocusManagement,
+  type KeyboardNavigationConfig,
+} from './keyboard.zod';
+
+describe('FocusTrapConfigSchema', () => {
+  it('should apply defaults for empty config', () => {
+    const result = FocusTrapConfigSchema.parse({});
+    expect(result.enabled).toBe(false);
+    expect(result.returnFocus).toBe(true);
+    expect(result.escapeDeactivates).toBe(true);
+  });
+
+  it('should accept enabled with initialFocus selector', () => {
+    const config: FocusTrapConfig = {
+      enabled: true,
+      initialFocus: '#first-input',
+      returnFocus: false,
+      escapeDeactivates: false,
+    };
+    const result = FocusTrapConfigSchema.parse(config);
+    expect(result.enabled).toBe(true);
+    expect(result.initialFocus).toBe('#first-input');
+    expect(result.returnFocus).toBe(false);
+  });
+
+  it('should leave initialFocus undefined when not provided', () => {
+    const result = FocusTrapConfigSchema.parse({});
+    expect(result.initialFocus).toBeUndefined();
+  });
+});
+
+describe('KeyboardShortcutSchema', () => {
+  it('should accept a valid shortcut', () => {
+    const shortcut: KeyboardShortcut = {
+      key: 'Ctrl+S',
+      action: 'save',
+      description: 'Save the current form',
+      scope: 'form',
+    };
+    const result = KeyboardShortcutSchema.parse(shortcut);
+    expect(result.key).toBe('Ctrl+S');
+    expect(result.action).toBe('save');
+    expect(result.scope).toBe('form');
+  });
+
+  it('should default scope to global', () => {
+    const result = KeyboardShortcutSchema.parse({ key: 'Escape', action: 'close' });
+    expect(result.scope).toBe('global');
+  });
+
+  it('should accept all valid scopes', () => {
+    const scopes = ['global', 'view', 'form', 'modal', 'list'] as const;
+    scopes.forEach(scope => {
+      expect(() => KeyboardShortcutSchema.parse({ key: 'a', action: 'test', scope })).not.toThrow();
+    });
+  });
+
+  it('should reject invalid scope', () => {
+    expect(() => KeyboardShortcutSchema.parse({ key: 'a', action: 'test', scope: 'page' })).toThrow();
+  });
+
+  it('should reject missing key or action', () => {
+    expect(() => KeyboardShortcutSchema.parse({ action: 'save' })).toThrow();
+    expect(() => KeyboardShortcutSchema.parse({ key: 'Ctrl+S' })).toThrow();
+  });
+});
+
+describe('FocusManagementSchema', () => {
+  it('should apply defaults for empty config', () => {
+    const result = FocusManagementSchema.parse({});
+    expect(result.tabOrder).toBe('auto');
+    expect(result.skipLinks).toBe(false);
+    expect(result.focusVisible).toBe(true);
+    expect(result.arrowNavigation).toBe(false);
+  });
+
+  it('should accept manual tab order with skipLinks', () => {
+    const config: FocusManagement = {
+      tabOrder: 'manual',
+      skipLinks: true,
+      focusVisible: true,
+    };
+    const result = FocusManagementSchema.parse(config);
+    expect(result.tabOrder).toBe('manual');
+    expect(result.skipLinks).toBe(true);
+  });
+
+  it('should accept nested focusTrap', () => {
+    const result = FocusManagementSchema.parse({
+      focusTrap: { enabled: true, initialFocus: '.modal-body' },
+    });
+    expect(result.focusTrap?.enabled).toBe(true);
+    expect(result.focusTrap?.initialFocus).toBe('.modal-body');
+  });
+
+  it('should reject invalid tabOrder', () => {
+    expect(() => FocusManagementSchema.parse({ tabOrder: 'random' })).toThrow();
+  });
+});
+
+describe('KeyboardNavigationConfigSchema', () => {
+  it('should accept empty config', () => {
+    expect(() => KeyboardNavigationConfigSchema.parse({})).not.toThrow();
+  });
+
+  it('should default rovingTabindex to false', () => {
+    const result = KeyboardNavigationConfigSchema.parse({});
+    expect(result.rovingTabindex).toBe(false);
+  });
+
+  it('should accept full config with shortcuts and focus management', () => {
+    const config: KeyboardNavigationConfig = {
+      shortcuts: [
+        { key: 'Ctrl+S', action: 'save', scope: 'form' },
+        { key: 'Ctrl+Z', action: 'undo', scope: 'global' },
+      ],
+      focusManagement: {
+        tabOrder: 'manual',
+        skipLinks: true,
+        focusVisible: true,
+        focusTrap: { enabled: true, returnFocus: true, escapeDeactivates: true },
+        arrowNavigation: true,
+      },
+      rovingTabindex: true,
+    };
+    const result = KeyboardNavigationConfigSchema.parse(config);
+    expect(result.shortcuts).toHaveLength(2);
+    expect(result.focusManagement?.arrowNavigation).toBe(true);
+    expect(result.rovingTabindex).toBe(true);
+  });
+});
+
+describe('Type exports', () => {
+  it('should have valid type exports', () => {
+    const trap: FocusTrapConfig = { enabled: false, returnFocus: true, escapeDeactivates: true };
+    const shortcut: KeyboardShortcut = { key: 'Ctrl+N', action: 'new', scope: 'global' };
+    const focus: FocusManagement = { tabOrder: 'auto', skipLinks: false, focusVisible: true, arrowNavigation: false };
+    const nav: KeyboardNavigationConfig = { rovingTabindex: false };
+    expect(trap).toBeDefined();
+    expect(shortcut).toBeDefined();
+    expect(focus).toBeDefined();
+    expect(nav).toBeDefined();
+  });
+});

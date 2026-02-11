@@ -280,6 +280,112 @@ export const MCPPromptSchema = z.object({
 });
 
 // ==========================================
+// MCP Streaming Configuration
+// ==========================================
+
+/**
+ * MCP Streaming Configuration
+ * Controls streaming behavior for MCP server communication
+ */
+export const MCPStreamingConfigSchema = z.object({
+  /** Whether streaming is enabled */
+  enabled: z.boolean().describe('Enable streaming for MCP communication'),
+
+  /** Size of each streamed chunk in bytes */
+  chunkSize: z.number().int().positive().optional().describe('Size of each streamed chunk in bytes'),
+
+  /** Heartbeat interval to keep connection alive */
+  heartbeatIntervalMs: z.number().int().positive().optional().default(30000).describe('Heartbeat interval in milliseconds'),
+
+  /** Backpressure handling strategy */
+  backpressure: z.enum(['drop', 'buffer', 'block']).optional().describe('Backpressure handling strategy'),
+}).describe('Streaming configuration for MCP communication');
+
+// ==========================================
+// MCP Tool Approval Configuration
+// ==========================================
+
+/**
+ * MCP Tool Approval Configuration
+ * Controls approval requirements for tool execution
+ */
+export const MCPToolApprovalSchema = z.object({
+  /** Whether tool execution requires approval */
+  requireApproval: z.boolean().default(false).describe('Require approval before tool execution'),
+
+  /** Strategy for handling approvals */
+  approvalStrategy: z.enum(['human_in_loop', 'auto_approve', 'policy_based']).describe('Approval strategy for tool execution'),
+
+  /** Regex patterns matching tool names that require approval */
+  dangerousToolPatterns: z.array(z.string()).optional().describe('Regex patterns for tools needing approval'),
+
+  /** Timeout in seconds for auto-approval */
+  autoApproveTimeout: z.number().int().positive().optional().describe('Auto-approve timeout in seconds'),
+}).describe('Tool approval configuration for MCP');
+
+// ==========================================
+// MCP Sampling Configuration
+// ==========================================
+
+/**
+ * MCP Sampling Configuration
+ * Controls LLM sampling behavior for MCP servers
+ */
+export const MCPSamplingConfigSchema = z.object({
+  /** Whether sampling is enabled */
+  enabled: z.boolean().describe('Enable LLM sampling'),
+
+  /** Maximum tokens to generate */
+  maxTokens: z.number().int().positive().describe('Maximum tokens to generate'),
+
+  /** Sampling temperature */
+  temperature: z.number().min(0).max(2).optional().describe('Sampling temperature'),
+
+  /** Stop sequences to end generation */
+  stopSequences: z.array(z.string()).optional().describe('Stop sequences to end generation'),
+
+  /** Preferred model IDs in priority order */
+  modelPreferences: z.array(z.string()).optional().describe('Preferred model IDs in priority order'),
+
+  /** System prompt for sampling context */
+  systemPrompt: z.string().optional().describe('System prompt for sampling context'),
+}).describe('Sampling configuration for MCP');
+
+// ==========================================
+// MCP Roots Configuration
+// ==========================================
+
+/**
+ * MCP Root Entry
+ * A single root directory or resource available to the MCP client
+ */
+export const MCPRootEntrySchema = z.object({
+  /** Root URI */
+  uri: z.string().describe('Root URI (e.g., file:///path/to/project)'),
+
+  /** Human-readable name for the root */
+  name: z.string().optional().describe('Human-readable root name'),
+
+  /** Whether the root is read-only */
+  readOnly: z.boolean().optional().describe('Whether the root is read-only'),
+}).describe('A single root directory or resource');
+
+/**
+ * MCP Roots Configuration
+ * Controls filesystem/resource roots available to the MCP client
+ */
+export const MCPRootsConfigSchema = z.object({
+  /** Root directories/resources */
+  roots: z.array(MCPRootEntrySchema).describe('Root directories or resources available to the client'),
+
+  /** Watch roots for changes */
+  watchForChanges: z.boolean().default(false).describe('Watch root directories for filesystem changes'),
+
+  /** Notify server on root changes */
+  notifyOnChange: z.boolean().default(true).describe('Notify server when root contents change'),
+}).describe('Roots configuration for MCP client');
+
+// ==========================================
 // MCP Server Configuration
 // ==========================================
 
@@ -372,6 +478,15 @@ export const MCPServerConfigSchema = z.object({
   version: z.string().optional().default('1.0.0'),
   createdAt: z.string().datetime().optional(),
   updatedAt: z.string().datetime().optional(),
+
+  /** Streaming */
+  streaming: MCPStreamingConfigSchema.optional().describe('Streaming configuration'),
+
+  /** Tool Approval */
+  toolApproval: MCPToolApprovalSchema.optional().describe('Tool approval configuration'),
+
+  /** Sampling */
+  sampling: MCPSamplingConfigSchema.optional().describe('LLM sampling configuration'),
 });
 
 // ==========================================
@@ -476,6 +591,9 @@ export const MCPClientConfigSchema = z.object({
   /** Logging */
   enableLogging: z.boolean().default(true),
   logLevel: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+
+  /** Roots */
+  roots: MCPRootsConfigSchema.optional().describe('Root directories/resources configuration'),
 });
 
 // ==========================================
@@ -502,3 +620,8 @@ export type MCPToolCallResponse = z.infer<typeof MCPToolCallResponseSchema>;
 export type MCPPromptRequest = z.infer<typeof MCPPromptRequestSchema>;
 export type MCPPromptResponse = z.infer<typeof MCPPromptResponseSchema>;
 export type MCPClientConfig = z.infer<typeof MCPClientConfigSchema>;
+export type MCPStreamingConfig = z.infer<typeof MCPStreamingConfigSchema>;
+export type MCPToolApproval = z.infer<typeof MCPToolApprovalSchema>;
+export type MCPSamplingConfig = z.infer<typeof MCPSamplingConfigSchema>;
+export type MCPRootEntry = z.infer<typeof MCPRootEntrySchema>;
+export type MCPRootsConfig = z.infer<typeof MCPRootsConfigSchema>;

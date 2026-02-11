@@ -372,6 +372,107 @@ export const RetryConfigSchema = z.object({
 export type RetryConfig = z.infer<typeof RetryConfigSchema>;
 
 // ============================================================================
+// Error Mapping Configuration
+// ============================================================================
+
+/**
+ * Error Category
+ */
+export const ErrorCategorySchema = z.enum([
+  'validation',
+  'authorization',
+  'not_found',
+  'conflict',
+  'rate_limit',
+  'timeout',
+  'server_error',
+  'integration_error',
+]).describe('Standard error category');
+
+export type ErrorCategory = z.infer<typeof ErrorCategorySchema>;
+
+/**
+ * Error Mapping Rule
+ * 
+ * Maps an external system error code to an ObjectStack standard error.
+ */
+export const ErrorMappingRuleSchema = z.object({
+  sourceCode: z.union([z.string(), z.number()]).describe('External system error code'),
+  sourceMessage: z.string().optional().describe('Pattern to match against error message'),
+  targetCode: z.string().describe('ObjectStack standard error code'),
+  targetCategory: ErrorCategorySchema.describe('Error category'),
+  severity: z.enum(['low', 'medium', 'high', 'critical']).describe('Error severity level'),
+  retryable: z.boolean().describe('Whether the error is retryable'),
+  userMessage: z.string().optional().describe('Human-readable message to show users'),
+}).describe('Error mapping rule');
+
+export type ErrorMappingRule = z.infer<typeof ErrorMappingRuleSchema>;
+
+/**
+ * Error Mapping Configuration
+ * 
+ * Configures how external system errors are mapped to ObjectStack standard errors.
+ */
+export const ErrorMappingConfigSchema = z.object({
+  rules: z.array(ErrorMappingRuleSchema).describe('Error mapping rules'),
+  defaultCategory: ErrorCategorySchema.optional().default('integration_error').describe('Default category for unmapped errors'),
+  unmappedBehavior: z.enum(['passthrough', 'generic_error', 'throw']).describe('What to do with unmapped errors'),
+  logUnmapped: z.boolean().optional().default(true).describe('Log unmapped errors'),
+}).describe('Error mapping configuration');
+
+export type ErrorMappingConfig = z.infer<typeof ErrorMappingConfigSchema>;
+
+// ============================================================================
+// Health Check & Circuit Breaker Configuration
+// ============================================================================
+
+/**
+ * Health Check Configuration
+ * 
+ * Configures periodic health checks for connector endpoints.
+ */
+export const HealthCheckConfigSchema = z.object({
+  enabled: z.boolean().describe('Enable health checks'),
+  intervalMs: z.number().optional().default(60000).describe('Health check interval in milliseconds'),
+  timeoutMs: z.number().optional().default(5000).describe('Health check timeout in milliseconds'),
+  endpoint: z.string().optional().describe('Health check endpoint path'),
+  method: z.enum(['GET', 'HEAD', 'OPTIONS']).optional().describe('HTTP method for health check'),
+  expectedStatus: z.number().optional().default(200).describe('Expected HTTP status code'),
+  unhealthyThreshold: z.number().optional().default(3).describe('Consecutive failures before marking unhealthy'),
+  healthyThreshold: z.number().optional().default(1).describe('Consecutive successes before marking healthy'),
+}).describe('Health check configuration');
+
+export type HealthCheckConfig = z.infer<typeof HealthCheckConfigSchema>;
+
+/**
+ * Circuit Breaker Configuration
+ * 
+ * Implements the circuit breaker pattern to prevent cascading failures.
+ */
+export const CircuitBreakerConfigSchema = z.object({
+  enabled: z.boolean().describe('Enable circuit breaker'),
+  failureThreshold: z.number().optional().default(5).describe('Failures before opening circuit'),
+  resetTimeoutMs: z.number().optional().default(30000).describe('Time in open state before half-open'),
+  halfOpenMaxRequests: z.number().optional().default(1).describe('Requests allowed in half-open state'),
+  monitoringWindow: z.number().optional().default(60000).describe('Rolling window for failure count in ms'),
+  fallbackStrategy: z.enum(['cache', 'default_value', 'error', 'queue']).optional().describe('Fallback strategy when circuit is open'),
+}).describe('Circuit breaker configuration');
+
+export type CircuitBreakerConfig = z.infer<typeof CircuitBreakerConfigSchema>;
+
+/**
+ * Connector Health Configuration
+ * 
+ * Combines health check and circuit breaker for connector resilience.
+ */
+export const ConnectorHealthSchema = z.object({
+  healthCheck: HealthCheckConfigSchema.optional().describe('Health check configuration'),
+  circuitBreaker: CircuitBreakerConfigSchema.optional().describe('Circuit breaker configuration'),
+}).describe('Connector health configuration');
+
+export type ConnectorHealth = z.infer<typeof ConnectorHealthSchema>;
+
+// ============================================================================
 // Base Connector Schema
 // ============================================================================
 
@@ -507,6 +608,16 @@ export const ConnectorSchema = z.object({
    * Enable connector
    */
   enabled: z.boolean().optional().default(true).describe('Enable connector'),
+  
+  /**
+   * Error mapping configuration
+   */
+  errorMapping: ErrorMappingConfigSchema.optional().describe('Error mapping configuration'),
+  
+  /**
+   * Health check and circuit breaker configuration
+   */
+  health: ConnectorHealthSchema.optional().describe('Health and resilience configuration'),
   
   /**
    * Custom metadata

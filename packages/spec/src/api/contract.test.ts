@@ -13,6 +13,9 @@ import {
   DeleteResponseSchema,
   RecordDataSchema,
   StandardApiContracts as ApiContracts,
+  DataLoaderConfigSchema,
+  BatchLoadingStrategySchema,
+  QueryOptimizationConfigSchema,
 } from './contract.zod';
 
 describe('ApiErrorSchema', () => {
@@ -440,5 +443,132 @@ describe('ApiContracts', () => {
     });
 
     expect(input.ids).toHaveLength(3);
+  });
+});
+
+// ==========================================
+// DataLoader / N+1 Query Prevention Tests
+// ==========================================
+
+describe('DataLoaderConfigSchema', () => {
+  it('should accept minimal config with defaults', () => {
+    const config = DataLoaderConfigSchema.parse({});
+
+    expect(config.maxBatchSize).toBe(100);
+    expect(config.batchScheduleFn).toBe('microtask');
+    expect(config.cacheEnabled).toBe(true);
+    expect(config.coalesceRequests).toBe(true);
+  });
+
+  it('should accept full config', () => {
+    const config = DataLoaderConfigSchema.parse({
+      maxBatchSize: 50,
+      batchScheduleFn: 'timeout',
+      cacheEnabled: false,
+      cacheKeyFn: 'customKeyFn',
+      cacheTtl: 60,
+      coalesceRequests: false,
+      maxConcurrency: 4,
+    });
+
+    expect(config.maxBatchSize).toBe(50);
+    expect(config.batchScheduleFn).toBe('timeout');
+    expect(config.cacheEnabled).toBe(false);
+    expect(config.cacheKeyFn).toBe('customKeyFn');
+    expect(config.cacheTtl).toBe(60);
+    expect(config.maxConcurrency).toBe(4);
+  });
+
+  it('should accept all batch schedule strategies', () => {
+    const strategies = ['microtask', 'timeout', 'manual'] as const;
+    strategies.forEach(fn => {
+      const config = DataLoaderConfigSchema.parse({ batchScheduleFn: fn });
+      expect(config.batchScheduleFn).toBe(fn);
+    });
+  });
+
+  it('should reject negative cacheTtl', () => {
+    expect(() => DataLoaderConfigSchema.parse({ cacheTtl: -1 })).toThrow();
+  });
+});
+
+describe('BatchLoadingStrategySchema', () => {
+  it('should accept dataloader strategy', () => {
+    const strategy = BatchLoadingStrategySchema.parse({
+      strategy: 'dataloader',
+    });
+
+    expect(strategy.strategy).toBe('dataloader');
+    expect(strategy.associationLoading).toBe('batch');
+  });
+
+  it('should accept windowed strategy with windowMs', () => {
+    const strategy = BatchLoadingStrategySchema.parse({
+      strategy: 'windowed',
+      windowMs: 50,
+    });
+
+    expect(strategy.strategy).toBe('windowed');
+    expect(strategy.windowMs).toBe(50);
+  });
+
+  it('should accept prefetch strategy with depth', () => {
+    const strategy = BatchLoadingStrategySchema.parse({
+      strategy: 'prefetch',
+      prefetchDepth: 3,
+    });
+
+    expect(strategy.prefetchDepth).toBe(3);
+  });
+
+  it('should accept all association loading modes', () => {
+    const modes = ['lazy', 'eager', 'batch'] as const;
+    modes.forEach(mode => {
+      const s = BatchLoadingStrategySchema.parse({
+        strategy: 'dataloader',
+        associationLoading: mode,
+      });
+      expect(s.associationLoading).toBe(mode);
+    });
+  });
+});
+
+describe('QueryOptimizationConfigSchema', () => {
+  it('should accept minimal config', () => {
+    const config = QueryOptimizationConfigSchema.parse({
+      preventNPlusOne: true,
+      maxQueryDepth: 5,
+    });
+
+    expect(config.preventNPlusOne).toBe(true);
+    expect(config.maxQueryDepth).toBe(5);
+    expect(config.enableQueryPlan).toBe(false);
+  });
+
+  it('should accept full config with nested schemas', () => {
+    const config = QueryOptimizationConfigSchema.parse({
+      preventNPlusOne: true,
+      dataLoader: {
+        maxBatchSize: 200,
+        cacheEnabled: true,
+      },
+      batchStrategy: {
+        strategy: 'windowed',
+        windowMs: 100,
+      },
+      maxQueryDepth: 10,
+      queryComplexityLimit: 500,
+      enableQueryPlan: true,
+    });
+
+    expect(config.dataLoader?.maxBatchSize).toBe(200);
+    expect(config.batchStrategy?.strategy).toBe('windowed');
+    expect(config.queryComplexityLimit).toBe(500);
+    expect(config.enableQueryPlan).toBe(true);
+  });
+
+  it('should require preventNPlusOne and maxQueryDepth', () => {
+    expect(() => QueryOptimizationConfigSchema.parse({})).toThrow();
+    expect(() => QueryOptimizationConfigSchema.parse({ preventNPlusOne: true })).toThrow();
   });
 });

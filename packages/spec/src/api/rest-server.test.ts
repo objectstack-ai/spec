@@ -12,6 +12,10 @@ import {
   EndpointRegistrySchema,
   RestApiConfig,
   RestServerConfig,
+  WebhookEventSchema,
+  WebhookConfigSchema,
+  CallbackSchema,
+  OpenApi31ExtensionsSchema,
   type RestApiConfig as RestApiConfigType,
   type RestServerConfig as RestServerConfigType,
 } from './rest-server.zod';
@@ -645,5 +649,177 @@ describe('Integration Tests', () => {
     expect(result.crud?.dataPrefix).toBe('/data');
     expect(result.metadata?.cacheTtl).toBe(3600);
     expect(result.batch?.maxBatchSize).toBe(200);
+  });
+});
+
+// ==========================================
+// OpenAPI 3.1 Webhooks & Callbacks Tests
+// ==========================================
+
+describe('WebhookEventSchema', () => {
+  it('should accept valid webhook event', () => {
+    const event = WebhookEventSchema.parse({
+      name: 'record_created',
+      description: 'Fired when a record is created',
+      payloadSchema: '#/components/schemas/RecordCreated',
+      security: ['hmac_sha256'],
+    });
+
+    expect(event.name).toBe('record_created');
+    expect(event.method).toBe('POST');
+    expect(event.security).toContain('hmac_sha256');
+  });
+
+  it('should enforce snake_case name', () => {
+    expect(() => WebhookEventSchema.parse({
+      name: 'RecordCreated',
+      description: 'Bad name',
+      payloadSchema: '#/ref',
+      security: ['basic'],
+    })).toThrow();
+  });
+
+  it('should accept event with custom headers', () => {
+    const event = WebhookEventSchema.parse({
+      name: 'sync_completed',
+      description: 'Sync finished',
+      payloadSchema: '#/ref',
+      security: ['bearer'],
+      headers: { 'X-Custom': 'value' },
+    });
+
+    expect(event.headers?.['X-Custom']).toBe('value');
+  });
+
+  it('should accept all security methods', () => {
+    const methods = ['hmac_sha256', 'basic', 'bearer', 'api_key'] as const;
+    const event = WebhookEventSchema.parse({
+      name: 'test_event',
+      description: 'Test',
+      payloadSchema: '#/ref',
+      security: [...methods],
+    });
+    expect(event.security).toHaveLength(4);
+  });
+});
+
+describe('WebhookConfigSchema', () => {
+  it('should accept config with defaults', () => {
+    const config = WebhookConfigSchema.parse({
+      events: [
+        {
+          name: 'record_created',
+          description: 'Record created',
+          payloadSchema: '#/ref',
+          security: ['hmac_sha256'],
+        },
+      ],
+      deliveryConfig: {},
+    });
+
+    expect(config.enabled).toBe(false);
+    expect(config.deliveryConfig.maxRetries).toBe(3);
+    expect(config.deliveryConfig.timeoutMs).toBe(30000);
+    expect(config.deliveryConfig.signatureHeader).toBe('X-Signature-256');
+    expect(config.registrationEndpoint).toBe('/webhooks');
+  });
+
+  it('should accept full delivery config', () => {
+    const config = WebhookConfigSchema.parse({
+      enabled: true,
+      events: [],
+      deliveryConfig: {
+        maxRetries: 5,
+        retryIntervalMs: 10000,
+        timeoutMs: 60000,
+        signatureHeader: 'X-Hub-Signature',
+      },
+      registrationEndpoint: '/hooks',
+    });
+
+    expect(config.deliveryConfig.maxRetries).toBe(5);
+    expect(config.registrationEndpoint).toBe('/hooks');
+  });
+});
+
+describe('CallbackSchema', () => {
+  it('should accept valid callback', () => {
+    const cb = CallbackSchema.parse({
+      name: 'payment_completed',
+      expression: '{$request.body#/callbackUrl}',
+      method: 'POST',
+      url: '{$request.body#/callbackUrl}',
+    });
+
+    expect(cb.name).toBe('payment_completed');
+    expect(cb.method).toBe('POST');
+  });
+
+  it('should enforce snake_case name', () => {
+    expect(() => CallbackSchema.parse({
+      name: 'PaymentCompleted',
+      expression: '{$request.body#/url}',
+      method: 'POST',
+      url: 'https://example.com',
+    })).toThrow();
+  });
+});
+
+describe('OpenApi31ExtensionsSchema', () => {
+  it('should accept empty config with defaults', () => {
+    const ext = OpenApi31ExtensionsSchema.parse({});
+
+    expect(ext.jsonSchemaDialect).toBe('https://json-schema.org/draft/2020-12/schema');
+    expect(ext.pathItemReferences).toBe(false);
+  });
+
+  it('should accept webhooks map', () => {
+    const ext = OpenApi31ExtensionsSchema.parse({
+      webhooks: {
+        record_created: {
+          name: 'record_created',
+          description: 'Record created',
+          payloadSchema: '#/ref',
+          security: ['hmac_sha256'],
+        },
+      },
+    });
+
+    expect(ext.webhooks?.record_created).toBeDefined();
+  });
+
+  it('should accept callbacks map', () => {
+    const ext = OpenApi31ExtensionsSchema.parse({
+      callbacks: {
+        onComplete: [
+          {
+            name: 'on_complete',
+            expression: '{$request.body#/callbackUrl}',
+            method: 'POST',
+            url: '{$request.body#/callbackUrl}',
+          },
+        ],
+      },
+    });
+
+    expect(ext.callbacks?.onComplete).toHaveLength(1);
+  });
+
+  it('should accept RestServerConfig with openApi31', () => {
+    const config = RestServerConfigSchema.parse({
+      openApi31: {
+        webhooks: {
+          test_hook: {
+            name: 'test_hook',
+            description: 'Test webhook',
+            payloadSchema: '#/ref',
+            security: ['basic'],
+          },
+        },
+        pathItemReferences: true,
+      },
+    });
+
+    expect(config.openApi31?.pathItemReferences).toBe(true);
   });
 });

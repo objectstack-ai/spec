@@ -23,6 +23,63 @@ export const AuthPluginConfigSchema = z.object({
   magicLink: z.boolean().default(false).describe('Enable Magic Link login'),
 });
 
+/**
+ * Mutual TLS (mTLS) Configuration Schema
+ * 
+ * Enables client certificate authentication for zero-trust architectures.
+ */
+export const MutualTLSConfigSchema = z.object({
+  /** Enable mutual TLS authentication */
+  enabled: z.boolean()
+    .default(false)
+    .describe('Enable mutual TLS authentication'),
+
+  /** Require client certificates for all connections */
+  clientCertRequired: z.boolean()
+    .default(false)
+    .describe('Require client certificates for all connections'),
+
+  /** PEM-encoded CA certificates or file paths for trust validation */
+  trustedCAs: z.array(z.string())
+    .describe('PEM-encoded CA certificates or file paths'),
+
+  /** Certificate Revocation List URL */
+  crlUrl: z.string()
+    .optional()
+    .describe('Certificate Revocation List (CRL) URL'),
+
+  /** Online Certificate Status Protocol URL */
+  ocspUrl: z.string()
+    .optional()
+    .describe('Online Certificate Status Protocol (OCSP) URL'),
+
+  /** Certificate validation strictness level */
+  certificateValidation: z.enum(['strict', 'relaxed', 'none'])
+    .describe('Certificate validation strictness level'),
+
+  /** Allowed Common Names on client certificates */
+  allowedCNs: z.array(z.string())
+    .optional()
+    .describe('Allowed Common Names (CN) on client certificates'),
+
+  /** Allowed Organizational Units on client certificates */
+  allowedOUs: z.array(z.string())
+    .optional()
+    .describe('Allowed Organizational Units (OU) on client certificates'),
+
+  /** Certificate pinning configuration */
+  pinning: z.object({
+    /** Enable certificate pinning */
+    enabled: z.boolean().describe('Enable certificate pinning'),
+    /** Array of pinned certificate hashes */
+    pins: z.array(z.string()).describe('Pinned certificate hashes'),
+  })
+    .optional()
+    .describe('Certificate pinning configuration'),
+});
+
+export type MutualTLSConfig = z.infer<typeof MutualTLSConfigSchema>;
+
 export const AuthConfigSchema = z.object({
   secret: z.string().optional().describe('Encryption secret'),
   baseUrl: z.string().optional().describe('Base URL for auth routes'),
@@ -33,6 +90,7 @@ export const AuthConfigSchema = z.object({
     expiresIn: z.number().default(60 * 60 * 24 * 7).describe('Session duration in seconds'),
     updateAge: z.number().default(60 * 60 * 24).describe('Session update frequency'),
   }).optional(),
+  mutualTls: MutualTLSConfigSchema.optional().describe('Mutual TLS (mTLS) configuration'),
 }).catchall(z.unknown());
 
 export type AuthProviderConfig = z.infer<typeof AuthProviderConfigSchema>;

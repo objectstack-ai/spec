@@ -34,6 +34,60 @@ export const AIKnowledgeSchema = z.object({
 });
 
 /**
+ * Structured Output Format
+ * Defines the expected output format for agent responses
+ */
+export const StructuredOutputFormatSchema = z.enum([
+  'json_object',
+  'json_schema',
+  'regex',
+  'grammar',
+  'xml',
+]).describe('Output format for structured agent responses');
+
+/**
+ * Transform Pipeline Step
+ * Post-processing steps applied to structured output
+ */
+export const TransformPipelineStepSchema = z.enum([
+  'trim',
+  'parse_json',
+  'validate',
+  'coerce_types',
+]).describe('Post-processing step for structured output');
+
+/**
+ * Structured Output Configuration
+ * Controls how the agent formats and validates its output
+ */
+export const StructuredOutputConfigSchema = z.object({
+  /** Output format type */
+  format: StructuredOutputFormatSchema.describe('Expected output format'),
+
+  /** JSON Schema definition for output validation */
+  schema: z.record(z.string(), z.unknown()).optional().describe('JSON Schema definition for output'),
+
+  /** Whether to enforce exact schema compliance */
+  strict: z.boolean().default(false).describe('Enforce exact schema compliance'),
+
+  /** Retry on validation failure */
+  retryOnValidationFailure: z.boolean().default(true).describe('Retry generation when output fails validation'),
+
+  /** Maximum retry attempts */
+  maxRetries: z.number().int().min(0).default(3).describe('Maximum retries on validation failure'),
+
+  /** Fallback format if primary format fails */
+  fallbackFormat: StructuredOutputFormatSchema.optional().describe('Fallback format if primary format fails'),
+
+  /** Post-processing pipeline steps */
+  transformPipeline: z.array(TransformPipelineStepSchema).optional().describe('Post-processing steps applied to output'),
+}).describe('Structured output configuration for agent responses');
+
+export type StructuredOutputFormat = z.infer<typeof StructuredOutputFormatSchema>;
+export type TransformPipelineStep = z.infer<typeof TransformPipelineStepSchema>;
+export type StructuredOutputConfig = z.infer<typeof StructuredOutputConfigSchema>;
+
+/**
  * AI Agent Schema
  * Definition of an autonomous agent specialized for a domain.
  * 
@@ -132,6 +186,9 @@ export const AgentSchema = z.object({
     /** Topics or actions the agent must avoid */
     blockedTopics: z.array(z.string()).optional().describe('Forbidden topics or action names'),
   }).optional().describe('Safety guardrails for the agent'),
+
+  /** Structured Output */
+  structuredOutput: StructuredOutputConfigSchema.optional().describe('Structured output format and validation configuration'),
 });
 
 export type Agent = z.infer<typeof AgentSchema>;

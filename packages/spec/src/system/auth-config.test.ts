@@ -3,6 +3,7 @@ import {
   AuthProviderConfigSchema,
   AuthPluginConfigSchema,
   AuthConfigSchema,
+  MutualTLSConfigSchema,
 } from './auth-config.zod';
 
 describe('AuthProviderConfigSchema', () => {
@@ -106,5 +107,80 @@ describe('AuthConfigSchema', () => {
     });
 
     expect(config.customSetting).toBe('value');
+  });
+});
+
+// ==========================================
+// Mutual TLS Configuration Tests
+// ==========================================
+
+describe('MutualTLSConfigSchema', () => {
+  it('should accept minimal mTLS config', () => {
+    const config = MutualTLSConfigSchema.parse({
+      trustedCAs: ['/path/to/ca.pem'],
+      certificateValidation: 'strict',
+    });
+
+    expect(config.enabled).toBe(false);
+    expect(config.clientCertRequired).toBe(false);
+    expect(config.trustedCAs).toHaveLength(1);
+    expect(config.certificateValidation).toBe('strict');
+  });
+
+  it('should accept full mTLS config', () => {
+    const config = MutualTLSConfigSchema.parse({
+      enabled: true,
+      clientCertRequired: true,
+      trustedCAs: ['/path/to/ca1.pem', '/path/to/ca2.pem'],
+      crlUrl: 'https://crl.example.com/crl.pem',
+      ocspUrl: 'https://ocsp.example.com',
+      certificateValidation: 'strict',
+      allowedCNs: ['client.example.com', 'service.example.com'],
+      allowedOUs: ['Engineering', 'DevOps'],
+      pinning: {
+        enabled: true,
+        pins: ['sha256/AAAA', 'sha256/BBBB'],
+      },
+    });
+
+    expect(config.enabled).toBe(true);
+    expect(config.clientCertRequired).toBe(true);
+    expect(config.trustedCAs).toHaveLength(2);
+    expect(config.allowedCNs).toHaveLength(2);
+    expect(config.allowedOUs).toHaveLength(2);
+    expect(config.pinning?.enabled).toBe(true);
+    expect(config.pinning?.pins).toHaveLength(2);
+  });
+
+  it('should accept all certificate validation levels', () => {
+    const levels = ['strict', 'relaxed', 'none'] as const;
+    levels.forEach(level => {
+      const config = MutualTLSConfigSchema.parse({
+        trustedCAs: [],
+        certificateValidation: level,
+      });
+      expect(config.certificateValidation).toBe(level);
+    });
+  });
+
+  it('should require trustedCAs and certificateValidation', () => {
+    expect(() => MutualTLSConfigSchema.parse({})).toThrow();
+    expect(() => MutualTLSConfigSchema.parse({
+      trustedCAs: [],
+    })).toThrow();
+  });
+
+  it('should accept mTLS in AuthConfigSchema', () => {
+    const config = AuthConfigSchema.parse({
+      mutualTls: {
+        enabled: true,
+        clientCertRequired: true,
+        trustedCAs: ['/certs/ca.pem'],
+        certificateValidation: 'strict',
+      },
+    });
+
+    expect(config.mutualTls?.enabled).toBe(true);
+    expect(config.mutualTls?.clientCertRequired).toBe(true);
   });
 });
