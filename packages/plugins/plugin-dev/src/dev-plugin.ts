@@ -43,7 +43,9 @@ function createCacheStub() {
     async get<T = unknown>(key: string): Promise<T | undefined> {
       const entry = store.get(key);
       if (!entry || (entry.expires && Date.now() > entry.expires)) {
-        store.delete(key); misses++; return undefined;
+        store.delete(key);
+        misses++;
+        return undefined;
       }
       hits++;
       return entry.value as T;
@@ -136,7 +138,10 @@ function createSearchStub() {
       return { hits, totalHits: hits.length, processingTimeMs: 0 };
     },
     async bulkIndex(object: string, documents: Array<{ id: string; document: Record<string, unknown> }>): Promise<void> {
-      for (const d of documents) { if (!indexes.has(object)) indexes.set(object, new Map()); indexes.get(object)!.set(d.id, d.document); }
+      if (!indexes.has(object)) indexes.set(object, new Map());
+      for (const d of documents) {
+        indexes.get(object)!.set(d.id, d.document);
+      }
     },
     async deleteIndex(object: string): Promise<void> { indexes.delete(object); },
   };
@@ -271,7 +276,10 @@ function createMetadataStub() {
   const store = new Map<string, Map<string, unknown>>(); // type → (name → def)
   return {
     _dev: true, _serviceName: 'metadata',
-    register(type: string, definition: any) { if (!store.has(type)) store.set(type, new Map()); store.get(type)!.set(definition.name ?? '', definition); },
+    register(type: string, definition: any) {
+      if (!store.has(type)) store.set(type, new Map());
+      store.get(type)!.set(definition.name ?? '', definition);
+    },
     get(type: string, name: string) { return store.get(type)?.get(name); },
     list(type: string) { return [...(store.get(type)?.values() ?? [])]; },
     unregister(type: string, name: string) { store.get(type)?.delete(name); },
