@@ -30,6 +30,7 @@ export const AnalyticsEndpoint = z.enum([
  */
 export const AnalyticsQueryRequestSchema = z.object({
   query: AnalyticsQuerySchema.describe('The analytic query definition'),
+  cube: z.string().describe('Target cube name'),
   format: z.enum(['json', 'csv', 'xlsx']).default('json').describe('Response format'),
 });
 
@@ -80,5 +81,6 @@ export const AnalyticsSqlResponseSchema = BaseResponseSchema.extend({
 });
 
 export type AnalyticsEndpoint = z.infer<typeof AnalyticsEndpoint>;
+export type AnalyticsQueryRequest = z.infer<typeof AnalyticsQueryRequestSchema>;
 export type AnalyticsMetadataResponse = z.infer<typeof AnalyticsMetadataResponseSchema>;
 export type AnalyticsSqlResponse = z.infer<typeof AnalyticsSqlResponseSchema>;
