@@ -439,4 +439,134 @@ Be precise, data-driven, and clear in your explanations.`,
       expect(result.lifecycle?.initial).toBe('idle');
     });
   });
+
+  describe('Autonomous Reasoning', () => {
+    it('should accept agent with planning configuration', () => {
+      const agent = AgentSchema.parse({
+        name: 'planner_agent',
+        label: 'Planning Agent',
+        role: 'Strategic Planner',
+        instructions: 'Plan and execute complex tasks.',
+        planning: {
+          strategy: 'plan_and_execute',
+          maxIterations: 20,
+          allowReplan: true,
+        },
+      });
+
+      expect(agent.planning?.strategy).toBe('plan_and_execute');
+      expect(agent.planning?.maxIterations).toBe(20);
+      expect(agent.planning?.allowReplan).toBe(true);
+    });
+
+    it('should accept all planning strategies', () => {
+      const strategies = ['react', 'plan_and_execute', 'reflexion', 'tree_of_thought'] as const;
+
+      strategies.forEach(strategy => {
+        const agent = AgentSchema.parse({
+          name: 'test_agent',
+          label: 'Test',
+          role: 'Test',
+          instructions: 'Test',
+          planning: { strategy },
+        });
+        expect(agent.planning?.strategy).toBe(strategy);
+      });
+    });
+
+    it('should apply default planning values', () => {
+      const agent = AgentSchema.parse({
+        name: 'default_agent',
+        label: 'Default',
+        role: 'Default',
+        instructions: 'Test',
+        planning: {},
+      });
+
+      expect(agent.planning?.strategy).toBe('react');
+      expect(agent.planning?.maxIterations).toBe(10);
+      expect(agent.planning?.allowReplan).toBe(true);
+    });
+
+    it('should enforce maxIterations constraints', () => {
+      expect(() => AgentSchema.parse({
+        name: 'test',
+        label: 'Test',
+        role: 'Test',
+        instructions: 'Test',
+        planning: { maxIterations: 0 },
+      })).toThrow();
+
+      expect(() => AgentSchema.parse({
+        name: 'test',
+        label: 'Test',
+        role: 'Test',
+        instructions: 'Test',
+        planning: { maxIterations: 101 },
+      })).toThrow();
+    });
+  });
+
+  describe('Memory Management', () => {
+    it('should accept agent with memory configuration', () => {
+      const agent = AgentSchema.parse({
+        name: 'memory_agent',
+        label: 'Memory Agent',
+        role: 'Persistent Assistant',
+        instructions: 'Remember across sessions.',
+        memory: {
+          shortTerm: {
+            maxMessages: 100,
+            maxTokens: 4096,
+          },
+          longTerm: {
+            enabled: true,
+            store: 'vector',
+            maxEntries: 10000,
+          },
+          reflectionInterval: 5,
+        },
+      });
+
+      expect(agent.memory?.shortTerm?.maxMessages).toBe(100);
+      expect(agent.memory?.longTerm?.enabled).toBe(true);
+      expect(agent.memory?.longTerm?.store).toBe('vector');
+      expect(agent.memory?.reflectionInterval).toBe(5);
+    });
+
+    it('should accept all memory store backends', () => {
+      const stores = ['vector', 'database', 'redis'] as const;
+
+      stores.forEach(store => {
+        const agent = AgentSchema.parse({
+          name: 'test_agent',
+          label: 'Test',
+          role: 'Test',
+          instructions: 'Test',
+          memory: { longTerm: { enabled: true, store } },
+        });
+        expect(agent.memory?.longTerm?.store).toBe(store);
+      });
+    });
+  });
+
+  describe('Guardrails', () => {
+    it('should accept agent with guardrails', () => {
+      const agent = AgentSchema.parse({
+        name: 'safe_agent',
+        label: 'Safe Agent',
+        role: 'Restricted Assistant',
+        instructions: 'Operate within guardrails.',
+        guardrails: {
+          maxTokensPerInvocation: 8192,
+          maxExecutionTimeSec: 60,
+          blockedTopics: ['financial_advice', 'medical_diagnosis'],
+        },
+      });
+
+      expect(agent.guardrails?.maxTokensPerInvocation).toBe(8192);
+      expect(agent.guardrails?.maxExecutionTimeSec).toBe(60);
+      expect(agent.guardrails?.blockedTopics).toContain('financial_advice');
+    });
+  });
 });

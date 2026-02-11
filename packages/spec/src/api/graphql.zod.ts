@@ -773,7 +773,203 @@ export type GraphQLPersistedQuery = z.infer<typeof GraphQLPersistedQuerySchema>;
 export type GraphQLPersistedQueryInput = z.input<typeof GraphQLPersistedQuerySchema>;
 
 // ==========================================
-// 12. Complete GraphQL Configuration
+// 12. GraphQL Federation
+// ==========================================
+
+/**
+ * Federation Entity Key Definition
+ * 
+ * Defines how entities are uniquely identified across subgraphs.
+ * Corresponds to the `@key` directive in Apollo Federation.
+ * 
+ * @see https://www.apollographql.com/docs/federation/entities
+ */
+export const FederationEntityKeySchema = z.object({
+  /** Fields composing the key (e.g., "id" or "sku packageId") */
+  fields: z.string().describe('Selection set of fields composing the entity key'),
+
+  /** Whether this key can be used for resolution across subgraphs */
+  resolvable: z.boolean().optional().default(true).describe('Whether entities can be resolved from this subgraph'),
+});
+
+export type FederationEntityKey = z.infer<typeof FederationEntityKeySchema>;
+
+/**
+ * Federation External Field
+ * 
+ * Marks a field as owned by another subgraph (`@external`).
+ */
+export const FederationExternalFieldSchema = z.object({
+  /** Field name */
+  field: z.string().describe('Field name marked as external'),
+
+  /** The subgraph that owns this field */
+  ownerSubgraph: z.string().optional().describe('Subgraph that owns this field'),
+});
+
+export type FederationExternalField = z.infer<typeof FederationExternalFieldSchema>;
+
+/**
+ * Federation Requires Directive
+ * 
+ * Specifies fields that must be fetched from other subgraphs
+ * before resolving a computed field.
+ * Corresponds to the `@requires` directive in Apollo Federation.
+ */
+export const FederationRequiresSchema = z.object({
+  /** The field that has this requirement */
+  field: z.string().describe('Field with the requirement'),
+
+  /** Selection set of external fields required for resolution */
+  fields: z.string().describe('Selection set of required fields (e.g., "price weight")'),
+});
+
+export type FederationRequires = z.infer<typeof FederationRequiresSchema>;
+
+/**
+ * Federation Provides Directive
+ * 
+ * Indicates that a field resolution provides additional fields
+ * of a returned entity type.
+ * Corresponds to the `@provides` directive in Apollo Federation.
+ */
+export const FederationProvidesSchema = z.object({
+  /** The field that provides additional data */
+  field: z.string().describe('Field that provides additional entity fields'),
+
+  /** Selection set of fields provided during resolution */
+  fields: z.string().describe('Selection set of provided fields (e.g., "name price")'),
+});
+
+export type FederationProvides = z.infer<typeof FederationProvidesSchema>;
+
+/**
+ * Federation Entity Configuration
+ * 
+ * Configures a type as a federated entity that can be referenced
+ * and extended across multiple subgraphs.
+ */
+export const FederationEntitySchema = z.object({
+  /** Type/Object name */
+  typeName: z.string().describe('GraphQL type name for this entity'),
+
+  /** Entity keys (`@key` directive) */
+  keys: z.array(FederationEntityKeySchema).min(1).describe('Entity key definitions'),
+
+  /** External fields (`@external`) */
+  externalFields: z.array(FederationExternalFieldSchema).optional().describe('Fields owned by other subgraphs'),
+
+  /** Requires directives (`@requires`) */
+  requires: z.array(FederationRequiresSchema).optional().describe('Required external fields for computed fields'),
+
+  /** Provides directives (`@provides`) */
+  provides: z.array(FederationProvidesSchema).optional().describe('Fields provided during resolution'),
+
+  /** Whether this subgraph owns this entity */
+  owner: z.boolean().optional().default(false).describe('Whether this subgraph is the owner of this entity'),
+});
+
+export type FederationEntity = z.infer<typeof FederationEntitySchema>;
+
+/**
+ * Subgraph Configuration
+ * 
+ * Configuration for an individual subgraph in a federated architecture.
+ */
+export const SubgraphConfigSchema = z.object({
+  /** Subgraph name */
+  name: z.string().describe('Unique subgraph identifier'),
+
+  /** Subgraph URL */
+  url: z.string().describe('Subgraph endpoint URL'),
+
+  /** Schema source */
+  schemaSource: z.enum(['introspection', 'file', 'registry']).default('introspection').describe('How to obtain the subgraph schema'),
+
+  /** Schema file path (when schemaSource is "file") */
+  schemaPath: z.string().optional().describe('Path to schema file (SDL format)'),
+
+  /** Federated entities defined by this subgraph */
+  entities: z.array(FederationEntitySchema).optional().describe('Entity definitions for this subgraph'),
+
+  /** Health check endpoint */
+  healthCheck: z.object({
+    enabled: z.boolean().default(true).describe('Enable health checking'),
+    path: z.string().default('/health').describe('Health check endpoint path'),
+    intervalMs: z.number().int().min(1000).default(30000).describe('Health check interval in milliseconds'),
+  }).optional().describe('Subgraph health check configuration'),
+
+  /** Request headers to forward */
+  forwardHeaders: z.array(z.string()).optional().describe('HTTP headers to forward to this subgraph'),
+});
+
+export type SubgraphConfig = z.infer<typeof SubgraphConfigSchema>;
+export type SubgraphConfigInput = z.input<typeof SubgraphConfigSchema>;
+
+/**
+ * Federation Gateway Configuration
+ * 
+ * Root-level gateway configuration for Apollo Federation or similar.
+ * Manages query planning, routing, and composition across subgraphs.
+ */
+export const FederationGatewaySchema = z.object({
+  /** Enable federation mode */
+  enabled: z.boolean().default(false).describe('Enable GraphQL Federation gateway mode'),
+
+  /** Federation specification version */
+  version: z.enum(['v1', 'v2']).default('v2').describe('Federation specification version'),
+
+  /** Registered subgraphs */
+  subgraphs: z.array(SubgraphConfigSchema).describe('Subgraph configurations'),
+
+  /** Service discovery */
+  serviceDiscovery: z.object({
+    /** Discovery mode */
+    type: z.enum(['static', 'dns', 'consul', 'kubernetes']).default('static').describe('Service discovery method'),
+
+    /** Poll interval for dynamic discovery */
+    pollIntervalMs: z.number().int().min(1000).optional().describe('Discovery poll interval in milliseconds'),
+
+    /** Kubernetes namespace (when type is "kubernetes") */
+    namespace: z.string().optional().describe('Kubernetes namespace for subgraph discovery'),
+  }).optional().describe('Service discovery configuration'),
+
+  /** Query planning */
+  queryPlanning: z.object({
+    /** Execution strategy */
+    strategy: z.enum(['parallel', 'sequential', 'adaptive']).default('parallel').describe('Query execution strategy across subgraphs'),
+
+    /** Maximum query depth across subgraphs */
+    maxDepth: z.number().int().min(1).optional().describe('Max query depth in federated execution'),
+
+    /** Dry-run mode for debugging query plans */
+    dryRun: z.boolean().optional().default(false).describe('Log query plans without executing'),
+  }).optional().describe('Query planning configuration'),
+
+  /** Schema composition settings */
+  composition: z.object({
+    /** How schema conflicts are resolved */
+    conflictResolution: z.enum(['error', 'first_wins', 'last_wins']).default('error').describe('Strategy for resolving schema conflicts'),
+
+    /** Whether to validate composed schema */
+    validate: z.boolean().default(true).describe('Validate composed supergraph schema'),
+  }).optional().describe('Schema composition configuration'),
+
+  /** Gateway-level error handling */
+  errorHandling: z.object({
+    /** Whether to include subgraph names in errors */
+    includeSubgraphName: z.boolean().default(false).describe('Include subgraph name in error responses'),
+
+    /** Partial error behavior */
+    partialErrors: z.enum(['propagate', 'nullify', 'reject']).default('propagate').describe('Behavior when a subgraph returns partial errors'),
+  }).optional().describe('Error handling configuration'),
+});
+
+export type FederationGateway = z.infer<typeof FederationGatewaySchema>;
+export type FederationGatewayInput = z.input<typeof FederationGatewaySchema>;
+
+// ==========================================
+// 13. Complete GraphQL Configuration
 // ==========================================
 
 /**
@@ -835,6 +1031,9 @@ export const GraphQLConfigSchema = z.object({
     /** Persisted queries */
     persistedQueries: GraphQLPersistedQuerySchema.optional().describe('Persisted queries'),
   }).optional().describe('Security configuration'),
+
+  /** Federation configuration */
+  federation: FederationGatewaySchema.optional().describe('GraphQL Federation gateway configuration'),
 });
 
 export const GraphQLConfig = Object.assign(GraphQLConfigSchema, {

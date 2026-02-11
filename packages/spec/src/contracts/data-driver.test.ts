@@ -1,0 +1,203 @@
+import { describe, it, expect } from 'vitest';
+import type { IDataDriver } from './data-driver';
+
+describe('IDataDriver', () => {
+  it('should allow creating a conforming mock implementation', () => {
+    const mockDriver: IDataDriver = {
+      name: 'mock_driver',
+      version: '1.0.0',
+      supports: {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+        bulkCreate: false,
+        bulkUpdate: false,
+        bulkDelete: false,
+        transactions: false,
+        savepoints: false,
+        queryFilters: true,
+        queryAggregations: false,
+        querySorting: true,
+        queryPagination: true,
+        queryWindowFunctions: false,
+        querySubqueries: false,
+        queryCTE: false,
+        joins: false,
+        fullTextSearch: false,
+        jsonQuery: false,
+        geospatialQuery: false,
+        streaming: false,
+        jsonFields: false,
+        arrayFields: false,
+        vectorSearch: false,
+        schemaSync: false,
+        migrations: false,
+        indexes: false,
+        connectionPooling: false,
+        preparedStatements: false,
+        queryCache: false,
+      },
+      connect: async () => {},
+      disconnect: async () => {},
+      checkHealth: async () => true,
+      execute: async () => ({}),
+      find: async () => [],
+      findStream: () => (async function* () {})(),
+      findOne: async () => null,
+      create: async (_obj, data) => ({ id: '1', ...data }),
+      update: async (_obj, _id, data) => ({ id: '1', ...data }),
+      upsert: async (_obj, data) => ({ id: '1', ...data }),
+      delete: async () => true,
+      count: async () => 0,
+      bulkCreate: async () => [],
+      bulkUpdate: async () => [],
+      bulkDelete: async () => {},
+      beginTransaction: async () => ({}),
+      commit: async () => {},
+      rollback: async () => {},
+      syncSchema: async () => {},
+      dropTable: async () => {},
+    };
+
+    expect(mockDriver.name).toBe('mock_driver');
+    expect(mockDriver.version).toBe('1.0.0');
+    expect(mockDriver.supports.create).toBe(true);
+    expect(mockDriver.supports.transactions).toBe(false);
+  });
+
+  it('should allow optional methods', () => {
+    const minimalDriver: IDataDriver = {
+      name: 'minimal',
+      version: '0.1.0',
+      supports: {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+        bulkCreate: false,
+        bulkUpdate: false,
+        bulkDelete: false,
+        transactions: false,
+        savepoints: false,
+        queryFilters: false,
+        queryAggregations: false,
+        querySorting: false,
+        queryPagination: false,
+        queryWindowFunctions: false,
+        querySubqueries: false,
+        queryCTE: false,
+        joins: false,
+        fullTextSearch: false,
+        jsonQuery: false,
+        geospatialQuery: false,
+        streaming: false,
+        jsonFields: false,
+        arrayFields: false,
+        vectorSearch: false,
+        schemaSync: false,
+        migrations: false,
+        indexes: false,
+        connectionPooling: false,
+        preparedStatements: false,
+        queryCache: false,
+      },
+      connect: async () => {},
+      disconnect: async () => {},
+      checkHealth: async () => true,
+      execute: async () => ({}),
+      find: async () => [],
+      findStream: () => null,
+      findOne: async () => null,
+      create: async () => ({ id: '1' }),
+      update: async () => ({ id: '1' }),
+      upsert: async () => ({ id: '1' }),
+      delete: async () => true,
+      count: async () => 0,
+      bulkCreate: async () => [],
+      bulkUpdate: async () => [],
+      bulkDelete: async () => {},
+      beginTransaction: async () => ({}),
+      commit: async () => {},
+      rollback: async () => {},
+      syncSchema: async () => {},
+      dropTable: async () => {},
+    };
+
+    // Optional methods should be undefined when not provided
+    expect(minimalDriver.getPoolStats).toBeUndefined();
+    expect(minimalDriver.updateMany).toBeUndefined();
+    expect(minimalDriver.deleteMany).toBeUndefined();
+    expect(minimalDriver.explain).toBeUndefined();
+  });
+
+  it('should support optional extended methods', () => {
+    const extendedDriver: IDataDriver = {
+      name: 'extended',
+      version: '2.0.0',
+      supports: {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+        bulkCreate: true,
+        bulkUpdate: true,
+        bulkDelete: true,
+        transactions: true,
+        savepoints: true,
+        queryFilters: true,
+        queryAggregations: true,
+        querySorting: true,
+        queryPagination: true,
+        queryWindowFunctions: true,
+        querySubqueries: true,
+        queryCTE: true,
+        joins: true,
+        fullTextSearch: true,
+        jsonQuery: true,
+        geospatialQuery: false,
+        streaming: true,
+        jsonFields: true,
+        arrayFields: true,
+        vectorSearch: false,
+        schemaSync: true,
+        migrations: true,
+        indexes: true,
+        connectionPooling: true,
+        preparedStatements: true,
+        queryCache: true,
+      },
+      connect: async () => {},
+      disconnect: async () => {},
+      checkHealth: async () => true,
+      getPoolStats: () => ({ total: 10, idle: 5, active: 3, waiting: 2 }),
+      execute: async () => ({}),
+      find: async () => [],
+      findStream: () => null,
+      findOne: async () => null,
+      create: async () => ({ id: '1' }),
+      update: async () => ({ id: '1' }),
+      upsert: async () => ({ id: '1' }),
+      delete: async () => true,
+      count: async () => 0,
+      bulkCreate: async () => [],
+      bulkUpdate: async () => [],
+      bulkDelete: async () => {},
+      updateMany: async () => 5,
+      deleteMany: async () => 3,
+      beginTransaction: async () => ({}),
+      commit: async () => {},
+      rollback: async () => {},
+      syncSchema: async () => {},
+      dropTable: async () => {},
+      explain: async () => ({ plan: 'sequential scan' }),
+    };
+
+    expect(extendedDriver.getPoolStats?.()).toEqual({
+      total: 10, idle: 5, active: 3, waiting: 2,
+    });
+    expect(extendedDriver.updateMany).toBeDefined();
+    expect(extendedDriver.deleteMany).toBeDefined();
+    expect(extendedDriver.explain).toBeDefined();
+  });
+});
