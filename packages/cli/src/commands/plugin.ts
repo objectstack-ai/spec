@@ -63,11 +63,13 @@ function addPluginToConfig(configPath: string, packageName: string): void {
   let content = readConfigText(configPath);
 
   // Derive a variable name from the package name
-  // e.g. "@objectstack/plugin-auth" → "pluginAuth"
+  // e.g. "@objectstack/plugin-auth" → "authPlugin"
   const shortName = packageName
     .replace(/^@[^/]+\//, '')        // strip scope
-    .replace(/^plugin-/, '');         // strip "plugin-" prefix
-  const varName = shortName.replace(/-([a-z])/g, (_, c) => c.toUpperCase()) + 'Plugin';
+    .replace(/^plugin-/, '')          // strip "plugin-" prefix
+    .replace(/-+/g, '-')             // collapse consecutive hyphens
+    .replace(/^-|-$/g, '');          // trim leading/trailing hyphens
+  const varName = shortName.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase()) + 'Plugin';
 
   // 1. Add import
   const importLine = `import ${varName} from '${packageName}';\n`;
@@ -90,12 +92,17 @@ function addPluginToConfig(configPath: string, packageName: string): void {
     content = importLine + '\n' + content;
   }
 
-  // 2. Add to plugins array
+  // 2. Add to plugins array (target only the first plugins: [ within defineStack)
   if (/plugins\s*:\s*\[/.test(content)) {
-    // plugins array exists — append to it
+    // plugins array exists — append to it (first occurrence only)
+    let replaced = false;
     content = content.replace(
       /(plugins\s*:\s*\[)/,
-      `$1\n    ${varName},`
+      (match) => {
+        if (replaced) return match;
+        replaced = true;
+        return `${match}\n    ${varName},`;
+      }
     );
   } else {
     // No plugins array — add one before the closing of defineStack({...})
@@ -117,16 +124,20 @@ function addPluginToConfig(configPath: string, packageName: string): void {
 function removePluginFromConfig(configPath: string, pluginName: string): void {
   let content = readConfigText(configPath);
 
-  // Remove the import line that references this plugin (by package name or variable)
-  const importRegex = new RegExp(`^import .+['"]${escapeRegex(pluginName)}['"].*$\\n?`, 'gm');
+  // Remove the import line that references this plugin (exact package name match)
+  const importRegex = new RegExp(`^import .+['"]${escapeRegex(pluginName)}['"]\\s*;?\\s*$\\n?`, 'gm');
   const hadImport = importRegex.test(content);
+  // Reset regex lastIndex after test()
+  importRegex.lastIndex = 0;
   content = content.replace(importRegex, '');
 
   // Also try to remove by a derived variable name
   const shortName = pluginName
     .replace(/^@[^/]+\//, '')
-    .replace(/^plugin-/, '');
-  const varName = shortName.replace(/-([a-z])/g, (_, c) => c.toUpperCase()) + 'Plugin';
+    .replace(/^plugin-/, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  const varName = shortName.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase()) + 'Plugin';
 
   // Remove import by variable name if it wasn't caught above
   if (!hadImport) {
