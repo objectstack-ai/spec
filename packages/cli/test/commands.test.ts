@@ -9,6 +9,7 @@ import { validateCommand } from '../src/commands/validate';
 import { initCommand } from '../src/commands/init';
 import { infoCommand } from '../src/commands/info';
 import { generateCommand } from '../src/commands/generate';
+import { pluginCommand } from '../src/commands/plugin';
 
 describe('CLI Commands', () => {
   it('should have compile command', () => {
@@ -60,5 +61,10 @@ describe('CLI Commands', () => {
     expect(generateCommand.name()).toBe('generate');
     expect(generateCommand.alias()).toBe('g');
     expect(generateCommand.description()).toContain('Generate');
+  });
+
+  it('should have plugin command with subcommands', () => {
+    expect(pluginCommand.name()).toBe('plugin');
+    expect(pluginCommand.description()).toContain('plugin');
   });
 });

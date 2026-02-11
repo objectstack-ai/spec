@@ -16,6 +16,7 @@ import { validateCommand } from './commands/validate.js';
 import { initCommand } from './commands/init.js';
 import { infoCommand } from './commands/info.js';
 import { generateCommand } from './commands/generate.js';
+import { pluginCommand } from './commands/plugin.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -69,6 +70,9 @@ program.addCommand(infoCommand);
 // ── Scaffolding ──
 program.addCommand(generateCommand);
 program.addCommand(createCommand);
+
+// ── Plugin Management ──
+program.addCommand(pluginCommand);
 
 // ── Quality ──
 program.addCommand(testCommand);
