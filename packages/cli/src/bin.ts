@@ -17,6 +17,7 @@ import { initCommand } from './commands/init.js';
 import { infoCommand } from './commands/info.js';
 import { generateCommand } from './commands/generate.js';
 import { pluginCommand } from './commands/plugin.js';
+import { loadPluginCommands } from './utils/plugin-commands.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -79,4 +80,15 @@ program.addCommand(pluginCommand);
 program.addCommand(testCommand);
 program.addCommand(doctorCommand);
 
-program.parse(process.argv);
+// ── Plugin-Contributed Commands ──
+// Load commands from installed plugins that declare `contributes.commands` in their manifest.
+// This must complete before `program.parse()` so that plugin commands are available.
+loadPluginCommands(program).then(() => {
+  program.parse(process.argv);
+}).catch((err) => {
+  // If plugin command loading fails, still parse with built-in commands
+  if (process.env.DEBUG) {
+    console.error(chalk.yellow(`\n  ⚠ Plugin command loading failed: ${err?.message || err}`));
+  }
+  program.parse(process.argv);
+});

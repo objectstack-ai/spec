@@ -140,6 +140,68 @@ export default defineStack({
 
 - `-c, --config <path>` — Configuration file path
 
+## Plugin CLI Extensions
+
+Plugins can extend the CLI with custom commands via the `contributes.commands` manifest field. The CLI automatically discovers and loads these commands at startup.
+
+### How to Create a CLI Plugin
+
+**1. Declare commands in the plugin manifest:**
+
+```typescript
+export default defineStack({
+  manifest: {
+    id: 'com.acme.marketplace',
+    version: '1.0.0',
+    type: 'plugin',
+    name: 'Marketplace Plugin',
+    contributes: {
+      commands: [
+        {
+          name: 'marketplace',
+          description: 'Manage marketplace applications',
+          module: './dist/cli.js',
+        },
+      ],
+    },
+  },
+});
+```
+
+**2. Export Commander.js commands from the module:**
+
+```typescript
+// src/cli.ts
+import { Command } from 'commander';
+
+const marketplaceCommand = new Command('marketplace')
+  .description('Manage marketplace applications')
+  .addCommand(
+    new Command('search')
+      .argument('<query>')
+      .action(async (query) => { /* ... */ })
+  )
+  .addCommand(
+    new Command('install')
+      .argument('<app>')
+      .action(async (app) => { /* ... */ })
+  );
+
+// Named export (recommended)
+export const commands = [marketplaceCommand];
+// Also supports: export default Command | Command[]
+```
+
+**3. Register the plugin in the host project and use:**
+
+```bash
+os plugin add @acme/plugin-marketplace
+os marketplace search "crm"
+os marketplace install com.acme.crm
+```
+
+For a complete guide, see the [Plugin CLI Extensions](/docs/guides/plugins#cli-command-extensions) section in the Plugins guide.
+
 ### `os info`
 
 - `--json` — Output as JSON

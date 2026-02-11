@@ -1,0 +1,98 @@
+---
+title: I18n
+description: I18n protocol schemas
+---
+
+I18n Object Schema
+
+Structured internationalization label with translation key and parameters.
+
+@example
+
+```typescript
+
+const label: I18nObject = \{
+
+key: 'views.task_list.label',
+
+defaultValue: 'Task List',
+
+params: \{ count: 5 \},
+
+\};
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/i18n.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AriaProps, I18nLabel, I18nObject } from '@objectstack/spec/ui';
+import type { AriaProps, I18nLabel, I18nObject } from '@objectstack/spec/ui';
+
+// Validate data
+const result = AriaProps.parse(data);
+```
+
+---
+
+## AriaProps
+
+ARIA accessibility attributes
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **ariaLabel** | `string \| Object` | optional | Accessible label for screen readers (WAI-ARIA aria-label) |
+| **ariaDescribedBy** | `string` | optional | ID of element providing additional description (WAI-ARIA aria-describedby) |
+| **role** | `string` | optional | WAI-ARIA role attribute (e.g., "dialog", "navigation", "alert") |
+
+
+---
+
+## I18nLabel
+
+Display label: plain string or i18n translation object
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+Type: `string`
+
+---
+
+#### Option 2
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **key** | `string` | ✅ | Translation key (e.g., "views.task_list.label") |
+| **defaultValue** | `string` | optional | Fallback value when translation key is not found |
+| **params** | `Record<string, any>` | optional | Interpolation parameters (e.g., `{ count: 5 }`) |
+
+---
+
+
+---
+
+## I18nObject
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **key** | `string` | ✅ | Translation key (e.g., "views.task_list.label") |
+| **defaultValue** | `string` | optional | Fallback value when translation key is not found |
+| **params** | `Record<string, any>` | optional | Interpolation parameters (e.g., `{ count: 5 }`) |
+
+
+---
+

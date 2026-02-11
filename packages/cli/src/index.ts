@@ -11,3 +11,4 @@ export * from './commands/dev.js';
 export * from './commands/serve.js';
 export * from './commands/test.js';
 export * from './commands/doctor.js';
+export * from './utils/plugin-commands.js';

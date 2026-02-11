@@ -42,9 +42,9 @@ const result = CalendarConfig.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **field** | `string` | ✅ | Field name (snake_case) |
-| **label** | `string` | optional | Display label override |
-| **placeholder** | `string` | optional | Placeholder text |
-| **helpText** | `string` | optional | Help/hint text |
+| **label** | `string \| Object` | optional | Display label override |
+| **placeholder** | `string \| Object` | optional | Placeholder text |
+| **helpText** | `string \| Object` | optional | Help/hint text |
 | **readonly** | `boolean` | optional | Read-only override |
 | **required** | `boolean` | optional | Required override |
 | **hidden** | `boolean` | optional | Hidden override |
@@ -119,7 +119,7 @@ const result = CalendarConfig.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **field** | `string` | ✅ | Field name (snake_case) |
-| **label** | `string` | optional | Display label override |
+| **label** | `string \| Object` | optional | Display label override |
 | **width** | `number` | optional | Column width in pixels |
 | **align** | `Enum<'left' \| 'center' \| 'right'>` | optional | Text alignment |
 | **hidden** | `boolean` | optional | Hide column by default |
@@ -140,7 +140,7 @@ const result = CalendarConfig.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | optional | Internal view name (lowercase snake_case) |
-| **label** | `string` | optional |  |
+| **label** | `string \| Object` | optional | Display label: plain string or i18n translation object |
 | **type** | `Enum<'grid' \| 'kanban' \| 'gallery' \| 'calendar' \| 'timeline' \| 'gantt' \| 'map'>` | ✅ |  |
 | **data** | `Object \| Object \| Object` | optional | Data source configuration (defaults to "object" provider) |
 | **columns** | `string[] \| Object[]` | ✅ | Fields to display as columns |

@@ -267,6 +267,41 @@ export const ManifestSchema = z.object({
       methods: z.array(z.string()).optional()
         .describe('Protocol method names implemented (e.g. ["aiNlq", "aiChat"])'),
     })).optional().describe('API route contributions to HttpDispatcher'),
+
+    /**
+      * Register CLI Commands.
+      * Allows plugins to extend the ObjectStack CLI with custom commands.
+      * Each command entry declares metadata; the actual Commander.js command
+      * is resolved at runtime by importing the plugin's module.
+      * 
+      * The plugin package must export a `commands` array of Commander.js `Command` instances
+      * from its main entry point or from the path specified in `module`.
+      * 
+      * @example
+      * ```yaml
+      * commands:
+      *   - name: marketplace
+      *     description: "Manage marketplace apps"
+      *     module: "./cli"       # optional, defaults to package main
+      *   - name: deploy
+      *     description: "Deploy to cloud"
+      * ```
+      */
+    commands: z.array(z.object({
+      /** CLI command name (e.g., "marketplace", "deploy"). Must be a valid CLI identifier. */
+      name: z.string()
+        .regex(/^[a-z][a-z0-9-]*$/, 'Command name must be lowercase alphanumeric with hyphens')
+        .describe('CLI command name'),
+      /** Brief description shown in `os --help` */
+      description: z.string().optional().describe('Command description for help text'),
+      /** 
+       * Optional module path (relative to package root) that exports the Commander.js commands.
+       * If omitted, the CLI will import from the package's main entry point.
+       * The module must export a `commands` array of Commander.js `Command` instances,
+       * or a single `Command` instance as default export.
+       */
+      module: z.string().optional().describe('Module path exporting Commander.js commands'),
+    })).optional().describe('CLI command contributions'),
   }).optional().describe('Platform contributions'),
 
   /** 

@@ -193,6 +193,50 @@ describe('ManifestSchema', () => {
       expect(() => ManifestSchema.parse(biPlugin)).not.toThrow();
     });
 
+    it('should accept plugin with CLI command contributions', () => {
+      const marketplacePlugin: ObjectStackManifest = {
+        id: 'com.acme.marketplace',
+        version: '1.0.0',
+        type: 'plugin',
+        name: 'Marketplace CLI',
+        contributes: {
+          commands: [
+            {
+              name: 'marketplace',
+              description: 'Manage marketplace applications',
+              module: './dist/cli.js',
+            },
+            {
+              name: 'deploy',
+              description: 'Deploy to cloud',
+            },
+          ],
+        },
+      };
+
+      expect(() => ManifestSchema.parse(marketplacePlugin)).not.toThrow();
+      const parsed = ManifestSchema.parse(marketplacePlugin);
+      expect(parsed.contributes!.commands).toHaveLength(2);
+      expect(parsed.contributes!.commands![0].name).toBe('marketplace');
+      expect(parsed.contributes!.commands![1].module).toBeUndefined();
+    });
+
+    it('should reject CLI command with invalid name format', () => {
+      const invalidPlugin = {
+        id: 'com.acme.bad',
+        version: '1.0.0',
+        type: 'plugin' as const,
+        name: 'Bad Plugin',
+        contributes: {
+          commands: [
+            { name: 'Invalid_Name' },
+          ],
+        },
+      };
+
+      expect(() => ManifestSchema.parse(invalidPlugin)).toThrow();
+    });
+
     it('should accept authentication plugin manifest', () => {
       const authPlugin: ObjectStackManifest = {
         id: 'com.objectstack.auth.saml',
