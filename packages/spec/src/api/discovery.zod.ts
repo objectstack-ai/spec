@@ -107,7 +107,7 @@ export const DiscoverySchema = z.object({
   version: z.string(),
   environment: z.enum(['production', 'sandbox', 'development']),
   
-  /** Dynamic Routing — convenience shortcut derived from services */
+  /** Dynamic Routing — convenience shortcut for client routing */
   routes: ApiRoutesSchema,
   
   /** Localization Info (helping frontend init i18n) */

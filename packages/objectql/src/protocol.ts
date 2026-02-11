@@ -43,7 +43,7 @@ const SERVICE_CONFIG: Record<string, { route: string; plugin: string }> = {
     notification: { route: '/api/v1/notifications', plugin: 'plugin-notifications' },
     ai:           { route: '/api/v1/ai', plugin: 'plugin-ai' },
     i18n:         { route: '/api/v1/i18n', plugin: 'plugin-i18n' },
-    graphql:      { route: '/graphql', plugin: 'plugin-graphql' },
+    graphql:      { route: '/graphql', plugin: 'plugin-graphql' },  // GraphQL uses /graphql by convention (not versioned REST)
     'file-storage': { route: '/api/v1/storage', plugin: 'plugin-storage' },
     search:       { route: '/api/v1/search', plugin: 'plugin-search' },
 };

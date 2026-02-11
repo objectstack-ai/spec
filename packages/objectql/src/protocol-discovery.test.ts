@@ -144,8 +144,9 @@ describe('ObjectStackProtocolImplementation - Dynamic Service Discovery', () => 
     protocol = new ObjectStackProtocolImplementation(engine, () => mockServices);
     const discovery = await protocol.getDiscovery();
     
-    // capabilities field should no longer exist
-    expect((discovery as any).capabilities).toBeUndefined();
+    // capabilities field should no longer exist in the response
+    const keys = Object.keys(discovery);
+    expect(keys).not.toContain('capabilities');
     // Use services to check availability instead
     expect(discovery.services.workflow.enabled).toBe(true);
   });
