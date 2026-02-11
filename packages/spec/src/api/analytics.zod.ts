@@ -29,8 +29,7 @@ export const AnalyticsEndpoint = z.enum([
  * Query Request Body
  */
 export const AnalyticsQueryRequestSchema = z.object({
-  query: AnalyticsQuerySchema.describe(' The analytic query definition'),
-  cube: z.string().describe('Target cube name'),
+  query: AnalyticsQuerySchema.describe('The analytic query definition'),
   format: z.enum(['json', 'csv', 'xlsx']).default('json').describe('Response format'),
 });
 

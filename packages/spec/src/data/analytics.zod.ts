@@ -133,6 +133,7 @@ export const CubeSchema = z.object({
  * The request format for the Analytics API.
  */
 export const AnalyticsQuerySchema = z.object({
+  cube: z.string().describe('Target cube name'),
   measures: z.array(z.string()).describe('List of metrics to calculate'),
   dimensions: z.array(z.string()).optional().describe('List of dimensions to group by'),
   
@@ -156,7 +157,7 @@ export const AnalyticsQuerySchema = z.object({
   limit: z.number().optional(),
   offset: z.number().optional(),
   
-  timezone: z.string().default('UTC'),
+  timezone: z.string().optional().default('UTC'),
 });
 
 export type Metric = z.infer<typeof MetricSchema>;
