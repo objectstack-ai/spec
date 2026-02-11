@@ -398,6 +398,101 @@ export const RowLevelSecurityPolicySchema = z.object({
 });
 
 /**
+ * RLS Audit Event Schema
+ * 
+ * Records a single RLS policy evaluation event for compliance and debugging.
+ */
+export const RLSAuditEventSchema = z.object({
+  /** ISO 8601 timestamp of the evaluation */
+  timestamp: z.string()
+    .describe('ISO 8601 timestamp of the evaluation'),
+
+  /** ID of the user whose access was evaluated */
+  userId: z.string()
+    .describe('User ID whose access was evaluated'),
+
+  /** Database operation being performed */
+  operation: z.enum(['select', 'insert', 'update', 'delete'])
+    .describe('Database operation being performed'),
+
+  /** Target object (table) name */
+  object: z.string()
+    .describe('Target object name'),
+
+  /** Name of the RLS policy evaluated */
+  policyName: z.string()
+    .describe('Name of the RLS policy evaluated'),
+
+  /** Whether access was granted */
+  granted: z.boolean()
+    .describe('Whether access was granted'),
+
+  /** Time taken to evaluate the policy in milliseconds */
+  evaluationDurationMs: z.number()
+    .describe('Policy evaluation duration in milliseconds'),
+
+  /** Which USING/CHECK clause matched */
+  matchedCondition: z.string()
+    .optional()
+    .describe('Which USING/CHECK clause matched'),
+
+  /** Number of rows affected by the operation */
+  rowCount: z.number()
+    .optional()
+    .describe('Number of rows affected'),
+
+  /** Additional metadata for the audit event */
+  metadata: z.record(z.string(), z.unknown())
+    .optional()
+    .describe('Additional audit event metadata'),
+});
+
+export type RLSAuditEvent = z.infer<typeof RLSAuditEventSchema>;
+
+/**
+ * RLS Audit Configuration Schema
+ * 
+ * Controls how RLS policy evaluations are logged and monitored.
+ */
+export const RLSAuditConfigSchema = z.object({
+  /** Enable RLS audit logging */
+  enabled: z.boolean()
+    .describe('Enable RLS audit logging'),
+
+  /** Which evaluations to log */
+  logLevel: z.enum(['all', 'denied_only', 'granted_only', 'none'])
+    .describe('Which evaluations to log'),
+
+  /** Where to send audit logs */
+  destination: z.enum(['system_log', 'audit_trail', 'external'])
+    .describe('Audit log destination'),
+
+  /** Sampling rate for high-traffic environments (0-1) */
+  sampleRate: z.number()
+    .min(0)
+    .max(1)
+    .describe('Sampling rate (0-1) for high-traffic environments'),
+
+  /** Number of days to retain audit logs */
+  retentionDays: z.number()
+    .int()
+    .default(90)
+    .describe('Audit log retention period in days'),
+
+  /** Whether to include row data in audit logs (security-sensitive) */
+  includeRowData: z.boolean()
+    .default(false)
+    .describe('Include row data in audit logs (security-sensitive)'),
+
+  /** Alert when access is denied */
+  alertOnDenied: z.boolean()
+    .default(true)
+    .describe('Send alerts when access is denied'),
+});
+
+export type RLSAuditConfig = z.infer<typeof RLSAuditConfigSchema>;
+
+/**
  * RLS Configuration Schema
  * 
  * Global configuration for the Row-Level Security system.
@@ -489,6 +584,13 @@ export const RLSConfigSchema = z.object({
   prefetchUserContext: z.boolean()
     .default(true)
     .describe('Pre-fetch user context for performance'),
+
+  /**
+   * Audit logging configuration for RLS evaluations.
+   */
+  audit: RLSAuditConfigSchema
+    .optional()
+    .describe('RLS audit logging configuration'),
 });
 
 /**

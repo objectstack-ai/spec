@@ -957,3 +957,108 @@ export const SCIM = {
     scimType,
   }),
 } as const;
+
+// ─── SCIM 2.0 Bulk Operations (RFC 7644 §3.7) ──────────────────────────────
+
+/**
+ * SCIM Bulk Operation Schema
+ * A single operation within a bulk request
+ */
+export const SCIMBulkOperationSchema = z.object({
+  /** HTTP method for this operation */
+  method: z.enum(['POST', 'PUT', 'PATCH', 'DELETE'])
+    .describe('HTTP method for the bulk operation'),
+
+  /** Resource path (e.g. /Users, /Groups/{id}) */
+  path: z.string()
+    .describe('Resource endpoint path (e.g. /Users, /Groups/{id})'),
+
+  /** Client-assigned identifier for cross-referencing operations */
+  bulkId: z.string()
+    .optional()
+    .describe('Client-assigned ID for cross-referencing between operations'),
+
+  /** Request body for POST/PUT/PATCH operations */
+  data: z.record(z.string(), z.unknown())
+    .optional()
+    .describe('Request body for POST/PUT/PATCH operations'),
+
+  /** ETag value for optimistic concurrency control */
+  version: z.string()
+    .optional()
+    .describe('ETag for optimistic concurrency control'),
+});
+
+export type SCIMBulkOperation = z.infer<typeof SCIMBulkOperationSchema>;
+
+/**
+ * SCIM Bulk Request Schema
+ * Batch multiple SCIM operations into a single HTTP request
+ */
+export const SCIMBulkRequestSchema = z.object({
+  /** SCIM schema URI for bulk request */
+  schemas: z.array(z.literal(SCIM_SCHEMAS.BULK_REQUEST))
+    .default([SCIM_SCHEMAS.BULK_REQUEST])
+    .describe('SCIM schema URIs (BulkRequest)'),
+
+  /** Array of operations to execute */
+  operations: z.array(SCIMBulkOperationSchema)
+    .min(1)
+    .describe('Bulk operations to execute (minimum 1)'),
+
+  /** Stop processing after N errors */
+  failOnErrors: z.number()
+    .int()
+    .optional()
+    .describe('Stop processing after this many errors'),
+});
+
+export type SCIMBulkRequest = z.infer<typeof SCIMBulkRequestSchema>;
+
+/**
+ * SCIM Bulk Response Operation Schema
+ * Result of a single operation within a bulk response
+ */
+export const SCIMBulkResponseOperationSchema = z.object({
+  /** HTTP method that was executed */
+  method: z.enum(['POST', 'PUT', 'PATCH', 'DELETE'])
+    .describe('HTTP method that was executed'),
+
+  /** Client-assigned bulk operation ID */
+  bulkId: z.string()
+    .optional()
+    .describe('Client-assigned bulk operation ID'),
+
+  /** URL of the created/modified resource */
+  location: z.string()
+    .optional()
+    .describe('URL of the created or modified resource'),
+
+  /** HTTP status code as string */
+  status: z.string()
+    .describe('HTTP status code as string (e.g. "201", "400")'),
+
+  /** Response body, typically present for errors */
+  response: z.unknown()
+    .optional()
+    .describe('Response body (typically present for errors)'),
+});
+
+export type SCIMBulkResponseOperation = z.infer<typeof SCIMBulkResponseOperationSchema>;
+
+/**
+ * SCIM Bulk Response Schema
+ * Response to a bulk request containing results for each operation
+ */
+export const SCIMBulkResponseSchema = z.object({
+  /** SCIM schema URI for bulk response */
+  schemas: z.array(z.literal(SCIM_SCHEMAS.BULK_RESPONSE))
+    .default([SCIM_SCHEMAS.BULK_RESPONSE])
+    .describe('SCIM schema URIs (BulkResponse)'),
+
+  /** Array of operation results */
+  operations: z.array(SCIMBulkResponseOperationSchema)
+    .describe('Results for each bulk operation'),
+});
+
+export type SCIMBulkResponse = z.infer<typeof SCIMBulkResponseSchema>;
