@@ -58,6 +58,15 @@ os compile
 
 Available generate types: `object`, `view`, `action`, `flow`, `agent`, `dashboard`, `app`
 
+### Plugin Management
+
+| Command | Description |
+|---------|-------------|
+| `os plugin list [config]` | List plugins defined in configuration (alias: `os plugin ls`) |
+| `os plugin info <name> [config]` | Show detailed plugin information |
+| `os plugin add <package>` | Add a plugin import and entry to config |
+| `os plugin remove <name>` | Remove a plugin from config (alias: `os plugin rm`) |
+
 ### Quality
 
 | Command | Description |
@@ -118,6 +127,19 @@ export default defineStack({
 - `-d, --dir <directory>` — Override target directory
 - `--dry-run` — Preview without writing files
 
+### `os plugin list`
+
+- `--json` — Output as JSON
+
+### `os plugin add`
+
+- `-d, --dev` — Add as a dev-only plugin
+- `-c, --config <path>` — Configuration file path
+
+### `os plugin remove`
+
+- `-c, --config <path>` — Configuration file path
+
 ### `os info`
 
 - `--json` — Output as JSON
@@ -133,9 +155,10 @@ os init                          # 1. Create project
 os generate object customer      # 2. Add a Customer object
 os generate object order         # 3. Add an Order object  
 os generate view customer        # 4. Add a list view
-os validate                      # 5. Validate everything
-os dev                           # 6. Start dev server
-os compile                       # 7. Build for production
+os plugin add @objectstack/plugin-auth  # 5. Add auth plugin
+os validate                      # 6. Validate everything
+os dev                           # 7. Start dev server
+os compile                       # 8. Build for production
 ```
 
 ## License
