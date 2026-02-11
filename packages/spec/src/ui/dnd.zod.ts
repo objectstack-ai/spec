@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
+import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 
 /**
  * Drag Handle Schema
@@ -44,11 +45,12 @@ export type DragConstraint = z.infer<typeof DragConstraintSchema>;
  * Configures a container that accepts dragged items.
  */
 export const DropZoneSchema = z.object({
+  label: I18nLabelSchema.optional().describe('Accessible label for the drop zone'),
   accept: z.array(z.string()).describe('Accepted drag item types'),
   maxItems: z.number().optional().describe('Maximum items allowed in drop zone'),
   highlightOnDragOver: z.boolean().default(true).describe('Highlight drop zone when dragging over'),
   dropEffect: DropEffectSchema.default('move').describe('Visual effect on drop'),
-}).describe('Drop zone configuration');
+}).merge(AriaPropsSchema.partial()).describe('Drop zone configuration');
 
 export type DropZone = z.infer<typeof DropZoneSchema>;
 
@@ -58,11 +60,12 @@ export type DropZone = z.infer<typeof DropZoneSchema>;
  */
 export const DragItemSchema = z.object({
   type: z.string().describe('Drag item type identifier for matching with drop zones'),
+  label: I18nLabelSchema.optional().describe('Accessible label describing the draggable item'),
   handle: DragHandleSchema.default('element').describe('How to initiate drag'),
   constraint: DragConstraintSchema.optional().describe('Drag movement constraints'),
   preview: z.enum(['element', 'custom', 'none']).default('element').describe('Drag preview type'),
   disabled: z.boolean().default(false).describe('Disable dragging'),
-}).describe('Draggable item configuration');
+}).merge(AriaPropsSchema.partial()).describe('Draggable item configuration');
 
 export type DragItem = z.infer<typeof DragItemSchema>;
 

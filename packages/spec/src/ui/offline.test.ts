@@ -161,3 +161,22 @@ describe('Type exports', () => {
     expect(config).toBeDefined();
   });
 });
+
+describe('I18n integration', () => {
+  it('should accept I18n offlineMessage on OfflineConfigSchema', () => {
+    const result = OfflineConfigSchema.parse({
+      offlineMessage: { key: 'offline.status', defaultValue: 'You are offline' },
+    });
+    expect(result.offlineMessage).toEqual({ key: 'offline.status', defaultValue: 'You are offline' });
+  });
+
+  it('should accept plain string offlineMessage', () => {
+    const result = OfflineConfigSchema.parse({ offlineMessage: 'No internet connection' });
+    expect(result.offlineMessage).toBe('No internet connection');
+  });
+
+  it('should leave offlineMessage undefined when not provided', () => {
+    const result = OfflineConfigSchema.parse({});
+    expect(result.offlineMessage).toBeUndefined();
+  });
+});

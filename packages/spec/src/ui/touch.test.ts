@@ -165,3 +165,34 @@ describe('Type exports', () => {
     expect(interaction).toBeDefined();
   });
 });
+
+describe('I18n and ARIA integration', () => {
+  it('should accept I18n label on GestureConfigSchema', () => {
+    const result = GestureConfigSchema.parse({
+      type: 'swipe',
+      label: { key: 'gestures.swipe_left', defaultValue: 'Swipe to delete' },
+    });
+    expect(result.label).toEqual({ key: 'gestures.swipe_left', defaultValue: 'Swipe to delete' });
+  });
+
+  it('should accept plain string label on GestureConfigSchema', () => {
+    const result = GestureConfigSchema.parse({ type: 'pinch', label: 'Pinch to zoom' });
+    expect(result.label).toBe('Pinch to zoom');
+  });
+
+  it('should accept ARIA props on TouchInteractionSchema', () => {
+    const result = TouchInteractionSchema.parse({
+      ariaLabel: 'Touch-enabled area',
+      role: 'application',
+    });
+    expect(result.ariaLabel).toBe('Touch-enabled area');
+    expect(result.role).toBe('application');
+  });
+
+  it('should leave I18n/ARIA fields undefined when not provided', () => {
+    const gesture = GestureConfigSchema.parse({ type: 'drag' });
+    expect(gesture.label).toBeUndefined();
+    const interaction = TouchInteractionSchema.parse({});
+    expect(interaction.ariaLabel).toBeUndefined();
+  });
+});

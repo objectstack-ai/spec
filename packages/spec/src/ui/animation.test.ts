@@ -195,3 +195,43 @@ describe('Type exports', () => {
     expect(motion).toBeDefined();
   });
 });
+
+describe('I18n and ARIA integration', () => {
+  it('should accept I18n label on ComponentAnimationSchema', () => {
+    const result = ComponentAnimationSchema.parse({
+      label: { key: 'animations.card_enter', defaultValue: 'Card Enter' },
+    });
+    expect(result.label).toEqual({ key: 'animations.card_enter', defaultValue: 'Card Enter' });
+  });
+
+  it('should accept plain string label on ComponentAnimationSchema', () => {
+    const result = ComponentAnimationSchema.parse({ label: 'Slide In' });
+    expect(result.label).toBe('Slide In');
+  });
+
+  it('should accept ARIA props on ComponentAnimationSchema', () => {
+    const result = ComponentAnimationSchema.parse({
+      ariaLabel: 'Animated card',
+      ariaDescribedBy: 'card-desc',
+      role: 'presentation',
+    });
+    expect(result.ariaLabel).toBe('Animated card');
+    expect(result.ariaDescribedBy).toBe('card-desc');
+    expect(result.role).toBe('presentation');
+  });
+
+  it('should accept I18n label on MotionConfigSchema', () => {
+    const result = MotionConfigSchema.parse({
+      label: { key: 'motion.global', defaultValue: 'Global Motion Config' },
+    });
+    expect(result.label).toEqual({ key: 'motion.global', defaultValue: 'Global Motion Config' });
+  });
+
+  it('should leave I18n/ARIA fields undefined when not provided', () => {
+    const result = ComponentAnimationSchema.parse({});
+    expect(result.label).toBeUndefined();
+    expect(result.ariaLabel).toBeUndefined();
+    expect(result.ariaDescribedBy).toBeUndefined();
+    expect(result.role).toBeUndefined();
+  });
+});

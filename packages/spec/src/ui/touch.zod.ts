@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
+import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 
 /**
  * Touch Target Configuration Schema
@@ -80,6 +81,7 @@ export type LongPressGestureConfig = z.infer<typeof LongPressGestureConfigSchema
  */
 export const GestureConfigSchema = z.object({
   type: GestureTypeSchema.describe('Gesture type to configure'),
+  label: I18nLabelSchema.optional().describe('Descriptive label for the gesture action'),
   enabled: z.boolean().default(true).describe('Whether this gesture is active'),
   swipe: SwipeGestureConfigSchema.optional().describe('Swipe gesture settings (when type is swipe)'),
   pinch: PinchGestureConfigSchema.optional().describe('Pinch gesture settings (when type is pinch)'),
@@ -96,6 +98,6 @@ export const TouchInteractionSchema = z.object({
   gestures: z.array(GestureConfigSchema).optional().describe('Configured gesture recognizers'),
   touchTarget: TouchTargetConfigSchema.optional().describe('Touch target sizing and hit area'),
   hapticFeedback: z.boolean().optional().describe('Enable haptic feedback on touch interactions'),
-}).describe('Touch and gesture interaction configuration');
+}).merge(AriaPropsSchema.partial()).describe('Touch and gesture interaction configuration');
 
 export type TouchInteraction = z.infer<typeof TouchInteractionSchema>;

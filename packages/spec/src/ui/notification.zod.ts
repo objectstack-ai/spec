@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
-import { I18nLabelSchema } from './i18n.zod';
+import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 
 /**
  * Notification Type Schema
@@ -72,7 +72,7 @@ export const NotificationSchema = z.object({
   dismissible: z.boolean().default(true).describe('Allow user to dismiss the notification'),
   actions: z.array(NotificationActionSchema).optional().describe('Action buttons'),
   position: NotificationPositionSchema.optional().describe('Override default position'),
-}).describe('Notification instance definition');
+}).merge(AriaPropsSchema.partial()).describe('Notification instance definition');
 
 export type Notification = z.infer<typeof NotificationSchema>;
 

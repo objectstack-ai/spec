@@ -150,3 +150,41 @@ describe('Type exports', () => {
     expect(nav).toBeDefined();
   });
 });
+
+describe('I18n and ARIA integration', () => {
+  it('should accept I18n description on KeyboardShortcutSchema', () => {
+    const result = KeyboardShortcutSchema.parse({
+      key: 'Ctrl+S',
+      action: 'save',
+      description: { key: 'shortcuts.save', defaultValue: 'Save the current document' },
+    });
+    expect(result.description).toEqual({ key: 'shortcuts.save', defaultValue: 'Save the current document' });
+  });
+
+  it('should accept plain string description on KeyboardShortcutSchema', () => {
+    const result = KeyboardShortcutSchema.parse({
+      key: 'Ctrl+Z',
+      action: 'undo',
+      description: 'Undo last action',
+    });
+    expect(result.description).toBe('Undo last action');
+  });
+
+  it('should accept ARIA props on KeyboardNavigationConfigSchema', () => {
+    const result = KeyboardNavigationConfigSchema.parse({
+      ariaLabel: 'Keyboard navigation region',
+      ariaDescribedBy: 'nav-help',
+      role: 'navigation',
+    });
+    expect(result.ariaLabel).toBe('Keyboard navigation region');
+    expect(result.ariaDescribedBy).toBe('nav-help');
+    expect(result.role).toBe('navigation');
+  });
+
+  it('should leave I18n/ARIA fields undefined when not provided', () => {
+    const shortcut = KeyboardShortcutSchema.parse({ key: 'Escape', action: 'close' });
+    expect(shortcut.description).toBeUndefined();
+    const nav = KeyboardNavigationConfigSchema.parse({});
+    expect(nav.ariaLabel).toBeUndefined();
+  });
+});
