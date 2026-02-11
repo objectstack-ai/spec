@@ -26,3 +26,4 @@ export * from './touch.zod';
 export * from './offline.zod';
 export * from './keyboard.zod';
 export * from './animation.zod';
+export * from './notification.zod';
