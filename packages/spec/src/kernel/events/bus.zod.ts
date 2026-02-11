@@ -81,6 +81,7 @@ export type EventBusConfig = z.infer<typeof EventBusConfigSchema>;
 
 /**
  * Helper to create event bus configuration
+ * @deprecated Move to `@objectstack/core`. Will be removed from spec in v3.0.0.
  */
 export function createEventBusConfig<T extends z.input<typeof EventBusConfigSchema>>(config: T): T {
   return config;
@@ -88,6 +89,7 @@ export function createEventBusConfig<T extends z.input<typeof EventBusConfigSche
 
 /**
  * Helper to create event type definition
+ * @deprecated Move to `@objectstack/core`. Will be removed from spec in v3.0.0.
  */
 export function createEventTypeDefinition<T extends z.input<typeof EventTypeDefinitionSchema>>(definition: T): T {
   return definition;
@@ -95,6 +97,7 @@ export function createEventTypeDefinition<T extends z.input<typeof EventTypeDefi
 
 /**
  * Helper to create event webhook configuration
+ * @deprecated Move to `@objectstack/core`. Will be removed from spec in v3.0.0.
  */
 export function createEventWebhookConfig<T extends z.input<typeof EventWebhookConfigSchema>>(config: T): T {
   return config;

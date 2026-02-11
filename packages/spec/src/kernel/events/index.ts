@@ -1,22 +1,17 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 /**
- * Event Bus Protocol - Modular Sub-modules
- * 
- * This barrel re-exports all event sub-modules for convenient importing.
- * 
- * Sub-modules:
- * - core.zod.ts: Event priority, metadata, type definition, base event
- * - handlers.zod.ts: Event handlers, routes, persistence
- * - queue.zod.ts: Event queue, replay, sourcing configuration
- * - dlq.zod.ts: Dead letter queue, event log entries
- * - integrations.zod.ts: Webhooks, message queues, real-time notifications
- * - bus.zod.ts: Complete event bus configuration and helper functions
+ * Event Bus Protocol - Kernel Events
+ *
+ * NOTE:
+ * - Canonical Zod schemas live in the sibling `*.zod.ts` files
+ *   (e.g. `core.zod.ts`, `handlers.zod.ts`, `queue.zod.ts`, `dlq.zod.ts`,
+ *   `integrations.zod.ts`, `bus.zod.ts`).
+ * - The public entrypoint is `kernel/events.zod.ts`, which re-exports all
+ *   sub-modules via `@objectstack/spec/kernel`.
+ * - `@objectstack/spec/kernel/events` is NOT a published subpath in `package.json`
+ *   exports. Do not rely on this barrel for external consumption.
+ *
+ * This file exists only for internal convenience and is not part of the
+ * published API surface.
  */
-
-export * from './core.zod';
-export * from './handlers.zod';
-export * from './queue.zod';
-export * from './dlq.zod';
-export * from './integrations.zod';
-export * from './bus.zod';

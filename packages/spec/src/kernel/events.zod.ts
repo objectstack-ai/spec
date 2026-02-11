@@ -3,10 +3,19 @@
 /**
  * Event Bus Protocol
  * 
- * This file re-exports all event schemas from modular sub-modules for backward compatibility.
- * New code should import directly from sub-modules in `./events/` for better tree-shaking.
+ * This file re-exports all event schemas from modular sub-modules for backward compatibility
+ * and to provide a single stable entrypoint for consumers (via `@objectstack/spec/kernel`).
  * 
- * Sub-modules:
+ * NOTE: The `./events/*` sub-modules referenced below are an internal source-code organization
+ * detail of the kernel. External code should continue to import event schemas from the
+ * published kernel entrypoint, for example:
+ * 
+ *   import { EventBusConfigSchema } from '@objectstack/spec/kernel';
+ * 
+ * and SHOULD NOT import from `@objectstack/spec/kernel/events/*` unless those paths are
+ * explicitly documented as public entrypoints in the package exports.
+ * 
+ * Internal sub-modules:
  * - events/core.zod.ts: Event priority, metadata, type definition, base event
  * - events/handlers.zod.ts: Event handlers, routes, persistence
  * - events/queue.zod.ts: Event queue, replay, sourcing configuration

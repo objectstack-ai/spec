@@ -120,10 +120,10 @@ import { PresenceStatus, RealtimeRecordAction } from '@objectstack/spec/api';
 
 ```typescript
 // ❌ v2.x alias (removed in v3.0)
-import { RateLimitSchema } from '@objectstack/spec/api/endpoint';
+import { RateLimitSchema } from '@objectstack/spec/api';
 
 // ✅ v3.0 canonical location
-import { RateLimitConfigSchema } from '@objectstack/spec/shared/http';
+import { RateLimitConfigSchema } from '@objectstack/spec/shared';
 ```
 
 ---
@@ -132,30 +132,15 @@ import { RateLimitConfigSchema } from '@objectstack/spec/shared/http';
 
 ### What Changed
 
-`kernel/events.zod.ts` (765 lines) has been split into focused sub-modules for better tree-shaking. The barrel export remains backward-compatible, but you can now import from specific sub-modules.
-
-### Optional Migration (Recommended)
+`kernel/events.zod.ts` (765 lines) has been split into focused internal sub-modules. The barrel export remains backward-compatible — all event schemas continue to be available from the `@objectstack/spec/kernel` entrypoint. No migration is required.
 
 ```typescript
-// ✅ Both work in v3.0 (barrel re-export is backward compatible)
-import { EventBusConfigSchema } from '@objectstack/spec/kernel';
-
-// ✅ Preferred: Direct sub-module import for better tree-shaking
-import { EventBusConfigSchema } from '@objectstack/spec/kernel/events/bus';
-import { EventSchema, EventPriority } from '@objectstack/spec/kernel/events/core';
-import { EventWebhookConfigSchema } from '@objectstack/spec/kernel/events/integrations';
+// ✅ Continue to import from the kernel entrypoint (no change needed)
+import { EventBusConfigSchema, EventSchema, EventPriority } from '@objectstack/spec/kernel';
 ```
 
-**Sub-module Map:**
-
-| Sub-module | Contains |
-|-----------|----------|
-| `events/core.zod` | `EventPriority`, `EventMetadataSchema`, `EventSchema`, `EventTypeDefinitionSchema` |
-| `events/handlers.zod` | `EventHandlerSchema`, `EventRouteSchema`, `EventPersistenceSchema` |
-| `events/queue.zod` | `EventQueueConfigSchema`, `EventReplayConfigSchema`, `EventSourcingConfigSchema` |
-| `events/dlq.zod` | `DeadLetterQueueEntrySchema`, `EventLogEntrySchema` |
-| `events/integrations.zod` | `EventWebhookConfigSchema`, `EventMessageQueueConfigSchema`, `RealTimeNotificationConfigSchema` |
-| `events/bus.zod` | `EventBusConfigSchema`, helper functions |
+> **Note:** The `kernel/events/*` sub-modules are an internal source-code organization detail.
+> External code should always import from `@objectstack/spec/kernel`.
 
 ---
 
@@ -167,8 +152,8 @@ import { EventWebhookConfigSchema } from '@objectstack/spec/kernel/events/integr
 - [ ] Replace `location` with `locations` in ActionSchema definitions
 - [ ] Replace `RealtimePresenceStatus` with `PresenceStatus`
 - [ ] Replace `RealtimeAction` with `RealtimeRecordAction`
-- [ ] Replace `RateLimitSchema` with `RateLimitConfigSchema` from `shared/http`
-- [ ] (Optional) Update events imports to use sub-modules for tree-shaking
+- [ ] Replace `RateLimitSchema` with `RateLimitConfigSchema` from `@objectstack/spec/shared`
+- [ ] (No action needed) Events module restructuring is internal; imports from `@objectstack/spec/kernel` continue to work
 
 ---
 
