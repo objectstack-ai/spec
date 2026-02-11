@@ -1,5 +1,13 @@
 # @objectstack/types
 
+## 2.0.6
+
+### Patch Changes
+
+- Patch release for maintenance and stability improvements
+- Updated dependencies
+  - @objectstack/spec@2.0.6
+
 ## 2.0.5
 
 ### Patch Changes

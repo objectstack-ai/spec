@@ -1,5 +1,17 @@
 # @objectstack/example-minimal-auth
 
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/core@2.0.6
+  - @objectstack/client@2.0.6
+  - @objectstack/objectql@2.0.6
+  - @objectstack/driver-memory@2.0.6
+  - @objectstack/plugin-auth@2.0.6
+  - @objectstack/plugin-hono-server@2.0.6
+
 ## 1.0.2
 
 ### Patch Changes

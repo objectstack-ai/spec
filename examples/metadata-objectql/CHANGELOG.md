@@ -1,5 +1,16 @@
 # @objectstack/example-metadata-objectql
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/spec@2.0.6
+  - @objectstack/core@2.0.6
+  - @objectstack/metadata@2.0.6
+  - @objectstack/objectql@2.0.6
+  - @objectstack/driver-memory@2.0.6
+
 ## 0.1.2
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @example/plugin-bi
 
+## 1.2.7
+
+### Patch Changes
+
+- Updated dependencies
+  - @objectstack/spec@2.0.6
+
 ## 1.2.6
 
 ### Patch Changes
