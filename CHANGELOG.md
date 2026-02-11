@@ -8,8 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Modularized `kernel/events.zod.ts` (765 lines) into 6 focused sub-modules for better tree-shaking:
+  - `events/core.zod.ts`: Priority, metadata, type definition, base event
+  - `events/handlers.zod.ts`: Event handlers, routes, persistence
+  - `events/queue.zod.ts`: Queue config, replay, sourcing
+  - `events/dlq.zod.ts`: Dead letter queue, event log entries
+  - `events/integrations.zod.ts`: Webhooks, message queues, notifications
+  - `events/bus.zod.ts`: Complete event bus config and helpers
+- Created v3.0 migration guide (`packages/spec/V3_MIGRATION_GUIDE.md`)
 
 ### Changed
+- `kernel/events.zod.ts` now re-exports from sub-modules (backward compatible)
 
 ### Deprecated
 

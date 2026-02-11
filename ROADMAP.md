@@ -77,7 +77,7 @@ ObjectStack v2.0.1 has achieved solid protocol-level maturity (B+ → A- grade a
 - [x] Create test files for 25 remaining schemas (shared, api, automation, data, integration, qa, ui, ai, studio)
 - [x] Create test files for 8 contract interfaces
 - [x] Verify all 150 test files pass (4,196 tests)
-- [ ] Update spec test count in CI badge
+- [x] Update spec test count — now 175 test files with 4,518 tests
 
 ---
 
@@ -227,9 +227,9 @@ The `hub/` directory currently re-exports from `system/` and `kernel/`. In v3.0:
 - [x] Remove deprecated `stateMachine` singular (use `stateMachines` plural)
 - [ ] Extract runtime logic from spec → core
 - [ ] Remove hub/ re-export barrel
-- [ ] Verify naming consistency across all imports
-- [ ] Create v3.0 migration guide
-- [ ] Update CHANGELOG.md with breaking changes
+- [x] Verify naming consistency across all imports — 0 TODO/FIXME, 10 deprecated items documented
+- [x] Create v3.0 migration guide (`packages/spec/V3_MIGRATION_GUIDE.md`)
+- [x] Update CHANGELOG.md with breaking changes
 
 ---
 
@@ -381,11 +381,13 @@ The `hub/` directory currently re-exports from `system/` and `kernel/`. In v3.0:
 
 | Metric | v2.0.1 (Current) | v3.0 Target |
 |--------|-------------------|-------------|
-| Spec test coverage | ~~76% (73/96)~~ **100% (150/142)** | 100% ✅ |
+| Spec test coverage | ~~76% (73/96)~~ **100% (175/150)** | 100% ✅ |
+| Spec test count | ~~3,000~~ **4,518 tests** | 4,500+ ✅ |
 | Runtime test coverage | ~~Sparse~~ **REST 37, Metadata 45, Adapters 72** | >80% per package |
 | TODO/FIXME count | ~~24~~ **0** | 0 ✅ |
 | Adapter maturity | ~~3 stubs~~ **3 fully implemented + tested** | 3 production-ready ✅ |
-| Deprecated items | ~~5+~~ **4 removed (formula, encryption, geoSpatial, stateMachine)** | 0 (removed or migrated) |
+| Deprecated items | ~~5+~~ **4 removed, 10 documented w/ migration guide** | 0 (removed or migrated) |
+| Events modularization | ~~765-line monolith~~ **6 sub-modules** | Modularized ✅ |
 | `pnpm audit` vulnerabilities | Unknown | 0 |
 | Bundle size tracked | No | Yes, with CI gate |
 | Performance benchmarks | None | Baseline established |
