@@ -9,8 +9,13 @@ import {
   PostProcessingActionSchema,
   BatchAIOrchestrationExecutionSchema,
   AIOrchestrationExecutionResultSchema,
+  AgentCommunicationProtocolSchema,
+  AgentGroupRoleSchema,
+  AgentGroupMemberSchema,
+  MultiAgentGroupSchema,
   type AIOrchestration,
   type AITask,
+  type MultiAgentGroup,
 } from './orchestration.zod';
 
 describe('AIOrchestrationTriggerSchema', () => {
@@ -785,5 +790,212 @@ describe('Real-World Workflow Examples', () => {
     };
 
     expect(() => AIOrchestrationSchema.parse(workflow)).not.toThrow();
+  });
+});
+
+// ==========================================
+// Multi-Agent Coordination Tests
+// ==========================================
+
+describe('AgentCommunicationProtocolSchema', () => {
+  it('should accept all communication protocols', () => {
+    const protocols = ['message_passing', 'shared_memory', 'blackboard'] as const;
+
+    protocols.forEach(protocol => {
+      expect(() => AgentCommunicationProtocolSchema.parse(protocol)).not.toThrow();
+    });
+  });
+
+  it('should reject invalid protocols', () => {
+    expect(() => AgentCommunicationProtocolSchema.parse('telepathy')).toThrow();
+  });
+});
+
+describe('AgentGroupRoleSchema', () => {
+  it('should accept all agent roles', () => {
+    const roles = ['coordinator', 'specialist', 'critic', 'executor'] as const;
+
+    roles.forEach(role => {
+      expect(() => AgentGroupRoleSchema.parse(role)).not.toThrow();
+    });
+  });
+});
+
+describe('AgentGroupMemberSchema', () => {
+  it('should accept minimal member', () => {
+    const member = AgentGroupMemberSchema.parse({
+      agentId: 'code_analyzer',
+      role: 'specialist',
+    });
+
+    expect(member.agentId).toBe('code_analyzer');
+    expect(member.role).toBe('specialist');
+  });
+
+  it('should accept member with all options', () => {
+    const member = AgentGroupMemberSchema.parse({
+      agentId: 'security_scanner',
+      role: 'critic',
+      capabilities: ['vulnerability_detection', 'dependency_audit'],
+      dependencies: ['code_analyzer'],
+      priority: 1,
+    });
+
+    expect(member.capabilities).toHaveLength(2);
+    expect(member.dependencies).toContain('code_analyzer');
+    expect(member.priority).toBe(1);
+  });
+});
+
+describe('MultiAgentGroupSchema', () => {
+  it('should accept minimal multi-agent group', () => {
+    const group: MultiAgentGroup = {
+      name: 'review_team',
+      label: 'Code Review Team',
+      strategy: 'sequential',
+      agents: [
+        { agentId: 'analyzer', role: 'specialist' },
+        { agentId: 'reviewer', role: 'critic' },
+      ],
+      communication: {
+        protocol: 'blackboard',
+      },
+    };
+
+    const result = MultiAgentGroupSchema.parse(group);
+    expect(result.name).toBe('review_team');
+    expect(result.agents).toHaveLength(2);
+    expect(result.active).toBe(true);
+  });
+
+  it('should enforce snake_case for group name', () => {
+    const validNames = ['code_review_team', 'support_group', '_internal_team'];
+    validNames.forEach(name => {
+      expect(() => MultiAgentGroupSchema.parse({
+        name,
+        label: 'Test',
+        strategy: 'sequential',
+        agents: [
+          { agentId: 'a', role: 'specialist' },
+          { agentId: 'b', role: 'critic' },
+        ],
+        communication: { protocol: 'message_passing' },
+      })).not.toThrow();
+    });
+
+    const invalidNames = ['CodeReview', 'code-review', '123team'];
+    invalidNames.forEach(name => {
+      expect(() => MultiAgentGroupSchema.parse({
+        name,
+        label: 'Test',
+        strategy: 'sequential',
+        agents: [
+          { agentId: 'a', role: 'specialist' },
+          { agentId: 'b', role: 'critic' },
+        ],
+        communication: { protocol: 'message_passing' },
+      })).toThrow();
+    });
+  });
+
+  it('should require at least 2 agents', () => {
+    expect(() => MultiAgentGroupSchema.parse({
+      name: 'solo',
+      label: 'Solo',
+      strategy: 'sequential',
+      agents: [
+        { agentId: 'lone_wolf', role: 'specialist' },
+      ],
+      communication: { protocol: 'message_passing' },
+    })).toThrow();
+  });
+
+  it('should accept all orchestration strategies', () => {
+    const strategies = ['sequential', 'parallel', 'debate', 'hierarchical', 'swarm'] as const;
+
+    strategies.forEach(strategy => {
+      const group = MultiAgentGroupSchema.parse({
+        name: 'test_group',
+        label: 'Test',
+        strategy,
+        agents: [
+          { agentId: 'a', role: 'specialist' },
+          { agentId: 'b', role: 'critic' },
+        ],
+        communication: { protocol: 'message_passing' },
+      });
+      expect(group.strategy).toBe(strategy);
+    });
+  });
+
+  it('should accept all conflict resolution strategies', () => {
+    const resolutions = ['voting', 'priorityBased', 'consensusBased', 'coordinatorDecides'] as const;
+
+    resolutions.forEach(conflictResolution => {
+      const group = MultiAgentGroupSchema.parse({
+        name: 'test_group',
+        label: 'Test',
+        strategy: 'debate',
+        agents: [
+          { agentId: 'a', role: 'specialist' },
+          { agentId: 'b', role: 'critic' },
+        ],
+        communication: { protocol: 'shared_memory' },
+        conflictResolution,
+      });
+      expect(group.conflictResolution).toBe(conflictResolution);
+    });
+  });
+
+  it('should accept complete multi-agent group configuration', () => {
+    const group: MultiAgentGroup = {
+      name: 'code_review_team',
+      label: 'Code Review Team',
+      description: 'Multi-agent code review pipeline',
+      strategy: 'hierarchical',
+      agents: [
+        {
+          agentId: 'code_coordinator',
+          role: 'coordinator',
+          capabilities: ['task_delegation', 'result_aggregation'],
+          priority: 0,
+        },
+        {
+          agentId: 'code_analyzer',
+          role: 'specialist',
+          capabilities: ['static_analysis', 'complexity_analysis'],
+          dependencies: ['code_coordinator'],
+          priority: 1,
+        },
+        {
+          agentId: 'security_scanner',
+          role: 'specialist',
+          capabilities: ['vulnerability_detection'],
+          dependencies: ['code_coordinator'],
+          priority: 1,
+        },
+        {
+          agentId: 'code_reviewer',
+          role: 'critic',
+          capabilities: ['code_quality', 'best_practices'],
+          dependencies: ['code_analyzer', 'security_scanner'],
+          priority: 2,
+        },
+      ],
+      communication: {
+        protocol: 'blackboard',
+        maxRounds: 5,
+      },
+      conflictResolution: 'coordinatorDecides',
+      timeout: 300,
+      active: true,
+    };
+
+    const result = MultiAgentGroupSchema.parse(group);
+    expect(result.agents).toHaveLength(4);
+    expect(result.communication.protocol).toBe('blackboard');
+    expect(result.communication.maxRounds).toBe(5);
+    expect(result.conflictResolution).toBe('coordinatorDecides');
+    expect(result.timeout).toBe(300);
   });
 });

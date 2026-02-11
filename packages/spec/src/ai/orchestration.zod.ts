@@ -241,3 +241,129 @@ export type PostProcessingAction = z.infer<typeof PostProcessingActionSchema>;
 export type AIOrchestration = z.infer<typeof AIOrchestrationSchema>;
 export type BatchAIOrchestrationExecution = z.infer<typeof BatchAIOrchestrationExecutionSchema>;
 export type AIOrchestrationExecutionResult = z.infer<typeof AIOrchestrationExecutionResultSchema>;
+
+// ==========================================
+// Multi-Agent Coordination
+// ==========================================
+
+/**
+ * Multi-Agent Communication Protocol
+ * 
+ * Defines how agents communicate with each other in a group.
+ */
+export const AgentCommunicationProtocolSchema = z.enum([
+  'message_passing',    // Direct message exchange between agents
+  'shared_memory',      // Agents read/write to a shared context store
+  'blackboard',         // Centralized workspace agents contribute to
+]);
+
+export type AgentCommunicationProtocol = z.infer<typeof AgentCommunicationProtocolSchema>;
+
+/**
+ * Agent Role in a Multi-Agent Group
+ * 
+ * Defines the function an agent plays within a coordinated group.
+ */
+export const AgentGroupRoleSchema = z.enum([
+  'coordinator',   // Orchestrates other agents and delegates tasks
+  'specialist',    // Domain expert performing specific tasks
+  'critic',        // Reviews and validates other agents' outputs
+  'executor',      // Carries out actions in the real world (APIs, DB writes)
+]);
+
+export type AgentGroupRole = z.infer<typeof AgentGroupRoleSchema>;
+
+/**
+ * Agent Group Member Schema
+ * 
+ * Configuration for a single agent within a multi-agent group.
+ */
+export const AgentGroupMemberSchema = z.object({
+  /** Reference to agent name (must match an existing AgentSchema name) */
+  agentId: z.string().describe('Agent identifier (reference to AgentSchema.name)'),
+
+  /** Role this agent plays in the group */
+  role: AgentGroupRoleSchema.describe('Agent role within the group'),
+
+  /** Capabilities / skills this agent contributes */
+  capabilities: z.array(z.string()).optional().describe('List of capabilities this agent contributes'),
+
+  /** Dependencies on other agents in the group */
+  dependencies: z.array(z.string()).optional().describe('Agent IDs this agent depends on for input'),
+
+  /** Priority order within the group (lower = higher priority) */
+  priority: z.number().int().min(0).optional().describe('Execution priority (0 = highest)'),
+});
+
+export type AgentGroupMember = z.infer<typeof AgentGroupMemberSchema>;
+
+/**
+ * Multi-Agent Group Schema
+ * 
+ * Defines a coordinated group of agents that collaborate to solve
+ * complex problems exceeding the capability of a single agent.
+ * 
+ * @example Multi-Agent Code Review Group
+ * ```typescript
+ * const codeReviewGroup: MultiAgentGroup = {
+ *   name: 'code_review_team',
+ *   label: 'Code Review Team',
+ *   strategy: 'sequential',
+ *   agents: [
+ *     { agentId: 'code_analyzer', role: 'specialist', capabilities: ['static_analysis'] },
+ *     { agentId: 'security_scanner', role: 'specialist', capabilities: ['vulnerability_detection'] },
+ *     { agentId: 'code_reviewer', role: 'critic', capabilities: ['code_quality'] },
+ *     { agentId: 'merge_agent', role: 'executor', capabilities: ['git_operations'], dependencies: ['code_reviewer'] },
+ *   ],
+ *   communication: { protocol: 'blackboard' },
+ *   conflictResolution: 'voting',
+ * };
+ * ```
+ */
+export const MultiAgentGroupSchema = z.object({
+  /** Group identity */
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Group unique identifier (snake_case)'),
+  label: z.string().describe('Group display name'),
+  description: z.string().optional(),
+
+  /** Orchestration strategy */
+  strategy: z.enum([
+    'sequential',     // Agents execute one after another
+    'parallel',       // Agents execute concurrently
+    'debate',         // Agents propose, argue, and converge on a solution
+    'hierarchical',   // Coordinator delegates to specialists
+    'swarm',          // Agents self-organize dynamically
+  ]).describe('Multi-agent orchestration strategy'),
+
+  /** Agents in this group */
+  agents: z.array(AgentGroupMemberSchema).min(2).describe('Agent members (minimum 2)'),
+
+  /** Inter-agent communication */
+  communication: z.object({
+    /** Communication protocol */
+    protocol: AgentCommunicationProtocolSchema.describe('Inter-agent communication protocol'),
+
+    /** Message queue name (for message_passing) */
+    messageQueue: z.string().optional().describe('Message queue identifier for async communication'),
+
+    /** Maximum rounds of communication */
+    maxRounds: z.number().int().min(1).optional().describe('Maximum communication rounds before forced termination'),
+  }).describe('Communication configuration'),
+
+  /** Conflict resolution strategy */
+  conflictResolution: z.enum([
+    'voting',           // Majority vote decides
+    'priorityBased',    // Highest-priority agent decides
+    'consensusBased',   // All agents must agree
+    'coordinatorDecides', // Coordinator agent has final say
+  ]).optional().describe('How conflicts between agents are resolved'),
+
+  /** Timeout for the entire group execution in seconds */
+  timeout: z.number().int().min(1).optional().describe('Maximum execution time in seconds for the group'),
+
+  /** Whether the group is active */
+  active: z.boolean().default(true).describe('Whether this agent group is active'),
+});
+
+export type MultiAgentGroup = z.infer<typeof MultiAgentGroupSchema>;
+export type MultiAgentGroupInput = z.input<typeof MultiAgentGroupSchema>;

@@ -16,6 +16,13 @@ import {
   GraphQLConfigSchema,
   GraphQLConfig,
   mapFieldTypeToGraphQL,
+  FederationEntityKeySchema,
+  FederationEntitySchema,
+  SubgraphConfigSchema,
+  FederationGatewaySchema,
+  FederationExternalFieldSchema,
+  FederationRequiresSchema,
+  FederationProvidesSchema,
 } from './graphql.zod';
 
 describe('GraphQLScalarType', () => {
@@ -958,5 +965,291 @@ describe('mapFieldTypeToGraphQL', () => {
   it('should default to String for unknown types', () => {
     // @ts-expect-error Testing unknown type
     expect(mapFieldTypeToGraphQL('unknown_type')).toBe('String');
+  });
+});
+
+// ==========================================
+// Federation Schema Tests
+// ==========================================
+
+describe('FederationEntityKeySchema', () => {
+  it('should accept minimal entity key', () => {
+    const key = FederationEntityKeySchema.parse({
+      fields: 'id',
+    });
+
+    expect(key.fields).toBe('id');
+    expect(key.resolvable).toBe(true);
+  });
+
+  it('should accept composite key', () => {
+    const key = FederationEntityKeySchema.parse({
+      fields: 'sku packageId',
+      resolvable: false,
+    });
+
+    expect(key.fields).toBe('sku packageId');
+    expect(key.resolvable).toBe(false);
+  });
+});
+
+describe('FederationExternalFieldSchema', () => {
+  it('should accept external field', () => {
+    const field = FederationExternalFieldSchema.parse({
+      field: 'name',
+      ownerSubgraph: 'users',
+    });
+
+    expect(field.field).toBe('name');
+    expect(field.ownerSubgraph).toBe('users');
+  });
+});
+
+describe('FederationRequiresSchema', () => {
+  it('should accept requires directive', () => {
+    const req = FederationRequiresSchema.parse({
+      field: 'shippingCost',
+      fields: 'price weight',
+    });
+
+    expect(req.field).toBe('shippingCost');
+    expect(req.fields).toBe('price weight');
+  });
+});
+
+describe('FederationProvidesSchema', () => {
+  it('should accept provides directive', () => {
+    const prov = FederationProvidesSchema.parse({
+      field: 'reviews',
+      fields: 'title body',
+    });
+
+    expect(prov.field).toBe('reviews');
+    expect(prov.fields).toBe('title body');
+  });
+});
+
+describe('FederationEntitySchema', () => {
+  it('should accept minimal entity', () => {
+    const entity = FederationEntitySchema.parse({
+      typeName: 'Product',
+      keys: [{ fields: 'id' }],
+    });
+
+    expect(entity.typeName).toBe('Product');
+    expect(entity.keys).toHaveLength(1);
+    expect(entity.owner).toBe(false);
+  });
+
+  it('should accept entity with all directives', () => {
+    const entity = FederationEntitySchema.parse({
+      typeName: 'Product',
+      keys: [
+        { fields: 'id' },
+        { fields: 'sku', resolvable: false },
+      ],
+      externalFields: [
+        { field: 'weight', ownerSubgraph: 'inventory' },
+      ],
+      requires: [
+        { field: 'shippingCost', fields: 'price weight' },
+      ],
+      provides: [
+        { field: 'reviews', fields: 'author body' },
+      ],
+      owner: true,
+    });
+
+    expect(entity.keys).toHaveLength(2);
+    expect(entity.externalFields).toHaveLength(1);
+    expect(entity.requires).toHaveLength(1);
+    expect(entity.provides).toHaveLength(1);
+    expect(entity.owner).toBe(true);
+  });
+
+  it('should require at least one key', () => {
+    expect(() => FederationEntitySchema.parse({
+      typeName: 'Product',
+      keys: [],
+    })).toThrow();
+  });
+});
+
+describe('SubgraphConfigSchema', () => {
+  it('should accept minimal subgraph config', () => {
+    const subgraph = SubgraphConfigSchema.parse({
+      name: 'products',
+      url: 'http://localhost:4001/graphql',
+    });
+
+    expect(subgraph.name).toBe('products');
+    expect(subgraph.schemaSource).toBe('introspection');
+  });
+
+  it('should accept subgraph with entities and health check', () => {
+    const subgraph = SubgraphConfigSchema.parse({
+      name: 'users',
+      url: 'http://localhost:4002/graphql',
+      schemaSource: 'file',
+      schemaPath: './schemas/users.graphql',
+      entities: [
+        {
+          typeName: 'User',
+          keys: [{ fields: 'id' }],
+          owner: true,
+        },
+      ],
+      healthCheck: {
+        enabled: true,
+        path: '/.well-known/apollo/server-health',
+        intervalMs: 10000,
+      },
+      forwardHeaders: ['Authorization', 'X-Tenant-ID'],
+    });
+
+    expect(subgraph.schemaSource).toBe('file');
+    expect(subgraph.entities).toHaveLength(1);
+    expect(subgraph.healthCheck?.enabled).toBe(true);
+    expect(subgraph.forwardHeaders).toContain('Authorization');
+  });
+
+  it('should accept all schema source types', () => {
+    const sources = ['introspection', 'file', 'registry'] as const;
+
+    sources.forEach(source => {
+      const subgraph = SubgraphConfigSchema.parse({
+        name: 'test',
+        url: 'http://localhost:4000/graphql',
+        schemaSource: source,
+      });
+      expect(subgraph.schemaSource).toBe(source);
+    });
+  });
+});
+
+describe('FederationGatewaySchema', () => {
+  it('should apply default values', () => {
+    const gateway = FederationGatewaySchema.parse({
+      subgraphs: [
+        { name: 'products', url: 'http://localhost:4001/graphql' },
+      ],
+    });
+
+    expect(gateway.enabled).toBe(false);
+    expect(gateway.version).toBe('v2');
+  });
+
+  it('should accept complete gateway configuration', () => {
+    const gateway = FederationGatewaySchema.parse({
+      enabled: true,
+      version: 'v2',
+      subgraphs: [
+        {
+          name: 'products',
+          url: 'http://products:4001/graphql',
+          entities: [
+            { typeName: 'Product', keys: [{ fields: 'id' }], owner: true },
+          ],
+        },
+        {
+          name: 'reviews',
+          url: 'http://reviews:4002/graphql',
+          entities: [
+            {
+              typeName: 'Product',
+              keys: [{ fields: 'id' }],
+              externalFields: [{ field: 'name' }],
+            },
+            { typeName: 'Review', keys: [{ fields: 'id' }], owner: true },
+          ],
+        },
+      ],
+      serviceDiscovery: {
+        type: 'kubernetes',
+        pollIntervalMs: 15000,
+        namespace: 'production',
+      },
+      queryPlanning: {
+        strategy: 'parallel',
+        maxDepth: 8,
+        dryRun: false,
+      },
+      composition: {
+        conflictResolution: 'error',
+        validate: true,
+      },
+      errorHandling: {
+        includeSubgraphName: true,
+        partialErrors: 'propagate',
+      },
+    });
+
+    expect(gateway.enabled).toBe(true);
+    expect(gateway.subgraphs).toHaveLength(2);
+    expect(gateway.serviceDiscovery?.type).toBe('kubernetes');
+    expect(gateway.queryPlanning?.strategy).toBe('parallel');
+    expect(gateway.composition?.conflictResolution).toBe('error');
+    expect(gateway.errorHandling?.includeSubgraphName).toBe(true);
+  });
+
+  it('should accept all service discovery types', () => {
+    const types = ['static', 'dns', 'consul', 'kubernetes'] as const;
+
+    types.forEach(type => {
+      const gateway = FederationGatewaySchema.parse({
+        subgraphs: [{ name: 'test', url: 'http://localhost:4000/graphql' }],
+        serviceDiscovery: { type },
+      });
+      expect(gateway.serviceDiscovery?.type).toBe(type);
+    });
+  });
+
+  it('should accept all query planning strategies', () => {
+    const strategies = ['parallel', 'sequential', 'adaptive'] as const;
+
+    strategies.forEach(strategy => {
+      const gateway = FederationGatewaySchema.parse({
+        subgraphs: [{ name: 'test', url: 'http://localhost:4000/graphql' }],
+        queryPlanning: { strategy },
+      });
+      expect(gateway.queryPlanning?.strategy).toBe(strategy);
+    });
+  });
+
+  it('should accept all conflict resolution strategies', () => {
+    const strategies = ['error', 'first_wins', 'last_wins'] as const;
+
+    strategies.forEach(conflictResolution => {
+      const gateway = FederationGatewaySchema.parse({
+        subgraphs: [{ name: 'test', url: 'http://localhost:4000/graphql' }],
+        composition: { conflictResolution },
+      });
+      expect(gateway.composition?.conflictResolution).toBe(conflictResolution);
+    });
+  });
+});
+
+describe('GraphQLConfigSchema with Federation', () => {
+  it('should accept config with federation', () => {
+    const config = GraphQLConfigSchema.parse({
+      enabled: true,
+      path: '/graphql',
+      federation: {
+        enabled: true,
+        version: 'v2',
+        subgraphs: [
+          {
+            name: 'products',
+            url: 'http://products:4001/graphql',
+            entities: [
+              { typeName: 'Product', keys: [{ fields: 'id' }] },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(config.federation?.enabled).toBe(true);
+    expect(config.federation?.subgraphs).toHaveLength(1);
   });
 });

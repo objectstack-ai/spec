@@ -81,6 +81,57 @@ export const AgentSchema = z.object({
   /** Multi-tenancy & Visibility */
   tenantId: z.string().optional().describe('Tenant/Organization ID'),
   visibility: z.enum(['global', 'organization', 'private']).default('organization'),
+
+  /** Autonomous Reasoning */
+  planning: z.object({
+    /** Planning strategy for autonomous reasoning loops */
+    strategy: z.enum(['react', 'plan_and_execute', 'reflexion', 'tree_of_thought']).default('react').describe('Autonomous reasoning strategy'),
+
+    /** Maximum reasoning iterations before stopping */
+    maxIterations: z.number().int().min(1).max(100).default(10).describe('Maximum planning loop iterations'),
+
+    /** Whether the agent can revise its own plan mid-execution */
+    allowReplan: z.boolean().default(true).describe('Allow dynamic re-planning based on intermediate results'),
+  }).optional().describe('Autonomous reasoning and planning configuration'),
+
+  /** Memory Management */
+  memory: z.object({
+    /** Short-term (working) memory configuration */
+    shortTerm: z.object({
+      /** Maximum number of recent messages to retain */
+      maxMessages: z.number().int().min(1).default(50).describe('Max recent messages in working memory'),
+
+      /** Maximum token budget for short-term context */
+      maxTokens: z.number().int().min(100).optional().describe('Max tokens for short-term context window'),
+    }).optional().describe('Short-term / working memory'),
+
+    /** Long-term (persistent) memory configuration */
+    longTerm: z.object({
+      /** Whether long-term memory is enabled */
+      enabled: z.boolean().default(false).describe('Enable long-term memory persistence'),
+
+      /** Storage backend for long-term memory */
+      store: z.enum(['vector', 'database', 'redis']).default('vector').describe('Long-term memory storage backend'),
+
+      /** Maximum number of persisted memory entries */
+      maxEntries: z.number().int().min(1).optional().describe('Max entries in long-term memory'),
+    }).optional().describe('Long-term / persistent memory'),
+
+    /** Reflection interval — how often the agent reflects on past actions */
+    reflectionInterval: z.number().int().min(1).optional().describe('Reflect every N interactions to improve behavior'),
+  }).optional().describe('Agent memory management'),
+
+  /** Guardrails */
+  guardrails: z.object({
+    /** Maximum tokens the agent may consume per invocation */
+    maxTokensPerInvocation: z.number().int().min(1).optional().describe('Token budget per single invocation'),
+
+    /** Maximum wall-clock time per invocation in seconds */
+    maxExecutionTimeSec: z.number().int().min(1).optional().describe('Max execution time in seconds'),
+
+    /** Topics or actions the agent must avoid */
+    blockedTopics: z.array(z.string()).optional().describe('Forbidden topics or action names'),
+  }).optional().describe('Safety guardrails for the agent'),
 });
 
 export type Agent = z.infer<typeof AgentSchema>;
