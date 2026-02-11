@@ -223,5 +223,12 @@ describe('Dev Mode Plugin Protocol', () => {
         DevPluginConfigSchema.safeParse({ simulatedLatency: -10 }).success,
       ).toBe(false);
     });
+
+    it('should reject empty string as service key', () => {
+      const result = DevPluginConfigSchema.safeParse({
+        services: { '': { enabled: true } },
+      });
+      expect(result.success).toBe(false);
+    });
   });
 });

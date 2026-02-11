@@ -1,10 +1,16 @@
 # @objectstack/plugin-dev
 
-> Development Mode Plugin for ObjectStack — auto-enables all services with in-memory implementations.
+> Development Mode Plugin for ObjectStack — auto-enables all kernel services for a full-featured API development environment.
 
 ## Overview
 
-Instead of manually wiring up ObjectQL, drivers, auth, HTTP server, and REST endpoints for local development, use `DevPlugin` to get a fully functional stack in one line.
+Instead of manually wiring up ObjectQL, drivers, auth, HTTP server, REST endpoints, dispatcher, and metadata for local development, use `DevPlugin` to get a fully functional stack in one line.
+
+The dev environment simulates **all kernel services** so you can:
+- CRUD business objects via REST API
+- Read, modify, and save views/apps/dashboards via metadata API (`PUT /api/v1/meta/:type/:name`)
+- Use GraphQL, analytics, storage, and automation endpoints
+- Authenticate with dev credentials (no real auth provider needed)
 
 ## Usage
 
@@ -25,6 +31,19 @@ export default defineStack({
 });
 ```
 
+### Full-stack dev with project metadata
+
+```typescript
+import config from './objectstack.config';
+import { DevPlugin } from '@objectstack/plugin-dev';
+
+// Load all project metadata (objects, views, etc.) into the dev server
+export default defineStack({
+  ...config,
+  plugins: [new DevPlugin({ stack: config })],
+});
+```
+
 ### With options
 
 ```typescript
@@ -33,7 +52,8 @@ plugins: [
     port: 4000,
     seedAdminUser: true,
     services: {
-      auth: false,      // Skip auth for quick prototyping
+      auth: false,        // Skip auth for quick prototyping
+      dispatcher: false,  // Skip extended API routes
     },
   }),
 ]
@@ -43,13 +63,31 @@ plugins: [
 
 | Service | Package | Description |
 |---------|---------|-------------|
-| ObjectQL | `@objectstack/objectql` | Data engine (query, CRUD, hooks) |
+| ObjectQL | `@objectstack/objectql` | Data engine (query, CRUD, hooks, metadata) |
 | InMemoryDriver | `@objectstack/driver-memory` | In-memory database (no DB install) |
+| App/Metadata | `@objectstack/runtime` | Project metadata (objects, views, apps, dashboards) |
 | Auth | `@objectstack/plugin-auth` | Authentication with dev credentials |
 | Hono Server | `@objectstack/plugin-hono-server` | HTTP server on configured port |
-| REST API | `@objectstack/rest` | Auto-generated CRUD endpoints |
+| REST API | `@objectstack/rest` | Auto-generated CRUD + metadata endpoints |
+| Dispatcher | `@objectstack/runtime` | Auth routes, GraphQL, analytics, packages, storage |
 
 All services are **optional** — if a peer package isn't installed, it is silently skipped.
+
+## API Endpoints (when all services enabled)
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/v1/data/:object` | List records |
+| `POST /api/v1/data/:object` | Create record |
+| `GET /api/v1/data/:object/:id` | Get record |
+| `PUT /api/v1/data/:object/:id` | Update record |
+| `DELETE /api/v1/data/:object/:id` | Delete record |
+| `GET /api/v1/meta` | List metadata types |
+| `GET /api/v1/meta/:type` | List metadata of type |
+| `GET /api/v1/meta/:type/:name` | Get metadata item |
+| `PUT /api/v1/meta/:type/:name` | Save metadata item |
+| `POST /api/v1/graphql` | GraphQL endpoint |
+| `GET /.well-known/objectstack` | Service discovery |
 
 ## Options
 
@@ -62,6 +100,7 @@ All services are **optional** — if a peer package isn't installed, it is silen
 | `verbose` | `boolean` | `true` | Enable verbose logging |
 | `services` | `Record<string, boolean>` | all `true` | Enable/disable individual services |
 | `extraPlugins` | `Plugin[]` | `[]` | Additional plugins to load |
+| `stack` | `object` | — | Stack definition to load as project metadata |
 
 ## License
 

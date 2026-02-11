@@ -14,12 +14,13 @@ describe('DevPlugin', () => {
     expect(plugin).toBeDefined();
   });
 
-  it('should accept custom options', () => {
+  it('should accept custom options including stack', () => {
     const plugin = new DevPlugin({
       port: 4000,
       seedAdminUser: false,
       verbose: false,
-      services: { auth: false },
+      services: { auth: false, dispatcher: false },
+      stack: { manifest: { id: 'test', name: 'test', version: '1.0.0', type: 'app' } },
     });
     expect(plugin).toBeDefined();
   });
@@ -69,6 +70,7 @@ describe('DevPlugin', () => {
         auth: false,
         server: false,
         rest: false,
+        dispatcher: false,
       },
     });
 

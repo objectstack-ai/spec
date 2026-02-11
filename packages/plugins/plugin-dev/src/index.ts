@@ -6,8 +6,15 @@
  * Development Mode Plugin for ObjectStack.
  *
  * Auto-enables all platform services (ObjectQL, InMemoryDriver, Auth,
- * Hono HTTP server, REST API) with in-memory implementations so that
- * developers can run the full stack locally without external dependencies.
+ * Hono HTTP server, REST API, Dispatcher, Metadata) with in-memory
+ * implementations so that developers can run the full stack locally
+ * without external dependencies.
+ *
+ * Provides a complete API development environment where you can:
+ * - CRUD business objects
+ * - Read/write metadata (views, apps, dashboards, etc.)
+ * - Use GraphQL, analytics, and automation endpoints
+ * - Authenticate with dev credentials
  *
  * @example Zero-config
  * ```typescript
@@ -20,15 +27,13 @@
  * });
  * ```
  *
- * @example With options
+ * @example Full-stack dev with project metadata
  * ```typescript
- * plugins: [
- *   new DevPlugin({
- *     port: 4000,
- *     seedAdminUser: true,
- *     services: { auth: false }, // disable auth
- *   }),
- * ]
+ * import config from './objectstack.config';
+ * import { DevPlugin } from '@objectstack/plugin-dev';
+ *
+ * // Loads all project metadata (objects, views, etc.) into the dev server
+ * plugins: [new DevPlugin({ stack: config })]
  * ```
  */
 

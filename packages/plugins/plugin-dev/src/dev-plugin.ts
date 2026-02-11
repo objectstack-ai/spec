@@ -44,7 +44,7 @@ export interface DevPluginOptions {
    * Override which services to enable. By default all core services are enabled.
    * Set a service name to `false` to skip it.
    *
-   * Available services: 'objectql', 'driver', 'auth', 'server', 'rest'
+   * Available services: 'objectql', 'driver', 'auth', 'server', 'rest', 'dispatcher'
    */
   services?: Partial<Record<string, boolean>>;
 
@@ -53,13 +53,34 @@ export interface DevPluginOptions {
    * Useful for adding custom project plugins while still getting the dev defaults.
    */
   extraPlugins?: Plugin[];
+
+  /**
+   * Stack definition to load as a project.
+   * When provided, the DevPlugin wraps it in an AppPlugin so that all
+   * metadata (objects, views, apps, dashboards, etc.) is registered with
+   * the kernel and exposed through the REST/metadata APIs.
+   *
+   * This is what makes `new DevPlugin({ stack: config })` equivalent to
+   * a full `os serve --dev` environment: views can be read, modified, and
+   * saved through the API.
+   *
+   * @example
+   * ```ts
+   * import config from './objectstack.config';
+   * plugins: [new DevPlugin({ stack: config })]
+   * ```
+   */
+  stack?: Record<string, any>;
 }
 
 /**
  * Development Mode Plugin for ObjectStack
  *
- * A convenience plugin that auto-configures the entire platform stack
- * for local development. Instead of manually wiring:
+ * A convenience plugin that auto-configures the **entire** platform stack
+ * for local development, simulating all kernel services so developers
+ * can work in a full-featured API environment without external dependencies.
+ *
+ * Instead of manually wiring:
  *
  * ```ts
  * plugins: [
@@ -67,7 +88,9 @@ export interface DevPluginOptions {
  *   new DriverPlugin(new InMemoryDriver()),
  *   new AuthPlugin({ secret: '...', baseUrl: '...' }),
  *   new HonoServerPlugin({ port: 3000 }),
- *   // ...
+ *   createRestApiPlugin(),
+ *   createDispatcherPlugin(),
+ *   new AppPlugin(config),
  * ]
  * ```
  *
@@ -77,13 +100,17 @@ export interface DevPluginOptions {
  * plugins: [new DevPlugin()]
  * ```
  *
- * The DevPlugin will:
- * 1. Register an ObjectQL engine (data layer)
- * 2. Register an InMemoryDriver (no database required)
- * 3. Register an Auth plugin (with dev credentials)
- * 4. Register a Hono HTTP server
- * 5. Register REST API endpoints
- * 6. Optionally seed a default admin user
+ * ## Services enabled
+ *
+ * | Service      | Package                           | Description                               |
+ * |--------------|-----------------------------------|-------------------------------------------|
+ * | ObjectQL     | `@objectstack/objectql`           | Data engine (query, CRUD, hooks)          |
+ * | Driver       | `@objectstack/driver-memory`      | In-memory database (no DB install)        |
+ * | Auth         | `@objectstack/plugin-auth`        | Authentication with dev credentials       |
+ * | HTTP Server  | `@objectstack/plugin-hono-server` | HTTP server on configured port            |
+ * | REST API     | `@objectstack/rest`               | Auto-generated CRUD + metadata endpoints  |
+ * | Dispatcher   | `@objectstack/runtime`            | Auth, GraphQL, analytics, packages, etc.  |
+ * | App/Metadata | `@objectstack/runtime`            | Project metadata (objects, views, apps)   |
  *
  * All services can be individually disabled via `options.services`.
  * Peer packages are loaded via dynamic import and silently skipped if missing.
@@ -122,13 +149,13 @@ export class DevPlugin implements Plugin {
 
     const enabled = (name: string) => this.options.services?.[name] !== false;
 
-    // 1. ObjectQL Engine (data layer)
+    // 1. ObjectQL Engine (data layer + metadata service)
     if (enabled('objectql')) {
       try {
         const { ObjectQLPlugin } = await import('@objectstack/objectql');
         const qlPlugin = new ObjectQLPlugin();
         this.childPlugins.push(qlPlugin);
-        ctx.logger.info('  ✔ ObjectQL engine enabled');
+        ctx.logger.info('  ✔ ObjectQL engine enabled (data + metadata)');
       } catch {
         ctx.logger.warn('  ✘ @objectstack/objectql not installed — skipping data engine');
       }
@@ -148,7 +175,21 @@ export class DevPlugin implements Plugin {
       }
     }
 
-    // 3. Auth Plugin
+    // 3. App Plugin — registers project metadata (objects, views, apps, dashboards, etc.)
+    //    This is the key piece that enables full API development:
+    //    once metadata is registered, REST endpoints can read/write views, etc.
+    if (this.options.stack) {
+      try {
+        const { AppPlugin } = await import('@objectstack/runtime') as any;
+        const appPlugin = new AppPlugin(this.options.stack);
+        this.childPlugins.push(appPlugin);
+        ctx.logger.info('  ✔ App metadata loaded from stack definition');
+      } catch {
+        ctx.logger.warn('  ✘ @objectstack/runtime not installed — skipping app metadata');
+      }
+    }
+
+    // 4. Auth Plugin
     if (enabled('auth')) {
       try {
         const { AuthPlugin } = await import('@objectstack/plugin-auth') as any;
@@ -163,7 +204,7 @@ export class DevPlugin implements Plugin {
       }
     }
 
-    // 4. Hono HTTP Server
+    // 5. Hono HTTP Server
     if (enabled('server')) {
       try {
         const { HonoServerPlugin } = await import('@objectstack/plugin-hono-server') as any;
@@ -177,25 +218,27 @@ export class DevPlugin implements Plugin {
       }
     }
 
-    // 5. REST API endpoints
+    // 6. REST API endpoints (CRUD + metadata read/write)
     if (enabled('rest')) {
       try {
-        const restModule = await import('@objectstack/rest') as any;
-        // REST may export a plugin class or a factory function
-        const RestPlugin = (restModule as any).RestPlugin
-          ?? (restModule as any).createRestPlugin
-          ?? (restModule as any).default;
-        if (typeof RestPlugin === 'function') {
-          const restPlugin = RestPlugin.prototype?.init
-            ? new RestPlugin()
-            : RestPlugin();
-          if (restPlugin) {
-            this.childPlugins.push(restPlugin);
-            ctx.logger.info('  ✔ REST API endpoints enabled');
-          }
-        }
+        const { createRestApiPlugin } = await import('@objectstack/rest') as any;
+        const restPlugin = createRestApiPlugin();
+        this.childPlugins.push(restPlugin);
+        ctx.logger.info('  ✔ REST API endpoints enabled (CRUD + metadata)');
       } catch {
         ctx.logger.debug('  ℹ @objectstack/rest not installed — skipping REST endpoints');
+      }
+    }
+
+    // 7. Dispatcher (auth routes, GraphQL, analytics, packages, storage, automation)
+    if (enabled('dispatcher')) {
+      try {
+        const { createDispatcherPlugin } = await import('@objectstack/runtime') as any;
+        const dispatcherPlugin = createDispatcherPlugin();
+        this.childPlugins.push(dispatcherPlugin);
+        ctx.logger.info('  ✔ Dispatcher enabled (auth, GraphQL, analytics, packages, storage)');
+      } catch {
+        ctx.logger.debug('  ℹ Dispatcher not available — skipping extended API routes');
       }
     }
 
@@ -241,6 +284,10 @@ export class DevPlugin implements Plugin {
     ctx.logger.info('─────────────────────────────────────────');
     ctx.logger.info('🟢 ObjectStack Dev Server ready');
     ctx.logger.info(`   http://localhost:${this.options.port}`);
+    ctx.logger.info('');
+    ctx.logger.info('   API:       /api/v1/data/:object');
+    ctx.logger.info('   Metadata:  /api/v1/meta/:type/:name');
+    ctx.logger.info('   Discovery: /.well-known/objectstack');
     ctx.logger.info('─────────────────────────────────────────');
   }
 

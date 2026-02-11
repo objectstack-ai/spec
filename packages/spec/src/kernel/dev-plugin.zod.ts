@@ -151,37 +151,36 @@ export type DevPluginPreset = z.infer<typeof DevPluginPreset>;
  * Dev Plugin Config Schema
  *
  * Top-level configuration for the development-mode plugin.
- * This is the shape of the config object a developer passes to
- * `@objectstack/plugin-dev` (or equivalent) in their stack definition.
+ * This is the shape of the configuration payload that
+ * `@objectstack/plugin-dev` (or equivalent) understands.
+ *
+ * The outer wiring (e.g. how a stack declares `devPlugins`) is defined
+ * by the stack/manifest schemas; this type only describes the plugin's
+ * own config object.
  *
  * @example Minimal usage (zero-config)
  * ```ts
- * devPlugins: ['@objectstack/plugin-dev']
+ * const devConfig: DevPluginConfig = {};
  * ```
  *
  * @example With preset
  * ```ts
- * devPlugins: [
- *   { id: '@objectstack/plugin-dev', config: { preset: 'full' } }
- * ]
+ * const devConfig: DevPluginConfig = {
+ *   preset: 'full',
+ * };
  * ```
  *
  * @example Fine-grained overrides
  * ```ts
- * devPlugins: [
- *   {
- *     id: '@objectstack/plugin-dev',
- *     config: {
- *       preset: 'standard',
- *       services: {
- *         auth:       { enabled: true, strategy: 'mock' },
- *         fileStorage: { enabled: false },
- *       },
- *       fixtures: { paths: ['./fixtures/*.json'] },
- *       tools: { dbExplorer: true },
- *     }
- *   }
- * ]
+ * const devConfig: DevPluginConfig = {
+ *   preset: 'standard',
+ *   services: {
+ *     auth:       { enabled: true, strategy: 'mock' },
+ *     fileStorage: { enabled: false },
+ *   },
+ *   fixtures: { paths: ['./fixtures/*.json'] },
+ *   tools: { dbExplorer: true },
+ * };
  * ```
  */
 export const DevPluginConfigSchema = z.object({
@@ -200,7 +199,7 @@ export const DevPluginConfigSchema = z.object({
    * Only services explicitly listed here override the preset defaults.
    */
   services: z.record(
-    z.string(),
+    z.string().min(1),
     DevServiceOverrideSchema.omit({ service: true }),
   ).optional().describe('Per-service dev overrides keyed by service name'),
 
