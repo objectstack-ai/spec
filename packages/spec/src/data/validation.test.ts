@@ -1529,3 +1529,70 @@ describe('ValidationRuleSchema - Boundary Conditions', () => {
     });
   });
 });
+
+// ============================================================================
+// Protocol Improvement Tests: Validation priority
+// ============================================================================
+
+describe('ValidationRule - priority property', () => {
+  it('should accept a validation rule with priority', () => {
+    const rule = ScriptValidationSchema.parse({
+      type: 'script',
+      name: 'high_priority_check',
+      message: 'This runs first',
+      condition: 'amount < 0',
+      priority: 10,
+    });
+    expect(rule.priority).toBe(10);
+  });
+
+  it('should default priority to 100', () => {
+    const rule = ScriptValidationSchema.parse({
+      type: 'script',
+      name: 'default_priority',
+      message: 'Default',
+      condition: 'amount < 0',
+    });
+    expect(rule.priority).toBe(100);
+  });
+
+  it('should accept priority of 0 (highest)', () => {
+    const rule = ScriptValidationSchema.parse({
+      type: 'script',
+      name: 'first_check',
+      message: 'First',
+      condition: 'true',
+      priority: 0,
+    });
+    expect(rule.priority).toBe(0);
+  });
+
+  it('should accept priority of 9999 (lowest)', () => {
+    const rule = ScriptValidationSchema.parse({
+      type: 'script',
+      name: 'last_check',
+      message: 'Last',
+      condition: 'true',
+      priority: 9999,
+    });
+    expect(rule.priority).toBe(9999);
+  });
+
+  it('should reject priority out of range', () => {
+    expect(() => ScriptValidationSchema.parse({
+      type: 'script',
+      name: 'invalid_priority',
+      message: 'Bad',
+      condition: 'true',
+      priority: -1,
+    })).toThrow();
+
+    expect(() => ScriptValidationSchema.parse({
+      type: 'script',
+      name: 'invalid_priority',
+      message: 'Bad',
+      condition: 'true',
+      priority: 10000,
+    })).toThrow();
+  });
+});

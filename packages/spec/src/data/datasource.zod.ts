@@ -139,6 +139,15 @@ export const DatasourceSchema = z.object({
     timeoutMs: z.number().default(5000).describe('Health check timeout in milliseconds'),
   }).optional().describe('Datasource health check configuration'),
 
+  /** SSL/TLS Configuration */
+  ssl: z.object({
+    enabled: z.boolean().default(false).describe('Enable SSL/TLS for database connection'),
+    rejectUnauthorized: z.boolean().default(true).describe('Reject connections with invalid/self-signed certificates'),
+    ca: z.string().optional().describe('CA certificate (PEM format or path to file)'),
+    cert: z.string().optional().describe('Client certificate (PEM format or path to file)'),
+    key: z.string().optional().describe('Client private key (PEM format or path to file)'),
+  }).optional().describe('SSL/TLS configuration for secure database connections'),
+
   /** Retry Policy */
   retryPolicy: z.object({
     maxRetries: z.number().default(3).describe('Maximum number of retry attempts'),

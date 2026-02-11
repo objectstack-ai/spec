@@ -417,3 +417,60 @@ describe('DatasourceSchema', () => {
     })).toThrow();
   });
 });
+
+// ============================================================================
+// Protocol Improvement Tests: Datasource SSL
+// ============================================================================
+
+describe('DatasourceSchema - ssl', () => {
+  it('should accept datasource with SSL config', () => {
+    const result = DatasourceSchema.parse({
+      name: 'secure_db',
+      driver: 'postgres',
+      config: { host: 'db.example.com', port: 5432 },
+      ssl: {
+        enabled: true,
+        rejectUnauthorized: true,
+        ca: '/path/to/ca.pem',
+      },
+    });
+    expect(result.ssl?.enabled).toBe(true);
+    expect(result.ssl?.rejectUnauthorized).toBe(true);
+    expect(result.ssl?.ca).toBe('/path/to/ca.pem');
+  });
+
+  it('should accept SSL with client certificates', () => {
+    const result = DatasourceSchema.parse({
+      name: 'mtls_db',
+      driver: 'postgres',
+      config: { host: 'db.secure.com' },
+      ssl: {
+        enabled: true,
+        ca: '/certs/ca.pem',
+        cert: '/certs/client.pem',
+        key: '/certs/client-key.pem',
+      },
+    });
+    expect(result.ssl?.cert).toBe('/certs/client.pem');
+    expect(result.ssl?.key).toBe('/certs/client-key.pem');
+  });
+
+  it('should default rejectUnauthorized to true', () => {
+    const result = DatasourceSchema.parse({
+      name: 'ssl_db',
+      driver: 'mysql',
+      config: {},
+      ssl: { enabled: true },
+    });
+    expect(result.ssl?.rejectUnauthorized).toBe(true);
+  });
+
+  it('should accept datasource without SSL (optional)', () => {
+    const result = DatasourceSchema.parse({
+      name: 'local_db',
+      driver: 'sqlite',
+      config: { path: './data.db' },
+    });
+    expect(result.ssl).toBeUndefined();
+  });
+});

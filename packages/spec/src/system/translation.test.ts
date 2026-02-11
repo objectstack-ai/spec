@@ -390,3 +390,39 @@ describe('TranslationBundleSchema', () => {
     expect(bundle['zh-CN'].messages).toBeUndefined();
   });
 });
+
+// ============================================================================
+// Protocol Improvement Tests: Translation validationMessages
+// ============================================================================
+
+describe('TranslationDataSchema - validationMessages', () => {
+  it('should accept translation data with validationMessages', () => {
+    const data = TranslationDataSchema.parse({
+      validationMessages: {
+        'discount_limit': 'Discount cannot exceed 40%',
+        'amount_required': 'Amount is required for closed deals',
+      },
+    });
+    expect(data.validationMessages?.['discount_limit']).toBe('Discount cannot exceed 40%');
+    expect(data.validationMessages?.['amount_required']).toBe('Amount is required for closed deals');
+  });
+
+  it('should accept Chinese validation messages', () => {
+    const bundle = TranslationBundleSchema.parse({
+      'zh-CN': {
+        validationMessages: {
+          'discount_limit': '折扣不能超过40%',
+          'end_date_check': '结束日期必须大于开始日期',
+        },
+      },
+    });
+    expect(bundle['zh-CN'].validationMessages?.['discount_limit']).toBe('折扣不能超过40%');
+  });
+
+  it('should accept translation data without validationMessages (optional)', () => {
+    const data = TranslationDataSchema.parse({
+      messages: { 'save': 'Save' },
+    });
+    expect(data.validationMessages).toBeUndefined();
+  });
+});

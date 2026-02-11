@@ -592,3 +592,73 @@ describe('ObjectSchema', () => {
     });
   });
 });
+
+// ============================================================================
+// Protocol Improvement Tests: displayNameField and recordName
+// ============================================================================
+
+describe('ObjectSchema - displayNameField', () => {
+  it('should accept displayNameField', () => {
+    const result = ObjectSchema.parse({
+      name: 'ticket',
+      fields: {
+        title: { type: 'text' },
+      },
+      displayNameField: 'title',
+    });
+    expect(result.displayNameField).toBe('title');
+  });
+
+  it('should accept object without displayNameField (optional)', () => {
+    const result = ObjectSchema.parse({
+      name: 'ticket',
+      fields: {
+        name: { type: 'text' },
+      },
+    });
+    expect(result.displayNameField).toBeUndefined();
+  });
+});
+
+describe('ObjectSchema - recordName', () => {
+  it('should accept recordName with autonumber config', () => {
+    const result = ObjectSchema.parse({
+      name: 'invoice',
+      fields: {
+        total: { type: 'number' },
+      },
+      recordName: {
+        type: 'autonumber',
+        displayFormat: 'INV-{YYYY}-{0000}',
+        startNumber: 1,
+      },
+    });
+    expect(result.recordName?.type).toBe('autonumber');
+    expect(result.recordName?.displayFormat).toBe('INV-{YYYY}-{0000}');
+    expect(result.recordName?.startNumber).toBe(1);
+  });
+
+  it('should accept recordName with text type', () => {
+    const result = ObjectSchema.parse({
+      name: 'account',
+      fields: {
+        name: { type: 'text' },
+      },
+      recordName: {
+        type: 'text',
+      },
+    });
+    expect(result.recordName?.type).toBe('text');
+    expect(result.recordName?.displayFormat).toBeUndefined();
+  });
+
+  it('should accept object without recordName (optional)', () => {
+    const result = ObjectSchema.parse({
+      name: 'task',
+      fields: {
+        title: { type: 'text' },
+      },
+    });
+    expect(result.recordName).toBeUndefined();
+  });
+});

@@ -137,6 +137,14 @@ export const FlowSchema = z.object({
   /** Execution Config */
   active: z.boolean().default(false).describe('Is active (Deprecated: use status)'),
   runAs: z.enum(['system', 'user']).default('user').describe('Execution context'),
+
+  /** Error Handling Strategy */
+  errorHandling: z.object({
+    strategy: z.enum(['fail', 'retry', 'continue']).default('fail').describe('How to handle node execution errors'),
+    maxRetries: z.number().int().min(0).max(10).default(0).describe('Number of retry attempts (only for retry strategy)'),
+    retryDelayMs: z.number().int().min(0).default(1000).describe('Delay between retries in milliseconds'),
+    fallbackNodeId: z.string().optional().describe('Node ID to jump to on unrecoverable error'),
+  }).optional().describe('Flow-level error handling configuration'),
 });
 
 export type Flow = z.input<typeof FlowSchema>;

@@ -33,6 +33,9 @@ export const TranslationDataSchema = z.object({
 
   /** UI Messages */
   messages: z.record(z.string(), z.string()).optional().describe('UI message translations keyed by message ID'),
+  
+  /** Validation Error Messages */
+  validationMessages: z.record(z.string(), z.string()).optional().describe('Translatable validation error messages keyed by rule name (e.g., {"discount_limit": "折扣不能超过40%"})'),
 }).describe('Translation data for objects, apps, and UI messages');
 
 export const LocaleSchema = z.string().describe('BCP-47 Language Tag (e.g. en-US, zh-CN)');

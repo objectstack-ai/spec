@@ -410,3 +410,48 @@ describe('PermissionSetSchema', () => {
     });
   });
 });
+
+// ============================================================================
+// Protocol Improvement Tests: Permission tabPermissions
+// ============================================================================
+
+describe('PermissionSetSchema - tabPermissions', () => {
+  it('should accept permission set with tabPermissions', () => {
+    const result = PermissionSetSchema.parse({
+      name: 'sales_user',
+      objects: {
+        account: { allowRead: true, allowCreate: true },
+      },
+      tabPermissions: {
+        'app_crm': 'visible',
+        'app_admin': 'hidden',
+        'app_marketing': 'default_on',
+        'app_support': 'default_off',
+      },
+    });
+    expect(result.tabPermissions?.['app_crm']).toBe('visible');
+    expect(result.tabPermissions?.['app_admin']).toBe('hidden');
+    expect(result.tabPermissions?.['app_marketing']).toBe('default_on');
+    expect(result.tabPermissions?.['app_support']).toBe('default_off');
+  });
+
+  it('should reject invalid tab permission values', () => {
+    expect(() => PermissionSetSchema.parse({
+      name: 'bad_perm',
+      objects: {},
+      tabPermissions: {
+        'app_test': 'invalid_value',
+      },
+    })).toThrow();
+  });
+
+  it('should accept permission set without tabPermissions (optional)', () => {
+    const result = PermissionSetSchema.parse({
+      name: 'basic_user',
+      objects: {
+        task: { allowRead: true },
+      },
+    });
+    expect(result.tabPermissions).toBeUndefined();
+  });
+});
