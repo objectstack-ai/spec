@@ -76,6 +76,21 @@ export const MetadataRecordSchema = z.object({
   
   /** State */
   state: MetadataStateSchema.default('active'),
+
+  /** Tenant ID for multi-tenant isolation */
+  tenantId: z.string().optional().describe('Tenant identifier for multi-tenant isolation'),
+
+  /** Version number for optimistic concurrency */
+  version: z.number().default(1).describe('Record version for optimistic concurrency control'),
+
+  /** Checksum for change detection */
+  checksum: z.string().optional().describe('Content checksum for change detection'),
+
+  /** Source origin marker */
+  source: z.enum(['filesystem', 'database', 'api', 'migration']).optional().describe('Origin of this metadata record'),
+
+  /** Classification tags */
+  tags: z.array(z.string()).optional().describe('Classification tags for filtering and grouping'),
   
   /** Audit */
   createdBy: z.string().optional(),
@@ -116,7 +131,7 @@ export const MetadataStatsSchema = z.object({
  */
 export const MetadataLoaderContractSchema = z.object({
   name: z.string(),
-  protocol: z.string(), // e.g. 'file:', 'http:', 's3:'
+  protocol: z.enum(['file:', 'http:', 's3:', 'datasource:']).describe('Loader protocol identifier'),
   description: z.string().optional(),
   supportedFormats: z.array(z.string()).optional(),
   supportsWatch: z.boolean().optional(),
@@ -229,16 +244,73 @@ export const MetadataImportOptionsSchema = z.object({
 });
 
 /**
+ * Metadata Fallback Strategy
+ * Determines behavior when the primary datasource is unavailable.
+ */
+export const MetadataFallbackStrategySchema = z.enum([
+  'filesystem', // Fall back to filesystem-based loading
+  'memory',     // Fall back to in-memory storage
+  'none',       // No fallback — fail immediately
+]);
+
+/**
+ * Metadata Source Origin
+ * Indicates where a metadata record was loaded from.
+ */
+export const MetadataSourceSchema = z.enum([
+  'filesystem', // Loaded from local files
+  'database',   // Loaded from database via datasource
+  'api',        // Loaded from remote API
+  'migration',  // Created during a migration process
+]);
+
+/**
  * Metadata Manager Config
+ * 
+ * Unified configuration for the MetadataManager.
+ * Supports datasource-backed persistence via `datasource` field,
+ * which references a DatasourceSchema.name resolved at runtime.
  */
 export const MetadataManagerConfigSchema = z.object({
-  loaders: z.array(z.unknown()).optional(),
-  watch: z.boolean().optional(),
-  cache: z.boolean().optional(),
-  basePath: z.string().optional(),
-  rootDir: z.string().optional(),
-  formats: z.array(MetadataFormatSchema).optional(),
-  watchOptions: z.unknown().optional(), // Chokidar options
+  /**
+   * Datasource Name Reference
+   * References a DatasourceSchema.name (e.g. 'default').
+   * At runtime, resolved from kernel service `driver.{name}` to obtain the actual driver.
+   * When provided, metadata is persisted to a database table.
+   */
+  datasource: z.string().optional().describe('Datasource name reference for database persistence'),
+
+  /**
+   * Metadata Table Name
+   * The database table used for metadata storage when datasource is configured.
+   */
+  tableName: z.string().default('sys_metadata').describe('Database table name for metadata storage'),
+
+  /**
+   * Fallback Strategy
+   * Determines behavior when the primary datasource is unavailable.
+   */
+  fallback: MetadataFallbackStrategySchema.default('none').describe('Fallback strategy when datasource is unavailable'),
+
+  /**
+   * Root directory for metadata (for filesystem loaders)
+   */
+  rootDir: z.string().optional().describe('Root directory for filesystem-based metadata'),
+
+  /**
+   * Enabled serialization formats
+   */
+  formats: z.array(MetadataFormatSchema).optional().describe('Enabled metadata formats'),
+
+  /**
+   * Enable file watching
+   */
+  watch: z.boolean().optional().describe('Enable file watching for filesystem loaders'),
+
+  /**
+   * Cache configuration
+   */
+  cache: z.boolean().optional().describe('Enable metadata caching'),
 });
 
 export type MetadataFormat = z.infer<typeof MetadataFormatSchema>;
@@ -253,3 +325,5 @@ export type MetadataCollectionInfo = z.infer<typeof MetadataCollectionInfoSchema
 export type MetadataExportOptions = z.infer<typeof MetadataExportOptionsSchema>;
 export type MetadataImportOptions = z.infer<typeof MetadataImportOptionsSchema>;
 export type MetadataManagerConfig = z.infer<typeof MetadataManagerConfigSchema>;
+export type MetadataFallbackStrategy = z.infer<typeof MetadataFallbackStrategySchema>;
+export type MetadataSource = z.infer<typeof MetadataSourceSchema>;

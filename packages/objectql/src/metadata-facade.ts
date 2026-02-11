@@ -8,12 +8,16 @@ import { SchemaRegistry } from './registry.js';
  * Provides a clean, injectable interface over SchemaRegistry.
  * Registered as the 'metadata' kernel service to eliminate
  * downstream packages needing to manually wrap SchemaRegistry.
+ * 
+ * Implements the async IMetadataService interface.
+ * Internally delegates to SchemaRegistry (in-memory) with Promise wrappers.
  */
 export class MetadataFacade {
   /**
    * Register a metadata item
    */
-  register(type: string, definition: any): void {
+  async register(type: string, name: string, data: any): Promise<void> {
+    const definition = typeof data === 'object' && data !== null ? { ...data, name } : data;
     if (type === 'object') {
       SchemaRegistry.registerItem(type, definition, 'name' as any);
     } else {
@@ -24,7 +28,7 @@ export class MetadataFacade {
   /**
    * Get a metadata item by type and name
    */
-  get(type: string, name: string): any {
+  async get(type: string, name: string): Promise<any> {
     const item = SchemaRegistry.getItem(type, name) as any;
     return item?.content ?? item;
   }
@@ -39,7 +43,7 @@ export class MetadataFacade {
   /**
    * List all items of a type
    */
-  list(type: string): any[] {
+  async list(type: string): Promise<any[]> {
     const items = SchemaRegistry.listItems(type);
     return items.map((item: any) => item?.content ?? item);
   }
@@ -47,28 +51,44 @@ export class MetadataFacade {
   /**
    * Unregister a metadata item
    */
-  unregister(type: string, name: string): void {
+  async unregister(type: string, name: string): Promise<void> {
     SchemaRegistry.unregisterItem(type, name);
+  }
+
+  /**
+   * Check if a metadata item exists
+   */
+  async exists(type: string, name: string): Promise<boolean> {
+    const item = SchemaRegistry.getItem(type, name);
+    return item !== undefined && item !== null;
+  }
+
+  /**
+   * List all names of metadata items of a given type
+   */
+  async listNames(type: string): Promise<string[]> {
+    const items = SchemaRegistry.listItems(type);
+    return items.map((item: any) => item?.name ?? item?.content?.name ?? '').filter(Boolean);
   }
 
   /**
    * Unregister all metadata from a package
    */
-  unregisterPackage(packageName: string): void {
+  async unregisterPackage(packageName: string): Promise<void> {
     SchemaRegistry.unregisterObjectsByPackage(packageName);
   }
 
   /**
    * Convenience: get object definition
    */
-  getObject(name: string): any {
+  async getObject(name: string): Promise<any> {
     return SchemaRegistry.getObject(name);
   }
 
   /**
    * Convenience: list all objects
    */
-  listObjects(): any[] {
+  async listObjects(): Promise<any[]> {
     return SchemaRegistry.getAllObjects();
   }
 }

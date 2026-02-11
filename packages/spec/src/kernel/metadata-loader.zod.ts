@@ -372,9 +372,9 @@ export const MetadataLoaderContractSchema = z.object({
   name: z.string().describe('Loader identifier'),
 
   /**
-   * Protocol handled by this loader (e.g. 'file', 'http', 's3')
+   * Protocol handled by this loader (e.g. 'file', 'http', 's3', 'datasource')
    */
-  protocol: z.string().describe('Protocol identifier'),
+  protocol: z.enum(['file', 'http', 's3', 'datasource']).describe('Protocol identifier'),
 
   /**
    * Detailed capabilities
@@ -408,9 +408,38 @@ export const MetadataLoaderContractSchema = z.object({
 });
 
 /**
+ * Metadata Fallback Strategy
+ * Determines behavior when the primary datasource is unavailable.
+ */
+export const MetadataFallbackStrategySchema = z.enum([
+  'filesystem', // Fall back to filesystem-based loading
+  'memory',     // Fall back to in-memory storage
+  'none',       // No fallback — fail immediately
+]);
+
+/**
  * Metadata Manager Configuration
  */
 export const MetadataManagerConfigSchema = z.object({
+  /**
+   * Datasource Name Reference
+   * References a DatasourceSchema.name (e.g. 'default').
+   * At runtime, resolved from kernel service `driver.{name}` to obtain the actual driver.
+   */
+  datasource: z.string().optional().describe('Datasource name reference for database persistence'),
+
+  /**
+   * Metadata Table Name
+   * The database table used for metadata storage when datasource is configured.
+   */
+  tableName: z.string().default('sys_metadata').describe('Database table name for metadata storage'),
+
+  /**
+   * Fallback Strategy
+   * Determines behavior when the primary datasource is unavailable.
+   */
+  fallback: MetadataFallbackStrategySchema.default('none').describe('Fallback strategy when datasource is unavailable'),
+
   /**
    * Root directory for metadata (for filesystem loaders)
    */
@@ -471,3 +500,4 @@ export type MetadataWatchEvent = z.infer<typeof MetadataWatchEventSchema>;
 export type MetadataCollectionInfo = z.infer<typeof MetadataCollectionInfoSchema>;
 export type MetadataLoaderContract = z.infer<typeof MetadataLoaderContractSchema>;
 export type MetadataManagerConfig = z.infer<typeof MetadataManagerConfigSchema>;
+export type MetadataFallbackStrategy = z.infer<typeof MetadataFallbackStrategySchema>;

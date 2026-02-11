@@ -371,6 +371,34 @@ describe('MetadataLoaderProtocol', () => {
       expect(validated.supportsWrite).toBe(false);
       expect(validated.supportsCache).toBe(true);
     });
+
+    it('should accept datasource protocol', () => {
+      const contract = {
+        name: 'database',
+        protocol: 'datasource',
+        capabilities: { read: true, write: true, watch: false, list: true },
+        supportedFormats: ['json'] as const,
+      };
+      
+      const validated = MetadataLoaderContractSchema.parse(contract);
+      expect(validated.protocol).toBe('datasource');
+      expect(validated.capabilities.write).toBe(true);
+    });
+
+    it('should accept all valid protocols', () => {
+      const protocols = ['file', 'http', 's3', 'datasource'];
+      protocols.forEach((protocol) => {
+        expect(() => MetadataLoaderContractSchema.parse({
+          name: 'test', protocol, capabilities: {}, supportedFormats: ['json'],
+        })).not.toThrow();
+      });
+    });
+
+    it('should reject invalid protocol', () => {
+      expect(() => MetadataLoaderContractSchema.parse({
+        name: 'test', protocol: 'ftp', capabilities: {}, supportedFormats: ['json'],
+      })).toThrow();
+    });
   });
 
   describe('MetadataManagerConfigSchema', () => {
@@ -380,10 +408,29 @@ describe('MetadataLoaderProtocol', () => {
       
       expect(validated.formats).toEqual(['typescript', 'json', 'yaml']);
       expect(validated.watch).toBe(false);
+      expect(validated.tableName).toBe('sys_metadata');
+      expect(validated.fallback).toBe('none');
+    });
+
+    it('should accept datasource-backed configuration', () => {
+      const config = {
+        datasource: 'default',
+        tableName: 'custom_metadata',
+        fallback: 'filesystem' as const,
+        rootDir: '/metadata',
+      };
+
+      const validated = MetadataManagerConfigSchema.parse(config);
+      expect(validated.datasource).toBe('default');
+      expect(validated.tableName).toBe('custom_metadata');
+      expect(validated.fallback).toBe('filesystem');
     });
 
     it('should validate complete configuration', () => {
       const config = {
+        datasource: 'postgres_main',
+        tableName: 'sys_metadata',
+        fallback: 'memory' as const,
         rootDir: '/metadata',
         formats: ['typescript', 'json'] as const,
         cache: {
@@ -407,10 +454,23 @@ describe('MetadataLoaderProtocol', () => {
       };
       
       const validated = MetadataManagerConfigSchema.parse(config);
+      expect(validated.datasource).toBe('postgres_main');
       expect(validated.rootDir).toBe('/metadata');
       expect(validated.cache?.ttl).toBe(7200);
       expect(validated.watchOptions?.ignored).toHaveLength(2);
       expect(validated.loaderOptions?.encoding).toBe('utf-8');
+    });
+
+    it('should accept all fallback strategies', () => {
+      const strategies = ['filesystem', 'memory', 'none'] as const;
+      strategies.forEach((fallback) => {
+        const validated = MetadataManagerConfigSchema.parse({ fallback });
+        expect(validated.fallback).toBe(fallback);
+      });
+    });
+
+    it('should reject invalid fallback strategy', () => {
+      expect(() => MetadataManagerConfigSchema.parse({ fallback: 'redis' })).toThrow();
     });
 
     it('should reject negative TTL', () => {
