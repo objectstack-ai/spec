@@ -28,7 +28,7 @@ interface ResolvedCommandContribution {
  * @param program - The root Commander.js program to register commands on
  */
 export async function loadPluginCommands(program: Command): Promise<void> {
-  let config: any;
+  let config: Record<string, unknown>;
 
   try {
     const loaded = await loadConfig();
@@ -39,8 +39,8 @@ export async function loadPluginCommands(program: Command): Promise<void> {
   }
 
   const plugins: unknown[] = [
-    ...(config.plugins || []),
-    ...(config.devPlugins || []),
+    ...((config.plugins as unknown[] | undefined) || []),
+    ...((config.devPlugins as unknown[] | undefined) || []),
   ];
 
   // Collect command contributions from plugin manifests
@@ -79,11 +79,12 @@ export async function loadPluginCommands(program: Command): Promise<void> {
       for (const cmd of commands) {
         program.addCommand(cmd);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Log warning but don't crash — plugin commands are optional
       if (process.env.DEBUG) {
+        const message = error instanceof Error ? error.message : String(error);
         console.error(
-          chalk.yellow(`  ⚠ Failed to load CLI command '${contribution.name}' from plugin '${contribution.pluginName}': ${error.message}`)
+          chalk.yellow(`  ⚠ Failed to load CLI command '${contribution.name}' from plugin '${contribution.pluginName}': ${message}`)
         );
       }
     }
@@ -140,13 +141,13 @@ async function importPluginCommands(
  * Uses duck-typing to avoid import dependency issues.
  */
 function isCommandInstance(value: unknown): value is Command {
+  if (value === null || typeof value !== 'object') return false;
+  const obj = value as Record<string, unknown>;
   return (
-    value !== null &&
-    typeof value === 'object' &&
-    typeof (value as any).name === 'function' &&
-    typeof (value as any).description === 'function' &&
-    typeof (value as any).action === 'function' &&
-    typeof (value as any).parse === 'function'
+    typeof obj.name === 'function' &&
+    typeof obj.description === 'function' &&
+    typeof obj.action === 'function' &&
+    typeof obj.parse === 'function'
   );
 }
 
