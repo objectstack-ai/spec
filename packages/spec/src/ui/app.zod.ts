@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
+import { I18nLabelSchema } from './i18n.zod';
 
 /**
  * Base Navigation Item Schema
@@ -24,7 +25,7 @@ const BaseNavItemSchema = z.object({
   id: SnakeCaseIdentifierSchema.describe('Unique identifier for this navigation item (lowercase snake_case)'),
   
   /** Display label */
-  label: z.string().describe('Display proper label'),
+  label: I18nLabelSchema.describe('Display proper label'),
   
   /** Icon name (Lucide) */
   icon: z.string().optional().describe('Icon name'),
@@ -156,13 +157,13 @@ export const AppSchema = z.object({
   name: SnakeCaseIdentifierSchema.describe('App unique machine name (lowercase snake_case)'),
   
   /** Display label */
-  label: z.string().describe('App display label'),
+  label: I18nLabelSchema.describe('App display label'),
 
   /** App version */
   version: z.string().optional().describe('App version'),
   
   /** Description */
-  description: z.string().optional().describe('App description'),
+  description: I18nLabelSchema.optional().describe('App description'),
   
   /** Icon name (Lucide) */
   icon: z.string().optional().describe('App icon used in the App Launcher'),

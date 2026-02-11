@@ -11,6 +11,7 @@
  */
 
 export * from './chart.zod';
+export * from './i18n.zod';
 export * from './app.zod';
 export * from './view.zod';
 export * from './dashboard.zod';
