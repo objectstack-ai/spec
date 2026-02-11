@@ -3,6 +3,8 @@
 import { z } from 'zod';
 import { FieldSchema } from '../data/field.zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
+import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
+import { PerformanceConfigSchema } from './responsive.zod';
 
 /**
  * Widget Lifecycle Hooks Schema
@@ -115,12 +117,12 @@ export const WidgetEventSchema = z.object({
   /**
    * Event label for documentation
    */
-  label: z.string().optional().describe('Human-readable event label'),
+  label: I18nLabelSchema.optional().describe('Human-readable event label'),
 
   /**
    * Event description
    */
-  description: z.string().optional().describe('Event description and usage'),
+  description: I18nLabelSchema.optional().describe('Event description and usage'),
 
   /**
    * Whether event bubbles up through the DOM hierarchy
@@ -178,7 +180,7 @@ export const WidgetPropertySchema = z.object({
   /**
    * Property label for UI
    */
-  label: z.string().optional().describe('Human-readable label'),
+  label: I18nLabelSchema.optional().describe('Human-readable label'),
 
   /**
    * Property data type
@@ -203,7 +205,7 @@ export const WidgetPropertySchema = z.object({
   /**
    * Property description
    */
-  description: z.string().optional().describe('Property description'),
+  description: I18nLabelSchema.optional().describe('Property description'),
 
   /**
    * Property validation schema
@@ -277,12 +279,12 @@ export const WidgetManifestSchema = z.object({
   /**
    * Human-readable widget name
    */
-  label: z.string().describe('Widget display name'),
+  label: I18nLabelSchema.describe('Widget display name'),
 
   /**
    * Widget description
    */
-  description: z.string().optional().describe('Widget description'),
+  description: I18nLabelSchema.optional().describe('Widget description'),
 
   /**
    * Widget version (semver)
@@ -363,6 +365,12 @@ export const WidgetManifestSchema = z.object({
    * Tags for discovery
    */
   tags: z.array(z.string()).optional().describe('Tags for categorization'),
+
+  /** ARIA accessibility attributes */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
+
+  /** Performance optimization settings */
+  performance: PerformanceConfigSchema.optional().describe('Performance optimization settings'),
 });
 
 export type WidgetManifest = z.infer<typeof WidgetManifestSchema>;

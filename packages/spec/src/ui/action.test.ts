@@ -470,3 +470,48 @@ describe('Action Factory', () => {
     })).not.toThrow();
   });
 });
+
+describe('Action I18n Integration', () => {
+  it('should accept i18n object as action label', () => {
+    expect(() => ActionSchema.parse({
+      name: 'i18n_action',
+      label: { key: 'actions.approve', defaultValue: 'Approve' },
+    })).not.toThrow();
+  });
+  it('should accept i18n as confirmText and successMessage', () => {
+    expect(() => ActionSchema.parse({
+      name: 'i18n_confirm',
+      label: 'Delete',
+      confirmText: { key: 'actions.confirm_delete', defaultValue: 'Are you sure?' },
+      successMessage: { key: 'actions.delete_success', defaultValue: 'Deleted!' },
+    })).not.toThrow();
+  });
+  it('should accept i18n in param labels', () => {
+    expect(() => ActionParamSchema.parse({
+      name: 'reason',
+      label: { key: 'params.reason', defaultValue: 'Reason' },
+      type: 'textarea',
+    })).not.toThrow();
+  });
+  it('should accept i18n in param option labels', () => {
+    expect(() => ActionParamSchema.parse({
+      name: 'priority',
+      label: 'Priority',
+      type: 'select',
+      options: [
+        { label: { key: 'options.high', defaultValue: 'High' }, value: 'high' },
+        { label: { key: 'options.low', defaultValue: 'Low' }, value: 'low' },
+      ],
+    })).not.toThrow();
+  });
+});
+
+describe('Action ARIA Integration', () => {
+  it('should accept action with ARIA attributes', () => {
+    expect(() => ActionSchema.parse({
+      name: 'accessible_action',
+      label: 'Delete',
+      aria: { ariaLabel: 'Delete this record permanently', role: 'button' },
+    })).not.toThrow();
+  });
+});

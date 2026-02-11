@@ -662,3 +662,156 @@ describe('ExternalLookupSchema', () => {
     expect(() => ExternalLookupSchema.parse(salesforceLookup)).not.toThrow();
   });
 });
+
+describe('External Lookup Retry Configuration', () => {
+  const baseLookup = {
+    fieldName: 'external_data',
+    dataSource: {
+      id: 'test-api',
+      name: 'Test API',
+      type: 'rest-api' as const,
+      endpoint: 'https://api.example.com',
+      authentication: { type: 'api-key' as const, config: { key: 'test' } },
+    },
+    query: { endpoint: '/data' },
+    fieldMappings: [{ source: 'name', target: 'name' }],
+  };
+
+  it('should accept lookup with retry configuration', () => {
+    const lookup = {
+      ...baseLookup,
+      retry: {
+        maxRetries: 3,
+        initialDelayMs: 1000,
+        maxDelayMs: 30000,
+        backoffMultiplier: 2,
+        retryableStatusCodes: [429, 500, 502, 503, 504],
+      },
+    };
+
+    expect(() => ExternalLookupSchema.parse(lookup)).not.toThrow();
+  });
+
+  it('should apply retry defaults', () => {
+    const result = ExternalLookupSchema.parse({
+      ...baseLookup,
+      retry: {},
+    });
+
+    expect(result.retry?.maxRetries).toBe(3);
+    expect(result.retry?.initialDelayMs).toBe(1000);
+    expect(result.retry?.maxDelayMs).toBe(30000);
+    expect(result.retry?.backoffMultiplier).toBe(2);
+    expect(result.retry?.retryableStatusCodes).toEqual([429, 500, 502, 503, 504]);
+  });
+
+  it('should accept custom retryable status codes', () => {
+    const result = ExternalLookupSchema.parse({
+      ...baseLookup,
+      retry: { retryableStatusCodes: [408, 429, 503] },
+    });
+
+    expect(result.retry?.retryableStatusCodes).toEqual([408, 429, 503]);
+  });
+
+  it('should reject negative maxRetries', () => {
+    expect(() => ExternalLookupSchema.parse({
+      ...baseLookup,
+      retry: { maxRetries: -1 },
+    })).toThrow();
+  });
+});
+
+describe('External Lookup Transform Configuration', () => {
+  const baseLookup = {
+    fieldName: 'external_data',
+    dataSource: {
+      id: 'test-api',
+      name: 'Test API',
+      type: 'rest-api' as const,
+      endpoint: 'https://api.example.com',
+      authentication: { type: 'api-key' as const, config: { key: 'test' } },
+    },
+    query: { endpoint: '/data' },
+    fieldMappings: [{ source: 'name', target: 'name' }],
+  };
+
+  it('should accept lookup with transform pipeline', () => {
+    const lookup = {
+      ...baseLookup,
+      transform: {
+        request: {
+          headers: { 'X-Custom-Header': 'value' },
+          queryParams: { format: 'json' },
+        },
+        response: {
+          dataPath: '$.data.results',
+          totalPath: '$.meta.total',
+        },
+      },
+    };
+
+    expect(() => ExternalLookupSchema.parse(lookup)).not.toThrow();
+  });
+
+  it('should accept partial transform config', () => {
+    const result = ExternalLookupSchema.parse({
+      ...baseLookup,
+      transform: {
+        response: { dataPath: '$.items' },
+      },
+    });
+
+    expect(result.transform?.response?.dataPath).toBe('$.items');
+    expect(result.transform?.request).toBeUndefined();
+  });
+});
+
+describe('External Lookup Pagination Configuration', () => {
+  const baseLookup = {
+    fieldName: 'external_data',
+    dataSource: {
+      id: 'test-api',
+      name: 'Test API',
+      type: 'rest-api' as const,
+      endpoint: 'https://api.example.com',
+      authentication: { type: 'api-key' as const, config: { key: 'test' } },
+    },
+    query: { endpoint: '/data' },
+    fieldMappings: [{ source: 'name', target: 'name' }],
+  };
+
+  it('should accept lookup with pagination', () => {
+    const result = ExternalLookupSchema.parse({
+      ...baseLookup,
+      pagination: {
+        type: 'cursor',
+        pageSize: 50,
+        maxPages: 10,
+      },
+    });
+
+    expect(result.pagination?.type).toBe('cursor');
+    expect(result.pagination?.pageSize).toBe(50);
+  });
+
+  it('should apply pagination defaults', () => {
+    const result = ExternalLookupSchema.parse({
+      ...baseLookup,
+      pagination: {},
+    });
+
+    expect(result.pagination?.type).toBe('offset');
+    expect(result.pagination?.pageSize).toBe(100);
+  });
+
+  it('should accept all pagination types', () => {
+    const types = ['offset', 'cursor', 'page'] as const;
+    types.forEach(type => {
+      expect(() => ExternalLookupSchema.parse({
+        ...baseLookup,
+        pagination: { type },
+      })).not.toThrow();
+    });
+  });
+});

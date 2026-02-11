@@ -2,6 +2,8 @@
 
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
+import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
+import { ResponsiveConfigSchema } from './responsive.zod';
 
 /**
  * Page Region Schema
@@ -42,7 +44,7 @@ export const PageComponentSchema = z.object({
   id: z.string().optional().describe('Unique instance ID'),
   
   /** Configuration */
-  label: z.string().optional(),
+  label: I18nLabelSchema.optional(),
   properties: z.record(z.string(), z.unknown()).describe('Component props passed to the widget. See component.zod.ts for schemas.'),
   
   /** 
@@ -58,7 +60,13 @@ export const PageComponentSchema = z.object({
   className: z.string().optional().describe('CSS class names'),
 
   /** Visibility Rule */
-  visibility: z.string().optional().describe('Visibility filter/formula')
+  visibility: z.string().optional().describe('Visibility filter/formula'),
+
+  /** Responsive layout overrides per breakpoint */
+  responsive: ResponsiveConfigSchema.optional().describe('Responsive layout configuration'),
+
+  /** ARIA accessibility attributes */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
 });
 
 /**
@@ -92,8 +100,8 @@ export const PageVariableSchema = z.object({
  */
 export const PageSchema = z.object({
   name: SnakeCaseIdentifierSchema.describe('Page unique name (lowercase snake_case)'),
-  label: z.string(),
-  description: z.string().optional(),
+  label: I18nLabelSchema,
+  description: I18nLabelSchema.optional(),
   
   /** Page Type */
   type: z.enum(['record', 'home', 'app', 'utility']).default('record'),
@@ -112,7 +120,10 @@ export const PageSchema = z.object({
   
   /** Activation */
   isDefault: z.boolean().default(false),
-  assignedProfiles: z.array(z.string()).optional()
+  assignedProfiles: z.array(z.string()).optional(),
+
+  /** ARIA accessibility attributes */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
 });
 
 export type Page = z.infer<typeof PageSchema>;

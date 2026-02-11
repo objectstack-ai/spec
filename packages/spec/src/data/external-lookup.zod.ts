@@ -241,6 +241,67 @@ export const ExternalLookupSchema = z.object({
      */
     burstSize: z.number().optional().describe('Burst size'),
   }).optional().describe('Rate limiting'),
+
+  /**
+   * Retry configuration with exponential backoff
+   *
+   * @example
+   * ```json
+   * {
+   *   "maxRetries": 3,
+   *   "initialDelayMs": 1000,
+   *   "maxDelayMs": 30000,
+   *   "backoffMultiplier": 2,
+   *   "retryableStatusCodes": [429, 500, 502, 503, 504]
+   * }
+   * ```
+   */
+  retry: z.object({
+    /** Maximum number of retry attempts */
+    maxRetries: z.number().min(0).default(3).describe('Maximum retry attempts'),
+    /** Initial delay before first retry (ms) */
+    initialDelayMs: z.number().default(1000).describe('Initial retry delay in milliseconds'),
+    /** Maximum delay between retries (ms) */
+    maxDelayMs: z.number().default(30000).describe('Maximum retry delay in milliseconds'),
+    /** Backoff multiplier for exponential backoff */
+    backoffMultiplier: z.number().default(2).describe('Exponential backoff multiplier'),
+    /** HTTP status codes that trigger a retry */
+    retryableStatusCodes: z.array(z.number()).default([429, 500, 502, 503, 504])
+      .describe('HTTP status codes that are retryable'),
+  }).optional().describe('Retry configuration with exponential backoff'),
+
+  /**
+   * Request/response transformation pipeline
+   *
+   * Allows transforming request parameters and response data
+   * before they are processed by the external lookup system.
+   */
+  transform: z.object({
+    /** Transform request parameters before sending */
+    request: z.object({
+      /** Header transformations (key-value additions) */
+      headers: z.record(z.string(), z.string()).optional().describe('Additional request headers'),
+      /** Query parameter transformations */
+      queryParams: z.record(z.string(), z.string()).optional().describe('Additional query parameters'),
+    }).optional().describe('Request transformation'),
+    /** Transform response data after receiving */
+    response: z.object({
+      /** JSONPath expression to extract data from response */
+      dataPath: z.string().optional().describe('JSONPath to extract data (e.g., "$.data.results")'),
+      /** JSONPath expression to extract total count for pagination */
+      totalPath: z.string().optional().describe('JSONPath to extract total count (e.g., "$.meta.total")'),
+    }).optional().describe('Response transformation'),
+  }).optional().describe('Request/response transformation pipeline'),
+
+  /** Pagination support for external data sources */
+  pagination: z.object({
+    /** Pagination type */
+    type: z.enum(['offset', 'cursor', 'page']).default('offset').describe('Pagination type'),
+    /** Page size */
+    pageSize: z.number().default(100).describe('Items per page'),
+    /** Maximum pages to fetch */
+    maxPages: z.number().optional().describe('Maximum number of pages to fetch'),
+  }).optional().describe('Pagination configuration for external data'),
 });
 
 // Type exports

@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { FilterConditionSchema } from '../data/filter.zod';
 import { ChartTypeSchema, ChartConfigSchema } from './chart.zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
+import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
+import { ResponsiveConfigSchema, PerformanceConfigSchema } from './responsive.zod';
 
 /**
  * Dashboard Widget Schema
@@ -11,7 +13,7 @@ import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
  */
 export const DashboardWidgetSchema = z.object({
   /** Widget Title */
-  title: z.string().optional().describe('Widget title'),
+  title: I18nLabelSchema.optional().describe('Widget title'),
   
   /** Visualization Type */
   type: ChartTypeSchema.default('metric').describe('Visualization type'),
@@ -50,6 +52,12 @@ export const DashboardWidgetSchema = z.object({
   
   /** Widget specific options (colors, legend, etc.) */
   options: z.unknown().optional().describe('Widget specific configuration'),
+
+  /** Responsive layout overrides per breakpoint */
+  responsive: ResponsiveConfigSchema.optional().describe('Responsive layout configuration'),
+
+  /** ARIA accessibility attributes */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
 });
 
 /**
@@ -86,10 +94,10 @@ export const DashboardSchema = z.object({
   name: SnakeCaseIdentifierSchema.describe('Dashboard unique name'),
   
   /** Display label */
-  label: z.string().describe('Dashboard label'),
+  label: I18nLabelSchema.describe('Dashboard label'),
   
   /** Description */
-  description: z.string().optional().describe('Dashboard description'),
+  description: I18nLabelSchema.optional().describe('Dashboard description'),
   
   /** Collection of widgets */
   widgets: z.array(DashboardWidgetSchema).describe('Widgets to display'),
@@ -100,9 +108,15 @@ export const DashboardSchema = z.object({
   /** Global Filters */
   globalFilters: z.array(z.object({
     field: z.string().describe('Field name to filter on'),
-    label: z.string().optional().describe('Display label for the filter'),
+    label: I18nLabelSchema.optional().describe('Display label for the filter'),
     type: z.enum(['text', 'select', 'date', 'number']).optional().describe('Filter input type'),
   })).optional().describe('Global filters that apply to all widgets in the dashboard'),
+
+  /** ARIA accessibility attributes */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
+
+  /** Performance optimization settings */
+  performance: PerformanceConfigSchema.optional().describe('Performance optimization settings'),
 });
 
 export type Dashboard = z.infer<typeof DashboardSchema>;

@@ -204,6 +204,14 @@ export const AppSchema = z.object({
    */
   objects: z.array(z.unknown()).optional().describe('Objects belonging to this app'),
   apis: z.array(z.unknown()).optional().describe('Custom APIs belonging to this app'),
+
+  /** Mobile navigation mode */
+  mobileNavigation: z.object({
+    mode: z.enum(['drawer', 'bottom_nav', 'hamburger']).default('drawer')
+      .describe('Mobile navigation mode: drawer sidebar, bottom navigation bar, or hamburger menu'),
+    bottomNavItems: z.array(z.string()).optional()
+      .describe('Navigation item IDs to show in bottom nav (max 5)'),
+  }).optional().describe('Mobile-specific navigation configuration'),
 });
 
 /**

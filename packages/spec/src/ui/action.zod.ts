@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { FieldType } from '../data/field.zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
+import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 
 /**
  * Action Parameter Schema
@@ -10,10 +11,10 @@ import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
  */
 export const ActionParamSchema = z.object({
   name: z.string(),
-  label: z.string(),
+  label: I18nLabelSchema,
   type: FieldType,
   required: z.boolean().default(false),
-  options: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+  options: z.array(z.object({ label: I18nLabelSchema, value: z.string() })).optional(),
 });
 
 /**
@@ -41,7 +42,7 @@ export const ActionSchema = z.object({
   name: SnakeCaseIdentifierSchema.describe('Machine name (lowercase snake_case)'),
   
   /** Display label */
-  label: z.string().describe('Display label'),
+  label: I18nLabelSchema.describe('Display label'),
   
   /** Icon name (Lucide) */
   icon: z.string().optional().describe('Icon name'),
@@ -80,8 +81,8 @@ export const ActionSchema = z.object({
   params: z.array(ActionParamSchema).optional().describe('Input parameters required from user'),
   
   /** UX Behavior */
-  confirmText: z.string().optional().describe('Confirmation message before execution'),
-  successMessage: z.string().optional().describe('Success message to show after execution'),
+  confirmText: I18nLabelSchema.optional().describe('Confirmation message before execution'),
+  successMessage: I18nLabelSchema.optional().describe('Success message to show after execution'),
   refreshAfter: z.boolean().default(false).describe('Refresh view after execution'),
   
   /** Access */
@@ -96,6 +97,9 @@ export const ActionSchema = z.object({
 
   /** Execution */
   timeout: z.number().optional().describe('Maximum execution time in milliseconds for the action'),
+
+  /** ARIA accessibility attributes */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
 });
 
 export type Action = z.infer<typeof ActionSchema>;

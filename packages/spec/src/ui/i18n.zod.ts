@@ -89,3 +89,129 @@ export const AriaPropsSchema = z.object({
 }).describe('ARIA accessibility attributes');
 
 export type AriaProps = z.infer<typeof AriaPropsSchema>;
+
+/**
+ * Plural Rule Schema
+ *
+ * Defines plural forms for a translation key, following ICU MessageFormat / i18next conventions.
+ * Supports zero, one, two, few, many, other forms per CLDR plural rules.
+ *
+ * @see https://unicode.org/reports/tr35/tr35-numbers.html#Language_Plural_Rules
+ *
+ * @example
+ * ```typescript
+ * const plural: PluralRule = {
+ *   key: 'items.count',
+ *   zero: 'No items',
+ *   one: '{count} item',
+ *   other: '{count} items',
+ * };
+ * ```
+ */
+export const PluralRuleSchema = z.object({
+  /** Translation key for the plural form */
+  key: z.string().describe('Translation key'),
+  /** Form for zero quantity */
+  zero: z.string().optional().describe('Zero form (e.g., "No items")'),
+  /** Form for singular (1) */
+  one: z.string().optional().describe('Singular form (e.g., "{count} item")'),
+  /** Form for dual (2) — used in Arabic, Welsh, etc. */
+  two: z.string().optional().describe('Dual form (e.g., "{count} items" for exactly 2)'),
+  /** Form for few (2-4 in Slavic languages) */
+  few: z.string().optional().describe('Few form (e.g., for 2-4 in some languages)'),
+  /** Form for many (5+ in Slavic languages) */
+  many: z.string().optional().describe('Many form (e.g., for 5+ in some languages)'),
+  /** Default/fallback form */
+  other: z.string().describe('Default plural form (e.g., "{count} items")'),
+}).describe('ICU plural rules for a translation key');
+
+export type PluralRule = z.infer<typeof PluralRuleSchema>;
+
+/**
+ * Number Format Schema
+ *
+ * Defines number formatting rules for localization.
+ *
+ * @example
+ * ```typescript
+ * const format: NumberFormat = {
+ *   style: 'currency',
+ *   currency: 'USD',
+ *   minimumFractionDigits: 2,
+ * };
+ * ```
+ */
+export const NumberFormatSchema = z.object({
+  style: z.enum(['decimal', 'currency', 'percent', 'unit']).default('decimal')
+    .describe('Number formatting style'),
+  currency: z.string().optional().describe('ISO 4217 currency code (e.g., "USD", "EUR")'),
+  unit: z.string().optional().describe('Unit for unit formatting (e.g., "kilometer", "liter")'),
+  minimumFractionDigits: z.number().optional().describe('Minimum number of fraction digits'),
+  maximumFractionDigits: z.number().optional().describe('Maximum number of fraction digits'),
+  useGrouping: z.boolean().optional().describe('Whether to use grouping separators (e.g., 1,000)'),
+}).describe('Number formatting rules');
+
+export type NumberFormat = z.infer<typeof NumberFormatSchema>;
+
+/**
+ * Date Format Schema
+ *
+ * Defines date/time formatting rules for localization.
+ *
+ * @example
+ * ```typescript
+ * const format: DateFormat = {
+ *   dateStyle: 'medium',
+ *   timeStyle: 'short',
+ *   timeZone: 'America/New_York',
+ * };
+ * ```
+ */
+export const DateFormatSchema = z.object({
+  dateStyle: z.enum(['full', 'long', 'medium', 'short']).optional()
+    .describe('Date display style'),
+  timeStyle: z.enum(['full', 'long', 'medium', 'short']).optional()
+    .describe('Time display style'),
+  timeZone: z.string().optional().describe('IANA time zone (e.g., "America/New_York")'),
+  hour12: z.boolean().optional().describe('Use 12-hour format'),
+}).describe('Date/time formatting rules');
+
+export type DateFormat = z.infer<typeof DateFormatSchema>;
+
+/**
+ * Locale Configuration Schema
+ *
+ * Defines a complete locale configuration including language code,
+ * fallback chain, and formatting preferences.
+ *
+ * @example
+ * ```typescript
+ * const locale: LocaleConfig = {
+ *   code: 'zh-CN',
+ *   fallbackChain: ['zh-TW', 'en'],
+ *   direction: 'ltr',
+ *   numberFormat: { style: 'decimal', useGrouping: true },
+ *   dateFormat: { dateStyle: 'medium', timeStyle: 'short' },
+ * };
+ * ```
+ */
+export const LocaleConfigSchema = z.object({
+  /** BCP 47 language code (e.g., "en-US", "zh-CN", "ar-SA") */
+  code: z.string().describe('BCP 47 language code (e.g., "en-US", "zh-CN")'),
+
+  /** Ordered fallback chain for missing translations */
+  fallbackChain: z.array(z.string()).optional()
+    .describe('Fallback language codes in priority order (e.g., ["zh-TW", "en"])'),
+
+  /** Text direction */
+  direction: z.enum(['ltr', 'rtl']).default('ltr')
+    .describe('Text direction: left-to-right or right-to-left'),
+
+  /** Default number formatting */
+  numberFormat: NumberFormatSchema.optional().describe('Default number formatting rules'),
+
+  /** Default date formatting */
+  dateFormat: DateFormatSchema.optional().describe('Default date/time formatting rules'),
+}).describe('Locale configuration');
+
+export type LocaleConfig = z.infer<typeof LocaleConfigSchema>;

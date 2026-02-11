@@ -479,3 +479,80 @@ describe('Dashboard Factory', () => {
     expect(dashboard.widgets[0].aggregate).toBe('count');
   });
 });
+
+describe('Dashboard I18n Integration', () => {
+  it('should accept i18n object as dashboard label', () => {
+    expect(() => DashboardSchema.parse({
+      name: 'i18n_dashboard',
+      label: { key: 'dashboards.sales', defaultValue: 'Sales Dashboard' },
+      widgets: [],
+    })).not.toThrow();
+  });
+  it('should accept i18n object as dashboard description', () => {
+    expect(() => DashboardSchema.parse({
+      name: 'test_dashboard',
+      label: 'Test',
+      description: { key: 'dashboards.test.desc', defaultValue: 'Test dashboard' },
+      widgets: [],
+    })).not.toThrow();
+  });
+  it('should accept i18n object as widget title', () => {
+    expect(() => DashboardWidgetSchema.parse({
+      title: { key: 'widgets.revenue', defaultValue: 'Total Revenue' },
+      type: 'metric',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    })).not.toThrow();
+  });
+  it('should accept i18n object in global filter label', () => {
+    expect(() => DashboardSchema.parse({
+      name: 'filter_dash',
+      label: 'Filtered',
+      widgets: [],
+      globalFilters: [{
+        field: 'status',
+        label: { key: 'filters.status', defaultValue: 'Status' },
+        type: 'select',
+      }],
+    })).not.toThrow();
+  });
+});
+
+describe('Dashboard ARIA Integration', () => {
+  it('should accept dashboard with ARIA attributes', () => {
+    expect(() => DashboardSchema.parse({
+      name: 'accessible_dash',
+      label: 'Accessible Dashboard',
+      widgets: [],
+      aria: { ariaLabel: 'Sales dashboard overview', role: 'region' },
+    })).not.toThrow();
+  });
+  it('should accept widget with ARIA attributes', () => {
+    expect(() => DashboardWidgetSchema.parse({
+      title: 'Revenue',
+      type: 'metric',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+      aria: { ariaLabel: 'Total revenue metric', ariaDescribedBy: 'revenue-desc' },
+    })).not.toThrow();
+  });
+});
+
+describe('Dashboard Responsive Integration', () => {
+  it('should accept widget with responsive config', () => {
+    expect(() => DashboardWidgetSchema.parse({
+      type: 'metric',
+      layout: { x: 0, y: 0, w: 6, h: 2 },
+      responsive: { hiddenOn: ['xs'] },
+    })).not.toThrow();
+  });
+});
+
+describe('Dashboard Performance Integration', () => {
+  it('should accept dashboard with performance config', () => {
+    expect(() => DashboardSchema.parse({
+      name: 'perf_dash',
+      label: 'Performance Dashboard',
+      widgets: [],
+      performance: { lazyLoad: true, cacheStrategy: 'stale-while-revalidate' },
+    })).not.toThrow();
+  });
+});

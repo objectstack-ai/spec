@@ -68,3 +68,119 @@ export const CacheConfigSchema = z.object({
 
 export type CacheConfig = z.infer<typeof CacheConfigSchema>;
 export type CacheConfigInput = z.input<typeof CacheConfigSchema>;
+
+/**
+ * Distributed Cache Consistency Schema
+ *
+ * Defines write strategies for distributed cache consistency.
+ *
+ * - **write_through**: Write to cache and backend simultaneously
+ * - **write_behind**: Write to cache first, async persist to backend
+ * - **write_around**: Write to backend only, cache on next read
+ * - **refresh_ahead**: Proactively refresh expiring entries before TTL
+ */
+export const CacheConsistencySchema = z.enum([
+  'write_through',
+  'write_behind',
+  'write_around',
+  'refresh_ahead',
+]).describe('Distributed cache write consistency strategy');
+
+export type CacheConsistency = z.infer<typeof CacheConsistencySchema>;
+
+/**
+ * Cache Avalanche Prevention Schema
+ *
+ * Strategies to prevent cache stampede/avalanche when many keys expire simultaneously.
+ *
+ * @example
+ * ```typescript
+ * const prevention: CacheAvalanchePrevention = {
+ *   jitterTtl: { enabled: true, maxJitterSeconds: 60 },
+ *   circuitBreaker: { enabled: true, failureThreshold: 5, resetTimeout: 30 },
+ *   lockout: { enabled: true, lockTimeoutMs: 5000 },
+ * };
+ * ```
+ */
+export const CacheAvalanchePreventionSchema = z.object({
+  /** TTL jitter to stagger cache expiration */
+  jitterTtl: z.object({
+    enabled: z.boolean().default(false).describe('Add random jitter to TTL values'),
+    maxJitterSeconds: z.number().default(60).describe('Maximum jitter added to TTL in seconds'),
+  }).optional().describe('TTL jitter to prevent simultaneous expiration'),
+
+  /** Circuit breaker to protect backend under cache pressure */
+  circuitBreaker: z.object({
+    enabled: z.boolean().default(false).describe('Enable circuit breaker for backend protection'),
+    failureThreshold: z.number().default(5).describe('Failures before circuit opens'),
+    resetTimeout: z.number().default(30).describe('Seconds before half-open state'),
+  }).optional().describe('Circuit breaker for backend protection'),
+
+  /** Cache lock to prevent thundering herd on key miss */
+  lockout: z.object({
+    enabled: z.boolean().default(false).describe('Enable cache locking for key regeneration'),
+    lockTimeoutMs: z.number().default(5000).describe('Maximum lock wait time in milliseconds'),
+  }).optional().describe('Lock-based stampede prevention'),
+}).describe('Cache avalanche/stampede prevention configuration');
+
+export type CacheAvalanchePrevention = z.infer<typeof CacheAvalanchePreventionSchema>;
+
+/**
+ * Cache Warmup Strategy Schema
+ *
+ * Defines how cache is pre-populated on startup or after cache flush.
+ */
+export const CacheWarmupSchema = z.object({
+  /** Enable cache warming */
+  enabled: z.boolean().default(false).describe('Enable cache warmup'),
+  /** Warmup strategy */
+  strategy: z.enum(['eager', 'lazy', 'scheduled']).default('lazy')
+    .describe('Warmup strategy: eager (at startup), lazy (on first access), scheduled (cron)'),
+  /** Cron schedule for scheduled warmup */
+  schedule: z.string().optional().describe('Cron expression for scheduled warmup'),
+  /** Keys/patterns to warm up */
+  patterns: z.array(z.string()).optional().describe('Key patterns to warm up (e.g., "user:*", "config:*")'),
+  /** Maximum concurrent warmup operations */
+  concurrency: z.number().default(10).describe('Maximum concurrent warmup operations'),
+}).describe('Cache warmup strategy');
+
+export type CacheWarmup = z.infer<typeof CacheWarmupSchema>;
+
+/**
+ * Distributed Cache Configuration Schema
+ *
+ * Extended cache configuration for distributed multi-node deployments.
+ * Adds consistency strategies, avalanche prevention, and warmup policies.
+ *
+ * @example
+ * ```typescript
+ * const distributedCache: DistributedCacheConfig = {
+ *   enabled: true,
+ *   tiers: [
+ *     { name: 'l1', type: 'memory', maxSize: 100, ttl: 60, strategy: 'lru' },
+ *     { name: 'l2', type: 'redis', maxSize: 1000, ttl: 300, strategy: 'lru' },
+ *   ],
+ *   invalidation: [
+ *     { trigger: 'update', scope: 'key' },
+ *   ],
+ *   consistency: 'write_through',
+ *   avalanchePrevention: {
+ *     jitterTtl: { enabled: true, maxJitterSeconds: 30 },
+ *     circuitBreaker: { enabled: true, failureThreshold: 5 },
+ *   },
+ *   warmup: { enabled: true, strategy: 'eager', patterns: ['config:*'] },
+ * };
+ * ```
+ */
+export const DistributedCacheConfigSchema = CacheConfigSchema.extend({
+  /** Distributed write consistency strategy */
+  consistency: CacheConsistencySchema.optional().describe('Distributed cache consistency strategy'),
+  /** Avalanche/stampede prevention settings */
+  avalanchePrevention: CacheAvalanchePreventionSchema.optional()
+    .describe('Cache avalanche and stampede prevention'),
+  /** Cache warmup configuration */
+  warmup: CacheWarmupSchema.optional().describe('Cache warmup strategy'),
+}).describe('Distributed cache configuration with consistency and avalanche prevention');
+
+export type DistributedCacheConfig = z.infer<typeof DistributedCacheConfigSchema>;
+export type DistributedCacheConfigInput = z.input<typeof DistributedCacheConfigSchema>;

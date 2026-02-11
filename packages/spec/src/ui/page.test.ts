@@ -383,3 +383,57 @@ describe('PageSchema', () => {
     })).toThrow();
   });
 });
+
+describe('Page I18n Integration', () => {
+  it('should accept i18n object as page label', () => {
+    expect(() => PageSchema.parse({
+      name: 'i18n_page',
+      label: { key: 'pages.dashboard', defaultValue: 'Dashboard' },
+      regions: [],
+    })).not.toThrow();
+  });
+  it('should accept i18n as page description', () => {
+    expect(() => PageSchema.parse({
+      name: 'desc_page',
+      label: 'Test',
+      description: { key: 'pages.test.desc', defaultValue: 'A test page' },
+      regions: [],
+    })).not.toThrow();
+  });
+  it('should accept i18n as component label', () => {
+    expect(() => PageComponentSchema.parse({
+      type: 'page:header',
+      label: { key: 'components.header', defaultValue: 'Header' },
+      properties: {},
+    })).not.toThrow();
+  });
+});
+
+describe('Page ARIA Integration', () => {
+  it('should accept page with ARIA attributes', () => {
+    expect(() => PageSchema.parse({
+      name: 'accessible_page',
+      label: 'Accessible Page',
+      regions: [],
+      aria: { ariaLabel: 'Main application page', role: 'main' },
+    })).not.toThrow();
+  });
+  it('should accept component with ARIA attributes', () => {
+    expect(() => PageComponentSchema.parse({
+      type: 'nav:menu',
+      properties: {},
+      aria: { ariaLabel: 'Main navigation', role: 'navigation' },
+    })).not.toThrow();
+  });
+});
+
+describe('Page Responsive Integration', () => {
+  it('should accept component with responsive config', () => {
+    const result = PageComponentSchema.parse({
+      type: 'page:sidebar',
+      properties: {},
+      responsive: { hiddenOn: ['xs', 'sm'] },
+    });
+    expect(result.responsive?.hiddenOn).toEqual(['xs', 'sm']);
+  });
+});

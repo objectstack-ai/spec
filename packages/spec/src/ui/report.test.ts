@@ -428,3 +428,56 @@ describe('ReportSchema', () => {
     })).toThrow();
   });
 });
+
+describe('Report I18n Integration', () => {
+  it('should accept i18n object as report label', () => {
+    expect(() => ReportSchema.parse({
+      name: 'i18n_report',
+      label: { key: 'reports.sales', defaultValue: 'Sales Report' },
+      objectName: 'opportunity',
+      columns: [{ field: 'name' }],
+    })).not.toThrow();
+  });
+  it('should accept i18n object as column label', () => {
+    const result = ReportColumnSchema.parse({
+      field: 'amount',
+      label: { key: 'columns.amount', defaultValue: 'Amount' },
+    });
+    expect(typeof result.label).toBe('object');
+  });
+});
+
+describe('Report ARIA Integration', () => {
+  it('should accept report with ARIA attributes', () => {
+    expect(() => ReportSchema.parse({
+      name: 'accessible_report',
+      label: 'Accessible Report',
+      objectName: 'account',
+      columns: [{ field: 'name' }],
+      aria: { ariaLabel: 'Account listing report', role: 'table' },
+    })).not.toThrow();
+  });
+});
+
+describe('Report Responsive Integration', () => {
+  it('should accept column with responsive config', () => {
+    const result = ReportColumnSchema.parse({
+      field: 'phone',
+      label: 'Phone',
+      responsive: { hiddenOn: ['xs', 'sm'] },
+    });
+    expect(result.responsive?.hiddenOn).toEqual(['xs', 'sm']);
+  });
+});
+
+describe('Report Performance Integration', () => {
+  it('should accept report with performance config', () => {
+    expect(() => ReportSchema.parse({
+      name: 'perf_report',
+      label: 'Performance Report',
+      objectName: 'opportunity',
+      columns: [{ field: 'name' }],
+      performance: { lazyLoad: true, pageSize: 50, virtualScroll: { enabled: true, itemHeight: 36 } },
+    })).not.toThrow();
+  });
+});
