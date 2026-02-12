@@ -5,6 +5,7 @@ import {
   FlowEdgeSchema,
   FlowVariableSchema,
   FlowNodeAction,
+  defineFlow,
   type Flow,
   type FlowNode,
   type FlowEdge,
@@ -595,5 +596,49 @@ describe('FlowSchema - errorHandling', () => {
       edges: [],
     });
     expect(result.errorHandling).toBeUndefined();
+  });
+});
+
+describe('defineFlow', () => {
+  it('should return a parsed flow', () => {
+    const result = defineFlow({
+      name: 'on_task_create',
+      label: 'On Task Create',
+      type: 'record_change',
+      nodes: [
+        { id: 'start', type: 'start', label: 'Start' },
+        { id: 'end', type: 'end', label: 'End' },
+      ],
+      edges: [{ id: 'e1', source: 'start', target: 'end' }],
+    });
+    expect(result.name).toBe('on_task_create');
+    expect(result.label).toBe('On Task Create');
+    expect(result.type).toBe('record_change');
+    expect(result.nodes).toHaveLength(2);
+    expect(result.edges).toHaveLength(1);
+  });
+
+  it('should apply defaults', () => {
+    const result = defineFlow({
+      name: 'simple',
+      label: 'Simple',
+      type: 'autolaunched',
+      nodes: [{ id: 'start', type: 'start', label: 'Start' }],
+      edges: [],
+    });
+    expect(result.version).toBe(1);
+    expect(result.status).toBe('draft');
+    expect(result.active).toBe(false);
+    expect(result.runAs).toBe('user');
+  });
+
+  it('should throw on invalid flow name', () => {
+    expect(() => defineFlow({
+      name: 'INVALID',
+      label: 'Bad Flow',
+      type: 'autolaunched',
+      nodes: [],
+      edges: [],
+    })).toThrow();
   });
 });

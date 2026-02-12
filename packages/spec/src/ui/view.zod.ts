@@ -476,6 +476,30 @@ export const ViewSchema = z.object({
     formViews: z.record(z.string(), FormViewSchema).optional().describe('Additional named form views'),
 });
 
+/**
+ * Type-safe factory for creating view definitions.
+ *
+ * Validates the config at creation time using Zod `.parse()`.
+ *
+ * @example
+ * ```ts
+ * const taskViews = defineView({
+ *   list: {
+ *     type: 'grid',
+ *     data: { provider: 'object', object: 'task' },
+ *     columns: ['subject', 'status', 'priority', 'due_date'],
+ *   },
+ *   form: {
+ *     type: 'simple',
+ *     sections: [{ label: 'Details', fields: [{ field: 'subject' }] }],
+ *   },
+ * });
+ * ```
+ */
+export function defineView(config: z.input<typeof ViewSchema>): View {
+  return ViewSchema.parse(config);
+}
+
 export type View = z.infer<typeof ViewSchema>;
 export type ListView = z.infer<typeof ListViewSchema>;
 export type FormView = z.infer<typeof FormViewSchema>;

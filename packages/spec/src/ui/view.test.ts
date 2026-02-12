@@ -29,6 +29,7 @@ import {
   type FormField,
   type ViewData,
   type HttpRequest,
+  defineView,
 } from './view.zod';
 
 describe('HttpMethodSchema', () => {
@@ -1913,5 +1914,55 @@ describe('FormViewSchema - defaultSort', () => {
       sections: [{ fields: ['name'] }],
     });
     expect(result.defaultSort).toBeUndefined();
+  });
+});
+
+describe('defineView', () => {
+  it('should return a parsed view with list config', () => {
+    const result = defineView({
+      list: {
+        type: 'grid',
+        columns: ['name', 'status'],
+      },
+    });
+    expect(result.list).toBeDefined();
+    expect(result.list?.type).toBe('grid');
+    expect(result.list?.columns).toEqual(['name', 'status']);
+  });
+
+  it('should return a parsed view with form config', () => {
+    const result = defineView({
+      form: {
+        type: 'simple',
+        sections: [{ fields: ['name', 'email'] }],
+      },
+    });
+    expect(result.form).toBeDefined();
+    expect(result.form?.type).toBe('simple');
+  });
+
+  it('should return a parsed view with list and form', () => {
+    const result = defineView({
+      list: { type: 'kanban', columns: ['name'] },
+      form: { type: 'tabbed', sections: [{ fields: ['name'] }] },
+    });
+    expect(result.list?.type).toBe('kanban');
+    expect(result.form?.type).toBe('tabbed');
+  });
+
+  it('should accept named list views', () => {
+    const result = defineView({
+      list: { type: 'grid', columns: ['name'] },
+      listViews: {
+        active: { type: 'grid', columns: ['name', 'status'] },
+      },
+    });
+    expect(result.listViews?.active).toBeDefined();
+  });
+
+  it('should throw on invalid view config', () => {
+    expect(() => defineView({
+      list: { type: 'invalid_type' as 'grid', columns: ['name'] },
+    })).toThrow();
   });
 });

@@ -191,5 +191,25 @@ export const AgentSchema = z.object({
   structuredOutput: StructuredOutputConfigSchema.optional().describe('Structured output format and validation configuration'),
 });
 
+/**
+ * Type-safe factory for creating AI agent definitions.
+ *
+ * Validates the config at creation time using Zod `.parse()`.
+ *
+ * @example
+ * ```ts
+ * const supportAgent = defineAgent({
+ *   name: 'support_agent',
+ *   label: 'Support Agent',
+ *   role: 'Senior Support Engineer',
+ *   instructions: 'You help customers resolve technical issues.',
+ *   tools: [{ type: 'action', name: 'create_ticket' }],
+ * });
+ * ```
+ */
+export function defineAgent(config: z.input<typeof AgentSchema>): Agent {
+  return AgentSchema.parse(config);
+}
+
 export type Agent = z.infer<typeof AgentSchema>;
 export type AITool = z.infer<typeof AIToolSchema>;

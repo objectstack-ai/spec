@@ -147,6 +147,29 @@ export const FlowSchema = z.object({
   }).optional().describe('Flow-level error handling configuration'),
 });
 
+/**
+ * Type-safe factory for creating flow definitions.
+ *
+ * Validates the config at creation time using Zod `.parse()`.
+ *
+ * @example
+ * ```ts
+ * const onCreateFlow = defineFlow({
+ *   name: 'on_task_create',
+ *   label: 'On Task Create',
+ *   type: 'record_change',
+ *   nodes: [
+ *     { id: 'start', type: 'start', label: 'Start' },
+ *     { id: 'end', type: 'end', label: 'End' },
+ *   ],
+ *   edges: [{ id: 'e1', source: 'start', target: 'end' }],
+ * });
+ * ```
+ */
+export function defineFlow(config: z.input<typeof FlowSchema>): FlowParsed {
+  return FlowSchema.parse(config);
+}
+
 export type Flow = z.input<typeof FlowSchema>;
 export type FlowParsed = z.infer<typeof FlowSchema>;
 export type FlowNode = z.input<typeof FlowNodeSchema>;

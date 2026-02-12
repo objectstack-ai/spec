@@ -662,3 +662,63 @@ describe('ObjectSchema - recordName', () => {
     expect(result.recordName).toBeUndefined();
   });
 });
+
+describe('ObjectSchema.create()', () => {
+  it('should auto-generate label from snake_case name', () => {
+    const result = ObjectSchema.create({
+      name: 'project_task',
+      fields: {
+        title: { type: 'text' },
+      },
+    });
+    expect(result.label).toBe('Project Task');
+  });
+
+  it('should preserve explicitly provided label', () => {
+    const result = ObjectSchema.create({
+      name: 'project_task',
+      label: 'My Custom Label',
+      fields: {
+        title: { type: 'text' },
+      },
+    });
+    expect(result.label).toBe('My Custom Label');
+  });
+
+  it('should auto-generate label from single-word name', () => {
+    const result = ObjectSchema.create({
+      name: 'account',
+      fields: {
+        name: { type: 'text' },
+      },
+    });
+    expect(result.label).toBe('Account');
+  });
+
+  it('should validate and apply defaults', () => {
+    const result = ObjectSchema.create({
+      name: 'task',
+      fields: {
+        title: { type: 'text' },
+      },
+    });
+    expect(result.active).toBe(true);
+    expect(result.isSystem).toBe(false);
+    expect(result.abstract).toBe(false);
+    expect(result.datasource).toBe('default');
+  });
+
+  it('should throw on invalid name format', () => {
+    expect(() => ObjectSchema.create({
+      name: 'InvalidName',
+      fields: { title: { type: 'text' } },
+    })).toThrow();
+  });
+
+  it('should throw on invalid field name format', () => {
+    expect(() => ObjectSchema.create({
+      name: 'task',
+      fields: { InvalidField: { type: 'text' } },
+    })).toThrow();
+  });
+});
