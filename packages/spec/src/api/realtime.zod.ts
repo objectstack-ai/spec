@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
-import { PresenceStatus, RealtimeRecordAction, BasePresenceSchema } from './realtime-shared.zod';
+import { RealtimeRecordAction, BasePresenceSchema } from './realtime-shared.zod';
 
 // Re-export shared types for backward compatibility
 export { PresenceStatus, RealtimeRecordAction, BasePresenceSchema } from './realtime-shared.zod';

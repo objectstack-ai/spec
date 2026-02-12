@@ -15,6 +15,7 @@ export type { DispatcherPluginConfig } from './dispatcher-plugin.js';
 
 // Export HTTP Server Components
 export { HttpServer } from './http-server.js';
+export { HttpDispatcher } from './http-dispatcher.js';
 export type { HttpProtocolContext, HttpDispatcherResult } from './http-dispatcher.js';
 export { MiddlewareManager } from './middleware.js';
 
