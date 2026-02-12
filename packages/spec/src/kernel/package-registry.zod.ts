@@ -36,6 +36,7 @@ export const PackageStatusEnum = z.enum([
   'installed',     // Successfully installed and enabled
   'disabled',      // Installed but disabled (metadata not active)
   'installing',    // Installation in progress
+  'upgrading',     // Upgrade in progress
   'uninstalling',  // Removal in progress
   'error',         // Installation or runtime error
 ]);
@@ -73,6 +74,20 @@ export const InstalledPackageSchema = z.object({
    * ISO 8601 timestamp of last update.
    */
   updatedAt: z.string().datetime().optional(),
+
+  /**
+   * The currently installed version string.
+   * Mirrors manifest.version for quick access without parsing the full manifest.
+   */
+  installedVersion: z.string().optional()
+    .describe('Currently installed version for quick access'),
+
+  /**
+   * The previously installed version (before last upgrade).
+   * Useful for rollback and upgrade tracking.
+   */
+  previousVersion: z.string().optional()
+    .describe('Version before the last upgrade'),
 
   /**
    * ISO 8601 timestamp of when the package was last enabled/disabled.
