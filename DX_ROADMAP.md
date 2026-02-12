@@ -107,10 +107,10 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 
 ### Phase 2 Checklist
 
-- [ ] Enhance `ObjectSchema.create()` with auto-label, common fields, and validation
-- [ ] Implement `defineView()` with column type inference
-- [ ] Implement `defineApp()` with navigation builder
-- [ ] Implement `defineFlow()` with step type inference
+- [x] Enhance `ObjectSchema.create()` with auto-label, common fields, and validation
+- [x] Implement `defineView()` with column type inference
+- [x] Implement `defineApp()` with navigation builder
+- [x] Implement `defineFlow()` with step type inference
 - [ ] Create custom Zod error map with contextual messages
 - [ ] Add "Did you mean?" suggestions for FieldType typos
 - [ ] Create pretty-print validation error formatter for CLI

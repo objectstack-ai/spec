@@ -332,10 +332,45 @@ const ObjectSchemaBase = z.object({
 });
 
 /**
+ * Converts a snake_case name to a human-readable Title Case label.
+ * @example snakeCaseToLabel('project_task') → 'Project Task'
+ */
+function snakeCaseToLabel(name: string): string {
+  return name
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
  * Enhanced ObjectSchema with Factory
  */
 export const ObjectSchema = Object.assign(ObjectSchemaBase, {
-  create: <T extends z.input<typeof ObjectSchemaBase>>(config: T) => config,
+  /**
+   * Type-safe factory for creating business object definitions.
+   * 
+   * Enhancements over raw schema:
+   * - **Auto-label**: Generates `label` from `name` if not provided (snake_case → Title Case).
+   * - **Validation**: Runs Zod `.parse()` to validate the config at creation time.
+   * 
+   * @example
+   * ```ts
+   * const Task = ObjectSchema.create({
+   *   name: 'project_task',
+   *   // label auto-generated as 'Project Task'
+   *   fields: {
+   *     subject: { type: 'text', label: 'Subject', required: true },
+   *   },
+   * });
+   * ```
+   */
+  create: (config: z.input<typeof ObjectSchemaBase>): ServiceObject => {
+    const withDefaults = {
+      ...config,
+      label: config.label ?? snakeCaseToLabel(config.name),
+    };
+    return ObjectSchemaBase.parse(withDefaults);
+  },
 });
 
 export type ServiceObject = z.infer<typeof ObjectSchemaBase>;

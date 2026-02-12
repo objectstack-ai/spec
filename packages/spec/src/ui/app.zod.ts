@@ -224,6 +224,27 @@ export const App = {
   create: (config: z.input<typeof AppSchema>): App => AppSchema.parse(config),
 } as const;
 
+/**
+ * Type-safe factory for creating application definitions.
+ *
+ * Validates the config at creation time using Zod `.parse()`.
+ *
+ * @example
+ * ```ts
+ * const crmApp = defineApp({
+ *   name: 'crm',
+ *   label: 'CRM',
+ *   navigation: [
+ *     { id: 'nav_accounts', label: 'Accounts', type: 'object', objectName: 'account' },
+ *     { id: 'nav_contacts', label: 'Contacts', type: 'object', objectName: 'contact' },
+ *   ],
+ * });
+ * ```
+ */
+export function defineApp(config: z.input<typeof AppSchema>): App {
+  return AppSchema.parse(config);
+}
+
 // Main Types
 export type App = z.infer<typeof AppSchema>;
 export type AppInput = z.input<typeof AppSchema>;

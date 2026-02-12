@@ -8,6 +8,7 @@ import {
   PageNavItemSchema,
   UrlNavItemSchema,
   GroupNavItemSchema,
+  defineApp,
   type App,
   type NavigationItem,
 } from './app.zod';
@@ -491,5 +492,35 @@ describe('App Mobile Navigation', () => {
       mobileNavigation: {},
     });
     expect(app.mobileNavigation?.mode).toBe('drawer');
+  });
+});
+
+describe('defineApp', () => {
+  it('should return a parsed app', () => {
+    const result = defineApp({
+      name: 'crm',
+      label: 'CRM',
+      navigation: [
+        { id: 'nav_accounts', label: 'Accounts', type: 'object', objectName: 'account' },
+      ],
+    });
+    expect(result.name).toBe('crm');
+    expect(result.label).toBe('CRM');
+    expect(result.navigation).toHaveLength(1);
+  });
+
+  it('should apply defaults', () => {
+    const result = defineApp({
+      name: 'my_app',
+      label: 'My App',
+    });
+    expect(result.name).toBe('my_app');
+  });
+
+  it('should throw on invalid input', () => {
+    expect(() => defineApp({
+      name: 'INVALID NAME',
+      label: 'Test',
+    })).toThrow();
   });
 });

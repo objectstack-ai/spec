@@ -6,6 +6,7 @@ import {
   AIKnowledgeSchema,
   StructuredOutputFormatSchema,
   StructuredOutputConfigSchema,
+  defineAgent,
   type Agent,
 } from './agent.zod';
 
@@ -683,5 +684,53 @@ describe('StructuredOutputConfigSchema', () => {
     });
 
     expect(config.fallbackFormat).toBe('json_object');
+  });
+});
+
+describe('defineAgent', () => {
+  it('should return a parsed agent', () => {
+    const result = defineAgent({
+      name: 'support_agent',
+      label: 'Support Agent',
+      role: 'Senior Support Engineer',
+      instructions: 'You help customers resolve technical issues.',
+    });
+    expect(result.name).toBe('support_agent');
+    expect(result.label).toBe('Support Agent');
+    expect(result.role).toBe('Senior Support Engineer');
+  });
+
+  it('should apply defaults', () => {
+    const result = defineAgent({
+      name: 'test_agent',
+      label: 'Test',
+      role: 'Tester',
+      instructions: 'Testing agent.',
+    });
+    expect(result.active).toBe(true);
+    expect(result.visibility).toBe('organization');
+  });
+
+  it('should accept agent with tools', () => {
+    const result = defineAgent({
+      name: 'smart_agent',
+      label: 'Smart Agent',
+      role: 'Analyst',
+      instructions: 'Analyze data.',
+      tools: [
+        { type: 'action', name: 'create_report' },
+        { type: 'query', name: 'search_records' },
+      ],
+    });
+    expect(result.tools).toHaveLength(2);
+  });
+
+  it('should throw on invalid agent name', () => {
+    expect(() => defineAgent({
+      name: 'INVALID',
+      label: 'Test',
+      role: 'Tester',
+      instructions: 'Test.',
+    })).toThrow();
   });
 });
