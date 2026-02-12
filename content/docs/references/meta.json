@@ -4,7 +4,6 @@
     "ai",
     "api",
     "automation",
-    "contracts",
     "data",
     "identity",
     "integration",
@@ -14,7 +13,6 @@
     "shared",
     "studio",
     "system",
-    "ui",
-    "quick-reference"
+    "ui"
   ]
 }

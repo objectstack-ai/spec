@@ -2,9 +2,7 @@
   "title": "Automation Protocol",
   "pages": [
     "approval",
-    "connector",
     "etl",
-    "events",
     "flow",
     "state-machine",
     "sync",

@@ -1,13 +1,10 @@
 {
   "title": "API Protocol",
   "pages": [
-    "wire-format",
-    "error-catalog",
     "analytics",
     "auth",
     "auth-endpoints",
     "batch",
-    "connector",
     "contract",
     "discovery",
     "dispatcher",
@@ -16,11 +13,8 @@
     "errors",
     "graphql",
     "http-cache",
-    "identity",
     "metadata",
-    "object",
     "odata",
-    "package-registry",
     "plugin-rest-api",
     "protocol",
     "realtime",
@@ -30,7 +24,6 @@
     "router",
     "storage",
     "versioning",
-    "view",
     "websocket"
   ]
 }
