@@ -51,6 +51,9 @@ packages/spec/json-schema/
 # Generated bundle size reports
 packages/spec/bundle-size-report.json
 
+# Generated SBOM (rebuilt during release)
+sbom.json
+
 # Exclude generated JS from TypeScript sources
 packages/*/src/**/*.js
 !packages/*/src/**/*.config.js

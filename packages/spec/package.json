@@ -82,6 +82,7 @@
     "gen:openapi": "tsx scripts/build-openapi.ts",
     "gen:docs": "tsx scripts/build-docs.ts",
     "analyze": "tsx scripts/analyze-bundle-size.ts",
+    "gen:sbom": "tsx scripts/generate-sbom.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
