@@ -290,8 +290,9 @@ function generateTypesFromConfig(config: Record<string, unknown>): string {
       const fType = String(fieldDef.type || 'text');
       const tsType = fieldTypeToTs(fType, !!fieldDef.multiple);
       const required = fieldDef.required ? '' : '?';
-      const desc = fieldDef.label ? ` /** ${fieldDef.label} */` : '';
-      lines.push(`${desc}`);
+      if (fieldDef.label) {
+        lines.push(`  /** ${fieldDef.label} */`);
+      }
       lines.push(`  ${fieldName}${required}: ${tsType};`);
     }
 

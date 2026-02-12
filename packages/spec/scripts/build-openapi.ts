@@ -252,9 +252,9 @@ function generateComponentSchemas(): Record<string, Record<string, unknown>> {
   };
 
   for (const [name, schema] of Object.entries(contractSchemas)) {
-    if (schema instanceof z.ZodType) {
+    if (schema && typeof schema === 'object' && '_zod' in schema) {
       try {
-        schemas[name] = z.toJSONSchema(schema, { target: 'draft-2020-12' });
+        schemas[name] = z.toJSONSchema(schema as z.ZodType, { target: 'draft-2020-12' });
       } catch {
         schemas[name] = { type: 'object', description: `${name} (schema too complex for auto-generation)` };
       }

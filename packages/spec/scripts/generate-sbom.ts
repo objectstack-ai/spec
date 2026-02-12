@@ -156,7 +156,7 @@ for (const [name, info] of deps) {
     type: 'library',
     name,
     version: info.version,
-    purl: `pkg:npm/${name.replace('/', '%2F')}@${info.version}`,
+    purl: `pkg:npm/${encodeURIComponent(name)}@${info.version}`,
     licenses: license !== 'UNKNOWN' ? [{ license: { id: license } }] : [],
     description: undefined,
   });

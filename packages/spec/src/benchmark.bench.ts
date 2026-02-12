@@ -8,9 +8,10 @@
  */
 
 import { bench, describe } from 'vitest';
+// Benchmark uses `as any` for schema access since schemas use Object.assign
+// patterns that complicate direct typing. This is acceptable for benchmarks.
 import * as Data from './data';
 import * as UI from './ui';
-import * as System from './system';
 import * as Kernel from './kernel';
 import * as API from './api';
 import * as AI from './ai';
