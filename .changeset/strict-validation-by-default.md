@@ -1,5 +1,5 @@
 ---
-"@objectstack/spec": patch
+"@objectstack/spec": minor
 ---
 
 **Breaking Change: Strict Validation Enabled by Default**
