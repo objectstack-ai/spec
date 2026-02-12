@@ -23,7 +23,7 @@ export const I18nObjectSchema = z.object({
   defaultValue: z.string().optional().describe('Fallback value when translation key is not found'),
 
   /** Interpolation parameters for dynamic translations */
-  params: z.record(z.string(), z.any()).optional().describe('Interpolation parameters (e.g., { count: 5 })'),
+  params: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional().describe('Interpolation parameters (e.g., { count: 5 })'),
 });
 
 export type I18nObject = z.infer<typeof I18nObjectSchema>;

@@ -56,15 +56,6 @@ export const SubscriptionSchema = z.object({
 export type Subscription = z.infer<typeof SubscriptionSchema>;
 
 /**
- * Presence Status Enum
- * @deprecated Use `PresenceStatus` from `realtime-shared.zod.ts` instead.
- * Kept for backward compatibility.
- */
-export const RealtimePresenceStatus = PresenceStatus;
-
-export type RealtimePresenceStatus = z.infer<typeof RealtimePresenceStatus>;
-
-/**
  * Presence Schema
  * Tracks user online status and metadata.
  * Extends the shared BasePresenceSchema for transport-level presence tracking.
@@ -74,15 +65,6 @@ export const RealtimePresenceSchema = BasePresenceSchema;
 export type RealtimePresence = z.infer<typeof RealtimePresenceSchema>;
 
 /**
- * Realtime Action Enum
- * @deprecated Use `RealtimeRecordAction` from `realtime-shared.zod.ts` instead.
- * Kept for backward compatibility.
- */
-export const RealtimeAction = RealtimeRecordAction;
-
-export type RealtimeAction = z.infer<typeof RealtimeAction>;
-
-/**
  * Realtime Event Schema
  * Represents a realtime synchronization event
  */
@@ -90,7 +72,7 @@ export const RealtimeEventSchema = z.object({
   id: z.string().uuid().describe('Unique event identifier'),
   type: z.string().describe('Event type (e.g., record.created, record.updated)'),
   object: z.string().optional().describe('Object name the event relates to'),
-  action: RealtimeAction.optional().describe('Action performed'),
+  action: RealtimeRecordAction.optional().describe('Action performed'),
   payload: z.record(z.string(), z.unknown()).describe('Event payload data'),
   timestamp: z.string().datetime().describe('ISO 8601 datetime when event occurred'),
   userId: z.string().optional().describe('User who triggered the event'),

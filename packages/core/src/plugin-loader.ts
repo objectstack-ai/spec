@@ -35,16 +35,6 @@ export interface ServiceRegistration {
 }
 
 /**
- * Plugin Configuration Validator Interface
- * Uses Zod for runtime validation of plugin configurations
- * @deprecated Use the PluginConfigValidator class from security module instead
- */
-export interface IPluginConfigValidator {
-    schema: z.ZodSchema;
-    validate(config: any): any;
-}
-
-/**
  * Plugin Metadata with Enhanced Features
  */
 export interface PluginMetadata extends Plugin {

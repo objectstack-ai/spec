@@ -11,11 +11,6 @@ export interface RestApiPluginConfig {
 }
 
 /**
- * @deprecated Use {@link RestApiPluginConfig} instead
- */
-export type ApiRegistryConfig = RestApiPluginConfig;
-
-/**
  * REST API Plugin
  * 
  * Responsibilities:
@@ -75,8 +70,3 @@ export function createRestApiPlugin(config: RestApiPluginConfig = {}): Plugin {
         }
     };
 }
-
-/**
- * @deprecated Use {@link createRestApiPlugin} instead
- */
-export const createApiRegistryPlugin = createRestApiPlugin;

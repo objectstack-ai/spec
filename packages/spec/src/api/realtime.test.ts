@@ -4,14 +4,13 @@ import {
   RealtimeEventType,
   SubscriptionEventSchema,
   SubscriptionSchema,
-  RealtimePresenceStatus,
   RealtimePresenceSchema,
-  RealtimeAction,
   RealtimeEventSchema,
   type Subscription,
   type RealtimePresence,
   type RealtimeEvent,
 } from './realtime.zod';
+import { PresenceStatus, RealtimeRecordAction } from './realtime-shared.zod';
 
 describe('TransportProtocol', () => {
   it('should accept valid transport protocols', () => {
@@ -190,20 +189,20 @@ describe('SubscriptionSchema', () => {
   });
 });
 
-describe('RealtimePresenceStatus', () => {
+describe('PresenceStatus', () => {
   it('should accept valid presence statuses', () => {
-    expect(() => RealtimePresenceStatus.parse('online')).not.toThrow();
-    expect(() => RealtimePresenceStatus.parse('away')).not.toThrow();
-    expect(() => RealtimePresenceStatus.parse('offline')).not.toThrow();
+    expect(() => PresenceStatus.parse('online')).not.toThrow();
+    expect(() => PresenceStatus.parse('away')).not.toThrow();
+    expect(() => PresenceStatus.parse('offline')).not.toThrow();
   });
 
   it('should reject invalid presence statuses', () => {
-    expect(() => RealtimePresenceStatus.parse('idle')).toThrow();
-    expect(() => RealtimePresenceStatus.parse('')).toThrow();
+    expect(() => PresenceStatus.parse('idle')).toThrow();
+    expect(() => PresenceStatus.parse('')).toThrow();
   });
 
   it('should accept busy status', () => {
-    expect(() => RealtimePresenceStatus.parse('busy')).not.toThrow();
+    expect(() => PresenceStatus.parse('busy')).not.toThrow();
   });
 });
 
@@ -282,17 +281,17 @@ describe('RealtimePresenceSchema', () => {
   });
 });
 
-describe('RealtimeAction', () => {
+describe('RealtimeRecordAction', () => {
   it('should accept valid actions', () => {
-    expect(() => RealtimeAction.parse('created')).not.toThrow();
-    expect(() => RealtimeAction.parse('updated')).not.toThrow();
-    expect(() => RealtimeAction.parse('deleted')).not.toThrow();
+    expect(() => RealtimeRecordAction.parse('created')).not.toThrow();
+    expect(() => RealtimeRecordAction.parse('updated')).not.toThrow();
+    expect(() => RealtimeRecordAction.parse('deleted')).not.toThrow();
   });
 
   it('should reject invalid actions', () => {
-    expect(() => RealtimeAction.parse('inserted')).toThrow();
-    expect(() => RealtimeAction.parse('modified')).toThrow();
-    expect(() => RealtimeAction.parse('')).toThrow();
+    expect(() => RealtimeRecordAction.parse('inserted')).toThrow();
+    expect(() => RealtimeRecordAction.parse('modified')).toThrow();
+    expect(() => RealtimeRecordAction.parse('')).toThrow();
   });
 });
 

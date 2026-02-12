@@ -98,12 +98,3 @@ export const PluginSchema = PluginLifecycleSchema.extend({
 });
 
 export type PluginDefinition = z.infer<typeof PluginSchema>;
-
-/**
- * Define an ObjectStack Plugin
- * Helper function for creating type-safe plugin definitions
- * @deprecated Move to @objectstack/core. Will be removed from spec in v3.0.0
- */
-export function definePlugin(config: PluginDefinition): PluginDefinition {
-  return config;
-}

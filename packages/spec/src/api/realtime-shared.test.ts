@@ -117,7 +117,7 @@ describe('Cross-protocol consistency', () => {
     const testStatuses = ['online', 'away', 'busy', 'offline'];
 
     testStatuses.forEach(status => {
-      expect(() => realtime.RealtimePresenceStatus.parse(status)).not.toThrow();
+      expect(() => realtime.PresenceStatus.parse(status)).not.toThrow();
       expect(() => websocket.WebSocketPresenceStatus.parse(status)).not.toThrow();
       expect(() => PresenceStatus.parse(status)).not.toThrow();
     });

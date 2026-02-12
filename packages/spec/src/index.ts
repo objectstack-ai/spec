@@ -53,7 +53,6 @@ export * as Kernel from './kernel';
 export * as Cloud from './cloud';
 export * as QA from './qa';
 export * as Identity from './identity';
-export * as Hub from './hub';
 export * as AI from './ai';
 export * as API from './api';
 
@@ -74,5 +73,5 @@ export {
 
 export * from './stack.zod';
 
-export { definePlugin, type PluginContext } from './kernel/plugin.zod';
+export { type PluginContext } from './kernel/plugin.zod';
 
