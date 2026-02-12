@@ -449,6 +449,12 @@ export const FieldSchema = z.object({
   // Data quality rules
   dataQuality: DataQualityRulesSchema.optional().describe('Data quality validation and monitoring rules'),
 
+  /** Layout & Grouping */
+  group: z.string().optional().describe('Field group name for organizing fields in forms and layouts (e.g., "contact_info", "billing", "system")'),
+
+  /** Conditional Requirements */
+  conditionalRequired: z.string().optional().describe('Formula expression that makes this field required when TRUE (e.g., "status = \'closed_won\'")'),
+
   /** Security & Visibility */
   hidden: z.boolean().default(false).describe('Hidden from default UI'),
   readonly: z.boolean().default(false).describe('Read-only in UI'),

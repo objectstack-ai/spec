@@ -267,6 +267,9 @@ export const WorkflowRuleSchema = z.object({
   
   /** Active status */
   active: z.boolean().default(true).describe('Whether this workflow is active'),
+
+  /** Execution Order */
+  executionOrder: z.number().int().min(0).default(100).describe('Deterministic execution order when multiple workflows match (lower runs first)'),
   
   /** Recursion Control */
   reevaluateOnChange: z.boolean().default(false).describe('Re-evaluate rule if field updates change the record validity'),

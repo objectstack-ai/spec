@@ -105,6 +105,13 @@ export const DashboardSchema = z.object({
   /** Auto-refresh */
   refreshInterval: z.number().optional().describe('Auto-refresh interval in seconds'),
 
+  /** Dashboard Date Range (Global time filter) */
+  dateRange: z.object({
+    field: z.string().optional().describe('Default date field name for time-based filtering'),
+    defaultRange: z.enum(['today', 'yesterday', 'this_week', 'last_week', 'this_month', 'last_month', 'this_quarter', 'last_quarter', 'this_year', 'last_year', 'last_7_days', 'last_30_days', 'last_90_days', 'custom']).default('this_month').describe('Default date range preset'),
+    allowCustomRange: z.boolean().default(true).describe('Allow users to pick a custom date range'),
+  }).optional().describe('Global dashboard date range filter configuration'),
+
   /** Global Filters */
   globalFilters: z.array(z.object({
     field: z.string().describe('Field name to filter on'),

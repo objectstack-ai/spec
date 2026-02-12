@@ -515,3 +515,49 @@ describe('Action ARIA Integration', () => {
     })).not.toThrow();
   });
 });
+
+// ============================================================================
+// Protocol Improvement Tests: Action variant
+// ============================================================================
+
+describe('ActionSchema - variant', () => {
+  it('should accept all valid variants', () => {
+    const variants = ['primary', 'secondary', 'danger', 'ghost', 'link'] as const;
+    for (const variant of variants) {
+      const result = ActionSchema.parse({
+        name: 'test_action',
+        label: 'Test',
+        variant,
+      });
+      expect(result.variant).toBe(variant);
+    }
+  });
+
+  it('should accept action without variant (optional)', () => {
+    const result = ActionSchema.parse({
+      name: 'no_variant',
+      label: 'Action',
+    });
+    expect(result.variant).toBeUndefined();
+  });
+
+  it('should reject invalid variant value', () => {
+    expect(() => ActionSchema.parse({
+      name: 'bad_variant',
+      label: 'Action',
+      variant: 'invalid',
+    })).toThrow();
+  });
+
+  it('should combine variant with other action properties', () => {
+    const result = ActionSchema.parse({
+      name: 'delete_record',
+      label: 'Delete',
+      variant: 'danger',
+      confirmText: 'Are you sure?',
+      icon: 'trash',
+    });
+    expect(result.variant).toBe('danger');
+    expect(result.confirmText).toBe('Are you sure?');
+  });
+});

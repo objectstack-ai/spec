@@ -688,3 +688,30 @@ describe('Integration Tests', () => {
     expect(afterContext.result.id).toBe('123');
   });
 });
+
+// ============================================================================
+// Protocol Improvement Tests: Hook condition
+// ============================================================================
+
+describe('HookSchema - condition property', () => {
+  it('should accept a hook with declarative condition', () => {
+    const hook = HookSchema.parse({
+      name: 'notify_high_value',
+      object: 'order',
+      events: ['afterInsert'],
+      handler: 'sendNotification',
+      condition: "amount > 1000 AND status = 'confirmed'",
+    });
+    expect(hook.condition).toBe("amount > 1000 AND status = 'confirmed'");
+  });
+
+  it('should accept a hook without condition (optional)', () => {
+    const hook = HookSchema.parse({
+      name: 'log_changes',
+      object: 'account',
+      events: ['afterUpdate'],
+      handler: 'logChanges',
+    });
+    expect(hook.condition).toBeUndefined();
+  });
+});

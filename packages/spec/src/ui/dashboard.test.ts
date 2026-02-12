@@ -556,3 +556,57 @@ describe('Dashboard Performance Integration', () => {
     })).not.toThrow();
   });
 });
+
+// ============================================================================
+// Protocol Improvement Tests: Dashboard dateRange
+// ============================================================================
+
+describe('DashboardSchema - dateRange', () => {
+  it('should accept dateRange configuration', () => {
+    const result = DashboardSchema.parse({
+      name: 'sales_dashboard',
+      label: 'Sales',
+      widgets: [],
+      dateRange: {
+        field: 'created_at',
+        defaultRange: 'this_quarter',
+        allowCustomRange: true,
+      },
+    });
+    expect(result.dateRange?.field).toBe('created_at');
+    expect(result.dateRange?.defaultRange).toBe('this_quarter');
+    expect(result.dateRange?.allowCustomRange).toBe(true);
+  });
+
+  it('should default dateRange.defaultRange to this_month', () => {
+    const result = DashboardSchema.parse({
+      name: 'dashboard',
+      label: 'Dashboard',
+      widgets: [],
+      dateRange: {},
+    });
+    expect(result.dateRange?.defaultRange).toBe('this_month');
+    expect(result.dateRange?.allowCustomRange).toBe(true);
+  });
+
+  it('should accept all dateRange preset values', () => {
+    const presets = ['today', 'yesterday', 'this_week', 'last_week', 'this_month', 'last_month', 'this_quarter', 'last_quarter', 'this_year', 'last_year', 'last_7_days', 'last_30_days', 'last_90_days', 'custom'];
+    for (const preset of presets) {
+      expect(() => DashboardSchema.parse({
+        name: 'test_dash',
+        label: 'Test',
+        widgets: [],
+        dateRange: { defaultRange: preset },
+      })).not.toThrow();
+    }
+  });
+
+  it('should accept dashboard without dateRange (optional)', () => {
+    const result = DashboardSchema.parse({
+      name: 'simple_dash',
+      label: 'Simple',
+      widgets: [],
+    });
+    expect(result.dateRange).toBeUndefined();
+  });
+});

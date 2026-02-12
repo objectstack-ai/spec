@@ -302,7 +302,13 @@ const ObjectSchemaBase = z.object({
   /** 
    * Display & UI Hints (Data-Layer)
    */
-  titleFormat: z.string().optional().describe('Title expression (e.g. "{name} - {code}"). Overrides nameField.'),
+  displayNameField: z.string().optional().describe('Field to use as the record display name (e.g., "name", "title"). Defaults to "name" if present.'),
+  recordName: z.object({
+    type: z.enum(['text', 'autonumber']).describe('Record name type: text (user-entered) or autonumber (system-generated)'),
+    displayFormat: z.string().optional().describe('Auto-number format pattern (e.g., "CASE-{0000}", "INV-{YYYY}-{0000}")'),
+    startNumber: z.number().int().min(0).optional().describe('Starting number for autonumber (default: 1)'),
+  }).optional().describe('Record name generation configuration (Salesforce pattern)'),
+  titleFormat: z.string().optional().describe('Title expression (e.g. "{name} - {code}"). Overrides displayNameField.'),
   compactLayout: z.array(z.string()).optional().describe('Primary fields for hover/cards/lookups'),
   
   /** 

@@ -91,6 +91,15 @@ export const ApprovalProcessSchema = z.object({
   
   /** Steps */
   steps: z.array(ApprovalStepSchema).min(1).describe('Sequence of approval steps'),
+
+  /** Escalation Configuration (SLA-based auto-escalation) */
+  escalation: z.object({
+    enabled: z.boolean().default(false).describe('Enable SLA-based escalation'),
+    timeoutHours: z.number().min(1).describe('Hours before escalation triggers'),
+    action: z.enum(['reassign', 'auto_approve', 'auto_reject', 'notify']).default('notify').describe('Action to take on escalation timeout'),
+    escalateTo: z.string().optional().describe('User ID, role, or manager level to escalate to'),
+    notifySubmitter: z.boolean().default(true).describe('Notify the original submitter on escalation'),
+  }).optional().describe('SLA escalation configuration for pending approval steps'),
   
   /** Global Actions */
   onSubmit: z.array(ApprovalActionSchema).optional().describe('Actions on initial submission'),

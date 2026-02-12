@@ -51,6 +51,25 @@ export const MetadataRecordSchema = z.object({
    * Groups metadata into packages (e.g. "crm", "finance", "core").
    */
   namespace: z.string().default('default'),
+
+  /**
+   * Package Ownership Reference
+   * Links this metadata record to the package that delivered it.
+   * When set, the record is "managed" by the package and should not be
+   * directly edited — customizations go through the overlay system.
+   * Null/undefined means the record was created independently (not from a package).
+   */
+  packageId: z.string().optional().describe('Package ID that owns/delivered this metadata'),
+
+  /**
+   * Managed By Indicator
+   * Determines who controls this metadata record's lifecycle.
+   * - "package": Delivered and upgraded by a plugin package (read-only base)
+   * - "platform": Created by platform admin via UI
+   * - "user": Created by end user
+   */
+  managedBy: z.enum(['package', 'platform', 'user']).optional()
+    .describe('Who manages this metadata record lifecycle'),
   
   /**
    * Ownership differentiation

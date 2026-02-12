@@ -216,3 +216,85 @@ describe('ApprovalProcess.create', () => {
     expect(result).toEqual(config);
   });
 });
+
+// ============================================================================
+// Protocol Improvement Tests: Approval escalation
+// ============================================================================
+
+describe('ApprovalProcessSchema - escalation', () => {
+  it('should accept approval process with escalation config', () => {
+    const result = ApprovalProcessSchema.parse({
+      name: 'escalated_approval',
+      label: 'Escalated Approval',
+      object: 'purchase_order',
+      steps: [{
+        name: 'manager_review',
+        label: 'Manager Review',
+        approvers: [{ type: 'manager', value: 'direct_manager' }],
+      }],
+      escalation: {
+        enabled: true,
+        timeoutHours: 48,
+        action: 'reassign',
+        escalateTo: 'vp_operations',
+        notifySubmitter: true,
+      },
+    });
+    expect(result.escalation?.enabled).toBe(true);
+    expect(result.escalation?.timeoutHours).toBe(48);
+    expect(result.escalation?.action).toBe('reassign');
+    expect(result.escalation?.escalateTo).toBe('vp_operations');
+  });
+
+  it('should accept escalation with auto_approve action', () => {
+    const result = ApprovalProcessSchema.parse({
+      name: 'auto_escalate',
+      label: 'Auto Escalate',
+      object: 'expense_report',
+      steps: [{
+        name: 'review',
+        label: 'Review',
+        approvers: [{ type: 'user', value: 'finance_team' }],
+      }],
+      escalation: {
+        enabled: true,
+        timeoutHours: 72,
+        action: 'auto_approve',
+      },
+    });
+    expect(result.escalation?.action).toBe('auto_approve');
+  });
+
+  it('should default escalation action to notify', () => {
+    const result = ApprovalProcessSchema.parse({
+      name: 'default_escalation',
+      label: 'Default',
+      object: 'request',
+      steps: [{
+        name: 'step_one',
+        label: 'Step 1',
+        approvers: [{ type: 'role', value: 'approver' }],
+      }],
+      escalation: {
+        enabled: true,
+        timeoutHours: 24,
+      },
+    });
+    expect(result.escalation?.action).toBe('notify');
+    expect(result.escalation?.notifySubmitter).toBe(true);
+  });
+
+  it('should accept approval process without escalation (optional)', () => {
+    const result = ApprovalProcessSchema.parse({
+      name: 'no_escalation',
+      label: 'No Escalation',
+      object: 'task',
+      steps: [{
+        name: 'approve',
+        label: 'Approve',
+        approvers: [{ type: 'user', value: 'admin' }],
+      }],
+    });
+    expect(result.escalation).toBeUndefined();
+  });
+});

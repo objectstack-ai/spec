@@ -1,0 +1,369 @@
+---
+title: Validation Metadata
+description: Define data integrity rules — formula conditions, uniqueness, format, state machine transitions, and more
+---
+
+# Validation Metadata
+
+**Validation rules** enforce data integrity at the platform level. They run automatically on insert, update, or delete events, preventing invalid data from being saved. ObjectStack supports 9 validation types covering formulas, uniqueness, formats, state transitions, and custom logic.
+
+## Basic Structure
+
+Validations are defined on an Object's `validations` array:
+
+```typescript
+import { ObjectSchema, Field } from '@objectstack/spec/data';
+
+export const Order = ObjectSchema.create({
+  name: 'order',
+  label: 'Order',
+  fields: {
+    amount: Field.currency({ label: 'Amount', required: true }),
+    status: Field.select({
+      label: 'Status',
+      options: [
+        { label: 'Draft', value: 'draft', default: true },
+        { label: 'Submitted', value: 'submitted' },
+        { label: 'Approved', value: 'approved' },
+        { label: 'Cancelled', value: 'cancelled' },
+      ],
+    }),
+    email: Field.email({ label: 'Contact Email' }),
+  },
+
+  validations: [
+    {
+      name: 'amount_positive',
+      type: 'script',
+      severity: 'error',
+      message: 'Amount must be greater than zero',
+      condition: 'amount <= 0',
+      events: ['insert', 'update'],
+    },
+    {
+      name: 'email_unique',
+      type: 'uniqueness',
+      severity: 'error',
+      message: 'Contact email must be unique',
+      fields: ['email'],
+    },
+  ],
+});
+```
+
+## Common Properties
+
+All validation types share these base properties:
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `name` | `string` | ✅ | Unique rule name (`snake_case`) |
+| `label` | `string` | optional | Display label |
+| `description` | `string` | optional | Developer documentation |
+| `active` | `boolean` | ✅ | Is the rule active |
+| `severity` | `enum` | ✅ | `'error'` (blocks save), `'warning'` (allows save), `'info'` |
+| `message` | `string` | ✅ | User-facing error message |
+| `events` | `enum[]` | ✅ | When to run: `'insert'`, `'update'`, `'delete'` |
+| `priority` | `number` | optional | Execution order (0-9999, lower runs first, default: 100) |
+| `tags` | `string[]` | optional | Categorization tags |
+
+### Severity Levels
+
+| Severity | Behavior |
+| :--- | :--- |
+| `error` | Prevents the record from being saved |
+| `warning` | Shows a warning but allows save |
+| `info` | Informational message, no blocking |
+
+## Validation Types
+
+### Script Validation
+
+Formula-based validation using expressions:
+
+```typescript
+{
+  name: 'close_date_required',
+  type: 'script',
+  severity: 'error',
+  message: 'Close date is required for closed deals',
+  condition: "status = 'closed_won' AND ISBLANK(close_date)",
+  events: ['insert', 'update'],
+}
+```
+
+The `condition` expression should evaluate to `true` when the data is **invalid**.
+
+### Uniqueness Validation
+
+Ensure field values are unique (single or composite):
+
+```typescript
+// Single field uniqueness
+{
+  name: 'email_unique',
+  type: 'uniqueness',
+  severity: 'error',
+  message: 'Email address must be unique',
+  fields: ['email'],
+  caseSensitive: false,
+  events: ['insert', 'update'],
+}
+
+// Composite uniqueness (unique per combination)
+{
+  name: 'code_per_org',
+  type: 'uniqueness',
+  severity: 'error',
+  message: 'Code must be unique within each organization',
+  fields: ['code', 'organization'],
+  scope: 'organization',
+  events: ['insert', 'update'],
+}
+```
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `fields` | `string[]` | Fields that must be unique together |
+| `scope` | `string` | Scope field (for per-parent uniqueness) |
+| `caseSensitive` | `boolean` | Case-sensitive comparison |
+
+### Format Validation
+
+Validate against a regex pattern or standard format:
+
+```typescript
+// Regex pattern
+{
+  name: 'phone_format',
+  type: 'format',
+  severity: 'error',
+  message: 'Phone must match format: +1-XXX-XXX-XXXX',
+  field: 'phone',
+  regex: '^\\+1-\\d{3}-\\d{3}-\\d{4}$',
+  events: ['insert', 'update'],
+}
+
+// Built-in format
+{
+  name: 'website_format',
+  type: 'format',
+  severity: 'error',
+  message: 'Website must be a valid URL',
+  field: 'website',
+  format: 'url',
+  events: ['insert', 'update'],
+}
+```
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `field` | `string` | Target field |
+| `regex` | `string` | Custom regex pattern |
+| `format` | `enum` | Built-in format: `'email'`, `'url'`, `'phone'`, `'json'` |
+
+### State Machine Validation
+
+Enforce allowed state transitions:
+
+```typescript
+{
+  name: 'order_status_transitions',
+  type: 'state_machine',
+  severity: 'error',
+  message: 'Invalid status transition',
+  field: 'status',
+  transitions: {
+    draft: ['submitted', 'cancelled'],
+    submitted: ['approved', 'rejected', 'cancelled'],
+    approved: ['completed'],
+    rejected: ['draft'],
+    cancelled: [],
+    completed: [],
+  },
+  events: ['update'],
+}
+```
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `field` | `string` | State field name |
+| `transitions` | `Record<string, string[]>` | Map of current state → allowed next states |
+
+### Cross-Field Validation
+
+Validate relationships between multiple fields:
+
+```typescript
+{
+  name: 'date_range_valid',
+  type: 'cross_field',
+  severity: 'error',
+  message: 'End date must be after start date',
+  fields: ['start_date', 'end_date'],
+  condition: 'end_date <= start_date',
+  events: ['insert', 'update'],
+}
+```
+
+### JSON Schema Validation
+
+Validate JSON data against a JSON Schema:
+
+```typescript
+{
+  name: 'config_schema',
+  type: 'json',
+  severity: 'error',
+  message: 'Configuration JSON is invalid',
+  field: 'config',
+  schema: {
+    type: 'object',
+    required: ['host', 'port'],
+    properties: {
+      host: { type: 'string' },
+      port: { type: 'number', minimum: 1, maximum: 65535 },
+    },
+  },
+  events: ['insert', 'update'],
+}
+```
+
+### Async Validation
+
+Validate against an external service:
+
+```typescript
+{
+  name: 'tax_id_valid',
+  type: 'async',
+  severity: 'error',
+  message: 'Invalid tax ID',
+  field: 'tax_id',
+  validatorUrl: 'https://api.validation-service.com/verify',
+  timeout: 5000,
+  debounce: 300,
+  events: ['insert', 'update'],
+}
+```
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `field` | `string` | Field to validate |
+| `validatorUrl` | `string` | External validation endpoint |
+| `validatorFunction` | `string` | Server-side function name |
+| `timeout` | `number` | Timeout in milliseconds |
+| `debounce` | `number` | Debounce delay in milliseconds |
+
+### Conditional Validation
+
+Apply validation only when a condition is met:
+
+```typescript
+{
+  name: 'billing_required_for_paid',
+  type: 'conditional',
+  when: "plan_type = 'paid'",
+  then: {
+    name: 'billing_address_check',
+    type: 'script',
+    severity: 'error',
+    message: 'Billing address is required for paid plans',
+    condition: 'ISBLANK(billing_address)',
+    events: ['insert', 'update'],
+  },
+  events: ['insert', 'update'],
+}
+```
+
+### Custom Validator
+
+Invoke a named server-side handler:
+
+```typescript
+{
+  name: 'inventory_check',
+  type: 'custom',
+  severity: 'error',
+  message: 'Insufficient inventory',
+  handler: 'checkInventoryAvailability',
+  params: { warehouse: 'primary' },
+  events: ['insert', 'update'],
+}
+```
+
+## Priority
+
+When multiple validations exist, `priority` controls execution order:
+
+```typescript
+// Runs first (lower number = higher priority)
+{ name: 'format_check', priority: 10, ... }
+
+// Runs second
+{ name: 'uniqueness_check', priority: 50, ... }
+
+// Runs last (default priority)
+{ name: 'business_rule', priority: 100, ... }
+```
+
+## Complete Example
+
+```typescript
+validations: [
+  // Formula validation
+  {
+    name: 'amount_positive',
+    type: 'script',
+    severity: 'error',
+    message: 'Order amount must be positive',
+    condition: 'amount <= 0',
+    events: ['insert', 'update'],
+    priority: 10,
+  },
+  // State transition
+  {
+    name: 'status_flow',
+    type: 'state_machine',
+    severity: 'error',
+    message: 'Invalid status transition',
+    field: 'status',
+    transitions: {
+      draft: ['submitted'],
+      submitted: ['approved', 'rejected'],
+      approved: ['shipped'],
+      rejected: ['draft'],
+      shipped: ['delivered'],
+    },
+    events: ['update'],
+    priority: 20,
+  },
+  // Uniqueness
+  {
+    name: 'order_number_unique',
+    type: 'uniqueness',
+    severity: 'error',
+    message: 'Order number must be unique',
+    fields: ['order_number'],
+    events: ['insert', 'update'],
+    priority: 30,
+  },
+  // Cross-field
+  {
+    name: 'shipping_date_after_order',
+    type: 'cross_field',
+    severity: 'error',
+    message: 'Ship date must be after order date',
+    fields: ['order_date', 'ship_date'],
+    condition: 'ship_date < order_date',
+    events: ['insert', 'update'],
+    priority: 40,
+  },
+]
+```
+
+## Related
+
+- [Object Metadata](./object) — Objects contain validation rules
+- [Field Metadata](./field) — Field-level constraints (`required`, `unique`, `min`, `max`)
+- [Workflow Metadata](./workflow) — Event-driven business automation

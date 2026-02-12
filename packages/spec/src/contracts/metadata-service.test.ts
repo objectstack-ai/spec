@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { IMetadataService } from './metadata-service';
+import type { IMetadataService, MetadataWatchCallback, MetadataWatchHandle, MetadataTypeInfo } from './metadata-service';
 
 describe('Metadata Service Contract', () => {
   it('should allow a minimal IMetadataService implementation with required methods', () => {
@@ -96,5 +96,287 @@ describe('Metadata Service Contract', () => {
     expect(await service.list('view')).toHaveLength(1);
     expect(await service.list('flow')).toHaveLength(0);
     expect(await service.listNames('object')).toEqual(['account', 'contact']);
+  });
+
+  // ==========================================
+  // Extended Contract Tests
+  // ==========================================
+
+  it('should allow implementation with query support', async () => {
+    const service: IMetadataService = {
+      register: async () => {},
+      get: async () => undefined,
+      list: async () => [],
+      unregister: async () => {},
+      exists: async () => false,
+      listNames: async () => [],
+      getObject: async () => undefined,
+      listObjects: async () => [],
+      query: async (_query) => ({
+        items: [{ type: 'object', name: 'account' }],
+        total: 1,
+        page: 1,
+        pageSize: 50,
+      }),
+    };
+
+    const result = await service.query!({ types: ['object'], search: 'account' });
+    expect(result.items).toHaveLength(1);
+    expect(result.total).toBe(1);
+  });
+
+  it('should allow implementation with bulk operations', async () => {
+    const service: IMetadataService = {
+      register: async () => {},
+      get: async () => undefined,
+      list: async () => [],
+      unregister: async () => {},
+      exists: async () => false,
+      listNames: async () => [],
+      getObject: async () => undefined,
+      listObjects: async () => [],
+      bulkRegister: async (items) => ({
+        total: items.length,
+        succeeded: items.length,
+        failed: 0,
+      }),
+      bulkUnregister: async (items) => ({
+        total: items.length,
+        succeeded: items.length,
+        failed: 0,
+      }),
+    };
+
+    const result = await service.bulkRegister!([
+      { type: 'object', name: 'account', data: { label: 'Account' } },
+      { type: 'object', name: 'contact', data: { label: 'Contact' } },
+    ]);
+    expect(result.total).toBe(2);
+    expect(result.succeeded).toBe(2);
+  });
+
+  it('should allow implementation with overlay management', async () => {
+    const overlayStore = new Map<string, unknown>();
+
+    const service: IMetadataService = {
+      register: async () => {},
+      get: async () => undefined,
+      list: async () => [],
+      unregister: async () => {},
+      exists: async () => false,
+      listNames: async () => [],
+      getObject: async () => undefined,
+      listObjects: async () => [],
+      getOverlay: async (type, name) => {
+        const key = `${type}:${name}`;
+        return overlayStore.get(key) as any;
+      },
+      saveOverlay: async (overlay) => {
+        const key = `${overlay.baseType}:${overlay.baseName}`;
+        overlayStore.set(key, overlay);
+      },
+      removeOverlay: async (type, name) => {
+        overlayStore.delete(`${type}:${name}`);
+      },
+      getEffective: async () => undefined,
+    };
+
+    expect(service.getOverlay).toBeDefined();
+    expect(service.saveOverlay).toBeDefined();
+    expect(service.removeOverlay).toBeDefined();
+    expect(service.getEffective).toBeDefined();
+  });
+
+  it('should allow implementation with watch support', () => {
+    const callbacks: MetadataWatchCallback[] = [];
+
+    const service: IMetadataService = {
+      register: async () => {},
+      get: async () => undefined,
+      list: async () => [],
+      unregister: async () => {},
+      exists: async () => false,
+      listNames: async () => [],
+      getObject: async () => undefined,
+      listObjects: async () => [],
+      watch: (type, callback) => {
+        callbacks.push(callback);
+        const handle: MetadataWatchHandle = {
+          unsubscribe: () => {
+            const idx = callbacks.indexOf(callback);
+            if (idx >= 0) callbacks.splice(idx, 1);
+          },
+        };
+        return handle;
+      },
+    };
+
+    const handle = service.watch!('object', (_event) => {});
+    expect(callbacks).toHaveLength(1);
+    handle.unsubscribe();
+    expect(callbacks).toHaveLength(0);
+  });
+
+  it('should allow implementation with import/export', async () => {
+    const service: IMetadataService = {
+      register: async () => {},
+      get: async () => undefined,
+      list: async () => [],
+      unregister: async () => {},
+      exists: async () => false,
+      listNames: async () => [],
+      getObject: async () => undefined,
+      listObjects: async () => [],
+      exportMetadata: async () => ({ version: '1.0', items: [] }),
+      importMetadata: async (_data, _options) => ({
+        total: 3,
+        imported: 2,
+        skipped: 1,
+        failed: 0,
+      }),
+    };
+
+    const bundle = await service.exportMetadata!({ types: ['object'] });
+    expect(bundle).toBeDefined();
+
+    const result = await service.importMetadata!(bundle, { conflictResolution: 'merge' });
+    expect(result.total).toBe(3);
+    expect(result.imported).toBe(2);
+  });
+
+  it('should allow implementation with validation', async () => {
+    const service: IMetadataService = {
+      register: async () => {},
+      get: async () => undefined,
+      list: async () => [],
+      unregister: async () => {},
+      exists: async () => false,
+      listNames: async () => [],
+      getObject: async () => undefined,
+      listObjects: async () => [],
+      validate: async (_type, _data) => ({
+        valid: false,
+        errors: [{ path: 'name', message: 'Name is required' }],
+      }),
+    };
+
+    const result = await service.validate!('object', {});
+    expect(result.valid).toBe(false);
+    expect(result.errors).toHaveLength(1);
+  });
+
+  it('should allow implementation with type registry', async () => {
+    const service: IMetadataService = {
+      register: async () => {},
+      get: async () => undefined,
+      list: async () => [],
+      unregister: async () => {},
+      exists: async () => false,
+      listNames: async () => [],
+      getObject: async () => undefined,
+      listObjects: async () => [],
+      getRegisteredTypes: async () => ['object', 'view', 'flow', 'app'],
+      getTypeInfo: async (type) => {
+        if (type === 'object') {
+          const info: MetadataTypeInfo = {
+            type: 'object',
+            label: 'Object',
+            filePatterns: ['**/*.object.ts'],
+            supportsOverlay: true,
+            domain: 'data',
+          };
+          return info;
+        }
+        return undefined;
+      },
+    };
+
+    const types = await service.getRegisteredTypes!();
+    expect(types).toContain('object');
+    expect(types).toContain('view');
+
+    const info = await service.getTypeInfo!('object');
+    expect(info?.label).toBe('Object');
+    expect(info?.domain).toBe('data');
+
+    const unknown = await service.getTypeInfo!('unknown');
+    expect(unknown).toBeUndefined();
+  });
+
+  it('should allow implementation with dependency tracking', async () => {
+    const service: IMetadataService = {
+      register: async () => {},
+      get: async () => undefined,
+      list: async () => [],
+      unregister: async () => {},
+      exists: async () => false,
+      listNames: async () => [],
+      getObject: async () => undefined,
+      listObjects: async () => [],
+      getDependencies: async (_type, _name) => [
+        { sourceType: 'view', sourceName: 'account_list', targetType: 'object', targetName: 'account', kind: 'reference' },
+      ],
+      getDependents: async (_type, _name) => [
+        { sourceType: 'view', sourceName: 'account_list', targetType: 'object', targetName: 'account', kind: 'reference' },
+        { sourceType: 'dashboard', sourceName: 'crm_dashboard', targetType: 'object', targetName: 'account', kind: 'reference' },
+      ],
+    };
+
+    const deps = await service.getDependencies!('view', 'account_list');
+    expect(deps).toHaveLength(1);
+    expect(deps[0].targetType).toBe('object');
+
+    const dependents = await service.getDependents!('object', 'account');
+    expect(dependents).toHaveLength(2);
+  });
+
+  it('should allow a complete full-featured implementation', () => {
+    const service: IMetadataService = {
+      // Core CRUD
+      register: async () => {},
+      get: async () => undefined,
+      list: async () => [],
+      unregister: async () => {},
+      exists: async () => false,
+      listNames: async () => [],
+      getObject: async () => undefined,
+      listObjects: async () => [],
+      // Package
+      unregisterPackage: async () => {},
+      // Query
+      query: async () => ({ items: [], total: 0, page: 1, pageSize: 50 }),
+      // Bulk
+      bulkRegister: async () => ({ total: 0, succeeded: 0, failed: 0 }),
+      bulkUnregister: async () => ({ total: 0, succeeded: 0, failed: 0 }),
+      // Overlay
+      getOverlay: async () => undefined,
+      saveOverlay: async () => {},
+      removeOverlay: async () => {},
+      getEffective: async () => undefined,
+      // Watch
+      watch: () => ({ unsubscribe: () => {} }),
+      // Import/Export
+      exportMetadata: async () => ({}),
+      importMetadata: async () => ({ total: 0, imported: 0, skipped: 0, failed: 0 }),
+      // Validation
+      validate: async () => ({ valid: true }),
+      // Type Registry
+      getRegisteredTypes: async () => [],
+      getTypeInfo: async () => undefined,
+      // Dependencies
+      getDependencies: async () => [],
+      getDependents: async () => [],
+    };
+
+    // Verify all methods exist
+    expect(typeof service.register).toBe('function');
+    expect(typeof service.query).toBe('function');
+    expect(typeof service.bulkRegister).toBe('function');
+    expect(typeof service.getOverlay).toBe('function');
+    expect(typeof service.watch).toBe('function');
+    expect(typeof service.exportMetadata).toBe('function');
+    expect(typeof service.validate).toBe('function');
+    expect(typeof service.getRegisteredTypes).toBe('function');
+    expect(typeof service.getDependencies).toBe('function');
   });
 });

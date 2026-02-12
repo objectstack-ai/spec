@@ -1385,3 +1385,51 @@ describe('Field Factory Helpers', () => {
     });
   });
 });
+
+// ============================================================================
+// Protocol Improvement Tests: Field group and conditionalRequired
+// ============================================================================
+
+describe('FieldSchema - group property', () => {
+  it('should accept a field with group', () => {
+    const result = FieldSchema.parse({
+      type: 'text',
+      group: 'contact_info',
+    });
+    expect(result.group).toBe('contact_info');
+  });
+
+  it('should accept a field without group (optional)', () => {
+    const result = FieldSchema.parse({
+      type: 'text',
+    });
+    expect(result.group).toBeUndefined();
+  });
+});
+
+describe('FieldSchema - conditionalRequired property', () => {
+  it('should accept a field with conditionalRequired formula', () => {
+    const result = FieldSchema.parse({
+      type: 'text',
+      conditionalRequired: "status = 'closed_won'",
+    });
+    expect(result.conditionalRequired).toBe("status = 'closed_won'");
+  });
+
+  it('should accept a field without conditionalRequired (optional)', () => {
+    const result = FieldSchema.parse({
+      type: 'text',
+    });
+    expect(result.conditionalRequired).toBeUndefined();
+  });
+
+  it('should allow combining required and conditionalRequired', () => {
+    const result = FieldSchema.parse({
+      type: 'text',
+      required: false,
+      conditionalRequired: 'amount > 1000',
+    });
+    expect(result.required).toBe(false);
+    expect(result.conditionalRequired).toBe('amount > 1000');
+  });
+});

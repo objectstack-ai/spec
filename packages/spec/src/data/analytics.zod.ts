@@ -133,7 +133,7 @@ export const CubeSchema = z.object({
  * The request format for the Analytics API.
  */
 export const AnalyticsQuerySchema = z.object({
-  cube: z.string().describe('Target cube name'),
+  cube: z.string().optional().describe('Target cube name (optional when provided externally, e.g. in API request wrapper)'),
   measures: z.array(z.string()).describe('List of metrics to calculate'),
   dimensions: z.array(z.string()).optional().describe('List of dimensions to group by'),
   

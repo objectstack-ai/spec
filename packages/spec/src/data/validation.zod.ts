@@ -66,6 +66,7 @@ const BaseValidationSchema = z.object({
   // Execution Control
   active: z.boolean().default(true),
   events: z.array(z.enum(['insert', 'update', 'delete'])).default(['insert', 'update']).describe('Validation contexts'),
+  priority: z.number().int().min(0).max(9999).default(100).describe('Execution priority (lower runs first, default: 100)'),
   
   // Classification
   tags: z.array(z.string()).optional().describe('Categorization tags (e.g., "compliance", "billing")'),
@@ -349,6 +350,7 @@ export interface BaseValidationRuleShape {
   description?: string;
   active?: boolean;
   events?: ('insert' | 'update' | 'delete')[];
+  priority?: number;
   tags?: string[];
   severity?: 'error' | 'warning' | 'info';
   [key: string]: unknown;
