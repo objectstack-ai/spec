@@ -5,7 +5,8 @@ import chalk from 'chalk';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { printHeader, printSuccess, printWarning, printError } from '../utils/format.js';
+import { printHeader, printSuccess, printWarning, printError, printStep } from '../utils/format.js';
+import { loadConfig, configExists } from '../utils/config.js';
 
 interface HealthCheckResult {
   name: string;
@@ -14,8 +15,211 @@ interface HealthCheckResult {
   fix?: string;
 }
 
+// ─── Config-Aware Checks ────────────────────────────────────────────
+
+function detectCircularDependencies(objects: any[]): string[] {
+  const issues: string[] = [];
+  const graph = new Map<string, string[]>();
+
+  for (const obj of objects) {
+    const deps: string[] = [];
+    if (obj.fields && typeof obj.fields === 'object') {
+      for (const field of Object.values(obj.fields) as any[]) {
+        if (field?.type === 'lookup' && field?.reference) {
+          deps.push(field.reference);
+        }
+      }
+    }
+    graph.set(obj.name, deps);
+  }
+
+  // DFS cycle detection
+  const visited = new Set<string>();
+  const stack = new Set<string>();
+
+  function dfs(node: string, path: string[]): boolean {
+    if (stack.has(node)) {
+      const cycleStart = path.indexOf(node);
+      const cycle = path.slice(cycleStart).concat(node);
+      issues.push(`Circular dependency: ${cycle.join(' → ')}`);
+      return true;
+    }
+    if (visited.has(node)) return false;
+
+    visited.add(node);
+    stack.add(node);
+
+    for (const dep of graph.get(node) || []) {
+      if (graph.has(dep)) {
+        dfs(dep, [...path, node]);
+      }
+    }
+
+    stack.delete(node);
+    return false;
+  }
+
+  for (const name of graph.keys()) {
+    if (!visited.has(name)) {
+      dfs(name, []);
+    }
+  }
+
+  return issues;
+}
+
+function findOrphanViews(config: any): string[] {
+  const objectNames = new Set<string>();
+  if (Array.isArray(config.objects)) {
+    for (const obj of config.objects) {
+      if (obj.name) objectNames.add(obj.name);
+    }
+  }
+
+  const orphans: string[] = [];
+  if (Array.isArray(config.views)) {
+    for (const view of config.views) {
+      if (view.object && !objectNames.has(view.object)) {
+        orphans.push(`View "${view.name || '?'}" references non-existent object "${view.object}"`);
+      }
+    }
+  }
+  return orphans;
+}
+
+function findUnusedObjects(config: any): string[] {
+  const objectNames = new Set<string>();
+  if (Array.isArray(config.objects)) {
+    for (const obj of config.objects) {
+      if (obj.name) objectNames.add(obj.name);
+    }
+  }
+
+  const referencedObjects = new Set<string>();
+
+  // Views reference objects
+  if (Array.isArray(config.views)) {
+    for (const view of config.views) {
+      if (view.object) referencedObjects.add(view.object);
+    }
+  }
+
+  // Flows may reference objects via trigger
+  if (Array.isArray(config.flows)) {
+    for (const flow of config.flows) {
+      if (flow.trigger?.object) referencedObjects.add(flow.trigger.object);
+      if (flow.object) referencedObjects.add(flow.object);
+    }
+  }
+
+  // Apps may reference objects via navigation
+  if (Array.isArray(config.apps)) {
+    for (const app of config.apps) {
+      if (Array.isArray(app.navigation)) {
+        for (const nav of app.navigation) {
+          if (nav.object) referencedObjects.add(nav.object);
+        }
+      }
+    }
+  }
+
+  // Agents may reference objects
+  if (Array.isArray(config.agents)) {
+    for (const agent of config.agents) {
+      if (Array.isArray(agent.objects)) {
+        for (const o of agent.objects) referencedObjects.add(o);
+      }
+    }
+  }
+
+  // Lookup fields reference other objects
+  if (Array.isArray(config.objects)) {
+    for (const obj of config.objects) {
+      if (obj.fields && typeof obj.fields === 'object') {
+        for (const field of Object.values(obj.fields) as any[]) {
+          if (field?.type === 'lookup' && field?.reference) {
+            referencedObjects.add(field.reference);
+          }
+        }
+      }
+    }
+  }
+
+  const unused: string[] = [];
+  for (const name of objectNames) {
+    if (!referencedObjects.has(name)) {
+      unused.push(`Object "${name}" is defined but not referenced by any view, flow, app, or agent`);
+    }
+  }
+  return unused;
+}
+
+// ─── Filesystem Checks ──────────────────────────────────────────────
+
+function walkDir(dir: string, ext: string): string[] {
+  const results: string[] = [];
+  if (!fs.existsSync(dir)) return results;
+
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.name === 'node_modules') continue;
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      results.push(...walkDir(fullPath, ext));
+    } else if (entry.name.endsWith(ext)) {
+      results.push(fullPath);
+    }
+  }
+  return results;
+}
+
+function findMissingTests(cwd: string): string[] {
+  const specSrcDir = path.join(cwd, 'packages/spec/src');
+  if (!fs.existsSync(specSrcDir)) return [];
+
+  const missing: string[] = [];
+  const zodFiles = walkDir(specSrcDir, '.zod.ts');
+
+  for (const zodFile of zodFiles) {
+    const testFile = zodFile.replace('.zod.ts', '.test.ts');
+    if (!fs.existsSync(testFile)) {
+      const relZod = path.relative(specSrcDir, zodFile);
+      const relTest = path.relative(specSrcDir, testFile);
+      missing.push(`Missing test: ${relTest} (for ${relZod})`);
+    }
+  }
+  return missing;
+}
+
+function findDeprecatedUsages(cwd: string): string[] {
+  const specSrcDir = path.join(cwd, 'packages/spec/src');
+  if (!fs.existsSync(specSrcDir)) return [];
+
+  const deprecated: string[] = [];
+  const tsFiles = walkDir(specSrcDir, '.ts')
+    .filter((f) => !f.endsWith('.test.ts'));
+
+  for (const tsFile of tsFiles) {
+    try {
+      const content = fs.readFileSync(tsFile, 'utf-8');
+      const lines = content.split('\n');
+      const relPath = path.relative(specSrcDir, tsFile);
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].includes('@deprecated')) {
+          deprecated.push(`${relPath}:${i + 1} — @deprecated tag found`);
+        }
+      }
+    } catch {
+      // Skip unreadable files
+    }
+  }
+  return deprecated;
+}
+
+// ─── Command ────────────────────────────────────────────────────────
+
 export const doctorCommand = new Command('doctor')
-  .description('Check development environment health')
+  .description('Check development environment and configuration health')
   .option('-v, --verbose', 'Show detailed information')
   .action(async (options) => {
     printHeader('Environment Health Check');
@@ -138,7 +342,7 @@ export const doctorCommand = new Command('doctor')
       });
     }
     
-    // Display results
+    // Display environment results
     let hasErrors = false;
     let hasWarnings = false;
     
@@ -160,6 +364,83 @@ export const doctorCommand = new Command('doctor')
       if (result.status === 'error') hasErrors = true;
       if (result.status === 'warning') hasWarnings = true;
     });
+
+    // ── Extended Checks ──────────────────────────────────────────────
+
+    // Missing test files
+    printStep('Checking for missing test files...');
+    const missingTests = findMissingTests(cwd);
+    if (missingTests.length > 0) {
+      hasWarnings = true;
+      for (const msg of missingTests) {
+        printWarning(msg);
+      }
+    } else {
+      printSuccess('Test coverage         All *.zod.ts files have matching tests');
+    }
+
+    // Deprecated usage detection
+    printStep('Scanning for @deprecated usage...');
+    const deprecatedUsages = findDeprecatedUsages(cwd);
+    if (deprecatedUsages.length > 0) {
+      hasWarnings = true;
+      for (const msg of deprecatedUsages) {
+        printWarning(`Deprecated: ${msg}`);
+      }
+    } else {
+      printSuccess('Deprecations          No @deprecated tags found');
+    }
+
+    // Config-aware checks (only if config exists)
+    if (configExists()) {
+      printStep('Loading configuration for analysis...');
+      try {
+        const { config } = await loadConfig();
+
+        // Circular dependency detection
+        if (Array.isArray(config.objects) && config.objects.length > 0) {
+          printStep('Checking for circular dependencies...');
+          const cycles = detectCircularDependencies(config.objects);
+          if (cycles.length > 0) {
+            hasWarnings = true;
+            for (const msg of cycles) {
+              printWarning(msg);
+            }
+          } else {
+            printSuccess('Dependencies          No circular references detected');
+          }
+
+          // Unused objects
+          printStep('Checking for unused objects...');
+          const unused = findUnusedObjects(config);
+          if (unused.length > 0) {
+            hasWarnings = true;
+            for (const msg of unused) {
+              printWarning(msg);
+            }
+          } else {
+            printSuccess('Object usage          All objects are referenced');
+          }
+        }
+
+        // Orphan views
+        if (Array.isArray(config.views) && config.views.length > 0) {
+          printStep('Checking for orphan views...');
+          const orphans = findOrphanViews(config);
+          if (orphans.length > 0) {
+            hasWarnings = true;
+            for (const msg of orphans) {
+              printWarning(msg);
+            }
+          } else {
+            printSuccess('View integrity        All views reference valid objects');
+          }
+        }
+      } catch {
+        printWarning('Could not load config for analysis (config checks skipped)');
+        hasWarnings = true;
+      }
+    }
     
     console.log('');
     
