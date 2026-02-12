@@ -1,0 +1,257 @@
+---
+title: Dashboard Metadata
+description: Build analytics dashboards with chart widgets, global filters, and auto-refresh
+---
+
+# Dashboard Metadata
+
+A **Dashboard** defines an analytics page with chart widgets, key metrics, and data visualizations. Dashboards support configurable layouts, global date filters, and auto-refresh.
+
+## Basic Structure
+
+```typescript
+const salesDashboard = {
+  name: 'sales_overview',
+  label: 'Sales Overview',
+  description: 'Key sales metrics and pipeline analysis',
+  refreshInterval: 300,     // Refresh every 5 minutes
+
+  dateRange: {
+    field: 'close_date',
+    defaultRange: 'this_quarter',
+    allowCustomRange: true,
+  },
+
+  widgets: [
+    {
+      title: 'Total Revenue',
+      type: 'metric',
+      object: 'opportunity',
+      valueField: 'amount',
+      aggregate: 'sum',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    },
+    {
+      title: 'Pipeline by Stage',
+      type: 'bar',
+      object: 'opportunity',
+      categoryField: 'stage',
+      valueField: 'amount',
+      aggregate: 'sum',
+      layout: { x: 3, y: 0, w: 6, h: 4 },
+    },
+    {
+      title: 'Win Rate',
+      type: 'pie',
+      object: 'opportunity',
+      categoryField: 'status',
+      valueField: 'id',
+      aggregate: 'count',
+      layout: { x: 9, y: 0, w: 3, h: 4 },
+    },
+  ],
+};
+```
+
+## Dashboard Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `name` | `string` | ✅ | Machine name (`snake_case`) |
+| `label` | `string` | ✅ | Display label |
+| `description` | `string` | optional | Dashboard description |
+| `widgets` | `DashboardWidget[]` | ✅ | Chart and metric widgets |
+| `refreshInterval` | `number` | optional | Auto-refresh interval (seconds) |
+| `dateRange` | `object` | optional | Global date range filter |
+| `globalFilters` | `GlobalFilter[]` | optional | Global filter controls |
+
+## Widgets
+
+Each widget defines a data visualization:
+
+```typescript
+{
+  title: 'Monthly Revenue',
+  type: 'line',
+  object: 'invoice',
+  categoryField: 'invoice_date',
+  valueField: 'total',
+  aggregate: 'sum',
+  filter: { field: 'status', operator: 'eq', value: 'paid' },
+  layout: { x: 0, y: 0, w: 6, h: 4 },
+}
+```
+
+### Widget Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `title` | `string` | ✅ | Widget display title |
+| `type` | `ChartType` | ✅ | Visualization type (see below) |
+| `object` | `string` | ✅ | Source object name |
+| `categoryField` | `string` | optional | Field for categories/X-axis |
+| `valueField` | `string` | optional | Field for values/Y-axis |
+| `aggregate` | `enum` | optional | Aggregation function |
+| `filter` | `FilterCondition` | optional | Data filter criteria |
+| `layout` | `object` | ✅ | Grid position and size |
+| `chartConfig` | `object` | optional | Advanced chart configuration |
+| `options` | `object` | optional | Additional display options |
+| `responsive` | `object` | optional | Responsive behavior |
+
+### Chart Types
+
+| Type | Description | Best For |
+| :--- | :--- | :--- |
+| `metric` | Single number KPI | Revenue, count, percentage |
+| `bar` | Bar chart (vertical/horizontal) | Category comparison |
+| `line` | Line chart | Trends over time |
+| `pie` | Pie/donut chart | Distribution |
+| `area` | Area chart | Volume over time |
+| `scatter` | Scatter plot | Correlation |
+| `radar` | Radar chart | Multi-dimensional comparison |
+| `funnel` | Funnel chart | Conversion stages |
+| `gauge` | Gauge/speedometer | Progress toward goal |
+| `heatmap` | Heat map | Density visualization |
+| `treemap` | Tree map | Hierarchical proportions |
+| `table` | Data table widget | Detailed records |
+
+### Aggregation Functions
+
+| Function | Description |
+| :--- | :--- |
+| `count` | Count records |
+| `sum` | Sum values |
+| `avg` | Average values |
+| `min` | Minimum value |
+| `max` | Maximum value |
+
+### Widget Layout
+
+Widgets are positioned on a 12-column grid:
+
+```typescript
+layout: {
+  x: 0,    // Column position (0-11)
+  y: 0,    // Row position
+  w: 6,    // Width in columns (1-12)
+  h: 4,    // Height in rows
+}
+```
+
+## Date Range
+
+Configure a global time filter that applies to all widgets:
+
+```typescript
+dateRange: {
+  field: 'created_at',
+  defaultRange: 'this_month',
+  allowCustomRange: true,
+}
+```
+
+### Preset Ranges
+
+| Range | Description |
+| :--- | :--- |
+| `today` | Current day |
+| `yesterday` | Previous day |
+| `this_week` | Current week |
+| `last_week` | Previous week |
+| `this_month` | Current month |
+| `last_month` | Previous month |
+| `this_quarter` | Current quarter |
+| `last_quarter` | Previous quarter |
+| `this_year` | Current year |
+| `last_year` | Previous year |
+| `last_7_days` | Rolling 7 days |
+| `last_30_days` | Rolling 30 days |
+| `last_90_days` | Rolling 90 days |
+| `custom` | User-defined range |
+
+## Global Filters
+
+Add interactive filter controls that apply to all widgets:
+
+```typescript
+globalFilters: [
+  { field: 'region', label: 'Region', type: 'select' },
+  { field: 'owner', label: 'Sales Rep', type: 'lookup' },
+]
+```
+
+## Complete Example
+
+```typescript
+const projectDashboard = {
+  name: 'project_overview',
+  label: 'Project Overview',
+  description: 'Real-time project health metrics',
+  refreshInterval: 60,
+
+  dateRange: {
+    field: 'created_at',
+    defaultRange: 'this_month',
+    allowCustomRange: true,
+  },
+
+  globalFilters: [
+    { field: 'project', label: 'Project', type: 'lookup' },
+    { field: 'assignee', label: 'Team Member', type: 'lookup' },
+  ],
+
+  widgets: [
+    {
+      title: 'Open Tasks',
+      type: 'metric',
+      object: 'project_task',
+      valueField: 'id',
+      aggregate: 'count',
+      filter: { field: 'status', operator: 'neq', value: 'done' },
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    },
+    {
+      title: 'Completed This Week',
+      type: 'metric',
+      object: 'project_task',
+      valueField: 'id',
+      aggregate: 'count',
+      filter: { field: 'status', operator: 'eq', value: 'done' },
+      layout: { x: 3, y: 0, w: 3, h: 2 },
+    },
+    {
+      title: 'Tasks by Status',
+      type: 'pie',
+      object: 'project_task',
+      categoryField: 'status',
+      valueField: 'id',
+      aggregate: 'count',
+      layout: { x: 6, y: 0, w: 3, h: 4 },
+    },
+    {
+      title: 'Tasks by Priority',
+      type: 'bar',
+      object: 'project_task',
+      categoryField: 'priority',
+      valueField: 'id',
+      aggregate: 'count',
+      layout: { x: 9, y: 0, w: 3, h: 4 },
+    },
+    {
+      title: 'Completion Trend',
+      type: 'line',
+      object: 'project_task',
+      categoryField: 'completed_at',
+      valueField: 'id',
+      aggregate: 'count',
+      layout: { x: 0, y: 4, w: 12, h: 4 },
+    },
+  ],
+};
+```
+
+## Related
+
+- [App Metadata](./app) — Reference dashboards in app navigation
+- [View Metadata](./view) — List views for record browsing
+- [Page Metadata](./page) — Custom pages with component layouts

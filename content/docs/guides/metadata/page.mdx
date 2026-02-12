@@ -1,0 +1,228 @@
+---
+title: Page Metadata
+description: Build custom pages with component-based layouts, variables, and event handling
+---
+
+# Page Metadata
+
+A **Page** defines a custom UI layout using components, regions, and variables. Unlike Views which are bound to a single Object, Pages are flexible containers that can combine multiple components, embed views, and manage local state.
+
+## Basic Structure
+
+```typescript
+const homePage = {
+  name: 'sales_home',
+  label: 'Sales Home',
+  type: 'home',
+  regions: [
+    {
+      name: 'header',
+      width: 'full',
+      components: [
+        {
+          type: 'metric_card',
+          id: 'total_revenue',
+          label: 'Total Revenue',
+          properties: {
+            object: 'opportunity',
+            field: 'amount',
+            aggregate: 'sum',
+            format: 'currency',
+          },
+        },
+      ],
+    },
+    {
+      name: 'main',
+      width: 'large',
+      components: [
+        {
+          type: 'list_view',
+          id: 'recent_deals',
+          label: 'Recent Deals',
+          properties: {
+            object: 'opportunity',
+            view: 'recent_open',
+            limit: 10,
+          },
+        },
+      ],
+    },
+  ],
+};
+```
+
+## Page Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `name` | `string` | ✅ | Machine name (`snake_case`) |
+| `label` | `string` | ✅ | Display label |
+| `description` | `string` | optional | Page description |
+| `type` | `enum` | ✅ | Page type (see below) |
+| `object` | `string` | optional | Associated object (for `record` type) |
+| `template` | `string` | optional | Layout template name (default: `'default'`) |
+| `regions` | `PageRegion[]` | ✅ | Layout regions with components |
+| `variables` | `PageVariable[]` | optional | Local state variables |
+| `isDefault` | `boolean` | optional | Is default page for its type |
+| `assignedProfiles` | `string[]` | optional | Profiles that can access this page |
+
+### Page Types
+
+| Type | Description | Use Case |
+| :--- | :--- | :--- |
+| `record` | Tied to a specific object record | Custom detail pages |
+| `home` | Landing/home page | App entry points |
+| `app` | General application page | Custom layouts |
+| `utility` | Utility/helper page | Tools, settings, wizards |
+
+## Regions
+
+Regions define layout zones on the page. Each region contains components.
+
+```typescript
+regions: [
+  {
+    name: 'sidebar',
+    width: 'small',
+    components: [/* ... */],
+  },
+  {
+    name: 'content',
+    width: 'large',
+    components: [/* ... */],
+  },
+]
+```
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `name` | `string` | ✅ | Region identifier |
+| `width` | `enum` | ✅ | `'small'`, `'medium'`, `'large'`, `'full'` |
+| `components` | `PageComponent[]` | ✅ | Components in this region |
+
+## Components
+
+Components are the building blocks placed inside regions.
+
+```typescript
+{
+  type: 'chart',
+  id: 'revenue_chart',
+  label: 'Revenue Trend',
+  properties: {
+    chartType: 'line',
+    object: 'opportunity',
+    categoryField: 'close_date',
+    valueField: 'amount',
+  },
+  events: {
+    onClick: 'navigate("/opportunities/{id}")',
+  },
+  visibility: "userProfile = 'sales_manager'",
+  style: { height: '400px' },
+}
+```
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `type` | `string` | ✅ | Component type or custom component name |
+| `id` | `string` | ✅ | Unique component identifier |
+| `label` | `string` | optional | Display label |
+| `properties` | `Record<string, any>` | optional | Component-specific configuration |
+| `events` | `Record<string, string>` | optional | Event handlers (action expressions) |
+| `style` | `object` | optional | CSS styles |
+| `className` | `string` | optional | CSS class names |
+| `visibility` | `string` | optional | Visibility condition expression |
+
+## Variables
+
+Pages can define local variables for managing state across components.
+
+```typescript
+variables: [
+  {
+    name: 'selected_tab',
+    type: 'text',
+    defaultValue: 'overview',
+  },
+  {
+    name: 'date_range',
+    type: 'object',
+    defaultValue: { start: null, end: null },
+  },
+]
+```
+
+## Complete Example
+
+```typescript
+const accountRecordPage = {
+  name: 'account_detail',
+  label: 'Account Detail',
+  type: 'record',
+  object: 'account',
+  variables: [
+    { name: 'active_tab', type: 'text', defaultValue: 'details' },
+  ],
+  regions: [
+    {
+      name: 'header',
+      width: 'full',
+      components: [
+        {
+          type: 'record_header',
+          id: 'header',
+          properties: {
+            fields: ['name', 'type', 'industry', 'owner'],
+            actions: ['edit', 'delete', 'clone'],
+          },
+        },
+      ],
+    },
+    {
+      name: 'sidebar',
+      width: 'small',
+      components: [
+        {
+          type: 'record_detail',
+          id: 'key_fields',
+          label: 'Key Fields',
+          properties: {
+            fields: ['annual_revenue', 'employees', 'website', 'phone'],
+          },
+        },
+        {
+          type: 'activity_timeline',
+          id: 'activities',
+          label: 'Activity',
+        },
+      ],
+    },
+    {
+      name: 'main',
+      width: 'large',
+      components: [
+        {
+          type: 'related_list',
+          id: 'contacts',
+          label: 'Contacts',
+          properties: { object: 'contact', relationship: 'account' },
+        },
+        {
+          type: 'related_list',
+          id: 'opportunities',
+          label: 'Opportunities',
+          properties: { object: 'opportunity', relationship: 'account' },
+        },
+      ],
+    },
+  ],
+};
+```
+
+## Related
+
+- [View Metadata](./view) — List views and form views for record display
+- [Dashboard Metadata](./dashboard) — Analytics-focused page layout
+- [App Metadata](./app) — Organize pages into applications
