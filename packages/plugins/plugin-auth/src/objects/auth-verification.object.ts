@@ -7,10 +7,10 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * 
  * Uses better-auth's native schema for seamless migration:
  * - id: string
- * - createdAt: Date
- * - updatedAt: Date
+ * - created_at: Date
+ * - updated_at: Date
  * - value: string (verification token/code)
- * - expiresAt: Date
+ * - expires_at: Date
  * - identifier: string (email or phone number)
  */
 export const AuthVerification = ObjectSchema.create({

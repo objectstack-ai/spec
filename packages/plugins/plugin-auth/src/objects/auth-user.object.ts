@@ -7,10 +7,10 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * 
  * Uses better-auth's native schema for seamless migration:
  * - id: string
- * - createdAt: Date
- * - updatedAt: Date
+ * - created_at: Date
+ * - updated_at: Date
  * - email: string (unique, lowercase)
- * - emailVerified: boolean
+ * - email_verified: boolean
  * - name: string
  * - image: string | null
  */

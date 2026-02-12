@@ -7,13 +7,13 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * 
  * Uses better-auth's native schema for seamless migration:
  * - id: string
- * - createdAt: Date
- * - updatedAt: Date
- * - userId: string
- * - expiresAt: Date
+ * - created_at: Date
+ * - updated_at: Date
+ * - user_id: string
+ * - expires_at: Date
  * - token: string
- * - ipAddress: string | null
- * - userAgent: string | null
+ * - ip_address: string | null
+ * - user_agent: string | null
  */
 export const AuthSession = ObjectSchema.create({
   name: 'session',

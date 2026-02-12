@@ -7,16 +7,16 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * 
  * Uses better-auth's native schema for seamless migration:
  * - id: string
- * - createdAt: Date
- * - updatedAt: Date
- * - providerId: string (e.g., 'google', 'github')
- * - accountId: string (provider's user ID)
- * - userId: string (link to user table)
- * - accessToken: string | null
- * - refreshToken: string | null
- * - idToken: string | null
- * - accessTokenExpiresAt: Date | null
- * - refreshTokenExpiresAt: Date | null
+ * - created_at: Date
+ * - updated_at: Date
+ * - provider_id: string (e.g., 'google', 'github')
+ * - account_id: string (provider's user ID)
+ * - user_id: string (link to user table)
+ * - access_token: string | null
+ * - refresh_token: string | null
+ * - id_token: string | null
+ * - access_token_expires_at: Date | null
+ * - refresh_token_expires_at: Date | null
  * - scope: string | null
  * - password: string | null (for email/password provider)
  */
