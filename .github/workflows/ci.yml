@@ -143,6 +143,9 @@ jobs:
           fi
           echo "Build outputs verified successfully"
 
+      - name: Analyze bundle size
+        run: pnpm --filter @objectstack/spec analyze
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
         with:

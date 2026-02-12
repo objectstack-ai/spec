@@ -6,6 +6,8 @@ import { z } from 'zod';
 import * as Protocol from '../src/index';
 
 const OUT_DIR = path.resolve(__dirname, '../json-schema');
+const SPEC_VERSION = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf-8')).version;
+const SCHEMA_BASE_URL = `https://schema.objectstack.io/v${SPEC_VERSION}`;
 
 // Retry and delay configuration
 const RETRY_DELAY_BASE_MS = 100; // Base delay in ms, multiplied by retry attempt number
@@ -134,6 +136,11 @@ for (const [namespaceName, namespaceExports] of Object.entries(Protocol)) {
             target: 'draft-2020-12',
           });
 
+          // Add $id URL and version metadata for IDE autocomplete and schema resolution
+          const categorySlug = namespaceName.toLowerCase();
+          (jsonSchema as Record<string, unknown>)['$id'] = `${SCHEMA_BASE_URL}/${categorySlug}/${schemaName}.json`;
+          (jsonSchema as Record<string, unknown>)['x-spec-version'] = SPEC_VERSION;
+
           const fileName = `${schemaName}.json`;
           const filePath = path.join(categoryDir, fileName);
 
@@ -167,5 +174,36 @@ if (errorCount > 0) {
   console.error(`\n❌ Build failed with ${errorCount} unexpected error(s).`);
   process.exit(1);
 }
+
+// ─── Generate Bundled Schema ─────────────────────────────────────────
+// Single-file bundled schema containing all generated schemas for IDE autocomplete
+
+const bundledSchema: Record<string, unknown> = {
+  $schema: 'https://json-schema.org/draft/2020-12/schema',
+  $id: `${SCHEMA_BASE_URL}/objectstack.json`,
+  title: 'ObjectStack Protocol',
+  description: `ObjectStack Protocol v${SPEC_VERSION} — Complete bundled JSON Schema for IDE autocomplete`,
+  'x-spec-version': SPEC_VERSION,
+  'x-schema-count': count,
+  $defs: {} as Record<string, unknown>,
+};
+
+const defs = bundledSchema.$defs as Record<string, unknown>;
+
+// Walk generated schema files and collect into $defs
+for (const category of fs.readdirSync(OUT_DIR)) {
+  const categoryPath = path.join(OUT_DIR, category);
+  if (!fs.statSync(categoryPath).isDirectory()) continue;
+
+  for (const file of fs.readdirSync(categoryPath).filter(f => f.endsWith('.json'))) {
+    const schema = JSON.parse(fs.readFileSync(path.join(categoryPath, file), 'utf-8'));
+    const defKey = `${category}/${file.replace('.json', '')}`;
+    defs[defKey] = schema;
+  }
+}
+
+const bundledPath = path.join(OUT_DIR, 'objectstack.json');
+writeFileWithRetry(bundledPath, JSON.stringify(bundledSchema, null, 2));
+console.log(`\n✅ Generated bundled schema: objectstack.json (${Object.keys(defs).length} definitions)`);
 
 console.log(`\n✅ Successfully generated ${count} schemas.`);

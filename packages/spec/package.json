@@ -11,11 +11,6 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
-    "./driver": {
-      "types": "./dist/driver/index.d.ts",
-      "import": "./dist/driver/index.mjs",
-      "require": "./dist/driver/index.js"
-    },
     "./data": {
       "types": "./dist/data/index.d.ts",
       "import": "./dist/data/index.mjs",
@@ -26,20 +21,10 @@
       "import": "./dist/system/index.mjs",
       "require": "./dist/system/index.js"
     },
-    "./auth": {
-      "types": "./dist/auth/index.d.ts",
-      "import": "./dist/auth/index.mjs",
-      "require": "./dist/auth/index.js"
-    },
     "./kernel": {
       "types": "./dist/kernel/index.d.ts",
       "import": "./dist/kernel/index.mjs",
       "require": "./dist/kernel/index.js"
-    },
-    "./hub": {
-      "types": "./dist/hub/index.d.ts",
-      "import": "./dist/hub/index.mjs",
-      "require": "./dist/hub/index.js"
     },
     "./ai": {
       "types": "./dist/ai/index.d.ts",
@@ -71,11 +56,6 @@
       "import": "./dist/integration/index.mjs",
       "require": "./dist/integration/index.js"
     },
-    "./permission": {
-      "types": "./dist/permission/index.d.ts",
-      "import": "./dist/permission/index.mjs",
-      "require": "./dist/permission/index.js"
-    },
     "./security": {
       "types": "./dist/security/index.d.ts",
       "import": "./dist/security/index.mjs",
@@ -95,11 +75,14 @@
     "README.md"
   ],
   "scripts": {
-    "build": "pnpm gen:schema && tsup",
+    "build": "pnpm gen:schema && pnpm gen:openapi && tsup",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "gen:schema": "tsx scripts/build-schemas.ts",
+    "gen:openapi": "tsx scripts/build-openapi.ts",
     "gen:docs": "tsx scripts/build-docs.ts",
+    "analyze": "tsx scripts/analyze-bundle-size.ts",
+    "gen:sbom": "tsx scripts/generate-sbom.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"

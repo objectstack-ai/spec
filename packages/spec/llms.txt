@@ -1,6 +1,9 @@
 # @objectstack/spec Context for AI Agents
 
 > **SYSTEM NOTE**: This file provides a high-level summary of the ObjectStack Protocol to help LLMs understand the codebase structure and intent.
+> **Version**: 3.0.0
+> **Schema Count**: 171 Zod schemas, 191 test files, 5,157 tests
+> **Last Updated**: 2026-02-12
 
 ## 1. Architecture Overview (The "Three-Layer Model")
 
@@ -10,36 +13,48 @@ It is divided into three layers, reflected in the import paths:
 ### Layer 1: ObjectQL (`@objectstack/spec/data`)
 **The Business Kernel**. Defines "What Data Exists".
 - **`ObjectSchema`**: Defines database tables (postgres/mongo agnostic).
-- **`FieldSchema`**: Defines columns with types (`text`, `number`, `lookup`, `formula`).
+- **`FieldSchema`**: Defines columns with 46+ types (`text`, `number`, `lookup`, `formula`, `vector`, etc.).
 - **`QuerySchema`**: A JSON-based AST for querying data (replaces SQL).
-- **`DriverInterface`**: The contract for database adapters.
+- **`DriverInterface`**: The contract for database adapters (SQL, NoSQL, Memory).
+- **`AnalyticsSchema`**: OLAP cubes, measures, and dimensions.
 
 ### Layer 2: ObjectOS (`@objectstack/spec/system` & `@objectstack/spec/api`)
 **The Runtime Kernel**. Defines "How System Operates".
 - **`ManifestSchema`**: `objectstack.config.ts` configuration.
-- **`IdentitySchema`**: Users, Roles, and Authentication.
-- **`EventSchema`**: System bus and Webhooks.
+- **`IdentitySchema`**: Users, Roles, Organizations, SCIM.
+- **`EventSchema`**: System bus, DLQ, and Webhooks (6 sub-modules).
 - **`EndpointSchema`**: API Gateway configuration.
+- **`PluginSchema`**: Module lifecycle, security, registry, loading.
 
 ### Layer 3: ObjectUI (`@objectstack/spec/ui`)
 **The Presentation Layer**. Defines "How Users Interact".
 - **`AppSchema`**: Navigation menus and branding.
-- **`ViewSchema`**: Layouts for data (Grid, Kanban, Calendar).
+- **`ViewSchema`**: Layouts for data (Grid, Kanban, Calendar, Gantt).
 - **`ActionSchema`**: Buttons and triggers.
+- **`DashboardSchema`**: Widget composition.
+- **`ThemeSchema`**: Design tokens and theming.
+
+### Layer 4: ObjectAI (`@objectstack/spec/ai`)
+**The Intelligence Layer**. Defines AI Agents and Pipelines.
+- **`AgentSchema`**: Autonomous actors with tools and permissions.
+- **`RAGPipelineSchema`**: Retrieval Augmented Generation pipelines.
+- **`ModelRegistrySchema`**: LLM configuration and routing.
+- **`MCPSchema`**: Model Context Protocol integration.
 
 ---
 
 ## 2. Coding Patterns (Zod First)
 
-All definitions are virtually **Zod Schemas**.
+All definitions are **Zod Schemas** with runtime validation.
 - **Configuration Keys**: `camelCase` (e.g., `maxLength`, `referenceFilters`).
 - **Data Values**: `snake_case` (e.g., `object: 'project_task'`, `type: 'lookup'`).
+- **All schemas have `.describe()` annotations** (7,095+ total).
+- **TypeScript types derived via `z.infer<typeof Schema>`**.
 
 ### Example: Defining an Object
 ```typescript
 import { ObjectSchema } from '@objectstack/spec/data';
 
-// Describes a "Task" object
 const taskObject = {
   name: 'project_task',  // snake_case table name
   label: 'Project Task',
@@ -54,14 +69,9 @@ const taskObject = {
 ```typescript
 import { QuerySchema } from '@objectstack/spec/data';
 
-// JSON-based SQL alternative
 const query = {
   object: 'project_task',
-  filters: [
-    ['status', '=', 'todo'],
-    'and',
-    ['priority', '>', 1]
-  ],
+  filters: [['status', '=', 'todo'], 'and', ['priority', '>', 1]],
   sort: [{ field: 'created_at', order: 'desc' }],
   top: 10
 };
@@ -69,114 +79,121 @@ const query = {
 
 ---
 
-## 3. Key exports by Namespace
+## 3. Schema Inventory by Domain (171 schemas)
+
+| Domain | Count | Key Schemas |
+|--------|-------|-------------|
+| kernel | 32 | Plugin, Manifest, Events (6 sub-modules), Feature, Context, Package Registry |
+| system | 27 | Auth, Cache, Compliance, Encryption, HTTP Server, License, Logging, Metrics |
+| api | 25 | Contract, Endpoint, REST Server, Discovery, GraphQL, OData, Batch, WebSocket |
+| data | 19 | Object, Field, Query, Filter, Driver (SQL/NoSQL/Memory/Mongo/Postgres), Hook |
+| ui | 18 | View, App, Action, Dashboard, Page, Chart, Component, Theme, Animation |
+| ai | 14 | Agent, RAG Pipeline, Model Registry, MCP, Orchestration, NLQ, Predictive |
+| automation | 8 | Flow, Workflow, Trigger, Approval, ETL, State Machine, Webhook |
+| integration | 7 | Connector (Database, File Storage, GitHub, MQ, SaaS, Vercel) |
+| shared | 6 | Enums, HTTP, Identifiers, Mapping, Metadata Types, Connector Auth |
+| security | 5 | Permission, Policy, RLS, Sharing, Territory |
+| identity | 4 | Identity, Organization, Role, SCIM |
+| cloud | 4 | Marketplace, Developer Portal, App Store, Marketplace Admin |
+| studio | 1 | Studio Plugin Manifest |
+
+---
+
+## 4. Key Exports by Namespace
 
 ### `import * as Data from '@objectstack/spec/data'`
 - `ObjectSchema`, `FieldSchema`: Logic & Storage definition.
 - `QuerySchema`, `FilterSchema`: Data retrieval AST.
 - `DriverInterface`, `DatasourceSchema`: Database connectivity.
-- `WorkflowSchema`, `FlowSchema`: Automation logic.
+- `AnalyticsSchema`: OLAP cubes and metrics.
 
 ### `import * as UI from '@objectstack/spec/ui'`
 - `ViewSchema`: `type: 'grid' | 'kanban' | 'calendar'`.
 - `FormSchema`: `layout: 'simple' | 'tabbed'`.
 - `DashboardSchema`: Widget composition.
+- `ThemeSchema`: Design tokens.
 
 ### `import * as System from '@objectstack/spec/system'`
 - `PluginSchema`: Module lifecycle.
 - `EventSchema`: Pub/Sub definitions.
 - `PolicySchema`: Security rules.
 
+### `import * as AI from '@objectstack/spec/ai'`
+- `AgentSchema`: AI agent configuration.
+- `RAGPipelineSchema`: Retrieval pipelines.
+- `ModelRegistrySchema`: LLM routing.
+
+### `import * as API from '@objectstack/spec/api'`
+- `EndpointSchema`: REST/GraphQL endpoints.
+- `ContractSchema`: Request/Response envelopes.
+- `DiscoverySchema`: Service discovery.
+
 ---
 
-## 4. Implementing the Protocol (Engine Devs)
+## 5. Implementing the Protocol (Engine Devs)
 
-If you are building an ObjectQL engine or Driver in another repository:
-
-### ObjectQL Implementation (Data Layer)
-*Reference: `node_modules/@objectstack/spec/prompts/implement-objectql.md`*
-
+### Strict Type Compliance
 Use `z.infer` to derive types directly from the protocol. Do not manually re-declare interfaces.
 
 ```typescript
 import { DriverInterfaceSchema, type DriverInterface } from '@objectstack/spec/data';
-// ...
-```
 
-### ObjectOS Implementation (System Layer)
-*Reference: `node_modules/@objectstack/spec/prompts/implement-objectos.md`*
-
-The Runtime Kernel must be bootstrapped from the Manifest.
-
-```typescript
-import { ManifestSchema, IdentitySchema } from '@objectstack/spec/system';
-import { type RequestEnvelope } from '@objectstack/spec/api';
-
-// 1. Boot: Validate Config
-const config = ManifestSchema.parse(rawConfig);
-
-// 2. Runtime: Validate Identity
-function handleRequest(user: z.infer<typeof IdentitySchema>) { ... }
-```
-
-### ObjectUI Implementation (View Layer)
-*Reference: `node_modules/@objectstack/spec/prompts/implement-objectui.md`*
-
-The UI must be Server-Driven (SDUI), rendering structures defined by the protocol.
-
-```typescript
-import { ViewSchema, ActionSchema } from '@objectstack/spec/ui';
-
-// ✅ Valid: Components accept Schema Props
-function GridView({ config }: { config: z.infer<typeof ViewSchema> }) {
-  // Render based on config.columns, config.filters...
-}
-```
-
-### ObjectAI Implementation (Intelligence Layer)
-*Reference: `node_modules/@objectstack/spec/prompts/implement-objectai.md`*
-
-AI Agents and RAG pipelines must be schema-aware and permission-safe.
-
-```typescript
-import { AgentSchema, RAGPipelineSchema } from '@objectstack/spec/ai';
-
-// Agents are configured via Protocol, not arbitrary prompts
-const supportAgent = AgentSchema.parse({
-  role: 'support',
-  tools: ['search_knowledge_base', 'create_ticket']
-});
-```
-
-### 1. Strict Type Compliance
-Use `z.infer` to derive types directly from the protocol. Do not manually re-declare interfaces.
-
-```typescript
-import { DriverInterfaceSchema, type DriverInterface } from '@objectstack/spec/data';
-import { z } from 'zod';
-
-// ✅ CORRECT: Implementing the interface strictly
 export class PostgresDriver implements DriverInterface {
   name = 'postgres';
-  version = '1.0.0';
-  supports = { transactions: true, ... };
-  
-  // Implementation matches the Zod schema exactly
-  async find(object: string, query: z.infer<typeof QuerySchema>) {
-    // ...
-  }
+  async find(object: string, query: z.infer<typeof QuerySchema>) { ... }
 }
 ```
 
-### 2. Runtime Validation
+### Runtime Validation
 The engine **MUST** validate inputs against the Zod schemas before processing.
 
 ```typescript
 import { ObjectSchema } from '@objectstack/spec/data';
 
 function registerObject(rawConfig: unknown) {
-  // CRITICAL: Parse strictly throws if protocol is violated
   const config = ObjectSchema.parse(rawConfig);
   // ... proceed
 }
 ```
+
+---
+
+## 6. Service Contracts (`@objectstack/spec/contracts`)
+
+| Contract | Methods |
+|----------|---------|
+| `IMetadataService` | register, get, list, delete, query, bulk ops, overlay, watch, import/export |
+| `IAnalyticsService` | query, aggregate, timeSeries |
+| `IAuthService` | authenticate, authorize, validateToken |
+| `IAutomationService` | executeFlow, triggerWorkflow |
+| `IUIService` | resolveView, resolveApp |
+| `IGraphQLService` | execute, subscribe |
+
+---
+
+## 7. Package Ecosystem (19 packages)
+
+| Package | Description |
+|---------|-------------|
+| `@objectstack/spec` | Protocol schemas (this package) |
+| `@objectstack/core` | Runtime core (plugin loader, security, sandbox) |
+| `@objectstack/runtime` | HTTP dispatcher, middleware |
+| `@objectstack/objectql` | Query engine |
+| `@objectstack/rest` | REST API server and route manager |
+| `@objectstack/metadata` | Metadata management service |
+| `@objectstack/client` | JavaScript client SDK |
+| `@objectstack/client-react` | React hooks for client |
+| `@objectstack/cli` | Command-line interface |
+| `@objectstack/hono` | Hono adapter |
+| `@objectstack/nextjs` | Next.js adapter |
+| `@objectstack/nestjs` | NestJS adapter |
+| `@objectstack/driver-memory` | In-memory database driver |
+
+---
+
+## 8. JSON Schema & OpenAPI
+
+- **1,470+ JSON Schemas** auto-generated from Zod (with `$id` URLs)
+- **Bundled schema**: `json-schema/objectstack.json` for IDE autocomplete
+- **OpenAPI 3.1**: Auto-generated from REST API protocol (`json-schema/openapi.json`)
+- **Schema versioning**: `x-spec-version` field in all generated schemas
