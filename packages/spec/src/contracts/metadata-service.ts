@@ -3,7 +3,10 @@
 /**
  * IMetadataService - Metadata Service Contract
  *
- * Defines the async interface for managing object/field definitions in ObjectStack.
+ * The unified async interface for managing ALL metadata in the ObjectStack platform.
+ * This is the service contract that the Metadata Plugin implements and
+ * that all other plugins depend on for metadata operations.
+ *
  * Concrete implementations (SchemaRegistry, Database-backed, etc.)
  * should implement this interface.
  *
@@ -13,9 +16,109 @@
  * not on concrete metadata storage implementations.
  *
  * Aligned with CoreServiceName 'metadata' in core-services.zod.ts.
+ *
+ * ## Architecture
+ * ```
+ * ┌──────────────────────┐
+ * │   IMetadataService   │  ← Contract (this file)
+ * ├──────────────────────┤
+ * │  CRUD Operations     │  register / get / list / unregister / exists
+ * │  Query / Search      │  query (filter, paginate, sort)
+ * │  Bulk Operations     │  bulkRegister / bulkUnregister
+ * │  Overlay Management  │  getOverlay / saveOverlay / removeOverlay
+ * │  Watch / Subscribe   │  watch / unwatch
+ * │  Import / Export     │  exportMetadata / importMetadata
+ * │  Validation          │  validate
+ * │  Type Registry       │  getRegisteredTypes / getTypeInfo
+ * │  Dependencies        │  getDependencies / getDependents
+ * └──────────────────────┘
+ * ```
  */
 
+import type { MetadataQuery, MetadataQueryResult, MetadataValidationResult, MetadataBulkResult, MetadataDependency } from '../kernel/metadata-plugin.zod';
+import type { MetadataOverlay } from '../kernel/metadata-customization.zod';
+
+/**
+ * Metadata watch callback signature
+ */
+export type MetadataWatchCallback = (event: {
+    type: 'registered' | 'updated' | 'unregistered';
+    metadataType: string;
+    name: string;
+    data?: unknown;
+}) => void;
+
+/**
+ * Metadata watch subscription handle
+ */
+export interface MetadataWatchHandle {
+    /** Unsubscribe from watch */
+    unsubscribe(): void;
+}
+
+/**
+ * Metadata export options
+ */
+export interface MetadataExportOptions {
+    /** Filter by metadata types */
+    types?: string[];
+    /** Filter by namespaces */
+    namespaces?: string[];
+    /** Export format */
+    format?: 'json' | 'yaml';
+}
+
+/**
+ * Metadata import options
+ */
+export interface MetadataImportOptions {
+    /** Conflict resolution strategy */
+    conflictResolution?: 'skip' | 'overwrite' | 'merge';
+    /** Validate before import */
+    validate?: boolean;
+    /** Dry run (don't actually save) */
+    dryRun?: boolean;
+}
+
+/**
+ * Metadata import result
+ */
+export interface MetadataImportResult {
+    /** Total items processed */
+    total: number;
+    /** Successfully imported */
+    imported: number;
+    /** Skipped (conflict resolution) */
+    skipped: number;
+    /** Failed items */
+    failed: number;
+    /** Per-item error details */
+    errors?: Array<{ type: string; name: string; error: string }>;
+}
+
+/**
+ * Type registry entry info
+ */
+export interface MetadataTypeInfo {
+    /** Metadata type identifier */
+    type: string;
+    /** Human-readable label */
+    label: string;
+    /** Description */
+    description?: string;
+    /** File glob patterns */
+    filePatterns: string[];
+    /** Supports overlay customization */
+    supportsOverlay: boolean;
+    /** Protocol domain */
+    domain: string;
+}
+
 export interface IMetadataService {
+    // ==========================================
+    // Core CRUD Operations
+    // ==========================================
+
     /**
      * Register/save a metadata item by type
      * @param type - Metadata type (e.g. 'object', 'view', 'flow')
@@ -74,9 +177,164 @@ export interface IMetadataService {
      */
     listObjects(): Promise<unknown[]>;
 
+    // ==========================================
+    // Package Management
+    // ==========================================
+
     /**
      * Unregister all metadata items from a specific package
      * @param packageName - The package name whose items should be removed
      */
     unregisterPackage?(packageName: string): Promise<void>;
+
+    // ==========================================
+    // Query / Search
+    // ==========================================
+
+    /**
+     * Query metadata items with filtering, sorting, and pagination.
+     * Supports advanced search across all metadata types.
+     * @param query - Query parameters
+     * @returns Paginated query result
+     */
+    query?(query: MetadataQuery): Promise<MetadataQueryResult>;
+
+    // ==========================================
+    // Bulk Operations
+    // ==========================================
+
+    /**
+     * Register multiple metadata items in a single batch.
+     * More efficient than individual register calls.
+     * @param items - Array of { type, name, data } to register
+     * @param options - Bulk operation options
+     * @returns Bulk operation result with success/failure counts
+     */
+    bulkRegister?(items: Array<{ type: string; name: string; data: unknown }>, options?: { continueOnError?: boolean; validate?: boolean }): Promise<MetadataBulkResult>;
+
+    /**
+     * Unregister multiple metadata items in a single batch.
+     * @param items - Array of { type, name } to unregister
+     * @returns Bulk operation result
+     */
+    bulkUnregister?(items: Array<{ type: string; name: string }>): Promise<MetadataBulkResult>;
+
+    // ==========================================
+    // Overlay / Customization Management
+    // ==========================================
+
+    /**
+     * Get the active overlay for a metadata item.
+     * Returns the customization delta applied on top of the base definition.
+     * @param type - Metadata type
+     * @param name - Item name
+     * @param scope - Overlay scope ('platform' or 'user')
+     * @returns The overlay, or undefined if no customization exists
+     */
+    getOverlay?(type: string, name: string, scope?: 'platform' | 'user'): Promise<MetadataOverlay | undefined>;
+
+    /**
+     * Save/update an overlay for a metadata item.
+     * @param overlay - The overlay to save
+     */
+    saveOverlay?(overlay: MetadataOverlay): Promise<void>;
+
+    /**
+     * Remove an overlay, reverting to the base definition.
+     * @param type - Metadata type
+     * @param name - Item name
+     * @param scope - Overlay scope
+     */
+    removeOverlay?(type: string, name: string, scope?: 'platform' | 'user'): Promise<void>;
+
+    /**
+     * Get the effective (merged) metadata after applying all overlays.
+     * Resolution order: system ← merge(platform) ← merge(user)
+     * @param type - Metadata type
+     * @param name - Item name
+     * @returns The effective metadata with all overlays applied
+     */
+    getEffective?(type: string, name: string): Promise<unknown | undefined>;
+
+    // ==========================================
+    // Watch / Subscribe
+    // ==========================================
+
+    /**
+     * Watch for metadata changes.
+     * @param type - Metadata type to watch (or '*' for all types)
+     * @param callback - Callback invoked when metadata changes
+     * @returns A handle to unsubscribe
+     */
+    watch?(type: string, callback: MetadataWatchCallback): MetadataWatchHandle;
+
+    // ==========================================
+    // Import / Export
+    // ==========================================
+
+    /**
+     * Export metadata as a portable bundle.
+     * @param options - Export options (types, namespaces, format)
+     * @returns Serialized metadata bundle
+     */
+    exportMetadata?(options?: MetadataExportOptions): Promise<unknown>;
+
+    /**
+     * Import metadata from a portable bundle.
+     * @param data - The metadata bundle to import
+     * @param options - Import options (conflict resolution, validation)
+     * @returns Import result with success/failure counts
+     */
+    importMetadata?(data: unknown, options?: MetadataImportOptions): Promise<MetadataImportResult>;
+
+    // ==========================================
+    // Validation
+    // ==========================================
+
+    /**
+     * Validate a metadata item against its type schema.
+     * @param type - Metadata type
+     * @param data - The metadata payload to validate
+     * @returns Validation result with errors and warnings
+     */
+    validate?(type: string, data: unknown): Promise<MetadataValidationResult>;
+
+    // ==========================================
+    // Type Registry
+    // ==========================================
+
+    /**
+     * Get all registered metadata types.
+     * Includes both built-in types and custom types registered by plugins.
+     * @returns Array of type identifiers
+     */
+    getRegisteredTypes?(): Promise<string[]>;
+
+    /**
+     * Get detailed information about a metadata type.
+     * @param type - Metadata type identifier
+     * @returns Type info, or undefined if not registered
+     */
+    getTypeInfo?(type: string): Promise<MetadataTypeInfo | undefined>;
+
+    // ==========================================
+    // Dependency Tracking
+    // ==========================================
+
+    /**
+     * Get metadata items that this item depends on.
+     * @param type - Metadata type
+     * @param name - Item name
+     * @returns Array of dependencies
+     */
+    getDependencies?(type: string, name: string): Promise<MetadataDependency[]>;
+
+    /**
+     * Get metadata items that depend on this item.
+     * Used for impact analysis before deletion.
+     * @param type - Metadata type
+     * @param name - Item name
+     * @returns Array of dependent items
+     */
+    getDependents?(type: string, name: string): Promise<MetadataDependency[]>;
 }

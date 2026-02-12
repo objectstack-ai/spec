@@ -8,6 +8,7 @@ export * from './feature.zod';
 export * from './manifest.zod';
 export * from './metadata-customization.zod';
 export * from './metadata-loader.zod';
+export * from './metadata-plugin.zod';
 export * from './package-registry.zod';
 export * from './package-upgrade.zod';
 export * from './plugin-capability.zod';
