@@ -22,7 +22,7 @@ export const AuthSession = ObjectSchema.create({
   icon: 'key',
   description: 'Active user sessions',
   titleFormat: 'Session {token}',
-  compactLayout: ['userId', 'expiresAt', 'ipAddress'],
+  compactLayout: ['user_id', 'expires_at', 'ip_address'],
   
   fields: {
     id: Field.text({
@@ -31,24 +31,24 @@ export const AuthSession = ObjectSchema.create({
       readonly: true,
     }),
     
-    createdAt: Field.datetime({
+    created_at: Field.datetime({
       label: 'Created At',
       defaultValue: 'NOW()',
       readonly: true,
     }),
     
-    updatedAt: Field.datetime({
+    updated_at: Field.datetime({
       label: 'Updated At',
       defaultValue: 'NOW()',
       readonly: true,
     }),
     
-    userId: Field.text({
+    user_id: Field.text({
       label: 'User ID',
       required: true,
     }),
     
-    expiresAt: Field.datetime({
+    expires_at: Field.datetime({
       label: 'Expires At',
       required: true,
     }),
@@ -58,13 +58,13 @@ export const AuthSession = ObjectSchema.create({
       required: true,
     }),
     
-    ipAddress: Field.text({
+    ip_address: Field.text({
       label: 'IP Address',
       required: false,
       maxLength: 45, // Support IPv6
     }),
     
-    userAgent: Field.textarea({
+    user_agent: Field.textarea({
       label: 'User Agent',
       required: false,
     }),
@@ -73,8 +73,8 @@ export const AuthSession = ObjectSchema.create({
   // Database indexes for performance
   indexes: [
     { fields: ['token'], unique: true },
-    { fields: ['userId'], unique: false },
-    { fields: ['expiresAt'], unique: false },
+    { fields: ['user_id'], unique: false },
+    { fields: ['expires_at'], unique: false },
   ],
   
   // Enable features

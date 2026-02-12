@@ -7,7 +7,10 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup --config ../../../tsup.config.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "validate": "objectstack validate",
+    "compile": "objectstack compile",
+    "info": "objectstack info"
   },
   "dependencies": {
     "@objectstack/core": "workspace:*",
@@ -15,6 +18,7 @@
     "better-auth": "^1.4.18"
   },
   "devDependencies": {
+    "@objectstack/cli": "workspace:*",
     "@types/node": "^25.2.2",
     "typescript": "^5.0.0",
     "vitest": "^4.0.18"

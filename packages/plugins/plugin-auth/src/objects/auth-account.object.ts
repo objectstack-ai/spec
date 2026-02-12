@@ -26,8 +26,8 @@ export const AuthAccount = ObjectSchema.create({
   pluralLabel: 'Accounts',
   icon: 'link',
   description: 'OAuth and authentication provider accounts',
-  titleFormat: '{providerId} - {accountId}',
-  compactLayout: ['providerId', 'userId', 'accountId'],
+  titleFormat: '{provider_id} - {account_id}',
+  compactLayout: ['provider_id', 'user_id', 'account_id'],
   
   fields: {
     id: Field.text({
@@ -36,57 +36,57 @@ export const AuthAccount = ObjectSchema.create({
       readonly: true,
     }),
     
-    createdAt: Field.datetime({
+    created_at: Field.datetime({
       label: 'Created At',
       defaultValue: 'NOW()',
       readonly: true,
     }),
     
-    updatedAt: Field.datetime({
+    updated_at: Field.datetime({
       label: 'Updated At',
       defaultValue: 'NOW()',
       readonly: true,
     }),
     
-    providerId: Field.text({
+    provider_id: Field.text({
       label: 'Provider ID',
       required: true,
       description: 'OAuth provider identifier (google, github, etc.)',
     }),
     
-    accountId: Field.text({
+    account_id: Field.text({
       label: 'Provider Account ID',
       required: true,
       description: "User's ID in the provider's system",
     }),
     
-    userId: Field.text({
+    user_id: Field.text({
       label: 'User ID',
       required: true,
       description: 'Link to user table',
     }),
     
-    accessToken: Field.textarea({
+    access_token: Field.textarea({
       label: 'Access Token',
       required: false,
     }),
     
-    refreshToken: Field.textarea({
+    refresh_token: Field.textarea({
       label: 'Refresh Token',
       required: false,
     }),
     
-    idToken: Field.textarea({
+    id_token: Field.textarea({
       label: 'ID Token',
       required: false,
     }),
     
-    accessTokenExpiresAt: Field.datetime({
+    access_token_expires_at: Field.datetime({
       label: 'Access Token Expires At',
       required: false,
     }),
     
-    refreshTokenExpiresAt: Field.datetime({
+    refresh_token_expires_at: Field.datetime({
       label: 'Refresh Token Expires At',
       required: false,
     }),
@@ -105,8 +105,8 @@ export const AuthAccount = ObjectSchema.create({
   
   // Database indexes for performance
   indexes: [
-    { fields: ['userId'], unique: false },
-    { fields: ['providerId', 'accountId'], unique: true },
+    { fields: ['user_id'], unique: false },
+    { fields: ['provider_id', 'account_id'], unique: true },
   ],
   
   // Enable features

@@ -639,6 +639,9 @@ importers:
         specifier: ^1.4.18
         version: 1.4.18(drizzle-orm@0.41.0(kysely@0.28.11))(next@16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vitest@4.0.18(@types/node@25.2.2)(happy-dom@20.5.3)(jiti@2.6.1)(lightningcss@1.30.2)(msw@2.12.9(@types/node@25.2.2)(typescript@5.9.3))(tsx@4.21.0))
     devDependencies:
+      '@objectstack/cli':
+        specifier: workspace:*
+        version: link:../../cli
       '@types/node':
         specifier: ^25.2.2
         version: 25.2.2
