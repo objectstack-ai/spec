@@ -1,0 +1,384 @@
+---
+title: IDataEngine Contract
+description: Reference for the Data Engine contract — the core data persistence layer for CRUD operations, queries, aggregations, and transactions
+---
+
+# IDataEngine Contract
+
+The Data Engine is the **core persistence layer** of ObjectStack. Every data operation — creates, reads, updates, deletes, queries, and aggregations — flows through this contract. The Kernel delegates to the Data Engine after applying security, validation, and hooks.
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/contracts/data-engine.ts`  
+**Token:** `DATA_ENGINE`
+</Callout>
+
+---
+
+## Interface Definition
+
+```typescript
+export interface IDataEngine {
+  // CRUD Operations
+  create(object: string, data: Record<string, unknown>): Promise<DataRecord>;
+  read(object: string, id: string, options?: ReadOptions): Promise<DataRecord | null>;
+  update(object: string, id: string, data: Record<string, unknown>): Promise<DataRecord>;
+  delete(object: string, id: string): Promise<void>;
+
+  // Query
+  query(object: string, query: QueryInput): Promise<QueryResult>;
+  findOne(object: string, filter: FilterInput): Promise<DataRecord | null>;
+  count(object: string, filter?: FilterInput): Promise<number>;
+
+  // Aggregation
+  aggregate(object: string, pipeline: AggregationPipeline): Promise<AggregationResult>;
+
+  // Bulk Operations
+  bulkCreate(object: string, records: Record<string, unknown>[]): Promise<BulkCreateResult>;
+  bulkUpdate(object: string, updates: BulkUpdateInput[]): Promise<BulkUpdateResult>;
+  bulkDelete(object: string, ids: string[]): Promise<BulkDeleteResult>;
+
+  // Transaction Support
+  transaction<T>(fn: (tx: IDataEngine) => Promise<T>): Promise<T>;
+
+  // Relationship Traversal
+  getRelated(object: string, id: string, relationship: string, options?: QueryInput): Promise<QueryResult>;
+}
+```
+
+---
+
+## CRUD Operations
+
+### create
+
+Creates a new record and returns it with system-generated fields (`id`, `created_at`, etc.).
+
+```typescript
+const task = await dataEngine.create('task', {
+  title: 'Implement login page',
+  status: 'open',
+  priority: 'high',
+  assigned_to: 'usr_01HQ3V5K8N2M4P6R7T9W',
+});
+
+console.log(task.id);         // "tsk_01HQ4A7B9D3F5G8J2K4L"
+console.log(task.created_at); // "2025-01-20T10:30:00.000Z"
+```
+
+### read
+
+Retrieves a single record by ID. Returns `null` if not found.
+
+```typescript
+const task = await dataEngine.read('task', 'tsk_01HQ4A7B9D3F5G8J2K4L', {
+  fields: ['title', 'status', 'assigned_to'],
+  expand: ['assigned_to'],
+});
+```
+
+### ReadOptions
+
+```typescript
+export interface ReadOptions {
+  fields?: string[];     // Select specific fields
+  expand?: string[];     // Expand lookup relationships
+  includeDeleted?: boolean; // Include soft-deleted records
+}
+```
+
+### update
+
+Updates specific fields on a record. Returns the full updated record.
+
+```typescript
+const updated = await dataEngine.update('task', 'tsk_01HQ4A7B9D3F5G8J2K4L', {
+  status: 'in_progress',
+  estimated_hours: 12,
+});
+```
+
+<Callout type="tip">
+**Partial Updates:** Only fields included in the `data` parameter are modified. Omitted fields retain their current values.
+</Callout>
+
+### delete
+
+Permanently deletes a record. If the object has soft-delete enabled, the record is moved to the recycle bin.
+
+```typescript
+await dataEngine.delete('task', 'tsk_01HQ4A7B9D3F5G8J2K4L');
+```
+
+---
+
+## Query
+
+### query
+
+Executes a structured query with filtering, sorting, pagination, and field selection.
+
+```typescript
+const result = await dataEngine.query('task', {
+  filter: {
+    and: [
+      { field: 'status', operator: 'eq', value: 'open' },
+      { field: 'priority', operator: 'in', value: ['high', 'critical'] },
+    ],
+  },
+  orderBy: [{ field: 'due_date', direction: 'asc' }],
+  limit: 20,
+  offset: 0,
+  fields: ['id', 'title', 'status', 'priority', 'due_date'],
+});
+
+console.log(result.records);    // DataRecord[]
+console.log(result.total);      // 47
+console.log(result.hasMore);    // true
+```
+
+### QueryInput
+
+```typescript
+export interface QueryInput {
+  filter?: FilterInput;
+  orderBy?: OrderByInput[];
+  limit?: number;
+  offset?: number;
+  fields?: string[];
+  expand?: string[];
+}
+
+export interface FilterInput {
+  and?: FilterCondition[];
+  or?: FilterCondition[];
+}
+
+export interface FilterCondition {
+  field: string;
+  operator: FilterOperator;
+  value: unknown;
+}
+
+export type FilterOperator =
+  | 'eq' | 'neq'
+  | 'gt' | 'gte' | 'lt' | 'lte'
+  | 'in' | 'nin'
+  | 'contains' | 'startsWith' | 'endsWith'
+  | 'isNull' | 'isNotNull';
+```
+
+### QueryResult
+
+```typescript
+export interface QueryResult {
+  records: DataRecord[];
+  total: number;
+  hasMore: boolean;
+  limit: number;
+  offset: number;
+}
+```
+
+### findOne
+
+Convenience method that returns the first record matching a filter.
+
+```typescript
+const task = await dataEngine.findOne('task', {
+  and: [{ field: 'title', operator: 'eq', value: 'Implement login page' }],
+});
+```
+
+### count
+
+Returns the number of records matching a filter without fetching data.
+
+```typescript
+const openTasks = await dataEngine.count('task', {
+  and: [{ field: 'status', operator: 'eq', value: 'open' }],
+});
+// 23
+```
+
+---
+
+## Aggregation
+
+### aggregate
+
+Runs an aggregation pipeline for analytics and reporting.
+
+```typescript
+const result = await dataEngine.aggregate('task', {
+  groupBy: ['status'],
+  measures: [
+    { field: 'id', function: 'count', alias: 'task_count' },
+    { field: 'estimated_hours', function: 'sum', alias: 'total_hours' },
+    { field: 'estimated_hours', function: 'avg', alias: 'avg_hours' },
+  ],
+  filter: {
+    and: [{ field: 'project', operator: 'eq', value: 'prj_01HQ3V5K8N' }],
+  },
+  orderBy: [{ field: 'task_count', direction: 'desc' }],
+});
+
+// result.rows:
+// [
+//   { status: 'open', task_count: 15, total_hours: 120, avg_hours: 8 },
+//   { status: 'in_progress', task_count: 8, total_hours: 96, avg_hours: 12 },
+//   { status: 'done', task_count: 24, total_hours: 192, avg_hours: 8 },
+// ]
+```
+
+### AggregationPipeline
+
+```typescript
+export interface AggregationPipeline {
+  groupBy?: string[];
+  measures: AggregationMeasure[];
+  filter?: FilterInput;
+  having?: FilterInput;
+  orderBy?: OrderByInput[];
+  limit?: number;
+}
+
+export interface AggregationMeasure {
+  field: string;
+  function: 'count' | 'sum' | 'avg' | 'min' | 'max';
+  alias: string;
+}
+```
+
+---
+
+## Bulk Operations
+
+### bulkCreate
+
+Creates multiple records in a single operation. More efficient than individual creates.
+
+```typescript
+const result = await dataEngine.bulkCreate('task', [
+  { title: 'Task 1', status: 'open', priority: 'high' },
+  { title: 'Task 2', status: 'open', priority: 'medium' },
+  { title: 'Task 3', status: 'open', priority: 'low' },
+]);
+
+console.log(result.created);   // 3
+console.log(result.records);   // DataRecord[]
+console.log(result.errors);    // [] (empty on full success)
+```
+
+### bulkUpdate
+
+Updates multiple records with individual changes.
+
+```typescript
+const result = await dataEngine.bulkUpdate('task', [
+  { id: 'tsk_01HQ4A7B...', data: { status: 'done' } },
+  { id: 'tsk_01HQ4B8C...', data: { status: 'done' } },
+]);
+```
+
+### bulkDelete
+
+Deletes multiple records by ID.
+
+```typescript
+const result = await dataEngine.bulkDelete('task', [
+  'tsk_01HQ4A7B9D3F5G8J2K4L',
+  'tsk_01HQ4B8C0E4G6H9K3L5M',
+]);
+
+console.log(result.deleted);  // 2
+console.log(result.errors);   // []
+```
+
+---
+
+## Transactions
+
+### transaction
+
+Wraps multiple operations in an atomic transaction. If any operation fails, all changes are rolled back.
+
+```typescript
+const result = await dataEngine.transaction(async (tx) => {
+  // Create a project
+  const project = await tx.create('project', {
+    name: 'Website Redesign',
+    status: 'active',
+  });
+
+  // Create tasks linked to the project
+  await tx.create('task', {
+    title: 'Design mockups',
+    project: project.id,
+    status: 'open',
+  });
+
+  await tx.create('task', {
+    title: 'Implement frontend',
+    project: project.id,
+    status: 'open',
+  });
+
+  return project;
+});
+```
+
+<Callout type="info">
+**Isolation Level:** Transactions use `READ COMMITTED` isolation by default. The Driver implementation determines the exact behavior based on the underlying database.
+</Callout>
+
+---
+
+## Relationship Traversal
+
+### getRelated
+
+Queries related records through a defined relationship.
+
+```typescript
+// Get all tasks for a project
+const tasks = await dataEngine.getRelated(
+  'project',
+  'prj_01HQ3V5K8N2M4P6R7T9X',
+  'tasks',
+  {
+    filter: { and: [{ field: 'status', operator: 'eq', value: 'open' }] },
+    orderBy: [{ field: 'due_date', direction: 'asc' }],
+    limit: 10,
+  }
+);
+```
+
+---
+
+## DataRecord Type
+
+```typescript
+export type DataRecord = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  created_by?: string;
+  owner?: string;
+  [key: string]: unknown;
+};
+```
+
+---
+
+## Error Codes
+
+| Code | Description |
+|:---|:---|
+| `RECORD_NOT_FOUND` | No record exists with the given ID |
+| `DUPLICATE_KEY` | A unique constraint was violated |
+| `VALIDATION_ERROR` | Data does not match the object schema |
+| `REFERENCE_ERROR` | A lookup/master_detail target record does not exist |
+| `DELETE_RESTRICTED` | Cannot delete; child records exist (master_detail) |
+| `TRANSACTION_FAILED` | Transaction was rolled back due to an error |
+| `QUERY_TIMEOUT` | Query exceeded the configured timeout |
+| `BULK_PARTIAL_FAILURE` | Some records in a bulk operation failed |

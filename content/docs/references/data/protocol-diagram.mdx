@@ -1,0 +1,284 @@
+---
+title: Protocol Relationship Diagram
+description: Visual architecture diagram showing how ObjectStack's protocol layers connect — Data, UI, System, Automation, AI, API, and Security
+---
+
+# Protocol Relationship Diagram
+
+ObjectStack is composed of seven protocol layers that work together to form a complete application platform. This page provides visual diagrams showing how these layers connect and how data flows through the system.
+
+<Callout type="info">
+**Architecture Principle:** Each layer is defined as pure Zod schemas in `packages/spec/src/`. Layers communicate through well-defined contracts, never by direct coupling.
+</Callout>
+
+---
+
+## Layer Overview
+
+| Layer | Package Path | Purpose |
+|:---|:---|:---|
+| **Data (ObjectQL)** | `src/data/` | Objects, Fields, Queries, Hooks, State Machines |
+| **UI (ObjectUI)** | `src/ui/` | Views, Apps, Dashboards, Reports, Actions |
+| **System (ObjectOS)** | `src/system/` | Manifest, Datasources, Plugins, Kernel |
+| **Automation** | `src/automation/` | Flows, Workflows, Triggers, Approvals |
+| **AI** | `src/ai/` | Agents, RAG Pipelines, Model Registry |
+| **API** | `src/api/` | REST, GraphQL, WebSocket, Realtime |
+| **Security** | `src/security/` | Permissions, Roles, Sharing, RLS |
+
+---
+
+## Protocol Relationship Map
+
+The following diagram shows how each protocol layer references and depends on the others.
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        CLIENT[Client App / SDK]
+    end
+
+    subgraph "API Layer"
+        REST[REST Endpoints]
+        GQL[GraphQL]
+        WS[WebSocket / Realtime]
+    end
+
+    subgraph "Security Layer"
+        PERM[Permissions]
+        ROLES[Roles & Profiles]
+        SHARING[Sharing Rules]
+        RLS[Row-Level Security]
+    end
+
+    subgraph "UI Layer (ObjectUI)"
+        APPS[Apps & Navigation]
+        VIEWS[Views - List / Form]
+        DASH[Dashboards]
+        REPORTS[Reports]
+        ACTIONS[Actions & Buttons]
+    end
+
+    subgraph "Automation Layer"
+        FLOWS[Flows]
+        WF[Workflows & Approvals]
+        TRIGGERS[Triggers]
+    end
+
+    subgraph "AI Layer"
+        AGENTS[Agents]
+        RAG[RAG Pipelines]
+        MODELS[Model Registry]
+    end
+
+    subgraph "System Layer (ObjectOS)"
+        MANIFEST[Manifest]
+        KERNEL[Kernel]
+        PLUGINS[Plugins]
+        DS[Datasources]
+    end
+
+    subgraph "Data Layer (ObjectQL)"
+        OBJECTS[Objects]
+        FIELDS[Fields]
+        QUERIES[Queries]
+        HOOKS[Hooks]
+        SM[State Machines]
+        DRIVERS[Drivers]
+    end
+
+    subgraph "Storage"
+        DB[(Database)]
+    end
+
+    %% Client to API
+    CLIENT --> REST
+    CLIENT --> GQL
+    CLIENT --> WS
+
+    %% API references Data
+    REST --> KERNEL
+    GQL --> KERNEL
+    WS --> KERNEL
+
+    %% Security enforced at Kernel
+    KERNEL --> PERM
+    KERNEL --> RLS
+    PERM --> ROLES
+    PERM --> SHARING
+
+    %% UI references Data objects
+    VIEWS -->|"references"| OBJECTS
+    DASH -->|"queries"| OBJECTS
+    REPORTS -->|"aggregates"| OBJECTS
+    ACTIONS -->|"operates on"| OBJECTS
+    APPS -->|"contains"| VIEWS
+
+    %% Automation operates on Data
+    FLOWS -->|"reads/writes"| OBJECTS
+    WF -->|"state transitions"| SM
+    TRIGGERS -->|"watches"| HOOKS
+
+    %% AI interacts with Data
+    AGENTS -->|"queries"| OBJECTS
+    RAG -->|"indexes"| FIELDS
+    AGENTS -->|"uses"| MODELS
+
+    %% System orchestrates everything
+    MANIFEST -->|"declares"| OBJECTS
+    MANIFEST -->|"declares"| VIEWS
+    MANIFEST -->|"declares"| FLOWS
+    KERNEL -->|"loads"| PLUGINS
+    KERNEL -->|"connects"| DS
+
+    %% Data to Storage
+    QUERIES --> DRIVERS
+    HOOKS -->|"intercepts"| QUERIES
+    DRIVERS --> DB
+```
+
+<Callout type="tip">
+**Key Relationships:**
+- **UI → Data:** Views, Dashboards, and Reports reference Objects and Fields by `name`.
+- **Automation → Data:** Flows read/write Objects; Workflows drive State Machines; Triggers fire on Hooks.
+- **API → Kernel → Data:** All API requests pass through the Kernel, which enforces Security before reaching Data.
+- **AI → Data:** Agents query Objects; RAG indexes Field content for retrieval.
+</Callout>
+
+---
+
+## Request Flow Diagram
+
+This sequence diagram shows how a typical API request flows through the ObjectStack layers.
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant API as API Layer
+    participant SEC as Security
+    participant K as Kernel
+    participant H as Hooks
+    participant D as Driver
+    participant DB as Database
+
+    C->>API: HTTP Request (REST / GraphQL)
+    API->>K: Parsed Operation
+
+    K->>SEC: Check Permissions
+    SEC-->>K: Allowed / Denied
+
+    alt Permission Denied
+        K-->>API: 403 Forbidden
+        API-->>C: Error Response
+    end
+
+    K->>H: Before Hook (validate, transform)
+    H-->>K: Modified Record
+
+    K->>D: Execute Query
+    D->>DB: SQL / NoSQL Operation
+    DB-->>D: Raw Result
+    D-->>K: Typed Result
+
+    K->>H: After Hook (side effects)
+    H-->>K: Final Result
+
+    K->>SEC: Apply Row-Level Security (filter)
+    SEC-->>K: Filtered Result
+
+    K-->>API: Response Payload
+    API-->>C: JSON Response
+```
+
+---
+
+## Write Flow Detail
+
+The write path includes validation, hook execution, and security enforcement at multiple stages.
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant API as API Layer
+    participant K as Kernel
+    participant V as Validation
+    participant BH as Before Hooks
+    participant D as Driver
+    participant AH as After Hooks
+    participant T as Triggers
+    participant WS as WebSocket
+
+    C->>API: POST /api/v1/data/task
+    API->>K: create(task, data)
+
+    K->>V: Validate against ObjectSchema
+    V-->>K: Validation Result
+
+    alt Validation Failed
+        K-->>API: 400 Validation Error
+        API-->>C: Error Response
+    end
+
+    K->>BH: beforeCreate hooks
+    BH-->>K: Transformed data
+
+    K->>D: INSERT record
+    D-->>K: Created record
+
+    K->>AH: afterCreate hooks
+    AH-->>K: Side effects complete
+
+    K->>T: Fire triggers
+    T-->>WS: Broadcast change event
+
+    K-->>API: Created record
+    API-->>C: 201 Created + JSON
+```
+
+---
+
+## Metadata Resolution Flow
+
+How `defineStack()` configuration becomes runtime metadata available to the Kernel and IDE.
+
+```mermaid
+flowchart LR
+    A["defineStack()"] -->|"compile"| B[Manifest]
+    B -->|"register"| C[Schema Registry]
+    C -->|"generate"| D[JSON Schema]
+    D -->|"feed"| E[IDE Autocomplete]
+    C -->|"load"| F[Kernel]
+    F -->|"serve"| G[Metadata API]
+    G -->|"discover"| H[Client SDK]
+```
+
+| Stage | Description |
+|:---|:---|
+| `defineStack()` | Developer declares objects, fields, views in `objectstack.config.ts` |
+| Manifest | Compiled configuration package with all metadata |
+| Schema Registry | In-memory registry of all object and field definitions |
+| JSON Schema | Generated JSON Schema files for IDE validation |
+| Kernel | Runtime engine that serves data using registered schemas |
+| Metadata API | `GET /api/v1/meta/objects` endpoint for client discovery |
+
+---
+
+## Layer Dependency Rules
+
+These rules ensure clean architecture and prevent circular dependencies.
+
+| Rule | Description |
+|:---|:---|
+| **Data is foundational** | All other layers depend on Data; Data depends on nothing |
+| **UI is presentation-only** | UI references Data objects by name but contains no business logic |
+| **Security is cross-cutting** | Enforced at the Kernel level, transparent to other layers |
+| **Automation is reactive** | Automation responds to Data events; it does not define data structures |
+| **AI is a consumer** | AI reads from Data and Automation; it can trigger Flows but not bypass Security |
+| **API is a gateway** | API exposes Kernel operations; it never accesses Drivers directly |
+| **System is the orchestrator** | Manifest and Kernel wire all layers together at boot time |
+
+<Callout type="info">
+**See also:**
+- [Data Flow Guide](/guides/data-flow) for detailed sequence diagrams
+- [Kernel Services](/guides/kernel-services) for runtime architecture
+- [API Protocol](/references/api/contract) for endpoint contracts
+</Callout>

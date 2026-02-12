@@ -1,0 +1,290 @@
+---
+title: IMetadataService Contract
+description: Reference for the Metadata Service contract — CRUD operations for object and field definitions, schema registry, overlay management, and import/export
+---
+
+# IMetadataService Contract
+
+The Metadata Service manages all object and field definitions at runtime. It serves as the **schema registry** — plugins, the Kernel, and the API layer all query this service to discover what objects exist and what fields they contain.
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/contracts/metadata-service.ts`  
+**Token:** `METADATA_SERVICE`
+</Callout>
+
+---
+
+## Interface Definition
+
+```typescript
+export interface IMetadataService {
+  // Object CRUD
+  getObject(name: string): Promise<ObjectDefinition | null>;
+  listObjects(filter?: MetadataFilter): Promise<ObjectDefinition[]>;
+  createObject(definition: ObjectDefinition): Promise<ObjectDefinition>;
+  updateObject(name: string, changes: Partial<ObjectDefinition>): Promise<ObjectDefinition>;
+  deleteObject(name: string): Promise<void>;
+
+  // Field CRUD
+  getField(objectName: string, fieldName: string): Promise<FieldDefinition | null>;
+  listFields(objectName: string): Promise<FieldDefinition[]>;
+  createField(objectName: string, field: FieldDefinition): Promise<FieldDefinition>;
+  updateField(objectName: string, fieldName: string, changes: Partial<FieldDefinition>): Promise<FieldDefinition>;
+  deleteField(objectName: string, fieldName: string): Promise<void>;
+
+  // Bulk Operations
+  bulkUpsert(definitions: ObjectDefinition[]): Promise<BulkResult>;
+  validateDefinitions(definitions: ObjectDefinition[]): Promise<ValidationResult>;
+
+  // Query
+  query(filter: MetadataFilter): Promise<MetadataQueryResult>;
+  getRelationships(objectName: string): Promise<Relationship[]>;
+  getDependencies(objectName: string): Promise<DependencyGraph>;
+
+  // Overlay Management
+  applyOverlay(overlay: MetadataOverlay): Promise<void>;
+  getEffectiveDefinition(objectName: string): Promise<ObjectDefinition>;
+  listOverlays(objectName?: string): Promise<MetadataOverlay[]>;
+
+  // Watch / Subscribe
+  watch(pattern: string, callback: MetadataChangeCallback): Unsubscribe;
+  onChange(callback: MetadataChangeCallback): Unsubscribe;
+
+  // Import / Export
+  exportAll(): Promise<MetadataPackage>;
+  importPackage(pkg: MetadataPackage, options?: ImportOptions): Promise<ImportResult>;
+}
+```
+
+---
+
+## Object CRUD
+
+### getObject
+
+Retrieves a single object definition by its machine name.
+
+```typescript
+const task = await metadataService.getObject('task');
+if (task) {
+  console.log(task.label);        // "Task"
+  console.log(task.fields.length); // 12
+}
+```
+
+### listObjects
+
+Returns all object definitions, optionally filtered.
+
+```typescript
+// All objects
+const allObjects = await metadataService.listObjects();
+
+// Only API-enabled objects
+const apiObjects = await metadataService.listObjects({
+  where: { 'enable.apiEnabled': true }
+});
+```
+
+### createObject
+
+Registers a new object definition. Validates the schema before persisting.
+
+```typescript
+const newObject = await metadataService.createObject({
+  name: 'project',
+  label: 'Project',
+  pluralLabel: 'Projects',
+  fields: [
+    { name: 'name', label: 'Name', type: 'text', required: true },
+    { name: 'status', label: 'Status', type: 'select', options: [
+      { label: 'Active', value: 'active' },
+      { label: 'Archived', value: 'archived' },
+    ]},
+  ],
+  enable: { apiEnabled: true, trackHistory: true },
+});
+```
+
+### updateObject
+
+Applies partial changes to an existing object definition.
+
+```typescript
+await metadataService.updateObject('project', {
+  label: 'Project Workspace',
+  enable: { search: true },
+});
+```
+
+### deleteObject
+
+Removes an object definition. Fails if other objects reference it.
+
+```typescript
+await metadataService.deleteObject('project');
+```
+
+<Callout type="tip">
+**Cascade Check:** `deleteObject` checks for lookup and master_detail references. Use `getDependencies()` first to inspect what would break.
+</Callout>
+
+---
+
+## Field CRUD
+
+### getField / listFields
+
+```typescript
+const statusField = await metadataService.getField('task', 'status');
+const allFields = await metadataService.listFields('task');
+```
+
+### createField / updateField / deleteField
+
+```typescript
+// Add a field
+await metadataService.createField('task', {
+  name: 'estimated_hours',
+  label: 'Estimated Hours',
+  type: 'number',
+  min: 0,
+  max: 1000,
+});
+
+// Rename field label
+await metadataService.updateField('task', 'estimated_hours', {
+  label: 'Effort (Hours)',
+});
+
+// Remove a field
+await metadataService.deleteField('task', 'estimated_hours');
+```
+
+---
+
+## Bulk Operations
+
+### bulkUpsert
+
+Creates or updates multiple object definitions in a single transaction.
+
+```typescript
+const result = await metadataService.bulkUpsert([
+  { name: 'task', label: 'Task', fields: [/* ... */] },
+  { name: 'project', label: 'Project', fields: [/* ... */] },
+]);
+
+console.log(result.created);  // 1
+console.log(result.updated);  // 1
+console.log(result.errors);   // []
+```
+
+### validateDefinitions
+
+Validates definitions without persisting. Useful for dry-run imports.
+
+```typescript
+const validation = await metadataService.validateDefinitions(definitions);
+if (!validation.valid) {
+  console.error(validation.errors);
+}
+```
+
+---
+
+## Overlay Management
+
+Overlays allow runtime customization of object definitions without modifying the base definition.
+
+```typescript
+// Apply an overlay that adds a custom field for a specific tenant
+await metadataService.applyOverlay({
+  target: 'task',
+  source: 'tenant:acme_corp',
+  priority: 10,
+  changes: {
+    fields: {
+      add: [{ name: 'custom_score', label: 'Score', type: 'number' }],
+    },
+  },
+});
+
+// Get the merged definition (base + overlays)
+const effective = await metadataService.getEffectiveDefinition('task');
+```
+
+| Property | Type | Description |
+|:---|:---|:---|
+| `target` | `string` | Object name the overlay applies to |
+| `source` | `string` | Identifier for the overlay origin |
+| `priority` | `number` | Higher priority overlays win on conflicts |
+| `changes` | `object` | Field additions, modifications, removals |
+
+---
+
+## Watch / Subscribe
+
+Subscribe to metadata changes for live-reload and cache invalidation.
+
+```typescript
+// Watch all changes
+const unsubscribe = metadataService.onChange((event) => {
+  console.log(`${event.type} on ${event.objectName}`);
+  // "fieldCreated on task"
+});
+
+// Watch specific object pattern
+const unsub = metadataService.watch('task.*', (event) => {
+  invalidateCache('task');
+});
+
+// Clean up
+unsubscribe();
+```
+
+---
+
+## Import / Export
+
+### exportAll
+
+Exports the complete metadata catalog as a portable package.
+
+```typescript
+const pkg = await metadataService.exportAll();
+// pkg.objects, pkg.version, pkg.exportedAt
+```
+
+### importPackage
+
+Imports a metadata package with conflict resolution options.
+
+```typescript
+const result = await metadataService.importPackage(pkg, {
+  onConflict: 'merge',      // 'merge' | 'overwrite' | 'skip'
+  dryRun: false,
+  validateOnly: false,
+});
+
+console.log(result.created);    // 3
+console.log(result.updated);    // 2
+console.log(result.skipped);    // 1
+console.log(result.errors);     // []
+```
+
+---
+
+## Types Reference
+
+| Type | Description |
+|:---|:---|
+| `ObjectDefinition` | Full object schema (name, label, fields, enable) |
+| `FieldDefinition` | Single field schema (name, label, type, options) |
+| `MetadataFilter` | Query filter for listing objects/fields |
+| `MetadataOverlay` | Runtime customization layer |
+| `MetadataPackage` | Portable metadata export format |
+| `MetadataChangeCallback` | `(event: MetadataChangeEvent) => void` |
+| `Unsubscribe` | `() => void` — call to stop watching |
+| `BulkResult` | `{ created, updated, errors }` |
+| `ImportResult` | `{ created, updated, skipped, errors }` |
