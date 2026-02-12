@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 3.0.0
+
+### Major Changes
+
+- Release v3.0.0 — unified version bump for all ObjectStack packages.
+
 ## 2.0.7
 
 ### Patch Changes
