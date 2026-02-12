@@ -266,10 +266,15 @@ function validateCrossReferences(config: ObjectStackDefinition): string[] {
   // Validate hook → object references
   if (config.hooks) {
     for (const hook of config.hooks) {
-      if (hook.object && !objectNames.has(hook.object)) {
-        errors.push(
-          `Hook '${hook.name}' references object '${hook.object}' which is not defined in objects.`,
-        );
+      if (hook.object) {
+        const hookObjects = Array.isArray(hook.object) ? hook.object : [hook.object];
+        for (const obj of hookObjects) {
+          if (!objectNames.has(obj)) {
+            errors.push(
+              `Hook '${hook.name}' references object '${obj}' which is not defined in objects.`,
+            );
+          }
+        }
       }
     }
   }
