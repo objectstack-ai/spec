@@ -146,14 +146,14 @@ import { EventBusConfigSchema, EventSchema, EventPriority } from '@objectstack/s
 
 ## Migration Checklist
 
-- [ ] Replace all `Hub.*` imports with direct `system/` or `kernel/` imports
-- [ ] Move `createErrorResponse()` / `getHttpStatusForCategory()` to `@objectstack/core/errors`
-- [ ] Move `definePlugin()` to `@objectstack/core/plugin`
-- [ ] Replace `location` with `locations` in ActionSchema definitions
-- [ ] Replace `RealtimePresenceStatus` with `PresenceStatus`
-- [ ] Replace `RealtimeAction` with `RealtimeRecordAction`
-- [ ] Replace `RateLimitSchema` with `RateLimitConfigSchema` from `@objectstack/spec/shared`
-- [ ] (No action needed) Events module restructuring is internal; imports from `@objectstack/spec/kernel` continue to work
+- [x] Replace all `Hub.*` imports with direct `system/` or `kernel/` imports
+- [x] Remove `createErrorResponse()` / `getHttpStatusForCategory()` from spec (moved to `@objectstack/core/errors`)
+- [x] Remove `definePlugin()` from spec (moved to `@objectstack/core/plugin`)
+- [x] Replace `location` with `locations` in ActionSchema definitions
+- [x] Replace `RealtimePresenceStatus` with `PresenceStatus`
+- [x] Replace `RealtimeAction` with `RealtimeRecordAction`
+- [x] Replace `RateLimitSchema` with `RateLimitConfigSchema` from `@objectstack/spec/shared`
+- [x] (No action needed) Events module restructuring is internal; imports from `@objectstack/spec/kernel` continue to work
 
 ---
 
