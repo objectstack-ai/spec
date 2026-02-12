@@ -7,10 +7,10 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * 
  * Uses better-auth's native schema for seamless migration:
  * - id: string
- * - createdAt: Date
- * - updatedAt: Date
+ * - created_at: Date
+ * - updated_at: Date
  * - value: string (verification token/code)
- * - expiresAt: Date
+ * - expires_at: Date
  * - identifier: string (email or phone number)
  */
 export const AuthVerification = ObjectSchema.create({
@@ -20,7 +20,7 @@ export const AuthVerification = ObjectSchema.create({
   icon: 'shield-check',
   description: 'Email and phone verification tokens',
   titleFormat: 'Verification for {identifier}',
-  compactLayout: ['identifier', 'expiresAt', 'createdAt'],
+  compactLayout: ['identifier', 'expires_at', 'created_at'],
   
   fields: {
     id: Field.text({
@@ -29,13 +29,13 @@ export const AuthVerification = ObjectSchema.create({
       readonly: true,
     }),
     
-    createdAt: Field.datetime({
+    created_at: Field.datetime({
       label: 'Created At',
       defaultValue: 'NOW()',
       readonly: true,
     }),
     
-    updatedAt: Field.datetime({
+    updated_at: Field.datetime({
       label: 'Updated At',
       defaultValue: 'NOW()',
       readonly: true,
@@ -47,7 +47,7 @@ export const AuthVerification = ObjectSchema.create({
       description: 'Token or code for verification',
     }),
     
-    expiresAt: Field.datetime({
+    expires_at: Field.datetime({
       label: 'Expires At',
       required: true,
     }),
@@ -63,7 +63,7 @@ export const AuthVerification = ObjectSchema.create({
   indexes: [
     { fields: ['value'], unique: true },
     { fields: ['identifier'], unique: false },
-    { fields: ['expiresAt'], unique: false },
+    { fields: ['expires_at'], unique: false },
   ],
   
   // Enable features
