@@ -56,6 +56,9 @@ export class MemoryAnalyticsService implements IAnalyticsService {
     this.logger.debug('Executing analytics query', { cube: query.cube, measures: query.measures });
 
     // Get cube definition
+    if (!query.cube) {
+      throw new Error('Cube name is required');
+    }
     const cube = this.cubes.get(query.cube);
     if (!cube) {
       throw new Error(`Cube not found: ${query.cube}`);
@@ -265,6 +268,9 @@ export class MemoryAnalyticsService implements IAnalyticsService {
    * Generate SQL representation for debugging/transparency
    */
   async generateSql(query: AnalyticsQuery): Promise<{ sql: string; params: unknown[] }> {
+    if (!query.cube) {
+      throw new Error('Cube name is required');
+    }
     const cube = this.cubes.get(query.cube);
     if (!cube) {
       throw new Error(`Cube not found: ${query.cube}`);
