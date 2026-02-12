@@ -19,7 +19,8 @@ It demonstrates how to build a metadata-driven backend that dynamically loads ob
 
 2. Run the server:
    ```bash
-   npm run dev
+   pnpm dev
+   # Server starts at http://localhost:3000
    ```
 
 ## API Usage Examples

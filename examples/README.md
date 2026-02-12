@@ -10,7 +10,7 @@ Welcome to the ObjectStack examples catalog! This directory contains carefully c
 
 | Level | Examples | Description |
 |-------|----------|-------------|
-| 🟢 **Beginner** | [Minimal Auth](#minimal-auth), [App Todo](#app-todo) | Start here - simple, focused examples |
+| 🟢 **Beginner** | [App Todo](#app-todo), [Plugin BI](#plugin-bi) | Start here - simple, focused examples |
 | 🟡 **Intermediate** | [App CRM](#app-crm) | Real-world enterprise application |
 | 🔴 **Advanced** | [App Host](#app-host) | Server hosting & plugin orchestration |
 
@@ -18,50 +18,15 @@ Welcome to the ObjectStack examples catalog! This directory contains carefully c
 
 | Protocol | Examples | Status |
 |----------|----------|--------|
-| **Authentication** | [Minimal Auth](./minimal-auth/) | ✅ Complete |
 | **Data (ObjectQL)** | [App CRM](./app-crm/), [App Todo](./app-todo/) | ✅ Complete |
 | **UI (ObjectUI)** | [App CRM](./app-crm/), [App Todo](./app-todo/) | ✅ Complete |
 | **System (ObjectOS)** | [App Host](./app-host/), [App CRM](./app-crm/) | ✅ Complete |
 | **Automation** | [App CRM](./app-crm/), [App Todo](./app-todo/) | ✅ Complete |
 | **API** | [App Host](./app-host/) | ✅ Complete |
+| **BI / Analytics** | [Plugin BI](./plugin-bi/) | 🔴 Stub |
 | **Hub & Marketplace** | _Coming soon_ | 🔴 Planned |
 
 ## 🎯 Example Descriptions
-
-### Minimal Auth
-**Path:** [`examples/minimal-auth/`](./minimal-auth/)  
-**Level:** 🟢 Beginner  
-**Protocols:** Authentication  
-
-A minimal example demonstrating authentication setup with `@objectstack/plugin-auth`.
-
-**What you'll learn:**
-- Setting up authentication in ObjectStack
-- Using the AuthPlugin with ObjectKernel
-- User registration and login
-- Session management
-- Password reset flow
-- Testing authentication with the ObjectStack client
-
-**Directory Structure:**
-```
-minimal-auth/
-├── src/
-│   ├── server.ts        # Server setup with AuthPlugin
-│   └── test-auth.ts     # Authentication flow test
-├── package.json
-└── README.md
-```
-
-**Quick Start:**
-```bash
-cd examples/minimal-auth
-pnpm install
-pnpm dev          # Start server
-pnpm test         # Test auth flow (in new terminal)
-```
-
----
 
 ### App Todo
 **Path:** [`examples/app-todo/`](./app-todo/)  
@@ -189,6 +154,34 @@ cd examples/app-host
 pnpm install
 pnpm dev
 # API available at http://localhost:3000
+```
+
+---
+
+### Plugin BI
+**Path:** [`examples/plugin-bi/`](./plugin-bi/)  
+**Level:** 🟢 Beginner  
+**Protocols:** Data, UI (Dashboards)  
+
+**BI Plugin stub** demonstrating how to create an ObjectStack plugin that provides analytics objects and dashboards. Currently a placeholder for adding business intelligence capabilities.
+
+**What you'll learn:**
+- Plugin manifest structure (`type: 'plugin'`)
+- Extending an app with analytics objects
+- Dashboard widget definitions
+
+**Directory Structure:**
+```
+plugin-bi/
+├── objectstack.config.ts  # Plugin manifest (defineStack)
+└── package.json
+```
+
+**Quick Start:**
+```bash
+cd examples/plugin-bi
+pnpm install
+pnpm typecheck
 ```
 
 ---
@@ -374,7 +367,7 @@ All examples are licensed under Apache 2.0. See [LICENSE](../LICENSE) for detail
 
 ---
 
-**Last Updated:** 2025-07-13  
-**Protocol Version:** 0.6.1  
-**Total Examples:** 3 (app-todo, app-crm, app-host)  
+**Last Updated:** 2026-02-12  
+**Protocol Version:** 3.0.0  
+**Total Examples:** 4 (app-todo, app-crm, app-host, plugin-bi)  
 **Directory Convention:** By-Type (Salesforce DX style)

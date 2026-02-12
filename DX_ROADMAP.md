@@ -2,7 +2,7 @@
 
 > **Date:** 2026-02-12  
 > **Scope:** Post v3.0 — Focused entirely on Developer Experience  
-> **Based On:** Full codebase scan + documentation audit (171 schemas, 191 test files, 40+ doc pages, 4 examples, 19 packages)  
+> **Based On:** Full codebase audit — 171 schemas, 194 test files (5,243 tests), 150+ doc pages, 4 examples, 19 packages, 12 subpath exports  
 > **Previous:** `ROADMAP.md` (v3.0 Phases 5–11 ✅ Complete)
 
 ---
@@ -13,20 +13,35 @@ ObjectStack v3.0 delivered a production-grade protocol spec with comprehensive t
 
 This roadmap prioritizes improvements based on the **"Time to First Wow"** metric: how quickly a new developer goes from `npm init` to a running application with data, UI, and API.
 
-### Current DX Assessment
+### Current DX Assessment (Feb 2026 Audit)
 
 | Area | Score | Notes |
 |------|-------|-------|
-| **Type Safety** | ⭐⭐⭐⭐⭐ | Zod-first, 7,095+ `.describe()`, full inference |
-| **Schema Completeness** | ⭐⭐⭐⭐⭐ | 171 schemas, 1,470 JSON Schemas, OpenAPI 3.1 |
-| **Test Coverage** | ⭐⭐⭐⭐⭐ | 191 test files, 5,157+ tests |
-| **IDE Autocomplete** | ⭐⭐⭐⭐ | Bundled `objectstack.json`, `.describe()` tooltips |
-| **Getting Started** | ⭐⭐⭐ | Docs exist but no interactive playground |
-| **Error Messages** | ⭐⭐⭐⭐ | Custom error map with contextual messages and "Did you mean?" suggestions |
-| **Helper Functions** | ⭐⭐⭐⭐ | `Field.*`, `ObjectSchema.create()`, `defineStack()`, `defineView()`, `defineApp()`, `defineFlow()`, `defineAgent()` + strict mode |
-| **Reference Docs** | ⭐⭐⭐ | API docs generated but no field type gallery or error code reference |
-| **Examples** | ⭐⭐⭐ | 4 examples but missing "How to Run" instructions |
-| **Migration Story** | ⭐⭐ | V3 guide exists but no automated `codemod` tooling |
+| **Type Safety** | ⭐⭐⭐⭐⭐ | Zod v4 first, 7,095+ `.describe()`, full inference, branded types |
+| **Schema Completeness** | ⭐⭐⭐⭐⭐ | 171 schemas, 1,470 JSON Schemas, OpenAPI 3.1, bundled `objectstack.json` |
+| **Test Coverage** | ⭐⭐⭐⭐⭐ | 194 test files (5,243 tests), 100%+ schema coverage |
+| **IDE Autocomplete** | ⭐⭐⭐⭐ | Bundled `objectstack.json`, `.describe()` tooltips, 12 subpath exports |
+| **Error Messages** | ⭐⭐⭐⭐⭐ | Custom Zod v4 error map, "Did you mean?" fuzzy suggestions, `safeParsePretty()` |
+| **Helper Functions** | ⭐⭐⭐⭐⭐ | 6 `define*` helpers + `ObjectSchema.create()` + `Field.*` + strict `defineStack()` |
+| **Getting Started** | ⭐⭐⭐ | Docs exist but no interactive playground or `create-objectstack` wizard |
+| **Reference Docs** | ⭐⭐⭐⭐ | Field type gallery ✅, error catalog ✅, query cheat sheet ✅; still missing: Contracts docs, wire format examples |
+| **Examples** | ⭐⭐⭐ | 4 examples but `plugin-bi` is placeholder, "How to Run" incomplete, `examples/README.md` references non-existent `minimal-auth` |
+| **Migration Story** | ⭐⭐⭐ | V3 migration guide exists; no automated `codemod` tooling |
+
+### Audit Findings Summary (New Issues Discovered)
+
+| # | Finding | Severity | Location |
+|---|---------|----------|----------|
+| 1 | `examples/README.md` references non-existent `minimal-auth` example | 🔴 Critical | `examples/README.md` L31-63 |
+| 2 | `plugin-bi` has NO README, NO scripts, placeholder-only code | 🔴 Critical | `examples/plugin-bi/` |
+| 3 | `examples/README.md` says "Total Examples: 3" — should be 4 | 🟡 Medium | `examples/README.md` L379 |
+| 4 | `examples/README.md` says "Protocol Version: 0.6.1" — should be 3.0.0 | 🟡 Medium | `examples/README.md` L378 |
+| 5 | Contracts docs section is empty (`pages: []`) | 🟡 Medium | `content/docs/references/contracts/meta.json` |
+| 6 | `app-todo` Quick Start lacks dev/serve instructions | 🟡 Medium | `examples/app-todo/README.md` |
+| 7 | `app-crm` Quick Start lacks port/output details | 🟡 Medium | `examples/app-crm/README.md` |
+| 8 | `app-host` README uses `npm run dev` instead of `pnpm dev` | 🟡 Medium | `examples/app-host/README.md` |
+| 9 | `defineStudioPlugin` not re-exported at root index.ts (unlike other `define*` helpers) | 🟢 Low | `packages/spec/src/index.ts` |
+| 10 | Some root-level schema objects missing `.describe()` (only properties annotated) | 🟢 Low | Various `.zod.ts` files |
 
 ---
 
@@ -61,15 +76,27 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 | Template: Full-Stack | Server + UI + auth + 3 objects (CRM-lite) | 🟡 Medium |
 | Template: Plugin | Bare plugin skeleton with test setup | 🟡 Medium |
 
+### 1.4 Examples Catalog Hygiene (NEW — Audit Finding)
+
+| Task | Details | Priority |
+|------|---------|----------|
+| Remove `minimal-auth` ghost reference | `examples/README.md` references non-existent `minimal-auth` directory — remove or create it | 🔴 High |
+| Fix `plugin-bi` example | Add README.md, add build/typecheck scripts, implement BI objects or mark as stub | 🔴 High |
+| Update `examples/README.md` metadata | Protocol Version 0.6.1 → 3.0.0, Total Examples 3 → 4, Last Updated date | 🟡 Medium |
+| Fix `app-host` README | Use `pnpm dev` instead of `npm run dev` | 🟡 Medium |
+
 ### Phase 1 Checklist
 
 - [ ] Create StackBlitz starter template from `app-todo`
 - [ ] Add "Try Online" button to spec README.md and docs site hero
-- [ ] Add "How to Run" section to each example README (app-todo, app-crm, app-host)
+- [ ] Add "How to Run" section to each example README (app-todo, app-crm, app-host, plugin-bi)
 - [ ] Add prerequisites section to getting-started docs
 - [ ] Create first-run troubleshooting page
 - [ ] Implement `create-objectstack` CLI wizard with 3 templates
 - [ ] Record 5-minute getting-started video
+- [ ] Fix `examples/README.md`: remove `minimal-auth` ghost reference, update metadata (version, count, date)
+- [ ] Fix `plugin-bi` example: add README.md, add package.json scripts, document purpose
+- [ ] Fix `app-host` README: use `pnpm dev` instead of `npm run dev`
 
 ---
 
@@ -126,40 +153,48 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 
 ### 3.1 Field Type Gallery
 
-| Task | Details | Priority |
-|------|---------|----------|
-| Visual field type reference | Interactive page showing all 46+ field types with live previews | 🔴 High |
-| Field configuration reference | Per-type property tables (text: maxLength, pattern; number: min, max, precision) | 🔴 High |
-| Field type decision tree | "Which field type should I use?" interactive guide | 🟡 Medium |
-| Field validation rules per type | Default validation behavior for each field type | 🟡 Medium |
+| Task | Details | Priority | Status |
+|------|---------|----------|--------|
+| Visual field type reference | Interactive page showing all 48 field types with live previews | 🔴 High | ✅ Done |
+| Field configuration reference | Per-type property tables (text: maxLength, pattern; number: min, max, precision) | 🔴 High | ✅ Done |
+| Field type decision tree | "Which field type should I use?" interactive guide | 🟡 Medium | ❌ Not started |
+| Field validation rules per type | Default validation behavior for each field type | 🟡 Medium | ❌ Not started |
 
 ### 3.2 Error & Status Code Reference
 
-| Task | Details | Priority |
-|------|---------|----------|
-| Error code catalog | All 46 error codes with descriptions, causes, and fixes | 🔴 High |
-| HTTP status mapping table | Error category → HTTP status → retry strategy | 🟡 Medium |
-| Client-side error handling guide | Patterns for handling errors in React/Vue/vanilla JS | 🟡 Medium |
-| Server-side error handling guide | How to throw and format errors from plugins | 🟡 Medium |
+| Task | Details | Priority | Status |
+|------|---------|----------|--------|
+| Error code catalog | All 41+ error codes with descriptions, causes, and fixes | 🔴 High | ✅ Done |
+| HTTP status mapping table | Error category → HTTP status → retry strategy | 🟡 Medium | ✅ Done |
+| Client-side error handling guide | Patterns for handling errors in React/Vue/vanilla JS | 🟡 Medium | ❌ Not started |
+| Server-side error handling guide | How to throw and format errors from plugins | 🟡 Medium | ❌ Not started |
 
 ### 3.3 Protocol Documentation
 
-| Task | Details | Priority |
-|------|---------|----------|
-| Protocol relationship diagram | Visual diagram showing how Data → API → UI layers connect | 🔴 High |
-| Query syntax cheat sheet | One-page reference for QuerySchema filters, sorts, pagination | 🔴 High |
-| Wire format examples | JSON request/response examples for every API endpoint | 🟡 Medium |
-| Security permissions matrix | Object × Role × Permission visual table | 🟡 Medium |
-| Backward compatibility policy | Versioning strategy, deprecation timeline, SemVer guarantees | 🟡 Medium |
+| Task | Details | Priority | Status |
+|------|---------|----------|--------|
+| Protocol relationship diagram | Visual diagram showing how Data → API → UI layers connect | 🔴 High | ❌ Not started |
+| Query syntax cheat sheet | One-page reference for QuerySchema filters, sorts, pagination | 🔴 High | ✅ Done |
+| Wire format examples | JSON request/response examples for every API endpoint | 🟡 Medium | ❌ Not started |
+| Security permissions matrix | Object × Role × Permission visual table | 🟡 Medium | ❌ Not started |
+| Backward compatibility policy | Versioning strategy, deprecation timeline, SemVer guarantees | 🟡 Medium | ❌ Not started |
 
 ### 3.4 Guide Improvements
 
+| Task | Details | Priority | Status |
+|------|---------|----------|--------|
+| Common patterns guide | Top 10 patterns: CRUD, search, pagination, auth, file upload, realtime, etc. | 🔴 High | ✅ Done |
+| Troubleshooting / FAQ page | "My query returns empty" / "Validation fails but data looks correct" | 🟡 Medium | ✅ Done |
+| Data flow diagram guide | How data moves from defineStack → kernel → driver → database | 🟡 Medium | ❌ Not started |
+| Plugin development tutorial | Step-by-step: create a plugin, register services, respond to hooks | 🟡 Medium | ✅ Done |
+
+### 3.5 Missing Documentation Sections (NEW — Audit Finding)
+
 | Task | Details | Priority |
 |------|---------|----------|
-| Common patterns guide | Top 10 patterns: CRUD, search, pagination, auth, file upload, realtime, etc. | 🔴 High |
-| Troubleshooting / FAQ page | "My query returns empty" / "Validation fails but data looks correct" | 🟡 Medium |
-| Data flow diagram guide | How data moves from defineStack → kernel → driver → database | 🟡 Medium |
-| Plugin development tutorial | Step-by-step: create a plugin, register services, respond to hooks | 🟡 Medium |
+| Populate Contracts docs | `content/docs/references/contracts/meta.json` has `pages: []` — add pages documenting IMetadataService, IAuthService, IStorageService, etc. | 🔴 High |
+| Add `defineStudioPlugin` guide | Only `define*` helper not documented at guide level; add usage example to plugin-development guide | 🟡 Medium |
+| Error handling guides (client + server) | Best practice patterns for both client-side and server-side error handling | 🟡 Medium |
 
 ### Phase 3 Checklist
 
@@ -173,6 +208,12 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 - [x] Create common patterns guide (top 10 patterns)
 - [x] Create troubleshooting / FAQ page
 - [x] Create plugin development tutorial
+- [ ] Populate Contracts docs section (currently empty)
+- [ ] Add field type decision tree ("Which field type?")
+- [ ] Add client-side error handling guide
+- [ ] Add server-side error handling guide
+- [ ] Add data flow diagram guide (defineStack → kernel → driver → DB)
+- [ ] Add security permissions matrix
 
 ---
 
@@ -209,6 +250,14 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 | `objectstack generate migration` | Database migration from object diff | 🟡 Medium |
 | `objectstack generate seed` | Generate seed data from object schemas | 🟢 Low |
 
+### 4.4 Codemod & Migration Tooling (NEW)
+
+| Task | Details | Priority |
+|------|---------|----------|
+| `objectstack codemod v2-to-v3` | Automated AST transform for v2 → v3 breaking changes (removed fields, renames) | 🟡 Medium |
+| Deprecation scanner | CLI command to detect usage of `@deprecated` items with suggested replacements | 🟡 Medium |
+| Config validator | Deep validation of `objectstack.config.ts` with cross-reference checks (uses existing `defineStack({ strict: true })`) | 🟡 Medium |
+
 ### Phase 4 Checklist
 
 - [ ] Implement `objectstack diff` with breaking change detection
@@ -219,6 +268,8 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 - [ ] Add JSON Schema for `objectstack.config.ts` IDE support
 - [ ] Implement `objectstack generate client` for typed SDK generation
 - [ ] Implement `objectstack generate migration` for schema diffs
+- [ ] Implement `objectstack codemod v2-to-v3` for automated migration
+- [ ] Add deprecation scanner to CLI
 
 ---
 
@@ -310,13 +361,16 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 ## Timeline Summary
 
 ```
-2026 Q1–Q2 (DX Sprint)
- ├── Phase 1: First Five Minutes        [2 weeks]   → Playground, scaffolding, quick-start
- ├── Phase 2: Schema DX Helpers         [2 weeks]   → Factories, error messages, types
- └── Phase 3: Documentation & Reference [3 weeks]   → Field gallery, error catalog, guides
+2026 Q1 (Completed)
+ ├── Phase 2: Schema DX Helpers         [2 weeks]   ✅ Complete — 6 define* helpers, error map, branded types, strict mode
+ └── Phase 3: Documentation & Reference [3 weeks]   🔄 In Progress — 10/16 items complete
+
+2026 Q1–Q2 (Active)
+ ├── Phase 1: First Five Minutes        [2 weeks]   → Playground, scaffolding, quick-start, example fixes
+ └── Phase 3: Documentation (cont.)     [1 week]    → Contracts docs, wire format, protocol diagram, decision tree
 
 2026 Q2–Q3 (Tooling Sprint)
- ├── Phase 4: CLI & Tooling DX          [2 weeks]   → diff, doctor, lint, VSCode extension
+ ├── Phase 4: CLI & Tooling DX          [2 weeks]   → diff, doctor, lint, VSCode extension, codemod
  └── Phase 5: Studio as DX Hub          [3 weeks]   → Visual designer, code bridge
 
 2026 Q3+ (Ecosystem Sprint)
@@ -327,24 +381,26 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 
 | Impact ↓ / Effort → | Low (< 1 week) | Medium (1–2 weeks) | High (> 2 weeks) |
 |---------------------|-----------------|---------------------|-------------------|
-| **High Impact** | StackBlitz template, "How to Run" docs, Prerequisites check | `create-objectstack` wizard, Custom error map, Field type gallery | VSCode extension, Visual object builder |
-| **Medium Impact** | Query cheat sheet, Error code catalog, Export grouping comments | `objectstack diff`, `objectstack doctor`, Common patterns guide | Plugin marketplace, Live file sync |
-| **Lower Impact** | Branded types, Contributor page, Example ratings | Plugin starter template, Mock data generator | Diagnostic language server, Auto-migration |
+| **High Impact** | Fix examples README (ghost ref, metadata), StackBlitz template, "How to Run" docs | `create-objectstack` wizard, Contracts docs, Protocol diagram | VSCode extension, Visual object builder |
+| **Medium Impact** | Fix `plugin-bi` (README + scripts), `app-host` README fix, Field decision tree | `objectstack diff`, `objectstack doctor`, Wire format examples, Codemod tooling | Plugin marketplace, Live file sync |
+| **Lower Impact** | `defineStudioPlugin` root re-export, Schema-level `.describe()` | Plugin starter template, Mock data generator, Security matrix | Diagnostic language server, Auto-migration |
 
 ---
 
 ## Success Criteria
 
-| Metric | Current | Phase 1 | Phase 3 | Phase 6 |
-|--------|---------|---------|---------|---------|
+| Metric | v3.0 (Current) | Phase 1 | Phase 3 | Phase 6 |
+|--------|----------------|---------|---------|---------|
 | Time to First App | ~30 min | < 5 min | < 5 min | < 3 min |
-| Documentation coverage | ~60% | 70% | 95% | 100% |
+| Documentation coverage | ~70% | 80% | 95% | 100% |
 | Interactive examples | 0 | 1 (StackBlitz) | 3+ | 10+ |
 | Community plugins | 0 | 0 | 2+ | 10+ |
 | CLI diagnostic commands | 2 | 4 | 6 | 8+ |
-| IDE autocomplete coverage | JSON Schema | JSON Schema + hints | VSCode extension | Language server |
-| Error message quality | Zod defaults | Custom error map | Full catalog | AI-assisted |
-| Helper functions (`define*`) | 1 (`defineStack`) | 4+ | 6+ | 6+ |
+| IDE autocomplete coverage | JSON Schema + bundled | JSON Schema + hints | VSCode extension | Language server |
+| Error message quality | Custom Zod v4 error map + "Did you mean?" | Full catalog | Contextual guides | AI-assisted |
+| Helper functions (`define*`) | 6 (`defineStack/View/App/Flow/Agent/StudioPlugin`) | 6+ | 6+ | 8+ |
+| Test files / Tests | 194 / 5,243 | 194+ / 5,300+ | 200+ / 5,500+ | 210+ / 6,000+ |
+| Example quality | 3 working + 1 placeholder | 4 working + 1 scaffold | 6+ curated | 10+ |
 | GitHub stars | — | 50+ | 200+ | 500+ |
 
 ---
@@ -356,10 +412,10 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 | `ROADMAP.md` | v3.0 spec hardening (Phases 5–11) | ✅ Complete |
 | `apps/studio/ROADMAP.md` | Studio IDE visual features (Phases 0–8) | 🔄 Active |
 | `packages/spec/DEVELOPMENT_PLAN.md` | Spec schema audit (Phases 1–4) | ✅ Complete |
-| **`DX_ROADMAP.md` (this file)** | **Developer Experience & Adoption** | 🆕 Active |
+| **`DX_ROADMAP.md` (this file)** | **Developer Experience & Adoption** | 🔄 Active |
 
 ---
 
 **Last Updated:** 2026-02-12  
 **Maintainers:** ObjectStack Core Team  
-**Status:** 🔄 Active — Phase 3 In Progress (8/10 items complete), Phase 4 Ready to Start
+**Status:** 🔄 Active — Phase 2 ✅ Complete, Phase 3 In Progress (10/16 items), Phase 1 & 4 Ready to Start
