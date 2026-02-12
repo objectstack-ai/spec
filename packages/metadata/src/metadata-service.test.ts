@@ -590,5 +590,22 @@ describe('MetadataManager — IMetadataService Contract', () => {
       expect(await manager.getDependencies('object', 'nonexistent')).toEqual([]);
       expect(await manager.getDependents('object', 'nonexistent')).toEqual([]);
     });
+
+    it('should not add duplicate dependencies', () => {
+      const dep = {
+        sourceType: 'view',
+        sourceName: 'account_list',
+        targetType: 'object',
+        targetName: 'account',
+        kind: 'reference' as const,
+      };
+
+      manager.addDependency(dep);
+      manager.addDependency(dep);
+
+      // Should only have one entry
+      const deps = manager.getDependencies('view', 'account_list');
+      return deps.then(result => expect(result).toHaveLength(1));
+    });
   });
 });

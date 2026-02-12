@@ -449,7 +449,7 @@ export class MetadataManager implements IMetadataService {
   // ==========================================
 
   private overlayKey(type: string, name: string, scope: string = 'platform'): string {
-    return `${type}:${name}:${scope}`;
+    return `${encodeURIComponent(type)}:${encodeURIComponent(name)}:${scope}`;
   }
 
   /**
@@ -704,7 +704,7 @@ export class MetadataManager implements IMetadataService {
    * Get metadata items that this item depends on
    */
   async getDependencies(type: string, name: string): Promise<MetadataDependency[]> {
-    return this.dependencies.get(`${type}:${name}`) ?? [];
+    return this.dependencies.get(`${encodeURIComponent(type)}:${encodeURIComponent(name)}`) ?? [];
   }
 
   /**
@@ -725,13 +725,20 @@ export class MetadataManager implements IMetadataService {
   /**
    * Register a dependency between two metadata items.
    * Used internally to track cross-references.
+   * Duplicate dependencies (same source, target, and kind) are ignored.
    */
   addDependency(dep: MetadataDependency): void {
-    const key = `${dep.sourceType}:${dep.sourceName}`;
+    const key = `${encodeURIComponent(dep.sourceType)}:${encodeURIComponent(dep.sourceName)}`;
     if (!this.dependencies.has(key)) {
       this.dependencies.set(key, []);
     }
-    this.dependencies.get(key)!.push(dep);
+    const existing = this.dependencies.get(key)!;
+    const isDuplicate = existing.some(
+      d => d.targetType === dep.targetType && d.targetName === dep.targetName && d.kind === dep.kind
+    );
+    if (!isDuplicate) {
+      existing.push(dep);
+    }
   }
 
   // ==========================================
