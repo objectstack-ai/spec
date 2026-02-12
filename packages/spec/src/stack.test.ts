@@ -5,6 +5,7 @@ import {
   ObjectOSCapabilitiesSchema,
   ObjectStackCapabilitiesSchema,
   ObjectStackDefinitionSchema,
+  defineStack,
   type ObjectQLCapabilities,
   type ObjectUICapabilities,
   type ObjectOSCapabilities,
@@ -412,5 +413,113 @@ describe('ObjectStackDefinitionSchema', () => {
 
   it('should require manifest field', () => {
     expect(() => ObjectStackDefinitionSchema.parse({})).toThrow();
+  });
+});
+
+describe('defineStack', () => {
+  const baseManifest = {
+    id: 'com.example.test',
+    name: 'test-project',
+    version: '1.0.0',
+    type: 'app' as const,
+  };
+
+  it('should return config as-is in default mode (backward compatible)', () => {
+    const config = { manifest: baseManifest, objects: [] };
+    const result = defineStack(config);
+    expect(result).toBe(config);
+  });
+
+  it('should return config as-is when strict is false', () => {
+    const config = { manifest: baseManifest };
+    const result = defineStack(config, { strict: false });
+    expect(result).toBe(config);
+  });
+
+  it('should parse and validate in strict mode', () => {
+    const config = {
+      manifest: baseManifest,
+      objects: [
+        { name: 'task', fields: { title: { type: 'text' } } },
+      ],
+    };
+    expect(() => defineStack(config, { strict: true })).not.toThrow();
+  });
+
+  it('should throw on invalid manifest in strict mode', () => {
+    const config = { manifest: {} };
+    expect(() => defineStack(config as any, { strict: true })).toThrow('defineStack validation failed');
+  });
+
+  it('should detect workflow referencing undefined object in strict mode', () => {
+    const config = {
+      manifest: baseManifest,
+      objects: [
+        { name: 'task', fields: { title: { type: 'text' } } },
+      ],
+      workflows: [
+        { name: 'update_status', objectName: 'nonexistent', triggerType: 'on_create' },
+      ],
+    };
+    expect(() => defineStack(config, { strict: true })).toThrow('nonexistent');
+    expect(() => defineStack(config, { strict: true })).toThrow('cross-reference validation failed');
+  });
+
+  it('should detect approval referencing undefined object in strict mode', () => {
+    const config = {
+      manifest: baseManifest,
+      objects: [
+        { name: 'deal', fields: { amount: { type: 'number' } } },
+      ],
+      approvals: [
+        {
+          name: 'deal_approval',
+          label: 'Deal Approval',
+          object: 'missing_object',
+          steps: [{ name: 'step1', label: 'Step 1', approvers: [{ type: 'manager', value: 'mgr' }] }],
+        },
+      ],
+    };
+    expect(() => defineStack(config, { strict: true })).toThrow('missing_object');
+  });
+
+  it('should detect hook referencing undefined object in strict mode', () => {
+    const config = {
+      manifest: baseManifest,
+      objects: [
+        { name: 'contact', fields: { email: { type: 'email' } } },
+      ],
+      hooks: [
+        { name: 'enrich', object: 'ghost_object', events: ['beforeInsert'] },
+      ],
+    };
+    expect(() => defineStack(config, { strict: true })).toThrow('ghost_object');
+  });
+
+  it('should pass strict mode when all references are valid', () => {
+    const config = {
+      manifest: baseManifest,
+      objects: [
+        { name: 'lead', fields: { status: { type: 'text' } } },
+      ],
+      workflows: [
+        { name: 'qualify_lead', objectName: 'lead', triggerType: 'on_create' },
+      ],
+      hooks: [
+        { name: 'enrich_lead', object: 'lead', events: ['beforeInsert'] },
+      ],
+    };
+    expect(() => defineStack(config, { strict: true })).not.toThrow();
+  });
+
+  it('should skip cross-reference validation when no objects are defined', () => {
+    const config = {
+      manifest: baseManifest,
+      workflows: [
+        { name: 'some_workflow', objectName: 'external_object', triggerType: 'on_create' },
+      ],
+    };
+    // No objects defined, so cross-ref validation is skipped
+    expect(() => defineStack(config, { strict: true })).not.toThrow();
   });
 });

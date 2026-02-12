@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { ManifestSchema } from './kernel/manifest.zod';
 import { DatasourceSchema } from './data/datasource.zod';
 import { TranslationBundleSchema } from './system/translation.zod';
+import { objectStackErrorMap, formatZodError } from './shared/error-map.zod';
 
 // Data Protocol
 import { ObjectSchema, ObjectExtensionSchema } from './data/object.zod';
@@ -199,16 +200,155 @@ export const ObjectStackSchema = ObjectStackDefinitionSchema;
 export type ObjectStack = ObjectStackDefinition;
 
 /**
+ * Options for `defineStack()`.
+ */
+export interface DefineStackOptions {
+  /**
+   * When `true`, enables strict cross-reference validation:
+   * - Views must reference objects defined in `objects`
+   * - Actions must reference objects defined in `objects`
+   * - Workflows must reference objects defined in `objects`
+   * - Flows that reference objects must point to defined objects
+   *
+   * When `false` (default), the stack is returned as-is for maximum flexibility
+   * (e.g., when views reference objects provided by other plugins).
+   *
+   * @default false
+   */
+  strict?: boolean;
+}
+
+/**
+ * Collect all object names defined in a stack definition.
+ */
+function collectObjectNames(config: ObjectStackDefinition): Set<string> {
+  const names = new Set<string>();
+  if (config.objects) {
+    for (const obj of config.objects) {
+      names.add(obj.name);
+    }
+  }
+  return names;
+}
+
+/**
+ * Perform strict cross-reference validation on a parsed stack definition.
+ * Returns an array of error messages (empty if valid).
+ */
+function validateCrossReferences(config: ObjectStackDefinition): string[] {
+  const errors: string[] = [];
+  const objectNames = collectObjectNames(config);
+
+  if (objectNames.size === 0) return errors;
+
+  // Validate workflow → object references (uses `objectName`)
+  if (config.workflows) {
+    for (const workflow of config.workflows) {
+      if (workflow.objectName && !objectNames.has(workflow.objectName)) {
+        errors.push(
+          `Workflow '${workflow.name}' references object '${workflow.objectName}' which is not defined in objects.`,
+        );
+      }
+    }
+  }
+
+  // Validate approval → object references
+  if (config.approvals) {
+    for (const approval of config.approvals) {
+      if (approval.object && !objectNames.has(approval.object)) {
+        errors.push(
+          `Approval '${approval.name}' references object '${approval.object}' which is not defined in objects.`,
+        );
+      }
+    }
+  }
+
+  // Validate hook → object references
+  if (config.hooks) {
+    for (const hook of config.hooks) {
+      if (hook.object && !objectNames.has(hook.object)) {
+        errors.push(
+          `Hook '${hook.name}' references object '${hook.object}' which is not defined in objects.`,
+        );
+      }
+    }
+  }
+
+  // Validate view data source → object references (nested in data.object)
+  if (config.views) {
+    for (const [i, view] of config.views.entries()) {
+      const checkViewData = (data: unknown, viewLabel: string) => {
+        if (data && typeof data === 'object' && 'provider' in data && 'object' in data) {
+          const d = data as { provider: string; object: string };
+          if (d.provider === 'object' && d.object && !objectNames.has(d.object)) {
+            errors.push(
+              `${viewLabel} references object '${d.object}' which is not defined in objects.`,
+            );
+          }
+        }
+      };
+
+      if (view.list?.data) {
+        checkViewData(view.list.data, `View[${i}].list`);
+      }
+      if (view.form?.data) {
+        checkViewData(view.form.data, `View[${i}].form`);
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
  * Type-safe helper to define a generic stack.
- * 
+ *
  * In ObjectStack, the concept of "Project" and "Plugin" is fluid:
  * - A **Project** is simply a Stack that is currently being executed (the `cwd`).
  * - A **Plugin** is a Stack that is being loaded by another Stack.
- * 
- * This unified definition allows any "Project" (e.g., Todo App) to be imported 
+ *
+ * This unified definition allows any "Project" (e.g., Todo App) to be imported
  * as a "Plugin" into a larger system (e.g., Company PaaS) without code changes.
+ *
+ * @param config - The stack definition object
+ * @param options - Optional settings. Use `{ strict: true }` to validate cross-references.
+ * @returns The validated stack definition
+ *
+ * @example
+ * ```ts
+ * // Basic usage (pass-through, backward compatible)
+ * const stack = defineStack({ manifest: { ... }, objects: [...] });
+ *
+ * // Strict mode — validates that views/workflows reference defined objects
+ * const stack = defineStack({ manifest: { ... }, objects: [...], views: [...] }, { strict: true });
+ * ```
  */
-export const defineStack = (config: z.input<typeof ObjectStackDefinitionSchema>) => config;
+export function defineStack(
+  config: z.input<typeof ObjectStackDefinitionSchema>,
+  options?: DefineStackOptions,
+): ObjectStackDefinition {
+  if (!options?.strict) {
+    return config as ObjectStackDefinition;
+  }
+
+  // Strict mode: parse with custom error map, then cross-reference validate
+  const result = ObjectStackDefinitionSchema.safeParse(config, {
+    error: objectStackErrorMap,
+  });
+
+  if (!result.success) {
+    throw new Error(formatZodError(result.error, 'defineStack validation failed'));
+  }
+
+  const crossRefErrors = validateCrossReferences(result.data);
+  if (crossRefErrors.length > 0) {
+    const header = `defineStack cross-reference validation failed (${crossRefErrors.length} issue${crossRefErrors.length === 1 ? '' : 's'}):`;
+    const lines = crossRefErrors.map((e) => `  ✗ ${e}`);
+    throw new Error(`${header}\n\n${lines.join('\n')}`);
+  }
+
+  return result.data;
+}
 
 
 /**

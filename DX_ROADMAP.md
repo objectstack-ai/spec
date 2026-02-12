@@ -22,8 +22,8 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 | **Test Coverage** | ⭐⭐⭐⭐⭐ | 191 test files, 5,157+ tests |
 | **IDE Autocomplete** | ⭐⭐⭐⭐ | Bundled `objectstack.json`, `.describe()` tooltips |
 | **Getting Started** | ⭐⭐⭐ | Docs exist but no interactive playground |
-| **Error Messages** | ⭐⭐⭐ | Zod defaults + some custom refinements |
-| **Helper Functions** | ⭐⭐⭐ | `Field.*` excellent; `ObjectSchema.create()`, `defineStack()` minimal |
+| **Error Messages** | ⭐⭐⭐⭐ | Custom error map with contextual messages and "Did you mean?" suggestions |
+| **Helper Functions** | ⭐⭐⭐⭐ | `Field.*`, `ObjectSchema.create()`, `defineStack()`, `defineView()`, `defineApp()`, `defineFlow()`, `defineAgent()` + strict mode |
 | **Reference Docs** | ⭐⭐⭐ | API docs generated but no field type gallery or error code reference |
 | **Examples** | ⭐⭐⭐ | 4 examples but missing "How to Run" instructions |
 | **Migration Story** | ⭐⭐ | V3 guide exists but no automated `codemod` tooling |
@@ -111,11 +111,11 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 - [x] Implement `defineView()` with column type inference
 - [x] Implement `defineApp()` with navigation builder
 - [x] Implement `defineFlow()` with step type inference
-- [ ] Create custom Zod error map with contextual messages
-- [ ] Add "Did you mean?" suggestions for FieldType typos
-- [ ] Create pretty-print validation error formatter for CLI
-- [ ] Add branded types for ObjectName, FieldName, ViewName
-- [ ] Add strict cross-reference validation mode to `defineStack()`
+- [x] Create custom Zod error map with contextual messages
+- [x] Add "Did you mean?" suggestions for FieldType typos
+- [x] Create pretty-print validation error formatter for CLI
+- [x] Add branded types for ObjectName, FieldName, ViewName
+- [x] Add strict cross-reference validation mode to `defineStack()`
 
 ---
 
@@ -362,4 +362,4 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 
 **Last Updated:** 2026-02-12  
 **Maintainers:** ObjectStack Core Team  
-**Status:** 🆕 Active — Phase 1 Ready to Start
+**Status:** 🔄 Active — Phase 2 Complete, Phase 3 Ready to Start

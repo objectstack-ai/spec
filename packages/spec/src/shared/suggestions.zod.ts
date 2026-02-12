@@ -1,0 +1,184 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+import { FieldType } from '../data/field.zod';
+
+/**
+ * "Did you mean?" Suggestion Utilities
+ *
+ * Provides fuzzy matching for common ObjectStack identifiers.
+ * Used by the custom error map to suggest corrections for typos.
+ *
+ * @example
+ * ```ts
+ * suggestFieldType('text_area');  // ['textarea']
+ * suggestFieldType('String');     // ['text']
+ * suggestFieldType('int');        // ['number']
+ * ```
+ */
+
+/**
+ * Compute Levenshtein edit distance between two strings.
+ * Uses space-optimized two-row approach (O(min(m,n)) space).
+ */
+export function levenshteinDistance(a: string, b: string): number {
+  const la = a.length;
+  const lb = b.length;
+
+  if (la === 0) return lb;
+  if (lb === 0) return la;
+
+  // Use only two rows for space efficiency
+  let prev = new Array<number>(lb + 1);
+  let curr = new Array<number>(lb + 1);
+
+  for (let j = 0; j <= lb; j++) {
+    prev[j] = j;
+  }
+
+  for (let i = 1; i <= la; i++) {
+    curr[0] = i;
+    for (let j = 1; j <= lb; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      curr[j] = Math.min(
+        prev[j] + 1,       // deletion
+        curr[j - 1] + 1,   // insertion
+        prev[j - 1] + cost, // substitution
+      );
+    }
+    [prev, curr] = [curr, prev];
+  }
+
+  return prev[lb];
+}
+
+/**
+ * Find the closest matches from a list of candidates.
+ *
+ * @param input - The user-provided (possibly invalid) value
+ * @param candidates - Array of valid values to compare against
+ * @param maxDistance - Maximum edit distance to consider (default: 3)
+ * @param maxResults - Maximum number of suggestions to return (default: 3)
+ * @returns Array of suggested values, sorted by similarity
+ */
+export function findClosestMatches(
+  input: string,
+  candidates: readonly string[],
+  maxDistance = 3,
+  maxResults = 3,
+): string[] {
+  const normalized = input.toLowerCase().replace(/[-\s]/g, '_');
+
+  const scored = candidates
+    .map((candidate) => ({
+      value: candidate,
+      distance: levenshteinDistance(normalized, candidate),
+    }))
+    .filter((s) => s.distance <= maxDistance && s.distance > 0)
+    .sort((a, b) => a.distance - b.distance);
+
+  return scored.slice(0, maxResults).map((s) => s.value);
+}
+
+/**
+ * Well-known aliases that map common typos / alternative names to valid FieldTypes.
+ */
+const FIELD_TYPE_ALIASES: Record<string, string> = {
+  // Common alternative names
+  string: 'text',
+  str: 'text',
+  varchar: 'text',
+  char: 'text',
+  int: 'number',
+  integer: 'number',
+  float: 'number',
+  double: 'number',
+  decimal: 'number',
+  numeric: 'number',
+  bool: 'boolean',
+  checkbox: 'boolean',
+  check: 'boolean',
+  date_time: 'datetime',
+  timestamp: 'datetime',
+  // Common typos
+  text_area: 'textarea',
+  textarea_: 'textarea',
+  textfield: 'text',
+  dropdown: 'select',
+  picklist: 'select',
+  enum: 'select',
+  multi_select: 'multiselect',
+  multiselect_: 'multiselect',
+  reference: 'lookup',
+  ref: 'lookup',
+  foreign_key: 'lookup',
+  fk: 'lookup',
+  relation: 'lookup',
+  master: 'master_detail',
+  richtext_: 'richtext',
+  rich_text: 'richtext',
+  upload: 'file',
+  attachment: 'file',
+  photo: 'image',
+  picture: 'image',
+  img: 'image',
+  percent_: 'percent',
+  percentage: 'percent',
+  money: 'currency',
+  price: 'currency',
+  auto_number: 'autonumber',
+  auto_increment: 'autonumber',
+  sequence: 'autonumber',
+  markdown_: 'markdown',
+  md: 'markdown',
+  barcode: 'qrcode',
+  tag: 'tags',
+  star: 'rating',
+  stars: 'rating',
+  geo: 'location',
+  gps: 'location',
+  coordinates: 'location',
+  embed: 'vector',
+  embedding: 'vector',
+  embeddings: 'vector',
+};
+
+/**
+ * Suggest valid FieldType values for an invalid input.
+ *
+ * First checks known aliases, then falls back to fuzzy matching.
+ *
+ * @param input - Invalid field type string
+ * @returns Array of suggested valid FieldType values
+ *
+ * @example
+ * ```ts
+ * suggestFieldType('text_area');  // ['textarea']
+ * suggestFieldType('String');     // ['text']
+ * suggestFieldType('int');        // ['number']
+ * suggestFieldType('dropdown');   // ['select']
+ * ```
+ */
+export function suggestFieldType(input: string): string[] {
+  const normalized = input.toLowerCase().replace(/[-\s]/g, '_');
+
+  // Check alias map first
+  const alias = FIELD_TYPE_ALIASES[normalized];
+  if (alias) {
+    return [alias];
+  }
+
+  // Fall back to fuzzy matching
+  return findClosestMatches(normalized, FieldType.options);
+}
+
+/**
+ * Format a "Did you mean?" message for display.
+ *
+ * @param suggestions - Array of suggested values
+ * @returns Formatted string or empty string if no suggestions
+ */
+export function formatSuggestion(suggestions: string[]): string {
+  if (suggestions.length === 0) return '';
+  if (suggestions.length === 1) return `Did you mean '${suggestions[0]}'?`;
+  return `Did you mean one of: ${suggestions.map((s) => `'${s}'`).join(', ')}?`;
+}
