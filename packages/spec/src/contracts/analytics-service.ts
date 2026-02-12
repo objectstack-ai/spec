@@ -17,7 +17,7 @@
  * An analytical query definition
  */
 export interface AnalyticsQuery {
-    /** Target cube name (optional when provided externally, e.g. in API request wrapper) */
+    /** Target cube name. Optional when cube is specified at a higher level (e.g. API request wrapper or cube-scoped endpoint). Implementations should validate presence at runtime. */
     cube?: string;
     /** Measures to compute (e.g. ['orders.count', 'orders.totalRevenue']) */
     measures: string[];
