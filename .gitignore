@@ -48,6 +48,9 @@ packages/*/*.tsbuildinfo
 # Generated JSON Schema (rebuilt by `pnpm gen:schema` during build)
 packages/spec/json-schema/
 
+# Generated bundle size reports
+packages/spec/bundle-size-report.json
+
 # Exclude generated JS from TypeScript sources
 packages/*/src/**/*.js
 !packages/*/src/**/*.config.js
