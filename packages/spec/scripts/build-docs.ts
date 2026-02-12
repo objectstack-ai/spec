@@ -1,4 +1,15 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+//
+// ⚠️  AUTO-GENERATION SCRIPT
+//
+// This script regenerates ALL files under content/docs/references/{category}/.
+// It DELETES each category folder before regenerating from JSON Schemas.
+//
+// DO NOT place hand-written content in content/docs/references/ — it WILL be
+// overwritten or deleted on the next build.
+//
+// Hand-written documentation belongs in content/docs/guides/ instead.
+// See DX_ROADMAP.md and .cursorrules for details.
 
 import fs from 'fs';
 import path from 'path';
@@ -6,6 +17,7 @@ import path from 'path';
 const SCHEMA_DIR = path.resolve(__dirname, '../json-schema');
 const SRC_DIR = path.resolve(__dirname, '../src');
 // Output directly to references folder (flattened)
+// ⚠️  Everything inside category sub-folders is auto-generated and disposable.
 const DOCS_ROOT = path.resolve(__dirname, '../../../content/docs/references');
 
 // Dynamically discover categories from src directory
@@ -214,6 +226,7 @@ function generateZodFileMarkdown(zodFile: string, schemas: Array<{name: string, 
   md += `title: ${zodTitle}\n`;
   md += `description: ${zodTitle} protocol schemas\n`;
   md += `---\n\n`;
+  md += `{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}\n\n`;
   
   if (fileDesc) {
       md += `${fileDesc}\n\n`;

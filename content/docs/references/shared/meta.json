@@ -5,8 +5,6 @@
     "http",
     "identifiers",
     "mapping",
-    "metadata-persistence",
-    "metadata-types",
-    "view"
+    "metadata-types"
   ]
 }

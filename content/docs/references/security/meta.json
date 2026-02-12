@@ -1,7 +1,6 @@
 {
   "title": "Security Protocol",
   "pages": [
-    "permissions-matrix",
     "permission",
     "policy",
     "rls",

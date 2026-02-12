@@ -1,11 +1,6 @@
 {
   "title": "Data Protocol",
   "pages": [
-    "protocol-diagram",
-    "field-type-gallery",
-    "field-type-decision-tree",
-    "field-validation-rules",
-    "query-cheat-sheet",
     "analytics",
     "data-engine",
     "dataset",
@@ -21,7 +16,6 @@
     "mapping",
     "object",
     "query",
-    "search-engine",
     "validation"
   ]
 }
