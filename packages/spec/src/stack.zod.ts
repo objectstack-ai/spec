@@ -204,16 +204,16 @@ export type ObjectStack = ObjectStackDefinition;
  */
 export interface DefineStackOptions {
   /**
-   * When `true`, enables strict cross-reference validation:
-   * - Views must reference objects defined in `objects`
-   * - Actions must reference objects defined in `objects`
-   * - Workflows must reference objects defined in `objects`
-   * - Flows that reference objects must point to defined objects
+   * When `true` (default), enables strict validation:
+   * - All Zod schemas are validated (field names, types, etc.)
+   * - Cross-reference validation runs (views/actions/workflows reference valid objects)
+   * - Ensures data integrity and catches errors early
    *
-   * When `false` (default), the stack is returned as-is for maximum flexibility
+   * When `false`, validation is skipped for maximum flexibility
    * (e.g., when views reference objects provided by other plugins).
+   * Use this ONLY when you need to bypass validation for advanced use cases.
    *
-   * @default false
+   * @default true
    */
   strict?: boolean;
 }
@@ -332,11 +332,15 @@ export function defineStack(
   config: z.input<typeof ObjectStackDefinitionSchema>,
   options?: DefineStackOptions,
 ): ObjectStackDefinition {
-  if (!options?.strict) {
+  // Default to strict=true for safety (validate by default)
+  const strict = options?.strict !== false;
+
+  if (!strict) {
+    // Non-strict mode: skip validation (advanced use cases only)
     return config as ObjectStackDefinition;
   }
 
-  // Strict mode: parse with custom error map, then cross-reference validate
+  // Strict mode (default): parse with custom error map, then cross-reference validate
   const result = ObjectStackDefinitionSchema.safeParse(config, {
     error: objectStackErrorMap,
   });
