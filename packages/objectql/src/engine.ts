@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { QueryAST, HookContext } from '@objectstack/spec/data';
+import { QueryAST, HookContext, ServiceObject } from '@objectstack/spec/data';
 import { 
   DataEngineQueryOptions, 
   DataEngineInsertOptions, 
@@ -23,6 +23,7 @@ export interface HookEntry {
   handler: HookHandler;
   object?: string | string[];  // undefined = global hook
   priority: number;
+  packageId?: string;
 }
 
 /**
@@ -161,6 +162,7 @@ export class ObjectQL implements IDataEngine {
   registerHook(event: string, handler: HookHandler, options?: {
     object?: string | string[];
     priority?: number;
+    packageId?: string;
   }) {
     if (!this.hooks.has(event)) {
         this.hooks.set(event, []);
@@ -170,6 +172,7 @@ export class ObjectQL implements IDataEngine {
       handler,
       object: options?.object,
       priority: options?.priority ?? 100,
+      packageId: options?.packageId,
     });
     // Sort by priority (lower runs first)
     entries.sort((a, b) => a.priority - b.priority);
@@ -525,7 +528,7 @@ export class ObjectQL implements IDataEngine {
   /**
    * Helper to get object definition
    */
-  getSchema(objectName: string) {
+  getSchema(objectName: string): ServiceObject | undefined {
     return SchemaRegistry.getObject(objectName);
   }
 
@@ -956,6 +959,134 @@ export class ObjectQL implements IDataEngine {
       throw new Error('Execute requires options.object to select driver');
   }
 
+  // ============================================
+  // Compatibility / Convenience API
+  // ============================================
+  // These methods provide a higher-level API matching the @objectql/core
+  // ObjectQL interface, enabling painless migration from the legacy layer.
+
+  /**
+   * Register a single object definition.
+   * 
+   * Proxies to SchemaRegistry.registerObject() with sensible defaults.
+   * Fields without a `name` property are auto-assigned from their key.
+   */
+  registerObject(
+    schema: ServiceObject,
+    packageId: string = '__runtime__',
+    namespace?: string
+  ): string {
+    // Auto-assign field names from keys
+    if (schema.fields) {
+      for (const [key, field] of Object.entries(schema.fields)) {
+        if (field && typeof field === 'object' && !('name' in field)) {
+          (field as any).name = key;
+        }
+      }
+    }
+    return SchemaRegistry.registerObject(schema, packageId, namespace);
+  }
+
+  /**
+   * Unregister a single object by name.
+   */
+  unregisterObject(name: string, packageId?: string): void {
+    if (packageId) {
+      SchemaRegistry.unregisterObjectsByPackage(packageId);
+    } else {
+      // Remove from generic metadata as fallback
+      SchemaRegistry.unregisterItem('object', name);
+    }
+  }
+
+  /**
+   * Get an object definition by name.
+   * Alias for getSchema() — matches @objectql/core API.
+   */
+  getObject(name: string): ServiceObject | undefined {
+    return this.getSchema(name);
+  }
+
+  /**
+   * Get all registered object configs as a name→config map.
+   * Matches @objectql/core getConfigs() API.
+   */
+  getConfigs(): Record<string, ServiceObject> {
+    const result: Record<string, ServiceObject> = {};
+    const objects = SchemaRegistry.getAllObjects();
+    for (const obj of objects) {
+      if (obj.name) {
+        result[obj.name] = obj;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Get a registered driver by datasource name.
+   * 
+   * Unlike the private getDriver() (which resolves by object name),
+   * this method directly looks up a driver by its registered name.
+   */
+  getDriverByName(name: string): DriverInterface | undefined {
+    return this.drivers.get(name);
+  }
+
+  /**
+   * Get a registered driver by datasource name.
+   * Alias matching @objectql/core datasource() API.
+   * 
+   * @throws Error if the datasource is not found
+   */
+  datasource(name: string): DriverInterface {
+    const driver = this.drivers.get(name);
+    if (!driver) {
+      throw new Error(`[ObjectQL] Datasource '${name}' not found`);
+    }
+    return driver;
+  }
+
+  /**
+   * Register a hook handler.
+   * Convenience alias for registerHook() matching @objectql/core on() API.
+   * 
+   * Usage:
+   *   ql.on('beforeInsert', 'user', async (ctx) => { ... });
+   */
+  on(
+    event: string,
+    objectName: string,
+    handler: (ctx: HookContext) => Promise<void> | void,
+    packageId?: string
+  ): void {
+    this.registerHook(event, handler, { object: objectName, packageId });
+  }
+
+  /**
+   * Remove all hooks, actions, and objects contributed by a package.
+   */
+  removePackage(packageId: string): void {
+    // Remove hooks
+    for (const [key, handlers] of this.hooks.entries()) {
+      const filtered = handlers.filter(h => h.packageId !== packageId);
+      if (filtered.length !== handlers.length) {
+        this.hooks.set(key, filtered);
+      }
+    }
+    // Remove actions
+    this.removeActionsByPackage(packageId);
+    // Remove objects
+    SchemaRegistry.unregisterObjectsByPackage(packageId, true);
+  }
+
+  /**
+   * Gracefully shut down the engine, disconnecting all drivers.
+   * Alias for destroy() — matches @objectql/core close() API.
+   */
+  async close(): Promise<void> {
+    return this.destroy();
+  }
+
   /**
    * Create a scoped execution context bound to this engine.
    * 
@@ -969,6 +1100,56 @@ export class ObjectQL implements IDataEngine {
       ExecutionContextSchema.parse(ctx),
       this
     );
+  }
+
+  /**
+   * Static factory: create a fully configured ObjectQL instance.
+   * 
+   * Matches @objectql/core's `new ObjectQL(config)` pattern but also
+   * registers drivers and objects, then calls init().
+   * 
+   * Usage:
+   *   const ql = await ObjectQL.create({
+   *     datasources: { default: myDriver },
+   *     objects: { user: { name: 'user', fields: { ... } } }
+   *   });
+   */
+  static async create(config: {
+    datasources?: Record<string, DriverInterface>;
+    objects?: Record<string, ServiceObject>;
+    hooks?: Array<{ event: string; object: string; handler: (ctx: HookContext) => Promise<void> | void }>;
+  }): Promise<ObjectQL> {
+    const ql = new ObjectQL();
+
+    // Register drivers
+    if (config.datasources) {
+      for (const [name, driver] of Object.entries(config.datasources)) {
+        // Set driver name if not already set
+        if (!driver.name) {
+          (driver as any).name = name;
+        }
+        ql.registerDriver(driver, name === 'default');
+      }
+    }
+
+    // Register objects
+    if (config.objects) {
+      for (const [_key, schema] of Object.entries(config.objects)) {
+        ql.registerObject(schema);
+      }
+    }
+
+    // Register hooks
+    if (config.hooks) {
+      for (const hook of config.hooks) {
+        ql.on(hook.event, hook.object, hook.handler);
+      }
+    }
+
+    // Initialize (connect drivers)
+    await ql.init();
+
+    return ql;
   }
 }
 
