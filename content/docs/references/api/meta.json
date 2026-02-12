@@ -1,6 +1,7 @@
 {
   "title": "API Protocol",
   "pages": [
+    "error-catalog",
     "analytics",
     "auth",
     "auth-endpoints",

@@ -1,0 +1,420 @@
+---
+title: Query Syntax Cheat Sheet
+description: One-page reference for ObjectStack QuerySchema — filters, sorts, pagination, aggregations, and joins
+---
+
+# Query Syntax Cheat Sheet
+
+Quick reference for building queries with the ObjectStack QuerySchema.
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/query.zod.ts` and `packages/spec/src/data/filter.zod.ts`  
+**Import:** `import { QuerySchema, FilterConditionSchema } from '@objectstack/spec/data'`
+</Callout>
+
+---
+
+## Basic Query Structure
+
+```typescript
+const query = {
+  object: 'task',
+  fields: ['id', 'title', 'status', 'assigned_to'],
+  where: { /* filters */ },
+  orderBy: [{ field: 'created_at', order: 'desc' }],
+  limit: 20,
+  offset: 0
+};
+```
+
+---
+
+## Filter Operators
+
+### Comparison Operators
+
+| Operator | Description | Example |
+|:---|:---|:---|
+| `$eq` | Equal to | `{ status: { $eq: 'open' } }` |
+| `$ne` | Not equal to | `{ status: { $ne: 'closed' } }` |
+| `$gt` | Greater than | `{ amount: { $gt: 100 } }` |
+| `$gte` | Greater than or equal | `{ amount: { $gte: 100 } }` |
+| `$lt` | Less than | `{ amount: { $lt: 1000 } }` |
+| `$lte` | Less than or equal | `{ amount: { $lte: 1000 } }` |
+
+### Set Operators
+
+| Operator | Description | Example |
+|:---|:---|:---|
+| `$in` | Value is in array | `{ status: { $in: ['open', 'pending'] } }` |
+| `$nin` | Value is NOT in array | `{ status: { $nin: ['closed', 'cancelled'] } }` |
+
+### Range Operator
+
+| Operator | Description | Example |
+|:---|:---|:---|
+| `$between` | Value is in range (inclusive) | `{ price: { $between: [10, 100] } }` |
+
+### String Operators
+
+| Operator | Description | Example |
+|:---|:---|:---|
+| `$contains` | String contains substring | `{ title: { $contains: 'urgent' } }` |
+| `$startsWith` | String starts with | `{ email: { $startsWith: 'admin' } }` |
+| `$endsWith` | String ends with | `{ email: { $endsWith: '@acme.com' } }` |
+
+### Null / Existence Operators
+
+| Operator | Description | Example |
+|:---|:---|:---|
+| `$null` | Value is null | `{ deleted_at: { $null: true } }` |
+| `$exists` | Field has a value | `{ phone: { $exists: true } }` |
+
+---
+
+## Logical Operators
+
+### `$and` — All conditions must match
+
+```typescript
+{
+  where: {
+    $and: [
+      { status: { $eq: 'open' } },
+      { priority: { $in: ['high', 'critical'] } }
+    ]
+  }
+}
+```
+
+### `$or` — Any condition can match
+
+```typescript
+{
+  where: {
+    $or: [
+      { status: { $eq: 'open' } },
+      { status: { $eq: 'pending' } }
+    ]
+  }
+}
+```
+
+### `$not` — Negate a condition
+
+```typescript
+{
+  where: {
+    $not: { status: { $eq: 'closed' } }
+  }
+}
+```
+
+### Nested Logic
+
+```typescript
+{
+  where: {
+    $and: [
+      { type: { $eq: 'bug' } },
+      {
+        $or: [
+          { priority: { $eq: 'critical' } },
+          { assigned_to: { $null: true } }
+        ]
+      }
+    ]
+  }
+}
+```
+
+---
+
+## Sorting
+
+Sort results with `orderBy` (array of sort nodes):
+
+```typescript
+{
+  orderBy: [
+    { field: 'priority', order: 'desc' },
+    { field: 'created_at', order: 'asc' }
+  ]
+}
+```
+
+| Property | Type | Description |
+|:---|:---|:---|
+| `field` | `string` | Field name to sort by |
+| `order` | `'asc' \| 'desc'` | Sort direction |
+
+---
+
+## Pagination
+
+### Offset-Based Pagination
+
+```typescript
+{
+  limit: 20,    // Records per page (max varies by config)
+  offset: 40    // Skip first 40 records (page 3)
+}
+```
+
+### Cursor-Based Pagination (Keyset)
+
+```typescript
+{
+  limit: 20,
+  keyset: {
+    after: 'eyJpZCI6MTAwfQ==',  // Cursor from previous response
+    field: 'id',
+    order: 'asc'
+  }
+}
+```
+
+---
+
+## Field Selection
+
+### Select Specific Fields
+
+```typescript
+{
+  fields: ['id', 'title', 'status', 'created_at']
+}
+```
+
+### Nested / Related Fields
+
+```typescript
+{
+  fields: [
+    'id',
+    'title',
+    { field: 'assigned_to', alias: 'assignee' }
+  ]
+}
+```
+
+---
+
+## Aggregations
+
+### Available Functions
+
+| Function | Description | Example |
+|:---|:---|:---|
+| `count` | Count records | `{ function: 'count', alias: 'total' }` |
+| `sum` | Sum numeric field | `{ function: 'sum', field: 'amount', alias: 'total_amount' }` |
+| `avg` | Average numeric field | `{ function: 'avg', field: 'rating', alias: 'avg_rating' }` |
+| `min` | Minimum value | `{ function: 'min', field: 'price', alias: 'min_price' }` |
+| `max` | Maximum value | `{ function: 'max', field: 'price', alias: 'max_price' }` |
+| `count_distinct` | Count unique values | `{ function: 'count_distinct', field: 'category', alias: 'categories' }` |
+| `array_agg` | Collect into array | `{ function: 'array_agg', field: 'tag', alias: 'all_tags' }` |
+| `string_agg` | Concatenate strings | `{ function: 'string_agg', field: 'name', alias: 'names' }` |
+
+### Aggregation Example
+
+```typescript
+{
+  object: 'order',
+  aggregations: [
+    { function: 'count', alias: 'order_count' },
+    { function: 'sum', field: 'total', alias: 'revenue' },
+    { function: 'avg', field: 'total', alias: 'avg_order' }
+  ],
+  groupBy: ['status'],
+  having: { order_count: { $gt: 10 } }
+}
+```
+
+---
+
+## Joins
+
+### Join Types
+
+| Type | Description |
+|:---|:---|
+| `inner` | Records with matches in both objects |
+| `left` | All records from left + matching from right |
+| `right` | All records from right + matching from left |
+| `full` | All records from both objects |
+
+### Join Strategies
+
+| Strategy | Description |
+|:---|:---|
+| `auto` | Let the engine choose the best strategy |
+| `database` | Push join to the database level |
+| `hash` | In-memory hash join |
+| `loop` | Nested loop join |
+
+### Join Example
+
+```typescript
+{
+  object: 'order',
+  fields: ['id', 'total', 'customer.name', 'customer.email'],
+  joins: [
+    {
+      type: 'inner',
+      object: 'customer',
+      on: { 'order.customer_id': 'customer.id' },
+      strategy: 'auto'
+    }
+  ]
+}
+```
+
+---
+
+## Full-Text Search
+
+```typescript
+{
+  object: 'article',
+  fullTextSearch: {
+    query: 'kubernetes deployment',
+    fields: ['title', 'body', 'tags'],
+    fuzzy: true,
+    operator: 'and',
+    boost: { title: 2.0, body: 1.0 },
+    minScore: 0.5,
+    language: 'english',
+    highlight: true
+  }
+}
+```
+
+| Property | Type | Description |
+|:---|:---|:---|
+| `query` | `string` | Search text |
+| `fields` | `string[]` | Fields to search (optional — defaults to all searchable) |
+| `fuzzy` | `boolean` | Enable fuzzy matching for typo tolerance |
+| `operator` | `'and' \| 'or'` | How to combine search terms |
+| `boost` | `Record<string, number>` | Field relevance weights |
+| `minScore` | `number` | Minimum relevance score (0–1) |
+| `language` | `string` | Language for stemming/stopwords |
+| `highlight` | `boolean` | Return highlighted matches |
+
+---
+
+## Window Functions
+
+| Function | Description |
+|:---|:---|
+| `row_number` | Sequential row number within partition |
+| `rank` | Rank with gaps for ties |
+| `dense_rank` | Rank without gaps for ties |
+| `percent_rank` | Relative rank as percentage |
+| `lag` | Access previous row value |
+| `lead` | Access next row value |
+| `first_value` | First value in window |
+| `last_value` | Last value in window |
+| `sum` / `avg` / `count` / `min` / `max` | Running aggregations |
+
+### Window Function Example
+
+```typescript
+{
+  object: 'employee',
+  fields: ['name', 'department', 'salary'],
+  windowFunctions: [
+    {
+      function: 'rank',
+      alias: 'salary_rank',
+      partitionBy: ['department'],
+      orderBy: [{ field: 'salary', order: 'desc' }]
+    }
+  ]
+}
+```
+
+---
+
+## Distinct & Group By
+
+### Distinct Records
+
+```typescript
+{
+  object: 'task',
+  fields: ['category'],
+  distinct: true
+}
+```
+
+### Group By with Having
+
+```typescript
+{
+  object: 'order',
+  fields: ['customer_id'],
+  aggregations: [
+    { function: 'sum', field: 'total', alias: 'total_spent' }
+  ],
+  groupBy: ['customer_id'],
+  having: { total_spent: { $gt: 1000 } }
+}
+```
+
+---
+
+## Common Query Patterns
+
+### List with Pagination
+
+```typescript
+{
+  object: 'task',
+  fields: ['id', 'title', 'status', 'assigned_to', 'created_at'],
+  where: { status: { $ne: 'archived' } },
+  orderBy: [{ field: 'created_at', order: 'desc' }],
+  limit: 25,
+  offset: 0
+}
+```
+
+### Search with Filter
+
+```typescript
+{
+  object: 'contact',
+  fullTextSearch: { query: 'john', fields: ['first_name', 'last_name', 'email'] },
+  where: { is_active: { $eq: true } },
+  orderBy: [{ field: 'last_name', order: 'asc' }],
+  limit: 50
+}
+```
+
+### Dashboard Aggregation
+
+```typescript
+{
+  object: 'deal',
+  aggregations: [
+    { function: 'count', alias: 'deal_count' },
+    { function: 'sum', field: 'amount', alias: 'pipeline_value' },
+    { function: 'avg', field: 'amount', alias: 'avg_deal_size' }
+  ],
+  groupBy: ['stage'],
+  where: { closed_at: { $null: true } }
+}
+```
+
+### Recent Activity
+
+```typescript
+{
+  object: 'activity',
+  fields: ['id', 'type', 'description', 'user.name', 'created_at'],
+  where: {
+    created_at: { $gte: '2026-01-01T00:00:00Z' }
+  },
+  orderBy: [{ field: 'created_at', order: 'desc' }],
+  limit: 10
+}
+```

@@ -1,0 +1,307 @@
+---
+title: Plugin Development
+description: Step-by-step guide to creating, testing, and publishing ObjectStack plugins
+---
+
+# Plugin Development Tutorial
+
+This guide walks you through creating an ObjectStack plugin from scratch — from project setup to testing and registration.
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/plugin.zod.ts`  
+**Import:** `import { PluginManifestSchema, PluginHookSchema } from '@objectstack/spec/kernel'`
+</Callout>
+
+---
+
+## What is a Plugin?
+
+A plugin is a self-contained module that extends the ObjectStack kernel with:
+- **Services** — Add new capabilities (email, payment, analytics)
+- **Hooks** — React to lifecycle events (before/after record create, update, delete)
+- **Objects** — Register new data objects and fields
+- **UI Components** — Add custom views, widgets, or actions
+- **API Endpoints** — Expose new REST or GraphQL endpoints
+
+---
+
+## Step 1: Create the Plugin Project
+
+```bash
+mkdir objectstack-plugin-hello
+cd objectstack-plugin-hello
+npm init -y
+npm install @objectstack/spec
+npm install -D typescript vitest @types/node
+```
+
+Create `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "declaration": true,
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}
+```
+
+---
+
+## Step 2: Define the Plugin Manifest
+
+Create `src/manifest.ts`:
+
+```typescript
+import { defineStudioPlugin } from '@objectstack/spec';
+
+export const manifest = defineStudioPlugin({
+  name: 'hello_world',
+  label: 'Hello World Plugin',
+  version: '1.0.0',
+  description: 'A simple example plugin that adds a greeting service.',
+  author: {
+    name: 'Your Name',
+    email: 'you@example.com'
+  },
+  compatibility: {
+    minVersion: '3.0.0'
+  },
+  permissions: [
+    'object:read',
+    'object:write'
+  ],
+  services: ['greeting'],
+  hooks: ['before_record_create']
+});
+```
+
+---
+
+## Step 3: Implement the Plugin
+
+Create `src/index.ts`:
+
+```typescript
+import type { PluginManifest } from '@objectstack/spec/kernel';
+
+export interface GreetingService {
+  greet(name: string): string;
+}
+
+export function createHelloPlugin() {
+  const greetingService: GreetingService = {
+    greet(name: string): string {
+      return `Hello, ${name}! Welcome to ObjectStack.`;
+    }
+  };
+
+  return {
+    name: 'hello_world',
+
+    // Register services with the kernel
+    onRegister(kernel: { registerService: (name: string, service: unknown) => void }) {
+      kernel.registerService('greeting', greetingService);
+    },
+
+    // Hook into record lifecycle
+    hooks: {
+      before_record_create(context: { object: string; data: Record<string, unknown> }) {
+        if (context.object === 'contact' && context.data.first_name) {
+          // Auto-generate a greeting field
+          context.data.welcome_message = greetingService.greet(
+            context.data.first_name as string
+          );
+        }
+        return context;
+      }
+    }
+  };
+}
+```
+
+---
+
+## Step 4: Add Custom Objects (Optional)
+
+Plugins can register new objects:
+
+```typescript
+import { ObjectSchema } from '@objectstack/spec/data';
+
+export const greetingLogObject = ObjectSchema.create({
+  name: 'greeting_log',
+  label: 'Greeting Log',
+  fields: [
+    { name: 'recipient', label: 'Recipient', type: 'text', required: true },
+    { name: 'message', label: 'Message', type: 'text', required: true },
+    { name: 'sent_at', label: 'Sent At', type: 'datetime' },
+    { name: 'channel', label: 'Channel', type: 'select', options: [
+      { label: 'Email', value: 'email' },
+      { label: 'SMS', value: 'sms' },
+      { label: 'In-App', value: 'in_app', default: true }
+    ]}
+  ]
+});
+```
+
+---
+
+## Step 5: Write Tests
+
+Create `src/index.test.ts`:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { createHelloPlugin } from './index';
+
+describe('HelloPlugin', () => {
+  const plugin = createHelloPlugin();
+
+  it('should have the correct name', () => {
+    expect(plugin.name).toBe('hello_world');
+  });
+
+  it('should register the greeting service', () => {
+    const services: Record<string, unknown> = {};
+    plugin.onRegister({
+      registerService: (name, service) => { services[name] = service; }
+    });
+    expect(services).toHaveProperty('greeting');
+  });
+
+  it('should greet by name', () => {
+    const services: Record<string, unknown> = {};
+    plugin.onRegister({
+      registerService: (name, service) => { services[name] = service; }
+    });
+    const greeting = services.greeting as { greet: (name: string) => string };
+    expect(greeting.greet('Alice')).toBe('Hello, Alice! Welcome to ObjectStack.');
+  });
+
+  it('should add welcome message on contact create', () => {
+    const context = {
+      object: 'contact',
+      data: { first_name: 'Bob' } as Record<string, unknown>
+    };
+    const result = plugin.hooks.before_record_create(context);
+    expect(result.data.welcome_message).toBe('Hello, Bob! Welcome to ObjectStack.');
+  });
+
+  it('should not modify non-contact objects', () => {
+    const context = {
+      object: 'task',
+      data: { title: 'Test' } as Record<string, unknown>
+    };
+    const result = plugin.hooks.before_record_create(context);
+    expect(result.data).not.toHaveProperty('welcome_message');
+  });
+});
+```
+
+Run tests:
+
+```bash
+npx vitest run
+```
+
+---
+
+## Step 6: Register with the Kernel
+
+In your application's `objectstack.config.ts`:
+
+```typescript
+import { defineStack } from '@objectstack/spec';
+import { createHelloPlugin } from 'objectstack-plugin-hello';
+
+export default defineStack({
+  objects: [/* your objects */],
+  plugins: [
+    createHelloPlugin()
+  ]
+});
+```
+
+---
+
+## Plugin Best Practices
+
+### Naming Conventions
+
+| Item | Convention | Example |
+|:---|:---|:---|
+| Plugin name | `snake_case` | `hello_world` |
+| Service name | `snake_case` | `greeting` |
+| Object names | `snake_case` | `greeting_log` |
+| npm package | `kebab-case` | `objectstack-plugin-hello` |
+
+### Permission Model
+
+Only request the minimum permissions your plugin needs:
+
+| Permission | Description |
+|:---|:---|
+| `object:read` | Read records from objects |
+| `object:write` | Create, update, delete records |
+| `object:admin` | Create/modify object schemas |
+| `system:read` | Read system configuration |
+| `system:admin` | Modify system configuration |
+
+### Error Handling
+
+Always use structured errors:
+
+```typescript
+import type { EnhancedApiError } from '@objectstack/spec/api';
+
+function handlePluginError(error: unknown): EnhancedApiError {
+  return {
+    code: 'internal_error',
+    message: `Hello plugin error: ${String(error)}`,
+    category: 'server',
+    httpStatus: 500,
+    retryable: false
+  };
+}
+```
+
+### Testing Checklist
+
+- [ ] Manifest validates against `PluginManifestSchema`
+- [ ] Services register correctly
+- [ ] Hooks fire on expected events
+- [ ] Custom objects validate against `ObjectSchema`
+- [ ] Error cases are handled gracefully
+- [ ] No side effects in service constructors
+
+---
+
+## Plugin Directory Structure
+
+```
+objectstack-plugin-hello/
+├── src/
+│   ├── index.ts              # Plugin entry point
+│   ├── index.test.ts         # Tests
+│   ├── manifest.ts           # Plugin manifest
+│   └── services/
+│       └── greeting.ts       # Service implementation
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+---
+
+## Next Steps
+
+- [Common Patterns](/guides/common-patterns) — See how plugins fit into the application architecture
+- [Error Catalog](/references/api/error-catalog) — Return proper error codes from your plugin
+- [Field Type Gallery](/references/data/field-type-gallery) — Define custom objects with the right field types

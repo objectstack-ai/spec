@@ -1,6 +1,8 @@
 {
   "title": "Data Protocol",
   "pages": [
+    "field-type-gallery",
+    "query-cheat-sheet",
     "analytics",
     "data-engine",
     "dataset",
