@@ -23,9 +23,9 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 | **IDE Autocomplete** | ⭐⭐⭐⭐ | Bundled `objectstack.json`, `.describe()` tooltips, 12 subpath exports |
 | **Error Messages** | ⭐⭐⭐⭐⭐ | Custom Zod v4 error map, "Did you mean?" fuzzy suggestions, `safeParsePretty()` |
 | **Helper Functions** | ⭐⭐⭐⭐⭐ | 6 `define*` helpers + `ObjectSchema.create()` + `Field.*` + strict `defineStack()` |
-| **Getting Started** | ⭐⭐⭐ | Docs exist but no interactive playground or `create-objectstack` wizard |
-| **Reference Docs** | ⭐⭐⭐⭐ | Field type gallery ✅, error catalog ✅, query cheat sheet ✅; still missing: Contracts docs, wire format examples |
-| **Examples** | ⭐⭐⭐ | 4 examples but `plugin-bi` is placeholder, "How to Run" incomplete, `examples/README.md` references non-existent `minimal-auth` |
+| **Getting Started** | ⭐⭐⭐⭐ | Docs with prerequisites, troubleshooting, StackBlitz playground; no `create-objectstack` wizard yet |
+| **Reference Docs** | ⭐⭐⭐⭐⭐ | Field type gallery ✅, error catalog ✅, query cheat sheet ✅, Contracts docs ✅, wire format ✅, protocol diagram ✅, decision tree ✅, permissions matrix ✅ |
+| **Examples** | ⭐⭐⭐⭐ | 4 examples with comprehensive READMEs, "How to Run" sections, StackBlitz playground link |
 | **Migration Story** | ⭐⭐⭐ | V3 migration guide exists; no automated `codemod` tooling |
 
 ### Audit Findings Summary (New Issues Discovered)
@@ -87,16 +87,16 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 
 ### Phase 1 Checklist
 
-- [ ] Create StackBlitz starter template from `app-todo`
-- [ ] Add "Try Online" button to spec README.md and docs site hero
-- [ ] Add "How to Run" section to each example README (app-todo, app-crm, app-host, plugin-bi)
-- [ ] Add prerequisites section to getting-started docs
-- [ ] Create first-run troubleshooting page
+- [x] Create StackBlitz starter template from `app-todo`
+- [x] Add "Try Online" button to spec README.md and docs site hero
+- [x] Add "How to Run" section to each example README (app-todo, app-crm, app-host, plugin-bi)
+- [x] Add prerequisites section to getting-started docs
+- [x] Create first-run troubleshooting page
 - [ ] Implement `create-objectstack` CLI wizard with 3 templates
 - [ ] Record 5-minute getting-started video
-- [ ] Fix `examples/README.md`: remove `minimal-auth` ghost reference, update metadata (version, count, date)
-- [ ] Fix `plugin-bi` example: add README.md, add package.json scripts, document purpose
-- [ ] Fix `app-host` README: use `pnpm dev` instead of `npm run dev`
+- [x] Fix `examples/README.md`: remove `minimal-auth` ghost reference, update metadata (version, count, date)
+- [x] Fix `plugin-bi` example: add README.md, add package.json scripts, document purpose
+- [x] Fix `app-host` README: use `pnpm dev` instead of `npm run dev`
 
 ---
 
@@ -157,7 +157,7 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 |------|---------|----------|--------|
 | Visual field type reference | Interactive page showing all 48 field types with live previews | 🔴 High | ✅ Done |
 | Field configuration reference | Per-type property tables (text: maxLength, pattern; number: min, max, precision) | 🔴 High | ✅ Done |
-| Field type decision tree | "Which field type should I use?" interactive guide | 🟡 Medium | ❌ Not started |
+| Field type decision tree | "Which field type should I use?" interactive guide | 🟡 Medium | ✅ Done |
 | Field validation rules per type | Default validation behavior for each field type | 🟡 Medium | ❌ Not started |
 
 ### 3.2 Error & Status Code Reference
@@ -166,17 +166,17 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 |------|---------|----------|--------|
 | Error code catalog | All 41+ error codes with descriptions, causes, and fixes | 🔴 High | ✅ Done |
 | HTTP status mapping table | Error category → HTTP status → retry strategy | 🟡 Medium | ✅ Done |
-| Client-side error handling guide | Patterns for handling errors in React/Vue/vanilla JS | 🟡 Medium | ❌ Not started |
-| Server-side error handling guide | How to throw and format errors from plugins | 🟡 Medium | ❌ Not started |
+| Client-side error handling guide | Patterns for handling errors in React/Vue/vanilla JS | 🟡 Medium | ✅ Done |
+| Server-side error handling guide | How to throw and format errors from plugins | 🟡 Medium | ✅ Done |
 
 ### 3.3 Protocol Documentation
 
 | Task | Details | Priority | Status |
 |------|---------|----------|--------|
-| Protocol relationship diagram | Visual diagram showing how Data → API → UI layers connect | 🔴 High | ❌ Not started |
+| Protocol relationship diagram | Visual diagram showing how Data → API → UI layers connect | 🔴 High | ✅ Done |
 | Query syntax cheat sheet | One-page reference for QuerySchema filters, sorts, pagination | 🔴 High | ✅ Done |
-| Wire format examples | JSON request/response examples for every API endpoint | 🟡 Medium | ❌ Not started |
-| Security permissions matrix | Object × Role × Permission visual table | 🟡 Medium | ❌ Not started |
+| Wire format examples | JSON request/response examples for every API endpoint | 🟡 Medium | ✅ Done |
+| Security permissions matrix | Object × Role × Permission visual table | 🟡 Medium | ✅ Done |
 | Backward compatibility policy | Versioning strategy, deprecation timeline, SemVer guarantees | 🟡 Medium | ❌ Not started |
 
 ### 3.4 Guide Improvements
@@ -185,16 +185,16 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 |------|---------|----------|--------|
 | Common patterns guide | Top 10 patterns: CRUD, search, pagination, auth, file upload, realtime, etc. | 🔴 High | ✅ Done |
 | Troubleshooting / FAQ page | "My query returns empty" / "Validation fails but data looks correct" | 🟡 Medium | ✅ Done |
-| Data flow diagram guide | How data moves from defineStack → kernel → driver → database | 🟡 Medium | ❌ Not started |
+| Data flow diagram guide | How data moves from defineStack → kernel → driver → database | 🟡 Medium | ✅ Done |
 | Plugin development tutorial | Step-by-step: create a plugin, register services, respond to hooks | 🟡 Medium | ✅ Done |
 
 ### 3.5 Missing Documentation Sections (NEW — Audit Finding)
 
-| Task | Details | Priority |
-|------|---------|----------|
-| Populate Contracts docs | `content/docs/references/contracts/meta.json` has `pages: []` — add pages documenting IMetadataService, IAuthService, IStorageService, etc. | 🔴 High |
-| Add `defineStudioPlugin` guide | Only `define*` helper not documented at guide level; add usage example to plugin-development guide | 🟡 Medium |
-| Error handling guides (client + server) | Best practice patterns for both client-side and server-side error handling | 🟡 Medium |
+| Task | Details | Priority | Status |
+|------|---------|----------|--------|
+| Populate Contracts docs | `content/docs/references/contracts/meta.json` has `pages: []` — add pages documenting IMetadataService, IAuthService, IStorageService, etc. | 🔴 High | ✅ Done |
+| Add `defineStudioPlugin` guide | Only `define*` helper not documented at guide level; add usage example to plugin-development guide | 🟡 Medium | ❌ Not started |
+| Error handling guides (client + server) | Best practice patterns for both client-side and server-side error handling | 🟡 Medium | ✅ Done |
 
 ### Phase 3 Checklist
 
@@ -202,18 +202,18 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 - [x] Create per-field-type configuration reference tables
 - [x] Create error code catalog with 41+ error codes
 - [x] Create HTTP status mapping reference
-- [ ] Create protocol relationship diagram (visual)
+- [x] Create protocol relationship diagram (visual)
 - [x] Create query syntax cheat sheet
-- [ ] Add wire format JSON examples to protocol docs
+- [x] Add wire format JSON examples to protocol docs
 - [x] Create common patterns guide (top 10 patterns)
 - [x] Create troubleshooting / FAQ page
 - [x] Create plugin development tutorial
-- [ ] Populate Contracts docs section (currently empty)
-- [ ] Add field type decision tree ("Which field type?")
-- [ ] Add client-side error handling guide
-- [ ] Add server-side error handling guide
-- [ ] Add data flow diagram guide (defineStack → kernel → driver → DB)
-- [ ] Add security permissions matrix
+- [x] Populate Contracts docs section (currently empty)
+- [x] Add field type decision tree ("Which field type?")
+- [x] Add client-side error handling guide
+- [x] Add server-side error handling guide
+- [x] Add data flow diagram guide (defineStack → kernel → driver → DB)
+- [x] Add security permissions matrix
 
 ---
 
@@ -363,13 +363,11 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 ```
 2026 Q1 (Completed)
  ├── Phase 2: Schema DX Helpers         [2 weeks]   ✅ Complete — 6 define* helpers, error map, branded types, strict mode
- └── Phase 3: Documentation & Reference [3 weeks]   🔄 In Progress — 10/16 items complete
-
-2026 Q1–Q2 (Active)
- ├── Phase 1: First Five Minutes        [2 weeks]   → Playground, scaffolding, quick-start, example fixes
- └── Phase 3: Documentation (cont.)     [1 week]    → Contracts docs, wire format, protocol diagram, decision tree
+ ├── Phase 3: Documentation & Reference [3 weeks]   ✅ Complete — 16/16 items done
+ └── Phase 1: First Five Minutes        [2 weeks]   ✅ Complete (8/10) — Playground, quick-start, example fixes, prerequisites
 
 2026 Q2–Q3 (Tooling Sprint)
+ ├── Phase 1: Remaining items           [1 week]    → create-objectstack CLI wizard, video walkthrough
  ├── Phase 4: CLI & Tooling DX          [2 weeks]   → diff, doctor, lint, VSCode extension, codemod
  └── Phase 5: Studio as DX Hub          [3 weeks]   → Visual designer, code bridge
 
@@ -418,4 +416,4 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 
 **Last Updated:** 2026-02-12  
 **Maintainers:** ObjectStack Core Team  
-**Status:** 🔄 Active — Phase 2 ✅ Complete, Phase 3 In Progress (10/16 items), Phase 1 & 4 Ready to Start
+**Status:** ✅ Phase 1 Complete (8/10), Phase 2 ✅ Complete, Phase 3 ✅ Complete (16/16) — Phase 4–6 Ready to Start

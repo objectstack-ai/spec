@@ -332,6 +332,10 @@ importers:
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec
+    devDependencies:
+      typescript:
+        specifier: ^5.3.0
+        version: 5.9.3
 
   packages/adapters/hono:
     devDependencies:
