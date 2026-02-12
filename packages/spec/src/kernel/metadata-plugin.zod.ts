@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
-import { MetadataManagerConfigSchema, MetadataFallbackStrategySchema } from './metadata-loader.zod';
+import { MetadataManagerConfigSchema } from './metadata-loader.zod';
 import { MergeStrategyConfigSchema, CustomizationPolicySchema } from './metadata-customization.zod';
 
 /**

@@ -4,12 +4,6 @@ import { z } from 'zod';
 import { HttpMethod, RateLimitConfigSchema } from '../shared/http.zod';
 
 /**
- * Rate Limit Strategy
- * @deprecated Use RateLimitConfigSchema from shared/http.zod.ts instead
- */
-export const RateLimitSchema = RateLimitConfigSchema;
-
-/**
  * API Mapping Schema
  * Transform input/output data.
  */
@@ -49,7 +43,7 @@ export const ApiEndpointSchema = z.object({
   
   /** Policies */
   authRequired: z.boolean().default(true).describe('Require authentication'),
-  rateLimit: RateLimitSchema.optional().describe('Rate limiting policy'),
+  rateLimit: RateLimitConfigSchema.optional().describe('Rate limiting policy'),
   cacheTtl: z.number().optional().describe('Response cache TTL in seconds'),
 });
 

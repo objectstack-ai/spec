@@ -3,25 +3,6 @@
 import { z } from 'zod';
 
 /**
- * API Capabilities Schema
- * 
- * @deprecated Capabilities are now derived from `services` map.
- * Each service's `enabled` field replaces the corresponding capability flag.
- * Kept for backward compatibility; will be removed in a future major version.
- */
-export const ApiCapabilitiesSchema = z.object({
-  graphql: z.boolean().default(false),
-  search: z.boolean().default(false),
-  websockets: z.boolean().default(false),
-  files: z.boolean().default(true),
-  analytics: z.boolean().default(false).describe('Is the Analytics/BI engine enabled?'),
-  ai: z.boolean().default(false).describe('Is the AI engine enabled?'),
-  workflow: z.boolean().default(false).describe('Is the Workflow engine enabled?'),
-  notifications: z.boolean().default(false).describe('Is the Notification service enabled?'),
-  i18n: z.boolean().default(false).describe('Is the i18n service enabled?'),
-});
-
-/**
  * Service Status in Discovery Response
  * Reports per-service availability so clients can adapt their UI accordingly.
  */
@@ -135,5 +116,4 @@ export const DiscoverySchema = z.object({
 
 export type DiscoveryResponse = z.infer<typeof DiscoverySchema>;
 export type ApiRoutes = z.infer<typeof ApiRoutesSchema>;
-export type ApiCapabilities = z.infer<typeof ApiCapabilitiesSchema>;
 export type ServiceInfo = z.infer<typeof ServiceInfoSchema>;

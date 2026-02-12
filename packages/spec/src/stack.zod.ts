@@ -31,7 +31,6 @@ import { SharingRuleSchema } from './security/sharing.zod';
 import { PolicySchema } from './security/policy.zod';
 
 import { ApiEndpointSchema } from './api/endpoint.zod';
-import { ApiCapabilitiesSchema } from './api/discovery.zod';
 import { FeatureFlagSchema } from './kernel/feature.zod';
 
 // AI Protocol
@@ -360,7 +359,17 @@ export const ObjectOSCapabilitiesSchema = z.object({
   
   /** Available APIs */
   apis: z.array(ApiEndpointSchema).optional().describe('Available System & Business APIs'),
-  network: ApiCapabilitiesSchema.optional().describe('Network Capabilities (GraphQL, WS, etc.)'),
+  network: z.object({
+    graphql: z.boolean().default(false),
+    search: z.boolean().default(false),
+    websockets: z.boolean().default(false),
+    files: z.boolean().default(true),
+    analytics: z.boolean().default(false).describe('Is the Analytics/BI engine enabled?'),
+    ai: z.boolean().default(false).describe('Is the AI engine enabled?'),
+    workflow: z.boolean().default(false).describe('Is the Workflow engine enabled?'),
+    notifications: z.boolean().default(false).describe('Is the Notification service enabled?'),
+    i18n: z.boolean().default(false).describe('Is the i18n service enabled?'),
+  }).optional().describe('Network Capabilities (GraphQL, WS, etc.)'),
 
   /** Introspection */
   systemObjects: z.array(z.string()).optional().describe('List of globally available System Objects'),

@@ -66,10 +66,6 @@ export const ActionSchema = z.object({
     'action:group'   // Button Group
   ]).optional().describe('Visual component override'),
   
-  /** @deprecated Use `locations` instead. Will be removed in v3.0.0 */
-  location: z.unknown().optional()
-    .describe('DEPRECATED: Use `locations` field instead. Scheduled for removal in v3.0.0'),
-
   /** What type of interaction? */
   type: z.enum(['script', 'url', 'modal', 'flow', 'api']).default('script').describe('Action functionality type'),
   

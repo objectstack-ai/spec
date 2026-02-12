@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import {
   ApiEndpointSchema,
-  RateLimitSchema,
   ApiMappingSchema,
   ApiEndpoint,
 } from './endpoint.zod';
+import { RateLimitConfigSchema } from '../shared/http.zod';
 import { HttpMethod } from './router.zod';
 
 describe('HttpMethod', () => {
@@ -23,9 +23,9 @@ describe('HttpMethod', () => {
   });
 });
 
-describe('RateLimitSchema', () => {
+describe('RateLimitConfigSchema', () => {
   it('should accept valid rate limit', () => {
-    const rateLimit = RateLimitSchema.parse({});
+    const rateLimit = RateLimitConfigSchema.parse({});
 
     expect(rateLimit.enabled).toBe(false);
     expect(rateLimit.windowMs).toBe(60000);
@@ -33,7 +33,7 @@ describe('RateLimitSchema', () => {
   });
 
   it('should accept custom rate limit', () => {
-    const rateLimit = RateLimitSchema.parse({
+    const rateLimit = RateLimitConfigSchema.parse({
       enabled: true,
       windowMs: 3600000,
       maxRequests: 1000,
@@ -45,7 +45,7 @@ describe('RateLimitSchema', () => {
   });
 
   it('should accept enabled rate limit', () => {
-    const rateLimit = RateLimitSchema.parse({
+    const rateLimit = RateLimitConfigSchema.parse({
       enabled: true,
     });
 

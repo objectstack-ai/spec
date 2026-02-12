@@ -6,8 +6,7 @@ import {
   FieldErrorSchema,
   EnhancedApiErrorSchema,
   ErrorResponseSchema,
-  getHttpStatusForCategory,
-  createErrorResponse,
+  ErrorHttpStatusMap,
 } from './errors.zod';
 
 describe('ErrorCategory', () => {
@@ -210,69 +209,16 @@ describe('ErrorResponseSchema', () => {
   });
 });
 
-describe('getHttpStatusForCategory', () => {
-  it('should return correct HTTP status for each category', () => {
-    expect(getHttpStatusForCategory('validation')).toBe(400);
-    expect(getHttpStatusForCategory('authentication')).toBe(401);
-    expect(getHttpStatusForCategory('authorization')).toBe(403);
-    expect(getHttpStatusForCategory('not_found')).toBe(404);
-    expect(getHttpStatusForCategory('conflict')).toBe(409);
-    expect(getHttpStatusForCategory('rate_limit')).toBe(429);
-    expect(getHttpStatusForCategory('server')).toBe(500);
-    expect(getHttpStatusForCategory('external')).toBe(502);
-    expect(getHttpStatusForCategory('maintenance')).toBe(503);
-  });
-});
-
-describe('createErrorResponse', () => {
-  it('should create basic error response', () => {
-    const response = createErrorResponse(
-      'validation_error',
-      'Validation failed'
-    );
-
-    expect(response.success).toBe(false);
-    expect(response.error.code).toBe('validation_error');
-    expect(response.error.message).toBe('Validation failed');
-    expect(response.error.category).toBe('validation');
-    expect(response.error.httpStatus).toBe(400);
-  });
-
-  it('should create error response with options', () => {
-    const response = createErrorResponse(
-      'permission_denied',
-      'Access denied',
-      {
-        retryable: false,
-        documentation: 'https://docs.example.com',
-        details: { requiredPermission: 'admin' },
-      }
-    );
-
-    expect(response.error.category).toBe('authorization');
-    expect(response.error.httpStatus).toBe(403);
-    expect(response.error.retryable).toBe(false);
-    expect(response.error.documentation).toBe('https://docs.example.com');
-  });
-
-  it('should infer correct category from code', () => {
-    const validationError = createErrorResponse('invalid_field', 'Invalid field');
-    expect(validationError.error.category).toBe('validation');
-
-    const authError = createErrorResponse('expired_token', 'Token expired');
-    expect(authError.error.category).toBe('authentication');
-
-    const authzError = createErrorResponse('insufficient_privileges', 'Insufficient privileges');
-    expect(authzError.error.category).toBe('authorization');
-
-    const notFoundError = createErrorResponse('record_not_found', 'Record not found');
-    expect(notFoundError.error.category).toBe('not_found');
-  });
-
-  it('should include timestamp', () => {
-    const response = createErrorResponse('internal_error', 'Server error');
-    
-    expect(response.error.timestamp).toBeDefined();
-    expect(new Date(response.error.timestamp!).getTime()).toBeGreaterThan(0);
+describe('ErrorHttpStatusMap', () => {
+  it('should map correct HTTP status for each category', () => {
+    expect(ErrorHttpStatusMap['validation']).toBe(400);
+    expect(ErrorHttpStatusMap['authentication']).toBe(401);
+    expect(ErrorHttpStatusMap['authorization']).toBe(403);
+    expect(ErrorHttpStatusMap['not_found']).toBe(404);
+    expect(ErrorHttpStatusMap['conflict']).toBe(409);
+    expect(ErrorHttpStatusMap['rate_limit']).toBe(429);
+    expect(ErrorHttpStatusMap['server']).toBe(500);
+    expect(ErrorHttpStatusMap['external']).toBe(502);
+    expect(ErrorHttpStatusMap['maintenance']).toBe(503);
   });
 });

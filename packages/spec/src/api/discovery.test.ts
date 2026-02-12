@@ -2,58 +2,11 @@ import { describe, it, expect } from 'vitest';
 import {
   DiscoverySchema,
   ApiRoutesSchema,
-  ApiCapabilitiesSchema,
   ServiceInfoSchema,
   type DiscoveryResponse,
   type ApiRoutes,
-  type ApiCapabilities,
   type ServiceInfo,
 } from './discovery.zod';
-
-describe('ApiCapabilitiesSchema (deprecated — kept for backward compatibility)', () => {
-  it('should accept valid capabilities', () => {
-    const capabilities: ApiCapabilities = {
-      graphql: false,
-      search: false,
-      websockets: false,
-      files: true,
-    };
-
-    expect(() => ApiCapabilitiesSchema.parse(capabilities)).not.toThrow();
-  });
-
-  it('should apply default values', () => {
-    const capabilities = ApiCapabilitiesSchema.parse({});
-
-    expect(capabilities.graphql).toBe(false);
-    expect(capabilities.search).toBe(false);
-    expect(capabilities.websockets).toBe(false);
-    expect(capabilities.files).toBe(true);
-  });
-
-  it('should accept enabled features', () => {
-    const capabilities = ApiCapabilitiesSchema.parse({
-      graphql: true,
-      search: true,
-      websockets: true,
-      files: true,
-    });
-
-    expect(capabilities.graphql).toBe(true);
-    expect(capabilities.search).toBe(true);
-  });
-
-  it('should handle minimal capabilities', () => {
-    const capabilities = ApiCapabilitiesSchema.parse({
-      graphql: false,
-      search: false,
-      websockets: false,
-      files: false,
-    });
-
-    expect(capabilities.files).toBe(false);
-  });
-});
 
 describe('ApiRoutesSchema', () => {
   it('should accept valid minimal routes', () => {

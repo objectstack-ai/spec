@@ -104,12 +104,8 @@ export interface QueryOptions {
 }
 
 export interface PaginatedResult<T = any> {
-  /** @deprecated Use `records` — aligned with FindDataResponseSchema */
-  value?: T[];
   /** Spec-compliant: array of matching records */
   records: T[];
-  /** @deprecated Use `total` — aligned with FindDataResponseSchema */
-  count?: number;
   /** Total number of matching records (if requested) */
   total?: number;
   /** The object name */
@@ -266,17 +262,6 @@ export class ObjectStackClient {
         const url = `${this.baseUrl}${route}/${type}${qs ? `?${qs}` : ''}`;
         const res = await this.fetch(url);
         return this.unwrapResponse<GetMetaItemsResponse>(res);
-    },
-
-    /**
-     * Get a specific object definition by name
-     * @deprecated Use `getItem('object', name)` instead for consistency with spec protocol
-     * @param name - Object name (snake_case identifier)
-     */
-    getObject: async (name: string) => {
-        const route = this.getRoute('metadata');
-        const res = await this.fetch(`${this.baseUrl}${route}/object/${name}`);
-        return this.unwrapResponse(res);
     },
 
     /**

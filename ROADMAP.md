@@ -166,7 +166,7 @@ ObjectStack v2.0.7 has achieved strong protocol-level maturity (A- grade). The s
 
 ### 7.1 `@objectstack/hono` Adapter ✅
 
-Fully implemented with `createHonoApp()` and `objectStackMiddleware()` — handles discovery, auth, graphql, metadata, data, analytics, automation, storage, packages endpoints. 24 tests.
+Fully implemented with `objectStackMiddleware()` — provides kernel injection for Hono apps. Legacy `createHonoApp()` removed in v3.0. 3 tests.
 
 ### 7.2 `@objectstack/nextjs` Adapter ✅
 
@@ -269,14 +269,14 @@ Several deprecated items say "Will be removed in v2.0.0" but current version is 
 - [x] Update CHANGELOG.md with breaking changes
 - [x] Audit and document all 23 remaining @deprecated items (14 spec + 9 runtime)
 - [x] Identify stale deprecation notices targeting v2.0.0
-- [ ] Update stale deprecation notices to target v3.0.0
-- [ ] Extract runtime logic from spec → core (3 functions + 3 event helpers)
-- [ ] Remove hub/ re-export barrel + `Hub.*` namespace
-- [ ] Remove deprecated schema aliases (RateLimitSchema, RealtimePresenceStatus, RealtimeAction)
-- [ ] Remove deprecated `location` field from ActionSchema
-- [ ] Remove deprecated `capabilities` from DiscoverySchema
-- [ ] Remove deprecated compat aliases in runtime packages
-- [ ] Tighten `z.any()` in `ui/i18n.zod.ts` to typed union
+- [x] Update stale deprecation notices to target v3.0.0 (N/A — items removed in v3.0)
+- [x] Extract runtime logic from spec → core (6 functions removed from spec)
+- [x] Remove hub/ re-export barrel + `Hub.*` namespace
+- [x] Remove deprecated schema aliases (RateLimitSchema, RealtimePresenceStatus, RealtimeAction)
+- [x] Remove deprecated `location` field from ActionSchema
+- [x] Remove deprecated `capabilities` from DiscoverySchema
+- [x] Remove deprecated compat aliases in runtime packages
+- [x] Tighten `z.any()` in `ui/i18n.zod.ts` to typed union
 
 ---
 

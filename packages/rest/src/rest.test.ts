@@ -3,7 +3,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { RouteManager, RouteGroupBuilder } from './route-manager';
 import { RestServer } from './rest-server';
-import { createRestApiPlugin, createApiRegistryPlugin } from './rest-api-plugin';
+import { createRestApiPlugin } from './rest-api-plugin';
 import type { RestApiPluginConfig } from './rest-api-plugin';
 
 // ---------------------------------------------------------------------------
@@ -518,15 +518,5 @@ describe('createRestApiPlugin', () => {
       await expect(plugin.start!(ctx as any)).rejects.toThrow();
       expect(ctx.logger.error).toHaveBeenCalled();
     });
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Backward-compatible aliases
-// ---------------------------------------------------------------------------
-
-describe('backward-compatible aliases', () => {
-  it('createApiRegistryPlugin should be the same function as createRestApiPlugin', () => {
-    expect(createApiRegistryPlugin).toBe(createRestApiPlugin);
   });
 });
