@@ -2,11 +2,13 @@
 
 import { Plugin, PluginContext } from '@objectstack/core';
 import { NodeMetadataManager } from './node-metadata-manager.js';
-import { ObjectStackDefinitionSchema } from '@objectstack/spec';
+import { DEFAULT_METADATA_TYPE_REGISTRY } from '@objectstack/spec/kernel';
+import type { MetadataPluginConfig } from '@objectstack/spec/kernel';
 
 export interface MetadataPluginOptions {
     rootDir?: string;
     watch?: boolean;
+    config?: Partial<MetadataPluginConfig>;
 }
 
 export class MetadataPlugin implements Plugin {
@@ -30,6 +32,9 @@ export class MetadataPlugin implements Plugin {
             watch: this.options.watch ?? true,
             formats: ['yaml', 'json', 'typescript', 'javascript'] 
         });
+
+        // Initialize with default type registry
+        this.manager.setTypeRegistry(DEFAULT_METADATA_TYPE_REGISTRY);
     }
 
     init = async (ctx: PluginContext) => {
@@ -43,39 +48,43 @@ export class MetadataPlugin implements Plugin {
         ctx.registerService('metadata', this.manager);
         ctx.logger.info('MetadataPlugin providing metadata service (primary mode)', {
             mode: 'file-system',
-            features: ['watch', 'persistence', 'multi-format']
+            features: ['watch', 'persistence', 'multi-format', 'query', 'overlay', 'type-registry']
         });
     }
 
     start = async (ctx: PluginContext) => {
         ctx.logger.info('Loading metadata from file system...');
         
-        // Define metadata types directly from the Protocol Definition
-        // This ensures the loader is always in sync with the Spec
-        const metadataTypes = Object.keys(ObjectStackDefinitionSchema.shape)
-            .filter(key => key !== 'manifest'); // Manifest is handled separately
+        // Use the type registry to discover metadata types (sorted by loadOrder)
+        const sortedTypes = [...DEFAULT_METADATA_TYPE_REGISTRY]
+            .sort((a, b) => a.loadOrder - b.loadOrder);
 
         let totalLoaded = 0;
-        for (const type of metadataTypes) {
+        for (const entry of sortedTypes) {
             try {
-                // Try to load metadata of this type
-                const items = await this.manager.loadMany(type, {
+                const items = await this.manager.loadMany(entry.type, {
                     recursive: true
                 });
 
                 if (items.length > 0) {
-                     ctx.logger.info(`Loaded ${items.length} ${type} from file system`);
-                     totalLoaded += items.length;
+                    // Register loaded items in the in-memory registry
+                    for (const item of items) {
+                        const meta = item as any;
+                        if (meta?.name) {
+                            await this.manager.register(entry.type, meta.name, item);
+                        }
+                    }
+                    ctx.logger.info(`Loaded ${items.length} ${entry.type} from file system`);
+                    totalLoaded += items.length;
                 }
             } catch (e: any) {
-                // Ignore missing directories or errors
-                ctx.logger.debug(`No ${type} metadata found`, { error: e.message });
+                ctx.logger.debug(`No ${entry.type} metadata found`, { error: e.message });
             }
         }
         
         ctx.logger.info('Metadata loading complete', { 
             totalItems: totalLoaded,
-            note: 'ObjectQL will sync these into its registry during its start phase'
+            registeredTypes: sortedTypes.length,
         });
     }
 }

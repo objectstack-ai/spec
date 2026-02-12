@@ -7,6 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@objectstack/core': path.resolve(__dirname, '../core/src/index.ts'),
+      '@objectstack/spec/contracts': path.resolve(__dirname, '../spec/src/contracts/index.ts'),
+      '@objectstack/spec/kernel': path.resolve(__dirname, '../spec/src/kernel/index.ts'),
       '@objectstack/spec/system': path.resolve(__dirname, '../spec/src/system/index.ts'),
       '@objectstack/spec': path.resolve(__dirname, '../spec/src/index.ts'),
       '@objectstack/types': path.resolve(__dirname, '../types/src/index.ts'),

@@ -4,6 +4,7 @@
  * Metadata Manager
  * 
  * Main orchestrator for metadata loading, saving, and persistence.
+ * Implements the IMetadataService contract from @objectstack/spec.
  * Browser-compatible (Pure).
  */
 
@@ -15,6 +16,24 @@ import type {
   MetadataWatchEvent,
   MetadataFormat,
 } from '@objectstack/spec/system';
+import type {
+  IMetadataService,
+  MetadataWatchCallback,
+  MetadataWatchHandle,
+  MetadataExportOptions,
+  MetadataImportOptions,
+  MetadataImportResult,
+  MetadataTypeInfo,
+} from '@objectstack/spec/contracts';
+import type {
+  MetadataQuery,
+  MetadataQueryResult,
+  MetadataValidationResult,
+  MetadataBulkResult,
+  MetadataDependency,
+  MetadataTypeRegistryEntry,
+} from '@objectstack/spec/kernel';
+import type { MetadataOverlay } from '@objectstack/spec/kernel';
 import { createLogger, type Logger } from '@objectstack/core';
 import { JSONSerializer } from './serializers/json-serializer.js';
 import { YAMLSerializer } from './serializers/yaml-serializer.js';
@@ -23,7 +42,7 @@ import type { MetadataSerializer } from './serializers/serializer-interface.js';
 import type { MetadataLoader } from './loaders/loader-interface.js';
 
 /**
- * Watch callback function
+ * Watch callback function (legacy)
  */
 export type WatchCallback = (event: MetadataWatchEvent) => void | Promise<void>;
 
@@ -32,15 +51,28 @@ export interface MetadataManagerOptions extends MetadataManagerConfig {
 }
 
 /**
- * Main metadata manager class
+ * Main metadata manager class.
+ * Implements IMetadataService contract for unified metadata management.
  */
-export class MetadataManager {
+export class MetadataManager implements IMetadataService {
   private loaders: Map<string, MetadataLoader> = new Map();
   // Protected so subclasses can access serializers if needed
   protected serializers: Map<MetadataFormat, MetadataSerializer>;
   protected logger: Logger;
   protected watchCallbacks = new Map<string, Set<WatchCallback>>();
   protected config: MetadataManagerOptions;
+
+  // In-memory metadata registry: type -> name -> data
+  private registry = new Map<string, Map<string, unknown>>();
+
+  // Overlay storage: "type:name:scope" -> MetadataOverlay
+  private overlays = new Map<string, MetadataOverlay>();
+
+  // Type registry for metadata type info
+  private typeRegistry: MetadataTypeRegistryEntry[] = [];
+
+  // Dependency tracking: "type:name" -> dependencies
+  private dependencies = new Map<string, MetadataDependency[]>();
 
   constructor(config: MetadataManagerOptions) {
     this.config = config;
@@ -71,6 +103,13 @@ export class MetadataManager {
   }
 
   /**
+   * Set the type registry for metadata type discovery.
+   */
+  setTypeRegistry(entries: MetadataTypeRegistryEntry[]): void {
+    this.typeRegistry = entries;
+  }
+
+  /**
    * Register a new metadata loader (data source)
    */
   registerLoader(loader: MetadataLoader) {
@@ -78,17 +117,636 @@ export class MetadataManager {
     this.logger.info(`Registered metadata loader: ${loader.contract.name} (${loader.contract.protocol})`);
   }
 
+  // ==========================================
+  // IMetadataService — Core CRUD Operations
+  // ==========================================
+
   /**
-   * Load a single metadata item
-   * Iterates through registered loaders until found
+   * Register/save a metadata item by type
+   */
+  async register(type: string, name: string, data: unknown): Promise<void> {
+    if (!this.registry.has(type)) {
+      this.registry.set(type, new Map());
+    }
+    this.registry.get(type)!.set(name, data);
+  }
+
+  /**
+   * Get a metadata item by type and name.
+   * Checks in-memory registry first, then falls back to loaders.
+   */
+  async get(type: string, name: string): Promise<unknown | undefined> {
+    // Check in-memory registry first
+    const typeStore = this.registry.get(type);
+    if (typeStore?.has(name)) {
+      return typeStore.get(name);
+    }
+
+    // Fallback to loaders
+    const result = await this.load(type, name);
+    return result ?? undefined;
+  }
+
+  /**
+   * List all metadata items of a given type
+   */
+  async list(type: string): Promise<unknown[]> {
+    const items = new Map<string, unknown>();
+
+    // From in-memory registry
+    const typeStore = this.registry.get(type);
+    if (typeStore) {
+      for (const [name, data] of typeStore) {
+        items.set(name, data);
+      }
+    }
+
+    // From loaders (deduplicate)
+    for (const loader of this.loaders.values()) {
+      try {
+        const loaderItems = await loader.loadMany(type);
+        for (const item of loaderItems) {
+          const itemAny = item as any;
+          if (itemAny && typeof itemAny.name === 'string' && !items.has(itemAny.name)) {
+            items.set(itemAny.name, item);
+          }
+        }
+      } catch (e) {
+        this.logger.warn(`Loader ${loader.contract.name} failed to loadMany ${type}`, { error: e });
+      }
+    }
+
+    return Array.from(items.values());
+  }
+
+  /**
+   * Unregister/remove a metadata item by type and name
+   */
+  async unregister(type: string, name: string): Promise<void> {
+    const typeStore = this.registry.get(type);
+    if (typeStore) {
+      typeStore.delete(name);
+      if (typeStore.size === 0) {
+        this.registry.delete(type);
+      }
+    }
+  }
+
+  /**
+   * Check if a metadata item exists
+   */
+  async exists(type: string, name: string): Promise<boolean> {
+    // Check in-memory registry
+    if (this.registry.get(type)?.has(name)) {
+      return true;
+    }
+
+    // Check loaders
+    for (const loader of this.loaders.values()) {
+      if (await loader.exists(type, name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * List all names of metadata items of a given type
+   */
+  async listNames(type: string): Promise<string[]> {
+    const names = new Set<string>();
+
+    // From in-memory registry
+    const typeStore = this.registry.get(type);
+    if (typeStore) {
+      for (const name of typeStore.keys()) {
+        names.add(name);
+      }
+    }
+
+    // From loaders
+    for (const loader of this.loaders.values()) {
+      const result = await loader.list(type);
+      result.forEach(item => names.add(item));
+    }
+
+    return Array.from(names);
+  }
+
+  /**
+   * Convenience: get an object definition by name
+   */
+  async getObject(name: string): Promise<unknown | undefined> {
+    return this.get('object', name);
+  }
+
+  /**
+   * Convenience: list all object definitions
+   */
+  async listObjects(): Promise<unknown[]> {
+    return this.list('object');
+  }
+
+  // ==========================================
+  // Package Management
+  // ==========================================
+
+  /**
+   * Unregister all metadata items from a specific package
+   */
+  async unregisterPackage(packageName: string): Promise<void> {
+    for (const [type, typeStore] of this.registry) {
+      const toDelete: string[] = [];
+      for (const [name, data] of typeStore) {
+        const meta = data as any;
+        if (meta?.packageId === packageName || meta?.package === packageName) {
+          toDelete.push(name);
+        }
+      }
+      for (const name of toDelete) {
+        typeStore.delete(name);
+      }
+      if (typeStore.size === 0) {
+        this.registry.delete(type);
+      }
+    }
+  }
+
+  // ==========================================
+  // Query / Search
+  // ==========================================
+
+  /**
+   * Query metadata items with filtering, sorting, and pagination
+   */
+  async query(query: MetadataQuery): Promise<MetadataQueryResult> {
+    const { types, search, page = 1, pageSize = 50, sortBy = 'name', sortOrder = 'asc' } = query;
+
+    // Collect all items
+    const allItems: Array<{
+      type: string;
+      name: string;
+      namespace?: string;
+      label?: string;
+      scope?: 'system' | 'platform' | 'user';
+      state?: 'draft' | 'active' | 'archived' | 'deprecated';
+      packageId?: string;
+      updatedAt?: string;
+    }> = [];
+
+    // Determine which types to scan
+    const targetTypes = types && types.length > 0
+      ? types
+      : Array.from(this.registry.keys());
+
+    for (const type of targetTypes) {
+      const items = await this.list(type);
+      for (const item of items) {
+        const meta = item as any;
+        allItems.push({
+          type,
+          name: meta?.name ?? '',
+          namespace: meta?.namespace,
+          label: meta?.label,
+          scope: meta?.scope,
+          state: meta?.state,
+          packageId: meta?.packageId,
+          updatedAt: meta?.updatedAt,
+        });
+      }
+    }
+
+    // Apply search filter
+    let filtered = allItems;
+    if (search) {
+      const searchLower = search.toLowerCase();
+      filtered = filtered.filter(item =>
+        item.name.toLowerCase().includes(searchLower) ||
+        (item.label && item.label.toLowerCase().includes(searchLower))
+      );
+    }
+
+    // Apply scope filter
+    if (query.scope) {
+      filtered = filtered.filter(item => item.scope === query.scope);
+    }
+
+    // Apply state filter
+    if (query.state) {
+      filtered = filtered.filter(item => item.state === query.state);
+    }
+
+    // Apply namespace filter
+    if (query.namespaces && query.namespaces.length > 0) {
+      filtered = filtered.filter(item => item.namespace && query.namespaces!.includes(item.namespace));
+    }
+
+    // Apply packageId filter
+    if (query.packageId) {
+      filtered = filtered.filter(item => item.packageId === query.packageId);
+    }
+
+    // Apply tags filter
+    if (query.tags && query.tags.length > 0) {
+      filtered = filtered.filter(item => {
+        const meta = item as any;
+        return meta?.tags && query.tags!.some((t: string) => meta.tags.includes(t));
+      });
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      const aVal = (a as any)[sortBy] ?? '';
+      const bVal = (b as any)[sortBy] ?? '';
+      const cmp = String(aVal).localeCompare(String(bVal));
+      return sortOrder === 'desc' ? -cmp : cmp;
+    });
+
+    // Paginate
+    const total = filtered.length;
+    const start = (page - 1) * pageSize;
+    const paged = filtered.slice(start, start + pageSize);
+
+    return {
+      items: paged,
+      total,
+      page,
+      pageSize,
+    };
+  }
+
+  // ==========================================
+  // Bulk Operations
+  // ==========================================
+
+  /**
+   * Register multiple metadata items in a single batch
+   */
+  async bulkRegister(
+    items: Array<{ type: string; name: string; data: unknown }>,
+    options?: { continueOnError?: boolean; validate?: boolean }
+  ): Promise<MetadataBulkResult> {
+    const { continueOnError = false } = options ?? {};
+    let succeeded = 0;
+    let failed = 0;
+    const errors: Array<{ type: string; name: string; error: string }> = [];
+
+    for (const item of items) {
+      try {
+        await this.register(item.type, item.name, item.data);
+        succeeded++;
+      } catch (e) {
+        failed++;
+        errors.push({
+          type: item.type,
+          name: item.name,
+          error: e instanceof Error ? e.message : String(e),
+        });
+        if (!continueOnError) break;
+      }
+    }
+
+    return {
+      total: items.length,
+      succeeded,
+      failed,
+      errors: errors.length > 0 ? errors : undefined,
+    };
+  }
+
+  /**
+   * Unregister multiple metadata items in a single batch
+   */
+  async bulkUnregister(items: Array<{ type: string; name: string }>): Promise<MetadataBulkResult> {
+    let succeeded = 0;
+    let failed = 0;
+    const errors: Array<{ type: string; name: string; error: string }> = [];
+
+    for (const item of items) {
+      try {
+        await this.unregister(item.type, item.name);
+        succeeded++;
+      } catch (e) {
+        failed++;
+        errors.push({
+          type: item.type,
+          name: item.name,
+          error: e instanceof Error ? e.message : String(e),
+        });
+      }
+    }
+
+    return {
+      total: items.length,
+      succeeded,
+      failed,
+      errors: errors.length > 0 ? errors : undefined,
+    };
+  }
+
+  // ==========================================
+  // Overlay / Customization Management
+  // ==========================================
+
+  private overlayKey(type: string, name: string, scope: string = 'platform'): string {
+    return `${type}:${name}:${scope}`;
+  }
+
+  /**
+   * Get the active overlay for a metadata item
+   */
+  async getOverlay(type: string, name: string, scope?: 'platform' | 'user'): Promise<MetadataOverlay | undefined> {
+    return this.overlays.get(this.overlayKey(type, name, scope ?? 'platform'));
+  }
+
+  /**
+   * Save/update an overlay for a metadata item
+   */
+  async saveOverlay(overlay: MetadataOverlay): Promise<void> {
+    const key = this.overlayKey(overlay.baseType, overlay.baseName, overlay.scope);
+    this.overlays.set(key, overlay);
+  }
+
+  /**
+   * Remove an overlay, reverting to the base definition
+   */
+  async removeOverlay(type: string, name: string, scope?: 'platform' | 'user'): Promise<void> {
+    this.overlays.delete(this.overlayKey(type, name, scope ?? 'platform'));
+  }
+
+  /**
+   * Get the effective (merged) metadata after applying all overlays.
+   * Resolution order: system ← merge(platform) ← merge(user)
+   */
+  async getEffective(type: string, name: string): Promise<unknown | undefined> {
+    const base = await this.get(type, name);
+    if (!base) return undefined;
+
+    let effective = { ...(base as Record<string, unknown>) };
+
+    // Apply platform overlay
+    const platformOverlay = await this.getOverlay(type, name, 'platform');
+    if (platformOverlay?.active && platformOverlay.patch) {
+      effective = { ...effective, ...platformOverlay.patch };
+    }
+
+    // Apply user overlay
+    const userOverlay = await this.getOverlay(type, name, 'user');
+    if (userOverlay?.active && userOverlay.patch) {
+      effective = { ...effective, ...userOverlay.patch };
+    }
+
+    return effective;
+  }
+
+  // ==========================================
+  // Watch / Subscribe (IMetadataService)
+  // ==========================================
+
+  /**
+   * Watch for metadata changes (IMetadataService contract).
+   * Returns a handle for unsubscribing.
+   */
+  watchService(type: string, callback: MetadataWatchCallback): MetadataWatchHandle {
+    const wrappedCallback: WatchCallback = (event) => {
+      const mappedType = event.type === 'added' ? 'registered'
+        : event.type === 'deleted' ? 'unregistered'
+        : 'updated';
+      callback({
+        type: mappedType,
+        metadataType: event.metadataType ?? type,
+        name: event.name ?? '',
+        data: event.data,
+      });
+    };
+    this.watch(type, wrappedCallback);
+    return {
+      unsubscribe: () => this.unwatch(type, wrappedCallback),
+    };
+  }
+
+  // ==========================================
+  // Import / Export
+  // ==========================================
+
+  /**
+   * Export metadata as a portable bundle
+   */
+  async exportMetadata(options?: MetadataExportOptions): Promise<unknown> {
+    const bundle: Record<string, unknown[]> = {};
+    const targetTypes = options?.types ?? Array.from(this.registry.keys());
+
+    for (const type of targetTypes) {
+      const items = await this.list(type);
+      if (items.length > 0) {
+        bundle[type] = items;
+      }
+    }
+
+    return bundle;
+  }
+
+  /**
+   * Import metadata from a portable bundle
+   */
+  async importMetadata(data: unknown, options?: MetadataImportOptions): Promise<MetadataImportResult> {
+    const {
+      conflictResolution = 'skip',
+      validate: _validate = true,
+      dryRun = false,
+    } = options ?? {};
+
+    const bundle = data as Record<string, unknown[]>;
+    let total = 0;
+    let imported = 0;
+    let skipped = 0;
+    let failed = 0;
+    const errors: Array<{ type: string; name: string; error: string }> = [];
+
+    for (const [type, items] of Object.entries(bundle)) {
+      if (!Array.isArray(items)) continue;
+
+      for (const item of items) {
+        total++;
+        const meta = item as any;
+        const name = meta?.name;
+
+        if (!name) {
+          failed++;
+          errors.push({ type, name: '(unknown)', error: 'Item missing name field' });
+          continue;
+        }
+
+        try {
+          const itemExists = await this.exists(type, name);
+
+          if (itemExists && conflictResolution === 'skip') {
+            skipped++;
+            continue;
+          }
+
+          if (!dryRun) {
+            if (itemExists && conflictResolution === 'merge') {
+              const existing = await this.get(type, name);
+              const merged = { ...(existing as any), ...(item as any) };
+              await this.register(type, name, merged);
+            } else {
+              await this.register(type, name, item);
+            }
+          }
+          imported++;
+        } catch (e) {
+          failed++;
+          errors.push({
+            type,
+            name,
+            error: e instanceof Error ? e.message : String(e),
+          });
+        }
+      }
+    }
+
+    return {
+      total,
+      imported,
+      skipped,
+      failed,
+      errors: errors.length > 0 ? errors : undefined,
+    };
+  }
+
+  // ==========================================
+  // Validation
+  // ==========================================
+
+  /**
+   * Validate a metadata item against its type schema.
+   * Returns validation result with errors and warnings.
+   */
+  async validate(type: string, data: unknown): Promise<MetadataValidationResult> {
+    // Basic structural validation
+    if (data === null || data === undefined) {
+      return {
+        valid: false,
+        errors: [{ path: '', message: 'Metadata data cannot be null or undefined' }],
+      };
+    }
+
+    if (typeof data !== 'object') {
+      return {
+        valid: false,
+        errors: [{ path: '', message: 'Metadata data must be an object' }],
+      };
+    }
+
+    const meta = data as any;
+    const warnings: Array<{ path: string; message: string }> = [];
+
+    if (!meta.name) {
+      return {
+        valid: false,
+        errors: [{ path: 'name', message: 'Metadata item must have a name field' }],
+      };
+    }
+
+    if (!meta.label) {
+      warnings.push({ path: 'label', message: 'Missing label field (recommended)' });
+    }
+
+    return { valid: true, warnings: warnings.length > 0 ? warnings : undefined };
+  }
+
+  // ==========================================
+  // Type Registry
+  // ==========================================
+
+  /**
+   * Get all registered metadata types
+   */
+  async getRegisteredTypes(): Promise<string[]> {
+    const types = new Set<string>();
+
+    // From type registry
+    for (const entry of this.typeRegistry) {
+      types.add(entry.type);
+    }
+
+    // From in-memory registry (custom types)
+    for (const type of this.registry.keys()) {
+      types.add(type);
+    }
+
+    return Array.from(types);
+  }
+
+  /**
+   * Get detailed information about a metadata type
+   */
+  async getTypeInfo(type: string): Promise<MetadataTypeInfo | undefined> {
+    const entry = this.typeRegistry.find(e => e.type === type);
+    if (!entry) return undefined;
+
+    return {
+      type: entry.type,
+      label: entry.label,
+      description: entry.description,
+      filePatterns: entry.filePatterns,
+      supportsOverlay: entry.supportsOverlay,
+      domain: entry.domain,
+    };
+  }
+
+  // ==========================================
+  // Dependency Tracking
+  // ==========================================
+
+  /**
+   * Get metadata items that this item depends on
+   */
+  async getDependencies(type: string, name: string): Promise<MetadataDependency[]> {
+    return this.dependencies.get(`${type}:${name}`) ?? [];
+  }
+
+  /**
+   * Get metadata items that depend on this item
+   */
+  async getDependents(type: string, name: string): Promise<MetadataDependency[]> {
+    const dependents: MetadataDependency[] = [];
+    for (const deps of this.dependencies.values()) {
+      for (const dep of deps) {
+        if (dep.targetType === type && dep.targetName === name) {
+          dependents.push(dep);
+        }
+      }
+    }
+    return dependents;
+  }
+
+  /**
+   * Register a dependency between two metadata items.
+   * Used internally to track cross-references.
+   */
+  addDependency(dep: MetadataDependency): void {
+    const key = `${dep.sourceType}:${dep.sourceName}`;
+    if (!this.dependencies.has(key)) {
+      this.dependencies.set(key, []);
+    }
+    this.dependencies.get(key)!.push(dep);
+  }
+
+  // ==========================================
+  // Legacy Loader API (backward compatible)
+  // ==========================================
+
+  /**
+   * Load a single metadata item from loaders.
+   * Iterates through registered loaders until found.
    */
   async load<T = any>(
     type: string,
     name: string,
     options?: MetadataLoadOptions
   ): Promise<T | null> {
-    // Priority: Database > Filesystem (Implementation-dependent)
-    // For now, we just iterate.
     for (const loader of this.loaders.values()) {
         try {
             const result = await loader.load(type, name, options);
@@ -103,8 +761,8 @@ export class MetadataManager {
   }
 
   /**
-   * Load multiple metadata items
-   * Aggregates results from all loaders
+   * Load multiple metadata items from loaders.
+   * Aggregates results from all loaders.
    */
   async loadMany<T = any>(
     type: string,
@@ -116,7 +774,6 @@ export class MetadataManager {
         try {
             const items = await loader.loadMany<T>(type, options);
             for (const item of items) {
-                // Deduplicate: skip items whose 'name' already exists in results
                 const itemAny = item as any;
                 if (itemAny && typeof itemAny.name === 'string') {
                     const exists = results.some((r: any) => r && r.name === itemAny.name);
@@ -132,10 +789,7 @@ export class MetadataManager {
   }
 
   /**
-   * Save metadata to disk
-   */
-  /**
-   * Save metadata item
+   * Save metadata item to a loader
    */
   async save<T = any>(
     type: string,
@@ -145,7 +799,6 @@ export class MetadataManager {
   ): Promise<MetadataSaveResult> {
     const targetLoader = (options as any)?.loader;
 
-    // Find suitable loader
     let loader: MetadataLoader | undefined;
     
     if (targetLoader) {
@@ -154,11 +807,8 @@ export class MetadataManager {
         throw new Error(`Loader not found: ${targetLoader}`);
       }
     } else {
-      // 1. Try to find existing writable loader containing this item (Update existing)
       for (const l of this.loaders.values()) {
-          // Skip if loader is strictly read-only
           if (!l.save) continue;
-          
           try {
             if (await l.exists(type, name)) {
                 loader = l;
@@ -166,11 +816,10 @@ export class MetadataManager {
                 break;
             }
           } catch (e) {
-            // Ignore existence check errors (e.g. network down)
+            // Ignore existence check errors
           }
       }
 
-      // 2. Default to 'filesystem' if available (Create new)
       if (!loader) {
         const fsLoader = this.loaders.get('filesystem');
         if (fsLoader && fsLoader.save) {
@@ -178,7 +827,6 @@ export class MetadataManager {
         }
       }
 
-      // 3. Fallback to any writable loader
       if (!loader) {
         for (const l of this.loaders.values()) {
           if (l.save) {
@@ -201,31 +849,7 @@ export class MetadataManager {
   }
 
   /**
-   * Check if metadata item exists
-   */
-  async exists(type: string, name: string): Promise<boolean> {
-    for (const loader of this.loaders.values()) {
-      if (await loader.exists(type, name)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * List all items of a type
-   */
-  async list(type: string): Promise<string[]> {
-    const items = new Set<string>();
-    for (const loader of this.loaders.values()) {
-      const result = await loader.list(type);
-      result.forEach(item => items.add(item));
-    }
-    return Array.from(items);
-  }
-
-  /**
-   * Watch for metadata changes
+   * Watch for metadata changes (legacy API)
    */
   watch(type: string, callback: WatchCallback): void {
     if (!this.watchCallbacks.has(type)) {
@@ -235,7 +859,7 @@ export class MetadataManager {
   }
 
   /**
-   * Unwatch metadata changes
+   * Unwatch metadata changes (legacy API)
    */
   unwatch(type: string, callback: WatchCallback): void {
     const callbacks = this.watchCallbacks.get(type);
