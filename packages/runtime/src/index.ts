@@ -15,7 +15,7 @@ export type { DispatcherPluginConfig } from './dispatcher-plugin.js';
 
 // Export HTTP Server Components
 export { HttpServer } from './http-server.js';
-/** @deprecated Use createDispatcherPlugin() instead. Will be removed in v2. */
+/** @deprecated Use createDispatcherPlugin() instead. Will be removed in v3.0.0. */
 export { HttpDispatcher } from './http-dispatcher.js';
 export type { HttpProtocolContext, HttpDispatcherResult } from './http-dispatcher.js';
 export { MiddlewareManager } from './middleware.js';

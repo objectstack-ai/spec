@@ -273,7 +273,7 @@ export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
 
 /**
  * Get HTTP status code for an error category
- * @deprecated Move to @objectstack/core. Will be removed from spec in v2.0.0
+ * @deprecated Move to @objectstack/core. Will be removed from spec in v3.0.0
  */
 export function getHttpStatusForCategory(category: ErrorCategory): number {
   return ErrorHttpStatusMap[category] || 500;
@@ -281,7 +281,7 @@ export function getHttpStatusForCategory(category: ErrorCategory): number {
 
 /**
  * Create a standardized error response
- * @deprecated Move to @objectstack/core. Will be removed from spec in v2.0.0
+ * @deprecated Move to @objectstack/core. Will be removed from spec in v3.0.0
  */
 export function createErrorResponse(
   code: StandardErrorCode,

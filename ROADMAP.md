@@ -1,30 +1,35 @@
-# ObjectStack — Next-Phase Optimization & Improvement Roadmap
+# ObjectStack — v3.0 Release Roadmap
 
-> **Date:** 2026-02-10  
-> **Current Version:** 2.0.3  
-> **Based On:** Full codebase scan of 18 packages (96 Zod schemas, 73 test files, ~26,500 LOC in spec)  
+> **Date:** 2026-02-12  
+> **Current Version:** 2.0.7  
+> **Target Version:** 3.0.0  
+> **Based On:** Full codebase scan of 19 packages (172 Zod schemas, 191 test files, ~134,800 LOC in spec)  
 > **Previous Plan Status:** `packages/spec/DEVELOPMENT_PLAN.md` Phase 1–4 ✅ **Complete**
 
 ---
 
 ## Executive Summary
 
-ObjectStack v2.0.1 has achieved solid protocol-level maturity (B+ → A- grade after Phase 1–4). The spec package is well-typed, deduplicated, and documented. The next phase focuses on **runtime hardening**, **test coverage**, **developer experience**, and **production readiness** across the entire monorepo.
+ObjectStack v2.0.7 has achieved strong protocol-level maturity (A- grade). The spec package has comprehensive type safety, full test coverage, and thorough documentation. **Phase 5–7 are complete.** Phase 8 (deprecation cleanup) is partially done. The primary focus for v3.0 is **completing the breaking-change cleanup**, **developer experience**, and **production hardening** across the monorepo.
 
-### Current State Snapshot
+### Current State Snapshot (v2.0.7 — Scanned 2026-02-12)
 
 | Metric | Value | Target |
 |--------|-------|--------|
-| `z.any()` in spec | 8 (filter operators only) | 8 ✅ |
-| `z.unknown()` in spec | 180 | Stable ✅ |
+| `z.any()` in spec | 9 (8 filter + 1 i18n) | 8 (filter only) |
+| `z.unknown()` in spec | 404 | Stable ✅ |
 | `z.date()` in spec (serialization risk) | 12 (all in filter.zod.ts) | 0 in non-filter schemas ✅ |
-| `.describe()` annotations | 5,671+ | 5,600+ ✅ |
-| Spec test files | 150 / 142 schemas | 100% ✅ |
-| Runtime package test coverage | Sparse | Comprehensive |
-| Adapter implementations | 3 stubs | 3 functional |
+| `.describe()` annotations | 7,095 | 7,000+ ✅ |
+| Spec schema files (`.zod.ts`) | 172 | Stable ✅ |
+| Spec test files | 191 / 172 schemas | 100%+ ✅ |
+| Spec test count | 5,165 | 5,000+ ✅ |
+| Packages (all v2.0.7) | 19 | Unified ✅ |
+| Runtime package test coverage | REST 37, Metadata 45, Adapters 72 | Comprehensive ✅ |
+| Adapter implementations | 3 fully implemented + tested | 3 production-ready ✅ |
 | TODO/FIXME comments | 0 across monorepo | 0 ✅ |
-| Deprecated items pending removal | 5+ schemas/fields | Migration path documented |
-| z.instanceof() usage | 0 | 0 ✅ |
+| `@deprecated` items (spec) | 14 | 0 (for v3.0) |
+| `@deprecated` items (runtime packages) | 9 | 0 (for v3.0) |
+| `z.instanceof()` usage | 0 | 0 ✅ |
 
 ---
 
@@ -183,41 +188,76 @@ Fully implemented with `ObjectStackModule.forRoot()`, `ObjectStackService`, `Obj
 
 ## Phase 8: Deprecation Cleanup & v3.0 Preparation (1 week)
 
-> **Goal:** Remove deprecated items, finalize breaking changes for v3.0.
+> **Goal:** Remove all deprecated items, finalize breaking changes for v3.0.
 
-### 8.1 Deprecated Fields to Remove
+### 8.1 Previously Removed Deprecated Fields ✅
 
-| Field | File | Replacement |
-|-------|------|-------------|
-| `formula` | `data/field.zod.ts` | `expression` |
-| `encryption: z.boolean()` | `data/field.zod.ts` | `encryptionConfig` |
-| `geoSpatial` | `data/driver.zod.ts` | `geospatialQuery` |
-| `stateMachine` (singular) | `data/object.zod.ts` | `stateMachines` (plural) |
-| `TenantSchema` (hub) | `hub/tenant.zod.ts` | `system/tenant.zod.ts` |
+| Field | File | Replacement | Status |
+|-------|------|-------------|--------|
+| `formula` | `data/field.zod.ts` | `expression` | ✅ Removed |
+| `encryption: z.boolean()` | `data/field.zod.ts` | `encryptionConfig` | ✅ Removed |
+| `geoSpatial` | `data/driver.zod.ts` | `geospatialQuery` | ✅ Removed |
+| `stateMachine` (singular) | `data/object.zod.ts` | `stateMachines` (plural) | ✅ Removed |
 
-### 8.2 Runtime Logic to Extract from Spec
+### 8.2 Remaining @deprecated Items in Spec (14 items)
 
-| Function | Current Location | Move To |
-|----------|-----------------|---------|
-| `createErrorResponse()` | `api/errors.zod.ts` | `@objectstack/core` |
-| `getHttpStatusForCategory()` | `api/errors.zod.ts` | `@objectstack/core` |
-| `definePlugin()` | `kernel/plugin.zod.ts` | `@objectstack/core` |
-| `definePlugin()` | `kernel/manifest.zod.ts` | `@objectstack/core` |
+> **Scan date:** 2026-02-12 — All 14 items documented with `@deprecated` JSDoc tags.
 
-### 8.3 Hub Module Consolidation
+| # | Item | File | Replacement | Priority |
+|---|------|------|-------------|----------|
+| 1 | `Hub.*` barrel re-exports | `hub/index.ts` | Import from `system/` or `kernel/` directly | 🔴 High |
+| 2 | `TenantSchema` compat alias | `system/tenant.zod.ts` | Use canonical `TenantConfigSchema` | 🟡 Medium |
+| 3 | `location` (singular) | `ui/action.zod.ts` | `locations` (array) | 🔴 High |
+| 4 | `definePlugin()` | `kernel/plugin.zod.ts` | Move to `@objectstack/core/plugin` | 🔴 High |
+| 5 | `manifest.data` field | `kernel/manifest.zod.ts` | Top-level `data` field on Stack Definition | 🟡 Medium |
+| 6 | `createErrorResponse()` | `api/errors.zod.ts` | Move to `@objectstack/core/errors` | 🔴 High |
+| 7 | `getHttpStatusForCategory()` | `api/errors.zod.ts` | Move to `@objectstack/core/errors` | 🔴 High |
+| 8 | `RateLimitSchema` alias | `api/endpoint.zod.ts` | `RateLimitConfigSchema` from `shared/http.zod.ts` | 🟡 Medium |
+| 9 | `RealtimePresenceStatus` | `api/realtime.zod.ts` | `PresenceStatus` from `realtime-shared.zod.ts` | 🟡 Medium |
+| 10 | `RealtimeAction` alias | `api/realtime.zod.ts` | `RealtimeRecordAction` from `realtime-shared.zod.ts` | 🟡 Medium |
+| 11 | `capabilities` field | `api/discovery.zod.ts` | Derived from `services` map | 🟡 Medium |
+| 12 | `createDefaultEventBusConfig()` | `kernel/events/bus.zod.ts` | Move to `@objectstack/core` | 🟡 Medium |
+| 13 | `createDefaultDLQConfig()` | `kernel/events/bus.zod.ts` | Move to `@objectstack/core` | 🟡 Medium |
+| 14 | `createDefaultEventHandlerConfig()` | `kernel/events/bus.zod.ts` | Move to `@objectstack/core` | 🟡 Medium |
+
+### 8.3 Remaining @deprecated Items in Runtime Packages (9 items)
+
+| # | Item | Package / File | Replacement | Priority |
+|---|------|----------------|-------------|----------|
+| 1 | `createHonoApp()` | `@objectstack/hono` index.ts | `HonoServerPlugin` + `createRestApiPlugin()` | 🟡 Medium |
+| 2 | `HttpDispatcher` class | `@objectstack/runtime` http-dispatcher.ts | `createDispatcherPlugin()` | 🔴 High |
+| 3 | `HttpDispatcher` re-export | `@objectstack/runtime` index.ts | `createDispatcherPlugin()` | 🔴 High |
+| 4 | `validatePluginConfig()` | `@objectstack/core` plugin-loader.ts | `PluginConfigValidator` class | 🟡 Medium |
+| 5 | `data` response field | `@objectstack/client` index.ts | `records` | 🟡 Medium |
+| 6 | `count` response field | `@objectstack/client` index.ts | `total` | 🟡 Medium |
+| 7 | `getObject()` method | `@objectstack/client` index.ts | `getItem('object', name)` | 🟡 Medium |
+| 8 | `RestApiConfig` type | `@objectstack/rest` rest-api-plugin.ts | `RestApiPluginConfig` | 🟢 Low |
+| 9 | `createRestApi()` fn | `@objectstack/rest` rest-api-plugin.ts | `createRestApiPlugin()` | 🟢 Low |
+
+### 8.4 Hub Module Consolidation
 
 The `hub/` directory currently re-exports from `system/` and `kernel/`. In v3.0:
 - Remove `hub/index.ts` barrel re-exports entirely
 - Update all consumers to import directly from `system/` or `kernel/`
 - Remove `Hub.*` namespace from `src/index.ts`
 
-### 8.4 Naming Consistency Audit
+### 8.5 Type Safety: Remaining z.any() in Non-Filter Schema
 
-| Issue | Details | Fix |
-|-------|---------|-----|
-| `MetricType` collision history | Was split into `AggregationMetricType` + `LicenseMetricType` | Verify no consumers still use old name |
-| `service-registry.zod.ts` name collision | Was renamed to `core-services.zod.ts` in system/ | Verify no imports reference old path |
-| `Presence` schema duplication | Was in both realtime and websocket | Verify canonical location used everywhere |
+| File | Usage | Action |
+|------|-------|--------|
+| `ui/i18n.zod.ts:26` | `params: z.record(z.string(), z.any())` | Tighten to `z.record(z.string(), z.union([z.string(), z.number(), z.boolean()]))` |
+
+### 8.6 Stale Deprecation Notices
+
+Several deprecated items say "Will be removed in v2.0.0" but current version is v2.0.7. These need their deprecation notices updated to target v3.0.0:
+
+| Item | Current Notice | Should Be |
+|------|---------------|-----------|
+| `definePlugin()` | "removed in v2.0.0" | "removed in v3.0.0" |
+| `createErrorResponse()` | "removed in v2.0.0" | "removed in v3.0.0" |
+| `getHttpStatusForCategory()` | "removed in v2.0.0" | "removed in v3.0.0" |
+| `location` field | "removed in v2.0.0" | "removed in v3.0.0" |
+| `HttpDispatcher` | "removed in v2" | "removed in v3.0.0" |
 
 ### Phase 8 Checklist
 
@@ -225,11 +265,18 @@ The `hub/` directory currently re-exports from `system/` and `kernel/`. In v3.0:
 - [x] Remove deprecated `encryption: z.boolean()` (use `encryptionConfig`)
 - [x] Remove deprecated `geoSpatial` + refinement (use `geospatialQuery`)
 - [x] Remove deprecated `stateMachine` singular (use `stateMachines` plural)
-- [ ] Extract runtime logic from spec → core
-- [ ] Remove hub/ re-export barrel
-- [x] Verify naming consistency across all imports — 0 TODO/FIXME, 10 deprecated items documented
 - [x] Create v3.0 migration guide (`packages/spec/V3_MIGRATION_GUIDE.md`)
 - [x] Update CHANGELOG.md with breaking changes
+- [x] Audit and document all 23 remaining @deprecated items (14 spec + 9 runtime)
+- [x] Identify stale deprecation notices targeting v2.0.0
+- [ ] Update stale deprecation notices to target v3.0.0
+- [ ] Extract runtime logic from spec → core (3 functions + 3 event helpers)
+- [ ] Remove hub/ re-export barrel + `Hub.*` namespace
+- [ ] Remove deprecated schema aliases (RateLimitSchema, RealtimePresenceStatus, RealtimeAction)
+- [ ] Remove deprecated `location` field from ActionSchema
+- [ ] Remove deprecated `capabilities` from DiscoverySchema
+- [ ] Remove deprecated compat aliases in runtime packages
+- [ ] Tighten `z.any()` in `ui/i18n.zod.ts` to typed union
 
 ---
 
@@ -359,16 +406,18 @@ The `hub/` directory currently re-exports from `system/` and `kernel/`. In v3.0:
 ## Timeline Summary
 
 ```
-2026 Q1 (Current)
- ├── Phase 5:  Spec Test Coverage         [1 week]    → 100% schema test coverage
- ├── Phase 6:  Runtime Hardening          [2 weeks]   → 0 TODOs, comprehensive tests
- └── Phase 7:  Adapter Implementation     [1-2 weeks] → 3 functional adapters
+2026 Q1 (Complete)
+ ├── Phase 5:  Spec Test Coverage         [1 week]    ✅ 191 test files, 5,165 tests
+ ├── Phase 6:  Runtime Hardening          [2 weeks]   ✅ 0 TODOs, comprehensive tests
+ └── Phase 7:  Adapter Implementation     [1-2 weeks] ✅ 3 fully implemented + tested
 
-2026 Q2
- ├── Phase 8:  Deprecation Cleanup        [1 week]    → v3.0 breaking change prep
+2026 Q2 (v3.0 Release)
+ ├── Phase 8:  Deprecation Cleanup        [1 week]    🔄 14 spec + 9 runtime deprecated items remaining
  ├── Phase 9:  Developer Experience       [2 weeks]   → Better DX, docs, tooling
  ├── Phase 10: Performance Optimization   [1 week]    → Faster builds, smaller bundles
  └── Phase 11: Security Hardening         [1 week]    → Production-grade security
+
+v3.0 Release Target: End of Q2 2026
 ```
 
 **Parallel Track:** Studio ROADMAP.md (see `apps/studio/ROADMAP.md`) runs independently:
@@ -379,20 +428,28 @@ The `hub/` directory currently re-exports from `system/` and `kernel/`. In v3.0:
 
 ## Success Criteria for v3.0
 
-| Metric | v2.0.1 (Current) | v3.0 Target |
+| Metric | v2.0.7 (Current) | v3.0 Target |
 |--------|-------------------|-------------|
-| Spec test coverage | ~~76% (73/96)~~ **100% (175/150)** | 100% ✅ |
-| Spec test count | ~~3,000~~ **4,518 tests** | 4,500+ ✅ |
-| Runtime test coverage | ~~Sparse~~ **REST 37, Metadata 45, Adapters 72** | >80% per package |
-| TODO/FIXME count | ~~24~~ **0** | 0 ✅ |
-| Adapter maturity | ~~3 stubs~~ **3 fully implemented + tested** | 3 production-ready ✅ |
-| Deprecated items | ~~5+~~ **4 removed, 10 documented w/ migration guide** | 0 (removed or migrated) |
-| Events modularization | ~~765-line monolith~~ **6 sub-modules** | Modularized ✅ |
+| Spec schema files | 172 | 172+ (stable) ✅ |
+| Spec test files | 191 (111% coverage) | 100%+ ✅ |
+| Spec test count | 5,165 | 5,000+ ✅ |
+| `.describe()` annotations | 7,095 | 7,000+ ✅ |
+| Runtime test coverage | REST 37, Metadata 45, Adapters 72 | >80% per package ✅ |
+| TODO/FIXME count | 0 | 0 ✅ |
+| Adapter maturity | 3 fully implemented + tested | 3 production-ready ✅ |
+| Events modularization | 6 sub-modules | Modularized ✅ |
+| `@deprecated` items (spec) | 14 remaining | 0 (all removed or migrated) |
+| `@deprecated` items (runtime) | 9 remaining | 0 (all removed or migrated) |
+| `z.any()` in non-filter schemas | 1 (`ui/i18n.zod.ts`) | 0 |
+| `z.instanceof()` usage | 0 | 0 ✅ |
+| Hub module | Re-exporting (deprecated) | Removed |
+| Runtime logic in spec | 6 functions | 0 (all in `@objectstack/core`) |
 | `pnpm audit` vulnerabilities | Unknown | 0 |
 | Bundle size tracked | No | Yes, with CI gate |
 | Performance benchmarks | None | Baseline established |
-| JSON Schema count | 1,207 | 1,200+ with versioning |
+| JSON Schema count | 1,207+ | 1,200+ with versioning |
 | Supported field types | 46+ | 46+ (stable) |
+| Packages (unified version) | 19 @ v2.0.7 | 19 @ v3.0.0 |
 
 ---
 
@@ -404,13 +461,15 @@ The `hub/` directory currently re-exports from `system/` and `kernel/`. In v3.0:
 | Spec Schema Audit Report | `packages/spec/ZOD_SCHEMA_AUDIT_REPORT.md` | ✅ Reference |
 | Protocol Registry | `packages/spec/PROTOCOL_MAP.md` | ✅ Current |
 | API Implementation Plan | `packages/spec/API_IMPLEMENTATION_PLAN.md` | 🔄 In Progress |
+| V3 Migration Guide | `packages/spec/V3_MIGRATION_GUIDE.md` | ✅ Current |
 | Studio Roadmap | `apps/studio/ROADMAP.md` | 🔄 Active (Phase 0–8) |
 | Plugin Standards | `packages/spec/PLUGIN_STANDARDS.md` | ✅ Established |
 | Architecture | `ARCHITECTURE.md` | ✅ Current |
 | Release Notes | `RELEASE_NOTES.md` | ✅ Current (v1.2.0) |
+| Changelog | `CHANGELOG.md` | ✅ Current (v2.0.7) |
 
 ---
 
-**Last Updated:** 2026-02-09  
+**Last Updated:** 2026-02-12  
 **Maintainers:** ObjectStack Core Team  
-**Status:** Active Roadmap
+**Status:** Active Roadmap — Preparing v3.0 Release
