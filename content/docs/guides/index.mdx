@@ -1,50 +1,71 @@
 ---
 title: Guides
-description: Step-by-step tutorials for building with ObjectStack
+description: Task-oriented tutorials for building applications with ObjectStack
 ---
+
+import { Database, Workflow, Shield, Bot, Globe, Wrench, BookMarked, FileText } from 'lucide-react';
 
 # Developer Guides
 
-Practical tutorials covering the full development workflow — from data modeling to production deployment.
+Practical, task-oriented guides covering the full development workflow. Each guide is self-contained — jump to whatever you need.
 
-These guides assume you&apos;ve completed the [Quick Start](/docs/getting-started/quick-start) tutorial.
+<Callout type="info">
+**New here?** Complete the [Quick Start](/docs/getting-started/quick-start) first, then return here to go deeper.
+</Callout>
 
-## Key Components
+## Foundations
 
-### 1. The Core Kernel
-The `@objectstack/core` package is the microkernel that provides:
-- **Plugin System**: Dynamic loading and lifecycle management.
-- **Dependency Injection**: Service registration and resolution.
-- **Event Bus**: System-wide event emission and handling.
+<Cards>
+  <Card
+    icon={<FileText />}
+    title="Metadata Types"
+    href="/docs/guides/metadata"
+    description="Every metadata type: Object, Field, View, App, Dashboard, Flow, Workflow, Validation, Permission."
+  />
+  <Card
+    icon={<Database />}
+    title="Data Modeling"
+    href="/docs/guides/data-modeling"
+    description="Design objects, fields, relationships, indexes, and validation rules."
+  />
+  <Card
+    icon={<Wrench />}
+    title="Common Patterns"
+    href="/docs/guides/common-patterns"
+    description="Top 10 copy-paste patterns: CRUD, search, auth, realtime, and more."
+  />
+</Cards>
 
-### 2. The Runtime Support
-The `@objectstack/runtime` package implements the universal `HttpDispatcher` and server logic:
-- **Unified Dispatcher**: Handles Data, UI, and Auth requests via a standard interface.
-- **Protocol Adapter**: Adapts HTTP requests (Hono, Next.js, NestJS) to internal protocol calls.
+## Building Applications
 
-### 3. The Developer Toolchain
-The `@objectstack/cli` provides a complete development workflow:
-- **Scaffolding**: `os init` and `os generate` for project and metadata creation.
-- **Plugin Management**: `os plugin add/remove/list` for managing plugins.
-- **Validation**: `os validate` for schema checking with `--strict` and `--json` modes.
-- **Introspection**: `os info` for metadata summary and `os doctor` for environment health.
-- **Build**: `os compile` for production artifact generation.
-- **Server**: `os serve` and `os dev` for development with auto-plugin detection.
+| Guide | What You'll Learn |
+| :--- | :--- |
+| [Plugins](/docs/guides/plugins) | Using and configuring plugins |
+| [Plugin Development](/docs/guides/plugin-development) | Building, testing, and publishing plugins |
+| [Business Logic](/docs/guides/business-logic) | Workflows, approval flows, triggers, formulas |
+| [Authentication](/docs/guides/authentication) | Identity management, OAuth, SAML, sessions |
+| [Security](/docs/guides/security) | Profiles, permissions, sharing rules, RLS |
+| [AI Capabilities](/docs/guides/ai-capabilities) | AI agents, RAG pipelines, NLQ, models |
 
-### 4. The Client Ecosystem
-- **Frontend Integration**: `@objectstack/client` and `@objectstack/client-react` for building UIs.
-- **Query Builder**: Type-safe query construction with `QueryBuilder` and `FilterBuilder`.
+## Integration & Infrastructure
 
-## Documentation Structure
+| Guide | What You'll Learn |
+| :--- | :--- |
+| [API Reference](/docs/guides/api-reference) | REST, GraphQL, and WebSocket APIs |
+| [Client SDK](/docs/guides/client-sdk) | TypeScript client and React hooks |
+| [Driver Configuration](/docs/guides/driver-configuration) | Database driver setup (Postgres, MongoDB, SQLite) |
+| [Kernel Services](/docs/guides/kernel-services) | Microkernel architecture and service registry |
+| [Data Flow](/docs/guides/data-flow) | Request lifecycle and data flow diagrams |
 
-- **[Metadata Types](./metadata)**: Comprehensive guide to every metadata type used in application development — Object, Field, View, Page, App, Dashboard, Flow, Workflow, Validation, and Permission.
-- **[Data Modeling](./data-modeling)**: Best practices for designing robust data models.
-- **[Business Logic](./business-logic)**: Automation, workflows, and custom logic.
-- **[Plugins](./plugins)**: Building and extending the platform with plugins.
-- **[Authentication](./authentication)**: Authentication and identity management.
-- **[Security](./security)**: Access control, permissions, and row-level security.
-- **[AI Capabilities](./ai-capabilities)**: AI agents, RAG pipelines, and model integration.
-- **[API Reference](./api-reference)**: REST, GraphQL, and WebSocket APIs.
-- **[Client SDK](./client-sdk)**: TypeScript client and React hooks documentation.
-- **[Driver Configuration](./driver-configuration)**: Database driver setup and configuration.
-- **[Kernel Services](./kernel-services)**: Core microkernel architecture and services.
+## Operations
+
+| Guide | What You'll Learn |
+| :--- | :--- |
+| [Error Handling (Client)](/docs/guides/error-handling-client) | Frontend error handling patterns |
+| [Error Handling (Server)](/docs/guides/error-handling-server) | Backend error handling and recovery |
+| [Development Standards](/docs/guides/standards) | Naming conventions, project structure, testing |
+| [Troubleshooting](/docs/guides/troubleshooting) | FAQ and solutions to common issues |
+
+## Quick Reference
+
+Need to look something up fast? See the [Cheatsheets](/docs/guides/cheatsheets) — field types, query syntax, error codes, and more.
