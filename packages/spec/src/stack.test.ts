@@ -424,16 +424,19 @@ describe('defineStack', () => {
     type: 'app' as const,
   };
 
-  it('should return config as-is in default mode (backward compatible)', () => {
+  it('should validate config in default mode (strict by default)', () => {
     const config = { manifest: baseManifest, objects: [] };
     const result = defineStack(config);
-    expect(result).toBe(config);
+    // Default is now strict=true, so result is validated and is a different object reference
+    expect(result).not.toBe(config);  // Validation creates new object
+    expect(result).toEqual(config);   // But content is the same
+    expect(result.manifest).toBeDefined();
   });
 
   it('should return config as-is when strict is false', () => {
     const config = { manifest: baseManifest };
     const result = defineStack(config, { strict: false });
-    expect(result).toBe(config);
+    expect(result).toBe(config);  // When strict=false, should return same reference
   });
 
   it('should parse and validate in strict mode', () => {
@@ -521,5 +524,71 @@ describe('defineStack', () => {
     };
     // No objects defined, so cross-ref validation is skipped
     expect(() => defineStack(config, { strict: true })).not.toThrow();
+  });
+});
+
+describe('defineStack - Field Name Validation', () => {
+  const baseManifest = {
+    id: 'com.example.test',
+    name: 'test-field-validation',
+    version: '1.0.0',
+    type: 'app' as const,
+  };
+
+  it('should reject camelCase field names in strict mode (default)', () => {
+    const config = {
+      manifest: baseManifest,
+      objects: [{
+        name: 'test_object',
+        fields: {
+          firstName: { type: 'text' as const }  // Invalid: camelCase
+        }
+      }]
+    };
+
+    expect(() => defineStack(config)).toThrow(/Invalid key in record|Field names must be lowercase snake_case/);
+  });
+
+  it('should reject PascalCase field names in strict mode (default)', () => {
+    const config = {
+      manifest: baseManifest,
+      objects: [{
+        name: 'test_object',
+        fields: {
+          FirstName: { type: 'text' as const }  // Invalid: PascalCase
+        }
+      }]
+    };
+
+    expect(() => defineStack(config)).toThrow(/Invalid key in record|Field names must be lowercase snake_case/);
+  });
+
+  it('should accept snake_case field names', () => {
+    const config = {
+      manifest: baseManifest,
+      objects: [{
+        name: 'test_object',
+        fields: {
+          first_name: { type: 'text' as const },  // Valid
+          last_name: { type: 'text' as const },   // Valid
+        }
+      }]
+    };
+
+    expect(() => defineStack(config)).not.toThrow();
+  });
+
+  it('should bypass validation when strict is false', () => {
+    const config = {
+      manifest: baseManifest,
+      objects: [{
+        name: 'test_object',
+        fields: {
+          firstName: { type: 'text' as const }  // Invalid, but allowed in non-strict mode
+        }
+      }]
+    };
+
+    expect(() => defineStack(config, { strict: false })).not.toThrow();
   });
 });
