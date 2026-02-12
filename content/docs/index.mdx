@@ -3,24 +3,22 @@ title: ObjectStack Protocol
 description: The Metadata-Driven Protocol for the Post-SaaS Era.
 ---
 
-import { Book, Compass, FileText, Layers, Database, Layout, Cpu, Code2, Bot, Workflow, Shield, Globe, Rocket, Terminal, FolderOpen } from 'lucide-react';
+import { Rocket, BookOpen, FileCode, Layers, Database, Layout, Cpu, Bot, Workflow, Shield, Globe, Terminal, FolderOpen, Lightbulb, Wrench, BookMarked } from 'lucide-react';
 
-**ObjectStack** is a **Metadata-Driven Protocol** for building enterprise architecture.
-It standardizes how we define Data, UI, Automation, and AI Agents as structured JSON/YAML, decoupling *Business Intent* from *Technical Execution*.
-
-This documentation is the authoritative specification for the ObjectStack ecosystem.
-
-## Quick Start
+**ObjectStack** is a **Metadata-Driven Protocol** for building enterprise applications.
+Define Data, UI, Automation, and AI as structured metadata — ObjectStack handles the rest.
 
 ```bash
-npx @objectstack/cli init my-app   # Scaffold a project
-cd my-app
-os studio                           # Launch dev server + Console UI
+npx @objectstack/cli init my-app && cd my-app && os studio
 ```
 
-Open [http://localhost:3000/_studio/](http://localhost:3000/_studio/) to browse your objects, test the API, and inspect metadata.
+Open [http://localhost:3000/_studio/](http://localhost:3000/_studio/) to browse objects, test APIs, and inspect metadata.
 
-## Getting Started
+---
+
+## Learn
+
+New to ObjectStack? Start here.
 
 <Cards>
   <Card
@@ -30,100 +28,131 @@ Open [http://localhost:3000/_studio/](http://localhost:3000/_studio/) to browse 
     description="Create a project, define objects, launch the Studio — in 5 minutes."
   />
   <Card
+    icon={<Lightbulb />}
+    title="Core Concepts"
+    href="/docs/getting-started/core-concepts"
+    description="Metadata-driven development, design principles, and naming conventions."
+  />
+  <Card
+    icon={<Layers />}
+    title="Architecture"
+    href="/docs/getting-started/architecture"
+    description="The three-layer protocol stack: ObjectQL, ObjectOS, ObjectUI."
+  />
+  <Card
     icon={<FolderOpen />}
     title="Example Apps"
     href="/docs/getting-started/examples"
-    description="Run the built-in Todo, CRM, and BI examples to learn hands-on."
+    description="Run the Todo, CRM, and BI examples to learn hands-on."
+  />
+</Cards>
+
+## Build
+
+Task-oriented guides for building real applications.
+
+<Cards>
+  <Card
+    icon={<Database />}
+    title="Data Modeling"
+    href="/docs/guides/data-modeling"
+    description="Design objects, fields, relationships, and validation rules."
+  />
+  <Card
+    icon={<Workflow />}
+    title="Business Logic"
+    href="/docs/guides/business-logic"
+    description="Workflows, approval flows, triggers, and formulas."
+  />
+  <Card
+    icon={<Shield />}
+    title="Security"
+    href="/docs/guides/security"
+    description="Profiles, permissions, sharing rules, and row-level security."
+  />
+  <Card
+    icon={<Bot />}
+    title="AI Capabilities"
+    href="/docs/guides/ai-capabilities"
+    description="AI agents, RAG pipelines, and natural language queries."
+  />
+  <Card
+    icon={<Wrench />}
+    title="Plugin Development"
+    href="/docs/guides/plugin-development"
+    description="Build, test, and publish custom plugins."
+  />
+  <Card
+    icon={<Globe />}
+    title="API & Client SDK"
+    href="/docs/guides/api-reference"
+    description="REST, GraphQL, WebSocket APIs, and frontend integration."
+  />
+</Cards>
+
+## Understand
+
+Deep protocol specifications for implementers and architects.
+
+<Cards>
+  <Card
+    icon={<Database />}
+    title="ObjectQL — Data"
+    href="/docs/protocol/objectql"
+    description="Schema, state machines, query syntax, and security."
+  />
+  <Card
+    icon={<Layout />}
+    title="ObjectUI — Interface"
+    href="/docs/protocol/objectui"
+    description="Layout DSL, widget contracts, and actions."
+  />
+  <Card
+    icon={<Cpu />}
+    title="ObjectOS — System"
+    href="/docs/protocol/objectos"
+    description="Lifecycle, HTTP/realtime, plugins, and config."
+  />
+</Cards>
+
+## Look Up
+
+Auto-generated schema reference and quick-lookup cheatsheets.
+
+<Cards>
+  <Card
+    icon={<FileCode />}
+    title="Schema Reference"
+    href="/docs/references"
+    description="Auto-generated docs for every Zod schema in the protocol."
+  />
+  <Card
+    icon={<BookMarked />}
+    title="Cheatsheets"
+    href="/docs/guides/cheatsheets"
+    description="Field types, query syntax, error codes, and permissions at a glance."
   />
   <Card
     icon={<Terminal />}
     title="CLI Reference"
     href="/docs/getting-started/cli"
-    description="All CLI commands: init, generate, serve, studio, compile, validate, and more."
+    description="All commands: init, generate, serve, studio, compile, validate."
   />
   <Card
-    icon={<Compass />}
-    title="What is ObjectStack?"
-    href="/docs/getting-started"
-    description="Understand the philosophy: 'Intent over Implementation' and Metadata-Driven Architecture."
+    icon={<BookOpen />}
+    title="Glossary"
+    href="/docs/getting-started/glossary"
+    description="Key terminology across all 11 protocol namespaces."
   />
 </Cards>
 
-## Protocol Reference
+---
 
-The specification is divided into core domains. Each domain defines a set of Zod schemas that validate the metadata.
+## Who is this for?
 
-### Core Pillars
-
-<Cards>
-  <Card
-    icon={<Database />}
-    title="Data Protocol"
-    href="/docs/references/data"
-    description="The schema for Objects, Fields, Queries, and Drivers."
-  />
-  <Card
-    icon={<Layout />}
-    title="UI Protocol"
-    href="/docs/references/ui"
-    description="The schema for Views, Forms, Dashboards, and Layouts."
-  />
-  <Card
-    icon={<Workflow />}
-    title="Automation Protocol"
-    href="/docs/references/automation"
-    description="Flows, Workflows, Triggers, and Events."
-  />
-  <Card
-    icon={<Bot />}
-    title="AI Protocol"
-    href="/docs/references/ai"
-    description="Agents, RAG Pipelines, Models, and Prompts."
-  />
-</Cards>
-
-### System & Infrastructure
-
-<Cards>
-  <Card
-    icon={<Cpu />}
-    title="Kernel"
-    href="/docs/references/kernel"
-    description="Plugin Lifecycle, Manifests, Capabilities, and Loading."
-  />
-  <Card
-    icon={<Shield />}
-    title="System"
-    href="/docs/references/system"
-    description="Configuration, Logging, Jobs, and Caching."
-  />
-  <Card
-    icon={<Globe />}
-    title="API & Identity"
-    href="/docs/references/api"
-    description="REST/GraphQL Contracts, Auth, and Identity Management."
-  />
-  <Card
-    icon={<Layers />}
-    title="Integration"
-    href="/docs/references/integration"
-    description="Connectors, Webhooks, and External Data Sources."
-  />
-</Cards>
-
-## Why ObjectStack?
-
-| Module | Responsibility |
+| Audience | Use Case |
 | :--- | :--- |
-| **[Data](/docs/references/data)** | Defines the shape of data (`Object`, `Field`) and how to access it. Agnostic to SQL/NoSQL. |
-| **[UI](/docs/references/ui)** | The Projection. Defines User Interfaces as abstract JSON layouts (Views, Forms). |
-| **[Automation](/docs/references/automation)** | The Logic. Orchestrates processes across the system. |
-| **[AI](/docs/references/ai)** | The Intelligence. Defines Agents and knowledge retrieval strategies. |
-| **[Kernel](/docs/references/kernel)** | The Runtime. Manages the lifecycle of all other protocols. |
-
-## For whom is this?
-
-*   **Platform Architects:** Who want to build internal developer platforms (IDP) that scale.
-*   **Protocol Implementers:** Who want to write a new Driver for ObjectQL (e.g., for FoundationDB) or a new Renderer for ObjectUI (e.g., for Flutter).
-*   **AI Agent Developers:** Who need a deterministic, structured generic language for AI to generate software.
-*   **Low-Code Builders:** Who want a powerful metadata-driven platform for rapid application development.
+| **Platform Architects** | Build internal developer platforms (IDP) that scale |
+| **Protocol Implementers** | Write new Drivers for ObjectQL or Renderers for ObjectUI |
+| **AI Agent Developers** | Use a structured, deterministic language for AI-generated software |
+| **Low-Code Builders** | Rapid application development with metadata-driven workflows |

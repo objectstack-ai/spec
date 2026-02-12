@@ -1,4 +1,4 @@
 {
   "title": "Getting Started",
-  "pages": ["index", "quick-start", "examples", "cli"]
+  "pages": ["index", "quick-start", "core-concepts", "architecture", "examples", "cli", "glossary"]
 }
