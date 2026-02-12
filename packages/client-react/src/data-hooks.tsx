@@ -392,7 +392,7 @@ export function usePagination<T = any>(
     skip: (page - 1) * pageSize
   });
 
-  const totalCount = queryResult.data?.count || 0;
+  const totalCount = queryResult.data?.total || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
   const hasNextPage = page < totalPages;
   const hasPreviousPage = page > 1;
@@ -546,7 +546,7 @@ export function useInfiniteQuery<T = any>(
       }
 
       // Determine if there's a next page
-      const fetchedCount = result.value?.length ?? 0;
+      const fetchedCount = result.records?.length ?? 0;
       const hasMore = fetchedCount === pageSize;
       setHasNextPage(hasMore);
 
@@ -580,7 +580,7 @@ export function useInfiniteQuery<T = any>(
     await fetchPage(0);
   }, [fetchPage]);
 
-  const flatData = pages.flatMap(page => page.value ?? []);
+  const flatData = pages.flatMap(page => page.records ?? []);
 
   return {
     data: pages,
