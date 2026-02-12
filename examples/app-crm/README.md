@@ -74,14 +74,20 @@ Comprehensive guides covering all aspects:
 ### 🚀 Quick Start
 
 ```bash
-# Install dependencies
-pnpm install
+# Install dependencies (from monorepo root)
+corepack enable && pnpm install
 
 # Build the application
 pnpm --filter @example/app-crm build
+# Expected: Build succeeds with no type errors
+
+# Type-check
+pnpm --filter @example/app-crm typecheck
+# Expected: No errors — all 10 objects validated against @objectstack/spec
 
 # Run development server
 pnpm --filter @example/app-crm dev
+# Expected: Server starts at http://localhost:3000
 ```
 
 ### 📦 What's Included
@@ -149,14 +155,20 @@ pnpm --filter @example/app-crm dev
 ### 🚀 快速开始
 
 ```bash
-# 安装依赖
-pnpm install
+# 安装依赖（从 monorepo 根目录）
+corepack enable && pnpm install
 
 # 构建应用
 pnpm --filter @example/app-crm build
+# 预期: 构建成功，无类型错误
+
+# 类型检查
+pnpm --filter @example/app-crm typecheck
+# 预期: 无错误 — 所有10个对象通过 @objectstack/spec 验证
 
 # 运行开发服务器
 pnpm --filter @example/app-crm dev
+# 预期: 服务器启动在 http://localhost:3000
 ```
 
 ---

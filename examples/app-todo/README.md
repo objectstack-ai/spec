@@ -86,20 +86,27 @@ examples/app-todo/
 - Auto-set `is_completed`, `completed_date`, `progress_percent` on status change
 - Auto-detect overdue tasks and send urgent notifications
 
-## 💡 Usage
+## 💡 How to Run
 
-This package is part of the `examples` workspace. To build and verify:
+### Prerequisites
+- Node.js 18+ and pnpm 8+
+- Install from monorepo root: `corepack enable && pnpm install`
 
+### Type Check
 ```bash
-# Install dependencies (from monorepo root)
-pnpm install
-
-# Build the example
-pnpm --filter @example/app-todo build
-
-# Run type checking
-pnpm --filter @example/app-todo typecheck
+cd examples/app-todo
+pnpm typecheck
+# Expected: No errors — all types validated against @objectstack/spec
 ```
+
+### Build
+```bash
+pnpm --filter @example/app-todo build
+# Expected: Build succeeds, generates dist/ output
+```
+
+### Explore the Config
+Open `objectstack.config.ts` to see how all pieces connect via `defineStack()`.
 
 ## 📖 Learning Path
 

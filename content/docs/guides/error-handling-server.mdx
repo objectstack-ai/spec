@@ -1,0 +1,466 @@
+---
+title: Server-Side Error Handling
+description: Best practices for handling and throwing errors in ObjectStack plugins — custom errors, hook propagation, validation, transactions, and safeParsePretty
+---
+
+# Server-Side Error Handling
+
+This guide covers best practices for handling and throwing errors within ObjectStack plugins and server-side code — from creating custom errors with proper codes to transaction rollback and integration with `safeParsePretty()`.
+
+<Callout type="info">
+**Error Contract:** ObjectStack uses a standardized error format across all layers. Server-side errors are automatically serialized to the `ErrorResponseSchema` format when returned through the API.
+</Callout>
+
+---
+
+## 1. Creating Custom Errors with Proper Error Codes
+
+Extend the base ObjectStack error class to create domain-specific errors:
+
+```typescript
+import { ObjectStackError } from '@objectstack/core';
+
+// Define error codes as constants for consistency
+const ErrorCodes = {
+  TASK_ALREADY_COMPLETED: 'TASK_ALREADY_COMPLETED',
+  INVALID_STATUS_TRANSITION: 'INVALID_STATUS_TRANSITION',
+  BUDGET_EXCEEDED: 'BUDGET_EXCEEDED',
+  DUPLICATE_ASSIGNMENT: 'DUPLICATE_ASSIGNMENT',
+} as const;
+
+class TaskAlreadyCompletedError extends ObjectStackError {
+  constructor(taskId: string) {
+    super({
+      code: ErrorCodes.TASK_ALREADY_COMPLETED,
+      message: `Task ${taskId} is already completed and cannot be modified`,
+      status: 409,
+      details: [
+        { field: 'status', message: 'Task is in terminal state', code: 'conflict' },
+      ],
+    });
+  }
+}
+
+class InvalidStatusTransitionError extends ObjectStackError {
+  constructor(from: string, to: string) {
+    super({
+      code: ErrorCodes.INVALID_STATUS_TRANSITION,
+      message: `Cannot transition from '${from}' to '${to}'`,
+      status: 400,
+      details: [
+        { field: 'status', message: `Invalid transition: ${from} → ${to}`, code: 'invalid_transition' },
+      ],
+    });
+  }
+}
+```
+
+<Callout type="tip">
+**Error Code Naming:** Use `UPPER_SNAKE_CASE` for error codes. Prefix with the domain (e.g., `TASK_`, `ORDER_`, `INVOICE_`) to avoid collisions across plugins.
+</Callout>
+
+---
+
+## 2. Error Propagation in Hooks
+
+Hooks are the primary extension point for business logic. Errors thrown in hooks are automatically caught by the Kernel and returned as API errors.
+
+### Before Hooks (Validation / Guard)
+
+```typescript
+import { defineHook } from '@objectstack/core';
+
+export const validateStatusTransition = defineHook({
+  object: 'task',
+  event: 'beforeUpdate',
+  handler: async ({ record, changes, context }) => {
+    // Guard: prevent modifying completed tasks
+    if (record.status === 'done' && changes.status !== undefined) {
+      throw new TaskAlreadyCompletedError(record.id);
+    }
+
+    // Validate status transitions
+    if (changes.status) {
+      const validTransitions: Record<string, string[]> = {
+        open: ['in_progress', 'cancelled'],
+        in_progress: ['open', 'done', 'blocked'],
+        blocked: ['in_progress', 'cancelled'],
+        done: [],         // terminal state
+        cancelled: [],    // terminal state
+      };
+
+      const allowed = validTransitions[record.status] ?? [];
+      if (!allowed.includes(changes.status)) {
+        throw new InvalidStatusTransitionError(record.status, changes.status);
+      }
+    }
+
+    return changes;
+  },
+});
+```
+
+### After Hooks (Side Effects)
+
+Errors in `after` hooks do not roll back the main operation, but they are logged and can trigger alerts:
+
+```typescript
+export const notifyOnCompletion = defineHook({
+  object: 'task',
+  event: 'afterUpdate',
+  handler: async ({ record, changes, context }) => {
+    if (changes.status === 'done') {
+      try {
+        // notificationService is injected via the plugin's dependency container
+        await notificationService.send({
+          to: record.assigned_to,
+          template: 'task_completed',
+          data: { taskTitle: record.title },
+        });
+      } catch (error) {
+        // Log but don't fail the response
+        context.logger.error('Failed to send completion notification', {
+          taskId: record.id,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+  },
+});
+```
+
+---
+
+## 3. Validation Error Formatting
+
+Format validation errors so the client can map them to specific form fields:
+
+```typescript
+import { z } from 'zod';
+import { ObjectStackError } from '@objectstack/core';
+
+function createValidationError(zodError: z.ZodError): ObjectStackError {
+  const details = zodError.issues.map((issue) => ({
+    field: issue.path.join('.'),
+    message: issue.message,
+    code: issue.code,
+  }));
+
+  return new ObjectStackError({
+    code: 'VALIDATION_ERROR',
+    message: `Validation failed: ${details.length} error(s)`,
+    status: 400,
+    details,
+  });
+}
+
+// Usage in a hook
+export const validateTaskData = defineHook({
+  object: 'task',
+  event: 'beforeCreate',
+  handler: async ({ data }) => {
+    const schema = z.object({
+      title: z.string().min(1, 'Title is required').max(200),
+      priority: z.enum(['low', 'medium', 'high', 'critical']),
+      estimated_hours: z.number().min(0).max(1000).optional(),
+    });
+
+    const result = schema.safeParse(data);
+    if (!result.success) {
+      throw createValidationError(result.error);
+    }
+
+    return data;
+  },
+});
+```
+
+---
+
+## 4. Error Logging and Monitoring
+
+Structure error logs for observability:
+
+```typescript
+import { defineHook } from '@objectstack/core';
+
+export const errorLoggingMiddleware = defineHook({
+  object: '*',   // applies to all objects
+  event: 'onError',
+  handler: async ({ error, context, operation }) => {
+    const logEntry = {
+      code: error.code,
+      message: error.message,
+      status: error.status,
+      object: context.object,
+      operation,
+      userId: context.user?.id,
+      requestId: context.requestId,
+      timestamp: new Date().toISOString(),
+      stack: error.status >= 500 ? error.stack : undefined,
+    };
+
+    if (error.status >= 500) {
+      context.logger.error('Server error', logEntry);
+      // Alert on-call if critical
+      await alertService.notify('server-error', logEntry);
+    } else if (error.status >= 400) {
+      context.logger.warn('Client error', logEntry);
+    }
+
+    // Re-throw to propagate to the API layer
+    throw error;
+  },
+});
+```
+
+---
+
+## 5. Error Recovery Patterns
+
+### Graceful Degradation
+
+When a non-critical service fails, continue with a fallback:
+
+```typescript
+export const enrichTaskWithAI = defineHook({
+  object: 'task',
+  event: 'afterCreate',
+  handler: async ({ record, context }) => {
+    try {
+      const suggestions = await aiService.suggestTags(record.description);
+      if (suggestions.length > 0) {
+        await dataEngine.update('task', record.id, {
+          ai_suggested_tags: suggestions,
+        });
+      }
+    } catch (error) {
+      // AI enrichment is non-critical — log and continue
+      context.logger.warn('AI tag suggestion failed', {
+        taskId: record.id,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      // Don't re-throw — the task was already created successfully
+    }
+  },
+});
+```
+
+### Circuit Breaker
+
+Prevent cascading failures when an external service is down:
+
+```typescript
+class CircuitBreaker {
+  private failures = 0;
+  private lastFailure = 0;
+  private readonly threshold: number;
+  private readonly resetTimeout: number;
+
+  constructor(threshold = 5, resetTimeout = 60000) {
+    this.threshold = threshold;
+    this.resetTimeout = resetTimeout;
+  }
+
+  get isOpen(): boolean {
+    if (this.failures >= this.threshold) {
+      if (Date.now() - this.lastFailure > this.resetTimeout) {
+        this.failures = 0; // Reset after timeout
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  recordFailure() {
+    this.failures++;
+    this.lastFailure = Date.now();
+  }
+
+  recordSuccess() {
+    this.failures = 0;
+  }
+
+  async execute<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
+    if (this.isOpen) return fallback;
+    try {
+      const result = await fn();
+      this.recordSuccess();
+      return result;
+    } catch (error) {
+      this.recordFailure();
+      return fallback;
+    }
+  }
+}
+
+const emailCircuit = new CircuitBreaker(5, 60000);
+```
+
+---
+
+## 6. Transaction Rollback on Error
+
+Ensure data consistency when multi-step operations fail:
+
+```typescript
+import { defineHook } from '@objectstack/core';
+
+export const createProjectWithTasks = defineHook({
+  object: 'project',
+  event: 'afterCreate',
+  handler: async ({ record, context }) => {
+    // Wrap multi-step operations in a transaction
+    await dataEngine.transaction(async (tx) => {
+      // Create default tasks for the project
+      const defaultTasks = [
+        { title: 'Project kickoff', status: 'open', project: record.id },
+        { title: 'Requirements gathering', status: 'open', project: record.id },
+        { title: 'Design review', status: 'open', project: record.id },
+      ];
+
+      for (const task of defaultTasks) {
+        await tx.create('task', task);
+      }
+
+      // Update project with task count
+      await tx.update('project', record.id, {
+        task_count: defaultTasks.length,
+      });
+
+      // If any operation fails, all changes are rolled back
+    });
+  },
+});
+```
+
+---
+
+## 7. Bulk Operation Error Handling
+
+Handle partial failures in batch operations gracefully:
+
+```typescript
+interface BulkOperationResult<T> {
+  succeeded: T[];
+  failed: Array<{ index: number; data: unknown; error: string }>;
+}
+
+async function bulkCreateTasks(
+  tasks: Record<string, unknown>[]
+): Promise<BulkOperationResult<Record<string, unknown>>> {
+  const result: BulkOperationResult<Record<string, unknown>> = {
+    succeeded: [],
+    failed: [],
+  };
+
+  for (let i = 0; i < tasks.length; i++) {
+    try {
+      const created = await dataEngine.create('task', tasks[i]);
+      result.succeeded.push(created);
+    } catch (error) {
+      result.failed.push({
+        index: i,
+        data: tasks[i],
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  // If everything failed, throw a combined error
+  if (result.succeeded.length === 0 && result.failed.length > 0) {
+    throw new ObjectStackError({
+      code: 'BULK_OPERATION_FAILED',
+      message: `All ${result.failed.length} operations failed`,
+      status: 400,
+      details: result.failed.map((f) => ({
+        field: `operations[${f.index}]`,
+        message: f.error,
+        code: 'operation_failed',
+      })),
+    });
+  }
+
+  return result;
+}
+```
+
+---
+
+## 8. Integration with safeParsePretty()
+
+ObjectStack provides `safeParsePretty()` for Zod schemas that returns human-readable error messages:
+
+```typescript
+import { safeParsePretty } from '@objectstack/spec';
+import { ObjectSchema } from '@objectstack/spec/data';
+
+function validateObjectDefinition(input: unknown) {
+  const result = safeParsePretty(ObjectSchema, input);
+
+  if (!result.success) {
+    // result.error contains formatted, human-readable messages
+    console.error('Validation failed:');
+    console.error(result.error);
+    // Output:
+    // ✗ fields.0.name: Field name must be snake_case (received "firstName")
+    // ✗ fields.1.type: Invalid enum value. Expected 'text' | 'number' | ...
+    // ✗ name: Required
+
+    // Convert to ObjectStack error format
+    throw new ObjectStackError({
+      code: 'VALIDATION_ERROR',
+      message: 'Invalid object definition',
+      status: 400,
+      details: result.issues.map((issue) => ({
+        field: issue.path,
+        message: issue.message,
+        code: issue.code,
+      })),
+    });
+  }
+
+  return result.data;
+}
+```
+
+### Using safeParsePretty in Hooks
+
+```typescript
+import { safeParsePretty } from '@objectstack/spec';
+import { z } from 'zod';
+
+const TaskBusinessRules = z.object({
+  estimated_hours: z.number().max(1000, 'Estimated hours cannot exceed 1000'),
+  due_date: z.string().refine(
+    (d) => new Date(d) > new Date(),
+    'Due date must be in the future'
+  ),
+});
+
+export const validateBusinessRules = defineHook({
+  object: 'task',
+  event: 'beforeCreate',
+  handler: async ({ data }) => {
+    const result = safeParsePretty(TaskBusinessRules, data);
+    if (!result.success) {
+      throw new ObjectStackError({
+        code: 'VALIDATION_ERROR',
+        message: result.error,
+        status: 400,
+        details: result.issues.map((i) => ({
+          field: i.path,
+          message: i.message,
+          code: 'business_rule',
+        })),
+      });
+    }
+    return data;
+  },
+});
+```
+
+<Callout type="tip">
+**safeParsePretty vs safeParse:** Always prefer `safeParsePretty()` in server-side code. It provides formatted error messages that are suitable for both logging and API responses, with "Did you mean?" suggestions for common typos.
+</Callout>

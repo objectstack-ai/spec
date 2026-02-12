@@ -1,0 +1,608 @@
+---
+title: Wire Format & JSON Examples
+description: Complete HTTP request/response examples for ObjectStack API operations — CRUD, queries, metadata, errors, and batch operations
+---
+
+# Wire Format & JSON Examples
+
+This page provides complete HTTP request and response examples for every common ObjectStack API operation. All examples use a `task` object with realistic data.
+
+<Callout type="info">
+**Base URL:** All endpoints are relative to your ObjectStack instance, e.g. `https://api.example.com`.  
+**Content-Type:** All requests and responses use `application/json`.  
+**Authentication:** Include `Authorization: Bearer <token>` header on all requests.
+</Callout>
+
+---
+
+## 1. Create Record
+
+**`POST /api/v1/data/task`**
+
+Creates a new record on the `task` object.
+
+### Request
+
+```json
+{
+  "data": {
+    "title": "Implement login page",
+    "description": "Build the authentication UI with email/password and OAuth support",
+    "status": "open",
+    "priority": "high",
+    "assigned_to": "usr_01HQ3V5K8N2M4P6R7T9W",
+    "due_date": "2025-03-15",
+    "estimated_hours": 8,
+    "tags": ["frontend", "auth"],
+    "project": "prj_01HQ3V5K8N2M4P6R7T9X"
+  }
+}
+```
+
+### Response — `201 Created`
+
+```json
+{
+  "data": {
+    "id": "tsk_01HQ4A7B9D3F5G8J2K4L",
+    "title": "Implement login page",
+    "description": "Build the authentication UI with email/password and OAuth support",
+    "status": "open",
+    "priority": "high",
+    "assigned_to": "usr_01HQ3V5K8N2M4P6R7T9W",
+    "due_date": "2025-03-15",
+    "estimated_hours": 8,
+    "tags": ["frontend", "auth"],
+    "project": "prj_01HQ3V5K8N2M4P6R7T9X",
+    "created_at": "2025-01-20T10:30:00.000Z",
+    "updated_at": "2025-01-20T10:30:00.000Z",
+    "created_by": "usr_01HQ3V5K8N2M4P6R7T9W",
+    "owner": "usr_01HQ3V5K8N2M4P6R7T9W"
+  },
+  "meta": {
+    "object": "task",
+    "operation": "create"
+  }
+}
+```
+
+---
+
+## 2. Read Record
+
+**`GET /api/v1/data/task/tsk_01HQ4A7B9D3F5G8J2K4L`**
+
+Retrieves a single record by ID.
+
+### Request
+
+No request body. Optional query parameters:
+
+| Parameter | Type | Description |
+|:---|:---|:---|
+| `fields` | `string` | Comma-separated list of fields to return |
+| `expand` | `string` | Comma-separated lookup fields to expand |
+
+```
+GET /api/v1/data/task/tsk_01HQ4A7B9D3F5G8J2K4L?fields=title,status,assigned_to&expand=assigned_to
+```
+
+### Response — `200 OK`
+
+```json
+{
+  "data": {
+    "id": "tsk_01HQ4A7B9D3F5G8J2K4L",
+    "title": "Implement login page",
+    "status": "open",
+    "assigned_to": {
+      "id": "usr_01HQ3V5K8N2M4P6R7T9W",
+      "name": "Jane Smith",
+      "email": "jane@example.com"
+    }
+  },
+  "meta": {
+    "object": "task",
+    "operation": "read"
+  }
+}
+```
+
+---
+
+## 3. List Records with Query
+
+**`POST /api/v1/data/task/query`**
+
+Executes a structured query against the `task` object.
+
+### Request
+
+```json
+{
+  "filter": {
+    "and": [
+      { "field": "status", "operator": "in", "value": ["open", "in_progress"] },
+      { "field": "priority", "operator": "eq", "value": "high" },
+      { "field": "due_date", "operator": "lte", "value": "2025-03-31" }
+    ]
+  },
+  "fields": ["id", "title", "status", "priority", "assigned_to", "due_date"],
+  "expand": ["assigned_to"],
+  "orderBy": [
+    { "field": "due_date", "direction": "asc" }
+  ],
+  "limit": 20,
+  "offset": 0
+}
+```
+
+### Response — `200 OK`
+
+```json
+{
+  "data": [
+    {
+      "id": "tsk_01HQ4A7B9D3F5G8J2K4L",
+      "title": "Implement login page",
+      "status": "open",
+      "priority": "high",
+      "assigned_to": {
+        "id": "usr_01HQ3V5K8N2M4P6R7T9W",
+        "name": "Jane Smith"
+      },
+      "due_date": "2025-03-15"
+    },
+    {
+      "id": "tsk_01HQ4B8C0E4G6H9K3L5M",
+      "title": "Fix payment processing bug",
+      "status": "in_progress",
+      "priority": "high",
+      "assigned_to": {
+        "id": "usr_01HQ3W6L9O3N5Q7S8U0X",
+        "name": "Bob Johnson"
+      },
+      "due_date": "2025-03-20"
+    }
+  ],
+  "meta": {
+    "object": "task",
+    "operation": "query",
+    "total": 47,
+    "limit": 20,
+    "offset": 0,
+    "hasMore": true
+  }
+}
+```
+
+<Callout type="tip">
+**Filter Operators:** `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `in`, `nin`, `contains`, `startsWith`, `endsWith`, `isNull`, `isNotNull`. Combine with `and` / `or` for complex queries.
+</Callout>
+
+---
+
+## 4. Update Record
+
+**`PATCH /api/v1/data/task/tsk_01HQ4A7B9D3F5G8J2K4L`**
+
+Updates specific fields on an existing record. Only include fields you want to change.
+
+### Request
+
+```json
+{
+  "data": {
+    "status": "in_progress",
+    "estimated_hours": 12,
+    "tags": ["frontend", "auth", "urgent"]
+  }
+}
+```
+
+### Response — `200 OK`
+
+```json
+{
+  "data": {
+    "id": "tsk_01HQ4A7B9D3F5G8J2K4L",
+    "title": "Implement login page",
+    "description": "Build the authentication UI with email/password and OAuth support",
+    "status": "in_progress",
+    "priority": "high",
+    "assigned_to": "usr_01HQ3V5K8N2M4P6R7T9W",
+    "due_date": "2025-03-15",
+    "estimated_hours": 12,
+    "tags": ["frontend", "auth", "urgent"],
+    "project": "prj_01HQ3V5K8N2M4P6R7T9X",
+    "created_at": "2025-01-20T10:30:00.000Z",
+    "updated_at": "2025-01-20T14:15:00.000Z",
+    "created_by": "usr_01HQ3V5K8N2M4P6R7T9W",
+    "owner": "usr_01HQ3V5K8N2M4P6R7T9W"
+  },
+  "meta": {
+    "object": "task",
+    "operation": "update"
+  }
+}
+```
+
+---
+
+## 5. Delete Record
+
+**`DELETE /api/v1/data/task/tsk_01HQ4A7B9D3F5G8J2K4L`**
+
+Permanently deletes a record.
+
+### Request
+
+No request body.
+
+### Response — `200 OK`
+
+```json
+{
+  "data": {
+    "id": "tsk_01HQ4A7B9D3F5G8J2K4L",
+    "deleted": true
+  },
+  "meta": {
+    "object": "task",
+    "operation": "delete"
+  }
+}
+```
+
+<Callout type="info">
+**Soft Delete:** If the object has `enableRecycleBin: true`, the record is moved to the recycle bin instead of being permanently deleted. Use `DELETE /api/v1/data/task/tsk_.../permanent` to bypass.
+</Callout>
+
+---
+
+## 6. Get Metadata
+
+**`GET /api/v1/meta/objects`**
+
+Returns metadata for all objects the current user has access to.
+
+### Response — `200 OK`
+
+```json
+{
+  "data": [
+    {
+      "name": "task",
+      "label": "Task",
+      "pluralLabel": "Tasks",
+      "description": "Project tasks and work items",
+      "fields": [
+        {
+          "name": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true,
+          "maxLength": 200
+        },
+        {
+          "name": "status",
+          "label": "Status",
+          "type": "select",
+          "required": true,
+          "options": [
+            { "label": "Open", "value": "open" },
+            { "label": "In Progress", "value": "in_progress" },
+            { "label": "Done", "value": "done" },
+            { "label": "Cancelled", "value": "cancelled" }
+          ],
+          "defaultValue": "open"
+        },
+        {
+          "name": "assigned_to",
+          "label": "Assigned To",
+          "type": "lookup",
+          "reference": "user"
+        },
+        {
+          "name": "due_date",
+          "label": "Due Date",
+          "type": "date"
+        }
+      ],
+      "enable": {
+        "apiEnabled": true,
+        "trackHistory": true,
+        "search": true
+      }
+    }
+  ],
+  "meta": {
+    "total": 12
+  }
+}
+```
+
+### Single Object Metadata
+
+**`GET /api/v1/meta/objects/task`**
+
+Returns metadata for a single object including all fields, relationships, and configuration.
+
+---
+
+## 7. Error Response Format
+
+All errors follow a consistent structure defined by `ErrorResponseSchema`.
+
+### Validation Error — `400 Bad Request`
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Validation failed for task",
+    "status": 400,
+    "details": [
+      {
+        "field": "title",
+        "message": "Required field is missing",
+        "code": "required"
+      },
+      {
+        "field": "status",
+        "message": "Invalid enum value. Expected 'open' | 'in_progress' | 'done' | 'cancelled', received 'pending'",
+        "code": "invalid_enum_value"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_01HQ4C9D1F5G7H0J2K4L",
+    "timestamp": "2025-01-20T10:30:00.000Z"
+  }
+}
+```
+
+### Not Found — `404 Not Found`
+
+```json
+{
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Record not found: task/tsk_01HQ4A7B9D3F5G8J2K4L",
+    "status": 404
+  },
+  "meta": {
+    "requestId": "req_01HQ4C9D1F5G7H0J2K5M",
+    "timestamp": "2025-01-20T10:31:00.000Z"
+  }
+}
+```
+
+### Permission Denied — `403 Forbidden`
+
+```json
+{
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "Insufficient permissions to update task records",
+    "status": 403,
+    "details": [
+      {
+        "permission": "update",
+        "object": "task",
+        "profile": "readonly_user"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_01HQ4C9D1F5G7H0J2K6N",
+    "timestamp": "2025-01-20T10:32:00.000Z"
+  }
+}
+```
+
+### Rate Limited — `429 Too Many Requests`
+
+```json
+{
+  "error": {
+    "code": "RATE_LIMITED",
+    "message": "Rate limit exceeded. Retry after 30 seconds.",
+    "status": 429,
+    "details": [
+      {
+        "limit": 1000,
+        "remaining": 0,
+        "resetAt": "2025-01-20T10:35:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_01HQ4C9D1F5G7H0J2K7P",
+    "timestamp": "2025-01-20T10:33:00.000Z"
+  }
+}
+```
+
+<Callout type="info">
+**Error Codes:** See the [Error Catalog](/references/api/error-catalog) for the complete list of error codes and their meanings.
+</Callout>
+
+---
+
+## 8. Batch Operations
+
+**`POST /api/v1/data/task/batch`**
+
+Execute multiple operations in a single request. Operations are processed in order and can optionally be wrapped in a transaction.
+
+### Request
+
+```json
+{
+  "operations": [
+    {
+      "method": "create",
+      "data": {
+        "title": "Design mockups",
+        "status": "open",
+        "priority": "medium"
+      }
+    },
+    {
+      "method": "create",
+      "data": {
+        "title": "Write unit tests",
+        "status": "open",
+        "priority": "high"
+      }
+    },
+    {
+      "method": "update",
+      "id": "tsk_01HQ4A7B9D3F5G8J2K4L",
+      "data": {
+        "status": "done"
+      }
+    },
+    {
+      "method": "delete",
+      "id": "tsk_01HQ4B8C0E4G6H9K3L5M"
+    }
+  ],
+  "options": {
+    "transaction": true,
+    "stopOnError": false
+  }
+}
+```
+
+### Response — `200 OK`
+
+```json
+{
+  "data": {
+    "results": [
+      {
+        "index": 0,
+        "method": "create",
+        "success": true,
+        "data": {
+          "id": "tsk_01HQ4D0E2G6H8J0K2L4N",
+          "title": "Design mockups",
+          "status": "open",
+          "priority": "medium",
+          "created_at": "2025-01-20T15:00:00.000Z"
+        }
+      },
+      {
+        "index": 1,
+        "method": "create",
+        "success": true,
+        "data": {
+          "id": "tsk_01HQ4E1F3H7I9K1L3M5O",
+          "title": "Write unit tests",
+          "status": "open",
+          "priority": "high",
+          "created_at": "2025-01-20T15:00:00.000Z"
+        }
+      },
+      {
+        "index": 2,
+        "method": "update",
+        "success": true,
+        "data": {
+          "id": "tsk_01HQ4A7B9D3F5G8J2K4L",
+          "status": "done",
+          "updated_at": "2025-01-20T15:00:00.000Z"
+        }
+      },
+      {
+        "index": 3,
+        "method": "delete",
+        "success": true,
+        "data": {
+          "id": "tsk_01HQ4B8C0E4G6H9K3L5M",
+          "deleted": true
+        }
+      }
+    ],
+    "summary": {
+      "total": 4,
+      "succeeded": 4,
+      "failed": 0
+    }
+  },
+  "meta": {
+    "object": "task",
+    "operation": "batch"
+  }
+}
+```
+
+### Partial Failure Response — `207 Multi-Status`
+
+When `stopOnError: false` and some operations fail:
+
+```json
+{
+  "data": {
+    "results": [
+      {
+        "index": 0,
+        "method": "create",
+        "success": true,
+        "data": {
+          "id": "tsk_01HQ4D0E2G6H8J0K2L4N",
+          "title": "Design mockups"
+        }
+      },
+      {
+        "index": 1,
+        "method": "update",
+        "success": false,
+        "error": {
+          "code": "NOT_FOUND",
+          "message": "Record not found: task/tsk_invalid_id"
+        }
+      }
+    ],
+    "summary": {
+      "total": 2,
+      "succeeded": 1,
+      "failed": 1
+    }
+  },
+  "meta": {
+    "object": "task",
+    "operation": "batch"
+  }
+}
+```
+
+<Callout type="tip">
+**Batch Limits:** Maximum 200 operations per batch request. For larger imports, use the streaming import endpoint `POST /api/v1/data/:object/import`.
+</Callout>
+
+---
+
+## Common Headers
+
+### Request Headers
+
+| Header | Required | Description |
+|:---|:---|:---|
+| `Authorization` | Yes | `Bearer <access_token>` |
+| `Content-Type` | Yes | `application/json` |
+| `X-Request-Id` | No | Client-generated request ID for tracing |
+| `X-Idempotency-Key` | No | Prevents duplicate creates on retry |
+| `Accept-Language` | No | Locale for translated labels (e.g., `en-US`) |
+
+### Response Headers
+
+| Header | Description |
+|:---|:---|
+| `X-Request-Id` | Server-assigned (or echoed) request ID |
+| `X-RateLimit-Limit` | Maximum requests per window |
+| `X-RateLimit-Remaining` | Remaining requests in current window |
+| `X-RateLimit-Reset` | UTC timestamp when the window resets |
+| `ETag` | Entity tag for conditional requests |
