@@ -1,9 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  DeveloperAccountStatusSchema,
-  ApiKeyScopeSchema,
-  DeveloperApiKeySchema,
-  DeveloperAccountSchema,
+  PublisherProfileSchema,
   ReleaseChannelSchema,
   VersionReleaseSchema,
   CreateListingRequestSchema,
@@ -15,110 +12,50 @@ import {
   TimeSeriesPointSchema,
 } from './developer-portal.zod';
 
-describe('DeveloperAccountStatusSchema', () => {
-  it('should accept all valid statuses', () => {
-    const statuses = ['pending', 'active', 'suspended', 'deactivated'];
-    statuses.forEach(status => {
-      expect(() => DeveloperAccountStatusSchema.parse(status)).not.toThrow();
-    });
-  });
-
-  it('should reject invalid status', () => {
-    expect(() => DeveloperAccountStatusSchema.parse('banned')).toThrow();
-  });
-});
-
-describe('ApiKeyScopeSchema', () => {
-  it('should accept all valid scopes', () => {
-    const scopes = ['publish', 'read', 'manage', 'admin'];
-    scopes.forEach(scope => {
-      expect(() => ApiKeyScopeSchema.parse(scope)).not.toThrow();
-    });
-  });
-});
-
-describe('DeveloperApiKeySchema', () => {
-  it('should accept minimal API key', () => {
-    const key = {
-      id: 'key-001',
-      label: 'CI/CD Pipeline',
-      scopes: ['publish'],
-      createdAt: '2025-06-01T00:00:00Z',
-    };
-    const parsed = DeveloperApiKeySchema.parse(key);
-    expect(parsed.active).toBe(true);
-  });
-
-  it('should accept full API key', () => {
-    const key = {
-      id: 'key-001',
-      label: 'CI/CD Pipeline',
-      scopes: ['publish', 'read'],
-      prefix: 'os_pk_ab',
-      expiresAt: '2026-06-01T00:00:00Z',
-      createdAt: '2025-06-01T00:00:00Z',
-      lastUsedAt: '2025-09-15T10:30:00Z',
-      active: true,
-    };
-    const parsed = DeveloperApiKeySchema.parse(key);
-    expect(parsed.scopes).toHaveLength(2);
-    expect(parsed.prefix).toBe('os_pk_ab');
-  });
-
-  it('should require at least one scope', () => {
-    const key = {
-      id: 'key-001',
-      label: 'Empty',
-      scopes: [],
-      createdAt: '2025-06-01T00:00:00Z',
-    };
-    expect(() => DeveloperApiKeySchema.parse(key)).toThrow();
-  });
-});
-
-describe('DeveloperAccountSchema', () => {
-  it('should accept minimal account', () => {
-    const account = {
-      id: 'dev-001',
+describe('PublisherProfileSchema', () => {
+  it('should accept minimal publisher profile', () => {
+    const profile = {
+      organizationId: 'org-001',
       publisherId: 'pub-001',
-      organizationName: 'Acme Corp',
-      email: 'dev@acme.com',
       registeredAt: '2025-01-15T10:00:00Z',
     };
-    const parsed = DeveloperAccountSchema.parse(account);
-    expect(parsed.status).toBe('pending');
+    const parsed = PublisherProfileSchema.parse(profile);
     expect(parsed.verification).toBe('unverified');
   });
 
-  it('should accept full account with team members', () => {
-    const account = {
-      id: 'dev-001',
+  it('should accept full publisher profile', () => {
+    const profile = {
+      organizationId: 'org-001',
       publisherId: 'pub-001',
-      status: 'active' as const,
       verification: 'verified' as const,
-      organizationName: 'Acme Corp',
-      email: 'dev@acme.com',
-      teamMembers: [
-        { userId: 'user-001', role: 'owner' as const, joinedAt: '2025-01-15T10:00:00Z' },
-        { userId: 'user-002', role: 'developer' as const },
-      ],
       agreementVersion: '2.0',
+      website: 'https://acme.com',
+      supportEmail: 'support@acme.com',
       registeredAt: '2025-01-15T10:00:00Z',
     };
-    const parsed = DeveloperAccountSchema.parse(account);
-    expect(parsed.teamMembers).toHaveLength(2);
-    expect(parsed.status).toBe('active');
+    const parsed = PublisherProfileSchema.parse(profile);
+    expect(parsed.verification).toBe('verified');
+    expect(parsed.agreementVersion).toBe('2.0');
   });
 
-  it('should require valid email', () => {
-    const account = {
-      id: 'dev-001',
+  it('should require valid support email', () => {
+    const profile = {
+      organizationId: 'org-001',
       publisherId: 'pub-001',
-      organizationName: 'Acme Corp',
-      email: 'not-an-email',
+      supportEmail: 'not-an-email',
       registeredAt: '2025-01-15T10:00:00Z',
     };
-    expect(() => DeveloperAccountSchema.parse(account)).toThrow();
+    expect(() => PublisherProfileSchema.parse(profile)).toThrow();
+  });
+
+  it('should require valid website URL', () => {
+    const profile = {
+      organizationId: 'org-001',
+      publisherId: 'pub-001',
+      website: 'not-a-url',
+      registeredAt: '2025-01-15T10:00:00Z',
+    };
+    expect(() => PublisherProfileSchema.parse(profile)).toThrow();
   });
 });
 

@@ -226,3 +226,112 @@ export const VerificationTokenSchema = z.object({
 });
 
 export type VerificationToken = z.infer<typeof VerificationTokenSchema>;
+
+/**
+ * API Key Schema
+ *
+ * Aligns with better-auth's API key plugin capabilities.
+ * Provides programmatic access to ObjectStack APIs (CI/CD, service-to-service, CLI).
+ *
+ * @see https://www.better-auth.com/docs/plugins/api-key
+ */
+export const ApiKeySchema = z.object({
+  /**
+   * Unique API key identifier
+   */
+  id: z.string().describe('API key identifier'),
+
+  /**
+   * Human-readable name for the key
+   */
+  name: z.string().describe('API key display name'),
+
+  /**
+   * Key prefix (visible portion for identification, e.g., "os_pk_ab")
+   */
+  start: z.string().optional().describe('Key prefix for identification'),
+
+  /**
+   * Custom prefix for the key (e.g., "os_pk_")
+   */
+  prefix: z.string().optional().describe('Custom key prefix'),
+
+  /**
+   * User ID of the key owner
+   */
+  userId: z.string().describe('Owner user ID'),
+
+  /**
+   * Organization ID the key is scoped to (optional)
+   */
+  organizationId: z.string().optional().describe('Scoped organization ID'),
+
+  /**
+   * Key expiration timestamp (null = never expires)
+   */
+  expiresAt: z.string().datetime().optional().describe('Expiration timestamp'),
+
+  /**
+   * Creation timestamp
+   */
+  createdAt: z.string().datetime().describe('Creation timestamp'),
+
+  /**
+   * Last update timestamp
+   */
+  updatedAt: z.string().datetime().describe('Last update timestamp'),
+
+  /**
+   * Last used timestamp
+   */
+  lastUsedAt: z.string().datetime().optional().describe('Last used timestamp'),
+
+  /**
+   * Last refetch timestamp (for cached permission checks)
+   */
+  lastRefetchAt: z.string().datetime().optional().describe('Last refetch timestamp'),
+
+  /**
+   * Whether this key is enabled
+   */
+  enabled: z.boolean().default(true).describe('Whether the key is active'),
+
+  /**
+   * Rate limiting: enabled flag
+   */
+  rateLimitEnabled: z.boolean().optional().describe('Whether rate limiting is enabled'),
+
+  /**
+   * Rate limiting: time window in milliseconds
+   */
+  rateLimitTimeWindow: z.number().int().min(0).optional().describe('Rate limit window (ms)'),
+
+  /**
+   * Rate limiting: max requests per window
+   */
+  rateLimitMax: z.number().int().min(0).optional().describe('Max requests per window'),
+
+  /**
+   * Rate limiting: remaining requests in current window
+   */
+  remaining: z.number().int().min(0).optional().describe('Remaining requests'),
+
+  /**
+   * Permissions assigned to this key (granular access control)
+   */
+  permissions: z.record(z.string(), z.boolean()).optional()
+    .describe('Granular permission flags'),
+
+  /**
+   * Scopes assigned to this key (high-level access categories)
+   */
+  scopes: z.array(z.string()).optional()
+    .describe('High-level access scopes'),
+
+  /**
+   * Custom metadata
+   */
+  metadata: z.record(z.string(), z.unknown()).optional().describe('Custom metadata'),
+});
+
+export type ApiKey = z.infer<typeof ApiKeySchema>;

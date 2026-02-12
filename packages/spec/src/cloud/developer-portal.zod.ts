@@ -18,101 +18,56 @@ import { PublisherVerificationSchema } from './marketplace.zod';
  * - **Shopify Partner Dashboard**: App management, analytics, billing
  * - **VS Code Marketplace Management**: Extension publishing, statistics, tokens
  *
+ * ## Identity Integration (better-auth)
+ * Authentication, organization management, and API keys are handled by the
+ * Identity module (`@objectstack/spec` Identity namespace), which follows the
+ * better-auth specification. This module only defines marketplace-specific
+ * extensions on top of the shared identity layer:
+ *
+ * - **User & Session** → `Identity.UserSchema`, `Identity.SessionSchema`
+ * - **Organization & Members** → `Identity.OrganizationSchema`, `Identity.MemberSchema`
+ * - **API Keys** → `Identity.ApiKeySchema` (with marketplace scopes)
+ *
  * ## Key Concepts
- * - **Developer Account**: Registration and API key management
+ * - **Publisher Profile**: Links an Identity Organization to a marketplace publisher
  * - **App Listing Management**: CRUD for marketplace listings (draft → published)
  * - **Version Channels**: alpha / beta / rc / stable release channels
  * - **Publishing Analytics**: Install trends, revenue, ratings over time
  */
 
 // ==========================================
-// Developer Account & API Keys
+// Publisher Profile (extends Identity.Organization)
 // ==========================================
 
 /**
- * Developer Account Status
- */
-export const DeveloperAccountStatusSchema = z.enum([
-  'pending',        // Registration submitted, awaiting approval
-  'active',         // Account active and can publish
-  'suspended',      // Temporarily suspended (policy violation)
-  'deactivated',    // Deactivated by developer
-]);
-
-/**
- * API Key Scope — controls what the key can do
- */
-export const ApiKeyScopeSchema = z.enum([
-  'publish',        // Publish packages to registry
-  'read',           // Read listing/analytics data
-  'manage',         // Manage listings (update, deprecate)
-  'admin',          // Full access (manage team, keys)
-]);
-
-/**
- * Developer API Key
- */
-export const DeveloperApiKeySchema = z.object({
-  /** Key identifier (not the secret) */
-  id: z.string().describe('API key identifier'),
-
-  /** Human-readable label */
-  label: z.string().describe('Key label (e.g., "CI/CD Pipeline")'),
-
-  /** Scopes granted to this key */
-  scopes: z.array(ApiKeyScopeSchema).min(1).describe('Permissions granted'),
-
-  /** Key prefix (first 8 chars) for identification */
-  prefix: z.string().max(8).optional().describe('Key prefix for display'),
-
-  /** Expiration date (optional) */
-  expiresAt: z.string().datetime().optional(),
-
-  /** Creation timestamp */
-  createdAt: z.string().datetime(),
-
-  /** Last used timestamp */
-  lastUsedAt: z.string().datetime().optional(),
-
-  /** Whether this key is currently active */
-  active: z.boolean().default(true),
-});
-
-/**
- * Developer Account Schema
+ * Publisher Profile Schema
  *
- * Represents a registered developer or organization in the portal.
+ * Links an Identity Organization to a marketplace publisher identity.
+ * The organization itself (name, slug, logo, members) is managed via
+ * Identity.OrganizationSchema and Identity.MemberSchema (better-auth aligned).
+ *
+ * This schema only holds marketplace-specific publisher metadata.
  */
-export const DeveloperAccountSchema = z.object({
-  /** Account unique identifier */
-  id: z.string().describe('Developer account ID'),
+export const PublisherProfileSchema = z.object({
+  /** Organization ID (references Identity.Organization.id) */
+  organizationId: z.string().describe('Identity Organization ID'),
 
-  /** Publisher ID (links to PublisherSchema in marketplace) */
-  publisherId: z.string().describe('Associated publisher ID'),
+  /** Publisher ID (marketplace-assigned identifier) */
+  publisherId: z.string().describe('Marketplace publisher ID'),
 
-  /** Account status */
-  status: DeveloperAccountStatusSchema.default('pending'),
-
-  /** Verification level (from marketplace publisher) */
+  /** Verification level (marketplace trust tier) */
   verification: PublisherVerificationSchema.default('unverified'),
 
-  /** Organization name */
-  organizationName: z.string().describe('Organization or developer name'),
+  /** Accepted developer program agreement version */
+  agreementVersion: z.string().optional().describe('Accepted developer agreement version'),
 
-  /** Primary contact email */
-  email: z.string().email().describe('Primary contact email'),
+  /** Publisher-specific website (may differ from org) */
+  website: z.string().url().optional().describe('Publisher website'),
 
-  /** Team members (user IDs with roles) */
-  teamMembers: z.array(z.object({
-    userId: z.string(),
-    role: z.enum(['owner', 'admin', 'developer', 'viewer']),
-    joinedAt: z.string().datetime().optional(),
-  })).optional().describe('Team member list'),
+  /** Publisher-specific support email */
+  supportEmail: z.string().email().optional().describe('Publisher support email'),
 
-  /** Accepted developer agreement version */
-  agreementVersion: z.string().optional().describe('Accepted ToS version'),
-
-  /** Registration timestamp */
+  /** Registration timestamp (when org became a publisher) */
   registeredAt: z.string().datetime(),
 });
 
@@ -354,10 +309,7 @@ export const PublishingAnalyticsResponseSchema = z.object({
 // Export Types
 // ==========================================
 
-export type DeveloperAccountStatus = z.infer<typeof DeveloperAccountStatusSchema>;
-export type ApiKeyScope = z.infer<typeof ApiKeyScopeSchema>;
-export type DeveloperApiKey = z.infer<typeof DeveloperApiKeySchema>;
-export type DeveloperAccount = z.infer<typeof DeveloperAccountSchema>;
+export type PublisherProfile = z.infer<typeof PublisherProfileSchema>;
 export type ReleaseChannel = z.infer<typeof ReleaseChannelSchema>;
 export type VersionRelease = z.infer<typeof VersionReleaseSchema>;
 export type CreateListingRequest = z.infer<typeof CreateListingRequestSchema>;
