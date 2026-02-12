@@ -111,6 +111,7 @@ export const notifyOnCompletion = defineHook({
   handler: async ({ record, changes, context }) => {
     if (changes.status === 'done') {
       try {
+        // notificationService is injected via the plugin's dependency container
         await notificationService.send({
           to: record.assigned_to,
           template: 'task_completed',

@@ -144,7 +144,7 @@ function TaskForm() {
   }
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(formData); }}>
+    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(Object.fromEntries(new FormData(e.currentTarget))); }}>
       <input name="title" />
       {errors.title && <span className="error">{errors.title}</span>}
 
