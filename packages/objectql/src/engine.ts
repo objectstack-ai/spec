@@ -82,6 +82,9 @@ export class ObjectQL implements IDataEngine {
     fn: EngineMiddleware;
     object?: string;
   }> = [];
+
+  // Action registry: key = "objectName:actionName"
+  private actions = new Map<string, { handler: (ctx: any) => Promise<any> | any; package?: string }>();
   
   // Host provided context additions (e.g. Server router)
   private hostContext: Record<string, any> = {};
@@ -192,6 +195,47 @@ export class ObjectQL implements IDataEngine {
         }
       }
       await entry.handler(context);
+    }
+  }
+
+  // ========================================
+  // Action System
+  // ========================================
+
+  /**
+   * Register a named action on an object.
+   * Actions are custom business logic callable via `repo.execute(actionName, params)`.
+   *
+   * @param objectName Target object
+   * @param actionName Unique action name within the object
+   * @param handler Handler function
+   * @param packageName Optional package owner (for cleanup)
+   */
+  registerAction(objectName: string, actionName: string, handler: (ctx: any) => Promise<any> | any, packageName?: string): void {
+    const key = `${objectName}:${actionName}`;
+    this.actions.set(key, { handler, package: packageName });
+    this.logger.debug('Registered action', { objectName, actionName, package: packageName });
+  }
+
+  /**
+   * Execute a named action on an object.
+   */
+  async executeAction(objectName: string, actionName: string, ctx: any): Promise<any> {
+    const entry = this.actions.get(`${objectName}:${actionName}`);
+    if (!entry) {
+      throw new Error(`Action '${actionName}' on object '${objectName}' not found`);
+    }
+    return entry.handler(ctx);
+  }
+
+  /**
+   * Remove all actions registered by a specific package.
+   */
+  removeActionsByPackage(packageName: string): void {
+    for (const [key, entry] of this.actions.entries()) {
+      if (entry.package === packageName) {
+        this.actions.delete(key);
+      }
     }
   }
 
@@ -930,12 +974,16 @@ export class ObjectQL implements IDataEngine {
 
 /**
  * Repository scoped to a single object, bound to an execution context.
+ *
+ * Provides both IDataEngine-style methods (find, insert, update, delete)
+ * and convenience aliases (create, updateById, deleteById) matching
+ * the @objectql/core ObjectRepository API.
  */
 export class ObjectRepository {
   constructor(
     private objectName: string,
     private context: ExecutionContext,
-    private engine: IDataEngine
+    private engine: IDataEngine & { executeAction?: (o: string, a: string, c: any) => Promise<any> }
   ) {}
 
   async find(query: any = {}): Promise<any[]> {
@@ -958,9 +1006,22 @@ export class ObjectRepository {
     });
   }
 
+  /** Alias for insert() — matches @objectql/core convention */
+  async create(data: any): Promise<any> {
+    return this.insert(data);
+  }
+
   async update(data: any, options: any = {}): Promise<any> {
     return this.engine.update(this.objectName, data, {
       ...options,
+      context: this.context,
+    });
+  }
+
+  /** Update a single record by ID */
+  async updateById(id: string | number, data: any): Promise<any> {
+    return this.engine.update(this.objectName, { ...data, _id: id }, {
+      filter: { _id: id },
       context: this.context,
     });
   }
@@ -972,16 +1033,49 @@ export class ObjectRepository {
     });
   }
 
+  /** Delete a single record by ID */
+  async deleteById(id: string | number): Promise<any> {
+    return this.engine.delete(this.objectName, {
+      filter: { _id: id },
+      context: this.context,
+    });
+  }
+
   async count(query: any = {}): Promise<number> {
     return this.engine.count(this.objectName, {
       ...query,
       context: this.context,
     });
   }
+
+  /** Aggregate query */
+  async aggregate(query: any = {}): Promise<any[]> {
+    return this.engine.aggregate(this.objectName, {
+      ...query,
+      context: this.context,
+    });
+  }
+
+  /** Execute a named action registered on this object */
+  async execute(actionName: string, params?: any): Promise<any> {
+    if (this.engine.executeAction) {
+      return this.engine.executeAction(this.objectName, actionName, {
+        ...params,
+        userId: this.context.userId,
+        tenantId: this.context.tenantId,
+        roles: this.context.roles,
+      });
+    }
+    throw new Error(`Actions not supported by engine`);
+  }
 }
 
 /**
  * Scoped execution context with object() accessor.
+ * 
+ * Provides identity (userId, tenantId/spaceId, roles),
+ * repository access via object(), privilege escalation via sudo(),
+ * and transactional execution via transaction().
  */
 export class ScopedContext {
   constructor(
@@ -991,7 +1085,7 @@ export class ScopedContext {
 
   /** Get a repository scoped to this context */
   object(name: string): ObjectRepository {
-    return new ObjectRepository(name, this.executionContext, this.engine);
+    return new ObjectRepository(name, this.executionContext, this.engine as any);
   }
 
   /** Create an elevated (system) context */
@@ -1002,7 +1096,54 @@ export class ScopedContext {
     );
   }
 
+  /**
+   * Execute a callback within a database transaction.
+   *
+   * The callback receives a new ScopedContext whose operations
+   * share the same transaction handle. If the callback throws,
+   * the transaction is rolled back; otherwise it is committed.
+   *
+   * Falls back to non-transactional execution if the driver
+   * does not support transactions.
+   */
+  async transaction(callback: (trxCtx: ScopedContext) => Promise<any>): Promise<any> {
+    const engine = this.engine as any;
+
+    // Find the default driver for transaction support
+    const driver = engine.defaultDriver
+      ? engine.drivers?.get(engine.defaultDriver)
+      : undefined;
+
+    if (!driver?.beginTransaction) {
+      // No transaction support — execute directly
+      return callback(this);
+    }
+
+    const trx = await driver.beginTransaction();
+    const trxCtx = new ScopedContext(
+      { ...this.executionContext, transaction: trx },
+      this.engine
+    );
+
+    try {
+      const result = await callback(trxCtx);
+      if (driver.commit) await driver.commit(trx);
+      else if (driver.commitTransaction) await driver.commitTransaction(trx);
+      return result;
+    } catch (error) {
+      if (driver.rollback) await driver.rollback(trx);
+      else if (driver.rollbackTransaction) await driver.rollbackTransaction(trx);
+      throw error;
+    }
+  }
+
   get userId() { return this.executionContext.userId; }
   get tenantId() { return this.executionContext.tenantId; }
+  /** Alias for tenantId — matches ObjectQLContext.spaceId convention */
+  get spaceId() { return this.executionContext.tenantId; }
   get roles() { return this.executionContext.roles; }
+  get isSystem() { return this.executionContext.isSystem; }
+
+  /** Internal: expose the transaction handle for driver-level access */
+  get transactionHandle() { return this.executionContext.transaction; }
 }

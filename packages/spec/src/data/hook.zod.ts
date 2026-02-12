@@ -178,6 +178,29 @@ export const HookContextSchema = z.object({
    * Reference to the ObjectQL engine for performing side effects.
    */
   ql: z.unknown().describe('ObjectQL Engine Reference'),
+
+  /**
+   * Cross-Object API
+   * Provides a scoped data access interface for performing CRUD operations
+   * on other objects within hooks. Bound to the current execution context
+   * (userId, tenantId, transaction).
+   *
+   * Usage in hooks:
+   *   const users = ctx.api.object('user');
+   *   const admin = await users.findOne({ filter: { role: 'admin' } });
+   */
+  api: z.unknown().optional().describe('Cross-object data access (ScopedContext)'),
+
+  /**
+   * Current User Info
+   * Convenience shortcut for session.userId + additional user metadata.
+   * Populated by the engine when available.
+   */
+  user: z.object({
+    id: z.string().optional(),
+    name: z.string().optional(),
+    email: z.string().optional(),
+  }).optional().describe('Current user info shortcut'),
 });
 
 export type Hook = z.input<typeof HookSchema>;
