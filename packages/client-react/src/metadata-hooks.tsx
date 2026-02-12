@@ -112,7 +112,7 @@ export function useObject(
         onSuccess?.(result.data || data);
       } else {
         // Direct fetch without cache
-        const result = await client.meta.getObject(objectName);
+        const result = await client.meta.getItem('object', objectName);
         setData(result);
         onSuccess?.(result);
       }

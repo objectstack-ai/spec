@@ -191,7 +191,7 @@ describe('MetadataManager', () => {
   describe('watch / unwatch', () => {
     it('should register and invoke watch callbacks', () => {
       const callback = vi.fn();
-      manager.watch('object', callback);
+      (manager as any).addWatchCallback('object', callback);
 
       // Trigger via protected method — cast to access it
       (manager as any).notifyWatchers('object', {
@@ -207,8 +207,8 @@ describe('MetadataManager', () => {
 
     it('should unwatch callback', () => {
       const callback = vi.fn();
-      manager.watch('object', callback);
-      manager.unwatch('object', callback);
+      (manager as any).addWatchCallback('object', callback);
+      (manager as any).removeWatchCallback('object', callback);
 
       (manager as any).notifyWatchers('object', {
         type: 'changed',
@@ -222,7 +222,7 @@ describe('MetadataManager', () => {
     });
 
     it('should not throw when unwatching non-existent callback', () => {
-      expect(() => manager.unwatch('object', vi.fn())).not.toThrow();
+      expect(() => (manager as any).removeWatchCallback('object', vi.fn())).not.toThrow();
     });
   });
 

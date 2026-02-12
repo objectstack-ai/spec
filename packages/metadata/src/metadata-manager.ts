@@ -519,9 +519,9 @@ export class MetadataManager implements IMetadataService {
         data: event.data,
       });
     };
-    this.watch(type, wrappedCallback);
+    this.addWatchCallback(type, wrappedCallback);
     return {
-      unsubscribe: () => this.unwatch(type, wrappedCallback),
+      unsubscribe: () => this.removeWatchCallback(type, wrappedCallback),
     };
   }
 
@@ -623,7 +623,7 @@ export class MetadataManager implements IMetadataService {
    * Validate a metadata item against its type schema.
    * Returns validation result with errors and warnings.
    */
-  async validate(type: string, data: unknown): Promise<MetadataValidationResult> {
+  async validate(_type: string, data: unknown): Promise<MetadataValidationResult> {
     // Basic structural validation
     if (data === null || data === undefined) {
       return {
@@ -856,9 +856,9 @@ export class MetadataManager implements IMetadataService {
   }
 
   /**
-   * Watch for metadata changes (legacy API)
+   * Register a watch callback for metadata changes
    */
-  watch(type: string, callback: WatchCallback): void {
+  protected addWatchCallback(type: string, callback: WatchCallback): void {
     if (!this.watchCallbacks.has(type)) {
       this.watchCallbacks.set(type, new Set());
     }
@@ -866,9 +866,9 @@ export class MetadataManager implements IMetadataService {
   }
 
   /**
-   * Unwatch metadata changes (legacy API)
+   * Remove a watch callback for metadata changes
    */
-  unwatch(type: string, callback: WatchCallback): void {
+  protected removeWatchCallback(type: string, callback: WatchCallback): void {
     const callbacks = this.watchCallbacks.get(type);
     if (callbacks) {
       callbacks.delete(callback);
