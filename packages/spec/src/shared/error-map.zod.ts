@@ -5,21 +5,9 @@ import { suggestFieldType, formatSuggestion, findClosestMatches } from './sugges
 import { FieldType } from '../data/field.zod';
 
 /**
- * Zod v4 raw issue structure (subset used by the error map).
+ * Zod v4 raw issue type used by the error map.
  */
-export interface ObjectStackRawIssue {
-  code: string;
-  path?: (string | number)[];
-  input?: unknown;
-  values?: unknown[];
-  origin?: string;
-  minimum?: number;
-  maximum?: number;
-  expected?: string;
-  format?: string;
-  keys?: string[];
-  [key: string]: unknown;
-}
+export type ObjectStackRawIssue = z.core.$ZodRawIssue;
 
 /**
  * ObjectStack Custom Zod Error Map
@@ -142,7 +130,7 @@ export const objectStackErrorMap = (issue: ObjectStackRawIssue): { message: stri
  * Zod Issue interface (subset needed for formatting).
  */
 interface ZodIssueMinimal {
-  path: (string | number)[];
+  path: PropertyKey[];
   message: string;
   code?: string;
 }
