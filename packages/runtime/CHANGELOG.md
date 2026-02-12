@@ -1,5 +1,15 @@
 # @objectstack/runtime
 
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies [28985f5]
+  - @objectstack/spec@4.0.0
+  - @objectstack/core@4.0.0
+  - @objectstack/rest@4.0.0
+  - @objectstack/types@4.0.0
+
 ## 3.0.1
 
 ### Patch Changes
