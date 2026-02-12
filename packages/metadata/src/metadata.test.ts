@@ -148,14 +148,14 @@ describe('MetadataManager', () => {
 
   describe('list', () => {
     it('should return empty array for empty type', async () => {
-      const result = await manager.list('object');
+      const result = await manager.listNames('object');
       expect(result).toEqual([]);
     });
 
     it('should list all items of a type', async () => {
       await memoryLoader.save('object', 'account', {});
       await memoryLoader.save('object', 'contact', {});
-      const result = await manager.list('object');
+      const result = await manager.listNames('object');
       expect(result).toHaveLength(2);
       expect(result).toContain('account');
       expect(result).toContain('contact');
@@ -180,7 +180,7 @@ describe('MetadataManager', () => {
       };
 
       const m = new MetadataManager({ formats: ['json'], loaders: [loader1, loader2] });
-      const result = await m.list('object');
+      const result = await m.listNames('object');
       expect(result).toHaveLength(3);
       expect(result).toContain('account');
       expect(result).toContain('contact');
@@ -339,20 +339,18 @@ describe('MetadataPlugin', () => {
       loadMany = vi.fn().mockResolvedValue([]);
       registerLoader = vi.fn();
       stopWatching = vi.fn();
+      setTypeRegistry = vi.fn();
+      register = vi.fn();
     };
     return { NodeMetadataManager: MockNodeMetadataManager };
   });
 
-  // Mock the spec import
-  vi.mock('@objectstack/spec', () => ({
-    ObjectStackDefinitionSchema: {
-      shape: {
-        manifest: {},
-        objects: {},
-        apps: {},
-        views: {},
-      },
-    },
+  // Mock the spec kernel import
+  vi.mock('@objectstack/spec/kernel', () => ({
+    DEFAULT_METADATA_TYPE_REGISTRY: [
+      { type: 'object', label: 'Object', filePatterns: ['**/*.object.ts'], supportsOverlay: true, allowRuntimeCreate: false, supportsVersioning: true, loadOrder: 10, domain: 'data' },
+      { type: 'view', label: 'View', filePatterns: ['**/*.view.ts'], supportsOverlay: true, allowRuntimeCreate: true, supportsVersioning: false, loadOrder: 50, domain: 'ui' },
+    ],
   }));
 
   it('should have correct plugin metadata', async () => {

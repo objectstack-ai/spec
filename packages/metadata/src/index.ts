@@ -3,7 +3,8 @@
 /**
  * @objectstack/metadata
  * 
- * Metadata loading, saving, and persistence for ObjectStack
+ * Metadata loading, saving, and persistence for ObjectStack.
+ * Implements the IMetadataService contract from @objectstack/spec.
  */
 
 // Main Manager
@@ -39,3 +40,25 @@ export type {
   MetadataLoaderContract,
   MetadataManagerConfig,
 } from '@objectstack/spec/system';
+
+// Re-export IMetadataService contract
+export type {
+  IMetadataService,
+  MetadataWatchCallback,
+  MetadataWatchHandle,
+  MetadataTypeInfo,
+  MetadataImportResult,
+} from '@objectstack/spec/contracts';
+
+// Re-export kernel types for plugin protocol
+export type {
+  MetadataType,
+  MetadataTypeRegistryEntry,
+  MetadataPluginConfig,
+  MetadataPluginManifest,
+  MetadataQuery,
+  MetadataQueryResult,
+  MetadataValidationResult,
+  MetadataBulkResult,
+  MetadataDependency,
+} from '@objectstack/spec/kernel';
