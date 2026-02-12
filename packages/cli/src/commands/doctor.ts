@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { printHeader, printSuccess, printWarning, printError, printStep } from '../utils/format.js';
+import { printHeader, printSuccess, printWarning, printError, printStep, printInfo } from '../utils/format.js';
 import { loadConfig, configExists } from '../utils/config.js';
 
 interface HealthCheckResult {
@@ -216,11 +216,92 @@ function findDeprecatedUsages(cwd: string): string[] {
   return deprecated;
 }
 
+// ─── Deprecated Pattern Detection ───────────────────────────────────
+
+const DEPRECATED_PATTERNS: Array<{
+  pattern: RegExp;
+  description: string;
+  replacement: string;
+}> = [
+  {
+    pattern: /\bEnhancedObjectKernel\b/,
+    description: 'EnhancedObjectKernel is deprecated in v3',
+    replacement: 'Use ObjectKernel instead',
+  },
+  {
+    pattern: /\bmax_length\b/,
+    description: 'snake_case config key: max_length',
+    replacement: 'Use maxLength (camelCase)',
+  },
+  {
+    pattern: /\bdefault_value\b/,
+    description: 'snake_case config key: default_value',
+    replacement: 'Use defaultValue (camelCase)',
+  },
+  {
+    pattern: /\bmin_length\b/,
+    description: 'snake_case config key: min_length',
+    replacement: 'Use minLength (camelCase)',
+  },
+  {
+    pattern: /\breference_filters\b/,
+    description: 'snake_case config key: reference_filters',
+    replacement: 'Use referenceFilters (camelCase)',
+  },
+  {
+    pattern: /\bunique_name\b/,
+    description: 'snake_case config key: unique_name',
+    replacement: 'Use uniqueName (camelCase)',
+  },
+  {
+    pattern: /from\s+['"]@objectstack\/core\/enhanced['"]/,
+    description: 'Import from deprecated @objectstack/core/enhanced path',
+    replacement: "Use import from '@objectstack/core'",
+  },
+  {
+    pattern: /from\s+['"]@objectstack\/spec\/dist\/[^'"]+['"]/,
+    description: 'Import from deprecated @objectstack/spec/dist/ deep path',
+    replacement: "Use import from '@objectstack/spec'",
+  },
+];
+
+function scanDeprecatedPatterns(dir: string): Array<{ file: string; line: number; description: string; replacement: string }> {
+  const results: Array<{ file: string; line: number; description: string; replacement: string }> = [];
+  if (!fs.existsSync(dir)) return results;
+
+  const tsFiles = walkDir(dir, '.ts').filter(f => !f.endsWith('.test.ts'));
+
+  for (const tsFile of tsFiles) {
+    try {
+      const content = fs.readFileSync(tsFile, 'utf-8');
+      const lines = content.split('\n');
+      const relPath = path.relative(process.cwd(), tsFile);
+
+      for (let i = 0; i < lines.length; i++) {
+        for (const dp of DEPRECATED_PATTERNS) {
+          if (dp.pattern.test(lines[i])) {
+            results.push({
+              file: relPath,
+              line: i + 1,
+              description: dp.description,
+              replacement: dp.replacement,
+            });
+          }
+        }
+      }
+    } catch {
+      // Skip unreadable files
+    }
+  }
+  return results;
+}
+
 // ─── Command ────────────────────────────────────────────────────────
 
 export const doctorCommand = new Command('doctor')
   .description('Check development environment and configuration health')
   .option('-v, --verbose', 'Show detailed information')
+  .option('--scan-deprecations', 'Scan for deprecated ObjectStack patterns')
   .action(async (options) => {
     printHeader('Environment Health Check');
     
@@ -439,6 +520,26 @@ export const doctorCommand = new Command('doctor')
       } catch {
         printWarning('Could not load config for analysis (config checks skipped)');
         hasWarnings = true;
+      }
+    }
+
+    // ── Deprecation Pattern Scan ─────────────────────────────────────
+    if (options.scanDeprecations) {
+      printStep('Scanning for deprecated ObjectStack patterns...');
+      const scanDir = path.join(cwd, 'src');
+      const deprecations = scanDeprecatedPatterns(scanDir);
+      if (deprecations.length > 0) {
+        hasWarnings = true;
+        for (const dep of deprecations) {
+          printWarning(`${dep.file}:${dep.line} — ${dep.description}`);
+          if (options.verbose) {
+            console.log(chalk.dim(`      → ${dep.replacement}`));
+          }
+        }
+        console.log('');
+        printInfo(`Found ${deprecations.length} deprecated pattern(s). Run \`objectstack codemod v2-to-v3\` to auto-fix.`);
+      } else {
+        printSuccess('Deprecation scan      No deprecated patterns found');
       }
     }
     

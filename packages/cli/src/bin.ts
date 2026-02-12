@@ -20,6 +20,7 @@ import { pluginCommand } from './commands/plugin.js';
 import { diffCommand } from './commands/diff.js';
 import { lintCommand } from './commands/lint.js';
 import { explainCommand } from './commands/explain.js';
+import { codemodCommand } from './commands/codemod.js';
 import { loadPluginCommands } from './utils/plugin-commands.js';
 
 const require = createRequire(import.meta.url);
@@ -87,6 +88,9 @@ program.addCommand(diffCommand);
 
 // ── Reference ──
 program.addCommand(explainCommand);
+
+// ── Code Transforms ──
+program.addCommand(codemodCommand);
 
 // ── Plugin-Contributed Commands ──
 // Load commands from installed plugins that declare `contributes.commands` in their manifest.
