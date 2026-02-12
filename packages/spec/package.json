@@ -95,10 +95,11 @@
     "README.md"
   ],
   "scripts": {
-    "build": "pnpm gen:schema && tsup",
+    "build": "pnpm gen:schema && pnpm gen:openapi && tsup",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "gen:schema": "tsx scripts/build-schemas.ts",
+    "gen:openapi": "tsx scripts/build-openapi.ts",
     "gen:docs": "tsx scripts/build-docs.ts",
     "test": "vitest run",
     "test:watch": "vitest",
