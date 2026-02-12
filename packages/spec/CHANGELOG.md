@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 3.0.1
+
+### Patch Changes
+
+- 389725a: Fix build and test stability improvements
+
 ## 3.0.0
 
 ### Major Changes
