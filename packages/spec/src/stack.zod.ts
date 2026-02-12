@@ -276,8 +276,7 @@ function validateCrossReferences(config: ObjectStackDefinition): string[] {
 
   // Validate view data source → object references (nested in data.object)
   if (config.views) {
-    for (let i = 0; i < config.views.length; i++) {
-      const view = config.views[i];
+    for (const [i, view] of config.views.entries()) {
       const checkViewData = (data: unknown, viewLabel: string) => {
         if (data && typeof data === 'object' && 'provider' in data && 'object' in data) {
           const d = data as { provider: string; object: string };

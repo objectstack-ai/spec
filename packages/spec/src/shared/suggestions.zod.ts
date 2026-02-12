@@ -18,7 +18,7 @@ import { FieldType } from '../data/field.zod';
 
 /**
  * Compute Levenshtein edit distance between two strings.
- * Used to rank how similar a typo is to known valid values.
+ * Uses space-optimized two-row approach (O(min(m,n)) space).
  */
 export function levenshteinDistance(a: string, b: string): number {
   const la = a.length;
@@ -27,27 +27,28 @@ export function levenshteinDistance(a: string, b: string): number {
   if (la === 0) return lb;
   if (lb === 0) return la;
 
-  const matrix: number[][] = [];
+  // Use only two rows for space efficiency
+  let prev = new Array<number>(lb + 1);
+  let curr = new Array<number>(lb + 1);
 
-  for (let i = 0; i <= la; i++) {
-    matrix[i] = [i];
-  }
   for (let j = 0; j <= lb; j++) {
-    matrix[0][j] = j;
+    prev[j] = j;
   }
 
   for (let i = 1; i <= la; i++) {
+    curr[0] = i;
     for (let j = 1; j <= lb; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      matrix[i][j] = Math.min(
-        matrix[i - 1][j] + 1,       // deletion
-        matrix[i][j - 1] + 1,       // insertion
-        matrix[i - 1][j - 1] + cost, // substitution
+      curr[j] = Math.min(
+        prev[j] + 1,       // deletion
+        curr[j - 1] + 1,   // insertion
+        prev[j - 1] + cost, // substitution
       );
     }
+    [prev, curr] = [curr, prev];
   }
 
-  return matrix[la][lb];
+  return prev[lb];
 }
 
 /**

@@ -5,6 +5,23 @@ import { suggestFieldType, formatSuggestion, findClosestMatches } from './sugges
 import { FieldType } from '../data/field.zod';
 
 /**
+ * Zod v4 raw issue structure (subset used by the error map).
+ */
+export interface ObjectStackRawIssue {
+  code: string;
+  path?: (string | number)[];
+  input?: unknown;
+  values?: unknown[];
+  origin?: string;
+  minimum?: number;
+  maximum?: number;
+  expected?: string;
+  format?: string;
+  keys?: string[];
+  [key: string]: unknown;
+}
+
+/**
  * ObjectStack Custom Zod Error Map
  *
  * Provides contextual, actionable error messages for ObjectStack schema validation.
@@ -22,7 +39,7 @@ import { FieldType } from '../data/field.zod';
  * SomeSchema.safeParse(data, { error: objectStackErrorMap });
  * ```
  */
-export const objectStackErrorMap = (issue: { code: string; [key: string]: unknown }): { message: string } | null => {
+export const objectStackErrorMap = (issue: ObjectStackRawIssue): { message: string } | null => {
   // --- Invalid value (enum) with suggestions ---
   if (issue.code === 'invalid_value') {
     const values = issue.values as unknown[];
