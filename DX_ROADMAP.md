@@ -92,7 +92,7 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 - [x] Add "How to Run" section to each example README (app-todo, app-crm, app-host, plugin-bi)
 - [x] Add prerequisites section to getting-started docs
 - [x] Create first-run troubleshooting page
-- [ ] Implement `create-objectstack` CLI wizard with 3 templates
+- [x] Implement `create-objectstack` CLI wizard with 3 templates
 - [ ] Record 5-minute getting-started video
 - [x] Fix `examples/README.md`: remove `minimal-auth` ghost reference, update metadata (version, count, date)
 - [x] Fix `plugin-bi` example: add README.md, add package.json scripts, document purpose
@@ -158,7 +158,7 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 | Visual field type reference | Interactive page showing all 48 field types with live previews | 🔴 High | ✅ Done |
 | Field configuration reference | Per-type property tables (text: maxLength, pattern; number: min, max, precision) | 🔴 High | ✅ Done |
 | Field type decision tree | "Which field type should I use?" interactive guide | 🟡 Medium | ✅ Done |
-| Field validation rules per type | Default validation behavior for each field type | 🟡 Medium | ❌ Not started |
+| Field validation rules per type | Default validation behavior for each field type | 🟡 Medium | ✅ Done |
 
 ### 3.2 Error & Status Code Reference
 
