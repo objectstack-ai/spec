@@ -300,6 +300,152 @@ objectstack-plugin-hello/
 
 ---
 
+## Studio Plugin Manifests with `defineStudioPlugin`
+
+For plugins that extend the **ObjectStack Studio IDE**, use `defineStudioPlugin` to declare UI contribution points — metadata viewers, sidebar groups, toolbar actions, panels, and commands. This follows a VS Code-like extension model.
+
+<Callout type="info">
+**Source:** `packages/spec/src/studio/plugin.zod.ts`  
+**Import:** `import { defineStudioPlugin } from '@objectstack/spec/studio'`  
+**Alt Import:** `import { Studio } from '@objectstack/spec'`
+</Callout>
+
+### Basic Studio Plugin
+
+```typescript
+import { defineStudioPlugin } from '@objectstack/spec/studio';
+
+export const manifest = defineStudioPlugin({
+  id: 'mycompany.crm-designer',
+  name: 'CRM Designer',
+  version: '1.0.0',
+  description: 'Custom object designer for CRM modules',
+  author: 'Your Name',
+  contributes: {
+    metadataViewers: [{
+      id: 'crm-object-explorer',
+      metadataTypes: ['object', 'objects'],
+      label: 'CRM Object Explorer',
+      priority: 100,
+      modes: ['preview', 'design', 'data'],
+    }],
+  },
+});
+```
+
+### Plugin ID Format
+
+Plugin IDs use reverse-domain notation and must match the pattern `^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)*$`:
+
+```typescript
+// ✅ Valid IDs
+'objectstack.flow-designer'
+'mycompany.crm-tools'
+'acme.billing-plugin'
+
+// ❌ Invalid IDs
+'MyPlugin'         // uppercase
+'my plugin'        // spaces
+'my_plugin'        // underscores (use hyphens)
+```
+
+### Contribution Points
+
+Studio plugins can declare six types of contributions:
+
+| Contribution | Purpose | Example |
+|:---|:---|:---|
+| `metadataViewers` | Custom viewers/designers for metadata types | Object explorer, Flow canvas |
+| `sidebarGroups` | Sidebar navigation groups | "CRM Objects", "Automation" |
+| `actions` | Toolbar, context menu, and command palette actions | "Deploy", "Validate Schema" |
+| `metadataIcons` | Icons and labels for metadata types | Database icon for objects |
+| `panels` | Auxiliary panels (bottom, right, modal) | Output log, Problems panel |
+| `commands` | Command palette entries with keyboard shortcuts | "Open Settings" (Ctrl+,) |
+
+### Full Example with All Contributions
+
+```typescript
+import { defineStudioPlugin } from '@objectstack/spec/studio';
+
+export const manifest = defineStudioPlugin({
+  id: 'objectstack.flow-designer',
+  name: 'Flow Designer',
+  version: '2.0.0',
+  description: 'Visual flow builder for automation workflows',
+  activationEvents: ['onMetadataType:flow'],
+
+  contributes: {
+    metadataViewers: [{
+      id: 'flow-canvas',
+      metadataTypes: ['flow', 'flows'],
+      label: 'Flow Canvas',
+      priority: 100,
+      modes: ['design', 'code'],
+    }],
+
+    sidebarGroups: [{
+      key: 'automation',
+      label: 'Automation',
+      icon: 'workflow',
+      metadataTypes: ['flow', 'trigger', 'workflow'],
+      order: 30,
+    }],
+
+    actions: [{
+      id: 'validate-flow',
+      label: 'Validate Flow',
+      icon: 'check-circle',
+      location: 'toolbar',
+      metadataTypes: ['flow'],
+    }],
+
+    metadataIcons: [{
+      metadataType: 'flow',
+      label: 'Flow',
+      icon: 'git-branch',
+    }],
+
+    panels: [{
+      id: 'flow-debug',
+      label: 'Flow Debugger',
+      icon: 'bug',
+      location: 'bottom',
+    }],
+
+    commands: [{
+      id: 'objectstack.flow-designer.run',
+      label: 'Run Flow',
+      shortcut: 'Ctrl+Shift+R',
+      icon: 'play',
+    }],
+  },
+});
+```
+
+### Activation Events
+
+Control when your plugin loads with activation events:
+
+| Pattern | Trigger |
+|:---|:---|
+| `*` | Activate immediately (eager, default) |
+| `onMetadataType:object` | When metadata type "object" is loaded |
+| `onCommand:myPlugin.doSomething` | When command is invoked |
+| `onView:myPlugin.myPanel` | When panel is opened |
+
+### View Modes
+
+Metadata viewers declare which modes they support:
+
+| Mode | Description |
+|:---|:---|
+| `preview` | Read-only rendered preview |
+| `design` | Visual drag-and-drop designer |
+| `code` | Raw schema/code editor |
+| `data` | Live data browser |
+
+---
+
 ## Next Steps
 
 - [Common Patterns](/guides/common-patterns) — See how plugins fit into the application architecture

@@ -15,6 +15,7 @@
     "studio",
     "system",
     "ui",
-    "quick-reference"
+    "quick-reference",
+    "backward-compatibility"
   ]
 }
