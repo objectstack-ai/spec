@@ -1,0 +1,271 @@
+---
+title: Flow Metadata
+description: Build visual automation with decision trees, data operations, HTTP requests, and screen interactions
+---
+
+# Flow Metadata
+
+A **Flow** is a visual automation that orchestrates business logic through connected nodes. Flows support decision branching, data operations (CRUD), HTTP integrations, script execution, user screens, and subflow composition.
+
+## Basic Structure
+
+```typescript
+const approvalFlow = {
+  name: 'order_approval',
+  label: 'Order Approval Flow',
+  type: 'record_change',
+  version: 1,
+  status: 'active',
+  template: false,
+  runAs: 'system',
+
+  variables: [
+    { name: 'order_amount', type: 'number', isInput: true, isOutput: false },
+    { name: 'approved', type: 'boolean', isInput: false, isOutput: true },
+  ],
+
+  nodes: [
+    { id: 'start', type: 'start', label: 'Start' },
+    {
+      id: 'check_amount',
+      type: 'decision',
+      label: 'Check Amount',
+      config: {
+        conditions: [
+          { label: 'High Value', expression: 'order_amount > 10000' },
+          { label: 'Standard', expression: 'order_amount <= 10000' },
+        ],
+      },
+    },
+    {
+      id: 'auto_approve',
+      type: 'update_record',
+      label: 'Auto Approve',
+      config: { object: 'order', fields: { status: 'approved' } },
+    },
+    {
+      id: 'request_approval',
+      type: 'screen',
+      label: 'Manager Approval',
+      config: { screenType: 'approval' },
+    },
+    { id: 'end', type: 'end', label: 'End' },
+  ],
+
+  edges: [
+    { id: 'e1', source: 'start', target: 'check_amount', type: 'default' },
+    { id: 'e2', source: 'check_amount', target: 'auto_approve', type: 'default', condition: 'order_amount <= 10000' },
+    { id: 'e3', source: 'check_amount', target: 'request_approval', type: 'default', condition: 'order_amount > 10000' },
+    { id: 'e4', source: 'auto_approve', target: 'end', type: 'default' },
+    { id: 'e5', source: 'request_approval', target: 'end', type: 'default' },
+  ],
+};
+```
+
+## Flow Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `name` | `string` | ✅ | Machine name (`snake_case`) |
+| `label` | `string` | ✅ | Display label |
+| `description` | `string` | optional | Flow description |
+| `version` | `number` | ✅ | Version number |
+| `status` | `enum` | ✅ | `'draft'`, `'active'`, `'obsolete'`, `'invalid'` |
+| `type` | `FlowType` | ✅ | Flow trigger type (see below) |
+| `template` | `boolean` | ✅ | Is this a reusable subflow template |
+| `runAs` | `enum` | ✅ | `'system'` or `'user'` execution context |
+| `variables` | `FlowVariable[]` | optional | Input/output variables |
+| `nodes` | `FlowNode[]` | ✅ | Flow nodes |
+| `edges` | `FlowEdge[]` | ✅ | Connections between nodes |
+| `errorHandling` | `object` | optional | Error handling strategy |
+
+### Flow Types
+
+| Type | Description | Trigger |
+| :--- | :--- | :--- |
+| `autolaunched` | Runs automatically without user interaction | Invoked by other flows or API |
+| `record_change` | Triggered by record create/update/delete | Data mutation events |
+| `schedule` | Runs on a schedule (cron) | Time-based |
+| `screen` | Interactive flow with user screens | User clicks a button |
+| `api` | Exposed as an API endpoint | HTTP request |
+
+## Nodes
+
+Each node performs a specific action in the flow.
+
+### Node Types
+
+| Type | Description |
+| :--- | :--- |
+| `start` | Flow entry point |
+| `end` | Flow termination |
+| `decision` | Conditional branching (if/else) |
+| `assignment` | Set variable values |
+| `loop` | Iterate over a collection |
+| `create_record` | Create a new record |
+| `update_record` | Update existing records |
+| `delete_record` | Delete records |
+| `get_record` | Query records |
+| `http_request` | Make an HTTP API call |
+| `script` | Execute custom JavaScript |
+| `screen` | Display a user form/screen |
+| `wait` | Pause and wait for an event or time |
+| `subflow` | Invoke another flow |
+| `connector_action` | Execute an external connector action |
+
+### Node Structure
+
+```typescript
+{
+  id: 'unique_node_id',
+  type: 'decision',
+  label: 'Check Priority',
+  config: { /* type-specific configuration */ },
+  position: { x: 200, y: 100 },    // Canvas position (optional)
+}
+```
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `string` | ✅ | Unique node identifier |
+| `type` | `FlowNodeAction` | ✅ | Node type |
+| `label` | `string` | ✅ | Display label |
+| `config` | `object` | optional | Type-specific configuration |
+| `connectorConfig` | `object` | optional | External connector settings |
+| `position` | `{ x, y }` | optional | Visual position on canvas |
+
+### Node Examples
+
+**Decision (branching):**
+
+```typescript
+{
+  id: 'check_status',
+  type: 'decision',
+  label: 'Check Status',
+  config: {
+    conditions: [
+      { label: 'Approved', expression: "status = 'approved'" },
+      { label: 'Rejected', expression: "status = 'rejected'" },
+    ],
+  },
+}
+```
+
+**Create Record:**
+
+```typescript
+{
+  id: 'create_task',
+  type: 'create_record',
+  label: 'Create Follow-up Task',
+  config: {
+    object: 'task',
+    fields: {
+      title: 'Follow up on {record.name}',
+      assignee: '{record.owner}',
+      due_date: 'TODAY() + 7',
+    },
+  },
+}
+```
+
+**HTTP Request:**
+
+```typescript
+{
+  id: 'notify_slack',
+  type: 'http_request',
+  label: 'Send Slack Notification',
+  config: {
+    url: 'https://hooks.slack.com/services/...',
+    method: 'POST',
+    body: { text: 'New order: {record.name}' },
+  },
+}
+```
+
+**Script:**
+
+```typescript
+{
+  id: 'calculate',
+  type: 'script',
+  label: 'Calculate Discount',
+  config: {
+    code: `
+      const discount = input.amount > 1000 ? 0.1 : 0.05;
+      return { discount_rate: discount };
+    `,
+  },
+}
+```
+
+## Edges
+
+Edges connect nodes and define the execution path:
+
+```typescript
+{
+  id: 'edge_1',
+  source: 'check_status',
+  target: 'send_email',
+  type: 'default',
+  condition: "status = 'approved'",
+  label: 'Approved',
+}
+```
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `string` | ✅ | Unique edge identifier |
+| `source` | `string` | ✅ | Source node ID |
+| `target` | `string` | ✅ | Target node ID |
+| `type` | `enum` | ✅ | `'default'` (success) or `'fault'` (error) |
+| `condition` | `string` | optional | Boolean expression for branching |
+| `label` | `string` | optional | Label displayed on the connector |
+
+## Variables
+
+Flows use variables to pass data between nodes and to/from callers:
+
+```typescript
+variables: [
+  { name: 'input_id', type: 'text', isInput: true, isOutput: false },
+  { name: 'result', type: 'object', isInput: false, isOutput: true },
+  { name: 'counter', type: 'number', isInput: false, isOutput: false },
+]
+```
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `name` | `string` | Variable name |
+| `type` | `string` | `'text'`, `'number'`, `'boolean'`, `'object'`, `'list'` |
+| `isInput` | `boolean` | Available as input parameter |
+| `isOutput` | `boolean` | Available as output parameter |
+
+## Error Handling
+
+Configure how errors are handled during flow execution:
+
+```typescript
+errorHandling: {
+  strategy: 'retry',           // 'fail' | 'retry' | 'continue'
+  maxRetries: 3,
+  retryDelayMs: 5000,
+  fallbackNodeId: 'error_handler',
+}
+```
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `strategy` | `enum` | `'fail'` (stop), `'retry'` (retry), `'continue'` (skip) |
+| `maxRetries` | `number` | Maximum retry attempts (0-10) |
+| `retryDelayMs` | `number` | Delay between retries (ms) |
+| `fallbackNodeId` | `string` | Node to execute on failure |
+
+## Related
+
+- [Workflow Metadata](./workflow) — Event-triggered automation rules
+- [Object Metadata](./object) — Objects that flows operate on
+- [Validation Metadata](./validation) — Data validation rules
