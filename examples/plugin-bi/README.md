@@ -28,11 +28,16 @@ plugin-bi/
 
 ```bash
 # From monorepo root
-pnpm install
+corepack enable && pnpm install
 
 # Type-check the plugin
 cd examples/plugin-bi
 pnpm typecheck
+# Expected: No errors — plugin manifest validates against @objectstack/spec
+
+# Build the plugin
+pnpm --filter @example/plugin-bi build
+# Expected: Build succeeds, generates dist/ output
 ```
 
 ## Plugin Manifest

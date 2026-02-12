@@ -1,5 +1,7 @@
 # @objectstack/spec
 
+[![Try Online](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/objectstack-ai/spec/tree/main/examples/app-todo?file=objectstack.config.ts)
+
 The **Source of Truth** for the ObjectStack Protocol. Contains strictly typed Zod schemas that define every aspect of the system.
 
 ## Protocols
