@@ -4,7 +4,13 @@
   "license": "Apache-2.0",
   "private": true,
   "main": "objectstack.config.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
     "@objectstack/spec": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
   }
 }
