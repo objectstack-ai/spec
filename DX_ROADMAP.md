@@ -264,8 +264,8 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 - [ ] Enhance `objectstack doctor` (circular deps, missing tests, deprecated usage)
 - [ ] Implement `objectstack lint` for naming conventions
 - [ ] Implement `objectstack explain` for schema documentation
-- [ ] Create VSCode extension with autocomplete and validation
-- [ ] Add JSON Schema for `objectstack.config.ts` IDE support
+- [x] Create VSCode extension with autocomplete and validation
+- [x] Add JSON Schema for `objectstack.config.ts` IDE support
 - [ ] Implement `objectstack generate client` for typed SDK generation
 - [ ] Implement `objectstack generate migration` for schema diffs
 - [ ] Implement `objectstack codemod v2-to-v3` for automated migration

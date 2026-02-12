@@ -833,6 +833,62 @@ const generateMigrationCommand = new Command('migration')
     }
   });
 
+// ─── JSON Schema Generator ──────────────────────────────────────────
+
+const generateSchemaCommand = new Command('schema')
+  .description('Generate JSON Schema for objectstack.config.ts (for IDE autocomplete)')
+  .option('-o, --output <file>', 'Output file path', 'objectstack.schema.json')
+  .option('--dry-run', 'Show output without writing')
+  .action(async (options) => {
+    printHeader('Generate Schema');
+
+    try {
+      const timer = createTimer();
+      printStep('Loading ObjectStackDefinitionSchema...');
+
+      const { z } = await import('zod');
+      const { ObjectStackDefinitionSchema } = await import('@objectstack/spec');
+
+      printStep('Converting to JSON Schema...');
+      const jsonSchema = z.toJSONSchema(ObjectStackDefinitionSchema, {
+        target: 'draft-2020-12',
+      });
+
+      // Add metadata
+      const schema = {
+        ...jsonSchema,
+        $id: 'https://schema.objectstack.io/objectstack.config.json',
+        title: 'ObjectStack Configuration',
+        description: 'JSON Schema for objectstack.config.ts — generated from ObjectStackDefinitionSchema',
+      };
+
+      const content = JSON.stringify(schema, null, 2) + '\n';
+
+      if (options.dryRun) {
+        printInfo('Dry run — no files written');
+        console.log('');
+        console.log(content);
+        return;
+      }
+
+      const outPath = path.resolve(process.cwd(), options.output);
+      const outDir = path.dirname(outPath);
+      if (!fs.existsSync(outDir)) {
+        fs.mkdirSync(outDir, { recursive: true });
+      }
+      fs.writeFileSync(outPath, content);
+      printSuccess(`Generated JSON Schema at ${options.output} (${timer.display()})`);
+      console.log('');
+      console.log(chalk.dim('  Usage: Reference in your IDE or editor for autocomplete'));
+      console.log(chalk.dim(`  Path:  ${outPath}`));
+      console.log('');
+
+    } catch (error: any) {
+      printError(error.message || String(error));
+      process.exit(1);
+    }
+  });
+
 // ─── Main Generate Command ──────────────────────────────────────────
 
 export const generateCommand = new Command('generate')
@@ -845,6 +901,7 @@ export const generateCommand = new Command('generate')
   .addCommand(generateTypesCommand)
   .addCommand(generateClientCommand)
   .addCommand(generateMigrationCommand)
+  .addCommand(generateSchemaCommand)
   .action(async (type: string | undefined, name: string | undefined, options) => {
     if (!type) {
       printHeader('Generate');
@@ -852,6 +909,7 @@ export const generateCommand = new Command('generate')
       console.log(`    ${chalk.cyan('types'.padEnd(12))} Generate TypeScript type definitions from config`);
       console.log(`    ${chalk.cyan('client'.padEnd(12))} Generate a type-safe client SDK from config`);
       console.log(`    ${chalk.cyan('migration'.padEnd(12))} Generate database migration from schema`);
+      console.log(`    ${chalk.cyan('schema'.padEnd(12))} Generate JSON Schema for objectstack.config.ts (IDE autocomplete)`);
       console.log('');
       console.log(chalk.bold('  Metadata types:'));
       for (const [key, gen] of Object.entries(GENERATORS)) {

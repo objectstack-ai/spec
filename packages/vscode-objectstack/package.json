@@ -1,0 +1,64 @@
+{
+  "name": "objectstack-vscode",
+  "displayName": "ObjectStack",
+  "description": "ObjectStack Protocol — Autocomplete, validation, and inline diagnostics for .object.ts, .view.ts, and objectstack.config.ts files",
+  "version": "0.1.0",
+  "publisher": "objectstack",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nickmessing/spec"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Snippets"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/*.object.ts",
+    "workspaceContains:**/*.view.ts",
+    "workspaceContains:objectstack.config.ts"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "jsonValidation": [
+      {
+        "fileMatch": "objectstack.json",
+        "url": "./schemas/objectstack.schema.json"
+      }
+    ],
+    "languages": [
+      {
+        "id": "objectstack",
+        "aliases": [
+          "ObjectStack",
+          "objectstack"
+        ],
+        "extensions": [
+          ".object.ts",
+          ".view.ts"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "typescript",
+        "path": "./snippets/objectstack.json"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p ./tsconfig.json",
+    "watch": "tsc -watch -p ./tsconfig.json",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^3.0.0"
+  }
+}

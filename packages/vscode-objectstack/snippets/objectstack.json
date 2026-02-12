@@ -1,0 +1,168 @@
+{
+  "ObjectStack: Define Object": {
+    "prefix": "os-object",
+    "description": "Define a new ObjectStack business object",
+    "body": [
+      "import { Data } from '@objectstack/spec';",
+      "",
+      "const ${1:myObject}: Data.Object = {",
+      "  name: '${2:my_object}',",
+      "  label: '${3:My Object}',",
+      "  pluralLabel: '${3:My Object}s',",
+      "  ownership: 'own',",
+      "  fields: {",
+      "    name: {",
+      "      type: 'text',",
+      "      label: 'Name',",
+      "      required: true,",
+      "      maxLength: 255,",
+      "    },",
+      "    $0",
+      "  },",
+      "};",
+      "",
+      "export default ${1:myObject};"
+    ]
+  },
+  "ObjectStack: Text Field": {
+    "prefix": "os-field-text",
+    "description": "Add a text field to an object",
+    "body": [
+      "${1:field_name}: {",
+      "  type: 'text',",
+      "  label: '${2:Field Label}',",
+      "  required: ${3|false,true|},",
+      "  maxLength: ${4:255},",
+      "},"
+    ]
+  },
+  "ObjectStack: Select Field": {
+    "prefix": "os-field-select",
+    "description": "Add a select (picklist) field to an object",
+    "body": [
+      "${1:status}: {",
+      "  type: 'select',",
+      "  label: '${2:Status}',",
+      "  required: ${3|false,true|},",
+      "  options: [",
+      "    { label: '${4:Active}', value: '${5:active}' },",
+      "    { label: '${6:Inactive}', value: '${7:inactive}' },",
+      "  ],",
+      "  defaultValue: '${5:active}',",
+      "},"
+    ]
+  },
+  "ObjectStack: Lookup Field": {
+    "prefix": "os-field-lookup",
+    "description": "Add a lookup (reference) field to an object",
+    "body": [
+      "${1:related_object}: {",
+      "  type: 'lookup',",
+      "  label: '${2:Related Object}',",
+      "  required: ${3|false,true|},",
+      "  reference: {",
+      "    object: '${4:target_object}',",
+      "    labelField: '${5:name}',",
+      "  },",
+      "},"
+    ]
+  },
+  "ObjectStack: Grid List View": {
+    "prefix": "os-view-grid",
+    "description": "Define a grid list view for an object",
+    "body": [
+      "import { UI } from '@objectstack/spec';",
+      "",
+      "const ${1:myObject}ListView: UI.View = {",
+      "  name: '${2:my_object}_list',",
+      "  label: '${3:My Object} List',",
+      "  type: 'list',",
+      "  objectName: '${2:my_object}',",
+      "  list: {",
+      "    type: 'grid',",
+      "    columns: [",
+      "      { field: 'name', width: 200 },",
+      "      $0",
+      "    ],",
+      "    defaultSort: { field: 'name', direction: 'asc' },",
+      "    pageSize: 25,",
+      "  },",
+      "};",
+      "",
+      "export default ${1:myObject}ListView;"
+    ]
+  },
+  "ObjectStack: Automation Flow": {
+    "prefix": "os-flow",
+    "description": "Define an automation flow",
+    "body": [
+      "import { Automation } from '@objectstack/spec';",
+      "",
+      "const ${1:myFlow}: Automation.Flow = {",
+      "  name: '${2:my_flow}',",
+      "  label: '${3:My Flow}',",
+      "  type: '${4|autolaunched,screen,schedule|}',",
+      "  status: 'draft',",
+      "  trigger: {",
+      "    type: 'record_change',",
+      "    object: '${5:my_object}',",
+      "    events: ['after_insert', 'after_update'],",
+      "  },",
+      "  nodes: [",
+      "    {",
+      "      id: 'start',",
+      "      type: 'start',",
+      "      name: 'Start',",
+      "      next: '${6:end}',",
+      "    },",
+      "    $0",
+      "  ],",
+      "};",
+      "",
+      "export default ${1:myFlow};"
+    ]
+  },
+  "ObjectStack: defineStack Boilerplate": {
+    "prefix": "os-stack",
+    "description": "Full defineStack boilerplate for objectstack.config.ts",
+    "body": [
+      "import { defineStack } from '@objectstack/spec';",
+      "",
+      "export default defineStack({",
+      "  manifest: {",
+      "    name: '${1:my_app}',",
+      "    version: '${2:0.1.0}',",
+      "    label: '${3:My Application}',",
+      "  },",
+      "  objects: [",
+      "    $0",
+      "  ],",
+      "  views: [],",
+      "  plugins: [],",
+      "});"
+    ]
+  },
+  "ObjectStack: AI Agent Definition": {
+    "prefix": "os-agent",
+    "description": "Define an AI agent",
+    "body": [
+      "import { AI } from '@objectstack/spec';",
+      "",
+      "const ${1:myAgent}: AI.Agent = {",
+      "  name: '${2:my_agent}',",
+      "  label: '${3:My Agent}',",
+      "  role: '${4:Assistant}',",
+      "  instructions: '${5:You are a helpful assistant.}',",
+      "  model: {",
+      "    provider: '${6|openai,anthropic,google|}',",
+      "    model: '${7:gpt-4o}',",
+      "  },",
+      "  tools: [",
+      "    $0",
+      "  ],",
+      "};",
+      "",
+      "export default ${1:myAgent};"
+    ]
+  }
+}
