@@ -1057,10 +1057,10 @@ export type GetMetaItemCachedResponse = z.infer<typeof GetMetaItemCachedResponse
 export type GetUiViewRequest = z.infer<typeof GetUiViewRequestSchema>;
 export type GetUiViewResponse = z.infer<typeof GetUiViewResponseSchema>;
 
-export type AnalyticsQueryRequest = z.infer<typeof AnalyticsQueryRequestSchema>;
-export type AnalyticsResultResponse = z.infer<typeof AnalyticsResultResponseSchema>;
-export type GetAnalyticsMetaRequest = z.infer<typeof GetAnalyticsMetaRequestSchema>;
-export type GetAnalyticsMetaResponse = z.infer<typeof AnalyticsMetadataResponseSchema>;
+type AnalyticsQueryRequest = z.infer<typeof AnalyticsQueryRequestSchema>;
+type AnalyticsResultResponse = z.infer<typeof AnalyticsResultResponseSchema>;
+type GetAnalyticsMetaRequest = z.infer<typeof GetAnalyticsMetaRequestSchema>;
+type GetAnalyticsMetaResponse = z.infer<typeof AnalyticsMetadataResponseSchema>;
 
 export type AutomationTriggerRequest = z.infer<typeof AutomationTriggerRequestSchema>;
 export type AutomationTriggerResponse = z.infer<typeof AutomationTriggerResponseSchema>;

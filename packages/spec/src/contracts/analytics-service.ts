@@ -17,10 +17,10 @@
  * An analytical query definition
  */
 export interface AnalyticsQuery {
-    /** Target cube name */
-    cube: string;
+    /** Target cube name. Optional when cube is specified at a higher level (e.g. API request wrapper or cube-scoped endpoint). Implementations should validate presence at runtime. */
+    cube?: string;
     /** Measures to compute (e.g. ['orders.count', 'orders.totalRevenue']) */
-    measures?: string[];
+    measures: string[];
     /** Dimensions to group by (e.g. ['orders.status', 'orders.createdAt']) */
     dimensions?: string[];
     /** Filter conditions */
