@@ -71,6 +71,8 @@ export {
   ObjectOSCapabilitiesSchema
 } from './stack.zod';
 
+export type { DefineStackOptions } from './stack.zod';
+
 export * from './stack.zod';
 
 // DX Helper Functions (re-exported for convenience)
@@ -78,6 +80,10 @@ export { defineView } from './ui/view.zod';
 export { defineApp } from './ui/app.zod';
 export { defineFlow } from './automation/flow.zod';
 export { defineAgent } from './ai/agent.zod';
+
+// DX Validation Utilities (re-exported for convenience)
+export { objectStackErrorMap, formatZodError, formatZodIssue, safeParsePretty } from './shared/error-map.zod';
+export { suggestFieldType, findClosestMatches, formatSuggestion } from './shared/suggestions.zod';
 
 export { type PluginContext } from './kernel/plugin.zod';
 
