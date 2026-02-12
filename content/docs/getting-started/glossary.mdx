@@ -1,0 +1,125 @@
+---
+title: Glossary
+description: The Glossary of the ObjectStack Ecosystem. Speaking the same language.
+---
+
+import { Book, Server, Code, Database } from 'lucide-react';
+
+To navigate the ObjectStack ecosystem effectively, it is helpful to understand the specific vocabulary we use. While many terms are standard in computer science, some have specific nuances in our "Protocol-Driven" context.
+
+## The Ecosystem
+
+### ObjectStack
+The umbrella term for the entire suite of protocols and reference implementations. It is organized into **11 protocol namespaces** grouped into three architectural layers.
+
+### Protocol Namespace
+A logical grouping of related schemas and types defined with Zod. ObjectStack has 11 protocol namespaces: Data, Driver, Permission, UI, System, Auth, Kernel, Hub, AI, API, and Automation.
+
+---
+
+## The 11 Protocol Namespaces
+
+### Data Protocol
+Defines the core business data model. Includes Object schema, Field types, Validation rules, Query AST, and Filter conditions. This is the foundation of ObjectQL.
+
+### Driver Protocol
+Database adapter interface for connecting to various storage engines (PostgreSQL, MongoDB, SQLite, Redis, etc.). Drivers implement a standard interface for CRUD operations and query execution.
+
+### Permission Protocol
+Access control system including object-level permissions (CRUD), field-level security (FLS), sharing rules, and territory management. Determines who can see and modify what data.
+
+### UI Protocol
+Server-Driven UI specification for building user interfaces. Includes App structure, Views (List/Form/Kanban/Calendar), Dashboards, Reports, Themes, and Actions.
+
+### System Protocol
+Infrastructure services including Event Bus, Job Scheduling, Translation (i18n), and Audit Logging. Manages system-level concerns.
+
+### Auth Protocol
+Identity and access management including User accounts, Sessions, Roles, Organization structure, and various authentication strategies (OAuth, SAML, LDAP, etc.).
+
+### Kernel Protocol
+Plugin system and runtime management. Includes Plugin lifecycle, Manifest definition, Logger configuration, and Runtime Context. The core of ObjectOS.
+
+### Hub Protocol
+SaaS and marketplace features including Multi-tenancy, Licensing, Marketplace plugins, and Deployment configurations. Enables commercial distribution.
+
+### AI Protocol
+Artificial intelligence capabilities including AI Agents, RAG pipelines, Natural Language Query (NLQ), Predictive models, Cost tracking, and Orchestration.
+
+### API Protocol
+External communication layer including REST contracts, API discovery, Realtime subscriptions (WebSocket/SSE), and Routing configuration.
+
+### Automation Protocol
+Business process automation including Workflows (state machines), Flows (visual logic), and Webhooks (HTTP callbacks).
+
+---
+
+## Architecture Concepts
+
+### Protocol-Driven
+A development paradigm where logic is defined in static, declarative data formats (JSON/YAML) with Zod schemas rather than imperative code. The goal is to separate the **Intent** (Business Logic) from the **Implementation** (Tech Stack).
+
+### Local-First
+An architectural pattern where the application reads and writes to a database embedded on the user's device (the Client) first. Network synchronization happens in the background. This ensures zero-latency interactions and offline availability.
+
+### Database Compiler
+A system that takes a high-level query AST (Abstract Syntax Tree) and compiles it into an optimized database query string (e.g., SQL). This contrasts with an ORM, which typically acts as a runtime wrapper object.
+
+### Virtual Field
+A field defined in the Data Protocol schema that does not exist physically in the database table but is computed on the fly.
+* *Example:* A SQL subquery or expression injected into the `SELECT` statement at compile time.
+
+---
+
+## Data & Schema
+
+### Object (Entity)
+The fundamental unit of data modeling in ObjectStack. Roughly equivalent to a "Table" in SQL or a "Collection" in NoSQL. An Object definition includes Fields, Actions, Triggers, and Permissions.
+
+### Driver
+An adapter plugin (Driver Protocol) that allows the Data Layer to communicate with a specific underlying storage engine.
+* *Example:* `@objectstack/driver-postgres`, `@objectstack/driver-mongodb`, `@objectstack/driver-sqlite`.
+
+### AST (Abstract Syntax Tree)
+The intermediate representation of a query or schema. The Data Protocol parses a JSON request into an AST before the Driver translates it into SQL/NoSQL queries. This allows for security validation and optimization before execution.
+
+### Manifest
+The entry point configuration file (Kernel Protocol) for an ObjectStack Plugin. It declares dependencies, resources, and extensions using the Manifest schema.
+
+---
+
+## Interface & Logic
+
+### Layout
+A JSON structure defined in the UI Protocol that describes the visual arrangement of components. Layouts can be nested and dynamic (e.g., Master-Detail, Grid, Kanban).
+
+### Workflow
+A business process (Automation Protocol) defined as a **Finite State Machine (FSM)**. It consists of States (e.g., `draft`, `approved`), Transitions, and Guards.
+
+### Flow
+A visual logic automation tool (Automation Protocol) that allows building business processes using a node-based editor. Supports screen flows, autolaunched flows, and scheduled flows.
+
+### Action
+A discrete unit of logic (UI Protocol) that can be triggered by a user (UI button) or a system event (Workflow transition). Actions define button behaviors and navigation.
+
+### Component Registry
+A map within the UI Runtime that links a string identifier (e.g., `"chart.bar"`) to a real React Component. This allows the UI Protocol to instantiate UI elements dynamically.
+
+---
+
+## Governance
+
+### Space (Workspace)
+A logical isolation unit (Hub Protocol) for multi-tenancy. A single ObjectStack instance can host multiple Spaces. Data is physically segregated by tenant isolation strategies.
+
+### FLS (Field-Level Security)
+A granular permission model (Permission Protocol) where access control is applied to individual fields (columns), not just the whole object (row).
+
+### OWD (Organization-Wide Defaults)
+The default sharing level (Permission Protocol) for records in an object. Determines the baseline access level before sharing rules are applied.
+
+### Territory
+A hierarchical access control model (Permission Protocol) that grants data access based on geographic or organizational boundaries.
+
+### TCK (Technology Compatibility Kit)
+A suite of tests that validates if a Driver or Renderer complies with the official ObjectStack Protocol. If a new driver passes the TCK, it is certified as compatible.
