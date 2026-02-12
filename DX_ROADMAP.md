@@ -163,16 +163,16 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 
 ### Phase 3 Checklist
 
-- [ ] Create field type gallery page with all 46+ types
-- [ ] Create per-field-type configuration reference tables
-- [ ] Create error code catalog with 46 error codes
-- [ ] Create HTTP status mapping reference
+- [x] Create field type gallery page with all 48 types
+- [x] Create per-field-type configuration reference tables
+- [x] Create error code catalog with 41+ error codes
+- [x] Create HTTP status mapping reference
 - [ ] Create protocol relationship diagram (visual)
-- [ ] Create query syntax cheat sheet
+- [x] Create query syntax cheat sheet
 - [ ] Add wire format JSON examples to protocol docs
-- [ ] Create common patterns guide (top 10 patterns)
-- [ ] Create troubleshooting / FAQ page
-- [ ] Create plugin development tutorial
+- [x] Create common patterns guide (top 10 patterns)
+- [x] Create troubleshooting / FAQ page
+- [x] Create plugin development tutorial
 
 ---
 
@@ -362,4 +362,4 @@ This roadmap prioritizes improvements based on the **"Time to First Wow"** metri
 
 **Last Updated:** 2026-02-12  
 **Maintainers:** ObjectStack Core Team  
-**Status:** 🔄 Active — Phase 2 Complete, Phase 3 Ready to Start
+**Status:** 🔄 Active — Phase 3 In Progress (8/10 items complete), Phase 4 Ready to Start
