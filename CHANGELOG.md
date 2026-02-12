@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Updated ROADMAP.md for v3.0 release preparation with full codebase scan results
+- Audited all @deprecated items: 14 in spec, 9 in runtime packages (23 total)
+- Identified stale deprecation notices targeting v2.0.0 (current: v2.0.7)
+- Updated metrics: 172 schema files, 191 test files, 5,165 tests, 7,095 .describe() annotations
+
+### Deprecated
+- The following items are scheduled for removal in v3.0.0 (see `packages/spec/V3_MIGRATION_GUIDE.md`):
+  - `Hub.*` barrel re-exports from `hub/index.ts`
+  - `location` (singular) on `ActionSchema` — use `locations` (array)
+  - `definePlugin()` in spec — will move to `@objectstack/core`
+  - `createErrorResponse()` / `getHttpStatusForCategory()` in spec — will move to `@objectstack/core`
+  - `RateLimitSchema`, `RealtimePresenceStatus`, `RealtimeAction` aliases
+  - Event bus helper functions (`createDefaultEventBusConfig`, `createDefaultDLQConfig`, `createDefaultEventHandlerConfig`)
+  - `HttpDispatcher` class in `@objectstack/runtime`
+  - `createHonoApp()` in `@objectstack/hono`
+
 ## [2.0.7] - 2026-02-11
 
 ### Added
