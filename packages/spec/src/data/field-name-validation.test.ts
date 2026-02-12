@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { FieldSchema } from './src/data/field.zod';
+import { FieldSchema } from './field.zod';
 
 describe('FieldSchema name validation', () => {
   it('should reject camelCase name when provided', () => {

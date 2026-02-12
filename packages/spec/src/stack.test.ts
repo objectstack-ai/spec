@@ -427,8 +427,9 @@ describe('defineStack', () => {
   it('should validate config in default mode (strict by default)', () => {
     const config = { manifest: baseManifest, objects: [] };
     const result = defineStack(config);
-    // Default is now strict=true, so result is validated and might be a different object reference
-    expect(result).toEqual(config);
+    // Default is now strict=true, so result is validated and is a different object reference
+    expect(result).not.toBe(config);  // Validation creates new object
+    expect(result).toEqual(config);   // But content is the same
     expect(result.manifest).toBeDefined();
   });
 
