@@ -411,8 +411,8 @@ describe('ObjectStackDefinitionSchema', () => {
     expect(() => ObjectStackDefinitionSchema.parse(definition)).not.toThrow();
   });
 
-  it('should require manifest field', () => {
-    expect(() => ObjectStackDefinitionSchema.parse({})).toThrow();
+  it('should accept definition without manifest (manifest is optional)', () => {
+    expect(() => ObjectStackDefinitionSchema.parse({})).not.toThrow();
   });
 });
 
@@ -524,6 +524,17 @@ describe('defineStack', () => {
     };
     // No objects defined, so cross-ref validation is skipped
     expect(() => defineStack(config, { strict: true })).not.toThrow();
+  });
+
+  it('should accept config without manifest (manifest is optional)', () => {
+    const config = {
+      objects: [
+        { name: 'task', fields: { title: { type: 'text' } } },
+      ],
+    };
+    const result = defineStack(config as any);
+    expect(result.manifest).toBeUndefined();
+    expect(result.objects).toHaveLength(1);
   });
 });
 
