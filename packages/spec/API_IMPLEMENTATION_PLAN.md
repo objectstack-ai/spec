@@ -555,30 +555,17 @@ export default defineStack({
 });
 ```
 
-### 4.4 P1: plugin-ui-api（UI 元数据 API 插件）
+### 4.4 ~~P1: plugin-ui-api~~（已合并到 metadata API）
 
-**类型:** `standard`  
-**提供服务:** `ui`  
-**Protocol 方法:** listViews, getView, createView, updateView, deleteView
+UI 元数据（views, dashboards, pages）的 CRUD 操作已通过统一的 metadata API 提供：
 
-```typescript
-export default defineStack({
-  id: 'com.objectstack.plugin-ui-api',
-  version: '1.0.0',
-  type: 'plugin',
-  name: 'UI Metadata API',
-  
-  contributes: {
-    routes: [
-      {
-        prefix: '/api/v1/ui',
-        service: 'ui',
-        methods: ['listViews', 'getView', 'createView', 'updateView', 'deleteView'],
-      },
-    ],
-  },
-});
-```
+- `GET /api/v1/meta/view` — 等价于旧的 `GET /api/v1/ui/views`
+- `GET /api/v1/meta/view/:name` — 等价于旧的 `GET /api/v1/ui/views/:name`
+- `GET /api/v1/meta/view/:name/effective?userId=xxx` — 带用户定制的最终视图
+- `PUT /api/v1/meta/view/:name/overlay` — 保存用户/平台定制
+- `GET /api/v1/meta/dashboard` — 等价于旧的 `GET /api/v1/ui/dashboards`
+
+不再需要独立的 `plugin-ui-api`。
 
 ### 4.5 P2: plugin-ai（AI 插件）
 

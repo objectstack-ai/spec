@@ -166,7 +166,7 @@ function registerObject(rawConfig: unknown) {
 | `IAnalyticsService` | query, aggregate, timeSeries |
 | `IAuthService` | authenticate, authorize, validateToken |
 | `IAutomationService` | executeFlow, triggerWorkflow |
-| `IUIService` | resolveView, resolveApp |
+| `IUIService` | **DEPRECATED** — use IMetadataService.getView(), .listViews(), .getEffective('view', name, { userId }) |
 | `IGraphQLService` | execute, subscribe |
 
 ---
