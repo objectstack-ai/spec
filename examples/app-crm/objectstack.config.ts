@@ -13,6 +13,7 @@ import * as agents from './src/agents';
 import * as ragPipelines from './src/rag';
 import * as profiles from './src/profiles';
 import * as apps from './src/apps';
+import * as translations from './src/translations';
 import { CrmSeedData } from './src/data';
 
 // ─── Sharing & Security (special: mixed single/array values) ───────
@@ -48,6 +49,9 @@ export default defineStack({
 
   // Seed Data (top-level, registered as metadata)
   data: CrmSeedData,
+
+  // I18n Translation Bundles (en, zh-CN, ja-JP, es-ES)
+  translations: Object.values(translations),
 
   // Sharing & security (requires explicit wiring)
   sharingRules: [

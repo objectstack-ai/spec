@@ -42,6 +42,7 @@ A complete task management application demonstrating all core ObjectStack protoc
 - Reports (6 types: tabular, summary, matrix)
 - Automation flows (reminders, escalation, recurring tasks)
 - App navigation and branding configuration
+- **I18n translations** (English, Chinese, Japanese)
 - Package structure with `objectstack.config.ts`
 
 **Directory Structure:**
@@ -60,8 +61,10 @@ app-todo/
 │   │   └── task.dashboard.ts
 │   ├── reports/                # Report definitions
 │   │   └── task.report.ts
-│   └── flows/                  # Automation flows
-│       └── task.flow.ts
+│   ├── flows/                  # Automation flows
+│   │   └── task.flow.ts
+│   └── translations/           # I18n translations (en, zh-CN, ja-JP)
+│       └── todo.translation.ts
 └── test/
     └── seed.test.ts
 ```
@@ -91,6 +94,7 @@ pnpm typecheck
 - 6 reports (by account, contact, lead, opportunity, case, task)
 - 5 automation flows (lead conversion, case escalation, opportunity approval, etc.)
 - AI agents and RAG pipelines
+- **I18n translations** (English, Chinese, Japanese, Spanish)
 
 **Directory Structure:**
 ```
@@ -124,6 +128,8 @@ app-crm/
 │   │   ├── lead-conversion.flow.ts
 │   │   ├── case-escalation.flow.ts
 │   │   └── ...
+│   ├── translations/           # I18n translations (en, zh-CN, ja-JP, es-ES)
+│   │   └── crm.translation.ts
 │   ├── agents/                 # AI agents
 │   ├── rag/                    # RAG pipelines
 │   ├── apis/                   # Custom APIs
@@ -220,6 +226,7 @@ pnpm typecheck
 | Manifest | ✅ Complete | All examples with `objectstack.config.ts` |
 | Plugin System | ✅ Complete | [App Host](./app-host/) |
 | Datasources | 🟡 Partial | [App Host](./app-host/) |
+| I18n / Translations | ✅ Complete | [Todo Translations](./app-todo/src/translations/), [CRM Translations](./app-crm/src/translations/) |
 | Job Scheduling | 🔴 Missing | _Planned_ |
 | Metrics | 🔴 Missing | _Planned_ |
 
@@ -322,7 +329,8 @@ example-name/
 │   ├── apps/              # *.app.ts
 │   ├── dashboards/        # *.dashboard.ts
 │   ├── reports/           # *.report.ts
-│   └── flows/             # *.flow.ts
+│   ├── flows/             # *.flow.ts
+│   └── translations/      # *.translation.ts (i18n bundles)
 └── test/
     └── seed.test.ts
 ```
