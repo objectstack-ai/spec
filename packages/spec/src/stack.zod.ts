@@ -72,7 +72,7 @@ import { ConnectorSchema } from './integration/connector.zod';
  */
 export const ObjectStackDefinitionSchema = z.object({
   /** System Configuration */
-  manifest: ManifestSchema.describe('Project Package Configuration'),
+  manifest: ManifestSchema.optional().describe('Project Package Configuration'),
   datasources: z.array(DatasourceSchema).optional().describe('External Data Connections'),
   translations: z.array(TranslationBundleSchema).optional().describe('I18n Translation Bundles'),
   i18n: TranslationConfigSchema.optional().describe('Internationalization configuration'),
