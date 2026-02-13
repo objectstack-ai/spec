@@ -1,5 +1,19 @@
 # @objectstack/cli
 
+## 3.0.3
+
+### Patch Changes
+
+- c7267f6: Patch release for maintenance updates and improvements.
+- Updated dependencies [c7267f6]
+  - @objectstack/spec@3.0.3
+  - @objectstack/core@3.0.3
+  - @objectstack/objectql@3.0.3
+  - @objectstack/runtime@3.0.3
+  - @objectstack/rest@3.0.3
+  - @objectstack/driver-memory@3.0.3
+  - @objectstack/plugin-hono-server@3.0.3
+
 ## 3.0.2
 
 ### Patch Changes
