@@ -1,0 +1,30 @@
+{
+  "name": "@objectstack/express",
+  "version": "3.0.2",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup --config ../../../tsup.config.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "@objectstack/runtime": "workspace:*",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@objectstack/runtime": "workspace:*",
+    "@types/express": "^5.0.3",
+    "express": "^5.1.0",
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.18"
+  }
+}

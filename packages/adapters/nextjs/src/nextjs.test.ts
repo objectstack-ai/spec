@@ -453,3 +453,97 @@ describe('createDiscoveryHandler', () => {
     expect((res as any).redirectUrl).toBe('http://localhost/v2/api');
   });
 });
+
+// --- Server Actions Tests ---
+import { createServerActions } from './index';
+
+describe('createServerActions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('query returns data on success', async () => {
+    const actions = createServerActions({ kernel: mockKernel });
+    const result = await actions.query('account');
+    expect(result.success).toBe(true);
+    expect(result.data).toEqual({ records: [] });
+    expect(mockDispatcher.handleData).toHaveBeenCalledWith(
+      '/account', 'GET', {}, {},
+      expect.anything(),
+    );
+  });
+
+  it('query passes params', async () => {
+    const actions = createServerActions({ kernel: mockKernel });
+    await actions.query('account', { limit: 10 });
+    expect(mockDispatcher.handleData).toHaveBeenCalledWith(
+      '/account', 'GET', {}, { limit: 10 },
+      expect.anything(),
+    );
+  });
+
+  it('getById returns single record', async () => {
+    const actions = createServerActions({ kernel: mockKernel });
+    const result = await actions.getById('account', '123');
+    expect(result.success).toBe(true);
+    expect(mockDispatcher.handleData).toHaveBeenCalledWith(
+      '/account/123', 'GET', {}, {},
+      expect.anything(),
+    );
+  });
+
+  it('create sends data', async () => {
+    const actions = createServerActions({ kernel: mockKernel });
+    const result = await actions.create('account', { name: 'Acme' });
+    expect(result.success).toBe(true);
+    expect(mockDispatcher.handleData).toHaveBeenCalledWith(
+      '/account', 'POST', { name: 'Acme' }, {},
+      expect.anything(),
+    );
+  });
+
+  it('update sends data with id', async () => {
+    const actions = createServerActions({ kernel: mockKernel });
+    const result = await actions.update('account', '123', { name: 'Updated' });
+    expect(result.success).toBe(true);
+    expect(mockDispatcher.handleData).toHaveBeenCalledWith(
+      '/account/123', 'PATCH', { name: 'Updated' }, {},
+      expect.anything(),
+    );
+  });
+
+  it('remove deletes record', async () => {
+    const actions = createServerActions({ kernel: mockKernel });
+    const result = await actions.remove('account', '123');
+    expect(result.success).toBe(true);
+    expect(mockDispatcher.handleData).toHaveBeenCalledWith(
+      '/account/123', 'DELETE', {}, {},
+      expect.anything(),
+    );
+  });
+
+  it('getMetadata returns metadata', async () => {
+    const actions = createServerActions({ kernel: mockKernel });
+    const result = await actions.getMetadata('/objects');
+    expect(result.success).toBe(true);
+    expect(mockDispatcher.handleMetadata).toHaveBeenCalledWith(
+      '/objects', expect.anything(), 'GET',
+    );
+  });
+
+  it('returns error on exception', async () => {
+    mockDispatcher.handleData.mockRejectedValueOnce(new Error('Server down'));
+    const actions = createServerActions({ kernel: mockKernel });
+    const result = await actions.query('account');
+    expect(result.success).toBe(false);
+    expect(result.error?.message).toBe('Server down');
+  });
+
+  it('returns error when not handled', async () => {
+    mockDispatcher.handleData.mockResolvedValueOnce({ handled: false });
+    const actions = createServerActions({ kernel: mockKernel });
+    const result = await actions.query('missing');
+    expect(result.success).toBe(false);
+    expect(result.error?.code).toBe(404);
+  });
+});

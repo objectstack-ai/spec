@@ -160,3 +160,135 @@ export function createDiscoveryHandler(options: NextAdapterOptions) {
       return NextResponse.redirect(targetUrl);
   }
 }
+
+// ─── Server Actions ──────────────────────────────────────────────────────────
+
+/**
+ * Result type for server actions
+ */
+export interface ServerActionResult<T = any> {
+  success: boolean;
+  data?: T;
+  error?: { message: string; code: number };
+}
+
+/**
+ * Creates type-safe React Server Actions for ObjectStack data operations.
+ * Each action maps to a dispatcher method and can be called directly from
+ * React Server Components or client components via `"use server"`.
+ *
+ * @example
+ * ```ts
+ * // app/actions.ts
+ * "use server";
+ * import { createServerActions } from '@objectstack/nextjs';
+ * import { kernel } from '@/lib/kernel';
+ *
+ * const actions = createServerActions({ kernel });
+ *
+ * export async function getAccounts() {
+ *   return actions.query('account');
+ * }
+ *
+ * export async function createAccount(formData: FormData) {
+ *   return actions.create('account', {
+ *     name: formData.get('name') as string,
+ *   });
+ * }
+ * ```
+ */
+export function createServerActions(options: NextAdapterOptions) {
+  const dispatcher = new HttpDispatcher(options.kernel);
+
+  return {
+    /**
+     * Query records from an object
+     */
+    async query(objectName: string, params?: Record<string, any>): Promise<ServerActionResult> {
+      try {
+        const result = await dispatcher.handleData(`/${objectName}`, 'GET', {}, params || {}, {});
+        if (result.handled && result.response) {
+          return { success: true, data: result.response.body };
+        }
+        return { success: false, error: { message: 'Not found', code: 404 } };
+      } catch (err: any) {
+        return { success: false, error: { message: err.message || 'Internal Server Error', code: err.statusCode || 500 } };
+      }
+    },
+
+    /**
+     * Get a single record by ID
+     */
+    async getById(objectName: string, id: string): Promise<ServerActionResult> {
+      try {
+        const result = await dispatcher.handleData(`/${objectName}/${id}`, 'GET', {}, {}, {});
+        if (result.handled && result.response) {
+          return { success: true, data: result.response.body };
+        }
+        return { success: false, error: { message: 'Not found', code: 404 } };
+      } catch (err: any) {
+        return { success: false, error: { message: err.message || 'Internal Server Error', code: err.statusCode || 500 } };
+      }
+    },
+
+    /**
+     * Create a new record
+     */
+    async create(objectName: string, data: Record<string, any>): Promise<ServerActionResult> {
+      try {
+        const result = await dispatcher.handleData(`/${objectName}`, 'POST', data, {}, {});
+        if (result.handled && result.response) {
+          return { success: true, data: result.response.body };
+        }
+        return { success: false, error: { message: 'Create failed', code: 500 } };
+      } catch (err: any) {
+        return { success: false, error: { message: err.message || 'Internal Server Error', code: err.statusCode || 500 } };
+      }
+    },
+
+    /**
+     * Update a record by ID
+     */
+    async update(objectName: string, id: string, data: Record<string, any>): Promise<ServerActionResult> {
+      try {
+        const result = await dispatcher.handleData(`/${objectName}/${id}`, 'PATCH', data, {}, {});
+        if (result.handled && result.response) {
+          return { success: true, data: result.response.body };
+        }
+        return { success: false, error: { message: 'Update failed', code: 500 } };
+      } catch (err: any) {
+        return { success: false, error: { message: err.message || 'Internal Server Error', code: err.statusCode || 500 } };
+      }
+    },
+
+    /**
+     * Delete a record by ID
+     */
+    async remove(objectName: string, id: string): Promise<ServerActionResult> {
+      try {
+        const result = await dispatcher.handleData(`/${objectName}/${id}`, 'DELETE', {}, {}, {});
+        if (result.handled && result.response) {
+          return { success: true, data: result.response.body };
+        }
+        return { success: false, error: { message: 'Delete failed', code: 500 } };
+      } catch (err: any) {
+        return { success: false, error: { message: err.message || 'Internal Server Error', code: err.statusCode || 500 } };
+      }
+    },
+
+    /**
+     * Get metadata for objects
+     */
+    async getMetadata(path?: string): Promise<ServerActionResult> {
+      try {
+        const result = await dispatcher.handleMetadata(path || '', {}, 'GET');
+        if (result.handled && result.response) {
+          return { success: true, data: result.response.body };
+        }
+        return { success: false, error: { message: 'Not found', code: 404 } };
+      } catch (err: any) {
+        return { success: false, error: { message: err.message || 'Internal Server Error', code: err.statusCode || 500 } };
+      }
+    },
+  };
+}
