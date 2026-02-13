@@ -1,0 +1,285 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+import { Page } from '@objectstack/spec/ui';
+
+/**
+ * Lead Detail Record Page
+ * 
+ * Demonstrates a comprehensive record page layout similar to Salesforce Lightning Record Page.
+ * 
+ * Features:
+ * - Template-based layout with named regions
+ * - Rich component composition (details, highlights, related lists)
+ * - Component visibility rules
+ * - Profile-based page assignment
+ */
+export const LeadDetailPage: Page = {
+  name: 'lead_detail_page',
+  label: 'Lead Detail',
+  description: 'Comprehensive lead detail page with highlights, details, and related information',
+  
+  type: 'record',
+  object: 'lead',
+  
+  // Template defines the overall layout structure
+  template: 'header-sidebar-main',
+  
+  // Page-level state variables
+  variables: [
+    {
+      name: 'showHistory',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      name: 'activeTab',
+      type: 'string',
+      defaultValue: 'details',
+    },
+  ],
+  
+  // Regions correspond to slots in the template
+  regions: [
+    {
+      name: 'header',
+      width: 'full',
+      components: [
+        {
+          type: 'page:header',
+          id: 'lead_header',
+          label: 'Lead Information',
+          properties: {
+            title: '{first_name} {last_name}',
+            subtitle: '{company}',
+            icon: 'user-plus',
+            breadcrumb: true,
+            actions: ['edit', 'delete', 'convert_lead', 'share'],
+          },
+        },
+        {
+          type: 'record:path',
+          id: 'lead_path',
+          label: 'Lead Status Path',
+          properties: {
+            statusField: 'status',
+            stages: [
+              { value: 'new', label: 'New' },
+              { value: 'contacted', label: 'Contacted' },
+              { value: 'qualified', label: 'Qualified' },
+              { value: 'unqualified', label: 'Unqualified' },
+            ],
+          },
+        },
+      ],
+    },
+    
+    {
+      name: 'sidebar',
+      width: 'medium',
+      components: [
+        {
+          type: 'record:highlights',
+          id: 'lead_highlights',
+          label: 'Key Information',
+          properties: {
+            fields: ['status', 'rating', 'lead_source', 'owner', 'email', 'phone'],
+            layout: 'vertical',
+          },
+        },
+        {
+          type: 'page:card',
+          id: 'quick_actions_card',
+          label: 'Quick Actions',
+          properties: {
+            title: 'Quick Actions',
+            bordered: true,
+            actions: ['send_email', 'log_call', 'create_task', 'schedule_meeting'],
+          },
+        },
+        {
+          type: 'ai:chat_window',
+          id: 'ai_assistant',
+          label: 'AI Assistant',
+          properties: {
+            mode: 'sidebar',
+            agentId: 'sales_assistant',
+            context: {
+              recordType: 'lead',
+              recordId: '{record.id}',
+            },
+          },
+          // Only show AI assistant for qualified leads
+          visibility: 'status == "qualified" OR status == "contacted"',
+        },
+      ],
+    },
+    
+    {
+      name: 'main',
+      width: 'large',
+      components: [
+        {
+          type: 'page:tabs',
+          id: 'main_tabs',
+          label: 'Lead Information Tabs',
+          properties: {
+            type: 'line',
+            position: 'top',
+            items: [
+              {
+                label: 'Details',
+                icon: 'info-circle',
+                children: [
+                  {
+                    type: 'record:details',
+                    id: 'lead_details',
+                    label: 'Lead Details',
+                    properties: {
+                      columns: '2',
+                      layout: 'auto',
+                    },
+                  },
+                ],
+              },
+              {
+                label: 'Related',
+                icon: 'link',
+                children: [
+                  {
+                    type: 'page:accordion',
+                    id: 'related_accordion',
+                    label: 'Related Records',
+                    properties: {
+                      allowMultiple: true,
+                      items: [
+                        {
+                          label: 'Tasks',
+                          icon: 'tasks',
+                          collapsed: false,
+                          children: [
+                            {
+                              type: 'record:related_list',
+                              id: 'related_tasks',
+                              label: 'Tasks',
+                              properties: {
+                                objectName: 'task',
+                                relationshipField: 'lead_id',
+                                columns: ['subject', 'status', 'priority', 'due_date', 'assigned_to'],
+                                sort: [
+                                  { field: 'due_date', order: 'asc' }
+                                ],
+                                limit: 10,
+                                title: 'Open Tasks',
+                                filter: [['status', '!=', 'completed']],
+                                showViewAll: true,
+                                actions: ['new_task', 'edit', 'complete'],
+                              },
+                            },
+                          ],
+                        },
+                        {
+                          label: 'Events',
+                          icon: 'calendar',
+                          collapsed: true,
+                          children: [
+                            {
+                              type: 'record:related_list',
+                              id: 'related_events',
+                              label: 'Events',
+                              properties: {
+                                objectName: 'event',
+                                relationshipField: 'lead_id',
+                                columns: ['subject', 'start_date', 'end_date', 'location'],
+                                sort: [
+                                  { field: 'start_date', order: 'desc' }
+                                ],
+                                limit: 5,
+                                showViewAll: true,
+                                actions: ['new_event'],
+                              },
+                            },
+                          ],
+                        },
+                        {
+                          label: 'Notes & Attachments',
+                          icon: 'paperclip',
+                          collapsed: true,
+                          children: [
+                            {
+                              type: 'record:related_list',
+                              id: 'related_files',
+                              label: 'Files',
+                              properties: {
+                                objectName: 'file',
+                                relationshipField: 'parent_id',
+                                columns: ['title', 'file_type', 'size', 'created_by', 'created_date'],
+                                sort: [
+                                  { field: 'created_date', order: 'desc' }
+                                ],
+                                limit: 5,
+                                showViewAll: true,
+                              },
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+              {
+                label: 'Activity',
+                icon: 'clock',
+                children: [
+                  {
+                    type: 'record:activity',
+                    id: 'lead_activity',
+                    label: 'Activity Timeline',
+                    properties: {
+                      types: ['task', 'event', 'email', 'call', 'note'],
+                      limit: 20,
+                      showCompleted: false,
+                    },
+                  },
+                ],
+              },
+              {
+                label: 'History',
+                icon: 'history',
+                children: [
+                  {
+                    type: 'record:related_list',
+                    id: 'field_history',
+                    label: 'Field History',
+                    properties: {
+                      objectName: 'field_history',
+                      relationshipField: 'record_id',
+                      columns: ['field', 'old_value', 'new_value', 'changed_by', 'changed_date'],
+                      sort: [
+                        { field: 'changed_date', order: 'desc' }
+                      ],
+                      limit: 25,
+                      showViewAll: true,
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+    },
+  ],
+  
+  // Make this the default page for leads
+  isDefault: true,
+  
+  // Assign to specific profiles
+  assignedProfiles: ['sales_user', 'sales_manager', 'system_administrator'],
+  
+  // ARIA accessibility
+  aria: {
+    label: 'Lead Detail Page',
+    description: 'Detailed view of lead information with related records and activity',
+  },
+};
