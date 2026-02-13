@@ -9,6 +9,7 @@ import * as dashboards from './src/dashboards';
 import * as reports from './src/reports';
 import * as flows from './src/flows';
 import * as apps from './src/apps';
+import * as translations from './src/translations';
 
 export default defineStack({
   manifest: {
@@ -46,5 +47,8 @@ export default defineStack({
   reports: Object.values(reports),
   flows: Object.values(flows) as any,
   apps: Object.values(apps),
+
+  // I18n Translation Bundles (en, zh-CN, ja-JP)
+  translations: Object.values(translations),
 });
 
