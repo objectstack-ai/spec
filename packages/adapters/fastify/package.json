@@ -18,11 +18,11 @@
   },
   "peerDependencies": {
     "@objectstack/runtime": "workspace:*",
-    "fastify": "^5.3.3"
+    "fastify": "^5.7.2"
   },
   "devDependencies": {
     "@objectstack/runtime": "workspace:*",
-    "fastify": "^5.3.3",
+    "fastify": "^5.7.2",
     "typescript": "^5.0.0",
     "vitest": "^4.0.18"
   }
