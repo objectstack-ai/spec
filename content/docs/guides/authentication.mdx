@@ -567,14 +567,14 @@ try {
 }
 ```
 
-### Migration from Other Systems
+### ObjectStack Field Naming
 
-The plugin uses Better-Auth's native naming conventions (camelCase for fields, no table prefixes) to make migration from existing Better-Auth implementations seamless:
+The plugin uses ObjectStack's snake_case naming convention for field names, which is required by the ObjectStack protocol:
 
-- Table names: `user`, `session`, `account`, `verification` (no `auth_` prefix)
-- Field names: `emailVerified`, `createdAt`, `userId` (camelCase)
+- Table names: `user`, `session`, `account`, `verification` (compatible with better-auth)
+- Field names: `email_verified`, `created_at`, `user_id` (snake_case)
 
-If you're migrating from an existing Better-Auth setup, your data will work without modification.
+The ObjectQL adapter automatically handles field name transformation between better-auth's expectations and ObjectStack's snake_case convention, providing seamless integration while maintaining protocol compliance.
 
 ---
 
