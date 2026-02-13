@@ -220,24 +220,21 @@ These are the backbone of ObjectStack's enterprise capabilities.
 
 ---
 
-## Phase 5: Framework Adapters (🟡 Mostly Complete)
+## Phase 5: Framework Adapters (✅ Complete)
 
 > **Goal:** First-class integration with popular web frameworks.
 
 ### Completed
 
-- [x] **Next.js Adapter** — App Router, Auth/GraphQL/Meta/Data/Storage handlers (9/10)
+- [x] **Next.js Adapter** — App Router, Auth/GraphQL/Meta/Data/Storage handlers (10/10)
 - [x] **NestJS Adapter** — Full DI module, Express/Fastify support (10/10)
 - [x] **Hono Server Plugin** — Production HTTP server with static file serving
-
-### Remaining
-
-- [ ] **Hono Adapter** — Currently a stub (middleware only). Needs full route dispatchers for Auth/GraphQL/Meta/Data/Storage matching Next.js/NestJS completeness
-- [ ] **Next.js Server Actions** — Support for React Server Actions pattern
-- [ ] **Express Adapter** — Standalone Express integration (currently via NestJS only)
-- [ ] **Fastify Adapter** — Standalone Fastify integration (currently via NestJS only)
-- [ ] **SvelteKit Adapter** — Community request
-- [ ] **Nuxt Adapter** — Community request
+- [x] **Hono Adapter** — Full route dispatchers for Auth/GraphQL/Meta/Data/Storage with createHonoApp
+- [x] **Next.js Server Actions** — createServerActions with query/getById/create/update/remove/getMetadata
+- [x] **Express Adapter** — Standalone Express v5 router with all ObjectStack routes
+- [x] **Fastify Adapter** — Fastify plugin with full route dispatchers
+- [x] **SvelteKit Adapter** — Web-standard Request/Response based handler for SvelteKit routes
+- [x] **Nuxt Adapter** — h3 router integration for Nuxt server routes
 
 ---
 
@@ -400,9 +397,13 @@ These are the backbone of ObjectStack's enterprise capabilities.
 | `@objectstack/plugin-dev` | 3.0.2 | — | ✅ Stable | 10/10 |
 | `@objectstack/plugin-hono-server` | 3.0.2 | — | ✅ Stable | 9/10 |
 | `@objectstack/plugin-msw` | 3.0.2 | — | ✅ Stable | 9/10 |
-| `@objectstack/nextjs` | 3.0.2 | ✅ | ✅ Stable | 9/10 |
+| `@objectstack/nextjs` | 3.0.2 | ✅ | ✅ Stable | 10/10 |
 | `@objectstack/nestjs` | 3.0.2 | ✅ | ✅ Stable | 10/10 |
-| `@objectstack/hono` | 3.0.2 | ✅ | 🔴 Stub | 2/10 |
+| `@objectstack/hono` | 3.0.2 | ✅ | ✅ Stable | 10/10 |
+| `@objectstack/express` | 3.0.2 | ✅ | ✅ Stable | 9/10 |
+| `@objectstack/fastify` | 3.0.2 | ✅ | ✅ Stable | 9/10 |
+| `@objectstack/sveltekit` | 3.0.2 | ✅ | ✅ Stable | 9/10 |
+| `@objectstack/nuxt` | 3.0.2 | ✅ | ✅ Stable | 9/10 |
 | `@objectstack/types` | 3.0.2 | — | 🟡 Minimal | 3/10 |
 | `objectstack-vscode` | 0.1.0 | — | 🟡 Early | 4/10 |
 | `create-objectstack` | 3.0.0 | — | 🟡 Basic | 5/10 |
