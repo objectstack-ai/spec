@@ -337,6 +337,16 @@ importers:
         specifier: ^5.3.0
         version: 5.9.3
 
+  examples/ui-showcase:
+    dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
+    devDependencies:
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+
   packages/adapters/express:
     devDependencies:
       '@objectstack/runtime':

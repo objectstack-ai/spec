@@ -50,6 +50,8 @@ Follows the **by-type** directory layout — the ObjectStack standard aligned wi
 ```
 src/
 ├── objects/          # 📦 10 Core Objects (account, contact, lead, opportunity, ...)
+├── views/            # 👁️ UI Views (FormView & ListView configurations for all objects)
+├── pages/            # 📄 Pages (Record, Home, App, Utility page layouts)
 ├── actions/          # ⚡ Custom Actions (lead, contact, opportunity, case, global)
 ├── apis/             # 🌐 REST Endpoints (pipeline-stats, lead-convert)
 ├── apps/             # 🚀 App Configuration (crm.app.ts)
@@ -70,6 +72,24 @@ Comprehensive guides covering all aspects:
 2. **[Business Logic](./docs/02-business-logic.md)** - Workflows, triggers, formulas
 3. **[Security](./docs/05-security.md)** - Profiles, roles, sharing, permissions
 4. **[AI Capabilities](./docs/08-ai-capabilities.md)** - Agents, RAG, NLQ, ML
+
+### 🎨 UI Examples
+
+The CRM includes comprehensive UI examples demonstrating all form layouts and page types:
+
+#### FormView Examples (`src/views/`)
+- **6 Form Layout Types**: Simple, Tabbed, Wizard, Split, Drawer, Modal
+- **Advanced Features**: Collapsible sections, 1-4 column layouts, conditional visibility, cascading dependencies
+- **5 List View Types**: Grid, Kanban, Calendar, Gallery, filtered views
+- **Field Controls**: readonly, required, hidden, colSpan, visibleOn, dependsOn, custom widgets
+
+#### PageSchema Examples (`src/pages/`)
+- **Record Page**: Comprehensive detail page with highlights, tabs, accordion, related lists, AI chat
+- **Home Page**: Dashboard-style with KPIs and quick actions
+- **App Page**: Application launcher grid
+- **Utility Page**: Floating utility panels
+
+See `src/views/lead.view.ts` and `src/pages/` for complete implementations.
 
 ### 🚀 Quick Start
 
@@ -96,6 +116,8 @@ pnpm --filter @example/app-crm dev
 |----------|-------|----------|
 | **Objects** | 10 | Account, Opportunity, Case, Product |
 | **Fields** | 100+ | AutoNumber, Formula, Lookup, Address |
+| **Views** | 12+ | Grid, Kanban, Calendar, Gallery, Forms (Simple, Tabbed, Wizard, Split, Drawer, Modal) |
+| **Pages** | 4 | Record Detail, Home, App Launcher, Utility Bar |
 | **Profiles** | 5 | Admin, Sales Manager, Sales Rep |
 | **Sharing Rules** | 5+ | Criteria-based, Territory-based |
 | **AI Agents** | 5 | Sales Assistant, Service Agent |
