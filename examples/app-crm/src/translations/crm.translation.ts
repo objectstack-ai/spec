@@ -22,7 +22,7 @@ export const CrmTranslations: TranslationBundle = {
         pluralLabel: 'Accounts',
         fields: {
           account_number: { label: 'Account Number' },
-          name: { label: 'Account Name', help: 'Legal name of the company or organisation' },
+          name: { label: 'Account Name', help: 'Legal name of the company or organization' },
           type: {
             label: 'Type',
             options: { prospect: 'Prospect', customer: 'Customer', partner: 'Partner', former: 'Former' },
