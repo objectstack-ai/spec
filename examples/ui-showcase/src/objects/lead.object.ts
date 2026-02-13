@@ -78,7 +78,7 @@ export const Lead = ObjectSchema.create({
     
     rating: Field.rating(5, {
       label: 'Lead Score',
-      description: 'Lead quality score (1-5 stars)',
+      description: 'Lead quality score (1-5 stars). Half ratings supported (e.g., 4.5) for granular scoring.',
       allowHalf: true,
     }),
     

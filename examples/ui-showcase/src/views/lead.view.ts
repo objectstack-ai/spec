@@ -423,12 +423,12 @@ export const LeadViews = defineView({
           fields: [
             { field: 'street', colSpan: 2 },
             'city',
-            'state',
-            'postal_code',
             {
-              field: 'country',
-              dependsOn: 'state', // Cascade: country determines available states
+              field: 'state',
+              dependsOn: 'country', // Cascade: country determines available states
             },
+            'postal_code',
+            'country',
           ],
         },
         {
@@ -672,12 +672,12 @@ export const LeadViews = defineView({
           fields: [
             { field: 'street', colSpan: 2 },
             'city',
-            'state',
-            'postal_code',
             {
-              field: 'country',
-              dependsOn: 'state', // Country determines state options
+              field: 'state',
+              dependsOn: 'country', // Country determines state options
             },
+            'postal_code',
+            'country',
           ],
         },
         {
