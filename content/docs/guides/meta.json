@@ -19,6 +19,7 @@
     "kernel-services",
     "data-flow",
     "---Operations---",
+    "deployment-vercel",
     "error-handling-client",
     "error-handling-server",
     "standards",
