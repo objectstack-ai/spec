@@ -533,17 +533,20 @@ export class MetadataManager implements IMetadataService {
 
     // Apply user overlay (scoped to specific user if context provided)
     if (context?.userId) {
-      // Look up user-specific overlay by owner
+      // Try user-specific key first, then fall back to generic user overlay.
+      // The owner check below ensures we never apply another user's overlay.
       const userOverlayKey = this.overlayKey(type, name, 'user') + `:${context.userId}`;
       const userOverlay = this.overlays.get(userOverlayKey) 
         ?? await this.getOverlay(type, name, 'user');
       if (userOverlay?.active && userOverlay.patch) {
-        // Only apply if owner matches (or no owner restriction)
+        // Apply if: overlay has no owner (generic user-level), or owner matches current user
         if (!userOverlay.owner || userOverlay.owner === context.userId) {
           effective = { ...effective, ...userOverlay.patch };
         }
       }
     } else {
+      // No user context — only apply user overlays without an owner restriction
+      // (owner-scoped overlays require a userId to resolve)
       const userOverlay = await this.getOverlay(type, name, 'user');
       if (userOverlay?.active && userOverlay.patch && !userOverlay.owner) {
         effective = { ...effective, ...userOverlay.patch };
