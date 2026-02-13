@@ -5,7 +5,7 @@ description: Complete reference of all ObjectStack packages in the monorepo
 
 # Package Reference
 
-ObjectStack is distributed as a monorepo containing **16 packages** organized into core packages, adapters, and plugins.
+ObjectStack is distributed as a monorepo containing **25 packages** organized into core packages, adapters, and plugins.
 
 > **Note for AI Agents**: Each package's `README.md` contains a specific "AI Development Context" section describing its architectural role and usage rules.
 
@@ -14,10 +14,11 @@ ObjectStack is distributed as a monorepo containing **16 packages** organized in
 | Category | Count | Description |
 | :--- | :---: | :--- |
 | [Core Packages](#core-packages) | 9 | Essential runtime, protocols, client SDKs, and CLI |
-| [Adapter Packages](#adapter-packages) | 3 | Framework adapters (Hono, NestJS, Next.js) |
-| [Plugin Packages](#plugin-packages) | 4 | Drivers, server, and authentication plugins |
+| [Framework Adapters](#framework-adapters) | 7 | Express, Fastify, Hono, NestJS, Next.js, Nuxt, SvelteKit |
+| [Plugin Packages](#plugin-packages) | 6 | Drivers, server, auth, security, dev, and MSW plugins |
+| [Tools](#tools) | 3 | Project scaffolder, VSCode extension, REST API server |
 
-**Total: 16 packages**
+**Total: 25 packages**
 
 ---
 
@@ -42,7 +43,7 @@ ObjectStack is distributed as a monorepo containing **16 packages** organized in
 - `Integration` - Integration protocol schemas
 - `Shared` - Shared utilities and identifiers
 
-**Protocol Count:** 139 Zod schemas
+**Protocol Count:** 175 Zod schemas
 
 **Learn more:** [Protocol Reference](/docs/references)
 
@@ -291,9 +292,39 @@ ObjectStack is distributed as a monorepo containing **16 packages** organized in
 
 ---
 
-## Adapter Packages
+## Framework Adapters
 
 Framework adapters that bridge ObjectStack's unified `HttpDispatcher` to specific HTTP frameworks.
+
+### @objectstack/express
+
+**Description:** Express Framework Adapter
+
+**Purpose:** Converts ObjectStack's standard HTTP dispatch interface to Express routes.
+
+**Key Features:**
+- Maps standard routes to Express handlers
+- Supports Express v5 middleware chain
+- Bearer token authentication via AuthPlugin
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED**
+
+---
+
+### @objectstack/fastify
+
+**Description:** Fastify Framework Adapter
+
+**Purpose:** Converts ObjectStack's standard HTTP dispatch interface to Fastify routes.
+
+**Key Features:**
+- Maps standard routes to Fastify handlers
+- Supports Fastify v5 plugin system
+- Bearer token authentication via AuthPlugin
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED**
+
+---
 
 ### @objectstack/hono
 
@@ -334,9 +365,39 @@ Framework adapters that bridge ObjectStack's unified `HttpDispatcher` to specifi
 **Key Features:**
 - App Router integration
 - API route handlers
-- Server-side data access
+- Server-side data access and server actions
 
-**Implementation Status:** 🔄 **IN PROGRESS**
+**Implementation Status:** ✅ **FULLY IMPLEMENTED**
+
+---
+
+### @objectstack/nuxt
+
+**Description:** Nuxt Framework Adapter
+
+**Purpose:** Integrates ObjectStack with Nuxt server routes via h3.
+
+**Key Features:**
+- h3 event handler integration
+- Nitro server route support
+- Bearer token authentication via AuthPlugin
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED**
+
+---
+
+### @objectstack/sveltekit
+
+**Description:** SvelteKit Framework Adapter
+
+**Purpose:** Integrates ObjectStack with SvelteKit hooks and server routes.
+
+**Key Features:**
+- SvelteKit handle hook integration
+- Server route handlers
+- Bearer token authentication via AuthPlugin
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED**
 
 ---
 
@@ -428,7 +489,7 @@ Framework adapters that bridge ObjectStack's unified `HttpDispatcher` to specifi
 
 **Description:** Authentication & Identity Plugin for ObjectStack
 
-**Purpose:** Provides authentication and identity management services for ObjectStack applications with plugin structure ready for better-auth integration.
+**Purpose:** Provides authentication and identity management services for ObjectStack applications with better-auth integration.
 
 **Key Features:**
 - **Plugin Lifecycle**: Full init/start/destroy lifecycle implementation
@@ -436,14 +497,14 @@ Framework adapters that bridge ObjectStack's unified `HttpDispatcher` to specifi
 - **HTTP Route Scaffolding**: `/api/v1/auth/*` endpoints via IHttpServer
 - **Configuration Support**: Uses `AuthConfig` schema from `@objectstack/spec/system`
 - **OAuth Provider Support**: Configuration for Google, GitHub, Microsoft, etc.
-- **Advanced Features**: Organization/team support, 2FA, passkeys, magic links (planned)
-- **Session Management**: Configurable session expiry and refresh (planned)
+- **ObjectQL Database**: Uses ObjectQL for data persistence (no ORM required)
+- **Advanced Features**: Organization/team support, 2FA, passkeys, magic links
 
 **API Routes:**
-- `POST /api/v1/auth/login` - User login
-- `POST /api/v1/auth/register` - User registration
-- `POST /api/v1/auth/logout` - User logout
-- `GET /api/v1/auth/session` - Get current session
+- `POST /api/v1/auth/sign-in/email` - Sign in with email and password
+- `POST /api/v1/auth/sign-up/email` - Register new user
+- `POST /api/v1/auth/sign-out` - Sign out
+- `GET /api/v1/auth/get-session` - Get current session
 
 **Use Cases:**
 - Adding authentication to ObjectStack applications
@@ -456,6 +517,122 @@ Framework adapters that bridge ObjectStack's unified `HttpDispatcher` to specifi
 **Implementation Status:** ⚠️ **PARTIALLY IMPLEMENTED** - Plugin structure and routes scaffolded, authentication logic to be added with better-auth integration
 
 **Learn more:** [Auth Config Reference](/docs/references/system/auth-config)
+
+---
+
+### @objectstack/plugin-security
+
+**Description:** Security Plugin for ObjectStack — RBAC, RLS, and Field-Level Security Runtime
+
+**Purpose:** Provides runtime security enforcement for ObjectStack applications, including role-based access control, row-level security, and field-level masking.
+
+**Key Features:**
+- **RBAC Permission Evaluator**: Checks object-level CRUD permissions per user role
+- **Row-Level Security (RLS)**: Compiles policy expressions into ObjectQL query filters
+- **Field-Level Masking**: Strips non-readable fields from query results
+- **ObjectQL Middleware Integration**: Transparent security enforcement on every operation
+- **Most-Permissive Merging**: If any role grants access, the operation is allowed
+
+**Security Chain (4 steps):**
+1. Resolve permission sets from user roles
+2. Check CRUD permissions on objects
+3. Inject RLS filters into queries
+4. Mask restricted fields in results
+
+**Use Cases:**
+- Multi-tenant applications with role-based access
+- Data isolation between teams/organizations
+- Compliance requirements (field masking for sensitive data)
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready
+
+---
+
+### @objectstack/plugin-dev
+
+**Description:** Development Mode Plugin for ObjectStack
+
+**Purpose:** Auto-enables all 17+ kernel services with in-memory implementations for a full-featured API development environment.
+
+**Key Features:**
+- **Zero Configuration**: Single plugin enables entire development stack
+- **In-Memory Services**: All services use in-memory implementations
+- **Full Protocol Support**: Auth, Data, Metadata, Storage, Analytics, and more
+- **Hot Reload Compatible**: Works with `os dev` for hot-reload workflows
+
+**Use Cases:**
+- Rapid prototyping without database setup
+- Local development and testing
+- CI/CD pipeline testing
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED** - Development ready
+
+---
+
+## Tools
+
+### @objectstack/rest
+
+**Description:** ObjectStack REST API Server — automatic REST endpoint generation from protocol
+
+**Purpose:** Turns ObjectStack schema definitions into fully functional CRUD endpoints with zero boilerplate.
+
+**Key Features:**
+- **Auto-Generated Endpoints**: CRUD routes from object schemas
+- **Batch Operations**: `/createMany`, `/updateMany`, `/deleteMany`, `/batch` endpoints
+- **Metadata API**: `/meta`, `/meta/{type}`, `/meta/{type}/{name}` for runtime introspection
+- **Discovery Endpoint**: `/api/v1` for API self-documentation
+- **Route Manager**: Centralized route registration, grouping, and middleware chain
+- **HTTP Caching**: ETag and Last-Modified header support
+- **Configurable Paths**: Plural, kebab-case, and camelCase path transformations
+
+**Use Cases:**
+- Auto-generating REST APIs from metadata
+- Building production API servers
+- Custom route management
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready
+
+---
+
+### create-objectstack
+
+**Description:** Create a new ObjectStack project — `npx create-objectstack`
+
+**Purpose:** Interactive project scaffolder for quickly creating new ObjectStack projects.
+
+**Key Features:**
+- **Interactive Mode**: Guided project setup with prompts
+- **Template Support**: `full-stack`, `api-only`, `plugin` templates
+- **Dependency Installation**: Automatic `pnpm install` (skippable)
+- **Zero Config**: Works out-of-the-box with sensible defaults
+
+**Use Cases:**
+- Starting new ObjectStack projects
+- Creating plugin packages
+- Scaffolding from templates
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED** - Production ready
+
+---
+
+### objectstack-vscode
+
+**Description:** ObjectStack Protocol — Autocomplete, validation, and inline diagnostics for `.object.ts`, `.view.ts`, and `objectstack.config.ts` files
+
+**Purpose:** VSCode extension providing IDE support for ObjectStack protocol development.
+
+**Key Features:**
+- **Autocomplete**: IntelliSense for ObjectStack schemas
+- **Validation**: Real-time schema validation with error diagnostics
+- **Protocol Awareness**: Understands `.object.ts`, `.view.ts`, and config files
+
+**Use Cases:**
+- ObjectStack development in VSCode
+- Real-time feedback on schema definitions
+- Productivity improvement
+
+**Implementation Status:** ✅ **FULLY IMPLEMENTED**
 
 ---
 
@@ -473,19 +650,31 @@ Framework adapters that bridge ObjectStack's unified `HttpDispatcher` to specifi
     │       ↓
     │       └─→ @objectstack/runtime (uses objectql engine)
     │               ↓
+    │               ├─→ @objectstack/rest (REST API generation)
     │               ├─→ @objectstack/client (consumes runtime APIs)
     │               │       ↓
     │               │       └─→ @objectstack/client-react (wraps client)
     │               └─→ Adapters:
+    │                       ├─→ @objectstack/express (Express routes)
+    │                       ├─→ @objectstack/fastify (Fastify routes)
     │                       ├─→ @objectstack/hono (Hono routes)
     │                       ├─→ @objectstack/nestjs (NestJS modules)
-    │                       └─→ @objectstack/nextjs (Next.js routes)
+    │                       ├─→ @objectstack/nextjs (Next.js routes)
+    │                       ├─→ @objectstack/nuxt (Nuxt/h3 routes)
+    │                       └─→ @objectstack/sveltekit (SvelteKit hooks)
     └─→ @objectstack/cli (validates against spec schemas)
 
 Plugins (depend on core packages):
     ├─→ @objectstack/driver-memory (implements driver interface)
     ├─→ @objectstack/plugin-hono-server (HTTP server via @objectstack/hono)
-    └─→ @objectstack/plugin-msw (mocks for testing via runtime)
+    ├─→ @objectstack/plugin-msw (mocks for testing via runtime)
+    ├─→ @objectstack/plugin-auth (authentication via better-auth)
+    ├─→ @objectstack/plugin-security (RBAC, RLS, field masking)
+    └─→ @objectstack/plugin-dev (dev mode, all services in-memory)
+
+Tools:
+    ├─→ create-objectstack (project scaffolder)
+    └─→ objectstack-vscode (VSCode extension)
 ```
 
 ### Installation
@@ -534,7 +723,7 @@ All packages in the monorepo are versioned together and released simultaneously 
   <Card 
     href="/docs/references" 
     title="Protocol Reference"
-    description="Explore the 139 protocol schemas"
+    description="Explore the 175 protocol schemas"
   />
   <Card 
     href="/docs/developers" 
