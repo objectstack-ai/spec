@@ -1,0 +1,412 @@
+---
+title: Deploy to Vercel
+description: Deploy ObjectStack applications to Vercel — MSW mode for static demos and Server mode for full-stack production
+---
+
+# Deploy to Vercel
+
+ObjectStack supports two deployment modes on Vercel. Choose the mode that fits your use case:
+
+| Mode | Runtime | Vercel Feature | Use Case |
+| :--- | :--- | :--- | :--- |
+| **MSW** | Browser (Service Worker) | Static Site | Demos, prototypes, offline-capable apps |
+| **Server** | Node.js / Edge | Serverless Functions | Production apps with real database |
+
+---
+
+## MSW Mode (Static SPA)
+
+In MSW mode the entire ObjectStack kernel runs **in the browser**. Mock Service Worker intercepts `fetch` calls and routes them to an in-memory ObjectQL engine — no backend required.
+
+### How It Works
+
+```
+┌─────────────────────────── Browser ───────────────────────────┐
+│  React App  →  fetch('/api/v1/data/task')                     │
+│       ↓                                                       │
+│  MSW Service Worker  (intercepts request)                     │
+│       ↓                                                       │
+│  ObjectKernel  →  ObjectQL  →  InMemoryDriver                 │
+│       ↓                                                       │
+│  JSON Response  →  React App                                  │
+└───────────────────────────────────────────────────────────────┘
+```
+
+### Project Setup
+
+```typescript
+// objectstack.config.ts
+import { defineStack } from '@objectstack/spec';
+import * as objects from './src/objects';
+
+export default defineStack({
+  manifest: {
+    id: 'com.example.myapp',
+    name: 'My App',
+    version: '1.0.0',
+    type: 'app',
+  },
+  objects: Object.values(objects),
+  data: [
+    {
+      object: 'task',
+      mode: 'upsert',
+      externalId: 'subject',
+      records: [
+        { subject: 'Learn ObjectStack', status: 'in_progress', priority: 'high' },
+      ],
+    },
+  ],
+});
+```
+
+### Kernel Bootstrap (Browser)
+
+Create a kernel factory that boots the entire stack in the browser:
+
+```typescript
+// src/mocks/createKernel.ts
+import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql';
+import { InMemoryDriver } from '@objectstack/driver-memory';
+import { MSWPlugin } from '@objectstack/plugin-msw';
+
+export async function createKernel(appConfigs: any[]) {
+  const kernel = new ObjectKernel();
+
+  await kernel.use(new ObjectQLPlugin());
+  await kernel.use(new DriverPlugin(new InMemoryDriver(), 'memory'));
+
+  for (const config of appConfigs) {
+    await kernel.use(new AppPlugin(config));
+  }
+
+  await kernel.use(new MSWPlugin({
+    enableBrowser: true,
+    baseUrl: '/api/v1',
+    logRequests: true,
+  }));
+
+  await kernel.bootstrap();
+  return kernel;
+}
+```
+
+### Entry Point
+
+```typescript
+// src/main.tsx
+import appConfig from '../objectstack.config';
+import { createKernel } from './mocks/createKernel';
+
+async function bootstrap() {
+  // Boot the in-browser kernel before rendering
+  await createKernel([appConfig]);
+
+  // Now render — all fetch('/api/v1/...') calls are intercepted by MSW
+  ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
+}
+
+bootstrap();
+```
+
+### Vite Configuration
+
+MSW requires the Service Worker file in your `public/` directory. Add the init script and configure Vite:
+
+```bash
+# Generate the MSW Service Worker file
+npx msw init public --save
+```
+
+```typescript
+// vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  optimizeDeps: {
+    include: ['msw', 'msw/browser', '@objectstack/spec'],
+  },
+});
+```
+
+### `vercel.json`
+
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
+  "build": {
+    "env": {
+      "VITE_RUNTIME_MODE": "msw"
+    }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+```
+
+<Callout type="info">
+The `rewrites` rule is essential for SPA routing — it ensures all paths serve `index.html` so the client-side router can handle navigation.
+</Callout>
+
+### Monorepo Configuration
+
+If your project lives in a monorepo (e.g. pnpm workspaces + Turborepo), update the install and build commands:
+
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "cd ../.. && pnpm install",
+  "buildCommand": "cd ../.. && pnpm turbo run build --filter=@myorg/my-app",
+  "outputDirectory": "dist",
+  "build": {
+    "env": {
+      "VITE_RUNTIME_MODE": "msw"
+    }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+```
+
+Set the **Root Directory** in Vercel project settings to the app's folder (e.g. `apps/my-app`).
+
+---
+
+## Server Mode (Serverless Functions)
+
+In Server mode, ObjectStack runs inside Vercel Serverless Functions. API requests are handled by real backend logic with a real database.
+
+### Architecture
+
+```
+┌─── Vercel ────────────────────────────────────────────────────┐
+│                                                               │
+│  Static Assets (React SPA)                                    │
+│  ┌───────────────────────────────────┐                        │
+│  │  /index.html, /assets/*           │                        │
+│  └───────────────────────────────────┘                        │
+│                                                               │
+│  Serverless Functions                                         │
+│  ┌───────────────────────────────────┐                        │
+│  │  /api/[...objectstack]            │                        │
+│  │    → ObjectKernel                 │                        │
+│  │    → ObjectQL                     │                        │
+│  │    → PostgreSQL / MongoDB / ...   │──── External DB        │
+│  └───────────────────────────────────┘                        │
+│                                                               │
+└───────────────────────────────────────────────────────────────┘
+```
+
+### Option A: Next.js + `@objectstack/nextjs`
+
+This is the recommended approach for Vercel. The `@objectstack/nextjs` adapter maps all ObjectStack protocol endpoints to a single Next.js catch-all route.
+
+**1. Create the kernel singleton:**
+
+```typescript
+// lib/kernel.ts
+import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql';
+import appConfig from '../objectstack.config';
+
+let kernel: ObjectKernel | null = null;
+
+export async function getKernel() {
+  if (kernel) return kernel;
+
+  kernel = new ObjectKernel();
+  await kernel.use(new ObjectQLPlugin());
+
+  // Use your production driver (Postgres, MongoDB, etc.)
+  // await kernel.use(new DriverPlugin(new PostgresDriver({
+  //   url: process.env.DATABASE_URL,
+  // })));
+
+  // Load the application configuration (objects, data, etc.)
+  await kernel.use(new AppPlugin(appConfig));
+
+  await kernel.bootstrap();
+  return kernel;
+}
+```
+
+**2. Create the API route handler:**
+
+```typescript
+// app/api/[...objectstack]/route.ts
+import { createRouteHandler } from '@objectstack/nextjs';
+import { getKernel } from '@/lib/kernel';
+
+async function handler(...args: any[]) {
+  const kernel = await getKernel();
+  const routeHandler = createRouteHandler({ kernel, prefix: '/api' });
+  return routeHandler(...args);
+}
+
+export { handler as GET, handler as POST, handler as PATCH, handler as DELETE };
+```
+
+**3. `vercel.json` (optional — Next.js works out of the box):**
+
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs"
+}
+```
+
+### Option B: Hono on Vercel Edge
+
+Use the `@objectstack/hono` adapter for lightweight Edge Function deployments:
+
+```typescript
+// api/[...route].ts  (Vercel Edge Function)
+import { Hono } from 'hono';
+import { handle } from 'hono/vercel';
+import { ObjectKernel, DriverPlugin, AppPlugin, HttpDispatcher } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql';
+import appConfig from '../objectstack.config';
+
+export const config = { runtime: 'edge' };
+
+const app = new Hono().basePath('/api');
+
+// Initialize kernel (singleton — survives across warm invocations)
+let kernel: ObjectKernel | null = null;
+async function getKernel() {
+  if (kernel) return kernel;
+  kernel = new ObjectKernel();
+  await kernel.use(new ObjectQLPlugin());
+  // await kernel.use(new DriverPlugin(yourDriver));
+  await kernel.use(new AppPlugin(appConfig));
+  await kernel.bootstrap();
+  return kernel;
+}
+
+// Catch-all route — delegates to HttpDispatcher
+app.all('/*', async (c) => {
+  const k = await getKernel();
+  const dispatcher = new HttpDispatcher(k);
+  const method = c.req.method;
+  const url = new URL(c.req.url);
+  const segments = url.pathname.replace(/^\/api\//, '').split('/').filter(Boolean);
+
+  // Dispatch based on first segment (data, meta, auth, etc.)
+  const body = ['POST', 'PATCH', 'PUT'].includes(method)
+    ? await c.req.json().catch(() => ({}))
+    : {};
+
+  const subPath = segments.slice(1).join('/');
+  let result;
+
+  switch (segments[0]) {
+    case 'data':
+      const queryParams: Record<string, any> = {};
+      url.searchParams.forEach((v, k) => (queryParams[k] = v));
+      result = await dispatcher.handleData(subPath, method, body, queryParams, {});
+      break;
+    case 'meta':
+      result = await dispatcher.handleMetadata(subPath, {}, method, body);
+      break;
+    default:
+      return c.json({ error: 'Not Found' }, 404);
+  }
+
+  if (result.handled && result.response) {
+    return c.json(result.response.body, result.response.status as any);
+  }
+  return c.json({ error: 'Not Found' }, 404);
+});
+
+export const GET = handle(app);
+export const POST = handle(app);
+export const PATCH = handle(app);
+export const DELETE = handle(app);
+```
+
+<Callout type="info">
+The Next.js adapter (Option A) is recommended for most Vercel deployments because it handles all protocol endpoints automatically. Use the Hono approach when you need fine-grained control over routing or Edge runtime.
+</Callout>
+
+---
+
+## Environment Variables
+
+Configure these in Vercel Project Settings → Environment Variables:
+
+| Variable | Mode | Description |
+| :--- | :--- | :--- |
+| `VITE_RUNTIME_MODE` | MSW | Set to `msw` (build-time Vite env) |
+| `VITE_SERVER_URL` | Server | Backend API URL (empty for same-origin) |
+| `DATABASE_URL` | Server | Database connection string |
+
+<Callout type="warn">
+**Never commit secrets.** Use Vercel's environment variable UI or the Vercel CLI (`vercel env add`) to configure `DATABASE_URL` and other credentials.
+</Callout>
+
+---
+
+## Runtime Mode Switching
+
+ObjectStack Studio supports switching between MSW and Server mode at runtime using a URL parameter:
+
+```
+https://myapp.vercel.app?mode=msw     → In-browser kernel
+https://myapp.vercel.app?mode=server  → Real backend
+```
+
+This is controlled by the config module which checks (in priority order):
+1. `?mode=` URL parameter
+2. `VITE_RUNTIME_MODE` environment variable
+3. Embedded detection (`/_studio/` path)
+4. Default: `msw`
+
+---
+
+## Deployment Checklist
+
+### MSW Mode
+
+- [ ] `msw init public --save` has been run (Service Worker in `public/`)
+- [ ] `vercel.json` specifies `"framework": "vite"` and SPA rewrites
+- [ ] `VITE_RUNTIME_MODE=msw` is set in build environment
+- [ ] Seed data is defined in `objectstack.config.ts` (`data` array)
+
+### Server Mode
+
+- [ ] API route handler is configured (`app/api/[...objectstack]/route.ts`)
+- [ ] Kernel singleton initializes the correct database driver
+- [ ] `DATABASE_URL` is configured in Vercel environment variables
+- [ ] CORS is configured if frontend and API are on different origins
+
+---
+
+## Comparison
+
+| Feature | MSW Mode | Server Mode |
+| :--- | :--- | :--- |
+| **Database** | In-memory (browser) | PostgreSQL, MongoDB, etc. |
+| **Data Persistence** | Per session (lost on refresh) | Persistent |
+| **Cold Start** | None (client-side) | ~200ms (Serverless) |
+| **Offline Support** | ✅ Full | ❌ Requires network |
+| **Multi-user** | ❌ Single user | ✅ Full |
+| **Cost** | Free (static hosting) | Pay per invocation |
+| **Best For** | Demos, prototypes, docs | Production applications |
+
+---
+
+## Related
+
+- [Plugin System](/docs/guides/plugins) — MSW and Hono server plugins
+- [Client SDK](/docs/guides/client-sdk) — Frontend data fetching
+- [Driver Configuration](/docs/guides/driver-configuration) — Database setup
+- [Architecture](/docs/getting-started/architecture) — Kernel and runtime overview
