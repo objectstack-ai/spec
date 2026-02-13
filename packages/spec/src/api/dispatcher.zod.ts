@@ -149,7 +149,7 @@ export const DEFAULT_DISPATCHER_ROUTES: DispatcherRouteInput[] = [
   
   // Optional Services (plugin-provided)
   { prefix: '/api/v1/packages',      service: 'metadata' },
-  { prefix: '/api/v1/ui',            service: 'ui' },
+  { prefix: '/api/v1/ui',            service: 'ui' }, // @deprecated — use /api/v1/meta/view and /api/v1/meta/dashboard instead
   { prefix: '/api/v1/workflow',      service: 'workflow' },
   { prefix: '/api/v1/analytics',     service: 'analytics' },
   { prefix: '/api/v1/automation',    service: 'automation' },

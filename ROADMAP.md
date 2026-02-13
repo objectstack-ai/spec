@@ -196,13 +196,13 @@ These are the backbone of ObjectStack's enterprise capabilities.
 | `IAutomationService` | **P2** | Flow execution engine — depends on queue/job |
 | `IWorkflowService` | **P2** | State machine + approval processes |
 | `ISearchService` | **P2** | Full-text search via MeiliSearch/Elasticsearch |
-| `IUIService` | **P3** | Runtime UI metadata resolution |
+| ~~`IUIService`~~ | **Deprecated** | Merged into `IMetadataService` — use `metadata.getView()`, `metadata.getEffective('view', name, { userId })` |
 | `IAnalyticsService` | **P3** | BI/OLAP queries (memory impl exists as reference) |
 
 - [ ] `plugin-automation` — Implement `IAutomationService` with flow execution engine
 - [ ] `plugin-workflow` — Implement `IWorkflowService` with state machine runtime
 - [ ] `plugin-search` — Implement `ISearchService` with MeiliSearch adapter
-- [ ] Enhance `IUIService` runtime implementation
+- [ ] ~~Enhance `IUIService` runtime implementation~~ (merged into IMetadataService)
 - [ ] `plugin-analytics` — Implement full `IAnalyticsService` beyond memory reference
 
 ### Priority 4 — Platform Services
@@ -369,7 +369,7 @@ These are the backbone of ObjectStack's enterprise capabilities.
 | 19 | Workflow Service | `IWorkflowService` | ❌ | — | Spec only |
 | 20 | GraphQL Service | `IGraphQLService` | ❌ | — | Spec only |
 | 21 | i18n Service | `II18nService` | ❌ | — | Spec only |
-| 22 | UI Service | `IUIService` | ❌ | — | Spec only |
+| 22 | UI Service | `IUIService` | ⚠️ | — | **Deprecated** — merged into `IMetadataService` |
 | 23 | Schema Driver | `ISchemaDriver` | ❌ | — | Spec only |
 | 24 | Startup Orchestrator | `IStartupOrchestrator` | ❌ | — | Kernel handles basics |
 | 25 | Plugin Validator | `IPluginValidator` | ❌ | — | Spec only |

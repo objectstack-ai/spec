@@ -178,6 +178,32 @@ export interface IMetadataService {
     listObjects(): Promise<unknown[]>;
 
     // ==========================================
+    // Convenience: UI Metadata
+    // ==========================================
+
+    /**
+     * Convenience: get a view definition by name
+     * Equivalent to get('view', name)
+     */
+    getView?(name: string): Promise<unknown | undefined>;
+
+    /**
+     * Convenience: list view definitions, optionally filtered by object
+     */
+    listViews?(object?: string): Promise<unknown[]>;
+
+    /**
+     * Convenience: get a dashboard definition by name
+     * Equivalent to get('dashboard', name)
+     */
+    getDashboard?(name: string): Promise<unknown | undefined>;
+
+    /**
+     * Convenience: list all dashboard definitions
+     */
+    listDashboards?(): Promise<unknown[]>;
+
+    // ==========================================
     // Package Management
     // ==========================================
 
@@ -252,9 +278,15 @@ export interface IMetadataService {
      * Resolution order: system ← merge(platform) ← merge(user)
      * @param type - Metadata type
      * @param name - Item name
+     * @param context - Optional auth context for user-scoped overlay resolution
      * @returns The effective metadata with all overlays applied
      */
-    getEffective?(type: string, name: string): Promise<unknown | undefined>;
+    getEffective?(type: string, name: string, context?: {
+        userId?: string;
+        tenantId?: string;
+        roles?: string[];
+        permissions?: string[];
+    }): Promise<unknown | undefined>;
 
     // ==========================================
     // Watch / Subscribe

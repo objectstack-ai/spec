@@ -248,6 +248,42 @@ export class MetadataManager implements IMetadataService {
   }
 
   // ==========================================
+  // Convenience: UI Metadata
+  // ==========================================
+
+  /**
+   * Convenience: get a view definition by name
+   */
+  async getView(name: string): Promise<unknown | undefined> {
+    return this.get('view', name);
+  }
+
+  /**
+   * Convenience: list view definitions, optionally filtered by object
+   */
+  async listViews(object?: string): Promise<unknown[]> {
+    const views = await this.list('view');
+    if (object) {
+      return views.filter((v: any) => v?.object === object);
+    }
+    return views;
+  }
+
+  /**
+   * Convenience: get a dashboard definition by name
+   */
+  async getDashboard(name: string): Promise<unknown | undefined> {
+    return this.get('dashboard', name);
+  }
+
+  /**
+   * Convenience: list all dashboard definitions
+   */
+  async listDashboards(): Promise<unknown[]> {
+    return this.list('dashboard');
+  }
+
+  // ==========================================
   // Package Management
   // ==========================================
 
@@ -478,7 +514,12 @@ export class MetadataManager implements IMetadataService {
    * Get the effective (merged) metadata after applying all overlays.
    * Resolution order: system ← merge(platform) ← merge(user)
    */
-  async getEffective(type: string, name: string): Promise<unknown | undefined> {
+  async getEffective(type: string, name: string, context?: {
+    userId?: string;
+    tenantId?: string;
+    roles?: string[];
+    permissions?: string[];
+  }): Promise<unknown | undefined> {
     const base = await this.get(type, name);
     if (!base) return undefined;
 
@@ -490,10 +531,23 @@ export class MetadataManager implements IMetadataService {
       effective = { ...effective, ...platformOverlay.patch };
     }
 
-    // Apply user overlay
-    const userOverlay = await this.getOverlay(type, name, 'user');
-    if (userOverlay?.active && userOverlay.patch) {
-      effective = { ...effective, ...userOverlay.patch };
+    // Apply user overlay (scoped to specific user if context provided)
+    if (context?.userId) {
+      // Look up user-specific overlay by owner
+      const userOverlayKey = this.overlayKey(type, name, 'user') + `:${context.userId}`;
+      const userOverlay = this.overlays.get(userOverlayKey) 
+        ?? await this.getOverlay(type, name, 'user');
+      if (userOverlay?.active && userOverlay.patch) {
+        // Only apply if owner matches (or no owner restriction)
+        if (!userOverlay.owner || userOverlay.owner === context.userId) {
+          effective = { ...effective, ...userOverlay.patch };
+        }
+      }
+    } else {
+      const userOverlay = await this.getOverlay(type, name, 'user');
+      if (userOverlay?.active && userOverlay.patch && !userOverlay.owner) {
+        effective = { ...effective, ...userOverlay.patch };
+      }
     }
 
     return effective;

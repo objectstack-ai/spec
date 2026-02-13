@@ -288,3 +288,67 @@ console.log(result.errors);     // []
 | `Unsubscribe` | `() => void` — call to stop watching |
 | `BulkResult` | `{ created, updated, errors }` |
 | `ImportResult` | `{ created, updated, skipped, errors }` |
+
+---
+
+## UI Metadata (Views & Dashboards)
+
+UI metadata types (`view`, `dashboard`, `page`, `app`, `theme`) are first-class citizens in the Metadata Service. The previously separate `IUIService` has been deprecated.
+
+### Reading UI Metadata
+
+```typescript
+// Get a view definition
+const view = await metadataService.get('view', 'account_list');
+
+// List all views for an object
+const views = await metadataService.listViews('account');
+
+// Get a dashboard
+const dashboard = await metadataService.get('dashboard', 'sales_overview');
+```
+
+### User-Level Customization
+
+Users can customize views via the overlay system:
+
+```typescript
+// Admin customizes a view for all users
+await metadataService.saveOverlay({
+  id: 'overlay-platform-1',
+  baseType: 'view',
+  baseName: 'account_list',
+  scope: 'platform',
+  patch: { columns: ['name', 'email', 'status', 'created_at'] },
+});
+
+// A specific user saves personal column preferences
+await metadataService.saveOverlay({
+  id: 'overlay-user-123',
+  baseType: 'view',
+  baseName: 'account_list',
+  scope: 'user',
+  owner: 'user-123',
+  patch: { columns: ['name', 'status'] },  // user only wants 2 columns
+});
+
+// Resolve effective view for a specific user
+const effectiveView = await metadataService.getEffective('view', 'account_list', {
+  userId: 'user-123',
+});
+// Result: base view ← platform overlay ← user-123 overlay
+```
+
+### Permission-Based UI Filtering
+
+Permission filtering is handled at the API layer, not in the metadata service itself:
+
+```typescript
+// In your API handler / middleware:
+const views = await metadataService.list('view');
+const filteredViews = views.filter(view => {
+  const v = view as any;
+  // Check if user has permission to see this view
+  return !v.requiredPermission || userPermissions.includes(v.requiredPermission);
+});
+```

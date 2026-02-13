@@ -144,6 +144,53 @@ describe('MetadataManager — IMetadataService Contract', () => {
   });
 
   // ==========================================
+  // UI Convenience Methods
+  // ==========================================
+
+  describe('UI convenience methods', () => {
+    it('should get a view via getView()', async () => {
+      const viewDef = { name: 'account_list', object: 'account', type: 'grid' };
+      await manager.register('view', 'account_list', viewDef);
+      
+      const result = await manager.getView('account_list');
+      expect(result).toEqual(viewDef);
+    });
+
+    it('should list views via listViews()', async () => {
+      await manager.register('view', 'account_list', { name: 'account_list', object: 'account' });
+      await manager.register('view', 'contact_list', { name: 'contact_list', object: 'contact' });
+      
+      const allViews = await manager.listViews();
+      expect(allViews).toHaveLength(2);
+    });
+
+    it('should filter views by object via listViews(object)', async () => {
+      await manager.register('view', 'account_list', { name: 'account_list', object: 'account' });
+      await manager.register('view', 'contact_list', { name: 'contact_list', object: 'contact' });
+      
+      const accountViews = await manager.listViews('account');
+      expect(accountViews).toHaveLength(1);
+      expect((accountViews[0] as any).name).toBe('account_list');
+    });
+
+    it('should get a dashboard via getDashboard()', async () => {
+      const dashDef = { name: 'sales', label: 'Sales Overview' };
+      await manager.register('dashboard', 'sales', dashDef);
+      
+      const result = await manager.getDashboard('sales');
+      expect(result).toEqual(dashDef);
+    });
+
+    it('should list dashboards via listDashboards()', async () => {
+      await manager.register('dashboard', 'sales', { name: 'sales' });
+      await manager.register('dashboard', 'ops', { name: 'ops' });
+      
+      const dashboards = await manager.listDashboards();
+      expect(dashboards).toHaveLength(2);
+    });
+  });
+
+  // ==========================================
   // Package Management
   // ==========================================
 
@@ -327,6 +374,44 @@ describe('MetadataManager — IMetadataService Contract', () => {
 
       const effective = await manager.getEffective('object', 'account') as any;
       expect(effective.label).toBe('Original');
+    });
+
+    it('should apply user overlay scoped to specific userId via getEffective context', async () => {
+      await manager.register('view', 'account_list', { 
+        name: 'account_list', 
+        columns: ['name', 'email', 'status'] 
+      });
+
+      // Platform overlay
+      await manager.saveOverlay({
+        id: 'platform-view-1',
+        baseType: 'view',
+        baseName: 'account_list',
+        scope: 'platform',
+        patch: { columns: ['name', 'email', 'status', 'created_at'] },
+        active: true,
+      });
+
+      // User-specific overlay
+      await manager.saveOverlay({
+        id: 'user-view-1',
+        baseType: 'view',
+        baseName: 'account_list',
+        scope: 'user',
+        owner: 'user-456',
+        patch: { columns: ['name', 'status'] },
+        active: true,
+      });
+
+      // Without context — should apply platform but not user overlay (no owner match)
+      const general = await manager.getEffective('view', 'account_list') as any;
+      expect(general.columns).toEqual(['name', 'email', 'status', 'created_at']);
+
+      // With userId context — should apply user overlay
+      const forUser = await manager.getEffective('view', 'account_list', { 
+        userId: 'user-456' 
+      }) as any;
+      expect(forUser.columns).toEqual(['name', 'status']);
     });
   });
 

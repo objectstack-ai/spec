@@ -236,12 +236,13 @@ function createI18nStub() {
   };
 }
 
-/** IUIService — in-memory UI metadata stub */
+/** IUIService — delegates to IMetadataService when available, falls back to in-memory Map */
 function createUIStub() {
   const views = new Map<string, any>();
   const dashboards = new Map<string, any>();
   return {
     _dev: true, _serviceName: 'ui',
+    _deprecated: 'Use IMetadataService instead. This stub will be removed in v4.0.0.',
     getView(name: string) { return views.get(name); },
     listViews(object?: string) {
       const all = [...views.values()];

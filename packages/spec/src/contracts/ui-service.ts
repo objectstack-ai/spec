@@ -13,6 +13,25 @@
  * Aligned with CoreServiceName 'ui' in core-services.zod.ts.
  */
 
+/**
+ * @deprecated Use IMetadataService instead.
+ * - getView(name) → metadata.get('view', name)
+ * - listViews(object?) → metadata.listViews(object?)
+ * - registerView(name, def) → metadata.register('view', name, def)
+ * - getDashboard(name) → metadata.get('dashboard', name)
+ * - listDashboards() → metadata.listDashboards()
+ * - registerDashboard(name, def) → metadata.register('dashboard', name, def)
+ *
+ * IMetadataService provides additional capabilities:
+ * - Three-layer overlay (system → platform → user) via getEffective()
+ * - User-scoped customization with owner field
+ * - Auth-context-aware resolution via getEffective(type, name, { userId, roles })
+ * - Database persistence via DatabaseLoader
+ * - Watch/subscribe for real-time updates
+ * - Import/export, validation, dependency tracking
+ *
+ * Will be removed in v4.0.0.
+ */
 export interface IUIService {
     /**
      * Get a view definition by name
