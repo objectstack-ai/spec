@@ -12,7 +12,7 @@ export interface ExpressAdapterOptions {
  * Auth service interface with handleRequest method
  */
 interface AuthService {
-  handleRequest(request: Request): Promise<globalThis.Response>;
+  handleRequest(request: globalThis.Request): Promise<globalThis.Response>;
 }
 
 /**

@@ -199,6 +199,7 @@ export interface ServerActionResult<T = any> {
  */
 export function createServerActions(options: NextAdapterOptions) {
   const dispatcher = new HttpDispatcher(options.kernel);
+  const emptyContext = { request: undefined };
 
   return {
     /**
@@ -206,7 +207,7 @@ export function createServerActions(options: NextAdapterOptions) {
      */
     async query(objectName: string, params?: Record<string, any>): Promise<ServerActionResult> {
       try {
-        const result = await dispatcher.handleData(`/${objectName}`, 'GET', {}, params || {}, {});
+        const result = await dispatcher.handleData(`/${objectName}`, 'GET', {}, params || {}, emptyContext);
         if (result.handled && result.response) {
           return { success: true, data: result.response.body };
         }
@@ -221,7 +222,7 @@ export function createServerActions(options: NextAdapterOptions) {
      */
     async getById(objectName: string, id: string): Promise<ServerActionResult> {
       try {
-        const result = await dispatcher.handleData(`/${objectName}/${id}`, 'GET', {}, {}, {});
+        const result = await dispatcher.handleData(`/${objectName}/${id}`, 'GET', {}, {}, emptyContext);
         if (result.handled && result.response) {
           return { success: true, data: result.response.body };
         }
@@ -236,7 +237,7 @@ export function createServerActions(options: NextAdapterOptions) {
      */
     async create(objectName: string, data: Record<string, any>): Promise<ServerActionResult> {
       try {
-        const result = await dispatcher.handleData(`/${objectName}`, 'POST', data, {}, {});
+        const result = await dispatcher.handleData(`/${objectName}`, 'POST', data, {}, emptyContext);
         if (result.handled && result.response) {
           return { success: true, data: result.response.body };
         }
@@ -251,7 +252,7 @@ export function createServerActions(options: NextAdapterOptions) {
      */
     async update(objectName: string, id: string, data: Record<string, any>): Promise<ServerActionResult> {
       try {
-        const result = await dispatcher.handleData(`/${objectName}/${id}`, 'PATCH', data, {}, {});
+        const result = await dispatcher.handleData(`/${objectName}/${id}`, 'PATCH', data, {}, emptyContext);
         if (result.handled && result.response) {
           return { success: true, data: result.response.body };
         }
@@ -266,7 +267,7 @@ export function createServerActions(options: NextAdapterOptions) {
      */
     async remove(objectName: string, id: string): Promise<ServerActionResult> {
       try {
-        const result = await dispatcher.handleData(`/${objectName}/${id}`, 'DELETE', {}, {}, {});
+        const result = await dispatcher.handleData(`/${objectName}/${id}`, 'DELETE', {}, {}, emptyContext);
         if (result.handled && result.response) {
           return { success: true, data: result.response.body };
         }
@@ -281,7 +282,7 @@ export function createServerActions(options: NextAdapterOptions) {
      */
     async getMetadata(path?: string): Promise<ServerActionResult> {
       try {
-        const result = await dispatcher.handleMetadata(path || '', {}, 'GET');
+        const result = await dispatcher.handleMetadata(path || '', emptyContext, 'GET');
         if (result.handled && result.response) {
           return { success: true, data: result.response.body };
         }
