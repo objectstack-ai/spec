@@ -214,7 +214,7 @@ This is the recommended approach for Vercel. The `@objectstack/nextjs` adapter m
 
 ```typescript
 // lib/kernel.ts
-import { ObjectKernel, DriverPlugin } from '@objectstack/runtime';
+import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
 import { ObjectQLPlugin } from '@objectstack/objectql';
 import appConfig from '../objectstack.config';
 
@@ -230,6 +230,9 @@ export async function getKernel() {
   // await kernel.use(new DriverPlugin(new PostgresDriver({
   //   url: process.env.DATABASE_URL,
   // })));
+
+  // Load the application configuration (objects, data, etc.)
+  await kernel.use(new AppPlugin(appConfig));
 
   await kernel.bootstrap();
   return kernel;
@@ -266,31 +269,62 @@ export { handler as GET, handler as POST, handler as PATCH, handler as DELETE };
 Use the `@objectstack/hono` adapter for lightweight Edge Function deployments:
 
 ```typescript
-// api/[[...route]].ts  (Vercel Edge Function)
+// api/[...route].ts  (Vercel Edge Function)
 import { Hono } from 'hono';
 import { handle } from 'hono/vercel';
-import { ObjectKernel, DriverPlugin } from '@objectstack/runtime';
+import { ObjectKernel, DriverPlugin, AppPlugin, HttpDispatcher } from '@objectstack/runtime';
 import { ObjectQLPlugin } from '@objectstack/objectql';
+import appConfig from '../objectstack.config';
+
+export const config = { runtime: 'edge' };
 
 const app = new Hono().basePath('/api');
 
-// Initialize kernel (singleton)
+// Initialize kernel (singleton — survives across warm invocations)
 let kernel: ObjectKernel | null = null;
 async function getKernel() {
   if (kernel) return kernel;
   kernel = new ObjectKernel();
   await kernel.use(new ObjectQLPlugin());
   // await kernel.use(new DriverPlugin(yourDriver));
+  await kernel.use(new AppPlugin(appConfig));
   await kernel.bootstrap();
   return kernel;
 }
 
-// Catch-all route
+// Catch-all route — delegates to HttpDispatcher
 app.all('/*', async (c) => {
   const k = await getKernel();
-  // Dispatch through HttpDispatcher
-  // ...
-  return c.json({ status: 'ok' });
+  const dispatcher = new HttpDispatcher(k);
+  const method = c.req.method;
+  const url = new URL(c.req.url);
+  const segments = url.pathname.replace(/^\/api\//, '').split('/').filter(Boolean);
+
+  // Dispatch based on first segment (data, meta, auth, etc.)
+  const body = ['POST', 'PATCH', 'PUT'].includes(method)
+    ? await c.req.json().catch(() => ({}))
+    : {};
+
+  const subPath = segments.slice(1).join('/');
+  let result;
+
+  switch (segments[0]) {
+    case 'data':
+      const queryParams: Record<string, any> = {};
+      url.searchParams.forEach((v, k) => (queryParams[k] = v));
+      result = await dispatcher.handleData(subPath, method, body, queryParams, {});
+      break;
+    case 'meta':
+      result = await dispatcher.handleMetadata(subPath, {}, method, body);
+      break;
+    default:
+      return c.json({ error: 'Not Found' }, 404);
+  }
+
+  if (result.handled && result.response) {
+    return c.json(result.response.body, result.response.status as any);
+  }
+  return c.json({ error: 'Not Found' }, 404);
 });
 
 export const GET = handle(app);
@@ -298,6 +332,10 @@ export const POST = handle(app);
 export const PATCH = handle(app);
 export const DELETE = handle(app);
 ```
+
+<Callout type="info">
+The Next.js adapter (Option A) is recommended for most Vercel deployments because it handles all protocol endpoints automatically. Use the Hono approach when you need fine-grained control over routing or Edge runtime.
+</Callout>
 
 ---
 
