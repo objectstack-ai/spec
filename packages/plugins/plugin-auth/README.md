@@ -40,7 +40,7 @@ Authentication & Identity Plugin for ObjectStack.
   - `verification` - Email/phone verification tokens (better-auth native table name)
 - ✅ **ObjectQL Adapter** - Custom adapter bridges better-auth to ObjectQL
 
-The plugin uses [better-auth](https://www.better-auth.com/) for robust, production-ready authentication functionality. All requests are forwarded directly to better-auth's universal handler, ensuring full compatibility with all better-auth features. Data persistence is handled by ObjectQL using **better-auth's native naming conventions** (camelCase) to ensure seamless migration for existing better-auth users.
+The plugin uses [better-auth](https://www.better-auth.com/) for robust, production-ready authentication functionality. All requests are forwarded directly to better-auth's universal handler, ensuring full compatibility with all better-auth features. Data persistence is handled by ObjectQL using **ObjectStack's snake_case naming conventions** for field names to maintain consistency across the platform.
 
 ## Installation
 
@@ -185,16 +185,16 @@ This architecture provides:
 The plugin uses **ObjectQL** for data persistence instead of third-party ORMs:
 
 ```typescript
-// Object definitions use better-auth's native naming conventions
+// Object definitions use ObjectStack's snake_case naming conventions
 export const AuthUser = ObjectSchema.create({
-  name: 'user',  // better-auth native table name
+  name: 'user',  // better-auth compatible table name
   fields: {
     id: Field.text({ label: 'User ID', required: true }),
     email: Field.email({ label: 'Email', required: true }),
-    emailVerified: Field.boolean({ label: 'Email Verified' }),  // camelCase
+    email_verified: Field.boolean({ label: 'Email Verified' }),  // snake_case
     name: Field.text({ label: 'Name', required: true }),
-    createdAt: Field.datetime({ label: 'Created At' }),  // camelCase
-    updatedAt: Field.datetime({ label: 'Updated At' }),  // camelCase
+    created_at: Field.datetime({ label: 'Created At' }),  // snake_case
+    updated_at: Field.datetime({ label: 'Updated At' }),  // snake_case
     // ... other fields
   },
   indexes: [
@@ -210,20 +210,20 @@ export const AuthUser = ObjectSchema.create({
 - ✅ **Type-Safe** - Zod-based schemas provide runtime + compile-time safety
 - ✅ **"Data as Code"** - Object definitions are versioned, declarative code
 - ✅ **Metadata Driven** - Supports migrations, validation, indexing via metadata
-- ✅ **Seamless Migration** - Uses better-auth's native naming (camelCase) for easy migration
+- ✅ **Compatible Schema** - Uses better-auth compatible table structure with ObjectStack's snake_case field naming
 
 **Database Objects:**
-Uses better-auth's native table and field names for compatibility:
-- `user` - User accounts (id, email, name, emailVerified, createdAt, etc.)
-- `session` - Active sessions (id, token, userId, expiresAt, ipAddress, etc.)
-- `account` - OAuth provider accounts (id, providerId, accountId, userId, tokens, etc.)
-- `verification` - Verification tokens (id, value, identifier, expiresAt, etc.)
+Uses better-auth compatible table names with ObjectStack's snake_case field naming:
+- `user` - User accounts (id, email, name, email_verified, created_at, etc.)
+- `session` - Active sessions (id, token, user_id, expires_at, ip_address, etc.)
+- `account` - OAuth provider accounts (id, provider_id, account_id, user_id, tokens, etc.)
+- `verification` - Verification tokens (id, value, identifier, expires_at, etc.)
 
 **Adapter:**
-The `createObjectQLAdapter()` function bridges better-auth's database interface to ObjectQL's IDataEngine using better-auth's native naming conventions:
+The `createObjectQLAdapter()` function bridges better-auth's database interface to ObjectQL's IDataEngine with field name transformation:
 
 ```typescript
-// Better-auth → ObjectQL Adapter (no name conversion needed)
+// Better-auth → ObjectQL Adapter (handles snake_case transformation)
 const adapter = createObjectQLAdapter(dataEngine);
 
 // Better-auth uses this adapter for all database operations
