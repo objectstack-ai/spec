@@ -199,7 +199,7 @@ export interface ServerActionResult<T = any> {
  */
 export function createServerActions(options: NextAdapterOptions) {
   const dispatcher = new HttpDispatcher(options.kernel);
-  const emptyContext = { request: null };
+  const emptyContext = { request: undefined };
 
   return {
     /**
