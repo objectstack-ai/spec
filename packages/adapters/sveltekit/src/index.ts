@@ -127,7 +127,7 @@ export function createRequestHandler(options: SvelteKitAdapterOptions) {
 
       // --- GraphQL ---
       if (segments[0] === 'graphql' && method === 'POST') {
-        const body = await request.json();
+        const body = await request.json() as { query: string; variables?: any };
         const result = await dispatcher.handleGraphQL(body, { request });
         return new Response(JSON.stringify(result), {
           status: 200,
