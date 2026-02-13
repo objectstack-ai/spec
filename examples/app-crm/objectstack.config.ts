@@ -50,6 +50,14 @@ export default defineStack({
   // Seed Data (top-level, registered as metadata)
   data: CrmSeedData,
 
+  // I18n Configuration — per-locale file organization
+  i18n: {
+    defaultLocale: 'en',
+    supportedLocales: ['en', 'zh-CN', 'ja-JP', 'es-ES'],
+    fallbackLocale: 'en',
+    fileOrganization: 'per_locale',
+  },
+
   // I18n Translation Bundles (en, zh-CN, ja-JP, es-ES)
   translations: Object.values(translations),
 

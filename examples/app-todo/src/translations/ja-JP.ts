@@ -1,0 +1,96 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+import type { TranslationData } from '@objectstack/spec/system';
+
+/**
+ * 日本語 (ja-JP) — Todo App Translations
+ *
+ * Per-locale file: one file per language, following the `per_locale` convention.
+ */
+export const jaJP: TranslationData = {
+  objects: {
+    task: {
+      label: 'タスク',
+      pluralLabel: 'タスク',
+      fields: {
+        subject: { label: '件名', help: 'タスクの簡単なタイトル' },
+        description: { label: '説明' },
+        status: {
+          label: 'ステータス',
+          options: {
+            not_started: '未着手',
+            in_progress: '進行中',
+            waiting: '待機中',
+            completed: '完了',
+            deferred: '延期',
+          },
+        },
+        priority: {
+          label: '優先度',
+          options: {
+            low: '低',
+            normal: '通常',
+            high: '高',
+            urgent: '緊急',
+          },
+        },
+        category: { label: 'カテゴリ' },
+        due_date: { label: '期日' },
+        reminder_date: { label: 'リマインダー日時' },
+        completed_date: { label: '完了日' },
+        owner: { label: '担当者' },
+        tags: {
+          label: 'タグ',
+          options: {
+            important: '重要',
+            quick_win: 'クイックウィン',
+            blocked: 'ブロック中',
+            follow_up: 'フォローアップ',
+            review: 'レビュー',
+          },
+        },
+        is_recurring: { label: '繰り返しタスク' },
+        recurrence_type: { label: '繰り返しタイプ' },
+        recurrence_interval: { label: '繰り返し間隔' },
+        is_completed: { label: '完了済み' },
+        is_overdue: { label: '期限超過' },
+        progress_percent: { label: '進捗率 (%)' },
+        estimated_hours: { label: '見積時間' },
+        actual_hours: { label: '実績時間' },
+        notes: { label: 'メモ' },
+        category_color: { label: 'カテゴリ色' },
+      },
+    },
+  },
+  apps: {
+    todo_app: {
+      label: 'ToDo マネージャー',
+      description: '個人タスク管理アプリケーション',
+    },
+  },
+  messages: {
+    'common.save': '保存',
+    'common.cancel': 'キャンセル',
+    'common.delete': '削除',
+    'common.edit': '編集',
+    'common.create': '新規作成',
+    'common.search': '検索',
+    'common.filter': 'フィルター',
+    'common.sort': '並べ替え',
+    'common.refresh': '更新',
+    'common.export': 'エクスポート',
+    'common.back': '戻る',
+    'common.confirm': '確認',
+    'success.saved': '保存しました',
+    'success.deleted': '削除しました',
+    'success.completed': 'タスクを完了にしました',
+    'confirm.delete': 'このタスクを削除してもよろしいですか？',
+    'confirm.complete': 'このタスクを完了にしますか？',
+    'error.required': 'この項目は必須です',
+    'error.load_failed': 'データの読み込みに失敗しました',
+  },
+  validationMessages: {
+    completed_date_required: 'ステータスが「完了」の場合、完了日は必須です',
+    recurrence_fields_required: '繰り返しタスクには繰り返しタイプが必要です',
+  },
+};

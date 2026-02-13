@@ -3,7 +3,13 @@ import {
   TranslationDataSchema,
   TranslationBundleSchema,
   LocaleSchema,
+  FieldTranslationSchema,
+  ObjectTranslationDataSchema,
+  TranslationFileOrganizationSchema,
+  TranslationConfigSchema,
   type TranslationBundle,
+  type ObjectTranslationData,
+  type TranslationConfig,
 } from './translation.zod';
 
 describe('LocaleSchema', () => {
@@ -424,5 +430,187 @@ describe('TranslationDataSchema - validationMessages', () => {
       messages: { 'save': 'Save' },
     });
     expect(data.validationMessages).toBeUndefined();
+  });
+});
+
+// ============================================================================
+// FieldTranslationSchema
+// ============================================================================
+
+describe('FieldTranslationSchema', () => {
+  it('should accept label only', () => {
+    const result = FieldTranslationSchema.parse({ label: 'Account Name' });
+    expect(result.label).toBe('Account Name');
+    expect(result.help).toBeUndefined();
+    expect(result.options).toBeUndefined();
+  });
+
+  it('should accept label with help text', () => {
+    const result = FieldTranslationSchema.parse({
+      label: 'Industry',
+      help: 'Select the primary industry',
+    });
+    expect(result.help).toBe('Select the primary industry');
+  });
+
+  it('should accept field with options', () => {
+    const result = FieldTranslationSchema.parse({
+      label: 'Status',
+      options: { active: 'Active', inactive: 'Inactive' },
+    });
+    expect(result.options?.active).toBe('Active');
+  });
+
+  it('should accept empty object', () => {
+    const result = FieldTranslationSchema.parse({});
+    expect(result).toBeDefined();
+  });
+});
+
+// ============================================================================
+// ObjectTranslationDataSchema — per-object file validation
+// ============================================================================
+
+describe('ObjectTranslationDataSchema', () => {
+  it('should accept minimal object translation', () => {
+    const data: ObjectTranslationData = {
+      label: 'Account',
+    };
+    const result = ObjectTranslationDataSchema.parse(data);
+    expect(result.label).toBe('Account');
+    expect(result.pluralLabel).toBeUndefined();
+    expect(result.fields).toBeUndefined();
+  });
+
+  it('should accept full object translation (en/account.json)', () => {
+    const data = ObjectTranslationDataSchema.parse({
+      label: 'Account',
+      pluralLabel: 'Accounts',
+      fields: {
+        name: { label: 'Account Name', help: 'Legal name of the company' },
+        type: {
+          label: 'Type',
+          options: { customer: 'Customer', partner: 'Partner', vendor: 'Vendor' },
+        },
+        industry: { label: 'Industry' },
+      },
+    });
+    expect(data.label).toBe('Account');
+    expect(data.pluralLabel).toBe('Accounts');
+    expect(data.fields?.name.label).toBe('Account Name');
+    expect(data.fields?.type.options?.customer).toBe('Customer');
+  });
+
+  it('should accept Chinese object translation (zh-CN/account.json)', () => {
+    const data = ObjectTranslationDataSchema.parse({
+      label: '客户',
+      pluralLabel: '客户',
+      fields: {
+        name: { label: '客户名称', help: '公司或组织的法定名称' },
+        type: {
+          label: '类型',
+          options: { customer: '正式客户', partner: '合作伙伴' },
+        },
+      },
+    });
+    expect(data.label).toBe('客户');
+    expect(data.fields?.name.help).toBe('公司或组织的法定名称');
+  });
+
+  it('should reject object translation without label', () => {
+    expect(() =>
+      ObjectTranslationDataSchema.parse({ pluralLabel: 'Accounts' }),
+    ).toThrow();
+  });
+
+  it('should compose into TranslationDataSchema via objects record', () => {
+    const localeData = TranslationDataSchema.parse({
+      objects: {
+        account: { label: 'Account', pluralLabel: 'Accounts' },
+        contact: { label: 'Contact' },
+      },
+    });
+    expect(localeData.objects?.account.label).toBe('Account');
+    expect(localeData.objects?.contact.label).toBe('Contact');
+  });
+});
+
+// ============================================================================
+// TranslationFileOrganizationSchema
+// ============================================================================
+
+describe('TranslationFileOrganizationSchema', () => {
+  it('should accept bundled', () => {
+    expect(TranslationFileOrganizationSchema.parse('bundled')).toBe('bundled');
+  });
+
+  it('should accept per_locale', () => {
+    expect(TranslationFileOrganizationSchema.parse('per_locale')).toBe('per_locale');
+  });
+
+  it('should accept per_namespace', () => {
+    expect(TranslationFileOrganizationSchema.parse('per_namespace')).toBe('per_namespace');
+  });
+
+  it('should reject invalid value', () => {
+    expect(() => TranslationFileOrganizationSchema.parse('flat')).toThrow();
+  });
+});
+
+// ============================================================================
+// TranslationConfigSchema
+// ============================================================================
+
+describe('TranslationConfigSchema', () => {
+  it('should accept minimal config with defaults', () => {
+    const config: TranslationConfig = TranslationConfigSchema.parse({
+      defaultLocale: 'en',
+      supportedLocales: ['en'],
+    });
+    expect(config.defaultLocale).toBe('en');
+    expect(config.supportedLocales).toEqual(['en']);
+    expect(config.fallbackLocale).toBeUndefined();
+    expect(config.fileOrganization).toBe('per_locale');
+    expect(config.lazyLoad).toBe(false);
+    expect(config.cache).toBe(true);
+  });
+
+  it('should accept full multi-language config', () => {
+    const config = TranslationConfigSchema.parse({
+      defaultLocale: 'en',
+      supportedLocales: ['en', 'zh-CN', 'ja-JP', 'es-ES'],
+      fallbackLocale: 'en',
+      fileOrganization: 'per_namespace',
+      lazyLoad: true,
+      cache: true,
+    });
+    expect(config.supportedLocales).toHaveLength(4);
+    expect(config.fileOrganization).toBe('per_namespace');
+    expect(config.lazyLoad).toBe(true);
+  });
+
+  it('should accept bundled organization for small projects', () => {
+    const config = TranslationConfigSchema.parse({
+      defaultLocale: 'en',
+      supportedLocales: ['en', 'zh-CN'],
+      fileOrganization: 'bundled',
+    });
+    expect(config.fileOrganization).toBe('bundled');
+  });
+
+  it('should reject config without defaultLocale', () => {
+    expect(() =>
+      TranslationConfigSchema.parse({
+        supportedLocales: ['en'],
+      }),
+    ).toThrow();
+  });
+
+  it('should reject config without supportedLocales', () => {
+    expect(() =>
+      TranslationConfigSchema.parse({
+        defaultLocale: 'en',
+      }),
+    ).toThrow();
   });
 });

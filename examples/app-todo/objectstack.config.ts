@@ -48,6 +48,14 @@ export default defineStack({
   flows: Object.values(flows) as any,
   apps: Object.values(apps),
 
+  // I18n Configuration — per-locale file organization
+  i18n: {
+    defaultLocale: 'en',
+    supportedLocales: ['en', 'zh-CN', 'ja-JP'],
+    fallbackLocale: 'en',
+    fileOrganization: 'per_locale',
+  },
+
   // I18n Translation Bundles (en, zh-CN, ja-JP)
   translations: Object.values(translations),
 });

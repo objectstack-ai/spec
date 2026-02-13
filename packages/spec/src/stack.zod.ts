@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { ManifestSchema } from './kernel/manifest.zod';
 import { DatasourceSchema } from './data/datasource.zod';
-import { TranslationBundleSchema } from './system/translation.zod';
+import { TranslationBundleSchema, TranslationConfigSchema } from './system/translation.zod';
 import { objectStackErrorMap, formatZodError } from './shared/error-map.zod';
 
 // Data Protocol
@@ -75,6 +75,7 @@ export const ObjectStackDefinitionSchema = z.object({
   manifest: ManifestSchema.describe('Project Package Configuration'),
   datasources: z.array(DatasourceSchema).optional().describe('External Data Connections'),
   translations: z.array(TranslationBundleSchema).optional().describe('I18n Translation Bundles'),
+  i18n: TranslationConfigSchema.optional().describe('Internationalization configuration'),
 
   /** 
    * ObjectQL: Data Layer 
