@@ -2,7 +2,7 @@
 
 ![ObjectStack Protocol](https://img.shields.io/badge/ObjectStack-Protocol-black)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 > **The "Constitution" of the Post-SaaS Operating System.**
 
@@ -32,14 +32,14 @@ ObjectStack is a metadata-driven platform built on three foundational protocols:
   - [Quick Reference](./content/docs/references/quick-reference.mdx) — Fast protocol lookup
 
 - **Protocol References:**
-  - [Protocol Reference](./content/docs/references/) — All protocol specifications (139 Zod schemas)
+  - [Protocol Reference](./content/docs/references/) — All protocol specifications (175 Zod schemas)
   - [ObjectQL](./content/docs/objectql/) — Data layer documentation
   - [ObjectUI](./content/docs/objectui/) — UI layer documentation
   - [ObjectOS](./content/docs/objectos/) — System layer documentation
 
 - **Development:**
   - [Developer Guide](./content/docs/developer/) — Tutorials and best practices
-  - [Package Reference](./content/docs/framework/packages.mdx) — All 15 packages
+  - [Package Reference](./content/docs/concepts/packages.mdx) — All 25 packages
   - [Contributing Guide](./CONTRIBUTING.md) — How to contribute
 
 ## 🚀 Quick Start
@@ -64,7 +64,7 @@ os studio
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/nicecui/spec.git
+git clone https://github.com/objectstack-ai/spec.git
 cd spec
 pnpm install
 
@@ -127,6 +127,7 @@ os doctor            # Check environment health
 | [`@objectstack/objectql`](packages/objectql) | ObjectQL query engine and schema registry | 🟢 Active |
 | [`@objectstack/runtime`](packages/runtime) | Runtime utilities, DriverPlugin, AppPlugin | 🟢 Active |
 | [`@objectstack/metadata`](packages/metadata) | Metadata loading and persistence | 🟢 Active |
+| [`@objectstack/rest`](packages/rest) | REST API Server — auto-generated endpoints from protocol | 🟢 Active |
 
 ### Client Packages
 
@@ -142,13 +143,29 @@ os doctor            # Check environment health
 | [`@objectstack/driver-memory`](packages/plugins/driver-memory) | In-memory driver (reference implementation, zero deps) | 🟢 Active |
 | [`@objectstack/plugin-hono-server`](packages/plugins/plugin-hono-server) | HTTP server plugin (Hono-based, auto-discovery) | 🟢 Active |
 | [`@objectstack/plugin-msw`](packages/plugins/plugin-msw) | Mock Service Worker plugin for browser testing | 🟢 Active |
-| [`@objectstack/plugin-auth`](packages/plugins/plugin-auth) | Authentication & identity plugin (structure implemented) | 🟡 In Development |
+| [`@objectstack/plugin-auth`](packages/plugins/plugin-auth) | Authentication & identity plugin (better-auth based) | 🟡 In Development |
+| [`@objectstack/plugin-security`](packages/plugins/plugin-security) | RBAC, Row-Level Security, and Field-Level Security | 🟢 Active |
+| [`@objectstack/plugin-dev`](packages/plugins/plugin-dev) | Dev mode — auto-enables all services with in-memory stubs | 🟢 Active |
+
+### Framework Adapters
+
+| Package | Description | Status |
+| :--- | :--- | :--- |
+| [`@objectstack/express`](packages/adapters/express) | Express adapter | 🟢 Active |
+| [`@objectstack/fastify`](packages/adapters/fastify) | Fastify adapter | 🟢 Active |
+| [`@objectstack/hono`](packages/adapters/hono) | Hono adapter (Node.js, Bun, Deno, Cloudflare Workers) | 🟢 Active |
+| [`@objectstack/nestjs`](packages/adapters/nestjs) | NestJS module integration | 🟢 Active |
+| [`@objectstack/nextjs`](packages/adapters/nextjs) | Next.js App Router adapter | 🟢 Active |
+| [`@objectstack/nuxt`](packages/adapters/nuxt) | Nuxt adapter (h3-based) | 🟢 Active |
+| [`@objectstack/sveltekit`](packages/adapters/sveltekit) | SvelteKit adapter | 🟢 Active |
 
 ### Tools & Apps
 
 | Package | Description | Status |
 | :--- | :--- | :--- |
 | [`@objectstack/cli`](packages/cli) | CLI: init, dev, serve, studio, compile, validate, generate | 🟢 Active |
+| [`create-objectstack`](packages/create-objectstack) | Project scaffolder (`npx create-objectstack`) | 🟢 Active |
+| [`objectstack-vscode`](packages/vscode-objectstack) | VSCode extension — autocomplete, validation, diagnostics | 🟢 Active |
 | [`@objectstack/studio`](apps/studio) | Studio UI (Object Explorer, Schema Inspector) | 🟢 Active |
 | [`@objectstack/docs`](apps/docs) | Documentation site (Fumadocs + Next.js) | 🟢 Active |
 
