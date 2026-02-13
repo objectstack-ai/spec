@@ -1,5 +1,11 @@
 # @objectstack/docs
 
+## 3.0.3
+
+### Patch Changes
+
+- c7267f6: Patch release for maintenance updates and improvements.
+
 ## 3.0.2
 
 ## 3.0.1
