@@ -1,0 +1,171 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+/**
+ * Metadata Collection Utilities
+ * 
+ * Provides support for defining metadata collections in either array or map (Record) format.
+ * Map format automatically injects the key as the `name` field, following the same pattern
+ * used by `fields` in ObjectSchema (which already uses `z.record(key, FieldSchema)`).
+ * 
+ * ## Usage
+ * 
+ * Both formats are accepted and normalized to arrays:
+ * 
+ * ```ts
+ * // Array format (traditional)
+ * defineStack({
+ *   objects: [
+ *     { name: 'account', fields: { ... } },
+ *     { name: 'contact', fields: { ... } },
+ *   ]
+ * });
+ * 
+ * // Map format (key becomes `name`)
+ * defineStack({
+ *   objects: {
+ *     account: { fields: { ... } },
+ *     contact: { fields: { ... } },
+ *   }
+ * });
+ * ```
+ * 
+ * @module
+ */
+
+/**
+ * Input type for metadata collections: accepts either an array or a named map.
+ * When using map format, the key is injected as the `name` field of each item.
+ * 
+ * @typeParam T - The metadata item type (e.g., `ObjectSchema`, `AppSchema`)
+ * 
+ * @example
+ * ```ts
+ * // Array format — name is required in each item
+ * const apps: MetadataCollectionInput<App> = [
+ *   { name: 'sales', label: 'Sales' },
+ *   { name: 'service', label: 'Service' },
+ * ];
+ * 
+ * // Map format — key serves as name, so name is optional in value
+ * const apps: MetadataCollectionInput<App> = {
+ *   sales: { label: 'Sales' },
+ *   service: { label: 'Service' },
+ * };
+ * ```
+ */
+export type MetadataCollectionInput<T> =
+  | T[]
+  | Record<string, Omit<T, 'name'> & { name?: string }>;
+
+/**
+ * List of metadata fields in ObjectStackDefinitionSchema that support map format.
+ * These are fields where each item has a `name` field that can be inferred from the map key.
+ * 
+ * Excluded fields:
+ * - `views` — ViewSchema has no `name` field (it's a container with `list`/`form`)
+ * - `objectExtensions` — uses `extend` as its identifier, not `name`
+ * - `data` — DatasetSchema uses `object` as its identifier
+ * - `translations` — TranslationBundleSchema is a record, not a named object
+ * - `plugins` / `devPlugins` — not named metadata schemas
+ */
+export const MAP_SUPPORTED_FIELDS = [
+  'objects',
+  'apps',
+  'pages',
+  'dashboards',
+  'reports',
+  'actions',
+  'themes',
+  'workflows',
+  'approvals',
+  'flows',
+  'roles',
+  'permissions',
+  'sharingRules',
+  'policies',
+  'apis',
+  'webhooks',
+  'agents',
+  'ragPipelines',
+  'hooks',
+  'mappings',
+  'analyticsCubes',
+  'connectors',
+  'datasources',
+] as const;
+
+export type MapSupportedField = (typeof MAP_SUPPORTED_FIELDS)[number];
+
+/**
+ * Normalize a single metadata collection value from map format to array format.
+ * If the input is already an array (or nullish), it is returned unchanged.
+ * If the input is a plain object (map), it is converted to an array where
+ * each key is injected as the `name` field of the corresponding item.
+ * 
+ * **Precedence:** If an item already has a `name` property, it is preserved
+ * (the map key is only used as a fallback).
+ * 
+ * @param value - The raw input value (array, map, or nullish)
+ * @param keyField - The field name to inject the key into (default: `'name'`)
+ * @returns The normalized array, or the original value if already an array/nullish
+ * 
+ * @example
+ * ```ts
+ * // Map input
+ * normalizeMetadataCollection({
+ *   account: { fields: { name: { type: 'text' } } },
+ *   contact: { fields: { email: { type: 'email' } } },
+ * });
+ * // → [
+ * //   { name: 'account', fields: { name: { type: 'text' } } },
+ * //   { name: 'contact', fields: { email: { type: 'email' } } },
+ * // ]
+ * 
+ * // Array input (pass-through)
+ * normalizeMetadataCollection([{ name: 'account', fields: {} }]);
+ * // → [{ name: 'account', fields: {} }]
+ * ```
+ */
+export function normalizeMetadataCollection(value: unknown, keyField = 'name'): unknown {
+  // Nullish or already an array — pass through
+  if (value == null || Array.isArray(value)) return value;
+
+  // Plain object — treat as map and convert to array
+  if (typeof value === 'object') {
+    return Object.entries(value as Record<string, unknown>).map(([key, item]) => {
+      if (item && typeof item === 'object' && !Array.isArray(item)) {
+        const obj = item as Record<string, unknown>;
+        // Only inject key if the item doesn't already have the field set
+        if (!(keyField in obj) || obj[keyField] === undefined) {
+          return { ...obj, [keyField]: key };
+        }
+        return obj;
+      }
+      // Non-object values (shouldn't happen, but let Zod handle the error)
+      return item;
+    });
+  }
+
+  // Other types — return as-is and let Zod validation handle the error
+  return value;
+}
+
+/**
+ * Normalize all metadata collections in a stack definition input.
+ * Converts any map-formatted collections to arrays with key→name injection.
+ * 
+ * This function is applied to the raw input before Zod validation,
+ * ensuring the canonical internal format is always arrays.
+ * 
+ * @param input - The raw stack definition input
+ * @returns A new object with all map collections normalized to arrays
+ */
+export function normalizeStackInput<T extends Record<string, unknown>>(input: T): T {
+  const result = { ...input };
+  for (const field of MAP_SUPPORTED_FIELDS) {
+    if (field in result) {
+      (result as Record<string, unknown>)[field] = normalizeMetadataCollection(result[field]);
+    }
+  }
+  return result;
+}

@@ -71,7 +71,7 @@ export {
   ObjectOSCapabilitiesSchema
 } from './stack.zod';
 
-export type { DefineStackOptions } from './stack.zod';
+export type { DefineStackOptions, ObjectStackDefinitionInput } from './stack.zod';
 
 export * from './stack.zod';
 
@@ -84,6 +84,8 @@ export { defineAgent } from './ai/agent.zod';
 // DX Validation Utilities (re-exported for convenience)
 export { objectStackErrorMap, formatZodError, formatZodIssue, safeParsePretty } from './shared/error-map.zod';
 export { suggestFieldType, findClosestMatches, formatSuggestion } from './shared/suggestions.zod';
+export { normalizeMetadataCollection, normalizeStackInput, MAP_SUPPORTED_FIELDS } from './shared/metadata-collection.zod';
+export type { MetadataCollectionInput, MapSupportedField } from './shared/metadata-collection.zod';
 
 export { type PluginContext } from './kernel/plugin.zod';
 

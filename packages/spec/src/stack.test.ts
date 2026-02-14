@@ -10,6 +10,7 @@ import {
   type ObjectUICapabilities,
   type ObjectOSCapabilities,
   type ObjectStackCapabilities,
+  type ObjectStackDefinitionInput,
 } from './stack.zod';
 
 describe('ObjectQLCapabilitiesSchema', () => {
@@ -436,7 +437,7 @@ describe('defineStack', () => {
   it('should return config as-is when strict is false', () => {
     const config = { manifest: baseManifest };
     const result = defineStack(config, { strict: false });
-    expect(result).toBe(config);  // When strict=false, should return same reference
+    expect(result).toStrictEqual(config);  // When strict=false, content should be equivalent
   });
 
   it('should parse and validate in strict mode', () => {
@@ -601,5 +602,248 @@ describe('defineStack - Field Name Validation', () => {
     };
 
     expect(() => defineStack(config, { strict: false })).not.toThrow();
+  });
+});
+
+describe('defineStack - Map Format Support', () => {
+  const baseManifest = {
+    id: 'com.example.test',
+    name: 'test-map-format',
+    version: '1.0.0',
+    type: 'app' as const,
+  };
+
+  it('should accept objects in map format', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      objects: {
+        task: { fields: { title: { type: 'text' } } },
+        project: { fields: { name: { type: 'text' } } },
+      },
+    };
+
+    const result = defineStack(config);
+    expect(result.objects).toHaveLength(2);
+    expect(result.objects![0].name).toBe('task');
+    expect(result.objects![1].name).toBe('project');
+  });
+
+  it('should accept apps in map format', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      apps: {
+        sales: {
+          label: 'Sales',
+          objects: ['account', 'contact'],
+        },
+      },
+    };
+
+    const result = defineStack(config);
+    expect(result.apps).toHaveLength(1);
+    expect(result.apps![0].name).toBe('sales');
+    expect(result.apps![0].label).toBe('Sales');
+  });
+
+  it('should accept mixed array and map formats in the same call', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      objects: {
+        task: { fields: { title: { type: 'text' } } },
+      },
+      apps: [
+        { name: 'sales', label: 'Sales', objects: ['account'] },
+      ],
+    };
+
+    const result = defineStack(config);
+    expect(result.objects).toHaveLength(1);
+    expect(result.objects![0].name).toBe('task');
+    expect(result.apps).toHaveLength(1);
+    expect(result.apps![0].name).toBe('sales');
+  });
+
+  it('should preserve explicit name in value over map key', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      objects: {
+        my_key: { name: 'actual_object', fields: { title: { type: 'text' } } },
+      },
+    };
+
+    const result = defineStack(config);
+    expect(result.objects![0].name).toBe('actual_object');
+  });
+
+  it('should work with empty map', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      objects: {},
+    };
+
+    const result = defineStack(config);
+    expect(result.objects).toEqual([]);
+  });
+
+  it('should validate cross-references with map-formatted objects', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      objects: {
+        task: { fields: { title: { type: 'text' } } },
+      },
+      workflows: {
+        update_status: { objectName: 'task', triggerType: 'on_create' },
+      },
+    };
+
+    // Valid reference — should not throw
+    expect(() => defineStack(config, { strict: true })).not.toThrow();
+  });
+
+  it('should detect invalid cross-references with map-formatted inputs', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      objects: {
+        task: { fields: { title: { type: 'text' } } },
+      },
+      workflows: {
+        bad_workflow: { objectName: 'nonexistent', triggerType: 'on_create' },
+      },
+    };
+
+    expect(() => defineStack(config, { strict: true })).toThrow('nonexistent');
+    expect(() => defineStack(config, { strict: true })).toThrow('cross-reference validation failed');
+  });
+
+  it('should support map format for actions', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      actions: {
+        approve_deal: {
+          label: 'Approve Deal',
+          type: 'script',
+        },
+      },
+    };
+
+    const result = defineStack(config);
+    expect(result.actions).toHaveLength(1);
+    expect(result.actions![0].name).toBe('approve_deal');
+    expect(result.actions![0].label).toBe('Approve Deal');
+  });
+
+  it('should support map format for pages', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      pages: {
+        landing: {
+          label: 'Landing Page',
+          type: 'app',
+          route: '/landing',
+          regions: [
+            { name: 'main', components: [{ type: 'page:section', properties: {} }] },
+          ],
+        },
+      },
+    };
+
+    const result = defineStack(config);
+    expect(result.pages).toHaveLength(1);
+    expect(result.pages![0].name).toBe('landing');
+  });
+
+  it('should support map format for dashboards', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      dashboards: {
+        sales_overview: {
+          label: 'Sales Overview',
+          widgets: [],
+        },
+      },
+    };
+
+    const result = defineStack(config);
+    expect(result.dashboards).toHaveLength(1);
+    expect(result.dashboards![0].name).toBe('sales_overview');
+  });
+
+  it('should support map format for roles', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      roles: {
+        admin: { label: 'Administrator' },
+        user: { label: 'Standard User' },
+      },
+    };
+
+    const result = defineStack(config);
+    expect(result.roles).toHaveLength(2);
+    expect(result.roles![0].name).toBe('admin');
+    expect(result.roles![1].name).toBe('user');
+  });
+
+  it('should support map format for hooks', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      objects: {
+        contact: { fields: { email: { type: 'email' } } },
+      },
+      hooks: {
+        enrich_contact: {
+          object: 'contact',
+          events: ['beforeInsert'],
+        },
+      },
+    };
+
+    const result = defineStack(config, { strict: true });
+    expect(result.hooks).toHaveLength(1);
+    expect(result.hooks![0].name).toBe('enrich_contact');
+    expect(result.hooks![0].object).toBe('contact');
+  });
+
+  it('should work with non-strict mode and map format', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      objects: {
+        task: { fields: { title: { type: 'text' } } },
+      },
+    };
+
+    const result = defineStack(config, { strict: false });
+    // Even in non-strict mode, normalization should apply
+    expect(Array.isArray(result.objects)).toBe(true);
+    expect(result.objects![0].name).toBe('task');
+  });
+
+  it('should reject invalid object names from map keys in strict mode', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      objects: {
+        InvalidName: { fields: { title: { type: 'text' } } },
+      },
+    };
+
+    // The key 'InvalidName' becomes name, which fails snake_case validation
+    expect(() => defineStack(config, { strict: true })).toThrow();
+  });
+
+  it('should not affect views (ViewSchema has no name field)', () => {
+    const config: ObjectStackDefinitionInput = {
+      manifest: baseManifest,
+      views: [
+        {
+          list: {
+            type: 'grid',
+            columns: ['title', 'status'],
+          },
+        },
+      ],
+    };
+
+    const result = defineStack(config);
+    expect(result.views).toHaveLength(1);
+    expect(result.views![0].list?.type).toBe('grid');
   });
 });

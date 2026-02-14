@@ -6,6 +6,7 @@ import { ManifestSchema } from './kernel/manifest.zod';
 import { DatasourceSchema } from './data/datasource.zod';
 import { TranslationBundleSchema, TranslationConfigSchema } from './system/translation.zod';
 import { objectStackErrorMap, formatZodError } from './shared/error-map.zod';
+import { normalizeStackInput, type MetadataCollectionInput, type MapSupportedField } from './shared/metadata-collection.zod';
 
 // Data Protocol
 import { ObjectSchema, ObjectExtensionSchema } from './data/object.zod';
@@ -196,6 +197,34 @@ export const ObjectStackDefinitionSchema = z.object({
 
 export type ObjectStackDefinition = z.infer<typeof ObjectStackDefinitionSchema>;
 
+/**
+ * Extract the element type from an array type.
+ * @internal
+ */
+type ExtractArrayItem<T> = T extends (infer Item)[] ? Item : never;
+
+/**
+ * Input type for `defineStack()` that accepts both array and map format
+ * for all named metadata collections.
+ * 
+ * Map format allows defining metadata using the key as the `name` field:
+ * ```ts
+ * // Array format (traditional)
+ * objects: [{ name: 'task', fields: { ... } }]
+ * 
+ * // Map format (key becomes name)
+ * objects: { task: { fields: { ... } } }
+ * ```
+ * 
+ * The output type is always arrays (`ObjectStackDefinition`).
+ */
+export type ObjectStackDefinitionInput =
+  Omit<z.input<typeof ObjectStackDefinitionSchema>, MapSupportedField> & {
+    [K in MapSupportedField]?: MetadataCollectionInput<
+      ExtractArrayItem<NonNullable<z.input<typeof ObjectStackDefinitionSchema>[K]>>
+    >;
+  };
+
 // Alias for backward compatibility
 export const ObjectStackSchema = ObjectStackDefinitionSchema;
 export type ObjectStack = ObjectStackDefinition;
@@ -325,24 +354,38 @@ function validateCrossReferences(config: ObjectStackDefinition): string[] {
  * // Basic usage (pass-through, backward compatible)
  * const stack = defineStack({ manifest: { ... }, objects: [...] });
  *
+ * // Map format — key becomes `name` field
+ * const stack = defineStack({
+ *   objects: {
+ *     task: { fields: { title: { type: 'text' } } },
+ *     project: { fields: { name: { type: 'text' } } },
+ *   },
+ *   apps: {
+ *     project_manager: { label: 'Project Manager', objects: ['task', 'project'] },
+ *   },
+ * });
+ *
  * // Strict mode — validates that views/workflows reference defined objects
  * const stack = defineStack({ manifest: { ... }, objects: [...], views: [...] }, { strict: true });
  * ```
  */
 export function defineStack(
-  config: z.input<typeof ObjectStackDefinitionSchema>,
+  config: ObjectStackDefinitionInput,
   options?: DefineStackOptions,
 ): ObjectStackDefinition {
   // Default to strict=true for safety (validate by default)
   const strict = options?.strict !== false;
 
+  // Normalize map-formatted collections to arrays (key → name injection)
+  const normalized = normalizeStackInput(config as Record<string, unknown>);
+
   if (!strict) {
     // Non-strict mode: skip validation (advanced use cases only)
-    return config as ObjectStackDefinition;
+    return normalized as ObjectStackDefinition;
   }
 
   // Strict mode (default): parse with custom error map, then cross-reference validate
-  const result = ObjectStackDefinitionSchema.safeParse(config, {
+  const result = ObjectStackDefinitionSchema.safeParse(normalized, {
     error: objectStackErrorMap,
   });
 
