@@ -6,6 +6,7 @@ import type { LoggerConfig } from '@objectstack/spec/system';
 import { ServiceRequirementDef } from '@objectstack/spec/system';
 import { PluginLoader, PluginMetadata, ServiceLifecycle, ServiceFactory, PluginStartupResult } from './plugin-loader.js';
 import { isNode, safeExit } from './utils/env.js';
+import { CORE_FALLBACK_FACTORIES } from './fallbacks/index.js';
 
 /**
  * Enhanced Kernel Configuration
@@ -234,8 +235,16 @@ export class ObjectKernel {
                     this.logger.error(`CRITICAL: Required service missing: ${serviceName}`);
                     missingServices.push(serviceName);
                 } else if (criticality === 'core') {
-                    this.logger.warn(`CORE: Core service missing, functionality may be degraded: ${serviceName}`);
-                    missingCoreServices.push(serviceName);
+                    // Auto-inject in-memory fallback if available
+                    const factory = CORE_FALLBACK_FACTORIES[serviceName];
+                    if (factory) {
+                        const fallback = factory();
+                        this.registerService(serviceName, fallback);
+                        this.logger.warn(`Service '${serviceName}' not provided — using in-memory fallback`);
+                    } else {
+                        this.logger.warn(`CORE: Core service missing, functionality may be degraded: ${serviceName}`);
+                        missingCoreServices.push(serviceName);
+                    }
                 } else {
                     this.logger.info(`Info: Optional service not present: ${serviceName}`);
                 }
