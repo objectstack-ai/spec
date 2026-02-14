@@ -9,6 +9,7 @@ It demonstrates how to build a metadata-driven backend that dynamically loads ob
 - **Unified Metadata API**: `/api/v1/meta/objects`
 - **Unified Data API**: `/api/v1/data/:object` (CRUD)
 - **Zero-Code Backend**: No creating routes or controllers per object.
+- **Preview Mode**: Run in demo mode — bypass login, auto-simulate admin identity.
 
 ## Setup
 
@@ -27,6 +28,62 @@ It demonstrates how to build a metadata-driven backend that dynamically loads ob
    pnpm dev
    # Expected: Server starts at http://localhost:3000
    ```
+
+3. Run in **preview mode** (skip login, simulate admin):
+   ```bash
+   OS_MODE=preview pnpm dev
+   # Expected: Server starts in preview mode — no login required
+   ```
+
+## Preview / Demo Mode
+
+Preview mode allows visitors (e.g. marketplace customers) to explore the platform
+without registering or logging in. The kernel boots with `mode: 'preview'` and the
+frontend skips authentication screens, automatically simulating an admin session.
+
+### How It Works
+
+1. The runtime reads `OS_MODE=preview` from the environment (or the stack config).
+2. The `KernelContext` is created with `mode: 'preview'` and a `previewMode` config.
+3. The frontend detects `mode === 'preview'` and:
+   - Hides the login / registration pages.
+   - Automatically creates a simulated admin session.
+   - Shows a preview banner to indicate demo mode.
+
+### Configuration
+
+```typescript
+import { KernelContextSchema } from '@objectstack/spec/kernel';
+
+const ctx = KernelContextSchema.parse({
+  instanceId: '550e8400-e29b-41d4-a716-446655440000',
+  mode: 'preview',
+  version: '1.0.0',
+  cwd: process.cwd(),
+  startTime: Date.now(),
+  previewMode: {
+    autoLogin: true,            // Skip login/registration pages
+    simulatedRole: 'admin',     // Simulated user role (admin | user | viewer)
+    simulatedUserName: 'Demo Admin',
+    readOnly: false,            // Allow writes (set true for read-only demos)
+    expiresInSeconds: 3600,     // Session expires after 1 hour (0 = no expiration)
+    bannerMessage: 'You are exploring a demo — data will be reset periodically.',
+  },
+});
+```
+
+### PreviewModeConfig Properties
+
+| Property | Type | Default | Description |
+|:---|:---|:---|:---|
+| **autoLogin** | `boolean` | `true` | Auto-login as simulated user, skip login/registration |
+| **simulatedRole** | `'admin' \| 'user' \| 'viewer'` | `'admin'` | Permission role for the simulated user |
+| **simulatedUserName** | `string` | `'Preview User'` | Display name shown in the UI |
+| **readOnly** | `boolean` | `false` | Block all write operations |
+| **expiresInSeconds** | `integer` | `0` | Session duration (0 = no expiration) |
+| **bannerMessage** | `string` | — | Banner message displayed in the UI |
+
+> **⚠️ Security:** Preview mode should NEVER be used in production environments.
 
 ## API Usage Examples
 

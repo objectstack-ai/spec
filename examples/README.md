@@ -152,14 +152,18 @@ pnpm build
 **Level:** 🔴 Advanced  
 **Protocols:** System, API, Data  
 
-**Complete server implementation** showing how to build a metadata-driven backend. Features dynamic schema loading from plugins, auto-generated REST APIs, unified metadata API, and plugin orchestration.
+**Complete server implementation** showing how to build a metadata-driven backend. Features dynamic schema loading from plugins, auto-generated REST APIs, unified metadata API, plugin orchestration, and **preview/demo mode**.
+
+**Preview Mode:** Run with `OS_MODE=preview` to bypass login/registration and simulate an admin identity — ideal for marketplace demos and app showcases.
 
 **Quick Start:**
 ```bash
 cd examples/app-host
 pnpm install
 pnpm dev
-# API available at http://localhost:3000
+
+# Preview mode (no login required)
+OS_MODE=preview pnpm dev
 ```
 
 ---
@@ -225,6 +229,7 @@ pnpm typecheck
 |----------|---------|----------|
 | Manifest | ✅ Complete | All examples with `objectstack.config.ts` |
 | Plugin System | ✅ Complete | [App Host](./app-host/) |
+| Preview Mode | ✅ Complete | [App Host](./app-host/) — `OS_MODE=preview` |
 | Datasources | 🟡 Partial | [App Host](./app-host/) |
 | I18n / Translations | ✅ Complete | [Todo Translations](./app-todo/src/translations/), [CRM Translations](./app-crm/src/translations/) |
 | Job Scheduling | 🔴 Missing | _Planned_ |

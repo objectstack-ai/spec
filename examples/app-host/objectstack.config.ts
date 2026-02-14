@@ -33,3 +33,65 @@ export default defineStack({
     new AppPlugin(BiPluginManifest)
   ]
 });
+
+/**
+ * Preview Mode Host Example
+ *
+ * Demonstrates how to run the platform in "preview" mode.
+ * When `mode` is set to `'preview'`, the kernel signals the frontend to:
+ * - Skip login/registration screens
+ * - Automatically simulate an admin identity
+ * - Display a preview-mode banner to the user
+ *
+ * Use this for marketplace demos, app showcases, or onboarding
+ * tours where visitors should explore the system without signing up.
+ *
+ * ## Usage
+ *
+ * Set the `OS_MODE` environment variable to `preview` at boot:
+ *
+ * ```bash
+ * OS_MODE=preview pnpm dev
+ * ```
+ *
+ * Or use this stack definition directly as a starting point.
+ *
+ * ## KernelContext (created by the Runtime at boot)
+ *
+ * ```ts
+ * import { KernelContextSchema } from '@objectstack/spec/kernel';
+ *
+ * const ctx = KernelContextSchema.parse({
+ *   instanceId: '550e8400-e29b-41d4-a716-446655440000',
+ *   mode: 'preview',
+ *   version: '1.0.0',
+ *   cwd: process.cwd(),
+ *   startTime: Date.now(),
+ *   previewMode: {
+ *     autoLogin: true,
+ *     simulatedRole: 'admin',
+ *     simulatedUserName: 'Demo Admin',
+ *     readOnly: false,
+ *     bannerMessage: 'You are exploring a demo — data will be reset periodically.',
+ *   },
+ * });
+ * ```
+ */
+export const PreviewHostExample = defineStack({
+  manifest: {
+    id: 'app-host-preview',
+    name: 'app_host_preview',
+    version: '1.0.0',
+    description: 'Host application in preview/demo mode — bypasses login, simulates admin user',
+    type: 'app',
+  },
+
+  // Same plugins as the standard host
+  plugins: [
+    new ObjectQLPlugin(),
+    new DriverPlugin(new InMemoryDriver()),
+    new AppPlugin(CrmApp),
+    new AppPlugin(TodoApp),
+    new AppPlugin(BiPluginManifest)
+  ]
+});
