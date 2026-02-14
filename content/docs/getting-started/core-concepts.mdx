@@ -28,6 +28,8 @@ When a business requirement changes, you must update code in **three or four pla
 
 ObjectStack centralizes the "Intent" into a **single Protocol Definition**:
 
+<Tabs items={['Array Format', 'Map Format']}>
+<Tab value="Array Format">
 ```typescript
 // ONE definition — everything else derives from it
 import { defineStack } from '@objectstack/spec';
@@ -42,6 +44,29 @@ export default defineStack({
   }],
 });
 ```
+</Tab>
+<Tab value="Map Format">
+```typescript
+// Map keys become the `name` field automatically
+import { defineStack } from '@objectstack/spec';
+
+export default defineStack({
+  objects: {
+    user: {
+      label: 'User',
+      fields: {
+        phone: { label: 'Phone Number', type: 'phone', required: true },
+      },
+    },
+  },
+});
+```
+</Tab>
+</Tabs>
+
+<Callout type="info">
+**Array or Map?** `defineStack()` accepts both formats for all named metadata collections (`objects`, `apps`, `flows`, etc.). Map keys are injected as the `name` field — pick whichever style you prefer.
+</Callout>
 
 From this single definition, ObjectStack automatically:
 

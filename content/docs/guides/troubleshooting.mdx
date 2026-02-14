@@ -164,11 +164,18 @@ Common mistakes:
 
 **Fix:**
 ```typescript
-// Ensure the object is included in the stack
+// Ensure the object is included in the stack (array format)
 export default defineStack({
   objects: [
     { name: 'project_task', /* ... */ }
   ]
+});
+
+// Or use map format (key becomes the name)
+export default defineStack({
+  objects: {
+    project_task: { /* ... */ }
+  }
 });
 
 // Use the exact same name when querying

@@ -17,6 +17,8 @@ This guide covers the most common patterns you will use when building applicatio
 
 Define a basic object with common fields for create, read, update, and delete operations.
 
+<Tabs items={['Array Format', 'Map Format']}>
+<Tab value="Array Format">
 ```typescript
 import { defineStack } from '@objectstack/spec';
 
@@ -42,6 +44,34 @@ export default defineStack({
   ]
 });
 ```
+</Tab>
+<Tab value="Map Format">
+```typescript
+import { defineStack } from '@objectstack/spec';
+
+export default defineStack({
+  objects: {
+    project: {
+      label: 'Project',
+      fields: {
+        title: { label: 'Title', type: 'text', required: true, maxLength: 200 },
+        description: { label: 'Description', type: 'textarea' },
+        status: { label: 'Status', type: 'select', options: [
+          { label: 'Planning', value: 'planning', default: true },
+          { label: 'Active', value: 'active' },
+          { label: 'Complete', value: 'complete' },
+          { label: 'Archived', value: 'archived' }
+        ]},
+        owner: { label: 'Owner', type: 'lookup', reference: 'user' },
+        due_date: { label: 'Due Date', type: 'date' },
+        budget: { label: 'Budget', type: 'currency', currencyConfig: { precision: 2, defaultCurrency: 'USD' } },
+      },
+    },
+  },
+});
+```
+</Tab>
+</Tabs>
 
 ---
 
@@ -403,6 +433,8 @@ Restrict field visibility and editability based on user profiles.
 
 Combine these patterns into a complete `defineStack()` configuration:
 
+<Tabs items={['Array Format', 'Map Format']}>
+<Tab value="Array Format">
 ```typescript
 import { defineStack } from '@objectstack/spec';
 
@@ -429,6 +461,32 @@ export default defineStack({
   ]
 });
 ```
+</Tab>
+<Tab value="Map Format">
+```typescript
+import { defineStack } from '@objectstack/spec';
+
+export default defineStack({
+  objects: {
+    // Pattern 1: CRUD objects
+    project: { label: 'Project', fields: {/* ... */} },
+    // Pattern 2: Master-detail
+    task: { label: 'Task', fields: {/* ... */} },
+  },
+  apps: {
+    // Pattern 5: Navigation
+  },
+  flows: {
+    // Pattern 6: Automations
+    // Pattern 7: Approval workflows
+  },
+  agents: {
+    // Pattern 8: AI agents
+  },
+});
+```
+</Tab>
+</Tabs>
 
 <Callout type="tip">
 **Next Steps:**  
