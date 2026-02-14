@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 4.0.0
+
+### Patch Changes
+
+- d738987: chore: patch release
+
 ## 3.0.3
 
 ### Patch Changes

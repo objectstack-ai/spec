@@ -1,5 +1,12 @@
 # @example/plugin-bi
 
+## 1.2.13
+
+### Patch Changes
+
+- Updated dependencies [d738987]
+  - @objectstack/spec@4.0.0
+
 ## 1.2.12
 
 ### Patch Changes

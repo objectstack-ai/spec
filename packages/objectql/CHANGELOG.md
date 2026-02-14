@@ -1,5 +1,24 @@
 # @objectstack/objectql
 
+## 4.0.0
+
+### Minor Changes
+
+- 437b0b8: feat(objectql): add utility functions, introspection types, and kernel factory
+
+  Upstream key functionality from downstream `@objectql/core` to enable its future deprecation:
+
+  - **Introspection types**: `IntrospectedSchema`, `IntrospectedTable`, `IntrospectedColumn`, `IntrospectedForeignKey`
+  - **Utility functions**: `toTitleCase()`, `convertIntrospectedSchemaToObjects()`
+  - **Kernel factory**: `createObjectQLKernel()` with `ObjectQLKernelOptions`
+
+### Patch Changes
+
+- Updated dependencies [d738987]
+  - @objectstack/spec@4.0.0
+  - @objectstack/core@4.0.0
+  - @objectstack/types@4.0.0
+
 ## 3.0.3
 
 ### Patch Changes
