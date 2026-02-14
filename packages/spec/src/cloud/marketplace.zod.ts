@@ -222,41 +222,6 @@ export const MarketplaceListingSchema = z.object({
     totalReviews: z.number().int().min(0).default(0),
   }).optional().describe('Aggregate marketplace statistics'),
 
-  /**
-   * Preview / Demo Mode Configuration.
-   * Allows customers to browse package content (objects, views, sample data)
-   * without registration or login. Analogous to Salesforce AppExchange
-   * "Test Drive" or Shopify App Store live demo.
-   */
-  preview: z.object({
-    /** Whether preview mode is enabled for this listing */
-    enabled: z.boolean().default(false)
-      .describe('Whether preview mode is available for this listing'),
-
-    /** External demo URL (e.g., hosted sandbox instance) */
-    demoUrl: z.string().url().optional()
-      .describe('External demo URL for live preview'),
-
-    /**
-     * Which content types are visible in preview mode.
-     * Allows publishers to control what prospective customers can see
-     * before installing.
-     */
-    includedContent: z.array(z.enum([
-      'objects',       // Object definitions (fields, relationships)
-      'views',         // List and form view definitions
-      'dashboards',    // Dashboard layouts
-      'flows',         // Automation flow definitions
-      'sample_data',   // Seed/demo data
-      'navigation',    // App navigation structure
-    ])).optional()
-      .describe('Content types visible in preview mode'),
-
-    /** Preview expiration duration in seconds (0 = no expiration) */
-    expiresInSeconds: z.number().int().min(0).optional()
-      .describe('Preview session duration in seconds (0 or omitted = no expiration)'),
-  }).optional().describe('Preview/demo mode configuration'),
-
   /** First published date */
   publishedAt: z.string().datetime().optional(),
 
