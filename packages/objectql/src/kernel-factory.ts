@@ -31,9 +31,18 @@ export interface ObjectQLKernelOptions {
  * await kernel.bootstrap();
  * ```
  */
-export function createObjectQLKernel(options: ObjectQLKernelOptions = {}): ObjectKernel {
-  return new (ObjectKernel as any)([
-    new ObjectQLPlugin(),
-    ...(options.plugins || []),
-  ]);
+export async function createObjectQLKernel(options: ObjectQLKernelOptions = {}): Promise<ObjectKernel> {
+  const kernel = new ObjectKernel();
+
+  // Register the core ObjectQLPlugin first
+  await kernel.use(new ObjectQLPlugin());
+
+  // Register any additional plugins
+  if (options.plugins) {
+    for (const plugin of options.plugins) {
+      await kernel.use(plugin);
+    }
+  }
+
+  return kernel;
 }
