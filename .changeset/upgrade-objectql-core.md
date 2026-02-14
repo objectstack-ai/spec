@@ -1,5 +1,5 @@
 ---
-'@objectstack/objectql': minor
+'@objectstack/objectql': patch
 ---
 
 feat(objectql): add utility functions, introspection types, and kernel factory
