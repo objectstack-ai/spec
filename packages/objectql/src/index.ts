@@ -23,3 +23,19 @@ export { MetadataFacade } from './metadata-facade.js';
 
 // Export Plugin Shim
 export { ObjectQLPlugin } from './plugin.js';
+
+// Export Kernel Factory
+export { createObjectQLKernel } from './kernel-factory.js';
+export type { ObjectQLKernelOptions } from './kernel-factory.js';
+
+// Export Utilities
+export {
+  toTitleCase,
+  convertIntrospectedSchemaToObjects,
+} from './util.js';
+export type {
+  IntrospectedColumn,
+  IntrospectedForeignKey,
+  IntrospectedTable,
+  IntrospectedSchema,
+} from './util.js';
