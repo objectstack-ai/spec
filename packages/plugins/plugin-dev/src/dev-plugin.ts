@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Plugin, PluginContext } from '@objectstack/core';
+import { Plugin, PluginContext, createMemoryCache, createMemoryQueue, createMemoryJob } from '@objectstack/core';
 
 /**
  * All 17 core kernel service names as defined in CoreServiceName.
@@ -32,70 +32,6 @@ const SECURITY_SERVICE_NAMES = [
  * implements the required methods plus any optional ones that have
  * a trivially useful implementation.
  */
-
-/** ICacheService — in-memory Map-backed stub */
-function createCacheStub() {
-  const store = new Map<string, { value: unknown; expires?: number }>();
-  let hits = 0;
-  let misses = 0;
-  return {
-    _dev: true, _serviceName: 'cache',
-    async get<T = unknown>(key: string): Promise<T | undefined> {
-      const entry = store.get(key);
-      if (!entry || (entry.expires && Date.now() > entry.expires)) {
-        store.delete(key);
-        misses++;
-        return undefined;
-      }
-      hits++;
-      return entry.value as T;
-    },
-    async set<T = unknown>(key: string, value: T, ttl?: number): Promise<void> {
-      store.set(key, { value, expires: ttl ? Date.now() + ttl * 1000 : undefined });
-    },
-    async delete(key: string): Promise<boolean> { return store.delete(key); },
-    async has(key: string): Promise<boolean> { return store.has(key); },
-    async clear(): Promise<void> { store.clear(); },
-    async stats() { return { hits, misses, keyCount: store.size }; },
-  };
-}
-
-/** IQueueService — in-memory publish/subscribe stub */
-function createQueueStub() {
-  const handlers = new Map<string, Function[]>();
-  let msgId = 0;
-  return {
-    _dev: true, _serviceName: 'queue',
-    async publish<T = unknown>(queue: string, data: T): Promise<string> {
-      const id = `dev-msg-${++msgId}`;
-      const fns = handlers.get(queue) ?? [];
-      for (const fn of fns) fn({ id, data, attempts: 1, timestamp: Date.now() });
-      return id;
-    },
-    async subscribe(queue: string, handler: (msg: any) => Promise<void>): Promise<void> {
-      handlers.set(queue, [...(handlers.get(queue) ?? []), handler]);
-    },
-    async unsubscribe(queue: string): Promise<void> { handlers.delete(queue); },
-    async getQueueSize(): Promise<number> { return 0; },
-    async purge(queue: string): Promise<void> { handlers.delete(queue); },
-  };
-}
-
-/** IJobService — no-op job scheduler stub */
-function createJobStub() {
-  const jobs = new Map<string, any>();
-  return {
-    _dev: true, _serviceName: 'job',
-    async schedule(name: string, schedule: any, handler: any): Promise<void> { jobs.set(name, { schedule, handler }); },
-    async cancel(name: string): Promise<void> { jobs.delete(name); },
-    async trigger(name: string, data?: unknown): Promise<void> {
-      const job = jobs.get(name);
-      if (job?.handler) await job.handler({ jobId: name, data });
-    },
-    async getExecutions(): Promise<any[]> { return []; },
-    async listJobs(): Promise<string[]> { return [...jobs.keys()]; },
-  };
-}
 
 /** IStorageService — in-memory file storage stub */
 function createStorageStub() {
@@ -346,9 +282,9 @@ function createSecurityFieldMaskerStub() {
  * from `packages/spec/src/contracts/`.
  */
 const DEV_STUB_FACTORIES: Record<string, () => Record<string, any>> = {
-  'cache':       createCacheStub,
-  'queue':       createQueueStub,
-  'job':         createJobStub,
+  'cache':       createMemoryCache,
+  'queue':       createMemoryQueue,
+  'job':         createMemoryJob,
   'file-storage': createStorageStub,
   'search':      createSearchStub,
   'automation':  createAutomationStub,

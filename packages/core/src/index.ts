@@ -23,6 +23,9 @@ export * from './security/index.js';
 // Export environment utilities
 export * from './utils/env.js';
 
+// Export in-memory fallbacks for core-criticality services
+export * from './fallbacks/index.js';
+
 // Export Phase 2 components - Advanced lifecycle management
 export * from './health-monitor.js';
 export * from './hot-reload.js';
