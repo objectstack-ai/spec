@@ -167,6 +167,55 @@ describe('MarketplaceListingSchema', () => {
     };
     expect(() => MarketplaceListingSchema.parse(listing)).toThrow();
   });
+
+  it('should accept listing with preview mode enabled', () => {
+    const listing = {
+      id: 'listing-002',
+      packageId: 'com.acme.crm',
+      publisherId: 'pub-001',
+      name: 'Acme CRM',
+      category: 'crm' as const,
+      latestVersion: '1.0.0',
+      preview: {
+        enabled: true,
+        demoUrl: 'https://demo.acme.com/crm',
+        includedContent: ['objects', 'views', 'navigation'],
+        expiresInSeconds: 3600,
+      },
+    };
+    const parsed = MarketplaceListingSchema.parse(listing);
+    expect(parsed.preview?.enabled).toBe(true);
+    expect(parsed.preview?.demoUrl).toBe('https://demo.acme.com/crm');
+    expect(parsed.preview?.includedContent).toHaveLength(3);
+    expect(parsed.preview?.expiresInSeconds).toBe(3600);
+  });
+
+  it('should default preview.enabled to false', () => {
+    const listing = {
+      id: 'listing-003',
+      packageId: 'com.acme.utils',
+      publisherId: 'pub-001',
+      name: 'Acme Utils',
+      category: 'other' as const,
+      latestVersion: '1.0.0',
+      preview: {},
+    };
+    const parsed = MarketplaceListingSchema.parse(listing);
+    expect(parsed.preview?.enabled).toBe(false);
+  });
+
+  it('should accept listing without preview (optional)', () => {
+    const listing = {
+      id: 'listing-004',
+      packageId: 'com.acme.tools',
+      publisherId: 'pub-001',
+      name: 'Acme Tools',
+      category: 'other' as const,
+      latestVersion: '1.0.0',
+    };
+    const parsed = MarketplaceListingSchema.parse(listing);
+    expect(parsed.preview).toBeUndefined();
+  });
 });
 
 describe('PackageSubmissionSchema', () => {
