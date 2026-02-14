@@ -14,8 +14,8 @@ Defines the operating mode of the kernel
 ## TypeScript Usage
 
 ```typescript
-import { KernelContext, RuntimeMode } from '@objectstack/spec/kernel';
-import type { KernelContext, RuntimeMode } from '@objectstack/spec/kernel';
+import { KernelContext, RuntimeMode, PreviewModeConfig } from '@objectstack/spec/kernel';
+import type { KernelContext, RuntimeMode, PreviewModeConfig } from '@objectstack/spec/kernel';
 
 // Validate data
 const result = KernelContext.parse(data);
@@ -30,13 +30,14 @@ const result = KernelContext.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **instanceId** | `string` | ✅ | Unique UUID for this running kernel process |
-| **mode** | `Enum<'development' \| 'production' \| 'test' \| 'provisioning'>` | ✅ | Kernel operating mode |
+| **mode** | `Enum<'development' \| 'production' \| 'test' \| 'provisioning' \| 'preview'>` | ✅ | Kernel operating mode |
 | **version** | `string` | ✅ | Kernel version |
 | **appName** | `string` | optional | Host application name |
 | **cwd** | `string` | ✅ | Current working directory |
 | **workspaceRoot** | `string` | optional | Workspace root if different from cwd |
 | **startTime** | `integer` | ✅ | Boot timestamp (ms) |
 | **features** | `Record<string, boolean>` | ✅ | Global feature toggles |
+| **previewMode** | `PreviewModeConfig` | optional | Preview/demo mode configuration (used when mode is `'preview'`) |
 
 
 ---
@@ -47,11 +48,56 @@ Kernel operating mode
 
 ### Allowed Values
 
-* `development`
-* `production`
-* `test`
-* `provisioning`
+* `development` — Hot-reload, verbose logging
+* `production` — Optimized, strict security
+* `test` — Mocked interfaces
+* `provisioning` — Setup/Migration mode
+* `preview` — Demo/preview mode — bypass auth, simulate admin identity
 
+
+---
+
+## PreviewModeConfig
+
+Configures the kernel's preview/demo mode behaviour. When `mode` is set to `'preview'`, the platform
+skips authentication screens and simulates an admin identity so visitors can explore the system without
+registering or logging in.
+
+<Callout type="warn">
+**Security:** Preview mode should **never** be used in production environments.
+</Callout>
+
+### Properties
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| **autoLogin** | `boolean` | `true` | Auto-login as simulated user, skipping login/registration pages |
+| **simulatedRole** | `Enum<'admin' \| 'user' \| 'viewer'>` | `'admin'` | Permission role for the simulated preview user |
+| **simulatedUserName** | `string` | `'Preview User'` | Display name for the simulated preview user |
+| **readOnly** | `boolean` | `false` | Restrict the preview session to read-only operations |
+| **expiresInSeconds** | `integer` | `0` | Preview session duration in seconds (0 = no expiration) |
+| **bannerMessage** | `string` | — | Banner message displayed in the UI during preview mode |
+
+### Example
+
+```typescript
+import { KernelContextSchema } from '@objectstack/spec/kernel';
+
+const ctx = KernelContextSchema.parse({
+  instanceId: '550e8400-e29b-41d4-a716-446655440000',
+  mode: 'preview',
+  version: '1.0.0',
+  cwd: '/app',
+  startTime: Date.now(),
+  previewMode: {
+    autoLogin: true,
+    simulatedRole: 'admin',
+    simulatedUserName: 'Demo Admin',
+    readOnly: false,
+    bannerMessage: 'You are exploring a demo — data will be reset periodically.',
+  },
+});
+```
 
 ---
 
