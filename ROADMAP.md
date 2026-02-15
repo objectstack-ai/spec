@@ -1,6 +1,6 @@
 # ObjectStack Protocol — Road Map
 
-> **Last Updated:** 2026-02-13  
+> **Last Updated:** 2026-02-15  
 > **Current Version:** v3.0.2  
 > **Status:** Protocol Specification Complete · Runtime Implementation In Progress
 
@@ -70,13 +70,13 @@ These are the backbone of ObjectStack's enterprise capabilities.
 | Packages (total) | 23 |
 | Apps | 2 (Studio, Docs) |
 | Examples | 4 (Todo, CRM, Host, BI Plugin) |
-| Zod Schema Files | 175 |
+| Zod Schema Files | 176 |
 | Exported Schemas | 1,100+ |
-| `.describe()` Annotations | 7,111 |
+| `.describe()` Annotations | 7,111+ |
 | Service Contracts | 25 |
 | Contracts Implemented | 7 (28%) |
-| Test Files | 195 |
-| Tests Passing | 5,269 / 5,269 |
+| Test Files | 197 |
+| Tests Passing | 5,363 / 5,363 |
 | `@deprecated` Items | 3 |
 | Protocol Domains | 15 (Data, UI, AI, API, Automation, Cloud, Contracts, Identity, Integration, Kernel, QA, Security, Shared, Studio, System) |
 
@@ -309,7 +309,11 @@ These are the backbone of ObjectStack's enterprise capabilities.
 
 ### 8.1 Studio IDE
 
-- [ ] Object Designer — visual field editor, relationship mapper
+- [x] Object Designer Protocol — field editor, relationship mapper, ER diagram, object manager schemas defined (`studio/object-designer.zod.ts`)
+- [ ] Object Designer Runtime — visual field editor with inline editing, drag-reorder, type-aware property panels
+- [ ] Relationship Mapper — visual lookup/master-detail/tree creation with drag-to-connect
+- [ ] ER Diagram — interactive entity-relationship diagram with force/hierarchy/grid layouts, minimap, zoom, export (PNG/SVG)
+- [ ] Object Manager — unified object list with search, filter, card/table/tree views, quick preview, statistics
 - [ ] View Builder — drag-and-drop list/form/dashboard designers
 - [ ] Flow Builder — visual automation flow editor
 - [ ] Security Console — permission matrix, RLS policy editor
