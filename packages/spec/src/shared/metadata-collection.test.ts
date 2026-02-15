@@ -4,7 +4,9 @@ import { describe, it, expect } from 'vitest';
 import {
   normalizeMetadataCollection,
   normalizeStackInput,
+  normalizePluginMetadata,
   MAP_SUPPORTED_FIELDS,
+  METADATA_ALIASES,
 } from './metadata-collection.zod';
 
 describe('normalizeMetadataCollection', () => {
@@ -258,5 +260,146 @@ describe('MAP_SUPPORTED_FIELDS', () => {
     expect(MAP_SUPPORTED_FIELDS).not.toContain('translations');
     expect(MAP_SUPPORTED_FIELDS).not.toContain('plugins');
     expect(MAP_SUPPORTED_FIELDS).not.toContain('devPlugins');
+  });
+});
+
+describe('METADATA_ALIASES', () => {
+  it('should map triggers to hooks', () => {
+    expect(METADATA_ALIASES.triggers).toBe('hooks');
+  });
+});
+
+describe('normalizePluginMetadata', () => {
+  describe('map → array conversion', () => {
+    it('should convert map-formatted actions to an array', () => {
+      const result = normalizePluginMetadata({
+        actions: {
+          lead_convert: { type: 'custom', label: 'Convert Lead' },
+        },
+      });
+      expect(result.actions).toEqual([
+        { name: 'lead_convert', type: 'custom', label: 'Convert Lead' },
+      ]);
+    });
+
+    it('should convert map-formatted workflows to an array', () => {
+      const result = normalizePluginMetadata({
+        workflows: {
+          auto_assign: { objectName: 'lead', label: 'Auto Assign' },
+        },
+      });
+      expect(result.workflows).toEqual([
+        { name: 'auto_assign', objectName: 'lead', label: 'Auto Assign' },
+      ]);
+    });
+
+    it('should leave array-formatted collections unchanged', () => {
+      const actions = [{ name: 'convert', type: 'custom' }];
+      const result = normalizePluginMetadata({ actions });
+      expect(result.actions).toBe(actions);
+    });
+
+    it('should handle multiple map-formatted collections at once', () => {
+      const result = normalizePluginMetadata({
+        actions: { a: { label: 'A' } },
+        flows: { f: { label: 'F' } },
+        hooks: { h: { object: 'lead' } },
+      });
+      expect(result.actions).toEqual([{ name: 'a', label: 'A' }]);
+      expect(result.flows).toEqual([{ name: 'f', label: 'F' }]);
+      expect(result.hooks).toEqual([{ name: 'h', object: 'lead' }]);
+    });
+  });
+
+  describe('alias resolution (triggers → hooks)', () => {
+    it('should rename triggers to hooks', () => {
+      const result = normalizePluginMetadata({
+        triggers: {
+          lead_scoring: { object: 'lead', event: 'afterInsert' },
+        },
+      });
+      expect(result.hooks).toEqual([
+        { name: 'lead_scoring', object: 'lead', event: 'afterInsert' },
+      ]);
+      expect(result.triggers).toBeUndefined();
+    });
+
+    it('should merge triggers into existing hooks (array)', () => {
+      const result = normalizePluginMetadata({
+        hooks: [{ name: 'existing_hook', object: 'account' }],
+        triggers: {
+          new_trigger: { object: 'lead', event: 'afterInsert' },
+        },
+      });
+      expect(result.hooks).toEqual([
+        { name: 'existing_hook', object: 'account' },
+        { name: 'new_trigger', object: 'lead', event: 'afterInsert' },
+      ]);
+      expect(result.triggers).toBeUndefined();
+    });
+
+    it('should merge triggers into existing hooks (map)', () => {
+      const result = normalizePluginMetadata({
+        hooks: { existing_hook: { object: 'account' } },
+        triggers: { new_trigger: { object: 'lead' } },
+      });
+      expect(result.hooks).toEqual([
+        { name: 'existing_hook', object: 'account' },
+        { name: 'new_trigger', object: 'lead' },
+      ]);
+      expect(result.triggers).toBeUndefined();
+    });
+  });
+
+  describe('recursive nested plugin normalization', () => {
+    it('should recursively normalize nested plugins', () => {
+      const result = normalizePluginMetadata({
+        actions: { a1: { label: 'Root Action' } },
+        plugins: [
+          {
+            actions: { nested_action: { label: 'Nested' } },
+            triggers: { nested_trigger: { object: 'contact' } },
+          },
+          'string-plugin-ref', // string refs should pass through
+        ],
+      });
+
+      expect(result.actions).toEqual([{ name: 'a1', label: 'Root Action' }]);
+      expect(result.plugins).toHaveLength(2);
+
+      const nestedPlugin = result.plugins[0] as Record<string, unknown>;
+      expect(nestedPlugin.actions).toEqual([{ name: 'nested_action', label: 'Nested' }]);
+      expect(nestedPlugin.hooks).toEqual([{ name: 'nested_trigger', object: 'contact' }]);
+      expect(nestedPlugin.triggers).toBeUndefined();
+
+      expect(result.plugins[1]).toBe('string-plugin-ref');
+    });
+  });
+
+  describe('pass-through / edge cases', () => {
+    it('should not modify non-metadata fields', () => {
+      const result = normalizePluginMetadata({
+        manifest: { name: 'test', version: '1.0.0' },
+        actions: { a: { label: 'A' } },
+      });
+      expect(result.manifest).toEqual({ name: 'test', version: '1.0.0' });
+    });
+
+    it('should handle empty input', () => {
+      expect(normalizePluginMetadata({})).toEqual({});
+    });
+
+    it('should handle input with no metadata collections', () => {
+      const input = { manifest: { name: 'test' }, i18n: { defaultLocale: 'en' } };
+      const result = normalizePluginMetadata(input);
+      expect(result.manifest).toBe(input.manifest);
+      expect(result.i18n).toBe(input.i18n);
+    });
+
+    it('should handle undefined metadata fields', () => {
+      const result = normalizePluginMetadata({ actions: undefined, hooks: undefined });
+      expect(result.actions).toBeUndefined();
+      expect(result.hooks).toBeUndefined();
+    });
   });
 });
