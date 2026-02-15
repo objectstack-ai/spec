@@ -288,7 +288,12 @@ The following renames are planned for packages that implement core service contr
 - [ ] `driver-mysql` — MySQL/MariaDB driver
 - [ ] `driver-sqlite` — SQLite driver for edge/embedded
 - [ ] `driver-mongodb` — MongoDB driver with aggregation pipeline
-- [ ] `driver-turso` — Turso/libSQL for edge deployments
+- [ ] `driver-turso` — Turso/libSQL edge database driver (see [Design Document](docs/design/driver-turso.md))
+  - [x] **Phase 0: Protocol Schema** — `TursoConfigSchema`, `TursoSyncConfigSchema`, `TursoDriverSpec` defined in `packages/spec/src/data/driver/turso.zod.ts`
+  - [ ] **Phase A: Core Driver** (v3.1) — `IDataDriver` + `ISchemaDriver` implementation, QueryAST→SQL compiler, plugin wrapper
+  - [ ] **Phase B: Edge & Sync** (v3.2) — Embedded replica sync, WASM build for Cloudflare/Deno, offline write queue
+  - [ ] **Phase C: Multi-Tenancy** (v3.3) — Database-per-tenant router, Turso Platform API integration
+  - [ ] **Phase D: Advanced** (v4.0) — Vector search + `IAIService`, FTS5 + `ISearchService`, better-auth adapter
 - [ ] Driver benchmark suite comparing performance across all drivers
 
 ### 6.2 Multi-Tenancy
@@ -480,10 +485,10 @@ The following renames are planned for packages that implement core service contr
 | Version | Target | Focus |
 |:---|:---|:---|
 | **v3.0** | ✅ Shipped | Protocol specification complete, core runtime stable |
-| **v3.1** | Q2 2026 | Essential services (`service-cache`, `service-queue`, `service-job`, `service-storage`), PostgreSQL driver |
-| **v3.2** | Q3 2026 | Communication services (`service-realtime`, `service-graphql`, `service-i18n`, `service-notification`) |
-| **v3.3** | Q4 2026 | Business logic services (`service-automation`, `service-workflow`, `service-search`) |
-| **v4.0** | Q1 2027 | Zod v4 migration, `plugin-auth` → `service-auth` rename, JSON Schema output, OpenAPI generation, AI services, multi-tenancy |
+| **v3.1** | Q2 2026 | Essential services (`service-cache`, `service-queue`, `service-job`, `service-storage`), PostgreSQL driver, Turso/libSQL core driver ([design](docs/design/driver-turso.md)) |
+| **v3.2** | Q3 2026 | Communication services (`service-realtime`, `service-graphql`, `service-i18n`, `service-notification`), Turso embedded replica & edge sync |
+| **v3.3** | Q4 2026 | Business logic services (`service-automation`, `service-workflow`, `service-search`), Turso multi-tenancy (database-per-tenant) |
+| **v4.0** | Q1 2027 | Zod v4 migration, `plugin-auth` → `service-auth` rename, JSON Schema output, OpenAPI generation, AI services, multi-tenancy, Turso vector search & FTS5 integration |
 | **v4.1** | Q2 2027 | Studio IDE general availability, marketplace launch |
 | **v5.0** | 2027+ | Managed cloud, app store, global ecosystem |
 
@@ -494,6 +499,7 @@ The following renames are planned for packages that implement core service contr
 | Document | Description |
 |:---|:---|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Microkernel design, package structure, three-layer protocol stack |
+| [`docs/design/driver-turso.md`](docs/design/driver-turso.md) | Turso/libSQL driver design document — architecture impact, capabilities, implementation phases |
 | [`apps/studio/ROADMAP.md`](apps/studio/ROADMAP.md) | Studio IDE development phases (v2.1 → v3.0) |
 | [`docs/DX_ROADMAP.md`](docs/DX_ROADMAP.md) | Developer experience improvements |
 | [`RELEASE_NOTES.md`](RELEASE_NOTES.md) | Version history and changelog |
