@@ -39,7 +39,7 @@ export const validateCommand = new Command('validate')
         printKV('Load time', `${duration}ms`);
       }
 
-      // 2. Normalize map-formatted collections and validate against schema
+      // 2. Normalize map-formatted stack definition and validate against schema
       if (!options.json) printStep('Validating against ObjectStack Protocol...');
       const normalized = normalizeStackInput(config as Record<string, unknown>);
       const result = ObjectStackDefinitionSchema.safeParse(normalized);

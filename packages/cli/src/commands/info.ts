@@ -28,7 +28,7 @@ export const infoCommand = new Command('info')
 
     try {
       const { config: rawConfig, absolutePath, duration } = await loadConfig(configPath);
-      const config = normalizeStackInput(rawConfig as Record<string, unknown>);
+      const config: any = normalizeStackInput(rawConfig as Record<string, unknown>);
       const stats = collectMetadataStats(config);
 
       if (options.json) {

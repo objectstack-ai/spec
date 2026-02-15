@@ -136,7 +136,7 @@ export interface MetadataStats {
 export function collectMetadataStats(config: any): MetadataStats {
   const count = (val: any) => {
     if (Array.isArray(val)) return val.length;
-    if (val && typeof val === 'object' && !Array.isArray(val)) return Object.keys(val).length;
+    if (val && typeof val === 'object') return Object.keys(val).length;
     return 0;
   };
   

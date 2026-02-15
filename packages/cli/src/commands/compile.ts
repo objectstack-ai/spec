@@ -41,7 +41,7 @@ export const compileCommand = new Command('compile')
         printKV('Load time', `${duration}ms`);
       }
 
-      // 2. Normalize map-formatted collections and validate against Protocol
+      // 2. Normalize map-formatted stack definition and validate against Protocol
       if (!options.json) printStep('Validating protocol compliance...');
       const normalized = normalizeStackInput(config as Record<string, unknown>);
       const result = ObjectStackDefinitionSchema.safeParse(normalized);

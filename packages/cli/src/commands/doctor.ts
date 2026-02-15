@@ -478,7 +478,7 @@ export const doctorCommand = new Command('doctor')
       printStep('Loading configuration for analysis...');
       try {
         const { config: rawConfig } = await loadConfig();
-        const config = normalizeStackInput(rawConfig as Record<string, unknown>);
+        const config: any = normalizeStackInput(rawConfig as Record<string, unknown>);
 
         // Circular dependency detection
         if (Array.isArray(config.objects) && config.objects.length > 0) {
