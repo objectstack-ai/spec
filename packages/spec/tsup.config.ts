@@ -15,7 +15,11 @@ export default defineConfig({
     'src/security/index.ts',
     'src/contracts/index.ts',
     'src/integration/index.ts',
-    'src/studio/index.ts'
+    'src/studio/index.ts',
+    'src/cloud/index.ts',
+    'src/qa/index.ts',
+    'src/identity/index.ts',
+    'src/shared/index.ts'
   ],
   splitting: false,
   sourcemap: true,

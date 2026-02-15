@@ -424,19 +424,19 @@ export const ObjectExtensionSchema = z.object({
   fields: z.record(z.string(), FieldSchema).optional().describe('Fields to add/override'),
   
   /** Override label */
-  label: z.string().optional(),
+  label: z.string().optional().describe('Override label for the extended object'),
   
   /** Override plural label */
-  pluralLabel: z.string().optional(),
+  pluralLabel: z.string().optional().describe('Override plural label for the extended object'),
   
   /** Override description */
-  description: z.string().optional(),
+  description: z.string().optional().describe('Override description for the extended object'),
   
   /** Additional validation rules to add */
-  validations: z.array(ValidationRuleSchema).optional(),
+  validations: z.array(ValidationRuleSchema).optional().describe('Additional validation rules to merge into the target object'),
   
   /** Additional indexes to add */
-  indexes: z.array(IndexSchema).optional(),
+  indexes: z.array(IndexSchema).optional().describe('Additional indexes to merge into the target object'),
   
   /** Merge priority. Higher number applied later (wins on conflict). Default: 200 */
   priority: z.number().int().min(0).max(999).default(200).describe('Merge priority (higher = applied later)'),

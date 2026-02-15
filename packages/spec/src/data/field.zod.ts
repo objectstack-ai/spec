@@ -378,9 +378,9 @@ export const FieldSchema = z.object({
   /** Calculation */
   expression: z.string().optional().describe('Formula expression'),
   summaryOperations: z.object({
-    object: z.string(),
-    field: z.string(),
-    function: z.enum(['count', 'sum', 'min', 'max', 'avg'])
+    object: z.string().describe('Source child object name for roll-up'),
+    field: z.string().describe('Field on child object to aggregate'),
+    function: z.enum(['count', 'sum', 'min', 'max', 'avg']).describe('Aggregation function to apply'),
   }).optional().describe('Roll-up summary definition'),
 
   /** Enhanced Field Type Configurations */
