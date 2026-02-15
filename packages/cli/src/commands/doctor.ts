@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { normalizeStackInput } from '@objectstack/spec';
 import { printHeader, printSuccess, printWarning, printError, printStep, printInfo } from '../utils/format.js';
 import { loadConfig, configExists } from '../utils/config.js';
 
@@ -476,7 +477,8 @@ export const doctorCommand = new Command('doctor')
     if (configExists()) {
       printStep('Loading configuration for analysis...');
       try {
-        const { config } = await loadConfig();
+        const { config: rawConfig } = await loadConfig();
+        const config: any = normalizeStackInput(rawConfig as Record<string, unknown>);
 
         // Circular dependency detection
         if (Array.isArray(config.objects) && config.objects.length > 0) {

@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { ZodError } from 'zod';
-import { ObjectStackDefinitionSchema } from '@objectstack/spec';
+import { ObjectStackDefinitionSchema, normalizeStackInput } from '@objectstack/spec';
 import { loadConfig } from '../utils/config.js';
 import {
   printHeader,
@@ -39,9 +39,10 @@ export const validateCommand = new Command('validate')
         printKV('Load time', `${duration}ms`);
       }
 
-      // 2. Validate against schema
+      // 2. Normalize map-formatted stack definition and validate against schema
       if (!options.json) printStep('Validating against ObjectStack Protocol...');
-      const result = ObjectStackDefinitionSchema.safeParse(config);
+      const normalized = normalizeStackInput(config as Record<string, unknown>);
+      const result = ObjectStackDefinitionSchema.safeParse(normalized);
 
       if (!result.success) {
         if (options.json) {

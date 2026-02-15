@@ -134,15 +134,19 @@ export interface MetadataStats {
 }
 
 export function collectMetadataStats(config: any): MetadataStats {
-  const count = (arr: any) => (Array.isArray(arr) ? arr.length : 0);
+  const count = (val: any) => {
+    if (Array.isArray(val)) return val.length;
+    if (val && typeof val === 'object') return Object.keys(val).length;
+    return 0;
+  };
   
   // Count total fields across all objects
   let fields = 0;
-  if (Array.isArray(config.objects)) {
-    for (const obj of config.objects) {
-      if (obj.fields && typeof obj.fields === 'object') {
-        fields += Object.keys(obj.fields).length;
-      }
+  const objects = Array.isArray(config.objects) ? config.objects :
+    (config.objects && typeof config.objects === 'object' ? Object.values(config.objects) : []);
+  for (const obj of objects as any[]) {
+    if (obj.fields && typeof obj.fields === 'object') {
+      fields += Object.keys(obj.fields).length;
     }
   }
 
