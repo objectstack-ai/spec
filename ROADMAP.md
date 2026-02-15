@@ -20,6 +20,8 @@
 - [Phase 8: Platform & Ecosystem (🔴 Planned)](#phase-8-platform--ecosystem--planned)
 - [Contract Implementation Matrix](#contract-implementation-matrix)
 - [Package Status Matrix](#package-status-matrix)
+- [v4.0 Schema & Toolchain Roadmap](#v40-schema--toolchain-roadmap)
+- [Versioning Plan](#versioning-plan)
 - [Related Documents](#related-documents)
 
 ---
@@ -416,15 +418,17 @@ These are the backbone of ObjectStack's enterprise capabilities.
 
 ---
 
-## Related Documents
+## v4.0 Schema & Toolchain Roadmap
 
-| Document | Description |
-|:---|:---|
-| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Microkernel design, package structure, three-layer protocol stack |
-| [`apps/studio/ROADMAP.md`](apps/studio/ROADMAP.md) | Studio IDE development phases (v2.1 → v3.0) |
-| [`docs/DX_ROADMAP.md`](docs/DX_ROADMAP.md) | Developer experience improvements |
-| [`RELEASE_NOTES.md`](RELEASE_NOTES.md) | Version history and changelog |
-| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contribution guidelines |
+> **Target:** Q1 2027  
+> **Theme:** Schema infrastructure upgrade, cross-ecosystem interoperability
+
+| Priority | Action | Reason |
+|:---:|:---|:---|
+| **P0** | Complete Zod v4 migration | 2-7x performance improvement + built-in JSON Schema |
+| **P1** | Add JSON Schema output layer | Provide protocol descriptions for non-TS ecosystems (Python/Go clients) |
+| **P2** | Consider OpenAPI Spec generation | Auto-generate OpenAPI from Zod Schema, connecting the full API toolchain |
+| **P3** | Evaluate Effect Schema | If Zod v4 performance is still insufficient, as a long-term candidate |
 
 ---
 
@@ -436,6 +440,18 @@ These are the backbone of ObjectStack's enterprise capabilities.
 | **v3.1** | Q2 2026 | Essential services (Cache, Queue, Job, Storage), PostgreSQL driver |
 | **v3.2** | Q3 2026 | Communication services (Realtime, GraphQL, i18n, Notifications) |
 | **v3.3** | Q4 2026 | Business logic services (Automation, Workflow, Search) |
-| **v4.0** | Q1 2027 | AI services, multi-tenancy, enterprise observability |
+| **v4.0** | Q1 2027 | Zod v4 migration, JSON Schema output, OpenAPI generation, AI services, multi-tenancy |
 | **v4.1** | Q2 2027 | Studio IDE general availability, marketplace launch |
 | **v5.0** | 2027+ | Managed cloud, app store, global ecosystem |
+
+---
+
+## Related Documents
+
+| Document | Description |
+|:---|:---|
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Microkernel design, package structure, three-layer protocol stack |
+| [`apps/studio/ROADMAP.md`](apps/studio/ROADMAP.md) | Studio IDE development phases (v2.1 → v3.0) |
+| [`docs/DX_ROADMAP.md`](docs/DX_ROADMAP.md) | Developer experience improvements |
+| [`RELEASE_NOTES.md`](RELEASE_NOTES.md) | Version history and changelog |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contribution guidelines |
