@@ -169,3 +169,87 @@ export function normalizeStackInput<T extends Record<string, unknown>>(input: T)
   }
   return result;
 }
+
+/**
+ * Mapping of legacy / alternative field names to their canonical names
+ * in `ObjectStackDefinitionSchema`.
+ *
+ * Plugins may use legacy names (e.g., `triggers` instead of `hooks`).
+ * This map lets `normalizePluginMetadata()` rewrite them automatically.
+ */
+export const METADATA_ALIASES: Record<string, MapSupportedField> = {
+  triggers: 'hooks',
+};
+
+/**
+ * Normalize plugin metadata so it matches the canonical format expected by the runtime.
+ *
+ * This handles two issues that commonly arise when loading third-party plugin metadata:
+ *
+ * 1. **Map → Array conversion** — plugins often define metadata as maps
+ *    (e.g., `actions: { convert_lead: { ... } }`), but the runtime expects arrays.
+ *    Every key listed in {@link MAP_SUPPORTED_FIELDS} is normalized via
+ *    {@link normalizeMetadataCollection}.
+ *
+ * 2. **Field aliasing** — plugins may use legacy or alternative field names
+ *    (e.g., `triggers` instead of `hooks`). {@link METADATA_ALIASES} maps them
+ *    to their canonical counterparts.
+ *
+ * 3. **Recursive normalization** — if the plugin itself contains nested `plugins`,
+ *    each nested plugin is normalized recursively.
+ *
+ * @param metadata - Raw plugin metadata object
+ * @returns A new object with all collections normalized to arrays, aliases resolved,
+ *          and nested plugins recursively normalized
+ *
+ * @example
+ * ```ts
+ * const raw = {
+ *   actions: { lead_convert: { type: 'custom', label: 'Convert' } },
+ *   triggers: { lead_scoring: { object: 'lead', event: 'afterInsert' } },
+ * };
+ * const normalized = normalizePluginMetadata(raw);
+ * // normalized.actions → [{ name: 'lead_convert', type: 'custom', label: 'Convert' }]
+ * // normalized.hooks   → [{ name: 'lead_scoring', object: 'lead', event: 'afterInsert' }]
+ * // normalized.triggers → removed (merged into hooks)
+ * ```
+ */
+export function normalizePluginMetadata<T extends Record<string, unknown>>(metadata: T): T {
+  const result = { ...metadata };
+
+  // 1. Resolve aliases (e.g. triggers → hooks), merging with any existing canonical values
+  for (const [alias, canonical] of Object.entries(METADATA_ALIASES)) {
+    if (alias in result) {
+      const aliasValue = normalizeMetadataCollection(result[alias]);
+      const canonicalValue = normalizeMetadataCollection(result[canonical]);
+
+      // Merge: canonical array wins; alias values are appended
+      if (Array.isArray(aliasValue)) {
+        (result as Record<string, unknown>)[canonical] = Array.isArray(canonicalValue)
+          ? [...canonicalValue, ...aliasValue]
+          : aliasValue;
+      }
+
+      delete (result as Record<string, unknown>)[alias];
+    }
+  }
+
+  // 2. Normalize map-formatted collections → arrays
+  for (const field of MAP_SUPPORTED_FIELDS) {
+    if (field in result) {
+      (result as Record<string, unknown>)[field] = normalizeMetadataCollection(result[field]);
+    }
+  }
+
+  // 3. Recursively normalize nested plugins
+  if (Array.isArray(result.plugins)) {
+    (result as Record<string, unknown>).plugins = result.plugins.map((p: unknown) => {
+      if (p && typeof p === 'object' && !Array.isArray(p)) {
+        return normalizePluginMetadata(p as Record<string, unknown>);
+      }
+      return p;
+    });
+  }
+
+  return result;
+}
