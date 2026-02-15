@@ -1,5 +1,12 @@
 # @objectstack/example-crm
 
+## 1.2.15
+
+### Patch Changes
+
+- Updated dependencies [5df254c]
+  - @objectstack/spec@3.0.6
+
 ## 1.2.14
 
 ### Patch Changes

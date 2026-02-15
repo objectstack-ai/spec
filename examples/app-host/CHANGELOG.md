@@ -1,5 +1,20 @@
 # @objectstack/example-host
 
+## 1.2.15
+
+### Patch Changes
+
+- Updated dependencies [5df254c]
+  - @objectstack/spec@3.0.6
+  - @example/app-crm@1.2.15
+  - @example/app-todo@1.2.15
+  - @example/plugin-bi@1.2.15
+  - @objectstack/metadata@3.0.6
+  - @objectstack/objectql@3.0.6
+  - @objectstack/driver-memory@3.0.6
+  - @objectstack/plugin-hono-server@3.0.6
+  - @objectstack/runtime@3.0.6
+
 ## 1.2.14
 
 ### Patch Changes
