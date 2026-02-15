@@ -1,6 +1,6 @@
 # ObjectStack Studio — Development Roadmap
 
-> **Last Updated:** 2026-02-09  
+> **Last Updated:** 2026-02-15  
 > **Version:** 2.0.0 → 3.0.0  
 > **Goal:** Transform Studio from a metadata inspector into a full-featured visual IDE for the ObjectStack platform.
 
@@ -44,6 +44,8 @@
 
 **Spec defines 100+ metadata types. Studio has specialized viewers for only 1 (Object).** All other types fall back to the generic JSON inspector. The plugin system is ready — it just needs content.
 
+**Object Designer Protocol:** The `ObjectDesignerConfigSchema` (in `@objectstack/spec/studio`) now defines the full specification for the visual object design experience, including field editor, relationship mapper, ER diagram, object manager, and object preview configurations. The runtime implementation should consume these schemas.
+
 ---
 
 ## 🗺️ Roadmap
@@ -71,8 +73,18 @@
 
 | # | Task | Plugin ID | Priority |
 |---|------|-----------|----------|
-| 1.1 | **Object Designer — Edit Mode** | `objectstack.object-designer` | 🔴 P0 |
-| | Add field creation/editing inline. Support drag-and-drop field reordering. Validate field schemas via Zod. | | |
+| 1.0 | **Object Designer Protocol** ✅ | `@objectstack/spec` | ✅ Done |
+| | Zod schemas for field editor, relationship mapper, ER diagram, object manager, and object preview configs. `ObjectDesignerConfigSchema`, `ERDiagramConfigSchema`, `FieldEditorConfigSchema`, etc. 46 tests passing. | | |
+| 1.1 | **Object Designer — Visual Field Editor** | `objectstack.object-designer` | 🔴 P0 |
+| | Inline field creation/editing with type-aware property panel (6 sections: basics, constraints, relationship, display, security, advanced). Drag-and-drop field reordering. Field grouping by `field.group`. Batch add/remove operations. Validate field schemas via Zod. Usage statistics (views/formulas referencing each field). Pagination for 50+ field objects. | | |
+| 1.1a | **Object Designer — Relationship Mapper** | `objectstack.object-designer` | 🔴 P0 |
+| | Visual relationship creation via drag-from-source-to-target. Support lookup, master_detail, and tree relationship types. Show reverse relationships (child → parent). Cascade delete behavior warnings. Configurable line styles and colors per relationship type. | | |
+| 1.1b | **Object Designer — ER Diagram** | `objectstack.object-designer` | 🟡 P1 |
+| | Interactive entity-relationship diagram with 4 layout algorithms (force-directed, hierarchy, grid, circular). Entity nodes show field list with type badges and required indicators. Minimap for large schemas. Zoom controls (0.1x–3x). Click-to-navigate to object detail. Drag-to-connect for relationship creation. Hover highlighting of connected entities. Export to PNG/SVG/JSON. Auto-fit on initial load. Optional orphan hiding. | | |
+| 1.1c | **Object Manager — Unified List** | `objectstack.object-designer` | 🟡 P1 |
+| | Object list with table/card/tree display modes. Search across name, label, description. Filter by package, tags, field types, relationships. Sort by name, label, field count, last updated. Quick-preview tooltip with field list on hover. Statistics summary bar (total objects, fields, relationships). Side-by-side object comparison mode. ER diagram toggle from toolbar. | | |
+| 1.1d | **Object Preview — Enhanced Tabs** | `objectstack.object-designer` | 🟡 P1 |
+| | 8-tab object detail view: Fields, Relationships, Indexes, Validations, Capabilities, Data, API, Code. Configurable tab ordering and enable/disable. Object summary header with namespace, owner package, field count. Breadcrumb navigation. | | |
 | 1.2 | **Dataset Editor** | `objectstack.dataset-editor` | 🔴 P0 |
 | | Visual seed data editor. Import CSV/JSON. Preview before apply. Environment scoping (dev/test/prod). | | |
 | 1.3 | **Datasource Manager** | `objectstack.datasource-manager` | 🟡 P1 |
@@ -336,6 +348,8 @@ export const myPlugin: StudioPlugin = {
 | Metric | Current | Phase 2 Target | v3.0 Target |
 |--------|---------|----------------|-------------|
 | Metadata types with dedicated viewer | 1 / 30+ | 15 / 30+ | 30+ / 30+ |
+| Object Designer protocol schemas | 16 schemas | — | — |
+| Object Designer protocol tests | 46 tests | — | — |
 | Component test coverage | 0% | 50% | 80% |
 | Deep-linkable views | 0 | All | All |
 | Plugin count (built-in) | 7 | 20 | 35+ |
