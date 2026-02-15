@@ -5,7 +5,7 @@ import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
 import { ZodError } from 'zod';
-import { ObjectStackDefinitionSchema } from '@objectstack/spec';
+import { ObjectStackDefinitionSchema, normalizeStackInput } from '@objectstack/spec';
 import { loadConfig } from '../utils/config.js';
 import {
   printHeader,
@@ -41,9 +41,10 @@ export const compileCommand = new Command('compile')
         printKV('Load time', `${duration}ms`);
       }
 
-      // 2. Validate against Protocol
+      // 2. Normalize map-formatted collections and validate against Protocol
       if (!options.json) printStep('Validating protocol compliance...');
-      const result = ObjectStackDefinitionSchema.safeParse(config);
+      const normalized = normalizeStackInput(config as Record<string, unknown>);
+      const result = ObjectStackDefinitionSchema.safeParse(normalized);
 
       if (!result.success) {
         if (options.json) {

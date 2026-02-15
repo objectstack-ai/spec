@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
+import { normalizeStackInput } from '@objectstack/spec';
 import { loadConfig } from '../utils/config.js';
 import {
   printHeader,
@@ -207,7 +208,8 @@ export const lintCommand = new Command('lint')
         printInfo(`Config: ${chalk.white(absolutePath)}`);
       }
 
-      const issues = lintConfig(config);
+      const normalized = normalizeStackInput(config as Record<string, unknown>);
+      const issues = lintConfig(normalized);
 
       // ── JSON output ──
       if (options.json) {

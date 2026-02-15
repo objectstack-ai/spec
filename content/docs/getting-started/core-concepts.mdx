@@ -38,9 +38,9 @@ export default defineStack({
   objects: [{
     name: 'user',
     label: 'User',
-    fields: [
-      { name: 'phone', label: 'Phone Number', type: 'phone', required: true },
-    ],
+    fields: {
+      phone: { label: 'Phone Number', type: 'phone', required: true },
+    },
   }],
 });
 ```

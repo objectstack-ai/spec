@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
+import { normalizeStackInput } from '@objectstack/spec';
 import { loadConfig } from '../utils/config.js';
 import {
   printHeader,
@@ -26,7 +27,8 @@ export const infoCommand = new Command('info')
     }
 
     try {
-      const { config, absolutePath, duration } = await loadConfig(configPath);
+      const { config: rawConfig, absolutePath, duration } = await loadConfig(configPath);
+      const config = normalizeStackInput(rawConfig as Record<string, unknown>);
       const stats = collectMetadataStats(config);
 
       if (options.json) {
