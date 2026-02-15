@@ -61,7 +61,7 @@ the ecosystem for enterprise workloads.
 
 ### What Needs Building
 
-19 of 25 service contracts are specification-only (no runtime implementation).
+12 of 25 service contracts are specification-only (no runtime implementation).
 These are the backbone of ObjectStack's enterprise capabilities.
 
 ---
@@ -70,14 +70,14 @@ These are the backbone of ObjectStack's enterprise capabilities.
 
 | Metric | Count |
 |:---|---:|
-| Packages (total) | 23 |
+| Packages (total) | 27 |
 | Apps | 2 (Studio, Docs) |
 | Examples | 4 (Todo, CRM, Host, BI Plugin) |
 | Zod Schema Files | 176 |
 | Exported Schemas | 1,100+ |
 | `.describe()` Annotations | 7,111+ |
 | Service Contracts | 25 |
-| Contracts Implemented | 7 (28%) |
+| Contracts Implemented | 11 (44%) |
 | Test Files | 197 |
 | Tests Passing | 5,363 / 5,363 |
 | `@deprecated` Items | 3 |
@@ -203,16 +203,16 @@ The following renames are planned for packages that implement core service contr
 
 | Contract | Priority | Package | Notes |
 |:---|:---:|:---|:---|
-| `ICacheService` | **P0** | `@objectstack/service-cache` | Redis / Memory cache — needed for session, metadata, query caching |
-| `IQueueService` | **P0** | `@objectstack/service-queue` | BullMQ / Redis Streams — needed for async workflows and jobs |
-| `IJobService` | **P0** | `@objectstack/service-job` | Cron/interval scheduling — depends on IQueueService |
-| `IStorageService` | **P1** | `@objectstack/service-storage` | S3 / Azure Blob / Local FS — file upload/download for apps |
+| `ICacheService` | **P0** | `@objectstack/service-cache` | Memory cache + Redis adapter skeleton |
+| `IQueueService` | **P0** | `@objectstack/service-queue` | Memory queue + BullMQ adapter skeleton |
+| `IJobService` | **P0** | `@objectstack/service-job` | setInterval scheduler + cron adapter skeleton |
+| `IStorageService` | **P1** | `@objectstack/service-storage` | Local filesystem + S3 adapter skeleton |
 | `ISchemaDriver` | **P1** | — | DDL operations — needed for `objectstack migrate` CLI command |
 
-- [ ] `service-cache` — Implement `ICacheService` with Redis + in-memory fallback
-- [ ] `service-queue` — Implement `IQueueService` with BullMQ adapter
-- [ ] `service-job` — Implement `IJobService` with cron scheduling
-- [ ] `service-storage` — Implement `IStorageService` with S3/local adapters
+- [x] `service-cache` — Implement `ICacheService` with memory adapter + Redis skeleton
+- [x] `service-queue` — Implement `IQueueService` with memory adapter + BullMQ skeleton
+- [x] `service-job` — Implement `IJobService` with interval scheduling + cron skeleton
+- [x] `service-storage` — Implement `IStorageService` with local filesystem + S3 skeleton
 - [ ] Schema driver integration into PostgreSQL/MongoDB drivers
 
 ### Priority 2 — Communication Services
@@ -401,10 +401,10 @@ The following renames are planned for packages that implement core service contr
 | 7 | Service Registry | `IServiceRegistry` | ✅ | `@objectstack/core` | Built into ObjectKernel |
 | 8 | Analytics Service | `IAnalyticsService` | 🟡 | `@objectstack/driver-memory` | Memory reference only |
 | 9 | Plugin Lifecycle | `IPluginLifecycleEvents` | 🟡 | `@objectstack/core` | Partial in kernel |
-| 10 | Cache Service | `ICacheService` | ❌ | `@objectstack/service-cache` (planned) | Spec only |
-| 11 | Queue Service | `IQueueService` | ❌ | `@objectstack/service-queue` (planned) | Spec only |
-| 12 | Job Service | `IJobService` | ❌ | `@objectstack/service-job` (planned) | Spec only |
-| 13 | Storage Service | `IStorageService` | ❌ | `@objectstack/service-storage` (planned) | Spec only |
+| 10 | Cache Service | `ICacheService` | ✅ | `@objectstack/service-cache` | Memory + Redis skeleton |
+| 11 | Queue Service | `IQueueService` | ✅ | `@objectstack/service-queue` | Memory + BullMQ skeleton |
+| 12 | Job Service | `IJobService` | ✅ | `@objectstack/service-job` | Interval + cron skeleton |
+| 13 | Storage Service | `IStorageService` | ✅ | `@objectstack/service-storage` | Local FS + S3 skeleton |
 | 14 | Realtime Service | `IRealtimeService` | ❌ | `@objectstack/service-realtime` (planned) | Spec only |
 | 15 | Search Service | `ISearchService` | ❌ | `@objectstack/service-search` (planned) | Spec only |
 | 16 | Notification Service | `INotificationService` | ❌ | `@objectstack/service-notification` (planned) | Spec only |
@@ -418,7 +418,7 @@ The following renames are planned for packages that implement core service contr
 | 24 | Startup Orchestrator | `IStartupOrchestrator` | ❌ | — | Kernel handles basics |
 | 25 | Plugin Validator | `IPluginValidator` | ❌ | — | Spec only |
 
-**Summary:** 7 fully implemented · 2 partially implemented · 16 specification only
+**Summary:** 11 fully implemented · 2 partially implemented · 12 specification only
 
 ---
 
@@ -441,6 +441,10 @@ The following renames are planned for packages that implement core service contr
 | `@objectstack/plugin-dev` | 3.0.2 | — | ✅ Stable | 10/10 |
 | `@objectstack/plugin-hono-server` | 3.0.2 | — | ✅ Stable | 9/10 |
 | `@objectstack/plugin-msw` | 3.0.2 | — | ✅ Stable | 9/10 |
+| `@objectstack/service-cache` | 3.0.6 | 13 | ✅ Stable | 7/10 |
+| `@objectstack/service-queue` | 3.0.6 | 8 | ✅ Stable | 7/10 |
+| `@objectstack/service-job` | 3.0.6 | 11 | ✅ Stable | 7/10 |
+| `@objectstack/service-storage` | 3.0.6 | 8 | ✅ Stable | 7/10 |
 | `@objectstack/nextjs` | 3.0.2 | ✅ | ✅ Stable | 10/10 |
 | `@objectstack/nestjs` | 3.0.2 | ✅ | ✅ Stable | 10/10 |
 | `@objectstack/hono` | 3.0.2 | ✅ | ✅ Stable | 10/10 |
