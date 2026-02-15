@@ -28,6 +28,7 @@ ObjectStack follows [Semantic Versioning 2.0.0](https://semver.org/) (`MAJOR.MIN
 - **Zod schemas** are part of the public API surface. Adding optional properties is a MINOR change; removing or renaming properties is a MAJOR change.
 - **TypeScript types** inferred from Zod (`z.infer<typeof Schema>`) follow the same guarantees as their source schemas.
 - **Helper functions** (e.g., `defineStack`, `defineStudioPlugin`) maintain their call signatures within a MAJOR version.
+- **Input formats** — `defineStack()` accepts both array and map (Record) format for all named metadata collections. Both formats are guaranteed stable within a MAJOR version.
 - **Enum values** are append-only within a MAJOR version. Existing values are never removed or renamed in MINOR/PATCH releases.
 - **Default values** in schemas are not changed in MINOR/PATCH releases unless fixing a documented bug.
 
