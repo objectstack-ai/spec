@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 3.0.6
+
+### Patch Changes
+
+- 5df254c: Patch version release
+
 ## 3.0.5
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @objectstack/plugin-dev
 
+## 3.0.6
+
+### Patch Changes
+
+- Updated dependencies [5df254c]
+  - @objectstack/spec@3.0.6
+  - @objectstack/core@3.0.6
+  - @objectstack/objectql@3.0.6
+  - @objectstack/driver-memory@3.0.6
+  - @objectstack/plugin-auth@3.0.6
+  - @objectstack/plugin-hono-server@3.0.6
+  - @objectstack/plugin-security@3.0.6
+  - @objectstack/rest@3.0.6
+  - @objectstack/runtime@3.0.6
+
 ## 3.0.5
 
 ### Patch Changes

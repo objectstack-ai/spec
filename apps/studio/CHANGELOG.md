@@ -1,5 +1,19 @@
 # @objectstack/studio
 
+## 3.0.6
+
+### Patch Changes
+
+- Updated dependencies [5df254c]
+  - @objectstack/spec@3.0.6
+  - @objectstack/client@3.0.6
+  - @objectstack/client-react@3.0.6
+  - @objectstack/metadata@3.0.6
+  - @objectstack/objectql@3.0.6
+  - @objectstack/driver-memory@3.0.6
+  - @objectstack/plugin-msw@3.0.6
+  - @objectstack/runtime@3.0.6
+
 ## 3.0.5
 
 ### Patch Changes
