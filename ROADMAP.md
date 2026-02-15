@@ -61,7 +61,7 @@ the ecosystem for enterprise workloads.
 
 ### What Needs Building
 
-15 of 25 service contracts are specification-only (no runtime implementation).
+12 of 25 service contracts are specification-only (no runtime implementation).
 These are the backbone of ObjectStack's enterprise capabilities.
 
 ---

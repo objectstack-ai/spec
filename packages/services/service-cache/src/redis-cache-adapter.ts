@@ -42,7 +42,6 @@ export class RedisCacheAdapter implements ICacheService {
   }
 
   async set<T = unknown>(_key: string, _value: T, _ttl?: number): Promise<void> {
-    void this.defaultTtl;
     throw new Error('RedisCacheAdapter not yet implemented');
   }
 

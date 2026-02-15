@@ -71,9 +71,8 @@ export class MemoryQueueAdapter implements IQueueService {
     this.handlers.delete(queue);
   }
 
-  async getQueueSize(queue: string): Promise<number> {
-    // In-memory: no persistent queue, count dead letters for the queue
-    void queue;
+  async getQueueSize(_queue: string): Promise<number> {
+    // In-memory: no persistent queue depth tracking
     return 0;
   }
 
