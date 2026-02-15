@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 3.0.5
+
+### Patch Changes
+
+- 23a4a68: Patch release for ObjectStack spec
+
 ## 3.0.4
 
 ### Patch Changes
