@@ -107,8 +107,8 @@ The following renames are planned for packages that implement core service contr
 | Current Name (v3.x) | New Name (v4.0) | Reason |
 |:---|:---|:---|
 | `@objectstack/plugin-auth` | `@objectstack/service-auth` | Implements `IAuthService` contract |
-| ~~`@objectstack/plugin-cache`~~ | `@objectstack/service-cache` | Implements `ICacheService` contract |
-| ~~`@objectstack/plugin-queue`~~ | `@objectstack/service-queue` | Implements `IQueueService` contract |
+| `@objectstack/plugin-cache` (not yet published) | `@objectstack/service-cache` | Implements `ICacheService` contract |
+| `@objectstack/plugin-queue` (not yet published) | `@objectstack/service-queue` | Implements `IQueueService` contract |
 | `@objectstack/plugin-dev` | `@objectstack/plugin-dev` | ✅ Keep — optional developer tooling |
 | `@objectstack/plugin-msw` | `@objectstack/plugin-msw` | ✅ Keep — optional test mocking |
 | `@objectstack/plugin-bi` | `@objectstack/plugin-bi` | ✅ Keep — optional BI extension |
@@ -395,8 +395,8 @@ The following renames are planned for packages that implement core service contr
 | 1 | Data Engine | `IDataEngine` | ✅ | `@objectstack/objectql` | Full CRUD + hooks + middleware |
 | 2 | Data Driver | `IDataDriver` | ✅ | `@objectstack/driver-memory` | In-memory reference driver |
 | 3 | Metadata Service | `IMetadataService` | ✅ | `@objectstack/metadata` | Full CRUD + overlays + deps |
-| 4 | Auth Service | `IAuthService` | ✅ | `@objectstack/plugin-auth` → `service-auth` in v4.0 | better-auth integration |
-| 5 | HTTP Server | `IHttpServer` | ✅ | `@objectstack/plugin-hono-server` → `service-http` in v4.0 | Hono-based server |
+| 4 | Auth Service | `IAuthService` | ✅ | `@objectstack/plugin-auth` → `@objectstack/service-auth` in v4.0 | better-auth integration |
+| 5 | HTTP Server | `IHttpServer` | ✅ | `@objectstack/plugin-hono-server` → `@objectstack/service-http` in v4.0 | Hono-based server |
 | 6 | Logger | `Logger` | ✅ | `@objectstack/core` | Pino-based structured logging |
 | 7 | Service Registry | `IServiceRegistry` | ✅ | `@objectstack/core` | Built into ObjectKernel |
 | 8 | Analytics Service | `IAnalyticsService` | 🟡 | `@objectstack/driver-memory` | Memory reference only |
