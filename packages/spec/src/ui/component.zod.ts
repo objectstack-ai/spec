@@ -130,6 +130,45 @@ export const AIChatWindowProps = z.object({
 
 /**
  * ----------------------------------------------------------------------
+ * 3. Content Element Components (Airtable Interface Parity)
+ * ----------------------------------------------------------------------
+ */
+
+export const ElementTextPropsSchema = z.object({
+  content: z.string().describe('Text or Markdown content'),
+  variant: z.enum(['heading', 'subheading', 'body', 'caption'])
+    .optional().default('body').describe('Text style variant'),
+  align: z.enum(['left', 'center', 'right'])
+    .optional().default('left').describe('Text alignment'),
+  /** ARIA accessibility */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
+});
+
+export const ElementNumberPropsSchema = z.object({
+  object: z.string().describe('Source object'),
+  field: z.string().optional().describe('Field to aggregate'),
+  aggregate: z.enum(['count', 'sum', 'avg', 'min', 'max'])
+    .describe('Aggregation function'),
+  filter: z.any().optional().describe('Filter criteria'),
+  format: z.enum(['number', 'currency', 'percent']).optional().describe('Number display format'),
+  prefix: z.string().optional().describe('Prefix text (e.g. "$")'),
+  suffix: z.string().optional().describe('Suffix text (e.g. "%")'),
+  /** ARIA accessibility */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
+});
+
+export const ElementImagePropsSchema = z.object({
+  src: z.string().describe('Image URL or attachment field'),
+  alt: z.string().optional().describe('Alt text for accessibility'),
+  fit: z.enum(['cover', 'contain', 'fill'])
+    .optional().default('cover').describe('Image object-fit mode'),
+  height: z.number().optional().describe('Fixed height in pixels'),
+  /** ARIA accessibility */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
+});
+
+/**
+ * ----------------------------------------------------------------------
  * Component Props Map
  * Maps Component Type to its Property Schema
  * ----------------------------------------------------------------------
@@ -164,7 +203,13 @@ export const ComponentPropsMap = {
   
   // AI
   'ai:chat_window': AIChatWindowProps,
-  'ai:suggestion': z.object({ context: z.string().optional() })
+  'ai:suggestion': z.object({ context: z.string().optional() }),
+
+  // Content Elements
+  'element:text': ElementTextPropsSchema,
+  'element:number': ElementNumberPropsSchema,
+  'element:image': ElementImagePropsSchema,
+  'element:divider': EmptyProps,
 } as const;
 
 /**

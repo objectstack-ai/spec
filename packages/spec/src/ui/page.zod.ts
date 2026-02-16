@@ -28,8 +28,26 @@ export const PageComponentType = z.enum([
   // Utility
   'global:search', 'global:notifications', 'user:profile',
   // AI
-  'ai:chat_window', 'ai:suggestion'
+  'ai:chat_window', 'ai:suggestion',
+  // Content Elements (Airtable Interface parity)
+  'element:text', 'element:number', 'element:image', 'element:divider'
 ]);
+
+/**
+ * Element Data Source Schema
+ * Per-element data binding for multi-object pages.
+ * Overrides page-level object context so each element can query a different object.
+ */
+export const ElementDataSourceSchema = z.object({
+  object: z.string().describe('Object to query'),
+  view: z.string().optional().describe('Named view to apply'),
+  filter: z.any().optional().describe('Additional filter criteria'),
+  sort: z.array(z.object({
+    field: z.string().describe('Field name to sort by'),
+    order: z.enum(['asc', 'desc']).describe('Sort direction'),
+  })).optional().describe('Sort order'),
+  limit: z.number().int().positive().optional().describe('Max records to display'),
+});
 
 /**
  * Page Component Schema
@@ -61,6 +79,9 @@ export const PageComponentSchema = z.object({
 
   /** Visibility Rule */
   visibility: z.string().optional().describe('Visibility filter/formula'),
+
+  /** Per-element data binding, overrides page-level object context */
+  dataSource: ElementDataSourceSchema.optional().describe('Per-element data binding for multi-object pages'),
 
   /** Responsive layout overrides per breakpoint */
   responsive: ResponsiveConfigSchema.optional().describe('Responsive layout configuration'),
@@ -130,3 +151,4 @@ export type Page = z.infer<typeof PageSchema>;
 export type PageComponent = z.infer<typeof PageComponentSchema>;
 export type PageRegion = z.infer<typeof PageRegionSchema>;
 export type PageVariable = z.infer<typeof PageVariableSchema>;
+export type ElementDataSource = z.infer<typeof ElementDataSourceSchema>;

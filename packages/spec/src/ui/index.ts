@@ -28,3 +28,4 @@ export * from './keyboard.zod';
 export * from './animation.zod';
 export * from './notification.zod';
 export * from './dnd.zod';
+export * from './interface.zod';
