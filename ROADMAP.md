@@ -1,6 +1,6 @@
 # ObjectStack Protocol — Road Map
 
-> **Last Updated:** 2026-02-15  
+> **Last Updated:** 2026-02-16  
 > **Current Version:** v3.0.2  
 > **Status:** Protocol Specification Complete · Runtime Implementation In Progress
 
@@ -352,7 +352,41 @@ The following renames are planned for packages that implement core service contr
 
 > **Goal:** Build the ecosystem for community and enterprise adoption.
 
-### 8.1 Studio IDE
+### 8.1 UI Protocol Enhancement — Airtable Interface Parity
+
+> See [Airtable Interface Gap Analysis](docs/design/airtable-interface-gap-analysis.md) for the full evaluation.
+
+#### Phase A: Interface Foundation (v3.2)
+
+- [ ] `InterfaceSchema` — Self-contained, shareable, multi-page application surface (`src/ui/interface.zod.ts`)
+- [ ] `RecordReviewConfigSchema` — Sequential record review/approval page type with navigation and actions
+- [ ] Content elements — `element:text`, `element:number`, `element:image`, `element:divider` as `PageComponentType` extensions
+- [ ] Per-element data binding — `dataSource` property on `PageComponentInstanceSchema` for multi-object pages
+- [ ] Element props — `ElementTextPropsSchema`, `ElementNumberPropsSchema`, `ElementImagePropsSchema`
+
+#### Phase B: Element Library & Builder (v3.3)
+
+- [ ] Interactive elements — `element:button`, `element:filter`, `element:form`, `element:record_picker`
+- [ ] `BlankPageLayoutSchema` — Free-form canvas composition with grid-based positioning
+- [ ] Record picker variable binding — `PageVariableSchema` integration with `element:record_picker`
+- [ ] Studio Interface Builder — Drag-and-drop element placement UI
+
+#### Phase C: Sharing, Embedding & Permissions (v4.0)
+
+- [ ] `SharingConfigSchema` — Public link, password, domain restriction, expiration (`src/ui/sharing.zod.ts`)
+- [ ] `EmbedConfigSchema` — iframe embedding with origin restrictions and display options
+- [ ] Per-interface role assignment — `assignedRoles` on `InterfaceSchema`
+- [ ] Public form sharing — `sharing` property on `FormViewSchema`
+- [ ] Design-time user impersonation — `previewAs` option for interface preview
+
+#### Phase D: Advanced Interface Features (v4.1)
+
+- [ ] Interface templates and duplication
+- [ ] Interface versioning — draft → published → archived lifecycle
+- [ ] Real-time collaborative interface editing
+- [ ] Interface analytics — page views, element interactions, user engagement
+
+### 8.2 Studio IDE
 
 - [x] Object Designer Protocol — field editor, relationship mapper, ER diagram, object manager schemas defined (`studio/object-designer.zod.ts`)
 - [ ] Object Designer Runtime — visual field editor with inline editing, drag-reorder, type-aware property panels
@@ -360,6 +394,7 @@ The following renames are planned for packages that implement core service contr
 - [ ] ER Diagram — interactive entity-relationship diagram with force/hierarchy/grid layouts, minimap, zoom, export (PNG/SVG)
 - [ ] Object Manager — unified object list with search, filter, card/table/tree views, quick preview, statistics
 - [ ] View Builder — drag-and-drop list/form/dashboard designers
+- [ ] Interface Builder — drag-and-drop interface designer with element palette (see [Gap Analysis](docs/design/airtable-interface-gap-analysis.md))
 - [ ] Flow Builder — visual automation flow editor
 - [ ] Security Console — permission matrix, RLS policy editor
 - [ ] AI Playground — agent testing, NLQ sandbox
@@ -367,21 +402,21 @@ The following renames are planned for packages that implement core service contr
 
 > See [`apps/studio/ROADMAP.md`](apps/studio/ROADMAP.md) for detailed Studio phases.
 
-### 8.2 Developer Experience
+### 8.3 Developer Experience
 
 - [ ] VS Code Extension — full IntelliSense, diagnostics, and code actions for `.object.ts`, `.view.ts`
 - [ ] `create-objectstack` scaffolding — templates for app, plugin, driver, adapter
 - [ ] Documentation site — interactive tutorials, API playground
 - [ ] CLI enhancements — `objectstack migrate`, `objectstack deploy`
 
-### 8.3 Marketplace & Cloud
+### 8.4 Marketplace & Cloud
 
 - [ ] Plugin marketplace — publish, discover, install community plugins
 - [ ] App store — pre-built applications (CRM, HRM, Project Management)
 - [ ] Developer portal — API keys, usage metrics, billing
 - [ ] Managed cloud offering — ObjectStack-as-a-Service
 
-### 8.4 Example Applications
+### 8.5 Example Applications
 
 - [x] **app-todo** — Beginner reference (objects, actions, flows, dashboards, reports, i18n) ✅
 - [x] **app-crm** — Enterprise reference (10 objects, 5 AI agents, 4 RAG pipelines, security profiles) ✅
@@ -486,10 +521,10 @@ The following renames are planned for packages that implement core service contr
 |:---|:---|:---|
 | **v3.0** | ✅ Shipped | Protocol specification complete, core runtime stable |
 | **v3.1** | Q2 2026 | Essential services (`service-cache`, `service-queue`, `service-job`, `service-storage`), PostgreSQL driver, Turso/libSQL core driver ([design](docs/design/driver-turso.md)) |
-| **v3.2** | Q3 2026 | Communication services (`service-realtime`, `service-graphql`, `service-i18n`, `service-notification`), Turso embedded replica & edge sync |
-| **v3.3** | Q4 2026 | Business logic services (`service-automation`, `service-workflow`, `service-search`), Turso multi-tenancy (database-per-tenant) |
-| **v4.0** | Q1 2027 | Zod v4 migration, `plugin-auth` → `service-auth` rename, JSON Schema output, OpenAPI generation, AI services, multi-tenancy, Turso vector search & FTS5 integration |
-| **v4.1** | Q2 2027 | Studio IDE general availability, marketplace launch |
+| **v3.2** | Q3 2026 | Communication services (`service-realtime`, `service-graphql`, `service-i18n`, `service-notification`), Turso embedded replica & edge sync, UI Protocol Enhancement Phase A (`InterfaceSchema`, `RecordReviewConfig`, content elements) — see [gap analysis](docs/design/airtable-interface-gap-analysis.md) |
+| **v3.3** | Q4 2026 | Business logic services (`service-automation`, `service-workflow`, `service-search`), Turso multi-tenancy (database-per-tenant), UI Protocol Enhancement Phase B (interactive elements, blank page layout, Interface Builder) |
+| **v4.0** | Q1 2027 | Zod v4 migration, `plugin-auth` → `service-auth` rename, JSON Schema output, OpenAPI generation, AI services, multi-tenancy, Turso vector search & FTS5 integration, UI Protocol Enhancement Phase C (sharing, embedding, per-interface permissions) |
+| **v4.1** | Q2 2027 | Studio IDE general availability, marketplace launch, UI Protocol Enhancement Phase D (templates, versioning, collaborative editing) |
 | **v5.0** | 2027+ | Managed cloud, app store, global ecosystem |
 
 ---
@@ -500,6 +535,7 @@ The following renames are planned for packages that implement core service contr
 |:---|:---|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Microkernel design, package structure, three-layer protocol stack |
 | [`docs/design/driver-turso.md`](docs/design/driver-turso.md) | Turso/libSQL driver design document — architecture impact, capabilities, implementation phases |
+| [`docs/design/airtable-interface-gap-analysis.md`](docs/design/airtable-interface-gap-analysis.md) | Airtable Interface gap analysis — UI protocol comparison, schema proposals, implementation roadmap |
 | [`apps/studio/ROADMAP.md`](apps/studio/ROADMAP.md) | Studio IDE development phases (v2.1 → v3.0) |
 | [`docs/DX_ROADMAP.md`](docs/DX_ROADMAP.md) | Developer experience improvements |
 | [`RELEASE_NOTES.md`](RELEASE_NOTES.md) | Version history and changelog |
