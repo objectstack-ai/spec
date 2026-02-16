@@ -68,7 +68,7 @@ export const InterfaceSchema = z.object({
   pages: z.array(PageSchema).describe('Ordered list of pages in this interface'),
 
   /** Default landing page */
-  homePageId: z.string().optional().describe('Default landing page name'),
+  homePageName: z.string().optional().describe('Default landing page name'),
 
   /** Visual branding */
   branding: InterfaceBrandingSchema.optional().describe('Visual branding overrides'),

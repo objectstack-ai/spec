@@ -301,7 +301,7 @@ describe('InterfaceSchema', () => {
           regions: [],
         },
       ],
-      homePageId: 'page_dashboard',
+      homePageName: 'page_dashboard',
       branding: {
         primaryColor: '#1A73E8',
         logo: '/logos/sales.png',
@@ -311,7 +311,7 @@ describe('InterfaceSchema', () => {
     });
 
     expect(iface.pages).toHaveLength(2);
-    expect(iface.homePageId).toBe('page_dashboard');
+    expect(iface.homePageName).toBe('page_dashboard');
     expect(iface.assignedRoles).toHaveLength(2);
     expect(iface.isDefault).toBe(true);
   });
@@ -734,7 +734,7 @@ describe('Interface end-to-end', () => {
           regions: [],
         },
       ],
-      homePageId: 'page_overview',
+      homePageName: 'page_overview',
       branding: { primaryColor: '#2563EB', logo: '/logos/orders.png' },
       assignedRoles: ['order_manager', 'admin'],
       isDefault: true,
