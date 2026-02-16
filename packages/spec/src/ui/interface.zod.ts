@@ -23,19 +23,38 @@ export const InterfaceBrandingSchema = AppBrandingSchema.extend({
  * an Interface is a focused, role-specific surface that stitches together
  * views, elements, and actions into a cohesive experience.
  *
- * An App can contain multiple Interfaces.
- *
- * Pages within an Interface use the unified `PageSchema` with interface page types
- * (dashboard, grid, kanban, record_review, etc.).
+ * An App can contain multiple Interfaces. When used with `AppSchema.interfaces[]`,
+ * the interface's `icon` and `group` properties control sidebar rendering.
  *
  * **NAMING CONVENTION:**
  * Interface names must be lowercase snake_case.
  *
- * @example
+ * @example Sales Workspace Interface
+ * ```ts
+ * const salesInterface = defineInterface({
+ *   name: 'sales_workspace',
+ *   label: 'Sales Workspace',
+ *   icon: 'briefcase',
+ *   group: 'Sales Cloud',
+ *   object: 'opportunity',
+ *   pages: [
+ *     {
+ *       name: 'pipeline',
+ *       label: 'Pipeline',
+ *       type: 'kanban',
+ *       object: 'opportunity',
+ *       regions: [],
+ *     },
+ *   ],
+ * });
+ * ```
+ * 
+ * @example Order Review Interface
  * ```ts
  * const reviewInterface = defineInterface({
  *   name: 'order_review',
  *   label: 'Order Review',
+ *   icon: 'clipboard-check',
  *   object: 'order',
  *   pages: [
  *     {
@@ -60,6 +79,14 @@ export const InterfaceSchema = z.object({
   name: SnakeCaseIdentifierSchema.describe('Interface unique machine name (lowercase snake_case)'),
   label: I18nLabelSchema.describe('Interface display label'),
   description: I18nLabelSchema.optional().describe('Interface purpose description'),
+
+  /** Icon for sidebar display in the App's Interface→Pages menu */
+  icon: z.string().optional()
+    .describe('Icon name for sidebar display (Lucide icon)'),
+
+  /** Business group for sidebar grouping (rendered as a section separator label) */
+  group: z.string().optional()
+    .describe('Business group label for sidebar grouping (e.g. "Sales Cloud", "Service Cloud")'),
 
   /** Primary object binding */
   object: z.string().optional().describe('Primary object binding (snake_case)'),

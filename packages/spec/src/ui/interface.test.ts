@@ -403,6 +403,84 @@ describe('defineInterface', () => {
   });
 });
 
+describe('InterfaceSchema with icon and group fields', () => {
+  it('should accept interface with icon', () => {
+    const iface = InterfaceSchema.parse({
+      name: 'sales_workspace',
+      label: 'Sales Workspace',
+      icon: 'briefcase',
+      pages: [],
+    });
+
+    expect(iface.icon).toBe('briefcase');
+  });
+
+  it('should accept interface with group', () => {
+    const iface = InterfaceSchema.parse({
+      name: 'service_portal',
+      label: 'Service Portal',
+      group: 'Service Cloud',
+      pages: [],
+    });
+
+    expect(iface.group).toBe('Service Cloud');
+  });
+
+  it('should accept interface with both icon and group', () => {
+    const iface = InterfaceSchema.parse({
+      name: 'analytics_dashboard',
+      label: 'Analytics Dashboard',
+      icon: 'chart-bar',
+      group: 'Analytics',
+      pages: [],
+    });
+
+    expect(iface.icon).toBe('chart-bar');
+    expect(iface.group).toBe('Analytics');
+  });
+
+  it('should accept interface without icon or group (backward compatibility)', () => {
+    const iface = InterfaceSchema.parse({
+      name: 'legacy_interface',
+      label: 'Legacy Interface',
+      pages: [],
+    });
+
+    expect(iface.icon).toBeUndefined();
+    expect(iface.group).toBeUndefined();
+  });
+
+  it('should accept full interface with all new fields', () => {
+    const iface = InterfaceSchema.parse({
+      name: 'complete_interface',
+      label: 'Complete Interface',
+      description: 'Full-featured interface',
+      icon: 'layout-dashboard',
+      group: 'Sales Cloud',
+      object: 'opportunity',
+      pages: [
+        {
+          name: 'page_dashboard',
+          label: 'Dashboard',
+          type: 'dashboard',
+          regions: [],
+        },
+      ],
+      homePageName: 'page_dashboard',
+      branding: {
+        primaryColor: '#1A73E8',
+      },
+      assignedRoles: ['sales_rep'],
+      isDefault: true,
+    });
+
+    expect(iface.icon).toBe('layout-dashboard');
+    expect(iface.group).toBe('Sales Cloud');
+    expect(iface.object).toBe('opportunity');
+    expect(iface.pages).toHaveLength(1);
+  });
+});
+
 // ---------------------------------------------------------------------------
 // Content Elements in PageComponentType
 // ---------------------------------------------------------------------------
