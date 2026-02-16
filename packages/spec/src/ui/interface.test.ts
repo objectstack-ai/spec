@@ -11,6 +11,8 @@ import {
   PageComponentSchema,
   RecordReviewConfigSchema,
   ElementDataSourceSchema,
+  BlankPageLayoutSchema,
+  PageVariableSchema,
   type Page,
   type ElementDataSource,
   type RecordReviewConfig,
@@ -19,8 +21,16 @@ import {
   ElementTextPropsSchema,
   ElementNumberPropsSchema,
   ElementImagePropsSchema,
+  ElementButtonPropsSchema,
+  ElementFilterPropsSchema,
+  ElementFormPropsSchema,
+  ElementRecordPickerPropsSchema,
   ComponentPropsMap,
 } from './component.zod';
+import {
+  SharingConfigSchema,
+  EmbedConfigSchema,
+} from './sharing.zod';
 
 // ---------------------------------------------------------------------------
 // PageTypeSchema — unified page types (platform + interface)
@@ -823,5 +833,396 @@ describe('Interface end-to-end', () => {
     expect(iface.pages[1].recordReview?.actions).toHaveLength(3);
     expect(iface.branding?.primaryColor).toBe('#2563EB');
     expect(iface.assignedRoles).toEqual(['order_manager', 'admin']);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase B: Interactive Elements
+// ---------------------------------------------------------------------------
+describe('Interactive Elements — element:button', () => {
+  it('should accept element:button component', () => {
+    expect(() => PageComponentSchema.parse({
+      type: 'element:button',
+      properties: { label: 'Submit' },
+    })).not.toThrow();
+  });
+
+  it('should parse element:button props with defaults', () => {
+    const props = ElementButtonPropsSchema.parse({ label: 'Save' });
+    expect(props.label).toBe('Save');
+    expect(props.variant).toBe('primary');
+    expect(props.size).toBe('medium');
+    expect(props.iconPosition).toBe('left');
+    expect(props.disabled).toBe(false);
+  });
+
+  it('should accept full button props', () => {
+    const props = ElementButtonPropsSchema.parse({
+      label: 'Delete',
+      variant: 'danger',
+      size: 'large',
+      icon: 'trash',
+      iconPosition: 'right',
+      disabled: true,
+    });
+    expect(props.variant).toBe('danger');
+    expect(props.icon).toBe('trash');
+    expect(props.disabled).toBe(true);
+  });
+
+  it('should accept all button variants', () => {
+    const variants = ['primary', 'secondary', 'danger', 'ghost', 'link'] as const;
+    variants.forEach(variant => {
+      expect(() => ElementButtonPropsSchema.parse({ label: 'Btn', variant })).not.toThrow();
+    });
+  });
+
+  it('should reject button without label', () => {
+    expect(() => ElementButtonPropsSchema.parse({})).toThrow();
+  });
+});
+
+describe('Interactive Elements — element:filter', () => {
+  it('should accept element:filter component', () => {
+    expect(() => PageComponentSchema.parse({
+      type: 'element:filter',
+      properties: { object: 'order', fields: ['status'] },
+    })).not.toThrow();
+  });
+
+  it('should parse filter props with defaults', () => {
+    const props = ElementFilterPropsSchema.parse({
+      object: 'order',
+      fields: ['status', 'priority'],
+    });
+    expect(props.object).toBe('order');
+    expect(props.layout).toBe('inline');
+    expect(props.showSearch).toBe(true);
+  });
+
+  it('should accept filter with targetVariable', () => {
+    const props = ElementFilterPropsSchema.parse({
+      object: 'task',
+      fields: ['status'],
+      targetVariable: 'active_filter',
+      layout: 'sidebar',
+    });
+    expect(props.targetVariable).toBe('active_filter');
+    expect(props.layout).toBe('sidebar');
+  });
+
+  it('should reject filter without required fields', () => {
+    expect(() => ElementFilterPropsSchema.parse({})).toThrow();
+    expect(() => ElementFilterPropsSchema.parse({ object: 'order' })).toThrow();
+  });
+});
+
+describe('Interactive Elements — element:form', () => {
+  it('should accept element:form component', () => {
+    expect(() => PageComponentSchema.parse({
+      type: 'element:form',
+      properties: { object: 'contact' },
+    })).not.toThrow();
+  });
+
+  it('should parse form props with defaults', () => {
+    const props = ElementFormPropsSchema.parse({ object: 'contact' });
+    expect(props.object).toBe('contact');
+    expect(props.mode).toBe('create');
+  });
+
+  it('should accept full form props', () => {
+    const props = ElementFormPropsSchema.parse({
+      object: 'contact',
+      fields: ['name', 'email', 'phone'],
+      mode: 'edit',
+      submitLabel: 'Update Contact',
+      onSubmit: 'navigate_to("page_detail")',
+    });
+    expect(props.mode).toBe('edit');
+    expect(props.fields).toHaveLength(3);
+    expect(props.submitLabel).toBe('Update Contact');
+  });
+
+  it('should reject form without object', () => {
+    expect(() => ElementFormPropsSchema.parse({})).toThrow();
+  });
+});
+
+describe('Interactive Elements — element:record_picker', () => {
+  it('should accept element:record_picker component', () => {
+    expect(() => PageComponentSchema.parse({
+      type: 'element:record_picker',
+      properties: { object: 'account', displayField: 'name' },
+    })).not.toThrow();
+  });
+
+  it('should parse record_picker props with defaults', () => {
+    const props = ElementRecordPickerPropsSchema.parse({
+      object: 'account',
+      displayField: 'name',
+    });
+    expect(props.object).toBe('account');
+    expect(props.displayField).toBe('name');
+    expect(props.multiple).toBe(false);
+  });
+
+  it('should accept full record_picker props', () => {
+    const props = ElementRecordPickerPropsSchema.parse({
+      object: 'account',
+      displayField: 'name',
+      searchFields: ['name', 'email'],
+      filter: { status: 'active' },
+      multiple: true,
+      targetVariable: 'selected_account',
+      placeholder: 'Search accounts...',
+    });
+    expect(props.multiple).toBe(true);
+    expect(props.targetVariable).toBe('selected_account');
+    expect(props.searchFields).toEqual(['name', 'email']);
+  });
+
+  it('should reject record_picker without required fields', () => {
+    expect(() => ElementRecordPickerPropsSchema.parse({})).toThrow();
+    expect(() => ElementRecordPickerPropsSchema.parse({ object: 'account' })).toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ComponentPropsMap — interactive elements
+// ---------------------------------------------------------------------------
+describe('ComponentPropsMap interactive elements', () => {
+  it('should contain element:button', () => {
+    expect(ComponentPropsMap['element:button']).toBeDefined();
+  });
+
+  it('should contain element:filter', () => {
+    expect(ComponentPropsMap['element:filter']).toBeDefined();
+  });
+
+  it('should contain element:form', () => {
+    expect(ComponentPropsMap['element:form']).toBeDefined();
+  });
+
+  it('should contain element:record_picker', () => {
+    expect(ComponentPropsMap['element:record_picker']).toBeDefined();
+  });
+
+  it('should parse element:button props', () => {
+    const result = ComponentPropsMap['element:button'].parse({ label: 'Click Me' });
+    expect(result.label).toBe('Click Me');
+  });
+
+  it('should parse element:filter props', () => {
+    const result = ComponentPropsMap['element:filter'].parse({
+      object: 'order',
+      fields: ['status'],
+    });
+    expect(result.object).toBe('order');
+  });
+
+  it('should parse element:form props', () => {
+    const result = ComponentPropsMap['element:form'].parse({ object: 'contact' });
+    expect(result.object).toBe('contact');
+  });
+
+  it('should parse element:record_picker props', () => {
+    const result = ComponentPropsMap['element:record_picker'].parse({
+      object: 'account',
+      displayField: 'name',
+    });
+    expect(result.object).toBe('account');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// BlankPageLayoutSchema — free-form canvas composition
+// ---------------------------------------------------------------------------
+describe('BlankPageLayoutSchema', () => {
+  it('should accept minimal layout with defaults', () => {
+    const layout = BlankPageLayoutSchema.parse({
+      items: [],
+    });
+    expect(layout.columns).toBe(12);
+    expect(layout.rowHeight).toBe(40);
+    expect(layout.gap).toBe(8);
+    expect(layout.items).toHaveLength(0);
+  });
+
+  it('should accept full layout config', () => {
+    const layout = BlankPageLayoutSchema.parse({
+      columns: 24,
+      rowHeight: 20,
+      gap: 4,
+      items: [
+        { componentId: 'text_1', x: 0, y: 0, width: 12, height: 2 },
+        { componentId: 'btn_1', x: 0, y: 2, width: 6, height: 1 },
+        { componentId: 'picker_1', x: 6, y: 2, width: 6, height: 3 },
+      ],
+    });
+    expect(layout.columns).toBe(24);
+    expect(layout.items).toHaveLength(3);
+    expect(layout.items[0].x).toBe(0);
+    expect(layout.items[2].width).toBe(6);
+  });
+
+  it('should reject item with invalid dimensions', () => {
+    expect(() => BlankPageLayoutSchema.parse({
+      items: [{ componentId: 'a', x: 0, y: 0, width: 0, height: 1 }],
+    })).toThrow();
+
+    expect(() => BlankPageLayoutSchema.parse({
+      items: [{ componentId: 'a', x: -1, y: 0, width: 1, height: 1 }],
+    })).toThrow();
+  });
+
+  it('should accept page with blankLayout', () => {
+    const page = PageSchema.parse({
+      name: 'blank_canvas',
+      label: 'Canvas',
+      type: 'blank',
+      regions: [
+        {
+          name: 'main',
+          components: [
+            { id: 'text_1', type: 'element:text', properties: { content: 'Hello' } },
+            { id: 'btn_1', type: 'element:button', properties: { label: 'Click' } },
+          ],
+        },
+      ],
+      blankLayout: {
+        columns: 12,
+        items: [
+          { componentId: 'text_1', x: 0, y: 0, width: 12, height: 2 },
+          { componentId: 'btn_1', x: 0, y: 2, width: 4, height: 1 },
+        ],
+      },
+    });
+
+    expect(page.blankLayout?.items).toHaveLength(2);
+    expect(page.blankLayout?.columns).toBe(12);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PageVariableSchema — record_picker variable binding
+// ---------------------------------------------------------------------------
+describe('PageVariableSchema record_id type', () => {
+  it('should accept record_id variable type', () => {
+    const variable = PageVariableSchema.parse({
+      name: 'selected_account_id',
+      type: 'record_id',
+    });
+    expect(variable.type).toBe('record_id');
+  });
+
+  it('should accept variable with source binding', () => {
+    const variable = PageVariableSchema.parse({
+      name: 'selected_account',
+      type: 'record_id',
+      source: 'picker_1',
+    });
+    expect(variable.source).toBe('picker_1');
+  });
+
+  it('should accept page with record_picker variable binding', () => {
+    const page = PageSchema.parse({
+      name: 'blank_picker',
+      label: 'Picker Page',
+      type: 'blank',
+      variables: [
+        { name: 'selected_id', type: 'record_id', source: 'account_picker' },
+        { name: 'show_details', type: 'boolean', defaultValue: false },
+      ],
+      regions: [
+        {
+          name: 'main',
+          components: [
+            {
+              id: 'account_picker',
+              type: 'element:record_picker',
+              properties: {
+                object: 'account',
+                displayField: 'name',
+                targetVariable: 'selected_id',
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(page.variables).toHaveLength(2);
+    expect(page.variables![0].type).toBe('record_id');
+    expect(page.variables![0].source).toBe('account_picker');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase C: Interface sharing & embedding
+// ---------------------------------------------------------------------------
+describe('InterfaceSchema sharing and embedding', () => {
+  it('should accept interface with sharing config', () => {
+    const iface = InterfaceSchema.parse({
+      name: 'shared_portal',
+      label: 'Shared Portal',
+      pages: [],
+      sharing: {
+        enabled: true,
+        publicLink: 'https://app.example.com/share/portal',
+        password: 'secure123',
+        allowedDomains: ['example.com'],
+        expiresAt: '2027-06-01T00:00:00Z',
+      },
+    });
+
+    expect(iface.sharing?.enabled).toBe(true);
+    expect(iface.sharing?.password).toBe('secure123');
+    expect(iface.sharing?.allowedDomains).toEqual(['example.com']);
+  });
+
+  it('should accept interface with embed config', () => {
+    const iface = InterfaceSchema.parse({
+      name: 'embedded_portal',
+      label: 'Embedded Portal',
+      pages: [],
+      embed: {
+        enabled: true,
+        allowedOrigins: ['https://partner.com'],
+        width: '100%',
+        height: '800px',
+        showHeader: false,
+      },
+    });
+
+    expect(iface.embed?.enabled).toBe(true);
+    expect(iface.embed?.allowedOrigins).toEqual(['https://partner.com']);
+    expect(iface.embed?.showHeader).toBe(false);
+  });
+
+  it('should accept interface with both sharing and embed', () => {
+    const iface = InterfaceSchema.parse({
+      name: 'full_shared',
+      label: 'Full Shared',
+      pages: [],
+      sharing: { enabled: true },
+      embed: { enabled: true },
+      assignedRoles: ['viewer', 'editor'],
+    });
+
+    expect(iface.sharing?.enabled).toBe(true);
+    expect(iface.embed?.enabled).toBe(true);
+    expect(iface.assignedRoles).toHaveLength(2);
+  });
+
+  it('should accept interface without sharing/embed (backward compatibility)', () => {
+    const iface = InterfaceSchema.parse({
+      name: 'legacy_iface',
+      label: 'Legacy Interface',
+      pages: [],
+    });
+
+    expect(iface.sharing).toBeUndefined();
+    expect(iface.embed).toBeUndefined();
   });
 });

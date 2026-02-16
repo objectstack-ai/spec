@@ -31,7 +31,9 @@ export const PageComponentType = z.enum([
   // AI
   'ai:chat_window', 'ai:suggestion',
   // Content Elements (Airtable Interface parity)
-  'element:text', 'element:number', 'element:image', 'element:divider'
+  'element:text', 'element:number', 'element:image', 'element:divider',
+  // Interactive Elements (Phase B — Element Library)
+  'element:button', 'element:filter', 'element:form', 'element:record_picker'
 ]);
 
 /**
@@ -91,11 +93,38 @@ export const PageComponentSchema = z.object({
 /**
  * Page Variable Schema
  * Defines local state for the page.
+ * Variables can be bound to interactive elements (e.g. element:record_picker, element:filter).
  */
 export const PageVariableSchema = z.object({
   name: z.string().describe('Variable name'),
-  type: z.enum(['string', 'number', 'boolean', 'object', 'array']).default('string'),
+  type: z.enum(['string', 'number', 'boolean', 'object', 'array', 'record_id']).default('string'),
   defaultValue: z.unknown().optional(),
+  /** Source element binding (e.g. element:record_picker writes to this variable) */
+  source: z.string().optional().describe('Component ID that writes to this variable'),
+});
+
+/**
+ * Blank Page Layout Item Schema
+ * Positions a component on a free-form grid canvas.
+ */
+export const BlankPageLayoutItemSchema = z.object({
+  componentId: z.string().describe('Reference to a PageComponent.id in the page'),
+  x: z.number().int().min(0).describe('Grid column position (0-based)'),
+  y: z.number().int().min(0).describe('Grid row position (0-based)'),
+  width: z.number().int().min(1).describe('Width in grid columns'),
+  height: z.number().int().min(1).describe('Height in grid rows'),
+});
+
+/**
+ * Blank Page Layout Schema
+ * Free-form canvas composition with grid-based positioning.
+ * Used when page type is 'blank' to enable drag-and-drop element placement.
+ */
+export const BlankPageLayoutSchema = z.object({
+  columns: z.number().int().min(1).default(12).describe('Number of grid columns'),
+  rowHeight: z.number().int().min(1).default(40).describe('Height of each grid row in pixels'),
+  gap: z.number().int().min(0).default(8).describe('Gap between grid items in pixels'),
+  items: z.array(BlankPageLayoutItemSchema).describe('Positioned components on the canvas'),
 });
 
 /**
@@ -205,6 +234,10 @@ export const PageSchema = z.object({
   /** Record Review Configuration (only for record_review pages) */
   recordReview: RecordReviewConfigSchema.optional()
     .describe('Record review configuration (required when type is "record_review")'),
+
+  /** Blank Page Layout (only for blank pages) */
+  blankLayout: BlankPageLayoutSchema.optional()
+    .describe('Free-form grid layout for blank pages (used when type is "blank")'),
   
   /** Layout Template */
   template: z.string().default('default').describe('Layout template name (e.g. "header-sidebar-main")'),
@@ -227,3 +260,5 @@ export type PageRegion = z.infer<typeof PageRegionSchema>;
 export type PageVariable = z.infer<typeof PageVariableSchema>;
 export type ElementDataSource = z.infer<typeof ElementDataSourceSchema>;
 export type RecordReviewConfig = z.infer<typeof RecordReviewConfigSchema>;
+export type BlankPageLayoutItem = z.infer<typeof BlankPageLayoutItemSchema>;
+export type BlankPageLayout = z.infer<typeof BlankPageLayoutSchema>;

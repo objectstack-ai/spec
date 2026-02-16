@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
+import { SharingConfigSchema } from './sharing.zod';
 
 /**
  * HTTP Method Enum
@@ -446,6 +447,9 @@ export const FormViewSchema = z.object({
     field: z.string().describe('Field name to sort by'),
     order: z.enum(['asc', 'desc']).default('desc').describe('Sort direction'),
   })).optional().describe('Default sort order for related list views within this form'),
+
+  /** Public form sharing configuration */
+  sharing: SharingConfigSchema.optional().describe('Public sharing configuration for this form'),
 
   /** ARIA accessibility attributes */
   aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes for the form view'),
