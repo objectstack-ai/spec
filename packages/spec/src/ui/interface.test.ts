@@ -1,19 +1,19 @@
 import { describe, it, expect } from 'vitest';
 import {
   InterfaceSchema,
-  InterfacePageSchema,
-  InterfacePageTypeSchema,
   InterfaceBrandingSchema,
-  RecordReviewConfigSchema,
   defineInterface,
   type Interface,
-  type InterfacePage,
-  type RecordReviewConfig,
 } from './interface.zod';
 import {
+  PageSchema,
+  PageTypeSchema,
   PageComponentSchema,
+  RecordReviewConfigSchema,
   ElementDataSourceSchema,
+  type Page,
   type ElementDataSource,
+  type RecordReviewConfig,
 } from './page.zod';
 import {
   ElementTextPropsSchema,
@@ -23,22 +23,29 @@ import {
 } from './component.zod';
 
 // ---------------------------------------------------------------------------
-// InterfacePageTypeSchema
+// PageTypeSchema — unified page types (platform + interface)
 // ---------------------------------------------------------------------------
-describe('InterfacePageTypeSchema', () => {
-  it('should accept all valid page types', () => {
+describe('PageTypeSchema', () => {
+  it('should accept all platform page types', () => {
+    const types = ['record', 'home', 'app', 'utility'];
+    types.forEach(type => {
+      expect(() => PageTypeSchema.parse(type)).not.toThrow();
+    });
+  });
+
+  it('should accept all interface page types', () => {
     const types = [
       'dashboard', 'grid', 'list', 'gallery', 'kanban', 'calendar',
       'timeline', 'form', 'record_detail', 'record_review', 'overview', 'blank',
     ];
 
     types.forEach(type => {
-      expect(() => InterfacePageTypeSchema.parse(type)).not.toThrow();
+      expect(() => PageTypeSchema.parse(type)).not.toThrow();
     });
   });
 
   it('should reject invalid page type', () => {
-    expect(() => InterfacePageTypeSchema.parse('invalid')).toThrow();
+    expect(() => PageTypeSchema.parse('invalid')).toThrow();
   });
 });
 
@@ -141,24 +148,25 @@ describe('InterfaceBrandingSchema', () => {
 });
 
 // ---------------------------------------------------------------------------
-// InterfacePageSchema
+// PageSchema — interface page types (merged from InterfacePageSchema)
 // ---------------------------------------------------------------------------
-describe('InterfacePageSchema', () => {
-  it('should accept minimal page', () => {
-    const page: InterfacePage = InterfacePageSchema.parse({
-      id: 'page_overview',
+describe('PageSchema with interface page types', () => {
+  it('should accept minimal interface-style page', () => {
+    const page: Page = PageSchema.parse({
+      name: 'page_overview',
       label: 'Overview',
+      type: 'blank',
       regions: [],
     });
 
-    expect(page.id).toBe('page_overview');
+    expect(page.name).toBe('page_overview');
     expect(page.type).toBe('blank');
     expect(page.template).toBe('default');
   });
 
   it('should accept dashboard page', () => {
-    const page = InterfacePageSchema.parse({
-      id: 'page_dashboard',
+    const page = PageSchema.parse({
+      name: 'page_dashboard',
       label: 'Dashboard',
       type: 'dashboard',
       regions: [
@@ -176,8 +184,8 @@ describe('InterfacePageSchema', () => {
   });
 
   it('should accept record_review page with config', () => {
-    const page = InterfacePageSchema.parse({
-      id: 'page_review',
+    const page = PageSchema.parse({
+      name: 'page_review',
       label: 'Review Queue',
       type: 'record_review',
       object: 'order',
@@ -196,8 +204,8 @@ describe('InterfacePageSchema', () => {
   });
 
   it('should accept page with variables', () => {
-    const page = InterfacePageSchema.parse({
-      id: 'page_filtered',
+    const page = PageSchema.parse({
+      name: 'page_filtered',
       label: 'Filtered View',
       type: 'blank',
       variables: [
@@ -210,15 +218,15 @@ describe('InterfacePageSchema', () => {
     expect(page.variables).toHaveLength(2);
   });
 
-  it('should accept all page types', () => {
+  it('should accept all interface page types', () => {
     const types = [
       'dashboard', 'grid', 'list', 'gallery', 'kanban', 'calendar',
       'timeline', 'form', 'record_detail', 'record_review', 'overview', 'blank',
     ];
 
     types.forEach(type => {
-      expect(() => InterfacePageSchema.parse({
-        id: 'test_page',
+      expect(() => PageSchema.parse({
+        name: 'test_page',
         label: 'Test',
         type,
         regions: [],
@@ -226,17 +234,29 @@ describe('InterfacePageSchema', () => {
     });
   });
 
+  it('should accept page with icon', () => {
+    const page = PageSchema.parse({
+      name: 'page_with_icon',
+      label: 'Dashboard',
+      type: 'dashboard',
+      icon: 'bar-chart',
+      regions: [],
+    });
+
+    expect(page.icon).toBe('bar-chart');
+  });
+
   it('should accept page with i18n label', () => {
-    expect(() => InterfacePageSchema.parse({
-      id: 'i18n_page',
+    expect(() => PageSchema.parse({
+      name: 'i18n_page',
       label: { key: 'interface.pages.overview', defaultValue: 'Overview' },
       regions: [],
     })).not.toThrow();
   });
 
   it('should accept page with ARIA attributes', () => {
-    expect(() => InterfacePageSchema.parse({
-      id: 'accessible_page',
+    expect(() => PageSchema.parse({
+      name: 'accessible_page',
       label: 'Accessible Page',
       regions: [],
       aria: { ariaLabel: 'Interface overview page', role: 'main' },
@@ -268,13 +288,13 @@ describe('InterfaceSchema', () => {
       object: 'opportunity',
       pages: [
         {
-          id: 'page_dashboard',
+          name: 'page_dashboard',
           label: 'Dashboard',
           type: 'dashboard',
           regions: [],
         },
         {
-          id: 'page_pipeline',
+          name: 'page_pipeline',
           label: 'Pipeline',
           type: 'kanban',
           object: 'opportunity',
@@ -362,7 +382,7 @@ describe('defineInterface', () => {
       label: 'HR Portal',
       pages: [
         {
-          id: 'page_onboarding',
+          name: 'page_onboarding',
           label: 'Onboarding',
           type: 'overview',
           regions: [],
@@ -653,7 +673,7 @@ describe('Interface end-to-end', () => {
       object: 'order',
       pages: [
         {
-          id: 'page_overview',
+          name: 'page_overview',
           label: 'Overview',
           type: 'dashboard',
           regions: [
@@ -687,7 +707,7 @@ describe('Interface end-to-end', () => {
           ],
         },
         {
-          id: 'page_review',
+          name: 'page_review',
           label: 'Review Queue',
           type: 'record_review',
           object: 'order',
@@ -707,7 +727,7 @@ describe('Interface end-to-end', () => {
           regions: [],
         },
         {
-          id: 'page_grid',
+          name: 'page_grid',
           label: 'All Orders',
           type: 'grid',
           object: 'order',

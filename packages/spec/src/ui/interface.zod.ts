@@ -2,91 +2,9 @@
 
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
-import { SortItemSchema } from '../shared/enums.zod';
 import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
-import { PageRegionSchema, PageVariableSchema } from './page.zod';
+import { PageSchema } from './page.zod';
 import { AppBrandingSchema } from './app.zod';
-
-/**
- * Interface Page Type Schema
- * Page types available within an Interface (Airtable Interface parity).
- */
-export const InterfacePageTypeSchema = z.enum([
-  'dashboard',      // KPI summary with charts/metrics
-  'grid',           // Spreadsheet-like data table
-  'list',           // Record list with quick actions
-  'gallery',        // Card-based visual browsing
-  'kanban',         // Status-based board
-  'calendar',       // Date-based scheduling
-  'timeline',       // Gantt-like project timeline
-  'form',           // Data entry form
-  'record_detail',  // Single record deep-dive
-  'record_review',  // Sequential record review/approval
-  'overview',       // Landing/navigation hub
-  'blank',          // Free-form canvas
-]);
-
-/**
- * Record Review Config Schema
- * Configuration for a sequential record review/approval page.
- * Users navigate through records one-by-one, taking actions (approve/reject/skip).
- */
-export const RecordReviewConfigSchema = z.object({
-  object: z.string().describe('Target object for review'),
-  filter: z.any().optional().describe('Filter criteria for review queue'),
-  sort: z.array(SortItemSchema).optional().describe('Sort order for review queue'),
-  displayFields: z.array(z.string()).optional()
-    .describe('Fields to display on the review page'),
-  actions: z.array(z.object({
-    label: z.string().describe('Action button label'),
-    type: z.enum(['approve', 'reject', 'skip', 'custom'])
-      .describe('Action type'),
-    field: z.string().optional()
-      .describe('Field to update on action'),
-    value: z.any().optional()
-      .describe('Value to set on action'),
-    nextRecord: z.boolean().optional().default(true)
-      .describe('Auto-advance to next record after action'),
-  })).describe('Review actions'),
-  navigation: z.enum(['sequential', 'random', 'filtered'])
-    .optional().default('sequential')
-    .describe('Record navigation mode'),
-  showProgress: z.boolean().optional().default(true)
-    .describe('Show review progress indicator'),
-});
-
-/**
- * Interface Page Schema
- * A page within an Interface, with Airtable-inspired page types.
- */
-export const InterfacePageSchema = z.object({
-  id: z.string().describe('Unique page identifier within the interface'),
-  label: I18nLabelSchema.describe('Page display label'),
-  description: I18nLabelSchema.optional().describe('Page description'),
-  icon: z.string().optional().describe('Page icon name'),
-
-  /** Page Type */
-  type: InterfacePageTypeSchema.default('blank').describe('Page type'),
-
-  /** Object Context */
-  object: z.string().optional().describe('Bound object (for data-driven page types)'),
-
-  /** Record Review Configuration (only for record_review pages) */
-  recordReview: RecordReviewConfigSchema.optional()
-    .describe('Record review configuration (required when type is "record_review")'),
-
-  /** Page State Definitions */
-  variables: z.array(PageVariableSchema).optional().describe('Local page state variables'),
-
-  /** Layout Template */
-  template: z.string().default('default').describe('Layout template name'),
-
-  /** Regions & Content */
-  regions: z.array(PageRegionSchema).describe('Defined regions with components'),
-
-  /** ARIA accessibility attributes */
-  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
-});
 
 /**
  * Interface Branding Schema
@@ -107,6 +25,9 @@ export const InterfaceBrandingSchema = AppBrandingSchema.extend({
  *
  * An App can contain multiple Interfaces.
  *
+ * Pages within an Interface use the unified `PageSchema` with interface page types
+ * (dashboard, grid, kanban, record_review, etc.).
+ *
  * **NAMING CONVENTION:**
  * Interface names must be lowercase snake_case.
  *
@@ -118,7 +39,7 @@ export const InterfaceBrandingSchema = AppBrandingSchema.extend({
  *   object: 'order',
  *   pages: [
  *     {
- *       id: 'review_queue',
+ *       name: 'review_queue',
  *       label: 'Review Queue',
  *       type: 'record_review',
  *       object: 'order',
@@ -143,11 +64,11 @@ export const InterfaceSchema = z.object({
   /** Primary object binding */
   object: z.string().optional().describe('Primary object binding (snake_case)'),
 
-  /** Pages */
-  pages: z.array(InterfacePageSchema).describe('Ordered list of pages in this interface'),
+  /** Pages — uses the unified PageSchema */
+  pages: z.array(PageSchema).describe('Ordered list of pages in this interface'),
 
   /** Default landing page */
-  homePageId: z.string().optional().describe('Default landing page ID'),
+  homePageId: z.string().optional().describe('Default landing page name'),
 
   /** Visual branding */
   branding: InterfaceBrandingSchema.optional().describe('Visual branding overrides'),
@@ -172,7 +93,4 @@ export function defineInterface(config: z.input<typeof InterfaceSchema>): Interf
 // Type Exports
 export type Interface = z.infer<typeof InterfaceSchema>;
 export type InterfaceInput = z.input<typeof InterfaceSchema>;
-export type InterfacePage = z.infer<typeof InterfacePageSchema>;
-export type InterfacePageType = z.infer<typeof InterfacePageTypeSchema>;
 export type InterfaceBranding = z.infer<typeof InterfaceBrandingSchema>;
-export type RecordReviewConfig = z.infer<typeof RecordReviewConfigSchema>;

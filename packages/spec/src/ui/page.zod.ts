@@ -99,9 +99,66 @@ export const PageVariableSchema = z.object({
 });
 
 /**
+ * Page Type Schema
+ * Unified page type enum covering both platform pages (record, home, app, utility)
+ * and Airtable-inspired interface page types (dashboard, grid, kanban, etc.).
+ */
+export const PageTypeSchema = z.enum([
+  // Platform page types
+  'record',         // Record detail page (Salesforce FlexiPage)
+  'home',           // Home/landing page
+  'app',            // App-level page
+  'utility',        // Utility panel
+  // Interface page types (Airtable Interface parity)
+  'dashboard',      // KPI summary with charts/metrics
+  'grid',           // Spreadsheet-like data table
+  'list',           // Record list with quick actions
+  'gallery',        // Card-based visual browsing
+  'kanban',         // Status-based board
+  'calendar',       // Date-based scheduling
+  'timeline',       // Gantt-like project timeline
+  'form',           // Data entry form
+  'record_detail',  // Single record deep-dive
+  'record_review',  // Sequential record review/approval
+  'overview',       // Landing/navigation hub
+  'blank',          // Free-form canvas
+]).describe('Page type — platform or interface page types');
+
+/**
+ * Record Review Config Schema
+ * Configuration for a sequential record review/approval page.
+ * Users navigate through records one-by-one, taking actions (approve/reject/skip).
+ * Only applicable when page type is 'record_review'.
+ */
+export const RecordReviewConfigSchema = z.object({
+  object: z.string().describe('Target object for review'),
+  filter: z.any().optional().describe('Filter criteria for review queue'),
+  sort: z.array(SortItemSchema).optional().describe('Sort order for review queue'),
+  displayFields: z.array(z.string()).optional()
+    .describe('Fields to display on the review page'),
+  actions: z.array(z.object({
+    label: z.string().describe('Action button label'),
+    type: z.enum(['approve', 'reject', 'skip', 'custom'])
+      .describe('Action type'),
+    field: z.string().optional()
+      .describe('Field to update on action'),
+    value: z.any().optional()
+      .describe('Value to set on action'),
+    nextRecord: z.boolean().optional().default(true)
+      .describe('Auto-advance to next record after action'),
+  })).describe('Review actions'),
+  navigation: z.enum(['sequential', 'random', 'filtered'])
+    .optional().default('sequential')
+    .describe('Record navigation mode'),
+  showProgress: z.boolean().optional().default(true)
+    .describe('Show review progress indicator'),
+});
+
+/**
  * Page Schema
- * Defines a composition of components for a specific context (Record, Home, App).
- * Compare to Salesforce FlexiPage.
+ * Defines a composition of components for a specific context.
+ * Supports both platform pages (Salesforce FlexiPage style: record, home, app, utility)
+ * and interface pages (Airtable Interface style: dashboard, grid, kanban, record_review, etc.).
  * 
  * **NAMING CONVENTION:**
  * Page names are used in routing and must be lowercase snake_case.
@@ -121,15 +178,22 @@ export const PageSchema = z.object({
   name: SnakeCaseIdentifierSchema.describe('Page unique name (lowercase snake_case)'),
   label: I18nLabelSchema,
   description: I18nLabelSchema.optional(),
+
+  /** Icon (used in interface navigation) */
+  icon: z.string().optional().describe('Page icon name'),
   
   /** Page Type */
-  type: z.enum(['record', 'home', 'app', 'utility']).default('record'),
+  type: PageTypeSchema.default('record').describe('Page type'),
   
   /** Page State Definitions */
   variables: z.array(PageVariableSchema).optional().describe('Local page state variables'),
 
   /** Context */
   object: z.string().optional().describe('Bound object (for Record pages)'),
+
+  /** Record Review Configuration (only for record_review pages) */
+  recordReview: RecordReviewConfigSchema.optional()
+    .describe('Record review configuration (required when type is "record_review")'),
   
   /** Layout Template */
   template: z.string().default('default').describe('Layout template name (e.g. "header-sidebar-main")'),
@@ -146,7 +210,9 @@ export const PageSchema = z.object({
 });
 
 export type Page = z.infer<typeof PageSchema>;
+export type PageType = z.infer<typeof PageTypeSchema>;
 export type PageComponent = z.infer<typeof PageComponentSchema>;
 export type PageRegion = z.infer<typeof PageRegionSchema>;
 export type PageVariable = z.infer<typeof PageVariableSchema>;
 export type ElementDataSource = z.infer<typeof ElementDataSourceSchema>;
+export type RecordReviewConfig = z.infer<typeof RecordReviewConfigSchema>;
