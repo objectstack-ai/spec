@@ -191,7 +191,11 @@ describe('PageSchema', () => {
   });
 
   it('should accept different page types', () => {
-    const types: Array<Page['type']> = ['record', 'home', 'app', 'utility'];
+    const types: Array<Page['type']> = [
+      'record', 'home', 'app', 'utility',
+      'dashboard', 'grid', 'list', 'gallery', 'kanban', 'calendar',
+      'timeline', 'form', 'record_detail', 'record_review', 'overview', 'blank',
+    ];
 
     types.forEach(type => {
       const page = PageSchema.parse({

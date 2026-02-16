@@ -2,7 +2,7 @@
 
 > **Author:** ObjectStack Core Team  
 > **Created:** 2026-02-16  
-> **Status:** Proposal  
+> **Status:** Phase A Implemented  
 > **Target Version:** v3.2 – v4.0
 
 ---
@@ -58,13 +58,13 @@ ties them together — specifically:
 
 | Area | Airtable | ObjectStack |
 |:---|:---|:---|
-| **Interface as a first-class entity** | ✅ Multi-page app per base | 🟡 App + Page exist separately |
+| **Interface as a first-class entity** | ✅ Multi-page app per base | ✅ `InterfaceSchema` + `InterfaceNavItemSchema` in App navigation |
 | **Drag-and-drop element canvas** | ✅ Free-form element placement | 🟡 Region-based composition |
-| **Record Review workflow** | ✅ Built-in record-by-record review | ❌ Not modeled |
-| **Element-level data binding** | ✅ Each element binds to any table/view | 🟡 Page-level object binding |
-| **Shareable interface URLs** | ✅ Public/private share links | ❌ Not modeled |
-| **Interface-level permissions** | ✅ Per-interface user access | 🟡 App-level permissions only |
-| **Embeddable interfaces** | ✅ iframe embed codes | ❌ Not modeled |
+| **Record Review workflow** | ✅ Built-in record-by-record review | ✅ `RecordReviewConfigSchema` in `PageSchema` |
+| **Element-level data binding** | ✅ Each element binds to any table/view | ✅ `ElementDataSourceSchema` per component |
+| **Shareable interface URLs** | ✅ Public/private share links | ❌ Not modeled (Phase C) |
+| **Interface-level permissions** | ✅ Per-interface user access | ✅ `assignedRoles` on `InterfaceSchema` |
+| **Embeddable interfaces** | ✅ iframe embed codes | ❌ Not modeled (Phase C) |
 
 This document proposes specific schema additions and a phased roadmap to close these gaps while
 preserving ObjectStack's superior extensibility and enterprise capabilities.
@@ -562,17 +562,22 @@ export const EmbedConfigSchema = z.object({
 
 ## 7. Implementation Road Map
 
-### 7.1 Phase A: Interface Foundation (v3.2 — Q3 2026)
+### 7.1 Phase A: Interface Foundation (v3.2 — Q3 2026) ✅
 
 > **Goal:** Establish the "Interface" abstraction as a first-class protocol entity.
 
-- [ ] Define `InterfaceSchema` in `src/ui/interface.zod.ts`
-- [ ] Add `RecordReviewConfigSchema` to `PageSchema` types
-- [ ] Add content elements to `PageComponentType` (`element:text`, `element:number`, `element:image`, `element:divider`)
-- [ ] Add `ElementTextPropsSchema`, `ElementNumberPropsSchema`, `ElementImagePropsSchema` to component props
-- [ ] Add `dataSource` property to `PageComponentInstanceSchema` for per-element data binding
-- [ ] Write comprehensive tests for all new schemas
-- [ ] Update `src/ui/index.ts` exports
+- [x] Define `InterfaceSchema` in `src/ui/interface.zod.ts`
+- [x] Add `RecordReviewConfigSchema` to `PageSchema` types
+- [x] Add content elements to `PageComponentType` (`element:text`, `element:number`, `element:image`, `element:divider`)
+- [x] Add `ElementTextPropsSchema`, `ElementNumberPropsSchema`, `ElementImagePropsSchema` to component props
+- [x] Add `dataSource` property to `PageComponentSchema` for per-element data binding
+- [x] Write comprehensive tests for all new schemas
+- [x] Update `src/ui/index.ts` exports
+- [x] Merge `InterfacePageSchema` into `PageSchema` — unified `PageTypeSchema` with 16 types
+- [x] Extract shared `SortItemSchema` to `shared/enums.zod.ts`
+- [x] Export `defineInterface()` from root index.ts
+- [x] Add `InterfaceNavItemSchema` to `AppSchema` navigation for App↔Interface bridging
+- [x] Disambiguate overlapping page types (`record`/`record_detail`, `home`/`overview`) in `PageTypeSchema` docs
 - [ ] Generate JSON Schema for new types
 
 **Estimated effort:** 2–3 weeks
@@ -644,6 +649,12 @@ export const EmbedConfigSchema = z.object({
 | 3 | Phase sharing/embedding to v4.0 | Requires security infrastructure (RLS, share tokens, origin validation) that depends on service implementations in v3.x | 2026-02-16 |
 | 4 | Keep `RecordReviewConfig` as part of `PageSchema` rather than a new view type | Record Review is a page layout pattern, not a data visualization (view). It combines record display with workflow actions. | 2026-02-16 |
 | 5 | Support per-element `dataSource` instead of page-level-only binding | Critical for dashboards and overview pages that aggregate data from multiple objects | 2026-02-16 |
+| 6 | Merge `InterfacePageSchema` into `PageSchema` | 7 of 9 properties were identical. Unified `PageTypeSchema` with 16 types (4 platform + 12 interface) eliminates duplication while preserving both use cases. `InterfaceSchema.pages` now references `PageSchema` directly. | 2026-02-16 |
+| 7 | Extract shared `SortItemSchema` to `shared/enums.zod.ts` | Sort item pattern `{ field, order }` was defined inline in 4+ schemas (ElementDataSource, RecordReview, ListView, RecordRelatedList). Shared schema ensures consistency and reduces duplication. | 2026-02-16 |
+| 8 | `InterfaceBrandingSchema` extends `AppBrandingSchema` | 2 of 3 fields (`primaryColor`, `logo`) were identical. Using `.extend()` adds only `coverImage`, avoiding property divergence. | 2026-02-16 |
+| 9 | Keep `InterfaceSchema` and `AppSchema` separate — do NOT merge | **App** = navigation container (menu tree, routing, mobile nav). **Interface** = content surface (ordered pages, data binding, role-specific views). Merging would conflate navigation topology with page composition. An App can embed multiple Interfaces via `InterfaceNavItemSchema`. This mirrors Salesforce App/FlexiPage and Airtable Base/Interface separation. | 2026-02-16 |
+| 10 | Add `InterfaceNavItemSchema` to bridge App↔Interface | `AppSchema.navigation` lacked a way to reference Interfaces. Added `type: 'interface'` nav item with `interfaceName` and optional `pageName` to enable App→Interface navigation without merging the schemas. | 2026-02-16 |
+| 11 | Keep all 16 page types — no merge, disambiguate in docs | Reviewed overlapping pairs: `record` vs `record_detail` (component-based layout vs auto-generated field display), `home` vs `overview` (platform landing vs interface navigation hub), `app`/`utility`/`blank` (distinct layout contexts). Each serves a different use case at a different abstraction level. Added disambiguation comments to `PageTypeSchema`. | 2026-02-16 |
 
 ---
 

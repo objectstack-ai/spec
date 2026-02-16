@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   AggregationFunctionEnum,
   SortDirectionEnum,
+  SortItemSchema,
   MutationEventEnum,
   IsolationLevelEnum,
   CacheStrategyEnum,
@@ -43,6 +44,26 @@ describe('SortDirectionEnum', () => {
     expect(() => SortDirectionEnum.parse('DESC')).toThrow();
     expect(() => SortDirectionEnum.parse('ascending')).toThrow();
     expect(() => SortDirectionEnum.parse('')).toThrow();
+  });
+});
+
+describe('SortItemSchema', () => {
+  it('should accept valid sort item', () => {
+    const result = SortItemSchema.parse({ field: 'created_at', order: 'desc' });
+    expect(result.field).toBe('created_at');
+    expect(result.order).toBe('desc');
+  });
+
+  it('should reject without field', () => {
+    expect(() => SortItemSchema.parse({ order: 'asc' })).toThrow();
+  });
+
+  it('should reject without order', () => {
+    expect(() => SortItemSchema.parse({ field: 'name' })).toThrow();
+  });
+
+  it('should reject invalid order direction', () => {
+    expect(() => SortItemSchema.parse({ field: 'name', order: 'up' })).toThrow();
   });
 });
 

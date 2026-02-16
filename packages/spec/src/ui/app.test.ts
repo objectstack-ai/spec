@@ -7,6 +7,7 @@ import {
   DashboardNavItemSchema,
   PageNavItemSchema,
   UrlNavItemSchema,
+  InterfaceNavItemSchema,
   GroupNavItemSchema,
   defineApp,
   type App,
@@ -124,6 +125,53 @@ describe('UrlNavItemSchema', () => {
     };
 
     expect(() => UrlNavItemSchema.parse(navItem)).not.toThrow();
+  });
+});
+
+describe('InterfaceNavItemSchema', () => {
+  it('should accept interface nav item with just interfaceName', () => {
+    const navItem = {
+      id: 'nav_order_review',
+      label: 'Order Review',
+      type: 'interface' as const,
+      interfaceName: 'order_review',
+    };
+
+    const result = InterfaceNavItemSchema.parse(navItem);
+    expect(result.interfaceName).toBe('order_review');
+    expect(result.pageName).toBeUndefined();
+  });
+
+  it('should accept interface nav item with pageName', () => {
+    const navItem = {
+      id: 'nav_sales_dashboard',
+      label: 'Sales Dashboard',
+      icon: 'layout-dashboard',
+      type: 'interface' as const,
+      interfaceName: 'sales_portal',
+      pageName: 'page_dashboard',
+    };
+
+    const result = InterfaceNavItemSchema.parse(navItem);
+    expect(result.interfaceName).toBe('sales_portal');
+    expect(result.pageName).toBe('page_dashboard');
+  });
+
+  it('should work in NavigationItemSchema union', () => {
+    expect(() => NavigationItemSchema.parse({
+      id: 'nav_interface',
+      label: 'Interface',
+      type: 'interface',
+      interfaceName: 'my_interface',
+    })).not.toThrow();
+  });
+
+  it('should reject without interfaceName', () => {
+    expect(() => InterfaceNavItemSchema.parse({
+      id: 'nav_missing',
+      label: 'Missing',
+      type: 'interface',
+    })).toThrow();
   });
 });
 
@@ -458,6 +506,39 @@ describe('AppSchema', () => {
       };
 
       expect(() => AppSchema.parse(hrApp)).not.toThrow();
+    });
+
+    it('should accept app with interface navigation items', () => {
+      const app: App = {
+        name: 'data_platform',
+        label: 'Data Platform',
+        navigation: [
+          {
+            id: 'nav_home',
+            label: 'Home',
+            icon: 'home',
+            type: 'dashboard',
+            dashboardName: 'main_dashboard',
+          },
+          {
+            id: 'nav_order_review',
+            label: 'Order Review',
+            icon: 'clipboard-check',
+            type: 'interface',
+            interfaceName: 'order_review',
+          },
+          {
+            id: 'nav_sales_portal',
+            label: 'Sales Portal',
+            icon: 'layout-dashboard',
+            type: 'interface',
+            interfaceName: 'sales_portal',
+            pageName: 'page_dashboard',
+          },
+        ],
+      };
+
+      expect(() => AppSchema.parse(app)).not.toThrow();
     });
   });
 });
