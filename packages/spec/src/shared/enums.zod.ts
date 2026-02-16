@@ -18,6 +18,13 @@ export const SortDirectionEnum = z.enum(['asc', 'desc'])
   .describe('Sort order direction');
 export type SortDirection = z.infer<typeof SortDirectionEnum>;
 
+/** Reusable sort item — field + direction pair used across views, data sources, filters */
+export const SortItemSchema = z.object({
+  field: z.string().describe('Field name to sort by'),
+  order: SortDirectionEnum.describe('Sort direction'),
+}).describe('Sort field and direction pair');
+export type SortItem = z.infer<typeof SortItemSchema>;
+
 /** CRUD mutation events used across hook, validation, object CDC */
 export const MutationEventEnum = z.enum([
   'insert', 'update', 'delete', 'upsert',

@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
+import { SortItemSchema } from '../shared/enums.zod';
 import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 import { ResponsiveConfigSchema } from './responsive.zod';
 
@@ -42,10 +43,7 @@ export const ElementDataSourceSchema = z.object({
   object: z.string().describe('Object to query'),
   view: z.string().optional().describe('Named view to apply'),
   filter: z.any().optional().describe('Additional filter criteria'),
-  sort: z.array(z.object({
-    field: z.string().describe('Field name to sort by'),
-    order: z.enum(['asc', 'desc']).describe('Sort direction'),
-  })).optional().describe('Sort order'),
+  sort: z.array(SortItemSchema).optional().describe('Sort order'),
   limit: z.number().int().positive().optional().describe('Max records to display'),
 });
 

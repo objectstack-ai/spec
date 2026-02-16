@@ -2,8 +2,10 @@
 
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
+import { SortItemSchema } from '../shared/enums.zod';
 import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 import { PageRegionSchema, PageVariableSchema } from './page.zod';
+import { AppBrandingSchema } from './app.zod';
 
 /**
  * Interface Page Type Schema
@@ -32,10 +34,7 @@ export const InterfacePageTypeSchema = z.enum([
 export const RecordReviewConfigSchema = z.object({
   object: z.string().describe('Target object for review'),
   filter: z.any().optional().describe('Filter criteria for review queue'),
-  sort: z.array(z.object({
-    field: z.string().describe('Field name to sort by'),
-    order: z.enum(['asc', 'desc']).describe('Sort direction'),
-  })).optional().describe('Sort order for review queue'),
+  sort: z.array(SortItemSchema).optional().describe('Sort order for review queue'),
   displayFields: z.array(z.string()).optional()
     .describe('Fields to display on the review page'),
   actions: z.array(z.object({
@@ -92,10 +91,9 @@ export const InterfacePageSchema = z.object({
 /**
  * Interface Branding Schema
  * Visual branding overrides for an interface.
+ * Extends AppBrandingSchema with interface-specific properties (coverImage).
  */
-export const InterfaceBrandingSchema = z.object({
-  primaryColor: z.string().optional().describe('Primary theme color hex code'),
-  logo: z.string().optional().describe('Custom logo URL'),
+export const InterfaceBrandingSchema = AppBrandingSchema.extend({
   coverImage: z.string().optional().describe('Cover image URL for the interface landing'),
 });
 
