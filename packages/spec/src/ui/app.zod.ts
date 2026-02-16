@@ -81,6 +81,11 @@ export const UrlNavItemSchema = BaseNavItemSchema.extend({
  * 5. Interface Navigation Item
  * Navigates to a specific Interface (self-contained multi-page surface).
  * Bridges AppSchema (navigation container) with InterfaceSchema (content surface).
+ * 
+ * **Note:** While this schema remains for backward compatibility, the preferred pattern
+ * is now to use `AppSchema.interfaces[]` to declare interfaces, which automatically
+ * generates a two-level Interface→Pages sidebar menu. This navigation item type is 
+ * retained for explicit interface navigation and global utility entries.
  */
 export const InterfaceNavItemSchema = BaseNavItemSchema.extend({
   type: z.literal('interface'),
@@ -152,16 +157,21 @@ export const AppBrandingSchema = z.object({
  * App Configuration Schema
  * Defines a business application container, including its navigation, branding, and permissions.
  * 
- * @example CRM App
+ * The new architecture makes App an "Interface switcher" where the sidebar content is 
+ * auto-generated from `interfaces[]`, rendering a two-level Interface→Pages menu. The 
+ * `navigation[]` field is retained for global utility entries only (Settings, Help, 
+ * external links) and is rendered at the bottom of the sidebar.
+ * 
+ * @example CRM App with new Interface-driven pattern
  * {
  *   name: "crm",
  *   label: "Sales CRM",
  *   icon: "briefcase",
+ *   interfaces: ["sales_workspace", "lead_review", "sales_analytics"],
+ *   defaultInterface: "sales_workspace",
  *   navigation: [
- *     { type: "object", id: "nav_leads", label: "Leads", objectName: "leads" },
- *     { type: "object", id: "nav_deals", label: "Deals", objectName: "deals" }
- *   ],
- *   requiredPermissions: ["app.crm.access"]
+ *     { type: "page", id: "nav_settings", label: "Settings", pageName: "admin_settings" }
+ *   ]
  * }
  */
 export const AppSchema = z.object({
@@ -190,10 +200,28 @@ export const AppSchema = z.object({
   isDefault: z.boolean().optional().default(false).describe('Is default app'),
   
   /** 
-   * Navigation Tree Structure.
-   * Replaces the old flat 'tabs' list with a structured menu.
+   * Interface names registered in this App.
+   * Sidebar renders as a two-level menu: Interface (collapsible group) → Pages (menu items).
+   * The runtime auto-generates the sidebar navigation from these interfaces and their pages.
    */
-  navigation: z.array(NavigationItemSchema).optional().describe('Structured navigation menu tree'),
+  interfaces: z.array(z.string()).optional()
+    .describe('Interface names available in this App. Sidebar renders as Interface→Pages two-level menu.'),
+
+  /** Default interface to activate on App launch */
+  defaultInterface: z.string().optional()
+    .describe('Default interface to show when the App opens'),
+  
+  /** 
+   * Navigation Tree Structure (Global Utility Entries Only).
+   * This field is now repurposed for global utility navigation items only (Settings, Help, 
+   * external links, etc.) that are rendered at the bottom of the sidebar. The main sidebar 
+   * content is auto-generated from `interfaces[]`.
+   * 
+   * For backward compatibility, this field remains optional and can still contain the full 
+   * navigation tree. However, the new recommended pattern is to use `interfaces[]` for 
+   * the main navigation and reserve this field for global utility entries.
+   */
+  navigation: z.array(NavigationItemSchema).optional().describe('Global utility navigation items (Settings, Help, external links) — rendered at bottom of sidebar'),
   
   /** 
    * App-level Home Page Override
@@ -241,7 +269,20 @@ export const App = {
  *
  * Validates the config at creation time using Zod `.parse()`.
  *
- * @example
+ * @example New Interface-driven pattern
+ * ```ts
+ * const crmApp = defineApp({
+ *   name: 'crm',
+ *   label: 'CRM',
+ *   interfaces: ['sales_workspace', 'lead_review', 'sales_analytics'],
+ *   defaultInterface: 'sales_workspace',
+ *   navigation: [
+ *     { id: 'nav_settings', label: 'Settings', type: 'page', pageName: 'settings' },
+ *   ],
+ * });
+ * ```
+ * 
+ * @example Legacy navigation tree pattern (backward compatible)
  * ```ts
  * const crmApp = defineApp({
  *   name: 'crm',

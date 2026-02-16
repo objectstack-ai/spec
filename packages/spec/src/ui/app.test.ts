@@ -605,3 +605,79 @@ describe('defineApp', () => {
     })).toThrow();
   });
 });
+
+describe('AppSchema with interfaces[] field', () => {
+  it('should accept app with interfaces array', () => {
+    const app = AppSchema.parse({
+      name: 'sales_app',
+      label: 'Sales App',
+      interfaces: ['sales_workspace', 'lead_review', 'sales_analytics'],
+    });
+
+    expect(app.interfaces).toHaveLength(3);
+    expect(app.interfaces).toEqual(['sales_workspace', 'lead_review', 'sales_analytics']);
+  });
+
+  it('should accept app with defaultInterface', () => {
+    const app = AppSchema.parse({
+      name: 'crm_app',
+      label: 'CRM',
+      interfaces: ['sales_workspace', 'lead_review'],
+      defaultInterface: 'sales_workspace',
+    });
+
+    expect(app.defaultInterface).toBe('sales_workspace');
+  });
+
+  it('should accept app with both interfaces and navigation', () => {
+    const app = AppSchema.parse({
+      name: 'modern_app',
+      label: 'Modern App',
+      interfaces: ['main_workspace', 'analytics'],
+      defaultInterface: 'main_workspace',
+      navigation: [
+        { id: 'nav_settings', label: 'Settings', type: 'page', pageName: 'admin_settings' },
+        { id: 'nav_help', label: 'Help', type: 'url', url: 'https://help.example.com' },
+      ],
+    });
+
+    expect(app.interfaces).toHaveLength(2);
+    expect(app.navigation).toHaveLength(2);
+    expect(app.defaultInterface).toBe('main_workspace');
+  });
+
+  it('should accept app without interfaces (backward compatibility)', () => {
+    const app = AppSchema.parse({
+      name: 'legacy_app',
+      label: 'Legacy App',
+      navigation: [
+        { id: 'nav_accounts', label: 'Accounts', type: 'object', objectName: 'account' },
+      ],
+    });
+
+    expect(app.interfaces).toBeUndefined();
+    expect(app.navigation).toHaveLength(1);
+  });
+
+  it('should accept empty interfaces array', () => {
+    const app = AppSchema.parse({
+      name: 'empty_app',
+      label: 'Empty App',
+      interfaces: [],
+    });
+
+    expect(app.interfaces).toHaveLength(0);
+  });
+
+  it('should accept defaultInterface without interfaces array', () => {
+    // This is technically allowed even though it may not be meaningful
+    const app = AppSchema.parse({
+      name: 'test_app',
+      label: 'Test App',
+      defaultInterface: 'some_interface',
+    });
+
+    expect(app.defaultInterface).toBe('some_interface');
+    expect(app.interfaces).toBeUndefined();
+  });
+});

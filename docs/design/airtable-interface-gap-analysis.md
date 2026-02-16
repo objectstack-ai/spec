@@ -58,7 +58,7 @@ ties them together — specifically:
 
 | Area | Airtable | ObjectStack |
 |:---|:---|:---|
-| **Interface as a first-class entity** | ✅ Multi-page app per base | ✅ `InterfaceSchema` + `InterfaceNavItemSchema` in App navigation |
+| **Interface as a first-class entity** | ✅ Multi-page app per base | ✅ `InterfaceSchema` + `App.interfaces[]` drives sidebar |
 | **Drag-and-drop element canvas** | ✅ Free-form element placement | 🟡 Region-based composition |
 | **Record Review workflow** | ✅ Built-in record-by-record review | ✅ `RecordReviewConfigSchema` in `PageSchema` |
 | **Element-level data binding** | ✅ Each element binds to any table/view | ✅ `ElementDataSourceSchema` per component |
@@ -345,6 +345,50 @@ ObjectStack's UI Protocol already **exceeds Airtable** in several significant ar
 
 ## 6. Schema Improvement Proposals
 
+This section details the schema changes to support Airtable Interface parity.
+
+**Note:** Many of these proposals have been **IMPLEMENTED** in Phase A (see Section 7.1).
+The code samples below reflect the current state of the schemas.
+
+### 6.0 App Schema Enhancements
+
+To enable the new Interface-driven navigation model, `AppSchema` has been enhanced with:
+
+```typescript
+// Implemented: src/ui/app.zod.ts
+
+export const AppSchema = z.object({
+  // ... existing fields ...
+  
+  /** 
+   * Interface names registered in this App.
+   * Sidebar renders as a two-level menu: Interface (collapsible group) → Pages (menu items).
+   */
+  interfaces: z.array(z.string()).optional()
+    .describe('Interface names available in this App. Sidebar renders as Interface→Pages two-level menu.'),
+
+  /** Default interface to activate on App launch */
+  defaultInterface: z.string().optional()
+    .describe('Default interface to show when the App opens'),
+  
+  /** 
+   * Navigation Tree Structure (Global Utility Entries Only).
+   * Now repurposed for global utility items (Settings, Help, external links)
+   * rendered at the bottom of the sidebar.
+   */
+  navigation: z.array(NavigationItemSchema).optional()
+    .describe('Global utility navigation items (Settings, Help, external links) — rendered at bottom of sidebar'),
+  
+  // ... remaining fields ...
+});
+```
+
+**Key Changes:**
+- Added `interfaces[]` — declares which interfaces belong to the app
+- Added `defaultInterface` — specifies which interface to show on app launch
+- Repurposed `navigation[]` — now for global utility entries only (Settings, Help, etc.)
+- The runtime auto-generates the main sidebar from `interfaces[]` and their `pages[]`
+
 ### 6.1 Interface Schema (New)
 
 A new `InterfaceSchema` to represent the Airtable "Interface" concept — a self-contained,
@@ -360,6 +404,10 @@ export const InterfaceSchema = z.object({
     .describe('Display name'),
   description: z.string().optional()
     .describe('Purpose description'),
+  icon: z.string().optional()
+    .describe('Icon name for sidebar display (Lucide icon)'),
+  group: z.string().optional()
+    .describe('Business group label for sidebar grouping (e.g. "Sales Cloud", "Service Cloud")'),
   object: z.string().optional()
     .describe('Primary object binding (snake_case)'),
   pages: z.array(InterfacePageSchema)
@@ -655,6 +703,7 @@ export const EmbedConfigSchema = z.object({
 | 9 | Keep `InterfaceSchema` and `AppSchema` separate — do NOT merge | **App** = navigation container (menu tree, routing, mobile nav). **Interface** = content surface (ordered pages, data binding, role-specific views). Merging would conflate navigation topology with page composition. An App can embed multiple Interfaces via `InterfaceNavItemSchema`. This mirrors Salesforce App/FlexiPage and Airtable Base/Interface separation. | 2026-02-16 |
 | 10 | Add `InterfaceNavItemSchema` to bridge App↔Interface | `AppSchema.navigation` lacked a way to reference Interfaces. Added `type: 'interface'` nav item with `interfaceName` and optional `pageName` to enable App→Interface navigation without merging the schemas. | 2026-02-16 |
 | 11 | Keep all 16 page types — no merge, disambiguate in docs | Reviewed overlapping pairs: `record` vs `record_detail` (component-based layout vs auto-generated field display), `home` vs `overview` (platform landing vs interface navigation hub), `app`/`utility`/`blank` (distinct layout contexts). Each serves a different use case at a different abstraction level. Added disambiguation comments to `PageTypeSchema`. | 2026-02-16 |
+| 12 | App.interfaces[] drives sidebar as Interface→Pages two-level menu | App's `navigation` was a hand-written tree that conflicted with Interface's `pages[]`. New model: App declares `interfaces[]`, runtime renders Interface.label as collapsible group → Interface.pages[] as menu items. `navigation` retained for global utility entries only (Settings, Help). Eliminates dual-navigation confusion. Added `defaultInterface` to specify startup interface. Interface gets `icon` and `group` fields for sidebar rendering. | 2026-02-16 |
 
 ---
 
