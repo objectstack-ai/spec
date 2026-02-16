@@ -78,6 +78,7 @@ export * from './stack.zod';
 // DX Helper Functions (re-exported for convenience)
 export { defineView } from './ui/view.zod';
 export { defineApp } from './ui/app.zod';
+export { defineInterface } from './ui/interface.zod';
 export { defineFlow } from './automation/flow.zod';
 export { defineAgent } from './ai/agent.zod';
 

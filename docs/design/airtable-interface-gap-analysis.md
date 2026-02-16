@@ -2,7 +2,7 @@
 
 > **Author:** ObjectStack Core Team  
 > **Created:** 2026-02-16  
-> **Status:** Proposal  
+> **Status:** Phase A Implemented  
 > **Target Version:** v3.2 – v4.0
 
 ---
@@ -562,17 +562,20 @@ export const EmbedConfigSchema = z.object({
 
 ## 7. Implementation Road Map
 
-### 7.1 Phase A: Interface Foundation (v3.2 — Q3 2026)
+### 7.1 Phase A: Interface Foundation (v3.2 — Q3 2026) ✅
 
 > **Goal:** Establish the "Interface" abstraction as a first-class protocol entity.
 
-- [ ] Define `InterfaceSchema` in `src/ui/interface.zod.ts`
-- [ ] Add `RecordReviewConfigSchema` to `PageSchema` types
-- [ ] Add content elements to `PageComponentType` (`element:text`, `element:number`, `element:image`, `element:divider`)
-- [ ] Add `ElementTextPropsSchema`, `ElementNumberPropsSchema`, `ElementImagePropsSchema` to component props
-- [ ] Add `dataSource` property to `PageComponentInstanceSchema` for per-element data binding
-- [ ] Write comprehensive tests for all new schemas
-- [ ] Update `src/ui/index.ts` exports
+- [x] Define `InterfaceSchema` in `src/ui/interface.zod.ts`
+- [x] Add `RecordReviewConfigSchema` to `PageSchema` types
+- [x] Add content elements to `PageComponentType` (`element:text`, `element:number`, `element:image`, `element:divider`)
+- [x] Add `ElementTextPropsSchema`, `ElementNumberPropsSchema`, `ElementImagePropsSchema` to component props
+- [x] Add `dataSource` property to `PageComponentSchema` for per-element data binding
+- [x] Write comprehensive tests for all new schemas
+- [x] Update `src/ui/index.ts` exports
+- [x] Merge `InterfacePageSchema` into `PageSchema` — unified `PageTypeSchema` with 16 types
+- [x] Extract shared `SortItemSchema` to `shared/enums.zod.ts`
+- [x] Export `defineInterface()` from root index.ts
 - [ ] Generate JSON Schema for new types
 
 **Estimated effort:** 2–3 weeks
@@ -644,6 +647,9 @@ export const EmbedConfigSchema = z.object({
 | 3 | Phase sharing/embedding to v4.0 | Requires security infrastructure (RLS, share tokens, origin validation) that depends on service implementations in v3.x | 2026-02-16 |
 | 4 | Keep `RecordReviewConfig` as part of `PageSchema` rather than a new view type | Record Review is a page layout pattern, not a data visualization (view). It combines record display with workflow actions. | 2026-02-16 |
 | 5 | Support per-element `dataSource` instead of page-level-only binding | Critical for dashboards and overview pages that aggregate data from multiple objects | 2026-02-16 |
+| 6 | Merge `InterfacePageSchema` into `PageSchema` | 7 of 9 properties were identical. Unified `PageTypeSchema` with 16 types (4 platform + 12 interface) eliminates duplication while preserving both use cases. `InterfaceSchema.pages` now references `PageSchema` directly. | 2026-02-16 |
+| 7 | Extract shared `SortItemSchema` to `shared/enums.zod.ts` | Sort item pattern `{ field, order }` was defined inline in 4+ schemas (ElementDataSource, RecordReview, ListView, RecordRelatedList). Shared schema ensures consistency and reduces duplication. | 2026-02-16 |
+| 8 | `InterfaceBrandingSchema` extends `AppBrandingSchema` | 2 of 3 fields (`primaryColor`, `logo`) were identical. Using `.extend()` adds only `coverImage`, avoiding property divergence. | 2026-02-16 |
 
 ---
 
