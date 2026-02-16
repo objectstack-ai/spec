@@ -81,3 +81,17 @@ export {
   // Object Designer Helpers
   defineObjectDesignerConfig,
 } from './object-designer.zod';
+
+export {
+  // Interface Builder Schemas
+  CanvasSnapSettingsSchema,
+  CanvasZoomSettingsSchema,
+  ElementPaletteItemSchema,
+  InterfaceBuilderConfigSchema,
+
+  // Interface Builder Types
+  type CanvasSnapSettings,
+  type CanvasZoomSettings,
+  type ElementPaletteItem,
+  type InterfaceBuilderConfig,
+} from './interface-builder.zod';

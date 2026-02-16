@@ -1966,3 +1966,47 @@ describe('defineView', () => {
     })).toThrow();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Phase C: FormViewSchema public sharing
+// ---------------------------------------------------------------------------
+describe('FormViewSchema sharing', () => {
+  it('should accept form with sharing config', () => {
+    const form = FormViewSchema.parse({
+      type: 'simple',
+      sections: [{ fields: ['name', 'email'] }],
+      sharing: {
+        enabled: true,
+        publicLink: 'https://app.example.com/form/contact',
+        allowAnonymous: true,
+      },
+    });
+
+    expect(form.sharing?.enabled).toBe(true);
+    expect(form.sharing?.allowAnonymous).toBe(true);
+  });
+
+  it('should accept form with sharing password and expiration', () => {
+    const form = FormViewSchema.parse({
+      type: 'simple',
+      sections: [{ fields: ['name'] }],
+      sharing: {
+        enabled: true,
+        password: 'formpass',
+        expiresAt: '2027-12-31T23:59:59Z',
+      },
+    });
+
+    expect(form.sharing?.password).toBe('formpass');
+    expect(form.sharing?.expiresAt).toBe('2027-12-31T23:59:59Z');
+  });
+
+  it('should accept form without sharing (backward compatibility)', () => {
+    const form = FormViewSchema.parse({
+      type: 'simple',
+      sections: [{ fields: ['name'] }],
+    });
+
+    expect(form.sharing).toBeUndefined();
+  });
+});

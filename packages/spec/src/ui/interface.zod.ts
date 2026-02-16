@@ -5,6 +5,7 @@ import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 import { PageSchema } from './page.zod';
 import { AppBrandingSchema } from './app.zod';
+import { SharingConfigSchema, EmbedConfigSchema } from './sharing.zod';
 
 /**
  * Interface Branding Schema
@@ -102,6 +103,12 @@ export const InterfaceSchema = z.object({
 
   /** Access control */
   assignedRoles: z.array(z.string()).optional().describe('Roles that can access this interface'),
+
+  /** Sharing configuration for public access */
+  sharing: SharingConfigSchema.optional().describe('Public sharing configuration'),
+
+  /** Embed configuration for iframe embedding */
+  embed: EmbedConfigSchema.optional().describe('Iframe embedding configuration'),
 
   /** Default flag */
   isDefault: z.boolean().optional().describe('Whether this is the default interface for the object'),

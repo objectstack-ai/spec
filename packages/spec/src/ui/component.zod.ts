@@ -169,6 +169,59 @@ export const ElementImagePropsSchema = z.object({
 
 /**
  * ----------------------------------------------------------------------
+ * 4. Interactive Element Components (Phase B — Element Library)
+ * ----------------------------------------------------------------------
+ */
+
+export const ElementButtonPropsSchema = z.object({
+  label: I18nLabelSchema.describe('Button display label'),
+  variant: z.enum(['primary', 'secondary', 'danger', 'ghost', 'link'])
+    .optional().default('primary').describe('Button visual variant'),
+  size: z.enum(['small', 'medium', 'large'])
+    .optional().default('medium').describe('Button size'),
+  icon: z.string().optional().describe('Icon name (Lucide icon)'),
+  iconPosition: z.enum(['left', 'right'])
+    .optional().default('left').describe('Icon position relative to label'),
+  disabled: z.boolean().optional().default(false).describe('Disable the button'),
+  /** ARIA accessibility */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
+});
+
+export const ElementFilterPropsSchema = z.object({
+  object: z.string().describe('Object to filter'),
+  fields: z.array(z.string()).describe('Filterable field names'),
+  targetVariable: z.string().optional().describe('Page variable to store filter state'),
+  layout: z.enum(['inline', 'dropdown', 'sidebar'])
+    .optional().default('inline').describe('Filter display layout'),
+  showSearch: z.boolean().optional().default(true).describe('Show search input'),
+  /** ARIA accessibility */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
+});
+
+export const ElementFormPropsSchema = z.object({
+  object: z.string().describe('Object for the form'),
+  fields: z.array(z.string()).optional().describe('Fields to display (defaults to all editable fields)'),
+  mode: z.enum(['create', 'edit']).optional().default('create').describe('Form mode'),
+  submitLabel: I18nLabelSchema.optional().describe('Submit button label'),
+  onSubmit: z.string().optional().describe('Action expression on form submit'),
+  /** ARIA accessibility */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
+});
+
+export const ElementRecordPickerPropsSchema = z.object({
+  object: z.string().describe('Object to pick records from'),
+  displayField: z.string().describe('Field to display as the record label'),
+  searchFields: z.array(z.string()).optional().describe('Fields to search against'),
+  filter: z.any().optional().describe('Filter criteria for available records'),
+  multiple: z.boolean().optional().default(false).describe('Allow multiple record selection'),
+  targetVariable: z.string().optional().describe('Page variable to bind selected record ID(s)'),
+  placeholder: I18nLabelSchema.optional().describe('Placeholder text'),
+  /** ARIA accessibility */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
+});
+
+/**
+ * ----------------------------------------------------------------------
  * Component Props Map
  * Maps Component Type to its Property Schema
  * ----------------------------------------------------------------------
@@ -210,6 +263,12 @@ export const ComponentPropsMap = {
   'element:number': ElementNumberPropsSchema,
   'element:image': ElementImagePropsSchema,
   'element:divider': EmptyProps,
+
+  // Interactive Elements
+  'element:button': ElementButtonPropsSchema,
+  'element:filter': ElementFilterPropsSchema,
+  'element:form': ElementFormPropsSchema,
+  'element:record_picker': ElementRecordPickerPropsSchema,
 } as const;
 
 /**
