@@ -100,15 +100,26 @@ export const PageVariableSchema = z.object({
 
 /**
  * Page Type Schema
- * Unified page type enum covering both platform pages (record, home, app, utility)
- * and Airtable-inspired interface page types (dashboard, grid, kanban, etc.).
+ * Unified page type enum covering both platform pages (Salesforce FlexiPage style)
+ * and Airtable-inspired interface page types.
+ *
+ * **Disambiguation of similar types:**
+ * - `record` vs `record_detail`: `record` is a component-based layout page (FlexiPage style with regions),
+ *   `record_detail` is a field-display page showing all fields of a single record (Airtable style).
+ *   Use `record` for custom record pages with regions/components, `record_detail` for auto-generated detail views.
+ * - `home` vs `overview`: `home` is the platform-level landing page (tab landing),
+ *   `overview` is an interface-level navigation hub with links/instructions.
+ *   Use `home` for app-level landing, `overview` for in-interface navigation hubs.
+ * - `app` vs `utility` vs `blank`: `app` is an app-level page with navigation context,
+ *   `utility` is a floating utility panel (e.g. notes, phone), `blank` is a free-form canvas
+ *   for custom composition. They serve distinct layout purposes.
  */
 export const PageTypeSchema = z.enum([
-  // Platform page types
-  'record',         // Record detail page (Salesforce FlexiPage)
-  'home',           // Home/landing page
-  'app',            // App-level page
-  'utility',        // Utility panel
+  // Platform page types (Salesforce FlexiPage style)
+  'record',         // Component-based record layout page with regions
+  'home',           // Platform-level home/landing page
+  'app',            // App-level page with navigation context
+  'utility',        // Floating utility panel (e.g. notes, phone dialer)
   // Interface page types (Airtable Interface parity)
   'dashboard',      // KPI summary with charts/metrics
   'grid',           // Spreadsheet-like data table
@@ -118,10 +129,10 @@ export const PageTypeSchema = z.enum([
   'calendar',       // Date-based scheduling
   'timeline',       // Gantt-like project timeline
   'form',           // Data entry form
-  'record_detail',  // Single record deep-dive
+  'record_detail',  // Auto-generated single record field display
   'record_review',  // Sequential record review/approval
-  'overview',       // Landing/navigation hub
-  'blank',          // Free-form canvas
+  'overview',       // Interface-level navigation/landing hub
+  'blank',          // Free-form canvas for custom composition
 ]).describe('Page type — platform or interface page types');
 
 /**
