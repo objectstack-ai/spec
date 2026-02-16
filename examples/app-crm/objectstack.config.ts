@@ -13,6 +13,7 @@ import * as agents from './src/agents';
 import * as ragPipelines from './src/rag';
 import * as profiles from './src/profiles';
 import * as apps from './src/apps';
+import * as interfaces from './src/interfaces';
 import * as translations from './src/translations';
 import { CrmSeedData } from './src/data';
 
@@ -46,6 +47,7 @@ export default defineStack({
   ragPipelines: Object.values(ragPipelines),
   profiles: Object.values(profiles),
   apps: Object.values(apps),
+  interfaces: Object.values(interfaces),
 
   // Seed Data (top-level, registered as metadata)
   data: CrmSeedData,
