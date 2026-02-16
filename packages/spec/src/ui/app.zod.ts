@@ -78,7 +78,18 @@ export const UrlNavItemSchema = BaseNavItemSchema.extend({
 });
 
 /**
- * 5. Group Navigation Item
+ * 5. Interface Navigation Item
+ * Navigates to a specific Interface (self-contained multi-page surface).
+ * Bridges AppSchema (navigation container) with InterfaceSchema (content surface).
+ */
+export const InterfaceNavItemSchema = BaseNavItemSchema.extend({
+  type: z.literal('interface'),
+  interfaceName: z.string().describe('Target interface name (snake_case)'),
+  pageName: z.string().optional().describe('Specific page within the interface to open'),
+});
+
+/**
+ * 6. Group Navigation Item
  * A container for child navigation items (Sub-menu).
  * Does not perform navigation itself.
  */
@@ -101,6 +112,7 @@ export const NavigationItemSchema: z.ZodType<any> = z.lazy(() =>
     DashboardNavItemSchema,
     PageNavItemSchema,
     UrlNavItemSchema,
+    InterfaceNavItemSchema,
     GroupNavItemSchema.extend({
       children: z.array(NavigationItemSchema).describe('Child navigation items'),
     })
@@ -256,4 +268,5 @@ export type ObjectNavItem = z.infer<typeof ObjectNavItemSchema>;
 export type DashboardNavItem = z.infer<typeof DashboardNavItemSchema>;
 export type PageNavItem = z.infer<typeof PageNavItemSchema>;
 export type UrlNavItem = z.infer<typeof UrlNavItemSchema>;
+export type InterfaceNavItem = z.infer<typeof InterfaceNavItemSchema>;
 export type GroupNavItem = z.infer<typeof GroupNavItemSchema> & { children: NavigationItem[] };
