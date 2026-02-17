@@ -2,7 +2,7 @@
 
 > **Author:** ObjectStack Core Team  
 > **Created:** 2026-02-16  
-> **Status:** Phase A Implemented  
+> **Status:** Phase A–C Spec Complete · Studio Runtime Pending  
 > **Target Version:** v3.2 – v4.0
 
 ---
@@ -59,12 +59,12 @@ ties them together — specifically:
 | Area | Airtable | ObjectStack |
 |:---|:---|:---|
 | **Interface as a first-class entity** | ✅ Multi-page app per base | ✅ `InterfaceSchema` + `App.interfaces[]` drives sidebar |
-| **Drag-and-drop element canvas** | ✅ Free-form element placement | 🟡 Region-based composition |
+| **Drag-and-drop element canvas** | ✅ Free-form element placement | ✅ `BlankPageLayoutSchema` + `InterfaceBuilderConfigSchema` |
 | **Record Review workflow** | ✅ Built-in record-by-record review | ✅ `RecordReviewConfigSchema` in `PageSchema` |
 | **Element-level data binding** | ✅ Each element binds to any table/view | ✅ `ElementDataSourceSchema` per component |
-| **Shareable interface URLs** | ✅ Public/private share links | ❌ Not modeled (Phase C) |
+| **Shareable interface URLs** | ✅ Public/private share links | ✅ `SharingConfigSchema` on `InterfaceSchema` |
 | **Interface-level permissions** | ✅ Per-interface user access | ✅ `assignedRoles` on `InterfaceSchema` |
-| **Embeddable interfaces** | ✅ iframe embed codes | ❌ Not modeled (Phase C) |
+| **Embeddable interfaces** | ✅ iframe embed codes | ✅ `EmbedConfigSchema` on `InterfaceSchema` |
 
 This document proposes specific schema additions and a phased roadmap to close these gaps while
 preserving ObjectStack's superior extensibility and enterprise capabilities.
@@ -630,33 +630,34 @@ export const EmbedConfigSchema = z.object({
 
 **Estimated effort:** 2–3 weeks
 
-### 7.2 Phase B: Element Library & Builder (v3.3 — Q4 2026)
+### 7.2 Phase B: Element Library & Builder (v3.3 — Q4 2026) ✅
 
 > **Goal:** Complete the element library and enable free-form page composition.
 
-- [ ] Add interactive elements: `element:button`, `element:filter`, `element:form`, `element:record_picker`
-- [ ] Add `ElementFormPropsSchema`, `ElementRecordPickerPropsSchema`, `ElementButtonPropsSchema`, `ElementFilterPropsSchema`
-- [ ] Define `BlankPageLayoutSchema` for free-form canvas composition (grid-based positioning)
-- [ ] Add `PageVariableSchema` integration with `element:record_picker` (variable binding)
-- [ ] Add `RecordReviewConfigSchema` with approval actions, navigation modes, and progress indicators
-- [ ] Implement Studio Interface Builder UI (drag-and-drop element placement)
-- [ ] Write integration tests for multi-element page composition
+- [x] Add interactive elements: `element:button`, `element:filter`, `element:form`, `element:record_picker`
+- [x] Add `ElementFormPropsSchema`, `ElementRecordPickerPropsSchema`, `ElementButtonPropsSchema`, `ElementFilterPropsSchema`
+- [x] Define `BlankPageLayoutSchema` for free-form canvas composition (grid-based positioning)
+- [x] Add `PageVariableSchema` integration with `element:record_picker` (variable binding)
+- [x] Add `RecordReviewConfigSchema` with approval actions, navigation modes, and progress indicators
+- [x] Define `InterfaceBuilderConfigSchema` with snap, zoom, palette, layer panel configuration
+- [ ] Implement Studio Interface Builder UI (drag-and-drop element placement) — **runtime task**
+- [x] Write integration tests for multi-element page composition
 
 **Estimated effort:** 4–6 weeks
 
-### 7.3 Phase C: Sharing, Embedding & Permissions (v4.0 — Q1 2027)
+### 7.3 Phase C: Sharing, Embedding & Permissions (v4.0 — Q1 2027) 🟡
 
 > **Goal:** Enable Airtable-level sharing and access control for interfaces.
 
-- [ ] Define `SharingConfigSchema` in `src/ui/sharing.zod.ts`
-- [ ] Define `EmbedConfigSchema` for iframe embedding configuration
-- [ ] Add `sharing` property to `InterfaceSchema` and `FormViewSchema` (public forms)
-- [ ] Add per-interface role assignment (`assignedRoles`)
-- [ ] Implement share link generation in runtime (service layer)
-- [ ] Implement embed code generation with origin restrictions
-- [ ] Add `previewAs` option for design-time user impersonation
-- [ ] Security audit for shared/embedded interface access control
-- [ ] Write permission and sharing tests
+- [x] Define `SharingConfigSchema` in `src/ui/sharing.zod.ts`
+- [x] Define `EmbedConfigSchema` for iframe embedding configuration
+- [x] Add `sharing` property to `InterfaceSchema` and `FormViewSchema` (public forms)
+- [x] Add per-interface role assignment (`assignedRoles`)
+- [ ] Implement share link generation in runtime (service layer) — **runtime task**
+- [ ] Implement embed code generation with origin restrictions — **runtime task**
+- [ ] Add `previewAs` option for design-time user impersonation — see [Visual Design UX Optimization](./visual-design-ux-optimization.md)
+- [ ] Security audit for shared/embedded interface access control — **runtime task**
+- [x] Write permission and sharing tests
 
 **Estimated effort:** 4–6 weeks
 

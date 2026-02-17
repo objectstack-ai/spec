@@ -191,6 +191,8 @@ See **[ROADMAP.md](./ROADMAP.md)** for the next-phase optimization and improveme
 
 Studio-specific roadmap: **[apps/studio/ROADMAP.md](./apps/studio/ROADMAP.md)**
 
+Visual design UX optimization plan: **[docs/design/visual-design-ux-optimization.md](./docs/design/visual-design-ux-optimization.md)**
+
 ## 🤝 Contributing
 
 We welcome contributions! Please read our **[Contributing Guide](./CONTRIBUTING.md)** for:

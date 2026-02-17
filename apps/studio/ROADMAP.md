@@ -1,6 +1,6 @@
 # ObjectStack Studio — Development Roadmap
 
-> **Last Updated:** 2026-02-15  
+> **Last Updated:** 2026-02-16  
 > **Version:** 2.0.0 → 3.0.0  
 > **Goal:** Transform Studio from a metadata inspector into a full-featured visual IDE for the ObjectStack platform.
 
@@ -106,7 +106,9 @@
 
 ### Phase 2: UI Protocol Designers (v2.3) — 6 weeks
 
-> **Theme:** Visual builders for every UI metadata type — the "App Builder" experience.
+> **Theme:** Visual builders for every UI metadata type — the "App Builder" experience.  
+> **Spec Status:** All UI Protocol schemas are complete (20 files, full Airtable parity). This phase is pure runtime implementation.  
+> **Reference:** [Visual Design UX Optimization Plan](../../docs/design/visual-design-ux-optimization.md)
 
 | # | Task | Plugin ID | Priority |
 |---|------|-----------|----------|
@@ -116,19 +118,21 @@
 | | Mode-specific config panels: Kanban (status field, swimlanes), Calendar (date fields, duration), Gantt (dependencies, milestones). | | |
 | 2.3 | **FormView Designer** | `objectstack.form-designer` | 🔴 P0 |
 | | Section/column layout editor. Field placement with drag-and-drop. Conditional visibility (`visibleOn`). Widget selection per field. Preview mode. | | |
-| 2.4 | **Page Builder** | `objectstack.page-builder` | 🟡 P1 |
+| 2.4 | **Interface Builder** | `objectstack.interface-builder` | 🔴 P0 |
+| | **Airtable Interface Designer parity.** Drag-and-drop element canvas using `BlankPageLayoutSchema`. Element palette (12 types: text, number, image, divider, button, filter, form, record_picker, grid, chart, details, list). Property panel per element. Snap-to-grid with alignment guides. Layer ordering. Undo/redo (50 steps). Data source binding per element (`ElementDataSourceSchema`). See `InterfaceBuilderConfigSchema` in `@objectstack/spec/studio`. | | |
+| 2.5 | **Page Builder** | `objectstack.page-builder` | 🟡 P1 |
 | | Component composition canvas. Drag regions and components (header, details, related list, AI chat, custom). Property panel for each component. Preview with live data context. | | |
-| 2.5 | **App Builder** | `objectstack.app-builder` | 🟡 P1 |
-| | Navigation tree editor (drag-and-drop reorder). Add object/dashboard/page/URL items. Branding panel (colors, logo). Home page selector. | | |
-| 2.6 | **Dashboard Designer** | `objectstack.dashboard-designer` | 🟡 P1 |
+| 2.6 | **App Builder** | `objectstack.app-builder` | 🟡 P1 |
+| | Navigation tree editor (drag-and-drop reorder). Add object/dashboard/page/URL items. Interface management (`interfaces[]`). Branding panel (colors, logo). Home page selector. | | |
+| 2.7 | **Dashboard Designer** | `objectstack.dashboard-designer` | 🟡 P1 |
 | | Grid layout editor (React-Grid-Layout). Widget palette: charts, KPIs, lists, embedded views. Data source binding per widget. Auto-refresh config. | | |
-| 2.7 | **Report Builder** | `objectstack.report-builder` | 🟢 P2 |
+| 2.8 | **Report Builder** | `objectstack.report-builder` | 🟢 P2 |
 | | Tabular/Summary/Matrix report config. Column picker, grouping, aggregation. Embedded chart toggle. Filter builder. Export options. | | |
-| 2.8 | **Chart Editor** | `objectstack.chart-editor` | 🟢 P2 |
+| 2.9 | **Chart Editor** | `objectstack.chart-editor` | 🟢 P2 |
 | | Visual chart type selector (40+ types). Axis/series configuration. Preview with sample data. Annotation support. | | |
-| 2.9 | **Action Editor** | `objectstack.action-editor` | 🟢 P2 |
+| 2.10 | **Action Editor** | `objectstack.action-editor` | 🟢 P2 |
 | | Configure action type (script/URL/modal/flow/API). Location picker. Confirm/success text. Keyboard shortcut. Visibility conditions. | | |
-| 2.10 | **Theme Editor** | `objectstack.theme-editor` | 🟢 P2 |
+| 2.11 | **Theme Editor** | `objectstack.theme-editor` | 🟢 P2 |
 | | Visual color palette picker. Typography controls. Spacing/radius scale. Live preview. Export to theme metadata. | | |
 
 **Deliverable:** Full "App Builder" experience — design complete applications visually.
@@ -256,7 +260,8 @@
 
 ### Phase 8: Studio Platform Evolution (v3.0) — Ongoing
 
-> **Theme:** Studio becomes a full IDE ecosystem.
+> **Theme:** Studio becomes a full IDE ecosystem.  
+> **Reference:** [Visual Design UX Optimization Plan](../../docs/design/visual-design-ux-optimization.md)
 
 | # | Task | Priority |
 |---|------|----------|
@@ -270,12 +275,18 @@
 | | Git diff viewer for metadata changes. Commit from Studio. Branch switching. Conflict resolution. |
 | 8.5 | **External Plugin Marketplace** | 🟡 P1 |
 | | Browse/install community Studio plugins. Plugin manifest validation. Sandboxed execution. |
-| 8.6 | **Collaborative Editing** | 🟢 P2 |
+| 8.6 | **Data Studio Mode** | 🟡 P1 |
+| | Unified interactive data workspace combining views + embedded charts + inline editing + quick filters. Cross-view global filter. Aggregation bar. View switcher tabs. See `DataStudioConfigSchema` proposal. |
+| 8.7 | **Design-Time Preview** | 🟡 P1 |
+| | Preview interfaces as different users/roles. Responsive viewport switcher (desktop/tablet/mobile). Live data preview. Show data binding indicators. |
+| 8.8 | **Template Gallery** | 🟡 P1 |
+| | Pre-built interface templates (CRM, Project, HR, etc.). One-click instantiation with variable binding. Community template marketplace. |
+| 8.9 | **Collaborative Editing** | 🟢 P2 |
 | | Real-time multi-user editing (CRDT). Presence indicators. Change attribution. |
-| 8.7 | **Responsive / Mobile Mode** | 🟢 P2 |
+| 8.10 | **Responsive / Mobile Mode** | 🟢 P2 |
 | | Mobile preview mode. Responsive layout testing. Touch-friendly interactions. |
-| 8.8 | **Embedded AI Copilot** | 🟡 P1 |
-| | In-Studio AI assistant. Generate metadata from natural language. Explain configuration. Suggest best practices. |
+| 8.11 | **Embedded AI Copilot** | 🟡 P1 |
+| | In-Studio AI assistant. Generate metadata from natural language. Explain configuration. Suggest best practices. AI-assisted layout suggestions. |
 
 ---
 
@@ -350,7 +361,9 @@ export const myPlugin: StudioPlugin = {
 | Metadata types with dedicated viewer | 1 / 30+ | 15 / 30+ | 30+ / 30+ |
 | Object Designer protocol schemas | 16 schemas | — | — |
 | Object Designer protocol tests | 46 tests | — | — |
+| Interface Builder protocol schemas | 4 schemas | 10+ | 15+ |
 | Component test coverage | 0% | 50% | 80% |
 | Deep-linkable views | 0 | All | All |
 | Plugin count (built-in) | 7 | 20 | 35+ |
+| Airtable UX parity (visual builder) | 20% | 60% | 90% |
 | Time to build a complete app (from scratch) | N/A (manual JSON) | 30 min | 10 min |

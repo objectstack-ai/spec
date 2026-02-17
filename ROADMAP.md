@@ -364,20 +364,24 @@ The following renames are planned for packages that implement core service contr
 - [x] Per-element data binding — `dataSource` property on `PageComponentSchema` for multi-object pages
 - [x] Element props — `ElementTextPropsSchema`, `ElementNumberPropsSchema`, `ElementImagePropsSchema`
 
-#### Phase B: Element Library & Builder (v3.3)
+#### Phase B: Element Library & Builder (v3.3) ✅
 
-- [ ] Interactive elements — `element:button`, `element:filter`, `element:form`, `element:record_picker`
-- [ ] `BlankPageLayoutSchema` — Free-form canvas composition with grid-based positioning
-- [ ] Record picker variable binding — `PageVariableSchema` integration with `element:record_picker`
-- [ ] Studio Interface Builder — Drag-and-drop element placement UI
+- [x] Interactive elements — `element:button`, `element:filter`, `element:form`, `element:record_picker`
+- [x] `BlankPageLayoutSchema` — Free-form canvas composition with grid-based positioning
+- [x] Record picker variable binding — `PageVariableSchema` integration with `element:record_picker`
+- [x] `InterfaceBuilderConfigSchema` — Canvas snap, zoom, element palette, layer panel configuration
+- [ ] Studio Interface Builder — Drag-and-drop element placement UI (runtime)
 
-#### Phase C: Sharing, Embedding & Permissions (v4.0)
+#### Phase C: Sharing, Embedding & Permissions (v4.0) 🟡
 
-- [ ] `SharingConfigSchema` — Public link, password, domain restriction, expiration (`src/ui/sharing.zod.ts`)
-- [ ] `EmbedConfigSchema` — iframe embedding with origin restrictions and display options
-- [ ] Per-interface role assignment — `assignedRoles` on `InterfaceSchema`
-- [ ] Public form sharing — `sharing` property on `FormViewSchema`
-- [ ] Design-time user impersonation — `previewAs` option for interface preview
+- [x] `SharingConfigSchema` — Public link, password, domain restriction, expiration (`src/ui/sharing.zod.ts`)
+- [x] `EmbedConfigSchema` — iframe embedding with origin restrictions and display options
+- [x] Per-interface role assignment — `assignedRoles` on `InterfaceSchema`
+- [x] Public form sharing — `sharing` property on `FormViewSchema`
+- [ ] Design-time user impersonation — `previewAs` option for interface preview (see [UX Optimization](docs/design/visual-design-ux-optimization.md))
+- [ ] Share link generation runtime service
+- [ ] Embed code generation runtime service
+- [ ] Security audit for shared/embedded access control
 
 #### Phase D: Advanced Interface Features (v4.1)
 
@@ -522,9 +526,9 @@ The following renames are planned for packages that implement core service contr
 | **v3.0** | ✅ Shipped | Protocol specification complete, core runtime stable |
 | **v3.1** | Q2 2026 | Essential services (`service-cache`, `service-queue`, `service-job`, `service-storage`), PostgreSQL driver, Turso/libSQL core driver ([design](docs/design/driver-turso.md)) |
 | **v3.2** | Q3 2026 | Communication services (`service-realtime`, `service-graphql`, `service-i18n`, `service-notification`), Turso embedded replica & edge sync, UI Protocol Enhancement Phase A (`InterfaceSchema`, `RecordReviewConfig`, content elements) — see [gap analysis](docs/design/airtable-interface-gap-analysis.md) |
-| **v3.3** | Q4 2026 | Business logic services (`service-automation`, `service-workflow`, `service-search`), Turso multi-tenancy (database-per-tenant), UI Protocol Enhancement Phase B (interactive elements, blank page layout, Interface Builder) |
-| **v4.0** | Q1 2027 | Zod v4 migration, `plugin-auth` → `service-auth` rename, JSON Schema output, OpenAPI generation, AI services, multi-tenancy, Turso vector search & FTS5 integration, UI Protocol Enhancement Phase C (sharing, embedding, per-interface permissions) |
-| **v4.1** | Q2 2027 | Studio IDE general availability, marketplace launch, UI Protocol Enhancement Phase D (templates, versioning, collaborative editing) |
+| **v3.3** | Q4 2026 | Business logic services (`service-automation`, `service-workflow`, `service-search`), Turso multi-tenancy (database-per-tenant), UI Protocol Enhancement Phase B spec ✅ complete (interactive elements, blank page layout), Studio Interface Builder runtime, Visual Design UX optimization ([plan](docs/design/visual-design-ux-optimization.md)) |
+| **v4.0** | Q1 2027 | Zod v4 migration, `plugin-auth` → `service-auth` rename, JSON Schema output, OpenAPI generation, AI services, multi-tenancy, Turso vector search & FTS5 integration, UI Protocol Enhancement Phase C spec 🟡 mostly complete (sharing, embedding), `previewAs` design-time preview, Data Studio protocol, runtime share/embed services |
+| **v4.1** | Q2 2027 | Studio IDE general availability, marketplace launch, UI Protocol Enhancement Phase D (templates, versioning, collaborative editing), Interface Builder enhancements (selection model, clipboard, alignment) |
 | **v5.0** | 2027+ | Managed cloud, app store, global ecosystem |
 
 ---
@@ -536,6 +540,7 @@ The following renames are planned for packages that implement core service contr
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Microkernel design, package structure, three-layer protocol stack |
 | [`docs/design/driver-turso.md`](docs/design/driver-turso.md) | Turso/libSQL driver design document — architecture impact, capabilities, implementation phases |
 | [`docs/design/airtable-interface-gap-analysis.md`](docs/design/airtable-interface-gap-analysis.md) | Airtable Interface gap analysis — UI protocol comparison, schema proposals, implementation roadmap |
+| [`docs/design/visual-design-ux-optimization.md`](docs/design/visual-design-ux-optimization.md) | Visual Design UX optimization plan — Airtable benchmark, spec coverage audit, Studio builder alignment |
 | [`apps/studio/ROADMAP.md`](apps/studio/ROADMAP.md) | Studio IDE development phases (v2.1 → v3.0) |
 | [`docs/DX_ROADMAP.md`](docs/DX_ROADMAP.md) | Developer experience improvements |
 | [`RELEASE_NOTES.md`](RELEASE_NOTES.md) | Version history and changelog |
