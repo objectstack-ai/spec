@@ -118,12 +118,12 @@
 | | Mode-specific config panels: Kanban (status field, swimlanes), Calendar (date fields, duration), Gantt (dependencies, milestones). | | |
 | 2.3 | **FormView Designer** | `objectstack.form-designer` | 🔴 P0 |
 | | Section/column layout editor. Field placement with drag-and-drop. Conditional visibility (`visibleOn`). Widget selection per field. Preview mode. | | |
-| 2.4 | **Interface Builder** | `objectstack.interface-builder` | 🔴 P0 |
-| | **Airtable Interface Designer parity.** Drag-and-drop element canvas using `BlankPageLayoutSchema`. Element palette (12 types: text, number, image, divider, button, filter, form, record_picker, grid, chart, details, list). Property panel per element. Snap-to-grid with alignment guides. Layer ordering. Undo/redo (50 steps). Data source binding per element (`ElementDataSourceSchema`). See `InterfaceBuilderConfigSchema` in `@objectstack/spec/studio`. | | |
-| 2.5 | **Page Builder** | `objectstack.page-builder` | 🟡 P1 |
+| 2.4 | **Page Builder** | `objectstack.page-builder` | 🔴 P0 |
+| | **Drag-and-drop element canvas** using `BlankPageLayoutSchema`. Element palette (12 types: text, number, image, divider, button, filter, form, record_picker, grid, chart, details, list). Property panel per element. Snap-to-grid with alignment guides. Layer ordering. Undo/redo (50 steps). Data source binding per element (`ElementDataSourceSchema`). See `PageBuilderConfigSchema` in `@objectstack/spec/studio`. | | |
+| 2.5 | **Component Builder** | `objectstack.component-builder` | 🟡 P1 |
 | | Component composition canvas. Drag regions and components (header, details, related list, AI chat, custom). Property panel for each component. Preview with live data context. | | |
 | 2.6 | **App Builder** | `objectstack.app-builder` | 🟡 P1 |
-| | Navigation tree editor (drag-and-drop reorder). Add object/dashboard/page/URL items. Interface management (`interfaces[]`). Branding panel (colors, logo). Home page selector. | | |
+| | Navigation tree editor (drag-and-drop reorder). Add object/dashboard/page/URL/group items. Branding panel (colors, logo). Home page selector. Sharing/embed configuration. | | |
 | 2.7 | **Dashboard Designer** | `objectstack.dashboard-designer` | 🟡 P1 |
 | | Grid layout editor (React-Grid-Layout). Widget palette: charts, KPIs, lists, embedded views. Data source binding per widget. Auto-refresh config. | | |
 | 2.8 | **Report Builder** | `objectstack.report-builder` | 🟢 P2 |
@@ -361,7 +361,7 @@ export const myPlugin: StudioPlugin = {
 | Metadata types with dedicated viewer | 1 / 30+ | 15 / 30+ | 30+ / 30+ |
 | Object Designer protocol schemas | 16 schemas | — | — |
 | Object Designer protocol tests | 46 tests | — | — |
-| Interface Builder protocol schemas | 4 schemas | 10+ | 15+ |
+| Page Builder protocol schemas | 4 schemas | 10+ | 15+ |
 | Component test coverage | 0% | 50% | 80% |
 | Deep-linkable views | 0 | All | All |
 | Plugin count (built-in) | 7 | 20 | 35+ |

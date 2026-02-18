@@ -26,7 +26,7 @@
   - [4.3 Enhancement Opportunities (P1 High)](#43-enhancement-opportunities-p1-high)
   - [4.4 Future Vision (P2 Medium)](#44-future-vision-p2-medium)
 - [5. Schema Enhancement Proposals](#5-schema-enhancement-proposals)
-  - [5.1 Interface Builder Protocol Enhancement](#51-interface-builder-protocol-enhancement)
+  - [5.1 Page Builder Protocol Enhancement](#51-page-builder-protocol-enhancement)
   - [5.2 Design-Time Preview Protocol](#52-design-time-preview-protocol)
   - [5.3 Data Studio Protocol](#53-data-studio-protocol)
   - [5.4 Template & Marketplace Protocol](#54-template--marketplace-protocol)
@@ -71,9 +71,9 @@ Airtable's Interface Designer follows six core UX principles that ObjectStack sh
 |:---:|:---|:---|:---|
 | 1 | **Data-first composition** | Every element is bound to a data source (table + view + filter) | ✅ `ElementDataSourceSchema` per component |
 | 2 | **Progressive disclosure** | Simple defaults → advanced options on demand | 🟡 Schemas have defaults but Studio UX doesn't implement progressive panels |
-| 3 | **Zero-code building** | Drag-and-drop, no configuration files | 🟡 `InterfaceBuilderConfigSchema` exists but Studio runtime not built |
-| 4 | **Role-specific surfaces** | Same data, different interfaces per stakeholder | ✅ `InterfaceSchema` with `assignedRoles` |
-| 5 | **Shareable artifacts** | Interfaces are independently shareable/embeddable | ✅ `SharingConfigSchema` + `EmbedConfigSchema` |
+| 3 | **Zero-code building** | Drag-and-drop, no configuration files | 🟡 `PageBuilderConfigSchema` exists but Studio runtime not built |
+| 4 | **Role-specific surfaces** | Same data, different pages per stakeholder | ✅ `AppSchema` with `requiredPermissions` |
+| 5 | **Shareable artifacts** | Apps are independently shareable/embeddable | ✅ `SharingConfigSchema` + `EmbedConfigSchema` on `AppSchema` |
 | 6 | **Record-centric workflow** | Review, approve, and edit records inline | ✅ `RecordReviewConfigSchema` |
 
 ### 2.2 Design Tool Capabilities
@@ -84,8 +84,8 @@ Airtable's Interface Designer follows six core UX principles that ObjectStack sh
 | Element palette with categories | ✅ | ✅ `ElementPaletteItemSchema` | ❌ Not built | Studio runtime gap |
 | Canvas snap-to-grid | ✅ | ✅ `CanvasSnapSettingsSchema` | ❌ Not built | Studio runtime gap |
 | Canvas zoom/pan | ✅ | ✅ `CanvasZoomSettingsSchema` | ❌ Not built | Studio runtime gap |
-| Layer ordering panel | ✅ | ✅ `InterfaceBuilderConfigSchema.showLayerPanel` | ❌ Not built | Studio runtime gap |
-| Property inspector panel | ✅ | ✅ `InterfaceBuilderConfigSchema.showPropertyPanel` | ❌ Not built | Studio runtime gap |
+| Layer ordering panel | ✅ | ✅ `PageBuilderConfigSchema.showLayerPanel` | ❌ Not built | Studio runtime gap |
+| Property inspector panel | ✅ | ✅ `PageBuilderConfigSchema.showPropertyPanel` | ❌ Not built | Studio runtime gap |
 | Undo/redo (multi-step) | ✅ | 🟡 `undoLimit` only | ❌ Not built | Schema + runtime gap |
 | Multi-select elements | ✅ | ❌ | ❌ | Schema + runtime gap |
 | Copy/paste elements | ✅ | ❌ | ❌ | Schema + runtime gap |
@@ -122,9 +122,8 @@ that combines interactive data views with embedded analytics in a single workspa
 | `view.zod.ts` | ListView, FormView, ViewSharing | ✅ | ✅ Exceeds (6 form types, 3-level grouping) | Stable |
 | `page.zod.ts` | PageSchema, 16 types, BlankLayout, RecordReview, Variables | ✅ | ✅ Full parity | Stable |
 | `component.zod.ts` | 30 component types, 12 prop schemas | ✅ | ✅ Full parity | Stable |
-| `interface.zod.ts` | InterfaceSchema, Branding, defineInterface | ✅ | ✅ Full parity | Stable |
 | `sharing.zod.ts` | SharingConfig, EmbedConfig | ✅ | ✅ Full parity | Stable |
-| `app.zod.ts` | AppSchema, interfaces[], InterfaceNavItem | ✅ | ✅ Full parity | Stable |
+| `app.zod.ts` | AppSchema, NavigationItem, sharing, embed | ✅ | ✅ Full parity | Stable |
 | `dashboard.zod.ts` | DashboardSchema, widgets | ✅ | ✅ Exceeds | Stable |
 | `chart.zod.ts` | 45+ chart types | ✅ | ✅ Exceeds (45 vs 4) | Stable |
 | `report.zod.ts` | Tabular, Summary, Matrix, Joined | ✅ | ✅ Exceeds | Stable |
@@ -208,10 +207,8 @@ These items are **already implemented in spec schemas** but roadmaps still show 
 | `PageVariableSchema` with `record_id` type and `source` binding | `page.zod.ts` L98-104 | ❌ Phase B pending | ✅ Mark complete |
 | `SharingConfigSchema` (public link, password, domain, expiration) | `sharing.zod.ts` L19-29 | ❌ Phase C pending | ✅ Mark complete |
 | `EmbedConfigSchema` (iframe, origins, responsive) | `sharing.zod.ts` L36-45 | ❌ Phase C pending | ✅ Mark complete |
-| `assignedRoles` on InterfaceSchema | `interface.zod.ts` L105 | ❌ Phase C pending | ✅ Mark complete |
-| `sharing` on FormViewSchema | `view.zod.ts` L451-452 | ❌ Phase C pending | ✅ Mark complete |
-| `sharing` and `embed` on InterfaceSchema | `interface.zod.ts` L107-111 | ❌ Phase C pending | ✅ Mark complete |
-| `InterfaceBuilderConfigSchema` (snap, zoom, palette, layers) | `interface-builder.zod.ts` L55-63 | ❌ Phase B pending | ✅ Mark complete |
+| `sharing` and `embed` on AppSchema | `app.zod.ts` | ❌ Phase C pending | ✅ Mark complete |
+| `PageBuilderConfigSchema` (snap, zoom, palette, layers) | `page-builder.zod.ts` L55-63 | ❌ Phase B pending | ✅ Mark complete |
 
 **Impact:** 10 roadmap items need status update from pending → complete.
 
@@ -220,7 +217,7 @@ These items are **already implemented in spec schemas** but roadmaps still show 
 | # | Gap | Description | Proposed Solution |
 |:---:|:---|:---|:---|
 | G1 | **Design-time preview** | No `previewAs` schema for impersonating another user/role during design | Add `PreviewConfigSchema` to `studio/interface-builder.zod.ts` |
-| G2 | **Builder selection model** | No schema for multi-select, clipboard, alignment tools in the canvas builder | Enhance `InterfaceBuilderConfigSchema` |
+| G2 | **Builder selection model** | No schema for multi-select, clipboard, alignment tools in the canvas builder | Enhance `PageBuilderConfigSchema` |
 | G3 | **JSON Schema generation** | Still pending from Phase A — needed for non-TS ecosystem support | Tooling task (not a schema gap) |
 
 ### 4.3 Enhancement Opportunities (P1 High)
@@ -228,8 +225,8 @@ These items are **already implemented in spec schemas** but roadmaps still show 
 | # | Enhancement | Description | Proposed Location |
 |:---:|:---|:---|:---|
 | E1 | **Data Studio protocol** | Unified interactive data workspace combining views + charts + filters | `studio/data-studio.zod.ts` (new) |
-| E2 | **Template protocol** | Interface/page templates for reuse and marketplace | `studio/template.zod.ts` (new) |
-| E3 | **Builder history state** | Undo/redo action stack with action types and serializable state | Enhance `interface-builder.zod.ts` |
+| E2 | **Template protocol** | Page templates for reuse and marketplace | `studio/template.zod.ts` (new) |
+| E3 | **Builder history state** | Undo/redo action stack with action types and serializable state | Enhance `page-builder.zod.ts` |
 | E4 | **Live preview protocol** | Schema for live data preview configuration in builders | Enhance `interface-builder.zod.ts` |
 
 ### 4.4 Future Vision (P2 Medium)
@@ -238,15 +235,15 @@ These items are **already implemented in spec schemas** but roadmaps still show 
 |:---:|:---|:---|:---|
 | V1 | **Collaborative editing** | CRDT-based real-time multi-user interface building | v4.1+ |
 | V2 | **AI-assisted design** | Natural language → interface generation ("create a kanban board for tasks") | v4.1+ |
-| V3 | **Interface analytics** | Page views, element interactions, user engagement tracking | v4.1+ |
-| V4 | **A/B testing** | Interface variants with traffic splitting and conversion tracking | v5.0+ |
+| V3 | **Page analytics** | Page views, element interactions, user engagement tracking | v4.1+ |
+| V4 | **A/B testing** | Page variants with traffic splitting and conversion tracking | v5.0+ |
 | V5 | **Mobile builder** | Touch-optimized interface builder for tablet devices | v5.0+ |
 
 ---
 
 ## 5. Schema Enhancement Proposals
 
-### 5.1 Interface Builder Protocol Enhancement
+### 5.1 Page Builder Protocol Enhancement
 
 Enhance `studio/interface-builder.zod.ts` with builder state management:
 
@@ -474,8 +471,8 @@ All **spec schema work** for Phase B is complete. Remaining work is Studio runti
 | Element prop schemas | ✅ Complete | ❌ Pending |
 | `BlankPageLayoutSchema` | ✅ Complete | ❌ Pending |
 | `PageVariableSchema` integration | ✅ Complete | ❌ Pending |
-| `InterfaceBuilderConfigSchema` | ✅ Complete | ❌ Pending |
-| Studio Interface Builder UI | N/A | ❌ Pending |
+| `PageBuilderConfigSchema` | ✅ Complete | ❌ Pending |
+| Studio Page Builder UI | N/A | ❌ Pending |
 
 ### Phase C Status Update (v4.0)
 
@@ -485,7 +482,7 @@ Most **spec schema work** for Phase C is also complete:
 |:---|:---:|:---:|
 | `SharingConfigSchema` | ✅ Complete | ❌ Pending |
 | `EmbedConfigSchema` | ✅ Complete | ❌ Pending |
-| `assignedRoles` on InterfaceSchema | ✅ Complete | ❌ Pending |
+| `sharing` and `embed` on AppSchema | ✅ Complete | ❌ Pending |
 | `sharing` on FormViewSchema | ✅ Complete | ❌ Pending |
 | Share link generation (runtime) | N/A | ❌ Pending |
 | Embed code generation (runtime) | N/A | ❌ Pending |
@@ -496,12 +493,12 @@ Most **spec schema work** for Phase C is also complete:
 
 | Version | Item | Type | Priority |
 |:---|:---|:---:|:---:|
-| v3.3 | Enhance `InterfaceBuilderConfigSchema` (selection, clipboard, alignment, history) | Spec | P1 |
+| v3.3 | Enhance `PageBuilderConfigSchema` (selection, clipboard, alignment, history) | Spec | P1 |
 | v3.3 | Add `DesignPreviewSchema` (viewport, previewAs, boundaries) | Spec | P1 |
 | v4.0 | Add `DataStudioConfigSchema` (inline editing, analytics sidebar, filter bar) | Spec | P1 |
-| v4.0 | Add `InterfaceTemplateSchema` (template marketplace) | Spec | P2 |
+| v4.0 | Add `PageTemplateSchema` (template marketplace) | Spec | P2 |
 | v4.1 | Collaborative editing protocol (CRDT, presence, attribution) | Spec | P2 |
-| v4.1 | Interface analytics protocol (page views, interactions) | Spec | P2 |
+| v4.1 | Page analytics protocol (page views, interactions) | Spec | P2 |
 
 ---
 
@@ -511,7 +508,7 @@ Most **spec schema work** for Phase C is also complete:
 |:---:|:---|:---|:---|
 | 1 | Keep UI / Data / Studio classification — do not restructure | Classification is sound. Expand Studio with new files instead. | 2026-02-16 |
 | 2 | Mark Phase B + C spec items as complete and update roadmaps | Interactive elements, blank layout, sharing, embedding are all implemented. Roadmaps must reflect reality. | 2026-02-16 |
-| 3 | Enhance `InterfaceBuilderConfigSchema` rather than create new file | Builder state management (selection, clipboard, history) belongs in the existing builder protocol. | 2026-02-16 |
+| 3 | Enhance `PageBuilderConfigSchema` rather than create new file | Builder state management (selection, clipboard, history) belongs in the existing builder protocol. | 2026-02-16 |
 | 4 | Add `DataStudioConfigSchema` as new file in `studio/` | Data Studio is a distinct concept from Dashboard (read-only) or ListView (single view). It deserves its own protocol. | 2026-02-16 |
 | 5 | Add `DesignPreviewSchema` to `interface-builder.zod.ts` | Preview configuration is builder-specific and belongs with other builder settings. | 2026-02-16 |
 | 6 | Defer collaborative editing and AI-assisted design to v4.1+ | These require significant runtime infrastructure (CRDT, AI service) not yet available. | 2026-02-16 |

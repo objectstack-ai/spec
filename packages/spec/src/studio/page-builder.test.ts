@@ -3,9 +3,9 @@ import {
   CanvasSnapSettingsSchema,
   CanvasZoomSettingsSchema,
   ElementPaletteItemSchema,
-  InterfaceBuilderConfigSchema,
-  type InterfaceBuilderConfig,
-} from './interface-builder.zod';
+  PageBuilderConfigSchema,
+  type PageBuilderConfig,
+} from './page-builder.zod';
 
 // ---------------------------------------------------------------------------
 // CanvasSnapSettingsSchema
@@ -88,18 +88,18 @@ describe('ElementPaletteItemSchema', () => {
 });
 
 // ---------------------------------------------------------------------------
-// InterfaceBuilderConfigSchema
+// PageBuilderConfigSchema
 // ---------------------------------------------------------------------------
-describe('InterfaceBuilderConfigSchema', () => {
+describe('PageBuilderConfigSchema', () => {
   it('should accept empty config with defaults', () => {
-    const config: InterfaceBuilderConfig = InterfaceBuilderConfigSchema.parse({});
+    const config: PageBuilderConfig = PageBuilderConfigSchema.parse({});
     expect(config.showLayerPanel).toBe(true);
     expect(config.showPropertyPanel).toBe(true);
     expect(config.undoLimit).toBe(50);
   });
 
   it('should accept full builder config', () => {
-    const config = InterfaceBuilderConfigSchema.parse({
+    const config = PageBuilderConfigSchema.parse({
       snap: { enabled: true, gridSize: 4 },
       zoom: { min: 0.5, max: 2 },
       palette: [

@@ -3,9 +3,16 @@ import {
   PageSchema,
   PageComponentSchema,
   PageRegionSchema,
+  PageTypeSchema,
+  RecordReviewConfigSchema,
+  ElementDataSourceSchema,
+  BlankPageLayoutSchema,
+  PageVariableSchema,
   type Page,
   type PageComponent,
   type PageRegion,
+  type ElementDataSource,
+  type RecordReviewConfig,
 } from './page.zod';
 
 describe('PageComponentSchema', () => {
@@ -439,5 +446,505 @@ describe('Page Responsive Integration', () => {
       responsive: { hiddenOn: ['xs', 'sm'] },
     });
     expect(result.responsive?.hiddenOn).toEqual(['xs', 'sm']);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PageTypeSchema — unified page types (platform + interface)
+// ---------------------------------------------------------------------------
+describe('PageTypeSchema', () => {
+  it('should accept all platform page types', () => {
+    const types = ['record', 'home', 'app', 'utility'];
+    types.forEach(type => {
+      expect(() => PageTypeSchema.parse(type)).not.toThrow();
+    });
+  });
+
+  it('should accept all interface page types', () => {
+    const types = [
+      'dashboard', 'grid', 'list', 'gallery', 'kanban', 'calendar',
+      'timeline', 'form', 'record_detail', 'record_review', 'overview', 'blank',
+    ];
+
+    types.forEach(type => {
+      expect(() => PageTypeSchema.parse(type)).not.toThrow();
+    });
+  });
+
+  it('should reject invalid page type', () => {
+    expect(() => PageTypeSchema.parse('invalid')).toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// RecordReviewConfigSchema
+// ---------------------------------------------------------------------------
+describe('RecordReviewConfigSchema', () => {
+  it('should accept minimal review config', () => {
+    const config: RecordReviewConfig = RecordReviewConfigSchema.parse({
+      object: 'order',
+      actions: [
+        { label: 'Approve', type: 'approve' },
+      ],
+    });
+
+    expect(config.object).toBe('order');
+    expect(config.actions).toHaveLength(1);
+    expect(config.navigation).toBe('sequential');
+    expect(config.showProgress).toBe(true);
+  });
+
+  it('should accept full review config', () => {
+    const config = RecordReviewConfigSchema.parse({
+      object: 'invoice',
+      filter: { status: 'pending' },
+      sort: [{ field: 'created_at', order: 'desc' }],
+      displayFields: ['amount', 'vendor', 'description'],
+      actions: [
+        { label: 'Approve', type: 'approve', field: 'status', value: 'approved', nextRecord: true },
+        { label: 'Reject', type: 'reject', field: 'status', value: 'rejected' },
+        { label: 'Skip', type: 'skip', nextRecord: true },
+        { label: 'Flag', type: 'custom', field: 'flagged', value: true },
+      ],
+      navigation: 'filtered',
+      showProgress: false,
+    });
+
+    expect(config.actions).toHaveLength(4);
+    expect(config.navigation).toBe('filtered');
+    expect(config.showProgress).toBe(false);
+    expect(config.displayFields).toEqual(['amount', 'vendor', 'description']);
+  });
+
+  it('should reject review config without object', () => {
+    expect(() => RecordReviewConfigSchema.parse({
+      actions: [{ label: 'Approve', type: 'approve' }],
+    })).toThrow();
+  });
+
+  it('should reject review config without actions', () => {
+    expect(() => RecordReviewConfigSchema.parse({
+      object: 'order',
+    })).toThrow();
+  });
+
+  it('should accept all action types', () => {
+    const types = ['approve', 'reject', 'skip', 'custom'] as const;
+
+    types.forEach(type => {
+      expect(() => RecordReviewConfigSchema.parse({
+        object: 'order',
+        actions: [{ label: 'Action', type }],
+      })).not.toThrow();
+    });
+  });
+
+  it('should accept all navigation modes', () => {
+    const modes = ['sequential', 'random', 'filtered'] as const;
+
+    modes.forEach(navigation => {
+      const config = RecordReviewConfigSchema.parse({
+        object: 'order',
+        actions: [{ label: 'Ok', type: 'approve' }],
+        navigation,
+      });
+      expect(config.navigation).toBe(navigation);
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PageSchema with page types
+// ---------------------------------------------------------------------------
+describe('PageSchema with page types', () => {
+  it('should accept minimal interface-style page', () => {
+    const page: Page = PageSchema.parse({
+      name: 'page_overview',
+      label: 'Overview',
+      type: 'blank',
+      regions: [],
+    });
+
+    expect(page.name).toBe('page_overview');
+    expect(page.type).toBe('blank');
+    expect(page.template).toBe('default');
+  });
+
+  it('should accept dashboard page', () => {
+    const page = PageSchema.parse({
+      name: 'page_dashboard',
+      label: 'Dashboard',
+      type: 'dashboard',
+      regions: [
+        {
+          name: 'main',
+          components: [
+            { type: 'element:number', properties: { object: 'order', aggregate: 'count' } },
+          ],
+        },
+      ],
+    });
+
+    expect(page.type).toBe('dashboard');
+    expect(page.regions[0].components).toHaveLength(1);
+  });
+
+  it('should accept record_review page with config', () => {
+    const page = PageSchema.parse({
+      name: 'page_review',
+      label: 'Review Queue',
+      type: 'record_review',
+      object: 'order',
+      recordReview: {
+        object: 'order',
+        actions: [
+          { label: 'Approve', type: 'approve', field: 'status', value: 'approved' },
+          { label: 'Reject', type: 'reject', field: 'status', value: 'rejected' },
+        ],
+      },
+      regions: [],
+    });
+
+    expect(page.type).toBe('record_review');
+    expect(page.recordReview?.actions).toHaveLength(2);
+  });
+
+  it('should accept page with variables', () => {
+    const page = PageSchema.parse({
+      name: 'page_filtered',
+      label: 'Filtered View',
+      type: 'blank',
+      variables: [
+        { name: 'selectedId', type: 'string' },
+        { name: 'showArchived', type: 'boolean', defaultValue: false },
+      ],
+      regions: [],
+    });
+
+    expect(page.variables).toHaveLength(2);
+  });
+
+  it('should accept all interface page types', () => {
+    const types = [
+      'dashboard', 'grid', 'list', 'gallery', 'kanban', 'calendar',
+      'timeline', 'form', 'record_detail', 'record_review', 'overview', 'blank',
+    ];
+
+    types.forEach(type => {
+      expect(() => PageSchema.parse({
+        name: 'test_page',
+        label: 'Test',
+        type,
+        regions: [],
+      })).not.toThrow();
+    });
+  });
+
+  it('should accept page with icon', () => {
+    const page = PageSchema.parse({
+      name: 'page_with_icon',
+      label: 'Dashboard',
+      type: 'dashboard',
+      icon: 'bar-chart',
+      regions: [],
+    });
+
+    expect(page.icon).toBe('bar-chart');
+  });
+
+  it('should accept page with i18n label', () => {
+    expect(() => PageSchema.parse({
+      name: 'i18n_page',
+      label: { key: 'pages.overview', defaultValue: 'Overview' },
+      regions: [],
+    })).not.toThrow();
+  });
+
+  it('should accept page with ARIA attributes', () => {
+    expect(() => PageSchema.parse({
+      name: 'accessible_page',
+      label: 'Accessible Page',
+      regions: [],
+      aria: { ariaLabel: 'App overview page', role: 'main' },
+    })).not.toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ElementDataSourceSchema (per-element data binding)
+// ---------------------------------------------------------------------------
+describe('ElementDataSourceSchema', () => {
+  it('should accept minimal data source', () => {
+    const ds: ElementDataSource = ElementDataSourceSchema.parse({
+      object: 'order',
+    });
+
+    expect(ds.object).toBe('order');
+    expect(ds.view).toBeUndefined();
+    expect(ds.filter).toBeUndefined();
+    expect(ds.sort).toBeUndefined();
+    expect(ds.limit).toBeUndefined();
+  });
+
+  it('should accept full data source', () => {
+    const ds = ElementDataSourceSchema.parse({
+      object: 'invoice',
+      view: 'pending_review',
+      filter: { status: 'pending' },
+      sort: [{ field: 'created_at', order: 'desc' }],
+      limit: 50,
+    });
+
+    expect(ds.object).toBe('invoice');
+    expect(ds.view).toBe('pending_review');
+    expect(ds.sort).toHaveLength(1);
+    expect(ds.limit).toBe(50);
+  });
+
+  it('should reject without object', () => {
+    expect(() => ElementDataSourceSchema.parse({})).toThrow();
+  });
+
+  it('should reject invalid sort order', () => {
+    expect(() => ElementDataSourceSchema.parse({
+      object: 'order',
+      sort: [{ field: 'name', order: 'invalid' }],
+    })).toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PageComponent dataSource integration
+// ---------------------------------------------------------------------------
+describe('PageComponent dataSource integration', () => {
+  it('should accept component with dataSource', () => {
+    const component = PageComponentSchema.parse({
+      type: 'element:number',
+      properties: { object: 'order', aggregate: 'sum', field: 'total' },
+      dataSource: {
+        object: 'order',
+        filter: { status: 'completed' },
+        limit: 100,
+      },
+    });
+
+    expect(component.dataSource?.object).toBe('order');
+    expect(component.dataSource?.limit).toBe(100);
+  });
+
+  it('should accept component without dataSource', () => {
+    const component = PageComponentSchema.parse({
+      type: 'element:text',
+      properties: { content: 'Static text' },
+    });
+
+    expect(component.dataSource).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// BlankPageLayoutSchema — free-form canvas composition
+// ---------------------------------------------------------------------------
+describe('BlankPageLayoutSchema', () => {
+  it('should accept minimal layout with defaults', () => {
+    const layout = BlankPageLayoutSchema.parse({
+      items: [],
+    });
+    expect(layout.columns).toBe(12);
+    expect(layout.rowHeight).toBe(40);
+    expect(layout.gap).toBe(8);
+    expect(layout.items).toHaveLength(0);
+  });
+
+  it('should accept full layout config', () => {
+    const layout = BlankPageLayoutSchema.parse({
+      columns: 24,
+      rowHeight: 20,
+      gap: 4,
+      items: [
+        { componentId: 'text_1', x: 0, y: 0, width: 12, height: 2 },
+        { componentId: 'btn_1', x: 0, y: 2, width: 6, height: 1 },
+        { componentId: 'picker_1', x: 6, y: 2, width: 6, height: 3 },
+      ],
+    });
+    expect(layout.columns).toBe(24);
+    expect(layout.items).toHaveLength(3);
+    expect(layout.items[0].x).toBe(0);
+    expect(layout.items[2].width).toBe(6);
+  });
+
+  it('should reject item with invalid dimensions', () => {
+    expect(() => BlankPageLayoutSchema.parse({
+      items: [{ componentId: 'a', x: 0, y: 0, width: 0, height: 1 }],
+    })).toThrow();
+
+    expect(() => BlankPageLayoutSchema.parse({
+      items: [{ componentId: 'a', x: -1, y: 0, width: 1, height: 1 }],
+    })).toThrow();
+  });
+
+  it('should accept page with blankLayout', () => {
+    const page = PageSchema.parse({
+      name: 'blank_canvas',
+      label: 'Canvas',
+      type: 'blank',
+      regions: [
+        {
+          name: 'main',
+          components: [
+            { id: 'text_1', type: 'element:text', properties: { content: 'Hello' } },
+            { id: 'btn_1', type: 'element:button', properties: { label: 'Click' } },
+          ],
+        },
+      ],
+      blankLayout: {
+        columns: 12,
+        items: [
+          { componentId: 'text_1', x: 0, y: 0, width: 12, height: 2 },
+          { componentId: 'btn_1', x: 0, y: 2, width: 4, height: 1 },
+        ],
+      },
+    });
+
+    expect(page.blankLayout?.items).toHaveLength(2);
+    expect(page.blankLayout?.columns).toBe(12);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PageVariableSchema — record_picker variable binding
+// ---------------------------------------------------------------------------
+describe('PageVariableSchema record_id type', () => {
+  it('should accept record_id variable type', () => {
+    const variable = PageVariableSchema.parse({
+      name: 'selected_account_id',
+      type: 'record_id',
+    });
+    expect(variable.type).toBe('record_id');
+  });
+
+  it('should accept variable with source binding', () => {
+    const variable = PageVariableSchema.parse({
+      name: 'selected_account',
+      type: 'record_id',
+      source: 'picker_1',
+    });
+    expect(variable.source).toBe('picker_1');
+  });
+
+  it('should accept page with record_picker variable binding', () => {
+    const page = PageSchema.parse({
+      name: 'blank_picker',
+      label: 'Picker Page',
+      type: 'blank',
+      variables: [
+        { name: 'selected_id', type: 'record_id', source: 'account_picker' },
+        { name: 'show_details', type: 'boolean', defaultValue: false },
+      ],
+      regions: [
+        {
+          name: 'main',
+          components: [
+            {
+              id: 'account_picker',
+              type: 'element:record_picker',
+              properties: {
+                object: 'account',
+                displayField: 'name',
+                targetVariable: 'selected_id',
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(page.variables).toHaveLength(2);
+    expect(page.variables![0].type).toBe('record_id');
+    expect(page.variables![0].source).toBe('account_picker');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Page end-to-end
+// ---------------------------------------------------------------------------
+describe('Page end-to-end', () => {
+  it('should accept a complete real-world page definition', () => {
+    const page = PageSchema.parse({
+      name: 'page_overview',
+      label: 'Overview',
+      type: 'dashboard',
+      object: 'order',
+      regions: [
+        {
+          name: 'main',
+          components: [
+            {
+              type: 'element:text',
+              properties: { content: '# Order Dashboard', variant: 'heading' },
+            },
+            {
+              type: 'element:number',
+              properties: { object: 'order', aggregate: 'count' },
+              dataSource: { object: 'order', filter: { status: 'pending' } },
+            },
+            {
+              type: 'element:number',
+              properties: { object: 'order', aggregate: 'sum', field: 'total', format: 'currency', prefix: '$' },
+              dataSource: { object: 'order', filter: { status: 'completed' } },
+            },
+            {
+              type: 'element:divider',
+              properties: {},
+            },
+            {
+              type: 'element:image',
+              properties: { src: '/images/banner.jpg', alt: 'Order management', fit: 'cover', height: 200 },
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(page.name).toBe('page_overview');
+    expect(page.regions[0].components).toHaveLength(5);
+  });
+
+  it('should accept a record_review page with full config', () => {
+    const page = PageSchema.parse({
+      name: 'page_review',
+      label: 'Review Queue',
+      type: 'record_review',
+      object: 'order',
+      recordReview: {
+        object: 'order',
+        filter: { status: 'pending_review' },
+        sort: [{ field: 'priority', order: 'desc' }],
+        displayFields: ['customer_name', 'total', 'items_count'],
+        actions: [
+          { label: 'Approve', type: 'approve', field: 'status', value: 'approved' },
+          { label: 'Reject', type: 'reject', field: 'status', value: 'rejected' },
+          { label: 'Skip', type: 'skip' },
+        ],
+        navigation: 'sequential',
+        showProgress: true,
+      },
+      regions: [],
+    });
+
+    expect(page.recordReview?.actions).toHaveLength(3);
+  });
+
+  it('should accept a grid page bound to an object', () => {
+    const page = PageSchema.parse({
+      name: 'page_grid',
+      label: 'All Orders',
+      type: 'grid',
+      object: 'order',
+      regions: [],
+    });
+
+    expect(page.type).toBe('grid');
+    expect(page.object).toBe('order');
   });
 });

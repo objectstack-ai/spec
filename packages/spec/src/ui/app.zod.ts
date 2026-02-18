@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
+import { SharingConfigSchema, EmbedConfigSchema } from './sharing.zod';
 
 /**
  * Base Navigation Item Schema
@@ -78,23 +79,7 @@ export const UrlNavItemSchema = BaseNavItemSchema.extend({
 });
 
 /**
- * 5. Interface Navigation Item
- * Navigates to a specific Interface (self-contained multi-page surface).
- * Bridges AppSchema (navigation container) with InterfaceSchema (content surface).
- * 
- * **Note:** While this schema remains for backward compatibility, the preferred pattern
- * is now to use `AppSchema.interfaces[]` to declare interfaces, which automatically
- * generates a two-level Interface→Pages sidebar menu. This navigation item type is 
- * retained for explicit interface navigation and global utility entries.
- */
-export const InterfaceNavItemSchema = BaseNavItemSchema.extend({
-  type: z.literal('interface'),
-  interfaceName: z.string().describe('Target interface name (snake_case)'),
-  pageName: z.string().optional().describe('Specific page within the interface to open'),
-});
-
-/**
- * 6. Group Navigation Item
+ * 5. Group Navigation Item
  * A container for child navigation items (Sub-menu).
  * Does not perform navigation itself.
  */
@@ -106,18 +91,16 @@ export const GroupNavItemSchema = BaseNavItemSchema.extend({
 
 /**
  * Recursive Union of all navigation item types.
- * Allows constructing a navigation tree.
+ * Allows constructing an unlimited-depth navigation tree.
  */
 export const NavigationItemSchema: z.ZodType<any> = z.lazy(() => 
   z.union([
-    // Object Item can now have children (Airtable style: Object -> Views)
     ObjectNavItemSchema.extend({
       children: z.array(NavigationItemSchema).optional().describe('Child navigation items (e.g. specific views)'),
     }),
     DashboardNavItemSchema,
     PageNavItemSchema,
     UrlNavItemSchema,
-    InterfaceNavItemSchema,
     GroupNavItemSchema.extend({
       children: z.array(NavigationItemSchema).describe('Child navigation items'),
     })
@@ -157,20 +140,21 @@ export const AppBrandingSchema = z.object({
  * App Configuration Schema
  * Defines a business application container, including its navigation, branding, and permissions.
  * 
- * The new architecture makes App an "Interface switcher" where the sidebar content is 
- * auto-generated from `interfaces[]`, rendering a two-level Interface→Pages menu. The 
- * `navigation[]` field is retained for global utility entries only (Settings, Help, 
- * external links) and is rendered at the bottom of the sidebar.
+ * The App is the top-level navigation shell. The `navigation[]` field holds the complete
+ * sidebar tree with unlimited nesting depth via `type: 'group'` items. Pages are referenced
+ * by name via `type: 'page'` items and defined independently.
  * 
- * @example CRM App with new Interface-driven pattern
+ * @example CRM App with nested navigation tree
  * {
  *   name: "crm",
  *   label: "Sales CRM",
  *   icon: "briefcase",
- *   interfaces: ["sales_workspace", "lead_review", "sales_analytics"],
- *   defaultInterface: "sales_workspace",
  *   navigation: [
- *     { type: "page", id: "nav_settings", label: "Settings", pageName: "admin_settings" }
+ *     { type: "group", id: "grp_sales", label: "Sales Cloud", expanded: true, children: [
+ *       { type: "page", id: "nav_pipeline", label: "Pipeline", pageName: "page_pipeline" },
+ *       { type: "page", id: "nav_accounts", label: "Accounts", pageName: "page_accounts" },
+ *     ]},
+ *     { type: "page", id: "nav_settings", label: "Settings", pageName: "admin_settings" },
  *   ]
  * }
  */
@@ -200,28 +184,12 @@ export const AppSchema = z.object({
   isDefault: z.boolean().optional().default(false).describe('Is default app'),
   
   /** 
-   * Interface names registered in this App.
-   * Sidebar renders as a two-level menu: Interface (collapsible group) → Pages (menu items).
-   * The runtime auto-generates the sidebar navigation from these interfaces and their pages.
+   * Full Navigation Tree — supports unlimited nesting depth.
+   * Pages are referenced by name via `type: 'page'` items.
+   * Groups can contain other groups for arbitrary sidebar depth.
    */
-  interfaces: z.array(z.string()).optional()
-    .describe('Interface names available in this App. Sidebar renders as Interface→Pages two-level menu.'),
-
-  /** Default interface to activate on App launch */
-  defaultInterface: z.string().optional()
-    .describe('Default interface to show when the App opens'),
-  
-  /** 
-   * Navigation Tree Structure (Global Utility Entries Only).
-   * This field is now repurposed for global utility navigation items only (Settings, Help, 
-   * external links, etc.) that are rendered at the bottom of the sidebar. The main sidebar 
-   * content is auto-generated from `interfaces[]`.
-   * 
-   * For backward compatibility, this field remains optional and can still contain the full 
-   * navigation tree. However, the new recommended pattern is to use `interfaces[]` for 
-   * the main navigation and reserve this field for global utility entries.
-   */
-  navigation: z.array(NavigationItemSchema).optional().describe('Global utility navigation items (Settings, Help, external links) — rendered at bottom of sidebar'),
+  navigation: z.array(NavigationItemSchema).optional()
+    .describe('Full navigation tree for the app sidebar'),
   
   /** 
    * App-level Home Page Override
@@ -244,6 +212,12 @@ export const AppSchema = z.object({
    */
   objects: z.array(z.unknown()).optional().describe('Objects belonging to this app'),
   apis: z.array(z.unknown()).optional().describe('Custom APIs belonging to this app'),
+
+  /** Sharing configuration for public access */
+  sharing: SharingConfigSchema.optional().describe('Public sharing configuration'),
+
+  /** Embed configuration for iframe embedding */
+  embed: EmbedConfigSchema.optional().describe('Iframe embedding configuration'),
 
   /** Mobile navigation mode */
   mobileNavigation: z.object({
@@ -269,27 +243,17 @@ export const App = {
  *
  * Validates the config at creation time using Zod `.parse()`.
  *
- * @example New Interface-driven pattern
+ * @example CRM App with nested navigation tree
  * ```ts
  * const crmApp = defineApp({
  *   name: 'crm',
- *   label: 'CRM',
- *   interfaces: ['sales_workspace', 'lead_review', 'sales_analytics'],
- *   defaultInterface: 'sales_workspace',
+ *   label: 'Sales CRM',
  *   navigation: [
- *     { id: 'nav_settings', label: 'Settings', type: 'page', pageName: 'settings' },
- *   ],
- * });
- * ```
- * 
- * @example Legacy navigation tree pattern (backward compatible)
- * ```ts
- * const crmApp = defineApp({
- *   name: 'crm',
- *   label: 'CRM',
- *   navigation: [
- *     { id: 'nav_accounts', label: 'Accounts', type: 'object', objectName: 'account' },
- *     { id: 'nav_contacts', label: 'Contacts', type: 'object', objectName: 'contact' },
+ *     { id: 'grp_sales', type: 'group', label: 'Sales Cloud', expanded: true, children: [
+ *       { id: 'nav_pipeline', type: 'page', label: 'Pipeline', pageName: 'page_pipeline' },
+ *       { id: 'nav_accounts', type: 'page', label: 'Accounts', pageName: 'page_accounts' },
+ *     ]},
+ *     { id: 'nav_settings', type: 'page', label: 'Settings', pageName: 'admin_settings' },
  *   ],
  * });
  * ```
@@ -309,5 +273,4 @@ export type ObjectNavItem = z.infer<typeof ObjectNavItemSchema>;
 export type DashboardNavItem = z.infer<typeof DashboardNavItemSchema>;
 export type PageNavItem = z.infer<typeof PageNavItemSchema>;
 export type UrlNavItem = z.infer<typeof UrlNavItemSchema>;
-export type InterfaceNavItem = z.infer<typeof InterfaceNavItemSchema>;
 export type GroupNavItem = z.infer<typeof GroupNavItemSchema> & { children: NavigationItem[] };

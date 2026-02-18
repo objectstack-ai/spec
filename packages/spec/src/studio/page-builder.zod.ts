@@ -1,11 +1,11 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 /**
- * @module studio/interface-builder
+ * @module studio/page-builder
  *
- * Studio Interface Builder Protocol
+ * Studio Page Builder Protocol
  *
- * Defines the specification for the drag-and-drop Interface Builder UI.
+ * Defines the specification for the drag-and-drop Page Builder UI.
  * The builder allows visual composition of blank pages by placing
  * elements on a grid canvas with snapping, alignment, and layer ordering.
  */
@@ -49,10 +49,10 @@ export const ElementPaletteItemSchema = z.object({
 });
 
 /**
- * Interface Builder Config Schema
- * Configuration for the Studio Interface Builder.
+ * Page Builder Config Schema
+ * Configuration for the Studio Page Builder.
  */
-export const InterfaceBuilderConfigSchema = z.object({
+export const PageBuilderConfigSchema = z.object({
   snap: CanvasSnapSettingsSchema.optional().describe('Canvas snap settings'),
   zoom: CanvasZoomSettingsSchema.optional().describe('Canvas zoom settings'),
   palette: z.array(ElementPaletteItemSchema).optional()
@@ -62,8 +62,14 @@ export const InterfaceBuilderConfigSchema = z.object({
   undoLimit: z.number().int().min(1).default(50).describe('Maximum undo history steps'),
 });
 
+// Backward compatibility alias
+/** @deprecated Use PageBuilderConfigSchema instead */
+export const InterfaceBuilderConfigSchema = PageBuilderConfigSchema;
+
 // Type Exports
 export type CanvasSnapSettings = z.infer<typeof CanvasSnapSettingsSchema>;
 export type CanvasZoomSettings = z.infer<typeof CanvasZoomSettingsSchema>;
 export type ElementPaletteItem = z.infer<typeof ElementPaletteItemSchema>;
-export type InterfaceBuilderConfig = z.infer<typeof InterfaceBuilderConfigSchema>;
+/** @deprecated Use PageBuilderConfig instead */
+export type InterfaceBuilderConfig = z.infer<typeof PageBuilderConfigSchema>;
+export type PageBuilderConfig = z.infer<typeof PageBuilderConfigSchema>;

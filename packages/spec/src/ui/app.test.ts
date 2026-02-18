@@ -7,7 +7,6 @@ import {
   DashboardNavItemSchema,
   PageNavItemSchema,
   UrlNavItemSchema,
-  InterfaceNavItemSchema,
   GroupNavItemSchema,
   defineApp,
   type App,
@@ -125,53 +124,6 @@ describe('UrlNavItemSchema', () => {
     };
 
     expect(() => UrlNavItemSchema.parse(navItem)).not.toThrow();
-  });
-});
-
-describe('InterfaceNavItemSchema', () => {
-  it('should accept interface nav item with just interfaceName', () => {
-    const navItem = {
-      id: 'nav_order_review',
-      label: 'Order Review',
-      type: 'interface' as const,
-      interfaceName: 'order_review',
-    };
-
-    const result = InterfaceNavItemSchema.parse(navItem);
-    expect(result.interfaceName).toBe('order_review');
-    expect(result.pageName).toBeUndefined();
-  });
-
-  it('should accept interface nav item with pageName', () => {
-    const navItem = {
-      id: 'nav_sales_dashboard',
-      label: 'Sales Dashboard',
-      icon: 'layout-dashboard',
-      type: 'interface' as const,
-      interfaceName: 'sales_portal',
-      pageName: 'page_dashboard',
-    };
-
-    const result = InterfaceNavItemSchema.parse(navItem);
-    expect(result.interfaceName).toBe('sales_portal');
-    expect(result.pageName).toBe('page_dashboard');
-  });
-
-  it('should work in NavigationItemSchema union', () => {
-    expect(() => NavigationItemSchema.parse({
-      id: 'nav_interface',
-      label: 'Interface',
-      type: 'interface',
-      interfaceName: 'my_interface',
-    })).not.toThrow();
-  });
-
-  it('should reject without interfaceName', () => {
-    expect(() => InterfaceNavItemSchema.parse({
-      id: 'nav_missing',
-      label: 'Missing',
-      type: 'interface',
-    })).toThrow();
   });
 });
 
@@ -508,37 +460,84 @@ describe('AppSchema', () => {
       expect(() => AppSchema.parse(hrApp)).not.toThrow();
     });
 
-    it('should accept app with interface navigation items', () => {
-      const app: App = {
-        name: 'data_platform',
-        label: 'Data Platform',
+    it('should accept app with sharing and embed config', () => {
+      const app = AppSchema.parse({
+        name: 'shared_portal',
+        label: 'Shared Portal',
+        navigation: [],
+        sharing: {
+          enabled: true,
+          allowAnonymous: true,
+        },
+        embed: {
+          enabled: true,
+          allowedOrigins: ['https://example.com'],
+          responsive: true,
+        },
+      });
+
+      expect(app.sharing?.enabled).toBe(true);
+      expect(app.embed?.enabled).toBe(true);
+      expect(app.embed?.allowedOrigins).toEqual(['https://example.com']);
+    });
+
+    it('should accept CRM app with deeply nested navigation tree', () => {
+      const crmApp = AppSchema.parse({
+        name: 'crm',
+        label: 'Sales CRM',
+        icon: 'briefcase',
+        branding: { primaryColor: '#4169E1' },
         navigation: [
           {
-            id: 'nav_home',
-            label: 'Home',
-            icon: 'home',
-            type: 'dashboard',
-            dashboardName: 'main_dashboard',
+            id: 'grp_sales',
+            type: 'group',
+            label: 'Sales Cloud',
+            icon: 'briefcase',
+            expanded: true,
+            children: [
+              { id: 'nav_pipeline', type: 'page', label: 'Pipeline', icon: 'columns', pageName: 'page_pipeline' },
+              { id: 'nav_accounts', type: 'page', label: 'Accounts', icon: 'building', pageName: 'page_accounts' },
+              { id: 'nav_leads', type: 'page', label: 'Leads', icon: 'user-plus', pageName: 'page_leads' },
+              {
+                id: 'grp_review',
+                type: 'group',
+                label: 'Lead Review',
+                icon: 'clipboard-check',
+                expanded: false,
+                children: [
+                  { id: 'nav_review_queue', type: 'page', label: 'Review Queue', icon: 'check-square', pageName: 'page_review_queue' },
+                  { id: 'nav_qualified', type: 'page', label: 'Qualified', icon: 'check-circle', pageName: 'page_qualified' },
+                ],
+              },
+            ],
           },
           {
-            id: 'nav_order_review',
-            label: 'Order Review',
-            icon: 'clipboard-check',
-            type: 'interface',
-            interfaceName: 'order_review',
+            id: 'grp_analytics',
+            type: 'group',
+            label: 'Analytics',
+            icon: 'chart-line',
+            expanded: false,
+            children: [
+              { id: 'nav_overview', type: 'page', label: 'Overview', icon: 'gauge', pageName: 'page_overview' },
+              { id: 'nav_pipeline_report', type: 'page', label: 'Pipeline Report', icon: 'chart-bar', pageName: 'page_pipeline_report' },
+            ],
           },
-          {
-            id: 'nav_sales_portal',
-            label: 'Sales Portal',
-            icon: 'layout-dashboard',
-            type: 'interface',
-            interfaceName: 'sales_portal',
-            pageName: 'page_dashboard',
-          },
+          { id: 'nav_settings', type: 'page', label: 'Settings', icon: 'settings', pageName: 'admin_settings' },
+          { id: 'nav_help', type: 'url', label: 'Help', icon: 'help-circle', url: 'https://help.example.com', target: '_blank' },
         ],
-      };
+        homePageId: 'nav_pipeline',
+        requiredPermissions: ['app.access.crm'],
+      });
 
-      expect(() => AppSchema.parse(app)).not.toThrow();
+      expect(crmApp.navigation).toHaveLength(4);
+      // Verify nested groups
+      const salesGroup = crmApp.navigation![0];
+      expect(salesGroup.type).toBe('group');
+      expect(salesGroup.children).toHaveLength(4);
+      // Verify deeply nested sub-group
+      const reviewGroup = salesGroup.children[3];
+      expect(reviewGroup.type).toBe('group');
+      expect(reviewGroup.children).toHaveLength(2);
     });
   });
 });
@@ -606,78 +605,62 @@ describe('defineApp', () => {
   });
 });
 
-describe('AppSchema with interfaces[] field', () => {
-  it('should accept app with interfaces array', () => {
+describe('AppSchema sharing and embed fields', () => {
+  it('should accept app with sharing config', () => {
     const app = AppSchema.parse({
-      name: 'sales_app',
-      label: 'Sales App',
-      interfaces: ['sales_workspace', 'lead_review', 'sales_analytics'],
+      name: 'public_app',
+      label: 'Public App',
+      sharing: {
+        enabled: true,
+        password: 'secret123',
+        allowedDomains: ['example.com'],
+      },
     });
 
-    expect(app.interfaces).toHaveLength(3);
-    expect(app.interfaces).toEqual(['sales_workspace', 'lead_review', 'sales_analytics']);
+    expect(app.sharing?.enabled).toBe(true);
+    expect(app.sharing?.password).toBe('secret123');
+    expect(app.sharing?.allowedDomains).toEqual(['example.com']);
   });
 
-  it('should accept app with defaultInterface', () => {
+  it('should accept app with embed config', () => {
     const app = AppSchema.parse({
-      name: 'crm_app',
-      label: 'CRM',
-      interfaces: ['sales_workspace', 'lead_review'],
-      defaultInterface: 'sales_workspace',
+      name: 'embeddable_app',
+      label: 'Embeddable App',
+      embed: {
+        enabled: true,
+        allowedOrigins: ['https://portal.example.com'],
+        width: '100%',
+        height: '800px',
+      },
     });
 
-    expect(app.defaultInterface).toBe('sales_workspace');
+    expect(app.embed?.enabled).toBe(true);
+    expect(app.embed?.allowedOrigins).toEqual(['https://portal.example.com']);
   });
 
-  it('should accept app with both interfaces and navigation', () => {
+  it('should accept app with both sharing and embed', () => {
     const app = AppSchema.parse({
-      name: 'modern_app',
-      label: 'Modern App',
-      interfaces: ['main_workspace', 'analytics'],
-      defaultInterface: 'main_workspace',
+      name: 'shared_embedded',
+      label: 'Shared & Embedded',
+      sharing: { enabled: true },
+      embed: { enabled: true },
+    });
+
+    expect(app.sharing?.enabled).toBe(true);
+    expect(app.embed?.enabled).toBe(true);
+  });
+
+  it('should accept app without sharing/embed (backward compatibility)', () => {
+    const app = AppSchema.parse({
+      name: 'basic_app',
+      label: 'Basic App',
       navigation: [
-        { id: 'nav_settings', label: 'Settings', type: 'page', pageName: 'admin_settings' },
-        { id: 'nav_help', label: 'Help', type: 'url', url: 'https://help.example.com' },
+        { id: 'nav_home', label: 'Home', type: 'object', objectName: 'account' },
       ],
     });
 
-    expect(app.interfaces).toHaveLength(2);
-    expect(app.navigation).toHaveLength(2);
-    expect(app.defaultInterface).toBe('main_workspace');
-  });
-
-  it('should accept app without interfaces (backward compatibility)', () => {
-    const app = AppSchema.parse({
-      name: 'legacy_app',
-      label: 'Legacy App',
-      navigation: [
-        { id: 'nav_accounts', label: 'Accounts', type: 'object', objectName: 'account' },
-      ],
-    });
-
-    expect(app.interfaces).toBeUndefined();
+    expect(app.sharing).toBeUndefined();
+    expect(app.embed).toBeUndefined();
     expect(app.navigation).toHaveLength(1);
-  });
-
-  it('should accept empty interfaces array', () => {
-    const app = AppSchema.parse({
-      name: 'empty_app',
-      label: 'Empty App',
-      interfaces: [],
-    });
-
-    expect(app.interfaces).toHaveLength(0);
-  });
-
-  it('should accept defaultInterface without interfaces array', () => {
-    // This is technically allowed even though it may not be meaningful
-    const app = AppSchema.parse({
-      name: 'test_app',
-      label: 'Test App',
-      defaultInterface: 'some_interface',
-    });
-
-    expect(app.defaultInterface).toBe('some_interface');
-    expect(app.interfaces).toBeUndefined();
   });
 });

@@ -2,7 +2,7 @@
 
 > **Author:** ObjectStack Core Team  
 > **Created:** 2026-02-16  
-> **Status:** Phase A–C Spec Complete · Studio Runtime Pending  
+> **Status:** ⚠️ SUPERSEDED — The `InterfaceSchema` layer has been removed. App now supports unlimited-depth navigation trees directly. Sharing/embed capabilities have been promoted to `AppSchema`. See the updated `app.zod.ts` for the current architecture.  
 > **Target Version:** v3.2 – v4.0
 
 ---
