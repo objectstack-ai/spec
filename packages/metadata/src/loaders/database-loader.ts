@@ -1,0 +1,352 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+/**
+ * Database Metadata Loader
+ *
+ * Loads and persists metadata via an IDataDriver instance, enabling
+ * database-backed storage for platform and user scoped metadata.
+ * Uses the `sys_metadata` table (configurable) following the
+ * MetadataRecordSchema envelope defined in @objectstack/spec.
+ */
+
+import type {
+  MetadataLoadOptions,
+  MetadataLoadResult,
+  MetadataStats,
+  MetadataLoaderContract,
+  MetadataSaveOptions,
+  MetadataSaveResult,
+  MetadataRecord,
+} from '@objectstack/spec/system';
+import { SysMetadataObject } from '../objects/sys-metadata.object.js';
+import type { IDataDriver } from '@objectstack/spec/contracts';
+import type { MetadataLoader } from './loader-interface.js';
+
+/**
+ * Configuration for the DatabaseLoader.
+ */
+export interface DatabaseLoaderOptions {
+  /** The IDataDriver instance to use for database operations */
+  driver: IDataDriver;
+
+  /** The table name to store metadata records (default: 'sys_metadata') */
+  tableName?: string;
+
+  /** Tenant ID for multi-tenant isolation */
+  tenantId?: string;
+}
+
+/**
+ * DatabaseLoader — Datasource-backed metadata persistence.
+ *
+ * Implements the MetadataLoader interface to provide database read/write
+ * for metadata records. Uses the MetadataRecordSchema envelope to persist
+ * metadata with scope, versioning, and audit fields.
+ */
+export class DatabaseLoader implements MetadataLoader {
+  readonly contract: MetadataLoaderContract = {
+    name: 'database',
+    protocol: 'datasource:',
+    capabilities: {
+      read: true,
+      write: true,
+      watch: false,
+      list: true,
+    },
+  };
+
+  private driver: IDataDriver;
+  private tableName: string;
+  private tenantId?: string;
+  private schemaReady = false;
+
+  constructor(options: DatabaseLoaderOptions) {
+    this.driver = options.driver;
+    this.tableName = options.tableName ?? 'sys_metadata';
+    this.tenantId = options.tenantId;
+  }
+
+  /**
+   * Ensure the metadata table exists.
+   * Uses IDataDriver.syncSchema with the SysMetadataObject definition
+   * to idempotently create/update the table.
+   */
+  private async ensureSchema(): Promise<void> {
+    if (this.schemaReady) return;
+
+    try {
+      await this.driver.syncSchema(this.tableName, {
+        ...SysMetadataObject,
+        name: this.tableName,
+      });
+      this.schemaReady = true;
+    } catch {
+      // If syncSchema fails (e.g. table already exists), mark ready and continue
+      this.schemaReady = true;
+    }
+  }
+
+  /**
+   * Build base filter conditions for queries.
+   * Always includes tenantId when configured.
+   */
+  private baseFilter(type: string, name?: string): Record<string, unknown> {
+    const filter: Record<string, unknown> = { type };
+    if (name !== undefined) {
+      filter.name = name;
+    }
+    if (this.tenantId) {
+      filter.tenant_id = this.tenantId;
+    }
+    return filter;
+  }
+
+  /**
+   * Convert a database row to a metadata payload.
+   * Parses the JSON `metadata` column back into an object.
+   */
+  private rowToData(row: Record<string, unknown>): Record<string, unknown> | null {
+    if (!row || !row.metadata) return null;
+
+    const payload = typeof row.metadata === 'string'
+      ? JSON.parse(row.metadata as string)
+      : row.metadata;
+
+    return payload as Record<string, unknown>;
+  }
+
+  /**
+   * Convert a database row to a MetadataRecord-like object.
+   */
+  private rowToRecord(row: Record<string, unknown>): MetadataRecord {
+    return {
+      id: row.id as string,
+      name: row.name as string,
+      type: row.type as string,
+      namespace: (row.namespace as string) ?? 'default',
+      packageId: row.package_id as string | undefined,
+      managedBy: row.managed_by as MetadataRecord['managedBy'],
+      scope: (row.scope as MetadataRecord['scope']) ?? 'platform',
+      metadata: this.rowToData(row) ?? {},
+      extends: row.extends as string | undefined,
+      strategy: (row.strategy as MetadataRecord['strategy']) ?? 'merge',
+      owner: row.owner as string | undefined,
+      state: (row.state as MetadataRecord['state']) ?? 'active',
+      tenantId: row.tenant_id as string | undefined,
+      version: (row.version as number) ?? 1,
+      checksum: row.checksum as string | undefined,
+      source: row.source as MetadataRecord['source'],
+      tags: row.tags ? (typeof row.tags === 'string' ? JSON.parse(row.tags as string) : row.tags as string[]) : undefined,
+      createdBy: row.created_by as string | undefined,
+      createdAt: row.created_at as string | undefined,
+      updatedBy: row.updated_by as string | undefined,
+      updatedAt: row.updated_at as string | undefined,
+    };
+  }
+
+  // ==========================================
+  // MetadataLoader Interface Implementation
+  // ==========================================
+
+  async load(
+    type: string,
+    name: string,
+    _options?: MetadataLoadOptions
+  ): Promise<MetadataLoadResult> {
+    const startTime = Date.now();
+
+    await this.ensureSchema();
+
+    try {
+      const row = await this.driver.findOne(this.tableName, {
+        object: this.tableName,
+        where: this.baseFilter(type, name),
+      });
+
+      if (!row) {
+        return {
+          data: null,
+          loadTime: Date.now() - startTime,
+        };
+      }
+
+      const data = this.rowToData(row);
+      const record = this.rowToRecord(row);
+
+      return {
+        data,
+        source: 'database',
+        format: 'json',
+        etag: record.checksum,
+        loadTime: Date.now() - startTime,
+      };
+    } catch {
+      return {
+        data: null,
+        loadTime: Date.now() - startTime,
+      };
+    }
+  }
+
+  async loadMany<T = any>(
+    type: string,
+    _options?: MetadataLoadOptions
+  ): Promise<T[]> {
+    await this.ensureSchema();
+
+    try {
+      const rows = await this.driver.find(this.tableName, {
+        object: this.tableName,
+        where: this.baseFilter(type),
+      });
+
+      return rows
+        .map(row => this.rowToData(row))
+        .filter((data): data is Record<string, unknown> => data !== null) as T[];
+    } catch {
+      return [];
+    }
+  }
+
+  async exists(type: string, name: string): Promise<boolean> {
+    await this.ensureSchema();
+
+    try {
+      const count = await this.driver.count(this.tableName, {
+        object: this.tableName,
+        where: this.baseFilter(type, name),
+      });
+
+      return count > 0;
+    } catch {
+      return false;
+    }
+  }
+
+  async stat(type: string, name: string): Promise<MetadataStats | null> {
+    await this.ensureSchema();
+
+    try {
+      const row = await this.driver.findOne(this.tableName, {
+        object: this.tableName,
+        where: this.baseFilter(type, name),
+      });
+
+      if (!row) return null;
+
+      const record = this.rowToRecord(row);
+      const metadataStr = typeof row.metadata === 'string'
+        ? row.metadata as string
+        : JSON.stringify(row.metadata);
+
+      return {
+        size: metadataStr.length,
+        mtime: record.updatedAt ?? record.createdAt ?? new Date().toISOString(),
+        format: 'json',
+        etag: record.checksum,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  async list(type: string): Promise<string[]> {
+    await this.ensureSchema();
+
+    try {
+      const rows = await this.driver.find(this.tableName, {
+        object: this.tableName,
+        where: this.baseFilter(type),
+        fields: ['name'],
+      });
+
+      return rows
+        .map(row => row.name as string)
+        .filter(name => typeof name === 'string');
+    } catch {
+      return [];
+    }
+  }
+
+  async save(
+    type: string,
+    name: string,
+    data: any,
+    _options?: MetadataSaveOptions
+  ): Promise<MetadataSaveResult> {
+    const startTime = Date.now();
+
+    await this.ensureSchema();
+
+    const now = new Date().toISOString();
+    const metadataJson = JSON.stringify(data);
+
+    try {
+      const existing = await this.driver.findOne(this.tableName, {
+        object: this.tableName,
+        where: this.baseFilter(type, name),
+      });
+
+      if (existing) {
+        // Update existing record
+        const version = ((existing.version as number) ?? 0) + 1;
+        await this.driver.update(this.tableName, existing.id as string, {
+          metadata: metadataJson,
+          version,
+          updated_at: now,
+          state: 'active',
+        });
+
+        return {
+          success: true,
+          path: `datasource://${this.tableName}/${type}/${name}`,
+          size: metadataJson.length,
+          saveTime: Date.now() - startTime,
+        };
+      } else {
+        // Create new record
+        const id = generateId();
+        await this.driver.create(this.tableName, {
+          id,
+          name,
+          type,
+          namespace: 'default',
+          scope: (data as any)?.scope ?? 'platform',
+          metadata: metadataJson,
+          strategy: 'merge',
+          state: 'active',
+          version: 1,
+          source: 'database',
+          ...(this.tenantId ? { tenant_id: this.tenantId } : {}),
+          created_at: now,
+          updated_at: now,
+        });
+
+        return {
+          success: true,
+          path: `datasource://${this.tableName}/${type}/${name}`,
+          size: metadataJson.length,
+          saveTime: Date.now() - startTime,
+        };
+      }
+    } catch (error) {
+      throw new Error(
+        `DatabaseLoader save failed for ${type}/${name}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+}
+
+/**
+ * Generate a simple unique ID for metadata records.
+ * Uses crypto.randomUUID when available, falls back to timestamp-based ID.
+ */
+function generateId(): string {
+  if (typeof globalThis.crypto !== 'undefined' && typeof globalThis.crypto.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID();
+  }
+  // Fallback for environments without crypto.randomUUID
+  return `meta_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+}
