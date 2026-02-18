@@ -1,5 +1,6 @@
 # @objectstack/metadata — Roadmap
 
+> **Last Updated:** 2026-02-18  
 > Development roadmap for the ObjectStack Metadata Service.
 
 ## Current Status (v3.0)

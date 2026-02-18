@@ -1,6 +1,6 @@
 # ObjectStack Protocol — Road Map
 
-> **Last Updated:** 2026-02-16  
+> **Last Updated:** 2026-02-18  
 > **Current Version:** v3.0.6  
 > **Status:** Protocol Specification Complete · Runtime Implementation In Progress
 
@@ -63,6 +63,25 @@ the ecosystem for enterprise workloads.
 
 12 of 25 service contracts are specification-only (no runtime implementation).
 These are the backbone of ObjectStack's enterprise capabilities.
+
+### Minimal Implementation Strategy
+
+ObjectStack follows a **minimal-first** approach to service implementation:
+
+1. **Implement the smallest possible working version first** — Each service starts with the minimal viable implementation that unblocks real-world use cases.
+
+2. **In-memory fallbacks via dev-plugin** — All non-critical services already have working in-memory fallbacks provided by `@objectstack/plugin-dev`, allowing development and testing to proceed while production implementations are built incrementally.
+
+3. **DatabaseLoader is the single P0 blocker** — The only critical gap preventing production deployment is `DatabaseLoader` in the metadata service. This component enables:
+   - Platform-level metadata editing in Studio
+   - User overlay persistence across sessions
+   - Multi-instance metadata synchronization
+   - Production-grade metadata storage
+
+4. **Independent upgrade path** — Each service can be independently upgraded from:
+   - **Stub** (dev-plugin fallback) → **MVP** (minimal working implementation) → **Production** (full-featured with adapters)
+
+This strategy ensures rapid iteration while maintaining a clear path to production readiness.
 
 ---
 
@@ -197,67 +216,92 @@ The following renames are planned for packages that implement core service contr
 
 ## Phase 4: Service Implementations (🔴 In Progress)
 
-> **Goal:** Implement the remaining 19 service contracts as production-ready packages.  
+> **Goal:** Implement the remaining service contracts following the minimal-first strategy.  
 > **Naming:** All contract implementations use `service-*` prefix (see [Package Naming Convention](#package-naming-convention)).
 
-### Priority 1 — Essential Services
+### Phase 4a: Metadata Persistence (P0 — Weeks 1-2)
+
+**The single critical blocker preventing production deployment.**
+
+**DatabaseLoader Implementation:**
+- [ ] **Implement `DatabaseLoader`** in `packages/metadata/src/loaders/database-loader.ts`
+  - [ ] Implement `MetadataLoader` interface with protocol `datasource:`
+  - [ ] Accept `IDataDriver` instance via kernel DI
+  - [ ] Map to `sys_metadata` table CRUD operations
+  - [ ] Support `scope` filtering (system/platform/user)
+  - [ ] Auto-create `sys_metadata` table on first use
+  - [ ] Implement upsert semantics for `save()` operations
+  - [ ] Support optimistic concurrency via `version` field
+  - [ ] Implement `list()` with type filtering and pagination
+  - [ ] Declare capabilities: `{ read: true, write: true, watch: false, list: true }`
+
+**Metadata Manager Integration:**
+- [ ] Auto-configure `DatabaseLoader` when `config.datasource` is set
+- [ ] Resolve datasource → `IDataDriver` via kernel service registry
+- [ ] Implement fallback strategy per `config.fallback` setting
+- [ ] Persist overlay customizations to database
+- [ ] Support multi-tenant isolation via `tenantId` filter
+
+**Tests:**
+- [ ] Unit tests with mock `IDataDriver`
+- [ ] Integration tests with `MemoryDriver`
+- [ ] Fallback behavior tests (datasource unavailable → filesystem/memory)
+
+**This unblocks:**
+- Platform-level metadata editing in Studio
+- User overlay persistence across sessions
+- Multi-instance metadata synchronization
+- Production-grade metadata storage
+
+### Phase 4b: Infrastructure Service Upgrades (P1 — Weeks 3-4)
+
+**Upgrade existing services from in-memory fallbacks to production adapters.**
+
+| Contract | Current Status | Upgrade Path |
+|:---|:---|:---|
+| `ICacheService` | ✅ Memory adapter + Redis skeleton | Add Redis adapter implementation |
+| `IQueueService` | ✅ Memory adapter + BullMQ skeleton | Add BullMQ adapter implementation |
+| `IJobService` | ✅ Interval scheduler + cron skeleton | Add cron adapter implementation |
+| `IStorageService` | ✅ Local FS + S3 skeleton | Add S3 adapter implementation |
+
+- [ ] `service-cache` — Implement Redis adapter with connection pooling
+- [ ] `service-queue` — Implement BullMQ adapter with job persistence
+- [ ] `service-job` — Implement cron adapter with distributed coordination
+- [ ] `service-storage` — Implement S3 adapter with multipart upload
+
+### Phase 4c: Communication & Search Services (P1 — Weeks 5-6)
+
+**Implement new service contracts with minimal viable implementations.**
 
 | Contract | Priority | Package | Notes |
 |:---|:---:|:---|:---|
-| `ICacheService` | **P0** | `@objectstack/service-cache` | Memory cache + Redis adapter skeleton |
-| `IQueueService` | **P0** | `@objectstack/service-queue` | Memory queue + BullMQ adapter skeleton |
-| `IJobService` | **P0** | `@objectstack/service-job` | setInterval scheduler + cron adapter skeleton |
-| `IStorageService` | **P1** | `@objectstack/service-storage` | Local filesystem + S3 adapter skeleton |
-| `ISchemaDriver` | **P1** | — | DDL operations — needed for `objectstack migrate` CLI command |
+| `II18nService` | **P1** | `@objectstack/service-i18n` | Map-backed translation with locale resolution |
+| `IRealtimeService` | **P1** | `@objectstack/service-realtime` | WebSocket/SSE push (replaces Studio setTimeout hack) |
+| `ISearchService` | **P1** | `@objectstack/service-search` | In-memory search first, then Meilisearch driver |
+| `INotificationService` | **P2** | `@objectstack/service-notification` | Email adapter (console logger in dev mode) |
 
-- [x] `service-cache` — Implement `ICacheService` with memory adapter + Redis skeleton
-- [x] `service-queue` — Implement `IQueueService` with memory adapter + BullMQ skeleton
-- [x] `service-job` — Implement `IJobService` with interval scheduling + cron skeleton
-- [x] `service-storage` — Implement `IStorageService` with local filesystem + S3 skeleton
-- [ ] Schema driver integration into PostgreSQL/MongoDB drivers
-
-### Priority 2 — Communication Services
-
-| Contract | Priority | Package | Notes |
-|:---|:---:|:---|:---|
-| `IRealtimeService` | **P1** | `@objectstack/service-realtime` | WebSocket/SSE pub/sub for live data |
-| `INotificationService` | **P2** | `@objectstack/service-notification` | Email/SMS/Push/Slack/Teams/Webhook |
-| `IGraphQLService` | **P2** | `@objectstack/service-graphql` | Auto-generated GraphQL from object schemas |
-| `II18nService` | **P2** | `@objectstack/service-i18n` | Runtime i18n with locale loading and translation |
-
-- [ ] `service-realtime` — Implement `IRealtimeService` with WebSocket + Redis pub/sub
-- [ ] `service-notification` — Implement `INotificationService` with channel adapters
-- [ ] `service-graphql` — Implement `IGraphQLService` with auto-schema generation from objects
 - [ ] `service-i18n` — Implement `II18nService` with file-based locale loading
+- [ ] `service-realtime` — Implement `IRealtimeService` with WebSocket + in-memory pub/sub
+- [ ] `service-search` — Implement `ISearchService` with in-memory search + Meilisearch adapter
+- [ ] `service-notification` — Implement `INotificationService` with email adapter
 
-### Priority 3 — Business Logic Services
+### Phase 4d: Business Logic Services (P2 — Future)
+
+**Advanced services for workflow automation and business intelligence.**
 
 | Contract | Priority | Package | Notes |
 |:---|:---:|:---|:---|
-| `IAutomationService` | **P2** | `@objectstack/service-automation` | Flow execution engine — depends on queue/job |
+| `IAutomationService` | **P2** | `@objectstack/service-automation` | Flow execution engine |
 | `IWorkflowService` | **P2** | `@objectstack/service-workflow` | State machine + approval processes |
-| `ISearchService` | **P2** | `@objectstack/service-search` | Full-text search via MeiliSearch/Elasticsearch |
-| ~~`IUIService`~~ | **Deprecated** | — | Merged into `IMetadataService` — use `metadata.getView()`, `metadata.getEffective('view', name, { userId })` |
-| `IAnalyticsService` | **P3** | `@objectstack/service-analytics` | BI/OLAP queries (memory impl exists as reference) |
+| `IGraphQLService` | **P2** | `@objectstack/service-graphql` | Auto-generated GraphQL from objects |
+| `IAIService` | **P2** | `@objectstack/service-ai` | LLM integration (OpenAI/Anthropic/local) |
+| `IAnalyticsService` | **P3** | `@objectstack/service-analytics` | BI/OLAP queries |
 
 - [ ] `service-automation` — Implement `IAutomationService` with flow execution engine
 - [ ] `service-workflow` — Implement `IWorkflowService` with state machine runtime
-- [ ] `service-search` — Implement `ISearchService` with MeiliSearch adapter
-- [ ] ~~Enhance `IUIService` runtime implementation~~ (merged into IMetadataService)
-- [ ] `service-analytics` — Implement full `IAnalyticsService` beyond memory reference
-
-### Priority 4 — Platform Services
-
-| Contract | Priority | Package | Notes |
-|:---|:---:|:---|:---|
-| `IAIService` | **P2** | `@objectstack/service-ai` | LLM integration (OpenAI/Anthropic/local) |
-| `IStartupOrchestrator` | **P3** | — | Advanced startup coordination (current kernel handles basics) |
-| `IPluginValidator` | **P3** | — | Plugin marketplace validation |
-| `IPluginLifecycleEvents` | **P3** | — | Typed event emitter (partial in kernel) |
-
+- [ ] `service-graphql` — Implement `IGraphQLService` with auto-schema generation
 - [ ] `service-ai` — Implement `IAIService` with multi-provider LLM routing
-- [ ] Advanced startup orchestrator for large plugin graphs
-- [ ] Plugin marketplace validator for community plugins
+- [ ] `service-analytics` — Implement full `IAnalyticsService` beyond memory reference
 
 ---
 
