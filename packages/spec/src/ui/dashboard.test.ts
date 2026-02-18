@@ -22,7 +22,7 @@ import { ChartTypeSchema } from './chart.zod';
 
 describe('ChartTypeSchema', () => {
   it('should accept all chart types', () => {
-    const types = ['metric', 'bar', 'line', 'pie', 'funnel', 'table', 'bubble', 'gauge', 'heatmap'];
+    const types = ['metric', 'bar', 'line', 'pie', 'funnel', 'table', 'bubble', 'gauge', 'heatmap', 'pivot', 'grouped-bar'];
     
     types.forEach(type => {
       expect(() => ChartTypeSchema.parse(type)).not.toThrow();
@@ -102,6 +102,54 @@ describe('DashboardWidgetSchema', () => {
     };
 
     expect(() => DashboardWidgetSchema.parse(widget)).not.toThrow();
+  });
+
+  it('should accept pivot widget', () => {
+    const widget: DashboardWidget = {
+      title: 'Revenue by Region × Product',
+      type: 'pivot',
+      object: 'order',
+      categoryField: 'region',
+      measures: [
+        { valueField: 'revenue', aggregate: 'sum', label: 'Total Revenue', format: '$0,0' },
+        { valueField: 'quantity', aggregate: 'sum', label: 'Units Sold' },
+      ],
+      layout: { x: 0, y: 0, w: 12, h: 6 },
+    };
+
+    const result = DashboardWidgetSchema.parse(widget);
+    expect(result.type).toBe('pivot');
+    expect(result.measures).toHaveLength(2);
+  });
+
+  it('should accept funnel widget', () => {
+    const widget: DashboardWidget = {
+      title: 'Sales Funnel',
+      type: 'funnel',
+      object: 'opportunity',
+      categoryField: 'stage',
+      valueField: 'amount',
+      aggregate: 'sum',
+      layout: { x: 0, y: 0, w: 6, h: 4 },
+    };
+
+    const result = DashboardWidgetSchema.parse(widget);
+    expect(result.type).toBe('funnel');
+  });
+
+  it('should accept grouped-bar widget', () => {
+    const widget: DashboardWidget = {
+      title: 'Quarterly Revenue by Region',
+      type: 'grouped-bar',
+      object: 'order',
+      categoryField: 'quarter',
+      valueField: 'revenue',
+      aggregate: 'sum',
+      layout: { x: 0, y: 0, w: 12, h: 4 },
+    };
+
+    const result = DashboardWidgetSchema.parse(widget);
+    expect(result.type).toBe('grouped-bar');
   });
 
   it('should accept table widget', () => {
@@ -1435,5 +1483,117 @@ describe('DashboardWidgetSchema - measures (multi-measure pivot)', () => {
     expect(dashboard.widgets[1].measures).toHaveLength(4);
     expect(dashboard.widgets[1].measures![0].format).toBe('$0,0');
     expect(dashboard.widgets[1].measures![3].valueField).toBe('margin');
+  });
+});
+
+// ============================================================================
+// Protocol Enhancement Tests: pivot / funnel / grouped-bar widget types (#713)
+// ============================================================================
+
+describe('DashboardWidgetSchema - pivot/funnel/grouped-bar types', () => {
+  it('should accept funnel widget with chartConfig', () => {
+    const widget = DashboardWidgetSchema.parse({
+      title: 'Lead Conversion Funnel',
+      type: 'funnel',
+      object: 'lead',
+      categoryField: 'stage',
+      aggregate: 'count',
+      chartConfig: {
+        type: 'funnel',
+        showDataLabels: true,
+        colors: ['#4CAF50', '#FF9800', '#F44336'],
+      },
+      layout: { x: 0, y: 0, w: 6, h: 4 },
+    });
+    expect(widget.type).toBe('funnel');
+    expect(widget.chartConfig!.type).toBe('funnel');
+    expect(widget.chartConfig!.showDataLabels).toBe(true);
+  });
+
+  it('should accept grouped-bar widget with chartConfig', () => {
+    const widget = DashboardWidgetSchema.parse({
+      title: 'Revenue by Region & Quarter',
+      type: 'grouped-bar',
+      object: 'order',
+      categoryField: 'region',
+      valueField: 'revenue',
+      aggregate: 'sum',
+      chartConfig: {
+        type: 'grouped-bar',
+        showLegend: true,
+        showDataLabels: false,
+        xAxis: { field: 'region', title: 'Region' },
+        yAxis: [{ field: 'revenue', title: 'Revenue ($)', format: '$0,0' }],
+      },
+      layout: { x: 0, y: 0, w: 12, h: 4 },
+    });
+    expect(widget.type).toBe('grouped-bar');
+    expect(widget.chartConfig!.type).toBe('grouped-bar');
+    expect(widget.chartConfig!.showLegend).toBe(true);
+  });
+
+  it('should accept pivot widget with measures and chartConfig', () => {
+    const widget = DashboardWidgetSchema.parse({
+      title: 'Sales Cross-Tab Analysis',
+      type: 'pivot',
+      object: 'opportunity',
+      categoryField: 'region',
+      measures: [
+        { valueField: 'amount', aggregate: 'sum', label: 'Total', format: '$0,0' },
+        { valueField: 'amount', aggregate: 'count', label: 'Count' },
+      ],
+      chartConfig: {
+        type: 'pivot',
+        showDataLabels: true,
+      },
+      layout: { x: 0, y: 0, w: 12, h: 6 },
+    });
+    expect(widget.type).toBe('pivot');
+    expect(widget.measures).toHaveLength(2);
+  });
+
+  it('should accept dashboard with pivot, funnel, and grouped-bar widgets', () => {
+    const dashboard = Dashboard.create({
+      name: 'analytics_overview',
+      label: 'Analytics Overview',
+      description: 'Dashboard combining pivot, funnel, and grouped-bar widgets',
+      widgets: [
+        {
+          title: 'Sales Funnel',
+          type: 'funnel',
+          object: 'lead',
+          categoryField: 'stage',
+          aggregate: 'count',
+          layout: { x: 0, y: 0, w: 6, h: 4 },
+        },
+        {
+          title: 'Revenue by Region & Quarter',
+          type: 'grouped-bar',
+          object: 'order',
+          categoryField: 'region',
+          valueField: 'revenue',
+          aggregate: 'sum',
+          layout: { x: 6, y: 0, w: 6, h: 4 },
+        },
+        {
+          title: 'Regional Pivot Analysis',
+          type: 'pivot',
+          object: 'opportunity',
+          categoryField: 'region',
+          measures: [
+            { valueField: 'amount', aggregate: 'sum', label: 'Revenue', format: '$0,0' },
+            { valueField: 'amount', aggregate: 'avg', label: 'Avg Deal', format: '$0,0.00' },
+            { valueField: 'amount', aggregate: 'count', label: 'Deals' },
+          ],
+          layout: { x: 0, y: 4, w: 12, h: 6 },
+        },
+      ],
+    });
+
+    expect(dashboard.widgets).toHaveLength(3);
+    expect(dashboard.widgets[0].type).toBe('funnel');
+    expect(dashboard.widgets[1].type).toBe('grouped-bar');
+    expect(dashboard.widgets[2].type).toBe('pivot');
+    expect(dashboard.widgets[2].measures).toHaveLength(3);
   });
 });

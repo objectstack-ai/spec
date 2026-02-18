@@ -418,8 +418,10 @@ Protocol enhancements and core component implementations for dashboard feature p
 Advanced widget types and chart implementations.
 
 - [ ] Implement `PivotTable` component with row/column totals and multi-measure support ([objectui#585](https://github.com/objectstack-ai/objectui/issues/585))
-- [ ] Implement `funnel` chart type in `plugin-charts` ([#713](https://github.com/objectstack-ai/spec/issues/713))
-- [ ] Implement `grouped-bar` chart type in `plugin-charts` ([#713](https://github.com/objectstack-ai/spec/issues/713))
+- [x] Protocol support for `funnel` chart type in `DashboardWidgetSchema` ([#713](https://github.com/objectstack-ai/spec/issues/713))
+- [x] Protocol support for `grouped-bar` chart type in `DashboardWidgetSchema` ([#713](https://github.com/objectstack-ai/spec/issues/713))
+- [ ] Implement `funnel` chart renderer in `plugin-charts` ([#713](https://github.com/objectstack-ai/spec/issues/713))
+- [ ] Implement `grouped-bar` chart renderer in `plugin-charts` ([#713](https://github.com/objectstack-ai/spec/issues/713))
 - [ ] Implement `stacked-bar` chart type in `plugin-charts` ([#713](https://github.com/objectstack-ai/spec/issues/713))
 - [ ] Implement `horizontal-bar` chart variant in `plugin-charts` ([#713](https://github.com/objectstack-ai/spec/issues/713))
 
