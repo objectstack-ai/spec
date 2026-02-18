@@ -31,6 +31,57 @@ export const WidgetActionTypeSchema = z.enum([
 ]).describe('Widget action type');
 
 /**
+ * Dashboard Header Action Schema
+ * An action button displayed in the dashboard header area.
+ */
+export const DashboardHeaderActionSchema = z.object({
+  /** Action label */
+  label: I18nLabelSchema.describe('Action button label'),
+
+  /** Action URL or target */
+  actionUrl: z.string().describe('URL or target for the action'),
+
+  /** Action type */
+  actionType: WidgetActionTypeSchema.optional().describe('Type of action'),
+
+  /** Icon identifier */
+  icon: z.string().optional().describe('Icon identifier for the action button'),
+}).describe('Dashboard header action');
+
+/**
+ * Dashboard Header Schema
+ * Structured header configuration for the dashboard.
+ */
+export const DashboardHeaderSchema = z.object({
+  /** Whether to show the dashboard title in the header */
+  showTitle: z.boolean().default(true).describe('Show dashboard title in header'),
+
+  /** Whether to show the dashboard description in the header */
+  showDescription: z.boolean().default(true).describe('Show dashboard description in header'),
+
+  /** Action buttons displayed in the header */
+  actions: z.array(DashboardHeaderActionSchema).optional().describe('Header action buttons'),
+}).describe('Dashboard header configuration');
+
+/**
+ * Widget Measure Schema
+ * A single measure definition for multi-measure pivot/matrix widgets.
+ */
+export const WidgetMeasureSchema = z.object({
+  /** Value field to aggregate */
+  valueField: z.string().describe('Field to aggregate'),
+
+  /** Aggregate function */
+  aggregate: z.enum(['count', 'sum', 'avg', 'min', 'max']).default('count').describe('Aggregate function'),
+
+  /** Display label for the measure */
+  label: I18nLabelSchema.optional().describe('Measure display label'),
+
+  /** Number format string (e.g., "$0,0.00", "0.0%") */
+  format: z.string().optional().describe('Number format string'),
+}).describe('Widget measure definition');
+
+/**
  * Dashboard Widget Schema
  * A single component on the dashboard grid.
  */
@@ -73,6 +124,9 @@ export const DashboardWidgetSchema = z.object({
   
   /** Aggregate operation */
   aggregate: z.enum(['count', 'sum', 'avg', 'min', 'max']).optional().default('count').describe('Aggregate function'),
+  
+  /** Multi-measure definitions for pivot/matrix widgets */
+  measures: z.array(WidgetMeasureSchema).optional().describe('Multiple measures for pivot/matrix analysis'),
   
   /** 
    * Layout Position (React-Grid-Layout style)
@@ -187,6 +241,9 @@ export const DashboardSchema = z.object({
   
   /** Description */
   description: I18nLabelSchema.optional().describe('Dashboard description'),
+
+  /** Structured header configuration */
+  header: DashboardHeaderSchema.optional().describe('Dashboard header configuration'),
   
   /** Collection of widgets */
   widgets: z.array(DashboardWidgetSchema).describe('Widgets to display'),
@@ -214,6 +271,9 @@ export const DashboardSchema = z.object({
 export type Dashboard = z.infer<typeof DashboardSchema>;
 export type DashboardInput = z.input<typeof DashboardSchema>;
 export type DashboardWidget = z.infer<typeof DashboardWidgetSchema>;
+export type DashboardHeader = z.infer<typeof DashboardHeaderSchema>;
+export type DashboardHeaderAction = z.infer<typeof DashboardHeaderActionSchema>;
+export type WidgetMeasure = z.infer<typeof WidgetMeasureSchema>;
 export type WidgetColorVariant = z.infer<typeof WidgetColorVariantSchema>;
 export type WidgetActionType = z.infer<typeof WidgetActionTypeSchema>;
 export type GlobalFilter = z.infer<typeof GlobalFilterSchema>;
