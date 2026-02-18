@@ -1,19 +1,29 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Command } from 'commander';
+import { Args, Command, Flags } from '@oclif/core';
 import chalk from 'chalk';
 import { execSync, spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { printHeader, printKV, printStep, printError } from '../utils/format.js';
 
-export const devCommand = new Command('dev')
-  .description('Start development mode with hot-reload')
-  .argument('[package]', 'Package name or filter pattern', 'all')
-  .option('-w, --watch', 'Enable watch mode (default)', true)
-  .option('--ui', 'Enable Studio UI at /_studio/')
-  .option('-v, --verbose', 'Verbose output')
-  .action(async (packageName, options) => {
+export default class Dev extends Command {
+  static override description = 'Start development mode with hot-reload';
+
+  static override args = {
+    package: Args.string({ description: 'Package name or filter pattern', default: 'all', required: false }),
+  };
+
+  static override flags = {
+    watch: Flags.boolean({ char: 'w', description: 'Enable watch mode (default)', default: true }),
+    ui: Flags.boolean({ description: 'Enable Studio UI at /_studio/' }),
+    verbose: Flags.boolean({ char: 'v', description: 'Verbose output' }),
+  };
+
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(Dev);
+    const packageName = args.package;
+
     printHeader('Development Mode');
     
     // Check if we are running inside a package (Single Package Mode)
@@ -28,7 +38,7 @@ export const devCommand = new Command('dev')
        // usage: objectstack serve --dev
        const binPath = process.argv[1]; // path to objectstack bin
        
-       const child = spawn(process.execPath, [binPath, 'serve', '--dev', ...(options.ui ? ['--ui'] : []), ...(options.verbose ? ['--verbose'] : [])], {
+       const child = spawn(process.execPath, [binPath, 'serve', '--dev', ...(flags.ui ? ['--ui'] : []), ...(flags.verbose ? ['--verbose'] : [])], {
          stdio: 'inherit',
          env: { ...process.env, NODE_ENV: 'development' }
        });
@@ -69,4 +79,5 @@ export const devCommand = new Command('dev')
       printError(`Development mode failed: ${error.message || error}`);
       process.exit(1);
     }
-  });
+  }
+}
