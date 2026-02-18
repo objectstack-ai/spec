@@ -2,6 +2,8 @@
 
 Command Line Interface for building metadata-driven applications with the ObjectStack Protocol.
 
+Built on [oclif](https://oclif.io/) — commands are auto-discovered, and plugins can extend the CLI without modifying the main package.
+
 ## Installation
 
 ```bash
@@ -40,6 +42,7 @@ os compile
 | `os init [name]` | Initialize a new ObjectStack project in the current directory |
 | `os dev [package]` | Start development mode with hot reload |
 | `os serve [config]` | Start the ObjectStack server with plugin auto-detection |
+| `os studio [config]` | Launch Studio UI with development server |
 
 ### Build & Validate
 
@@ -73,6 +76,20 @@ Available generate types: `object`, `view`, `action`, `flow`, `agent`, `dashboar
 |---------|-------------|
 | `os test [files]` | Run Quality Protocol test scenarios against a running server |
 | `os doctor` | Check development environment health |
+| `os lint [config]` | Check configuration for style and convention issues |
+| `os diff [before] [after]` | Compare two configurations and detect breaking changes |
+
+### Reference
+
+| Command | Description |
+|---------|-------------|
+| `os explain [schema]` | Display human-readable explanation of an ObjectStack schema |
+
+### Code Transforms
+
+| Command | Description |
+|---------|-------------|
+| `os codemod v2-to-v3` | Migrate ObjectStack v2 config to v3 format |
 
 ## Configuration
 
@@ -120,12 +137,12 @@ export default defineStack({
 
 - `-p, --port <port>` — Server port (default: `3000`)
 - `--dev` — Run in development mode (load devPlugins, pretty logging)
+- `--ui` — Enable Studio UI
 - `--no-server` — Skip starting HTTP server plugin
 
 ### `os generate`
 
 - `-d, --dir <directory>` — Override target directory
-- `--dry-run` — Preview without writing files
 
 ### `os plugin list`
 
@@ -140,68 +157,6 @@ export default defineStack({
 
 - `-c, --config <path>` — Configuration file path
 
-## Plugin CLI Extensions
-
-Plugins can extend the CLI with custom commands via the `contributes.commands` manifest field. The CLI automatically discovers and loads these commands at startup.
-
-### How to Create a CLI Plugin
-
-**1. Declare commands in the plugin manifest:**
-
-```typescript
-export default defineStack({
-  manifest: {
-    id: 'com.acme.marketplace',
-    version: '1.0.0',
-    type: 'plugin',
-    name: 'Marketplace Plugin',
-    contributes: {
-      commands: [
-        {
-          name: 'marketplace',
-          description: 'Manage marketplace applications',
-          module: './dist/cli.js',
-        },
-      ],
-    },
-  },
-});
-```
-
-**2. Export Commander.js commands from the module:**
-
-```typescript
-// src/cli.ts
-import { Command } from 'commander';
-
-const marketplaceCommand = new Command('marketplace')
-  .description('Manage marketplace applications')
-  .addCommand(
-    new Command('search')
-      .argument('<query>')
-      .action(async (query) => { /* ... */ })
-  )
-  .addCommand(
-    new Command('install')
-      .argument('<app>')
-      .action(async (app) => { /* ... */ })
-  );
-
-// Named export (recommended)
-export const commands = [marketplaceCommand];
-// Also supports: export default Command | Command[]
-```
-
-**3. Register the plugin in the host project and use:**
-
-```bash
-os plugin add @acme/plugin-marketplace
-os marketplace search "crm"
-os marketplace install com.acme.crm
-```
-
-For a complete guide, see the [Plugin CLI Extensions](/docs/guides/plugins#cli-command-extensions) section in the Plugins guide.
-
 ### `os info`
 
 - `--json` — Output as JSON
@@ -209,6 +164,71 @@ For a complete guide, see the [Plugin CLI Extensions](/docs/guides/plugins#cli-c
 ### `os doctor`
 
 - `-v, --verbose` — Show fix suggestions for warnings
+- `--scan-deprecations` — Scan for deprecated patterns
+
+## oclif Plugin System
+
+The CLI uses oclif's built-in plugin system for extensibility. Third-party plugins (e.g., cloud commands, marketplace tools) can extend the CLI without modifying the main package.
+
+### How Plugin Extension Works
+
+1. **Create an oclif plugin package** with its own `oclif` config in `package.json`
+2. **Export oclif Command classes** from the plugin's `src/commands/` directory
+3. **Install the plugin** via `os plugins install <package>` or declare it in the main CLI's `oclif.plugins`
+
+### Creating a CLI Plugin
+
+**1. Configure the plugin's `package.json`:**
+
+```json
+{
+  "name": "@acme/plugin-marketplace",
+  "oclif": {
+    "commands": {
+      "strategy": "pattern",
+      "target": "./dist/commands",
+      "glob": "**/*.js"
+    }
+  }
+}
+```
+
+**2. Create oclif Command classes:**
+
+```typescript
+// src/commands/marketplace/search.ts
+import { Args, Command, Flags } from '@oclif/core';
+
+export default class MarketplaceSearch extends Command {
+  static override description = 'Search marketplace applications';
+
+  static override args = {
+    query: Args.string({ description: 'Search query', required: true }),
+  };
+
+  async run() {
+    const { args } = await this.parse(MarketplaceSearch);
+    // Implementation...
+  }
+}
+```
+
+**3. Install and use:**
+
+```bash
+os plugins install @acme/plugin-marketplace
+os marketplace search "crm"
+```
+
+### Key Differences from Previous Plugin Model
+
+| Before (Commander.js) | After (oclif) |
+|---|---|
+| Plugins declared in `objectstack.config.ts` | Plugins installed via `os plugins install` or `oclif.plugins` |
+| Custom `loadPluginCommands` mechanism | oclif's built-in plugin discovery |
+| `contributes.commands` in manifest | `oclif.commands` in `package.json` |
+| Commander.js `new Command(...)` exports | oclif `class extends Command` exports |
+| Project config determines CLI commands | CLI commands available without project init |
 
 ## Typical Workflow
 
@@ -221,6 +241,30 @@ os plugin add @objectstack/plugin-auth  # 5. Add auth plugin
 os validate                      # 6. Validate everything
 os dev                           # 7. Start dev server
 os compile                       # 8. Build for production
+```
+
+## Architecture
+
+```
+@objectstack/cli (oclif)
+├── bin/run.js                  # Entry point (os / objectstack)
+├── src/commands/               # Auto-discovered command classes
+│   ├── init.ts                 # os init
+│   ├── dev.ts                  # os dev
+│   ├── serve.ts                # os serve
+│   ├── compile.ts              # os compile
+│   ├── validate.ts             # os validate
+│   ├── generate.ts             # os generate (alias: g)
+│   ├── plugin/                 # os plugin <subcommand>
+│   │   ├── list.ts
+│   │   ├── info.ts
+│   │   ├── add.ts
+│   │   └── remove.ts
+│   ├── codemod/                # os codemod <subcommand>
+│   │   └── v2-to-v3.ts
+│   └── ...
+├── src/utils/                  # Shared utilities
+└── package.json                # oclif config under "oclif" key
 ```
 
 ## License

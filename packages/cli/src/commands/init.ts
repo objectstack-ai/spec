@@ -1,12 +1,12 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Command } from 'commander';
+import { Args, Command, Flags } from '@oclif/core';
 import chalk from 'chalk';
 import fs from 'fs';
 import path from 'path';
 import { printHeader, printSuccess, printError, printStep, printKV, printInfo } from '../utils/format.js';
 
-const TEMPLATES: Record<string, {
+export const TEMPLATES: Record<string, {
   description: string;
   dependencies: Record<string, string>;
   devDependencies: Record<string, string>;
@@ -179,33 +179,48 @@ function toTitleCase(str: string): string {
   return str.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
-export const initCommand = new Command('init')
-  .description('Initialize a new ObjectStack project in the current directory')
-  .argument('[name]', 'Project name (defaults to directory name)')
-  .option('-t, --template <template>', 'Template: app, plugin, empty', 'app')
-  .option('--no-install', 'Skip dependency installation')
-  .action(async (name, options) => {
+function printWarning(msg: string) {
+  console.log(chalk.yellow(`  ⚠ ${msg}`));
+}
+
+export default class Init extends Command {
+  static override id = 'init';
+
+  static override description = 'Initialize a new ObjectStack project in the current directory';
+
+  static override args = {
+    name: Args.string({ description: 'Project name (defaults to directory name)', required: false }),
+  };
+
+  static override flags = {
+    template: Flags.string({ char: 't', description: 'Template: app, plugin, empty', default: 'app' }),
+    install: Flags.boolean({ description: 'Install dependencies', default: true, allowNo: true }),
+  };
+
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(Init);
+
     printHeader('Init');
 
     const cwd = process.cwd();
-    const projectName = name || path.basename(cwd);
-    const template = TEMPLATES[options.template];
+    const projectName = args.name || path.basename(cwd);
+    const template = TEMPLATES[flags.template];
 
     if (!template) {
-      printError(`Unknown template: ${options.template}`);
+      printError(`Unknown template: ${flags.template}`);
       console.log(chalk.dim(`  Available: ${Object.keys(TEMPLATES).join(', ')}`));
-      process.exit(1);
+      this.error(`Unknown template: ${flags.template}`);
     }
 
     // Check for existing config
     if (fs.existsSync(path.join(cwd, 'objectstack.config.ts'))) {
       printError('objectstack.config.ts already exists in this directory');
       console.log(chalk.dim('  Use `objectstack generate` to add metadata to an existing project'));
-      process.exit(1);
+      this.error('objectstack.config.ts already exists in this directory');
     }
 
     printKV('Project', projectName);
-    printKV('Template', `${options.template} — ${template.description}`);
+    printKV('Template', `${flags.template} — ${template.description}`);
     printKV('Directory', cwd);
     console.log('');
 
@@ -286,7 +301,7 @@ export const initCommand = new Command('init')
       console.log('');
 
       // Install dependencies
-      if (options.install !== false) {
+      if (flags.install) {
         printStep('Installing dependencies...');
         const { execSync } = await import('child_process');
         try {
@@ -306,10 +321,7 @@ export const initCommand = new Command('init')
 
     } catch (error: any) {
       printError(error.message || String(error));
-      process.exit(1);
+      this.error(error.message || String(error));
     }
-  });
-
-function printWarning(msg: string) {
-  console.log(chalk.yellow(`  ⚠ ${msg}`));
+  }
 }

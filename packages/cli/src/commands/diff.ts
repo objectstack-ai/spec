@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Command } from 'commander';
+import { Args, Command, Flags } from '@oclif/core';
 import chalk from 'chalk';
 import { loadConfig } from '../utils/config.js';
 import {
@@ -153,19 +153,27 @@ function diffNamedArrays(
 
 // ─── Command ────────────────────────────────────────────────────────
 
-export const diffCommand = new Command('diff')
-  .description('Compare two ObjectStack configurations and detect breaking changes')
-  .argument('[before]', 'Path to the "before" config file')
-  .argument('[after]', 'Path to the "after" config file')
-  .option('--before <path>', 'Path to the "before" config (alternative)')
-  .option('--after <path>', 'Path to the "after" config (alternative)')
-  .option('--json', 'Output as JSON')
-  .option('--breaking-only', 'Show only breaking changes')
-  .action(async (beforeArg, afterArg, options) => {
+export default class Diff extends Command {
+  static override description = 'Compare two ObjectStack configurations and detect breaking changes';
+
+  static override args = {
+    before: Args.string({ description: 'Path to the "before" config file', required: false }),
+    after: Args.string({ description: 'Path to the "after" config file', required: false }),
+  };
+
+  static override flags = {
+    before: Flags.string({ description: 'Path to the "before" config (alternative)' }),
+    after: Flags.string({ description: 'Path to the "after" config (alternative)' }),
+    json: Flags.boolean({ description: 'Output as JSON' }),
+    'breaking-only': Flags.boolean({ description: 'Show only breaking changes' }),
+  };
+
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(Diff);
     const timer = createTimer();
 
-    const beforePath: string | undefined = beforeArg || options.before;
-    const afterPath: string | undefined = afterArg || options.after;
+    const beforePath: string | undefined = args.before || flags.before;
+    const afterPath: string | undefined = args.after || flags.after;
 
     if (!beforePath || !afterPath) {
       printError('Two config file paths are required.');
@@ -175,7 +183,7 @@ export const diffCommand = new Command('diff')
       process.exit(1);
     }
 
-    if (!options.json) {
+    if (!flags.json) {
       printHeader('Diff');
       printStep('Loading configurations...');
     }
@@ -184,7 +192,7 @@ export const diffCommand = new Command('diff')
       const { config: beforeConfig } = await loadConfig(beforePath);
       const { config: afterConfig } = await loadConfig(afterPath);
 
-      if (!options.json) {
+      if (!flags.json) {
         printInfo(`Before: ${chalk.white(beforePath)}`);
         printInfo(`After:  ${chalk.white(afterPath)}`);
       }
@@ -215,14 +223,14 @@ export const diffCommand = new Command('diff')
       }
 
       // ── Filter ──
-      const diffs = options.breakingOnly
+      const diffs = flags['breaking-only']
         ? allDiffs.filter((d) => d.breaking)
         : allDiffs;
 
       const breakingCount = allDiffs.filter((d) => d.breaking).length;
 
       // ── Output ──
-      if (options.json) {
+      if (flags.json) {
         console.log(JSON.stringify({
           before: beforePath,
           after: afterPath,
@@ -237,7 +245,7 @@ export const diffCommand = new Command('diff')
       console.log('');
 
       if (diffs.length === 0) {
-        printSuccess(options.breakingOnly
+        printSuccess(flags['breaking-only']
           ? 'No breaking changes detected.'
           : 'No changes detected.');
         console.log('');
@@ -274,7 +282,7 @@ export const diffCommand = new Command('diff')
       console.log('');
 
     } catch (error: any) {
-      if (options.json) {
+      if (flags.json) {
         console.log(JSON.stringify({ error: error.message }));
         process.exit(1);
       }
@@ -282,4 +290,5 @@ export const diffCommand = new Command('diff')
       printError(error.message || String(error));
       process.exit(1);
     }
-  });
+  }
+}

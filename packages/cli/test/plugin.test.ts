@@ -1,39 +1,35 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { pluginCommand } from '../src/commands/plugin';
+import PluginList from '../src/commands/plugin/list';
+import PluginInfo from '../src/commands/plugin/info';
+import PluginAdd from '../src/commands/plugin/add';
+import PluginRemove from '../src/commands/plugin/remove';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
 
-describe('Plugin Command', () => {
-  it('should have plugin command with subcommands', () => {
-    expect(pluginCommand.name()).toBe('plugin');
-    expect(pluginCommand.description()).toContain('plugin');
+describe('Plugin Commands (oclif)', () => {
+  it('should have plugin list command', () => {
+    expect(PluginList.description).toContain('List');
   });
 
-  it('should have list subcommand with alias', () => {
-    const list = pluginCommand.commands.find(c => c.name() === 'list');
-    expect(list).toBeDefined();
-    expect(list!.alias()).toBe('ls');
-    expect(list!.description()).toContain('List');
+  it('should have plugin list alias', () => {
+    expect(PluginList.aliases).toContain('plugin ls');
   });
 
-  it('should have info subcommand', () => {
-    const info = pluginCommand.commands.find(c => c.name() === 'info');
-    expect(info).toBeDefined();
-    expect(info!.description()).toContain('information');
+  it('should have plugin info command', () => {
+    expect(PluginInfo.description).toContain('information');
   });
 
-  it('should have add subcommand', () => {
-    const add = pluginCommand.commands.find(c => c.name() === 'add');
-    expect(add).toBeDefined();
-    expect(add!.description()).toContain('Add');
+  it('should have plugin add command', () => {
+    expect(PluginAdd.description).toContain('Add');
   });
 
-  it('should have remove subcommand with alias', () => {
-    const remove = pluginCommand.commands.find(c => c.name() === 'remove');
-    expect(remove).toBeDefined();
-    expect(remove!.alias()).toBe('rm');
-    expect(remove!.description()).toContain('Remove');
+  it('should have plugin remove command', () => {
+    expect(PluginRemove.description).toContain('Remove');
+  });
+
+  it('should have plugin remove alias', () => {
+    expect(PluginRemove.aliases).toContain('plugin rm');
   });
 });
 

@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Command } from 'commander';
+import { Args, Command, Flags } from '@oclif/core';
 import chalk from 'chalk';
 import {
   printHeader,
@@ -314,15 +314,24 @@ const SCHEMAS: Record<string, SchemaInfo> = {
 
 // ─── Command ────────────────────────────────────────────────────────
 
-export const explainCommand = new Command('explain')
-  .description('Display human-readable explanation of an ObjectStack schema')
-  .argument('[schema]', 'Schema name (e.g., object, field, view, flow, agent, app)')
-  .option('--json', 'Output as JSON')
-  .action(async (schemaName, options) => {
+export default class Explain extends Command {
+  static override description = 'Display human-readable explanation of an ObjectStack schema';
+
+  static override args = {
+    schema: Args.string({ description: 'Schema name (e.g., object, field, view, flow, agent, app)', required: false }),
+  };
+
+  static override flags = {
+    json: Flags.boolean({ description: 'Output as JSON' }),
+  };
+
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(Explain);
+    const schemaName = args.schema;
 
     // ── No argument: list all schemas ──
     if (!schemaName) {
-      if (options.json) {
+      if (flags.json) {
         console.log(JSON.stringify({
           schemas: Object.entries(SCHEMAS).map(([key, s]) => ({
             name: key,
@@ -347,7 +356,7 @@ export const explainCommand = new Command('explain')
     // ── Lookup schema ──
     const schema = SCHEMAS[schemaName.toLowerCase()];
     if (!schema) {
-      if (options.json) {
+      if (flags.json) {
         console.log(JSON.stringify({ error: `Unknown schema: ${schemaName}` }));
         process.exit(1);
       }
@@ -359,7 +368,7 @@ export const explainCommand = new Command('explain')
     }
 
     // ── JSON output ──
-    if (options.json) {
+    if (flags.json) {
       console.log(JSON.stringify(schema, null, 2));
       return;
     }
@@ -399,4 +408,5 @@ export const explainCommand = new Command('explain')
     // Documentation link
     printKV('  Docs', `https://objectstack.dev/docs/${schema.docsPath}`);
     console.log('');
-  });
+  }
+}

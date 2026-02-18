@@ -3,25 +3,41 @@
   "version": "3.0.6",
   "description": "Command Line Interface for ObjectStack Protocol",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
-    "objectstack": "./bin/objectstack.js",
-    "os": "./bin/objectstack.js"
+    "objectstack": "./bin/run.js",
+    "os": "./bin/run.js"
   },
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
     "test": "vitest run",
     "lint": "eslint src"
   },
   "keywords": [
     "objectstack",
     "cli",
+    "oclif",
     "compiler",
     "scaffold"
   ],
   "type": "module",
   "author": "Steedos",
   "license": "Apache-2.0",
+  "oclif": {
+    "bin": "os",
+    "dirname": "objectstack",
+    "commands": {
+      "strategy": "pattern",
+      "target": "./dist/commands",
+      "glob": "**/*.js"
+    },
+    "plugins": [
+      "@oclif/plugin-help",
+      "@oclif/plugin-plugins"
+    ],
+    "topicSeparator": " "
+  },
   "dependencies": {
     "@objectstack/core": "workspace:*",
     "@objectstack/driver-memory": "workspace:^",
@@ -30,9 +46,9 @@
     "@objectstack/rest": "workspace:*",
     "@objectstack/runtime": "workspace:^",
     "@objectstack/spec": "workspace:*",
+    "@oclif/core": "^4.8.0",
     "bundle-require": "^5.1.0",
     "chalk": "^5.3.0",
-    "commander": "^14.0.3",
     "tsx": "^4.7.1",
     "zod": "^4.3.6"
   },
@@ -40,6 +56,8 @@
     "@objectstack/core": "workspace:*"
   },
   "devDependencies": {
+    "@oclif/plugin-help": "^6.2.37",
+    "@oclif/plugin-plugins": "^5.4.56",
     "@types/node": "^25.2.2",
     "tsup": "^8.0.2",
     "typescript": "^5.3.3",

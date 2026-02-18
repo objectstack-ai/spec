@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Command } from 'commander';
+import { Args, Command, Flags } from '@oclif/core';
 import chalk from 'chalk';
 import fs from 'fs';
 import path from 'path';
@@ -182,37 +182,46 @@ function toCamelCase(str: string): string {
   return str.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
 }
 
-export const createCommand = new Command('create')
-  .description('Create a new package, plugin, or example from template')
-  .argument('<type>', 'Type of project to create (plugin, example)')
-  .argument('[name]', 'Name of the project')
-  .option('-d, --dir <directory>', 'Target directory')
-  .action(async (type: string, name?: string, options?: { dir?: string }) => {
+export default class Create extends Command {
+  static override description = 'Create a new package, plugin, or example from template';
+
+  static override args = {
+    type: Args.string({ description: 'Type of project to create (plugin, example)', required: true }),
+    name: Args.string({ description: 'Name of the project', required: false }),
+  };
+
+  static override flags = {
+    dir: Flags.string({ char: 'd', description: 'Target directory' }),
+  };
+
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(Create);
+
     console.log(chalk.bold(`\n📦 ObjectStack Project Creator`));
     console.log(chalk.dim(`-------------------------------`));
     
-    if (!templates[type as keyof typeof templates]) {
-      console.error(chalk.red(`\n❌ Unknown type: ${type}`));
+    if (!templates[args.type as keyof typeof templates]) {
+      console.error(chalk.red(`\n❌ Unknown type: ${args.type}`));
       console.log(chalk.dim('Available types: plugin, example'));
       process.exit(1);
     }
     
-    if (!name) {
+    if (!args.name) {
       console.error(chalk.red('\n❌ Project name is required'));
-      console.log(chalk.dim(`Usage: objectstack create ${type} <name>`));
+      console.log(chalk.dim(`Usage: objectstack create ${args.type} <name>`));
       process.exit(1);
     }
     
-    const template = templates[type as keyof typeof templates];
+    const template = templates[args.type as keyof typeof templates];
     const cwd = process.cwd();
     
     // Determine target directory
     let targetDir: string;
-    if (options?.dir) {
-      targetDir = path.resolve(cwd, options.dir);
+    if (flags.dir) {
+      targetDir = path.resolve(cwd, flags.dir);
     } else {
-      const baseDir = type === 'plugin' ? 'packages/plugins' : 'examples';
-      const projectName = type === 'plugin' ? `plugin-${name}` : name;
+      const baseDir = args.type === 'plugin' ? 'packages/plugins' : 'examples';
+      const projectName = args.type === 'plugin' ? `plugin-${args.name}` : args.name;
       targetDir = path.join(cwd, baseDir, projectName);
     }
     
@@ -222,7 +231,7 @@ export const createCommand = new Command('create')
       process.exit(1);
     }
     
-    console.log(`📁 Creating ${type}: ${chalk.blue(name)}`);
+    console.log(`📁 Creating ${args.type}: ${chalk.blue(args.name)}`);
     console.log(`📂 Location: ${chalk.dim(targetDir)}`);
     console.log('');
     
@@ -239,7 +248,7 @@ export const createCommand = new Command('create')
           fs.mkdirSync(dir, { recursive: true });
         }
         
-        const content = contentFn(name);
+        const content = contentFn(args.name);
         const fileContent = typeof content === 'string' 
           ? content 
           : JSON.stringify(content, null, 2);
@@ -268,4 +277,5 @@ export const createCommand = new Command('create')
       
       process.exit(1);
     }
-  });
+  }
+}

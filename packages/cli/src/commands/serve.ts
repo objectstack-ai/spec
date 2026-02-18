@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Command } from 'commander';
+import { Args, Command, Flags } from '@oclif/core';
 import path from 'path';
 import fs from 'fs';
 import net from 'net';
@@ -48,15 +48,24 @@ const getAvailablePort = async (startPort: number): Promise<number> => {
   return port;
 };
 
-export const serveCommand = new Command('serve')
-  .description('Start ObjectStack server with plugins from configuration')
-  .argument('[config]', 'Configuration file path', 'objectstack.config.ts')
-  .option('-p, --port <port>', 'Server port', '3000')
-  .option('--dev', 'Run in development mode (load devPlugins)')
-  .option('--ui', 'Enable Studio UI at /_studio/ (default: true in dev mode)')
-  .option('--no-server', 'Skip starting HTTP server plugin')
-  .action(async (configPath, options) => {
-    let port = parseInt(options.port);
+export default class Serve extends Command {
+  static override description = 'Start ObjectStack server with plugins from configuration';
+
+  static override args = {
+    config: Args.string({ description: 'Configuration file path', required: false, default: 'objectstack.config.ts' }),
+  };
+
+  static override flags = {
+    port: Flags.string({ char: 'p', description: 'Server port', default: '3000' }),
+    dev: Flags.boolean({ description: 'Run in development mode (load devPlugins)' }),
+    ui: Flags.boolean({ description: 'Enable Studio UI at /_studio/ (default: true in dev mode)' }),
+    server: Flags.boolean({ description: 'Start HTTP server plugin', default: true, allowNo: true }),
+  };
+
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(Serve);
+
+    let port = parseInt(flags.port);
     try {
       const availablePort = await getAvailablePort(port);
       if (availablePort !== port) {
@@ -66,15 +75,15 @@ export const serveCommand = new Command('serve')
       // Ignore error and try with original port
     }
 
-    const isDev = options.dev || process.env.NODE_ENV === 'development';
+    const isDev = flags.dev || process.env.NODE_ENV === 'development';
 
-    const absolutePath = path.resolve(process.cwd(), configPath);
+    const absolutePath = path.resolve(process.cwd(), args.config!);
     const relativeConfig = path.relative(process.cwd(), absolutePath);
     
     if (!fs.existsSync(absolutePath)) {
       printError(`Configuration file not found: ${absolutePath}`);
       console.log(chalk.dim('  Hint: Run `objectstack init` to create a new project'));
-      process.exit(1);
+      this.exit(1);
     }
 
     // Quiet loading — only show a single spinner line
@@ -106,7 +115,7 @@ export const serveCommand = new Command('serve')
       console.debug = originalConsoleDebug;
     };
 
-    const portShifted = parseInt(options.port) !== port;
+    const portShifted = parseInt(flags.port) !== port;
 
     try {
       // ── Suppress ALL runtime noise during boot ────────────────────
@@ -131,7 +140,7 @@ export const serveCommand = new Command('serve')
       const config = mod.default || mod;
 
       if (!config) {
-        throw new Error(`No default export found in ${configPath}`);
+        throw new Error(`No default export found in ${args.config}`);
       }
 
       // Import ObjectStack runtime
@@ -151,7 +160,7 @@ export const serveCommand = new Command('serve')
       let plugins = config.plugins || [];
 
       // Merge devPlugins if in dev mode
-      if (options.dev && config.devPlugins) {
+      if (flags.dev && config.devPlugins) {
         plugins = [...plugins, ...config.devPlugins];
       }
 
@@ -228,7 +237,7 @@ export const serveCommand = new Command('serve')
       }
 
       // Add HTTP server plugin if not disabled
-      if (options.server !== false) {
+      if (flags.server) {
         try {
           const { HonoServerPlugin } = await import('@objectstack/plugin-hono-server');
           const serverPlugin = new HonoServerPlugin({ port });
@@ -260,7 +269,7 @@ export const serveCommand = new Command('serve')
       // ── Studio UI ─────────────────────────────────────────────────
       // In dev mode, Studio UI is enabled by default (use --no-ui to disable).
       // Always serves the pre-built dist/ — no Vite dev server, no extra port.
-      const enableUI = options.ui ?? isDev;
+      const enableUI = flags.ui || isDev;
 
       if (enableUI) {
         const studioPath = resolveStudioPath();
@@ -306,6 +315,7 @@ export const serveCommand = new Command('serve')
       console.log('');
       printError(error.message || String(error));
       if (process.env.DEBUG) console.error(chalk.dim(error.stack));
-      process.exit(1);
+      this.exit(1);
     }
-  });
+  }
+}

@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Command } from 'commander';
+import { Command, Flags } from '@oclif/core';
 import chalk from 'chalk';
 import { execSync } from 'child_process';
 import fs from 'fs';
@@ -299,11 +299,17 @@ function scanDeprecatedPatterns(dir: string): Array<{ file: string; line: number
 
 // ─── Command ────────────────────────────────────────────────────────
 
-export const doctorCommand = new Command('doctor')
-  .description('Check development environment and configuration health')
-  .option('-v, --verbose', 'Show detailed information')
-  .option('--scan-deprecations', 'Scan for deprecated ObjectStack patterns')
-  .action(async (options) => {
+export default class Doctor extends Command {
+  static override description = 'Check development environment and configuration health';
+
+  static override flags = {
+    verbose: Flags.boolean({ char: 'v', description: 'Show detailed information' }),
+    'scan-deprecations': Flags.boolean({ description: 'Scan for deprecated ObjectStack patterns' }),
+  };
+
+  async run(): Promise<void> {
+    const { flags } = await this.parse(Doctor);
+
     printHeader('Environment Health Check');
     
     const results: HealthCheckResult[] = [];
@@ -439,7 +445,7 @@ export const doctorCommand = new Command('doctor')
         printError(`${padded} ${result.message}`);
       }
       
-      if (result.fix && (options.verbose || result.status === 'error')) {
+      if (result.fix && (flags.verbose || result.status === 'error')) {
         console.log(chalk.dim(`      → ${result.fix}`));
       }
       
@@ -526,7 +532,7 @@ export const doctorCommand = new Command('doctor')
     }
 
     // ── Deprecation Pattern Scan ─────────────────────────────────────
-    if (options.scanDeprecations) {
+    if (flags['scan-deprecations']) {
       printStep('Scanning for deprecated ObjectStack patterns...');
       const scanDir = path.join(cwd, 'src');
       const deprecations = scanDeprecatedPatterns(scanDir);
@@ -534,7 +540,7 @@ export const doctorCommand = new Command('doctor')
         hasWarnings = true;
         for (const dep of deprecations) {
           printWarning(`${dep.file}:${dep.line} — ${dep.description}`);
-          if (options.verbose) {
+          if (flags.verbose) {
             console.log(chalk.dim(`      → ${dep.replacement}`));
           }
         }
@@ -562,4 +568,5 @@ export const doctorCommand = new Command('doctor')
     }
     
     console.log('');
-  });
+  }
+}

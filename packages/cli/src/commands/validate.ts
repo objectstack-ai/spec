@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Command } from 'commander';
+import { Args, Command, Flags } from '@oclif/core';
 import chalk from 'chalk';
 import { ZodError } from 'zod';
 import { ObjectStackDefinitionSchema, normalizeStackInput } from '@objectstack/spec';
@@ -17,53 +17,62 @@ import {
   printMetadataStats,
 } from '../utils/format.js';
 
-export const validateCommand = new Command('validate')
-  .description('Validate ObjectStack configuration against the protocol schema')
-  .argument('[config]', 'Configuration file path')
-  .option('--strict', 'Treat warnings as errors')
-  .option('--json', 'Output results as JSON')
-  .action(async (configPath, options) => {
+export default class Validate extends Command {
+  static override description = 'Validate ObjectStack configuration against the protocol schema';
+
+  static override args = {
+    config: Args.string({ description: 'Configuration file path', required: false }),
+  };
+
+  static override flags = {
+    strict: Flags.boolean({ description: 'Treat warnings as errors' }),
+    json: Flags.boolean({ description: 'Output results as JSON' }),
+  };
+
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(Validate);
+
     const timer = createTimer();
     
-    if (!options.json) {
+    if (!flags.json) {
       printHeader('Validate');
     }
 
     try {
       // 1. Load configuration
-      if (!options.json) printStep('Loading configuration...');
-      const { config, absolutePath, duration } = await loadConfig(configPath);
+      if (!flags.json) printStep('Loading configuration...');
+      const { config, absolutePath, duration } = await loadConfig(args.config);
       
-      if (!options.json) {
+      if (!flags.json) {
         printKV('Config', absolutePath);
         printKV('Load time', `${duration}ms`);
       }
 
       // 2. Normalize map-formatted stack definition and validate against schema
-      if (!options.json) printStep('Validating against ObjectStack Protocol...');
+      if (!flags.json) printStep('Validating against ObjectStack Protocol...');
       const normalized = normalizeStackInput(config as Record<string, unknown>);
       const result = ObjectStackDefinitionSchema.safeParse(normalized);
 
       if (!result.success) {
-        if (options.json) {
+        if (flags.json) {
           console.log(JSON.stringify({
             valid: false,
             errors: (result.error as unknown as ZodError).issues,
             duration: timer.elapsed(),
           }, null, 2));
-          process.exit(1);
+          this.exit(1);
         }
 
         console.log('');
         printError('Validation failed');
         formatZodErrors(result.error as unknown as ZodError);
-        process.exit(1);
+        this.exit(1);
       }
 
       // 3. Collect and display stats
       const stats = collectMetadataStats(config);
 
-      if (options.json) {
+      if (flags.json) {
         console.log(JSON.stringify({
           valid: true,
           manifest: config.manifest,
@@ -109,25 +118,26 @@ export const validateCommand = new Command('validate')
         for (const w of warnings) {
           console.log(chalk.yellow(`  ⚠ ${w}`));
         }
-        if (options.strict) {
+        if (flags.strict) {
           console.log('');
           printError('Strict mode: warnings treated as errors');
-          process.exit(1);
+          this.exit(1);
         }
       }
 
       console.log('');
     } catch (error: any) {
-      if (options.json) {
+      if (flags.json) {
         console.log(JSON.stringify({
           valid: false,
           error: error.message,
           duration: timer.elapsed(),
         }, null, 2));
-        process.exit(1);
+        this.exit(1);
       }
       console.log('');
       printError(error.message || String(error));
-      process.exit(1);
+      this.exit(1);
     }
-  });
+  }
+}
