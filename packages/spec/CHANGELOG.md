@@ -1,5 +1,13 @@
 # @objectstack/spec
 
+## 3.0.7
+
+### Patch Changes
+
+- 0119bd7: Implement DatabaseLoader for production metadata persistence
+- 5426bdf: Migrate CLI architecture to oclif framework
+  Improve chart
+
 ## 3.0.6
 
 ### Patch Changes
