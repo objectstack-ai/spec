@@ -3,6 +3,8 @@ title: Datasource
 description: Datasource protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Driver Identifier
 
 Can be a built-in driver or a plugin-contributed driver (e.g., "com.vendor.snowflake").
@@ -37,6 +39,7 @@ const result = Datasource.parse(data);
 | **readReplicas** | `Record<string, any>[]` | optional | Read-only replica configurations |
 | **capabilities** | `Object` | optional | Capability overrides |
 | **healthCheck** | `Object` | optional | Datasource health check configuration |
+| **ssl** | `Object` | optional | SSL/TLS configuration for secure database connections |
 | **retryPolicy** | `Object` | optional | Connection retry policy for transient failures |
 | **description** | `string` | optional | Internal description |
 | **active** | `boolean` | ✅ | Is datasource enabled |

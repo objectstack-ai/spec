@@ -3,6 +3,8 @@ title: Realtime
 description: Realtime protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Transport Protocol Enum
 
 Defines the communication protocol for realtime data synchronization
@@ -14,23 +16,12 @@ Defines the communication protocol for realtime data synchronization
 ## TypeScript Usage
 
 ```typescript
-import { RealtimeAction, RealtimeConfig, RealtimeEvent, RealtimeEventType, RealtimePresence, RealtimePresenceStatus, Subscription, SubscriptionEvent, TransportProtocol } from '@objectstack/spec/api';
-import type { RealtimeAction, RealtimeConfig, RealtimeEvent, RealtimeEventType, RealtimePresence, RealtimePresenceStatus, Subscription, SubscriptionEvent, TransportProtocol } from '@objectstack/spec/api';
+import { RealtimeConfig, RealtimeEvent, RealtimeEventType, RealtimePresence, Subscription, SubscriptionEvent, TransportProtocol } from '@objectstack/spec/api';
+import type { RealtimeConfig, RealtimeEvent, RealtimeEventType, RealtimePresence, Subscription, SubscriptionEvent, TransportProtocol } from '@objectstack/spec/api';
 
 // Validate data
-const result = RealtimeAction.parse(data);
+const result = RealtimeConfig.parse(data);
 ```
-
----
-
-## RealtimeAction
-
-### Allowed Values
-
-* `created`
-* `updated`
-* `deleted`
-
 
 ---
 
@@ -87,18 +78,6 @@ const result = RealtimeAction.parse(data);
 | **status** | `Enum<'online' \| 'away' \| 'busy' \| 'offline'>` | ✅ | Current presence status |
 | **lastSeen** | `string` | ✅ | ISO 8601 datetime of last activity |
 | **metadata** | `Record<string, any>` | optional | Custom presence data (e.g., current page, custom status) |
-
-
----
-
-## RealtimePresenceStatus
-
-### Allowed Values
-
-* `online`
-* `away`
-* `busy`
-* `offline`
 
 
 ---

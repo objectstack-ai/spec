@@ -3,6 +3,8 @@ title: Page
 description: Page protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Page Region Schema
 
 A named region in the template where components are dropped.
@@ -14,12 +16,56 @@ A named region in the template where components are dropped.
 ## TypeScript Usage
 
 ```typescript
-import { Page, PageComponent, PageComponentType, PageRegion, PageVariable } from '@objectstack/spec/ui';
-import type { Page, PageComponent, PageComponentType, PageRegion, PageVariable } from '@objectstack/spec/ui';
+import { BlankPageLayout, BlankPageLayoutItem, ElementDataSource, Page, PageComponent, PageComponentType, PageRegion, PageType, PageVariable, RecordReviewConfig } from '@objectstack/spec/ui';
+import type { BlankPageLayout, BlankPageLayoutItem, ElementDataSource, Page, PageComponent, PageComponentType, PageRegion, PageType, PageVariable, RecordReviewConfig } from '@objectstack/spec/ui';
 
 // Validate data
-const result = Page.parse(data);
+const result = BlankPageLayout.parse(data);
 ```
+
+---
+
+## BlankPageLayout
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **columns** | `integer` | ✅ | Number of grid columns |
+| **rowHeight** | `integer` | ✅ | Height of each grid row in pixels |
+| **gap** | `integer` | ✅ | Gap between grid items in pixels |
+| **items** | `Object[]` | ✅ | Positioned components on the canvas |
+
+
+---
+
+## BlankPageLayoutItem
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **componentId** | `string` | ✅ | Reference to a PageComponent.id in the page |
+| **x** | `integer` | ✅ | Grid column position (0-based) |
+| **y** | `integer` | ✅ | Grid row position (0-based) |
+| **width** | `integer` | ✅ | Width in grid columns |
+| **height** | `integer` | ✅ | Height in grid rows |
+
+
+---
+
+## ElementDataSource
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object to query |
+| **view** | `string` | optional | Named view to apply |
+| **filter** | `any` | optional | Additional filter criteria |
+| **sort** | `Object[]` | optional | Sort order |
+| **limit** | `integer` | optional | Max records to display |
+
 
 ---
 
@@ -30,15 +76,19 @@ const result = Page.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Page unique name (lowercase snake_case) |
-| **label** | `string` | ✅ |  |
-| **description** | `string` | optional |  |
-| **type** | `Enum<'record' \| 'home' \| 'app' \| 'utility'>` | ✅ |  |
+| **label** | `string \| Object` | ✅ | Display label: plain string or i18n translation object |
+| **description** | `string \| Object` | optional | Display label: plain string or i18n translation object |
+| **icon** | `string` | optional | Page icon name |
+| **type** | `Enum<'record' \| 'home' \| 'app' \| 'utility' \| 'dashboard' \| 'grid' \| 'list' \| 'gallery' \| 'kanban' \| 'calendar' \| 'timeline' \| 'form' \| 'record_detail' \| 'record_review' \| 'overview' \| 'blank'>` | ✅ | Page type |
 | **variables** | `Object[]` | optional | Local page state variables |
 | **object** | `string` | optional | Bound object (for Record pages) |
+| **recordReview** | `Object` | optional | Record review configuration (required when type is "record_review") |
+| **blankLayout** | `Object` | optional | Free-form grid layout for blank pages (used when type is "blank") |
 | **template** | `string` | ✅ | Layout template name (e.g. "header-sidebar-main") |
 | **regions** | `Object[]` | ✅ | Defined regions with components |
 | **isDefault** | `boolean` | ✅ |  |
 | **assignedProfiles** | `string[]` | optional |  |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
 
 
 ---
@@ -49,14 +99,17 @@ const result = Page.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **type** | `Enum<'page:header' \| 'page:footer' \| 'page:sidebar' \| 'page:tabs' \| 'page:accordion' \| 'page:card' \| 'page:section' \| 'record:details' \| 'record:highlights' \| 'record:related_list' \| 'record:activity' \| 'record:chatter' \| 'record:path' \| 'app:launcher' \| 'nav:menu' \| 'nav:breadcrumb' \| 'global:search' \| 'global:notifications' \| 'user:profile' \| 'ai:chat_window' \| 'ai:suggestion'> \| string` | ✅ | Component Type (Standard enum or custom string) |
+| **type** | `Enum<'page:header' \| 'page:footer' \| 'page:sidebar' \| 'page:tabs' \| 'page:accordion' \| 'page:card' \| 'page:section' \| 'record:details' \| 'record:highlights' \| 'record:related_list' \| 'record:activity' \| 'record:chatter' \| 'record:path' \| 'app:launcher' \| 'nav:menu' \| 'nav:breadcrumb' \| 'global:search' \| 'global:notifications' \| 'user:profile' \| 'ai:chat_window' \| 'ai:suggestion' \| 'element:text' \| 'element:number' \| 'element:image' \| 'element:divider' \| 'element:button' \| 'element:filter' \| 'element:form' \| 'element:record_picker'> \| string` | ✅ | Component Type (Standard enum or custom string) |
 | **id** | `string` | optional | Unique instance ID |
-| **label** | `string` | optional |  |
+| **label** | `string \| Object` | optional | Display label: plain string or i18n translation object |
 | **properties** | `Record<string, any>` | ✅ | Component props passed to the widget. See component.zod.ts for schemas. |
 | **events** | `Record<string, string>` | optional | Event handlers map |
 | **style** | `Record<string, string>` | optional | Inline styles or utility classes |
 | **className** | `string` | optional | CSS class names |
 | **visibility** | `string` | optional | Visibility filter/formula |
+| **dataSource** | `Object` | optional | Per-element data binding for multi-object pages |
+| **responsive** | `Object` | optional | Responsive layout configuration |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
 
 
 ---
@@ -86,6 +139,14 @@ const result = Page.parse(data);
 * `user:profile`
 * `ai:chat_window`
 * `ai:suggestion`
+* `element:text`
+* `element:number`
+* `element:image`
+* `element:divider`
+* `element:button`
+* `element:filter`
+* `element:form`
+* `element:record_picker`
 
 
 ---
@@ -103,6 +164,32 @@ const result = Page.parse(data);
 
 ---
 
+## PageType
+
+Page type — platform or interface page types
+
+### Allowed Values
+
+* `record`
+* `home`
+* `app`
+* `utility`
+* `dashboard`
+* `grid`
+* `list`
+* `gallery`
+* `kanban`
+* `calendar`
+* `timeline`
+* `form`
+* `record_detail`
+* `record_review`
+* `overview`
+* `blank`
+
+
+---
+
 ## PageVariable
 
 ### Properties
@@ -110,8 +197,26 @@ const result = Page.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Variable name |
-| **type** | `Enum<'string' \| 'number' \| 'boolean' \| 'object' \| 'array'>` | ✅ |  |
+| **type** | `Enum<'string' \| 'number' \| 'boolean' \| 'object' \| 'array' \| 'record_id'>` | ✅ |  |
 | **defaultValue** | `any` | optional |  |
+| **source** | `string` | optional | Component ID that writes to this variable |
+
+
+---
+
+## RecordReviewConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Target object for review |
+| **filter** | `any` | optional | Filter criteria for review queue |
+| **sort** | `Object[]` | optional | Sort order for review queue |
+| **displayFields** | `string[]` | optional | Fields to display on the review page |
+| **actions** | `Object[]` | ✅ | Review actions |
+| **navigation** | `Enum<'sequential' \| 'random' \| 'filtered'>` | ✅ | Record navigation mode |
+| **showProgress** | `boolean` | ✅ | Show review progress indicator |
 
 
 ---

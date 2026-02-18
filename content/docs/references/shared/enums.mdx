@@ -3,6 +3,8 @@ title: Enums
 description: Enums protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Aggregation functions used across query, data-engine, analytics, field
 
 <Callout type="info">
@@ -12,8 +14,8 @@ Aggregation functions used across query, data-engine, analytics, field
 ## TypeScript Usage
 
 ```typescript
-import { AggregationFunctionEnum, CacheStrategyEnum, IsolationLevelEnum, MutationEventEnum, SortDirectionEnum } from '@objectstack/spec/shared';
-import type { AggregationFunctionEnum, CacheStrategyEnum, IsolationLevelEnum, MutationEventEnum, SortDirectionEnum } from '@objectstack/spec/shared';
+import { AggregationFunctionEnum, CacheStrategyEnum, IsolationLevelEnum, MutationEventEnum, SortDirectionEnum, SortItem } from '@objectstack/spec/shared';
+import type { AggregationFunctionEnum, CacheStrategyEnum, IsolationLevelEnum, MutationEventEnum, SortDirectionEnum, SortItem } from '@objectstack/spec/shared';
 
 // Validate data
 const result = AggregationFunctionEnum.parse(data);
@@ -92,6 +94,20 @@ Sort order direction
 
 * `asc`
 * `desc`
+
+
+---
+
+## SortItem
+
+Sort field and direction pair
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Field name to sort by |
+| **order** | `Enum<'asc' \| 'desc'>` | ✅ | Sort direction |
 
 
 ---

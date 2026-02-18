@@ -3,6 +3,8 @@ title: App
 description: App protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Base Navigation Item Schema
 
 Shared properties for all navigation types.
@@ -55,11 +57,15 @@ const result = App.parse(data);
 | **branding** | `Object` | optional | App-specific branding |
 | **active** | `boolean` | ✅ | Whether the app is enabled |
 | **isDefault** | `boolean` | ✅ | Is default app |
-| **navigation** | `[__schema0](./__schema0)[]` | optional | Structured navigation menu tree |
+| **navigation** | `[__schema0](./__schema0)[]` | optional | Full navigation tree for the app sidebar |
 | **homePageId** | `string` | optional | ID of the navigation item to serve as landing page |
 | **requiredPermissions** | `string[]` | optional | Permissions required to access this app |
 | **objects** | `any[]` | optional | Objects belonging to this app |
 | **apis** | `any[]` | optional | Custom APIs belonging to this app |
+| **sharing** | `Object` | optional | Public sharing configuration |
+| **embed** | `Object` | optional | Iframe embedding configuration |
+| **mobileNavigation** | `Object` | optional | Mobile-specific navigation configuration |
+| **aria** | `Object` | optional | ARIA accessibility attributes for the application |
 
 
 ---

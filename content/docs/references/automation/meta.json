@@ -2,8 +2,10 @@
   "title": "Automation Protocol",
   "pages": [
     "approval",
+    "connector",
     "etl",
     "flow",
+    "offline",
     "state-machine",
     "sync",
     "trigger-registry",

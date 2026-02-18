@@ -1,0 +1,97 @@
+---
+title: Connector
+description: Connector protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/connector.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { Connector, ConnectorTrigger, DataSyncConfig } from '@objectstack/spec/automation';
+import type { Connector, ConnectorTrigger, DataSyncConfig } from '@objectstack/spec/automation';
+
+// Validate data
+const result = Connector.parse(data);
+```
+
+---
+
+## Connector
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Connector ID (snake_case) |
+| **name** | `string` | ✅ | Connector name |
+| **description** | `string` | optional | Connector description |
+| **version** | `string` | optional | Connector version |
+| **icon** | `string` | optional | Connector icon |
+| **category** | `Enum<'crm' \| 'payment' \| 'communication' \| 'storage' \| 'analytics' \| 'database' \| 'marketing' \| 'accounting' \| 'hr' \| 'productivity' \| 'ecommerce' \| 'support' \| 'devtools' \| 'social' \| 'other'>` | ✅ | Connector category |
+| **baseUrl** | `string` | optional | API base URL |
+| **authentication** | `Object` | ✅ | Authentication config |
+| **operations** | `Object[]` | optional | Connector operations |
+| **triggers** | `Object[]` | optional | Connector triggers |
+| **rateLimit** | `Object` | optional | Rate limiting |
+| **author** | `string` | optional | Connector author |
+| **documentation** | `string` | optional | Documentation URL |
+| **homepage** | `string` | optional | Homepage URL |
+| **license** | `string` | optional | License (SPDX identifier) |
+| **tags** | `string[]` | optional | Connector tags |
+| **verified** | `boolean` | ✅ | Verified connector |
+| **metadata** | `Record<string, any>` | optional | Custom metadata |
+
+
+---
+
+## ConnectorTrigger
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Trigger ID (snake_case) |
+| **name** | `string` | ✅ | Trigger name |
+| **description** | `string` | optional | Trigger description |
+| **type** | `Enum<'webhook' \| 'polling' \| 'stream'>` | ✅ | Trigger mechanism |
+| **config** | `Record<string, any>` | optional | Trigger configuration |
+| **outputSchema** | `Record<string, any>` | optional | Event payload schema |
+| **pollingIntervalMs** | `integer` | optional | Polling interval in ms |
+
+
+---
+
+## DataSyncConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Sync configuration name (snake_case) |
+| **label** | `string` | optional | Sync display name |
+| **description** | `string` | optional | Sync description |
+| **source** | `Object` | ✅ | Data source |
+| **destination** | `Object` | ✅ | Data destination |
+| **direction** | `Enum<'push' \| 'pull' \| 'bidirectional'>` | ✅ | Sync direction |
+| **syncMode** | `Enum<'full' \| 'incremental' \| 'realtime'>` | ✅ | Sync mode |
+| **conflictResolution** | `Enum<'source_wins' \| 'destination_wins' \| 'latest_wins' \| 'manual' \| 'merge'>` | ✅ | Conflict resolution |
+| **schedule** | `string` | optional | Cron schedule |
+| **enabled** | `boolean` | ✅ | Sync enabled |
+| **changeTrackingField** | `string` | optional | Field for change tracking |
+| **batchSize** | `integer` | ✅ | Batch size for processing |
+| **retry** | `Object` | optional | Retry configuration |
+| **validation** | `Object` | optional | Validation rules |
+| **errorHandling** | `Object` | optional | Error handling |
+| **optimization** | `Object` | optional | Performance optimization |
+| **audit** | `Object` | optional | Audit configuration |
+| **tags** | `string[]` | optional | Sync tags |
+| **metadata** | `Record<string, any>` | optional | Custom metadata |
+
+
+---
+

@@ -3,6 +3,8 @@ title: Scim
 description: Scim protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 # SCIM 2.0 Protocol Implementation
 
 System for Cross-domain Identity Management (SCIM) 2.0 specification
@@ -80,8 +82,8 @@ de-provisioning, and synchronization.
 ## TypeScript Usage
 
 ```typescript
-import { SCIMAddress, SCIMEmail, SCIMEnterpriseUser, SCIMError, SCIMGroup, SCIMGroupReference, SCIMListResponse, SCIMMemberReference, SCIMMeta, SCIMName, SCIMPatchOperation, SCIMPatchRequest, SCIMPhoneNumber, SCIMUser } from '@objectstack/spec/identity';
-import type { SCIMAddress, SCIMEmail, SCIMEnterpriseUser, SCIMError, SCIMGroup, SCIMGroupReference, SCIMListResponse, SCIMMemberReference, SCIMMeta, SCIMName, SCIMPatchOperation, SCIMPatchRequest, SCIMPhoneNumber, SCIMUser } from '@objectstack/spec/identity';
+import { SCIMAddress, SCIMBulkOperation, SCIMBulkRequest, SCIMBulkResponse, SCIMBulkResponseOperation, SCIMEmail, SCIMEnterpriseUser, SCIMError, SCIMGroup, SCIMGroupReference, SCIMListResponse, SCIMMemberReference, SCIMMeta, SCIMName, SCIMPatchOperation, SCIMPatchRequest, SCIMPhoneNumber, SCIMUser } from '@objectstack/spec/identity';
+import type { SCIMAddress, SCIMBulkOperation, SCIMBulkRequest, SCIMBulkResponse, SCIMBulkResponseOperation, SCIMEmail, SCIMEnterpriseUser, SCIMError, SCIMGroup, SCIMGroupReference, SCIMListResponse, SCIMMemberReference, SCIMMeta, SCIMName, SCIMPatchOperation, SCIMPatchRequest, SCIMPhoneNumber, SCIMUser } from '@objectstack/spec/identity';
 
 // Validate data
 const result = SCIMAddress.parse(data);
@@ -103,6 +105,61 @@ const result = SCIMAddress.parse(data);
 | **country** | `string` | optional | Country |
 | **type** | `Enum<'work' \| 'home' \| 'other'>` | optional | Address type |
 | **primary** | `boolean` | ✅ | Primary address indicator |
+
+
+---
+
+## SCIMBulkOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **method** | `Enum<'POST' \| 'PUT' \| 'PATCH' \| 'DELETE'>` | ✅ | HTTP method for the bulk operation |
+| **path** | `string` | ✅ | Resource endpoint path (e.g. /Users, /Groups/`{id}`) |
+| **bulkId** | `string` | optional | Client-assigned ID for cross-referencing between operations |
+| **data** | `Record<string, any>` | optional | Request body for POST/PUT/PATCH operations |
+| **version** | `string` | optional | ETag for optimistic concurrency control |
+
+
+---
+
+## SCIMBulkRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **schemas** | `string[]` | ✅ | SCIM schema URIs (BulkRequest) |
+| **operations** | `Object[]` | ✅ | Bulk operations to execute (minimum 1) |
+| **failOnErrors** | `integer` | optional | Stop processing after this many errors |
+
+
+---
+
+## SCIMBulkResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **schemas** | `string[]` | ✅ | SCIM schema URIs (BulkResponse) |
+| **operations** | `Object[]` | ✅ | Results for each bulk operation |
+
+
+---
+
+## SCIMBulkResponseOperation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **method** | `Enum<'POST' \| 'PUT' \| 'PATCH' \| 'DELETE'>` | ✅ | HTTP method that was executed |
+| **bulkId** | `string` | optional | Client-assigned bulk operation ID |
+| **location** | `string` | optional | URL of the created or modified resource |
+| **status** | `string` | ✅ | HTTP status code as string (e.g. "201", "400") |
+| **response** | `any` | optional | Response body (typically present for errors) |
 
 
 ---

@@ -3,6 +3,8 @@ title: Permission
 description: Permission protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Entity (Object) Level Permissions
 
 Defines CRUD + VAMA (View All / Modify All) + Lifecycle access.
@@ -74,6 +76,7 @@ const result = FieldPermission.parse(data);
 | **objects** | `Record<string, Object>` | ✅ | Entity permissions |
 | **fields** | `Record<string, Object>` | optional | Field level security |
 | **systemPermissions** | `string[]` | optional | System level capabilities |
+| **tabPermissions** | `Record<string, Enum<'visible' \| 'hidden' \| 'default_on' \| 'default_off'>>` | optional | App/tab visibility: visible, hidden, default_on (shown by default), default_off (available but hidden initially) |
 | **rowLevelSecurity** | `Object[]` | optional | Row-level security policies (see rls.zod.ts for full spec) |
 | **contextVariables** | `Record<string, any>` | optional | Context variables for RLS evaluation |
 

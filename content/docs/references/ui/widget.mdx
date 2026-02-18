@@ -3,6 +3,8 @@ title: Widget
 description: Widget protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Widget Lifecycle Hooks Schema
 
 Defines lifecycle callbacks for custom widgets inspired by Web Components and React.
@@ -58,8 +60,8 @@ const result = WidgetEvent.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Event name |
-| **label** | `string` | optional | Human-readable event label |
-| **description** | `string` | optional | Event description and usage |
+| **label** | `string \| Object` | optional | Human-readable event label |
+| **description** | `string \| Object` | optional | Event description and usage |
 | **bubbles** | `boolean` | ✅ | Whether event bubbles |
 | **cancelable** | `boolean` | ✅ | Whether event is cancelable |
 | **payload** | `Record<string, any>` | optional | Event payload schema |
@@ -91,8 +93,8 @@ const result = WidgetEvent.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Widget identifier (snake_case) |
-| **label** | `string` | ✅ | Widget display name |
-| **description** | `string` | optional | Widget description |
+| **label** | `string \| Object` | ✅ | Widget display name |
+| **description** | `string \| Object` | optional | Widget description |
 | **version** | `string` | optional | Widget version (semver) |
 | **author** | `string` | optional | Widget author |
 | **icon** | `string` | optional | Widget icon |
@@ -107,6 +109,8 @@ const result = WidgetEvent.parse(data);
 | **documentation** | `string` | optional | Documentation URL |
 | **license** | `string` | optional | License (SPDX identifier) |
 | **tags** | `string[]` | optional | Tags for categorization |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+| **performance** | `Object` | optional | Performance optimization settings |
 
 
 ---
@@ -118,11 +122,11 @@ const result = WidgetEvent.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Property name (camelCase) |
-| **label** | `string` | optional | Human-readable label |
+| **label** | `string \| Object` | optional | Human-readable label |
 | **type** | `Enum<'string' \| 'number' \| 'boolean' \| 'array' \| 'object' \| 'function' \| 'any'>` | ✅ | TypeScript type |
 | **required** | `boolean` | ✅ | Whether property is required |
 | **default** | `any` | optional | Default value |
-| **description** | `string` | optional | Property description |
+| **description** | `string \| Object` | optional | Property description |
 | **validation** | `Record<string, any>` | optional | Validation rules |
 | **category** | `string` | optional | Property category |
 

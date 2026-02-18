@@ -3,6 +3,8 @@ title: Agent
 description: Agent protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 AI Model Configuration
 
 <Callout type="info">
@@ -12,8 +14,8 @@ AI Model Configuration
 ## TypeScript Usage
 
 ```typescript
-import { AIKnowledge, AIModelConfig, AITool, Agent } from '@objectstack/spec/ai';
-import type { AIKnowledge, AIModelConfig, AITool, Agent } from '@objectstack/spec/ai';
+import { AIKnowledge, AIModelConfig, AITool, Agent, StructuredOutputConfig, StructuredOutputFormat, TransformPipelineStep } from '@objectstack/spec/ai';
+import type { AIKnowledge, AIModelConfig, AITool, Agent, StructuredOutputConfig, StructuredOutputFormat, TransformPipelineStep } from '@objectstack/spec/ai';
 
 // Validate data
 const result = AIKnowledge.parse(data);
@@ -80,6 +82,58 @@ const result = AIKnowledge.parse(data);
 | **access** | `string[]` | optional | Who can chat with this agent |
 | **tenantId** | `string` | optional | Tenant/Organization ID |
 | **visibility** | `Enum<'global' \| 'organization' \| 'private'>` | ✅ |  |
+| **planning** | `Object` | optional | Autonomous reasoning and planning configuration |
+| **memory** | `Object` | optional | Agent memory management |
+| **guardrails** | `Object` | optional | Safety guardrails for the agent |
+| **structuredOutput** | `Object` | optional | Structured output format and validation configuration |
+
+
+---
+
+## StructuredOutputConfig
+
+Structured output configuration for agent responses
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **format** | `Enum<'json_object' \| 'json_schema' \| 'regex' \| 'grammar' \| 'xml'>` | ✅ | Expected output format |
+| **schema** | `Record<string, any>` | optional | JSON Schema definition for output |
+| **strict** | `boolean` | ✅ | Enforce exact schema compliance |
+| **retryOnValidationFailure** | `boolean` | ✅ | Retry generation when output fails validation |
+| **maxRetries** | `integer` | ✅ | Maximum retries on validation failure |
+| **fallbackFormat** | `Enum<'json_object' \| 'json_schema' \| 'regex' \| 'grammar' \| 'xml'>` | optional | Fallback format if primary format fails |
+| **transformPipeline** | `Enum<'trim' \| 'parse_json' \| 'validate' \| 'coerce_types'>[]` | optional | Post-processing steps applied to output |
+
+
+---
+
+## StructuredOutputFormat
+
+Output format for structured agent responses
+
+### Allowed Values
+
+* `json_object`
+* `json_schema`
+* `regex`
+* `grammar`
+* `xml`
+
+
+---
+
+## TransformPipelineStep
+
+Post-processing step for structured output
+
+### Allowed Values
+
+* `trim`
+* `parse_json`
+* `validate`
+* `coerce_types`
 
 
 ---

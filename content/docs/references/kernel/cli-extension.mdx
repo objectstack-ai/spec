@@ -3,81 +3,101 @@ title: Cli Extension
 description: Cli Extension protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 # CLI Extension Protocol
 
 Defines the contract for plugins that extend the ObjectStack CLI with
 
 custom commands. This enables third-party packages (e.g., marketplace,
 
-deployment tools) to register new top-level or nested CLI commands.
+cloud deployment tools) to register new CLI commands via oclif's
 
-## How It Works
+built-in plugin system.
 
-1. **Declare** — Plugin's manifest declares `contributes.commands` entries.
+## How It Works (oclif Plugin Model)
 
-2. **Discover** — The CLI scans installed plugins for command contributions.
+1. **Declare** — Plugin's `package.json` includes an `oclif` config section
 
-3. **Load** — The CLI dynamically imports the plugin module and registers
+declaring its commands directory and any topics.
 
-exported Commander.js `Command` instances.
+2. **Discover** — The main CLI (`@objectstack/cli`) lists the plugin in its
 
-## Plugin Module Contract
+`oclif.plugins` array, or users install it via `os plugins install <pkg>`.
 
-The plugin must export commands in one of these forms:
+3. **Load** — oclif automatically discovers and registers all Command classes
+
+exported from the plugin's commands directory.
+
+## Plugin Package Contract
+
+The plugin must be a valid oclif plugin:
+
+```json
+
+// package.json of the plugin
+
+\{
+
+"name": "@acme/plugin-marketplace",
+
+"oclif": \{
+
+"commands": \{
+
+"strategy": "pattern",
+
+"target": "./dist/commands",
+
+"glob": "**\/*.js"
+
+\}
+
+\}
+
+\}
+
+```
+
+Commands are standard oclif Command classes:
 
 ```typescript
 
-// Form 1: Named export array
+// src/commands/marketplace/search.ts
 
-export const commands = [marketplaceCommand, deployCommand];
+import \{ Args, Command, Flags \} from '@oclif/core';
 
-// Form 2: Default export (single command)
+export default class MarketplaceSearch extends Command \{
 
-export default marketplaceCommand;
+static override description = 'Search marketplace apps';
 
-// Form 3: Default export (array)
+static override args = \{
 
-export default [marketplaceCommand, deployCommand];
+query: Args.string(\{ description: 'Search query', required: true \}),
 
-```
+\};
 
-@example
+async run() \{
 
-```typescript
+const \{ args \} = await this.parse(MarketplaceSearch);
 
-// In @acme/plugin-marketplace/src/cli.ts
+// ...
 
-import \{ Command \} from 'commander';
+\}
 
-const marketplaceCommand = new Command('marketplace')
-
-.description('Manage marketplace applications')
-
-.addCommand(
-
-new Command('publish')
-
-.description('Publish app to marketplace')
-
-.action(async () => \{ ... \})
-
-)
-
-.addCommand(
-
-new Command('search')
-
-.description('Search marketplace apps')
-
-.argument('<query>', 'Search query')
-
-.action(async (query) => \{ ... \})
-
-);
-
-export const commands = [marketplaceCommand];
+\}
 
 ```
+
+## Migration from Commander.js
+
+The previous plugin model required `contributes.commands` in the manifest
+
+and exported Commander.js `Command` instances. The new model uses oclif's
+
+native plugin system for automatic command discovery and registration.
+
+The `objectstack.config.ts` plugins array no longer determines CLI commands.
 
 <Callout type="info">
 **Source:** `packages/spec/src/kernel/cli-extension.zod.ts`
@@ -86,8 +106,8 @@ export const commands = [marketplaceCommand];
 ## TypeScript Usage
 
 ```typescript
-import { CLICommandContribution, CLIExtensionExport } from '@objectstack/spec/kernel';
-import type { CLICommandContribution, CLIExtensionExport } from '@objectstack/spec/kernel';
+import { CLICommandContribution, OclifPluginConfig } from '@objectstack/spec/kernel';
+import type { CLICommandContribution, OclifPluginConfig } from '@objectstack/spec/kernel';
 
 // Validate data
 const result = CLICommandContribution.parse(data);
@@ -103,19 +123,21 @@ const result = CLICommandContribution.parse(data);
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | CLI command name |
 | **description** | `string` | optional | Command description for help text |
-| **module** | `string` | optional | Module path exporting Commander.js commands |
+| **module** | `string` | optional | Module path exporting oclif Command classes |
 
 
 ---
 
-## CLIExtensionExport
+## OclifPluginConfig
+
+oclif plugin configuration section
 
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **commands** | `any[]` | optional | Array of Commander.js Command instances |
-| **default** | `any \| any[]` | optional | Default export: Command or Command[] |
+| **commands** | `Object` | optional | Command discovery configuration |
+| **topicSeparator** | `string` | optional | Character separating topic and command names |
 
 
 ---

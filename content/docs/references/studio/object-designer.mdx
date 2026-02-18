@@ -1,0 +1,378 @@
+---
+title: Object Designer
+description: Object Designer protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+@module studio/object-designer
+
+Object Designer Protocol — Visual Field Editor, Relationship Mapper & ER Diagram
+
+Defines the specification for the Object Designer experience within ObjectStack Studio,
+
+including:
+
+- **Field Editor**: Visual field creation/editing with type-aware property panels
+
+- **Relationship Mapper**: Visual lookup/master-detail relationship configuration
+
+- **ER Diagram**: Entity-Relationship diagram rendering and interaction
+
+- **Object Manager**: Unified object list with search, filtering, and bulk operations
+
+## Architecture
+
+The Object Designer is composed of four interconnected panels:
+
+```
+
+┌─────────────────────────────────────────────────────────────────┐
+
+│                     Object Manager (list / search)             │
+
+├──────────────┬──────────────────────────┬──────────────────────┤
+
+│  Object List │  Field Editor            │  Property Panel      │
+
+│  (sidebar)   │  (table + inline edit)   │  (type-specific)     │
+
+│              │                          │                      │
+
+│  ─ search    │  ─ drag-to-reorder       │  ─ constraints       │
+
+│  ─ filter    │  ─ inline type picker    │  ─ validation        │
+
+│  ─ group     │  ─ batch add/remove      │  ─ security          │
+
+│  ─ create    │  ─ field groups           │  ─ relationships     │
+
+├──────────────┴──────────────────────────┴──────────────────────┤
+
+│                     ER Diagram (toggle panel)                  │
+
+│  ─ auto-layout (force / hierarchy / grid)                     │
+
+│  ─ interactive: click node → navigate to object               │
+
+│  ─ hover: highlight connected relationships                   │
+
+│  ─ zoom/pan/minimap                                           │
+
+└─────────────────────────────────────────────────────────────────┘
+
+```
+
+@example
+
+```typescript
+
+import \{
+
+ObjectDesignerConfigSchema,
+
+ERDiagramConfigSchema,
+
+\} from '@objectstack/spec/studio';
+
+const config = ObjectDesignerConfigSchema.parse(\{
+
+defaultView: 'field-editor',
+
+fieldEditor: \{
+
+inlineEditing: true,
+
+dragReorder: true,
+
+showFieldGroups: true,
+
+\},
+
+erDiagram: \{
+
+enabled: true,
+
+layout: 'force',
+
+showFieldDetails: true,
+
+\},
+
+\});
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/studio/object-designer.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ERDiagramConfig, ERLayoutAlgorithm, ERNodeDisplay, FieldEditorConfig, FieldGroup, FieldPropertySection, ObjectDesignerConfig, ObjectDesignerDefaultView, ObjectFilter, ObjectListDisplayMode, ObjectManagerConfig, ObjectPreviewConfig, ObjectPreviewTab, ObjectSortField, RelationshipDisplay, RelationshipMapperConfig } from '@objectstack/spec/studio';
+import type { ERDiagramConfig, ERLayoutAlgorithm, ERNodeDisplay, FieldEditorConfig, FieldGroup, FieldPropertySection, ObjectDesignerConfig, ObjectDesignerDefaultView, ObjectFilter, ObjectListDisplayMode, ObjectManagerConfig, ObjectPreviewConfig, ObjectPreviewTab, ObjectSortField, RelationshipDisplay, RelationshipMapperConfig } from '@objectstack/spec/studio';
+
+// Validate data
+const result = ERDiagramConfig.parse(data);
+```
+
+---
+
+## ERDiagramConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable ER diagram panel |
+| **layout** | `Enum<'force' \| 'hierarchy' \| 'grid' \| 'circular'>` | ✅ | Default layout algorithm |
+| **nodeDisplay** | `Object` | ✅ | Node display configuration |
+| **showMinimap** | `boolean` | ✅ | Show minimap for large diagrams |
+| **zoomControls** | `boolean` | ✅ | Show zoom in/out/fit controls |
+| **minZoom** | `number` | ✅ | Minimum zoom level |
+| **maxZoom** | `number` | ✅ | Maximum zoom level |
+| **showEdgeLabels** | `boolean` | ✅ | Show cardinality labels on relationship edges |
+| **highlightOnHover** | `boolean` | ✅ | Highlight connected entities on node hover |
+| **clickToNavigate** | `boolean` | ✅ | Click node to navigate to object detail |
+| **dragToConnect** | `boolean` | ✅ | Drag between nodes to create relationships |
+| **hideOrphans** | `boolean` | ✅ | Hide objects with no relationships |
+| **autoFit** | `boolean` | ✅ | Auto-fit diagram to viewport on load |
+| **exportFormats** | `Enum<'png' \| 'svg' \| 'json'>[]` | ✅ | Available export formats for diagram |
+
+
+---
+
+## ERLayoutAlgorithm
+
+ER diagram layout algorithm
+
+### Allowed Values
+
+* `force`
+* `hierarchy`
+* `grid`
+* `circular`
+
+
+---
+
+## ERNodeDisplay
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **showFields** | `boolean` | ✅ | Show field list inside entity nodes |
+| **maxFieldsVisible** | `number` | ✅ | Max fields visible before "N more..." collapse |
+| **showFieldTypes** | `boolean` | ✅ | Show field type badges |
+| **showRequiredIndicator** | `boolean` | ✅ | Show required field indicators |
+| **showRecordCount** | `boolean` | ✅ | Show live record count on nodes |
+| **showIcon** | `boolean` | ✅ | Show object icon on node header |
+| **showDescription** | `boolean` | ✅ | Show description tooltip on hover |
+
+
+---
+
+## FieldEditorConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **inlineEditing** | `boolean` | ✅ | Enable inline editing of field properties |
+| **dragReorder** | `boolean` | ✅ | Enable drag-and-drop field reordering |
+| **showFieldGroups** | `boolean` | ✅ | Show field group headers |
+| **showPropertyPanel** | `boolean` | ✅ | Show the right-side property panel |
+| **propertySections** | `Object[]` | ✅ | Property panel section definitions |
+| **fieldGroups** | `Object[]` | ✅ | Field group definitions |
+| **paginationThreshold** | `number` | ✅ | Number of fields before pagination is enabled |
+| **batchOperations** | `boolean` | ✅ | Enable batch add/remove field operations |
+| **showUsageStats** | `boolean` | ✅ | Show field usage statistics |
+
+
+---
+
+## FieldGroup
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **key** | `string` | ✅ | Group key matching field.group values |
+| **label** | `string` | ✅ | Group display label |
+| **icon** | `string` | optional | Lucide icon name |
+| **defaultExpanded** | `boolean` | ✅ | Whether group is expanded by default |
+| **order** | `number` | ✅ | Sort order (lower = higher) |
+
+
+---
+
+## FieldPropertySection
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **key** | `string` | ✅ | Section key (e.g., "basics", "constraints", "security") |
+| **label** | `string` | ✅ | Section display label |
+| **icon** | `string` | optional | Lucide icon name |
+| **defaultExpanded** | `boolean` | ✅ | Whether section is expanded by default |
+| **order** | `number` | ✅ | Sort order (lower = higher) |
+
+
+---
+
+## ObjectDesignerConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **defaultView** | `Enum<'field-editor' \| 'relationship-mapper' \| 'er-diagram' \| 'object-manager'>` | ✅ | Default view |
+| **fieldEditor** | `Object` | ✅ | Field editor configuration |
+| **relationshipMapper** | `Object` | ✅ | Relationship mapper configuration |
+| **erDiagram** | `Object` | ✅ | ER diagram configuration |
+| **objectManager** | `Object` | ✅ | Object manager configuration |
+| **objectPreview** | `Object` | ✅ | Object preview configuration |
+
+
+---
+
+## ObjectDesignerDefaultView
+
+Default view when entering the Object Designer
+
+### Allowed Values
+
+* `field-editor`
+* `relationship-mapper`
+* `er-diagram`
+* `object-manager`
+
+
+---
+
+## ObjectFilter
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **package** | `string` | optional | Filter by owning package |
+| **tags** | `string[]` | optional | Filter by object tags |
+| **includeSystem** | `boolean` | ✅ | Include system-level objects |
+| **includeAbstract** | `boolean` | ✅ | Include abstract base objects |
+| **hasFieldType** | `string` | optional | Filter to objects containing a specific field type |
+| **hasRelationships** | `boolean` | optional | Filter to objects with lookup/master_detail fields |
+| **searchQuery** | `string` | optional | Free-text search across name, label, and description |
+
+
+---
+
+## ObjectListDisplayMode
+
+Object list display mode
+
+### Allowed Values
+
+* `table`
+* `cards`
+* `tree`
+
+
+---
+
+## ObjectManagerConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **defaultDisplayMode** | `Enum<'table' \| 'cards' \| 'tree'>` | ✅ | Default list display mode |
+| **defaultSortField** | `Enum<'name' \| 'label' \| 'fieldCount' \| 'updatedAt'>` | ✅ | Default sort field |
+| **defaultSortDirection** | `Enum<'asc' \| 'desc'>` | ✅ | Default sort direction |
+| **defaultFilter** | `Object` | ✅ | Default filter configuration |
+| **showFieldCount** | `boolean` | ✅ | Show field count badge |
+| **showRelationshipCount** | `boolean` | ✅ | Show relationship count badge |
+| **showQuickPreview** | `boolean` | ✅ | Show quick field preview tooltip on hover |
+| **enableComparison** | `boolean` | ✅ | Enable side-by-side object comparison |
+| **showERDiagramToggle** | `boolean` | ✅ | Show ER diagram toggle in toolbar |
+| **showCreateAction** | `boolean` | ✅ | Show create object action |
+| **showStatsSummary** | `boolean` | ✅ | Show statistics summary bar |
+
+
+---
+
+## ObjectPreviewConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **tabs** | `Object[]` | ✅ | Object detail preview tabs |
+| **defaultTab** | `string` | ✅ | Default active tab key |
+| **showHeader** | `boolean` | ✅ | Show object summary header |
+| **showBreadcrumbs** | `boolean` | ✅ | Show navigation breadcrumbs |
+
+
+---
+
+## ObjectPreviewTab
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **key** | `string` | ✅ | Tab key |
+| **label** | `string` | ✅ | Tab display label |
+| **icon** | `string` | optional | Lucide icon name |
+| **enabled** | `boolean` | ✅ | Whether this tab is available |
+| **order** | `number` | ✅ | Sort order (lower = higher) |
+
+
+---
+
+## ObjectSortField
+
+Object list sort field
+
+### Allowed Values
+
+* `name`
+* `label`
+* `fieldCount`
+* `updatedAt`
+
+
+---
+
+## RelationshipDisplay
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'lookup' \| 'master_detail' \| 'tree'>` | ✅ | Relationship type |
+| **lineStyle** | `Enum<'solid' \| 'dashed' \| 'dotted'>` | ✅ | Line style in diagrams |
+| **color** | `string` | ✅ | Line color (CSS value) |
+| **highlightColor** | `string` | ✅ | Highlighted color on hover/select |
+| **cardinalityLabel** | `string` | ✅ | Cardinality label (e.g., "1:N", "1:1", "N:M") |
+
+
+---
+
+## RelationshipMapperConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **visualCreation** | `boolean` | ✅ | Enable drag-to-create relationships |
+| **showReverseRelationships** | `boolean` | ✅ | Show reverse/child-to-parent relationships |
+| **showCascadeWarnings** | `boolean` | ✅ | Show cascade delete behavior warnings |
+| **displayConfig** | `Object[]` | ✅ | Visual config per relationship type |
+
+
+---
+

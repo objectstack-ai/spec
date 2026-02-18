@@ -3,6 +3,8 @@ title: Report
 description: Report protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Report Type Enum
 
 <Callout type="info">
@@ -28,8 +30,8 @@ const result = Report.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Report unique name |
-| **label** | `string` | ✅ | Report label |
-| **description** | `string` | optional |  |
+| **label** | `string \| Object` | ✅ | Report label |
+| **description** | `string \| Object` | optional | Display label: plain string or i18n translation object |
 | **objectName** | `string` | ✅ | Primary object |
 | **type** | `Enum<'tabular' \| 'summary' \| 'matrix' \| 'joined'>` | ✅ | Report format type |
 | **columns** | `Object[]` | ✅ | Columns to display |
@@ -37,6 +39,8 @@ const result = Report.parse(data);
 | **groupingsAcross** | `Object[]` | optional | Column groupings (Matrix only) |
 | **filter** | `[__schema0](./__schema0)` | optional | Filter criteria |
 | **chart** | `Object` | optional | Embedded chart configuration |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+| **performance** | `Object` | optional | Performance optimization settings |
 
 
 ---
@@ -48,9 +52,9 @@ const result = Report.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **type** | `Enum<'bar' \| 'horizontal-bar' \| 'column' \| 'grouped-bar' \| 'stacked-bar' \| 'bi-polar-bar' \| 'line' \| 'area' \| 'stacked-area' \| 'step-line' \| 'spline' \| 'pie' \| 'donut' \| 'funnel' \| 'pyramid' \| 'scatter' \| 'bubble' \| 'treemap' \| 'sunburst' \| 'sankey' \| 'word-cloud' \| 'gauge' \| 'solid-gauge' \| 'metric' \| 'kpi' \| 'bullet' \| 'choropleth' \| 'bubble-map' \| 'gl-map' \| 'heatmap' \| 'radar' \| 'waterfall' \| 'box-plot' \| 'violin' \| 'candlestick' \| 'stock' \| 'table' \| 'pivot'>` | ✅ |  |
-| **title** | `string` | optional | Chart title |
-| **subtitle** | `string` | optional | Chart subtitle |
-| **description** | `string` | optional | Accessibility description |
+| **title** | `string \| Object` | optional | Chart title |
+| **subtitle** | `string \| Object` | optional | Chart subtitle |
+| **description** | `string \| Object` | optional | Accessibility description |
 | **xAxis** | `string` | ✅ | Grouping field for X-Axis |
 | **yAxis** | `string` | ✅ | Summary field for Y-Axis |
 | **series** | `Object[]` | optional | Defined series configuration |
@@ -60,6 +64,7 @@ const result = Report.parse(data);
 | **showDataLabels** | `boolean` | ✅ | Display data labels |
 | **annotations** | `Object[]` | optional |  |
 | **interaction** | `Object` | optional |  |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
 | **groupBy** | `string` | optional | Additional grouping field |
 
 
@@ -72,8 +77,9 @@ const result = Report.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **field** | `string` | ✅ | Field name |
-| **label** | `string` | optional | Override label |
+| **label** | `string \| Object` | optional | Override label |
 | **aggregate** | `Enum<'sum' \| 'avg' \| 'max' \| 'min' \| 'count' \| 'unique'>` | optional | Aggregation function |
+| **responsive** | `Object` | optional | Responsive visibility for this column |
 
 
 ---

@@ -3,6 +3,8 @@ title: Package Registry
 description: Package Registry protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 # Package Registry Protocol
 
 Defines the runtime state and lifecycle operations for installed packages.
@@ -149,10 +151,12 @@ const result = DisablePackageRequest.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **manifest** | `Object` | ✅ |  |
-| **status** | `Enum<'installed' \| 'disabled' \| 'installing' \| 'uninstalling' \| 'error'>` | ✅ |  |
+| **status** | `Enum<'installed' \| 'disabled' \| 'installing' \| 'upgrading' \| 'uninstalling' \| 'error'>` | ✅ |  |
 | **enabled** | `boolean` | ✅ |  |
 | **installedAt** | `string` | optional |  |
 | **updatedAt** | `string` | optional |  |
+| **installedVersion** | `string` | optional | Currently installed version for quick access |
+| **previousVersion** | `string` | optional | Version before the last upgrade |
 | **statusChangedAt** | `string` | optional |  |
 | **errorMessage** | `string` | optional |  |
 | **settings** | `Record<string, any>` | optional |  |
@@ -166,7 +170,7 @@ const result = DisablePackageRequest.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **status** | `Enum<'installed' \| 'disabled' \| 'installing' \| 'uninstalling' \| 'error'>` | optional |  |
+| **status** | `Enum<'installed' \| 'disabled' \| 'installing' \| 'upgrading' \| 'uninstalling' \| 'error'>` | optional |  |
 | **type** | `Enum<'plugin' \| 'ui' \| 'driver' \| 'server' \| 'app' \| 'theme' \| 'agent' \| 'objectql' \| 'module' \| 'gateway' \| 'adapter'>` | optional | Type of package |
 | **enabled** | `boolean` | optional |  |
 
@@ -192,6 +196,7 @@ const result = DisablePackageRequest.parse(data);
 * `installed`
 * `disabled`
 * `installing`
+* `upgrading`
 * `uninstalling`
 * `error`
 

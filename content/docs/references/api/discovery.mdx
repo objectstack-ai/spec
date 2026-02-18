@@ -3,10 +3,11 @@ title: Discovery
 description: Discovery protocol schemas
 ---
 
-API Discovery Schema
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
 
-Defines the discovery response returned by the ObjectStack API discovery endpoint.
-The `services` map is the **single source of truth** for service availability.
+Service Status in Discovery Response
+
+Reports per-service availability so clients can adapt their UI accordingly.
 
 <Callout type="info">
 **Source:** `packages/spec/src/api/discovery.zod.ts`
@@ -19,19 +20,12 @@ import { ApiRoutes, Discovery, ServiceInfo } from '@objectstack/spec/api';
 import type { ApiRoutes, Discovery, ServiceInfo } from '@objectstack/spec/api';
 
 // Validate data
-const result = Discovery.parse(data);
-
-// Derive capabilities from services
-const isGraphQLEnabled = data.services?.graphql?.enabled ?? false;
-const isAIEnabled = data.services?.ai?.enabled ?? false;
+const result = ApiRoutes.parse(data);
 ```
 
 ---
 
 ## ApiRoutes
-
-A convenience shortcut providing a flat endpoint map for client routing.
-These routes are derived from the `services` map.
 
 ### Properties
 
@@ -64,13 +58,11 @@ These routes are derived from the `services` map.
 | **name** | `string` | ✅ |  |
 | **version** | `string` | ✅ |  |
 | **environment** | `Enum<'production' \| 'sandbox' \| 'development'>` | ✅ |  |
-| **routes** | `Object` | ✅ | Convenience endpoint map derived from services |
+| **routes** | `Object` | ✅ |  |
 | **locale** | `Object` | ✅ |  |
-| **services** | `Record<string, ServiceInfo>` | ✅ | Per-service availability map keyed by CoreServiceName |
+| **services** | `Record<string, Object>` | ✅ | Per-service availability map keyed by CoreServiceName |
 | **metadata** | `Record<string, any>` | optional | Custom metadata key-value pairs for extensibility |
 
-> **Note:** The `capabilities`/`features` field has been removed. Service availability
-> is now derived from the `services` map using `services[name].enabled`.
 
 ---
 

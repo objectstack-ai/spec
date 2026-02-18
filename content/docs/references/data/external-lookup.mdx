@@ -3,6 +3,8 @@ title: External Lookup
 description: External Lookup protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 External Data Source Schema
 
 Configuration for connecting to external data systems.
@@ -103,6 +105,9 @@ const result = ExternalDataSource.parse(data);
 | **caching** | `Object` | optional | Caching configuration |
 | **fallback** | `Object` | optional | Fallback configuration |
 | **rateLimit** | `Object` | optional | Rate limiting |
+| **retry** | `Object` | optional | Retry configuration with exponential backoff |
+| **transform** | `Object` | optional | Request/response transformation pipeline |
+| **pagination** | `Object` | optional | Pagination configuration for external data |
 
 
 ---

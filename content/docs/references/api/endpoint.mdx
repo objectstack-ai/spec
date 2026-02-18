@@ -3,9 +3,11 @@ title: Endpoint
 description: Endpoint protocol schemas
 ---
 
-Rate Limit Strategy
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
 
-@deprecated Use RateLimitConfigSchema from shared/http.zod.ts instead
+API Mapping Schema
+
+Transform input/output data.
 
 <Callout type="info">
 **Source:** `packages/spec/src/api/endpoint.zod.ts`
@@ -14,8 +16,8 @@ Rate Limit Strategy
 ## TypeScript Usage
 
 ```typescript
-import { ApiEndpoint, ApiMapping, RateLimit } from '@objectstack/spec/api';
-import type { ApiEndpoint, ApiMapping, RateLimit } from '@objectstack/spec/api';
+import { ApiEndpoint, ApiMapping } from '@objectstack/spec/api';
+import type { ApiEndpoint, ApiMapping } from '@objectstack/spec/api';
 
 // Validate data
 const result = ApiEndpoint.parse(data);
@@ -55,19 +57,6 @@ const result = ApiEndpoint.parse(data);
 | **source** | `string` | ✅ | Source field/path |
 | **target** | `string` | ✅ | Target field/path |
 | **transform** | `string` | optional | Transformation function name |
-
-
----
-
-## RateLimit
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **enabled** | `boolean` | ✅ | Enable rate limiting |
-| **windowMs** | `integer` | ✅ | Time window in milliseconds |
-| **maxRequests** | `integer` | ✅ | Max requests per window |
 
 
 ---

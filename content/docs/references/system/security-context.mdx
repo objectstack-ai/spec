@@ -1,0 +1,154 @@
+---
+title: Security Context
+description: Security Context protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+Unified Security Context Protocol
+
+Provides a central governance layer that correlates and unifies
+
+the four independent security subsystems:
+
+- **Audit** (audit.zod.ts): Event logging and suspicious activity detection
+
+- **Encryption** (encryption.zod.ts): Field-level encryption and key management
+
+- **Compliance** (compliance.zod.ts): Regulatory framework enforcement (GDPR/HIPAA/SOX/PCI-DSS)
+
+- **Masking** (masking.zod.ts): PII data masking and tokenization
+
+This schema enforces cross-cutting security policies, ensuring compliance
+
+frameworks drive encryption requirements, masking rules respect role-based
+
+audit visibility, and all security operations are correlated in a single
+
+governance context.
+
+@see https://www.iso.org/standard/27001
+
+@category Security
+
+<Callout type="info">
+**Source:** `packages/spec/src/system/security-context.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ComplianceAuditRequirement, ComplianceEncryptionRequirement, DataClassificationPolicy, MaskingVisibilityRule, SecurityContextConfig, SecurityEventCorrelation } from '@objectstack/spec/system';
+import type { ComplianceAuditRequirement, ComplianceEncryptionRequirement, DataClassificationPolicy, MaskingVisibilityRule, SecurityContextConfig, SecurityEventCorrelation } from '@objectstack/spec/system';
+
+// Validate data
+const result = ComplianceAuditRequirement.parse(data);
+```
+
+---
+
+## ComplianceAuditRequirement
+
+Compliance framework audit event requirements
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **framework** | `Enum<'gdpr' \| 'hipaa' \| 'sox' \| 'pci_dss' \| 'ccpa' \| 'iso27001'>` | ✅ | Compliance framework identifier |
+| **requiredEvents** | `string[]` | ✅ | Audit event types required by this framework (e.g., "data.delete", "auth.login") |
+| **retentionDays** | `number` | ✅ | Minimum audit log retention period required by this framework (in days) |
+| **alertOnMissing** | `boolean` | ✅ | Raise alert if a required audit event is not being captured |
+
+
+---
+
+## ComplianceEncryptionRequirement
+
+Compliance framework encryption requirements
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **framework** | `Enum<'gdpr' \| 'hipaa' \| 'sox' \| 'pci_dss' \| 'ccpa' \| 'iso27001'>` | ✅ | Compliance framework identifier |
+| **dataClassifications** | `Enum<'pii' \| 'phi' \| 'pci' \| 'financial' \| 'confidential' \| 'internal' \| 'public'>[]` | ✅ | Data classifications that must be encrypted under this framework |
+| **minimumAlgorithm** | `Enum<'aes-256-gcm' \| 'aes-256-cbc' \| 'chacha20-poly1305'>` | ✅ | Minimum encryption algorithm strength required |
+| **keyRotationMaxDays** | `number` | ✅ | Maximum key rotation interval required (in days) |
+
+
+---
+
+## DataClassificationPolicy
+
+Security policy for a specific data classification level
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **classification** | `Enum<'pii' \| 'phi' \| 'pci' \| 'financial' \| 'confidential' \| 'internal' \| 'public'>` | ✅ | Data classification level |
+| **requireEncryption** | `boolean` | ✅ | Encryption required for this classification |
+| **requireMasking** | `boolean` | ✅ | Masking required for this classification |
+| **requireAudit** | `boolean` | ✅ | Audit trail required for access to this classification |
+| **retentionDays** | `number` | optional | Data retention limit in days (for compliance) |
+
+
+---
+
+## MaskingVisibilityRule
+
+Masking visibility and audit rule per data classification
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **dataClassification** | `Enum<'pii' \| 'phi' \| 'pci' \| 'financial' \| 'confidential' \| 'internal' \| 'public'>` | ✅ | Data classification this rule applies to |
+| **defaultMasked** | `boolean` | ✅ | Whether data is masked by default |
+| **unmaskRoles** | `string[]` | optional | Roles allowed to view unmasked data |
+| **auditUnmask** | `boolean` | ✅ | Log an audit event when data is unmasked |
+| **requireApproval** | `boolean` | ✅ | Require explicit approval before unmasking |
+| **approvalRoles** | `string[]` | optional | Roles that can approve unmasking requests |
+
+
+---
+
+## SecurityContextConfig
+
+Unified security context governance configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable unified security context governance |
+| **complianceAuditRequirements** | `Object[]` | optional | Compliance-driven audit event requirements |
+| **complianceEncryptionRequirements** | `Object[]` | optional | Compliance-driven encryption requirements by data classification |
+| **maskingVisibility** | `Object[]` | optional | Masking visibility rules per data classification |
+| **dataClassifications** | `Object[]` | optional | Data classification policies for unified security enforcement |
+| **eventCorrelation** | `Object` | optional | Cross-subsystem security event correlation settings |
+| **enforceOnWrite** | `boolean` | ✅ | Enforce encryption and masking requirements on data write operations |
+| **enforceOnRead** | `boolean` | ✅ | Enforce masking and audit requirements on data read operations |
+| **failOpen** | `boolean` | ✅ | When false (default), deny access if security context cannot be evaluated |
+
+
+---
+
+## SecurityEventCorrelation
+
+Cross-subsystem security event correlation configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable cross-subsystem security event correlation |
+| **correlationId** | `boolean` | ✅ | Inject a shared correlation ID into audit, encryption, and masking events |
+| **linkAuthToAudit** | `boolean` | ✅ | Link authentication events to subsequent data operation audit trails |
+| **linkEncryptionToAudit** | `boolean` | ✅ | Log encryption/decryption operations in the audit trail |
+| **linkMaskingToAudit** | `boolean` | ✅ | Log masking/unmasking operations in the audit trail |
+
+
+---
+
