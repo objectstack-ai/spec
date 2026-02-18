@@ -391,7 +391,53 @@ The following renames are planned for packages that implement core service contr
 - [ ] Real-time collaborative page editing
 - [ ] Page analytics — page views, element interactions, user engagement
 
-### 8.2 Studio IDE
+### 8.2 Dashboard Enhancement — Airtable Dashboard Parity
+
+> See [Airtable Dashboard Gap Analysis](content/docs/guides/airtable-dashboard-analysis.mdx) for the full evaluation and implementation examples.
+> **Related Issues:** [#712](https://github.com/objectstack-ai/spec/issues/712), [#713](https://github.com/objectstack-ai/spec/issues/713), [#714](https://github.com/objectstack-ai/spec/issues/714), [objectui#585](https://github.com/objectstack-ai/objectui/issues/585), [objectui#586](https://github.com/objectstack-ai/objectui/issues/586), [objectui#587](https://github.com/objectstack-ai/objectui/issues/587), [objectui#588](https://github.com/objectstack-ai/objectui/issues/588)
+
+#### Phase 1: Foundation (Sprint 1-2) — 2 weeks 🔴
+
+Protocol enhancements and core component implementations for dashboard feature parity.
+
+**Spec Protocol Changes:**
+- [ ] Add `colorVariant`, `actionUrl`, `description`, `actionType`, `actionIcon` to `DashboardWidgetSchema` ([#713](https://github.com/objectstack-ai/spec/issues/713))
+- [ ] Enhance `globalFilters` with `options`, `optionsFrom`, `defaultValue`, `scope`, `targetWidgets` ([#712](https://github.com/objectstack-ai/spec/issues/712))
+- [ ] Add `header` configuration to `DashboardSchema` with `showTitle`, `showDescription`, `actions` ([#714](https://github.com/objectstack-ai/spec/issues/714))
+- [ ] Add `pivotConfig` and `measures` array to `DashboardWidgetSchema` for multi-measure pivots ([#714](https://github.com/objectstack-ai/spec/issues/714))
+
+**ObjectUI Component Implementations:**
+- [ ] Implement `DashboardFilterBar` component for global filters ([objectui#588](https://github.com/objectstack-ai/objectui/issues/588))
+- [ ] Add color variants + action button support to `MetricCard` component ([objectui#587](https://github.com/objectstack-ai/objectui/issues/587))
+- [ ] Add description + action button to widget headers ([objectui#586](https://github.com/objectstack-ai/objectui/issues/586))
+
+**Total Effort:** ~7.5 days
+
+#### Phase 2: Advanced Widgets (Sprint 3-4) — 2 weeks 🟡
+
+Advanced widget types and chart implementations.
+
+- [ ] Implement `PivotTable` component with row/column totals and multi-measure support ([objectui#585](https://github.com/objectstack-ai/objectui/issues/585))
+- [ ] Implement `funnel` chart type in `plugin-charts` ([#713](https://github.com/objectstack-ai/spec/issues/713))
+- [ ] Implement `grouped-bar` chart type in `plugin-charts` ([#713](https://github.com/objectstack-ai/spec/issues/713))
+- [ ] Implement `stacked-bar` chart type in `plugin-charts` ([#713](https://github.com/objectstack-ai/spec/issues/713))
+- [ ] Implement `horizontal-bar` chart variant in `plugin-charts` ([#713](https://github.com/objectstack-ai/spec/issues/713))
+
+**Total Effort:** ~8.5 days
+
+#### Phase 3: Polish & Enhancement (Sprint 5) — 1 week 🟢
+
+Final polish and advanced features.
+
+- [ ] Implement `DashboardHeader` composite component ([objectui#586](https://github.com/objectstack-ai/objectui/issues/586))
+- [ ] Implement `gauge` chart type in `plugin-charts` ([#713](https://github.com/objectstack-ai/spec/issues/713))
+- [ ] Add dashboard export (PDF/Image) functionality
+
+**Total Effort:** ~6 days
+
+**Total Project Timeline:** ~22 days (4.5 weeks)
+
+### 8.3 Studio IDE
 
 - [x] Object Designer Protocol — field editor, relationship mapper, ER diagram, object manager schemas defined (`studio/object-designer.zod.ts`)
 - [ ] Object Designer Runtime — visual field editor with inline editing, drag-reorder, type-aware property panels
@@ -407,21 +453,21 @@ The following renames are planned for packages that implement core service contr
 
 > See [`apps/studio/ROADMAP.md`](apps/studio/ROADMAP.md) for detailed Studio phases.
 
-### 8.3 Developer Experience
+### 8.4 Developer Experience
 
 - [ ] VS Code Extension — full IntelliSense, diagnostics, and code actions for `.object.ts`, `.view.ts`
 - [ ] `create-objectstack` scaffolding — templates for app, plugin, driver, adapter
 - [ ] Documentation site — interactive tutorials, API playground
 - [ ] CLI enhancements — `objectstack migrate`, `objectstack deploy`
 
-### 8.4 Marketplace & Cloud
+### 8.5 Marketplace & Cloud
 
 - [ ] Plugin marketplace — publish, discover, install community plugins
 - [ ] App store — pre-built applications (CRM, HRM, Project Management)
 - [ ] Developer portal — API keys, usage metrics, billing
 - [ ] Managed cloud offering — ObjectStack-as-a-Service
 
-### 8.5 Example Applications
+### 8.6 Example Applications
 
 - [x] **app-todo** — Beginner reference (objects, actions, flows, dashboards, reports, i18n) ✅
 - [x] **app-crm** — Enterprise reference (10 objects, 5 AI agents, 4 RAG pipelines, security profiles) ✅
@@ -541,6 +587,7 @@ The following renames are planned for packages that implement core service contr
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Microkernel design, package structure, three-layer protocol stack |
 | [`docs/design/driver-turso.md`](docs/design/driver-turso.md) | Turso/libSQL driver design document — architecture impact, capabilities, implementation phases |
 | [`docs/design/airtable-interface-gap-analysis.md`](docs/design/airtable-interface-gap-analysis.md) | Airtable Interface gap analysis — UI protocol comparison, schema proposals, implementation roadmap |
+| [`content/docs/guides/airtable-dashboard-analysis.mdx`](content/docs/guides/airtable-dashboard-analysis.mdx) | Airtable Dashboard gap analysis — Dashboard protocol & component enhancements, pivot tables, global filters, implementation roadmap |
 | [`docs/design/visual-design-ux-optimization.md`](docs/design/visual-design-ux-optimization.md) | Visual Design UX optimization plan — Airtable benchmark, spec coverage audit, Studio builder alignment |
 | [`apps/studio/ROADMAP.md`](apps/studio/ROADMAP.md) | Studio IDE development phases (v2.1 → v3.0) |
 | [`docs/DX_ROADMAP.md`](docs/DX_ROADMAP.md) | Developer experience improvements |
