@@ -10,13 +10,13 @@
     "test:watch": "vitest"
   },
   "peerDependencies": {
-    "@nestjs/common": "^11.1.13",
-    "@nestjs/core": "^11.1.13",
+    "@nestjs/common": "^11.1.14",
+    "@nestjs/core": "^11.1.14",
     "@objectstack/runtime": "workspace:*"
   },
   "devDependencies": {
-    "@nestjs/common": "^11.1.13",
-    "@nestjs/core": "^11.1.13",
+    "@nestjs/common": "^11.1.14",
+    "@nestjs/core": "^11.1.14",
     "@objectstack/runtime": "workspace:*",
     "typescript": "^5.0.0",
     "vitest": "^4.0.18"
