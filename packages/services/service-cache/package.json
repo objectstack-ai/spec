@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/service-cache",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "license": "Apache-2.0",
   "description": "Cache Service for ObjectStack — implements ICacheService with in-memory and Redis adapters",
   "type": "module",
