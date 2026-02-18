@@ -3,6 +3,8 @@ title: I18n
 description: I18n protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 I18n Object Schema
 
 Structured internationalization label with translation key and parameters.
@@ -30,8 +32,8 @@ params: \{ count: 5 \},
 ## TypeScript Usage
 
 ```typescript
-import { AriaProps, I18nLabel, I18nObject } from '@objectstack/spec/ui';
-import type { AriaProps, I18nLabel, I18nObject } from '@objectstack/spec/ui';
+import { AriaProps, DateFormat, I18nLabel, I18nObject, LocaleConfig, NumberFormat, PluralRule } from '@objectstack/spec/ui';
+import type { AriaProps, DateFormat, I18nLabel, I18nObject, LocaleConfig, NumberFormat, PluralRule } from '@objectstack/spec/ui';
 
 // Validate data
 const result = AriaProps.parse(data);
@@ -50,6 +52,22 @@ ARIA accessibility attributes
 | **ariaLabel** | `string \| Object` | optional | Accessible label for screen readers (WAI-ARIA aria-label) |
 | **ariaDescribedBy** | `string` | optional | ID of element providing additional description (WAI-ARIA aria-describedby) |
 | **role** | `string` | optional | WAI-ARIA role attribute (e.g., "dialog", "navigation", "alert") |
+
+
+---
+
+## DateFormat
+
+Date/time formatting rules
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **dateStyle** | `Enum<'full' \| 'long' \| 'medium' \| 'short'>` | optional | Date display style |
+| **timeStyle** | `Enum<'full' \| 'long' \| 'medium' \| 'short'>` | optional | Time display style |
+| **timeZone** | `string` | optional | IANA time zone (e.g., "America/New_York") |
+| **hour12** | `boolean` | optional | Use 12-hour format |
 
 
 ---
@@ -76,7 +94,7 @@ Type: `string`
 | :--- | :--- | :--- | :--- |
 | **key** | `string` | ✅ | Translation key (e.g., "views.task_list.label") |
 | **defaultValue** | `string` | optional | Fallback value when translation key is not found |
-| **params** | `Record<string, any>` | optional | Interpolation parameters (e.g., `{ count: 5 }`) |
+| **params** | `Record<string, string \| number \| boolean>` | optional | Interpolation parameters (e.g., `{ count: 5 }`) |
 
 ---
 
@@ -91,7 +109,61 @@ Type: `string`
 | :--- | :--- | :--- | :--- |
 | **key** | `string` | ✅ | Translation key (e.g., "views.task_list.label") |
 | **defaultValue** | `string` | optional | Fallback value when translation key is not found |
-| **params** | `Record<string, any>` | optional | Interpolation parameters (e.g., `{ count: 5 }`) |
+| **params** | `Record<string, string \| number \| boolean>` | optional | Interpolation parameters (e.g., `{ count: 5 }`) |
+
+
+---
+
+## LocaleConfig
+
+Locale configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **code** | `string` | ✅ | BCP 47 language code (e.g., "en-US", "zh-CN") |
+| **fallbackChain** | `string[]` | optional | Fallback language codes in priority order (e.g., ["zh-TW", "en"]) |
+| **direction** | `Enum<'ltr' \| 'rtl'>` | ✅ | Text direction: left-to-right or right-to-left |
+| **numberFormat** | `Object` | optional | Default number formatting rules |
+| **dateFormat** | `Object` | optional | Default date/time formatting rules |
+
+
+---
+
+## NumberFormat
+
+Number formatting rules
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **style** | `Enum<'decimal' \| 'currency' \| 'percent' \| 'unit'>` | ✅ | Number formatting style |
+| **currency** | `string` | optional | ISO 4217 currency code (e.g., "USD", "EUR") |
+| **unit** | `string` | optional | Unit for unit formatting (e.g., "kilometer", "liter") |
+| **minimumFractionDigits** | `number` | optional | Minimum number of fraction digits |
+| **maximumFractionDigits** | `number` | optional | Maximum number of fraction digits |
+| **useGrouping** | `boolean` | optional | Whether to use grouping separators (e.g., 1,000) |
+
+
+---
+
+## PluralRule
+
+ICU plural rules for a translation key
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **key** | `string` | ✅ | Translation key |
+| **zero** | `string` | optional | Zero form (e.g., "No items") |
+| **one** | `string` | optional | Singular form (e.g., "`{count}` item") |
+| **two** | `string` | optional | Dual form (e.g., "`{count}` items" for exactly 2) |
+| **few** | `string` | optional | Few form (e.g., for 2-4 in some languages) |
+| **many** | `string` | optional | Many form (e.g., for 5+ in some languages) |
+| **other** | `string` | ✅ | Default plural form (e.g., "`{count}` items") |
 
 
 ---

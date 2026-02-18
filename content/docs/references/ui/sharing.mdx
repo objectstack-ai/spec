@@ -1,0 +1,64 @@
+---
+title: Sharing
+description: Sharing protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+@module ui/sharing
+
+Sharing & Embedding Protocol
+
+Defines schemas for public link sharing, embed configuration,
+
+domain restrictions, and password protection for apps, pages, and forms.
+
+<Callout type="info">
+**Source:** `packages/spec/src/ui/sharing.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { EmbedConfig, SharingConfig } from '@objectstack/spec/ui';
+import type { EmbedConfig, SharingConfig } from '@objectstack/spec/ui';
+
+// Validate data
+const result = EmbedConfig.parse(data);
+```
+
+---
+
+## EmbedConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable iframe embedding |
+| **allowedOrigins** | `string[]` | optional | Allowed iframe parent origins (e.g. ["https://example.com"]) |
+| **width** | `string` | ✅ | Embed width (CSS value) |
+| **height** | `string` | ✅ | Embed height (CSS value) |
+| **showHeader** | `boolean` | ✅ | Show interface header in embed |
+| **showNavigation** | `boolean` | ✅ | Show navigation in embed |
+| **responsive** | `boolean` | ✅ | Enable responsive resizing |
+
+
+---
+
+## SharingConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable public sharing |
+| **publicLink** | `string` | optional | Generated public share URL |
+| **password** | `string` | optional | Password required to access shared link |
+| **allowedDomains** | `string[]` | optional | Restrict access to specific email domains (e.g. ["example.com"]) |
+| **expiresAt** | `string` | optional | Expiration date/time in ISO 8601 format |
+| **allowAnonymous** | `boolean` | ✅ | Allow access without authentication |
+
+
+---
+

@@ -3,6 +3,8 @@ title: Devops Agent
 description: Devops Agent protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 DevOps Agent Protocol
 
 Defines autonomous DevOps agents that can self-iterate on enterprise
@@ -197,6 +199,10 @@ Code generation target
 | **access** | `string[]` | optional | Who can chat with this agent |
 | **tenantId** | `string` | optional | Tenant/Organization ID |
 | **visibility** | `Enum<'global' \| 'organization' \| 'private'>` | ✅ |  |
+| **planning** | `Object` | optional | Autonomous reasoning and planning configuration |
+| **memory** | `Object` | optional | Agent memory management |
+| **guardrails** | `Object` | optional | Safety guardrails for the agent |
+| **structuredOutput** | `Object` | optional | Structured output format and validation configuration |
 | **developmentConfig** | `Object` | ✅ | Development configuration |
 | **pipelines** | `Object[]` | optional | CI/CD pipelines |
 | **versionManagement** | `Object` | optional | Version management configuration |

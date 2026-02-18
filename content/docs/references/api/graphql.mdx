@@ -3,6 +3,8 @@ title: Graphql
 description: Graphql protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 GraphQL Protocol Support
 
 GraphQL is a query language for APIs and a runtime for executing those queries.
@@ -124,12 +126,93 @@ status
 ## TypeScript Usage
 
 ```typescript
-import { GraphQLConfig, GraphQLDataLoaderConfig, GraphQLDirectiveConfig, GraphQLDirectiveLocation, GraphQLMutationConfig, GraphQLPersistedQuery, GraphQLQueryComplexity, GraphQLQueryConfig, GraphQLQueryDepthLimit, GraphQLRateLimit, GraphQLResolverConfig, GraphQLScalarType, GraphQLSubscriptionConfig, GraphQLTypeConfig } from '@objectstack/spec/api';
-import type { GraphQLConfig, GraphQLDataLoaderConfig, GraphQLDirectiveConfig, GraphQLDirectiveLocation, GraphQLMutationConfig, GraphQLPersistedQuery, GraphQLQueryComplexity, GraphQLQueryConfig, GraphQLQueryDepthLimit, GraphQLRateLimit, GraphQLResolverConfig, GraphQLScalarType, GraphQLSubscriptionConfig, GraphQLTypeConfig } from '@objectstack/spec/api';
+import { FederationEntity, FederationEntityKey, FederationExternalField, FederationGateway, FederationProvides, FederationRequires, GraphQLConfig, GraphQLDataLoaderConfig, GraphQLDirectiveConfig, GraphQLDirectiveLocation, GraphQLMutationConfig, GraphQLPersistedQuery, GraphQLQueryComplexity, GraphQLQueryConfig, GraphQLQueryDepthLimit, GraphQLRateLimit, GraphQLResolverConfig, GraphQLScalarType, GraphQLSubscriptionConfig, GraphQLTypeConfig, SubgraphConfig } from '@objectstack/spec/api';
+import type { FederationEntity, FederationEntityKey, FederationExternalField, FederationGateway, FederationProvides, FederationRequires, GraphQLConfig, GraphQLDataLoaderConfig, GraphQLDirectiveConfig, GraphQLDirectiveLocation, GraphQLMutationConfig, GraphQLPersistedQuery, GraphQLQueryComplexity, GraphQLQueryConfig, GraphQLQueryDepthLimit, GraphQLRateLimit, GraphQLResolverConfig, GraphQLScalarType, GraphQLSubscriptionConfig, GraphQLTypeConfig, SubgraphConfig } from '@objectstack/spec/api';
 
 // Validate data
-const result = GraphQLConfig.parse(data);
+const result = FederationEntity.parse(data);
 ```
+
+---
+
+## FederationEntity
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **typeName** | `string` | ✅ | GraphQL type name for this entity |
+| **keys** | `Object[]` | ✅ | Entity key definitions |
+| **externalFields** | `Object[]` | optional | Fields owned by other subgraphs |
+| **requires** | `Object[]` | optional | Required external fields for computed fields |
+| **provides** | `Object[]` | optional | Fields provided during resolution |
+| **owner** | `boolean` | ✅ | Whether this subgraph is the owner of this entity |
+
+
+---
+
+## FederationEntityKey
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **fields** | `string` | ✅ | Selection set of fields composing the entity key |
+| **resolvable** | `boolean` | ✅ | Whether entities can be resolved from this subgraph |
+
+
+---
+
+## FederationExternalField
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Field name marked as external |
+| **ownerSubgraph** | `string` | optional | Subgraph that owns this field |
+
+
+---
+
+## FederationGateway
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable GraphQL Federation gateway mode |
+| **version** | `Enum<'v1' \| 'v2'>` | ✅ | Federation specification version |
+| **subgraphs** | `Object[]` | ✅ | Subgraph configurations |
+| **serviceDiscovery** | `Object` | optional | Service discovery configuration |
+| **queryPlanning** | `Object` | optional | Query planning configuration |
+| **composition** | `Object` | optional | Schema composition configuration |
+| **errorHandling** | `Object` | optional | Error handling configuration |
+
+
+---
+
+## FederationProvides
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Field that provides additional entity fields |
+| **fields** | `string` | ✅ | Selection set of provided fields (e.g., "name price") |
+
+
+---
+
+## FederationRequires
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Field with the requirement |
+| **fields** | `string` | ✅ | Selection set of required fields (e.g., "price weight") |
+
 
 ---
 
@@ -145,6 +228,7 @@ const result = GraphQLConfig.parse(data);
 | **schema** | `Object` | optional | Schema generation configuration |
 | **dataLoaders** | `Object[]` | optional | DataLoader configurations |
 | **security** | `Object` | optional | Security configuration |
+| **federation** | `Object` | optional | GraphQL Federation gateway configuration |
 
 
 ---
@@ -391,6 +475,23 @@ const result = GraphQLConfig.parse(data);
 | **interfaces** | `string[]` | optional | GraphQL interface names |
 | **isInterface** | `boolean` | ✅ | Define as GraphQL interface |
 | **directives** | `Object[]` | optional | GraphQL directives |
+
+
+---
+
+## SubgraphConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Unique subgraph identifier |
+| **url** | `string` | ✅ | Subgraph endpoint URL |
+| **schemaSource** | `Enum<'introspection' \| 'file' \| 'registry'>` | ✅ | How to obtain the subgraph schema |
+| **schemaPath** | `string` | optional | Path to schema file (SDL format) |
+| **entities** | `Object[]` | optional | Entity definitions for this subgraph |
+| **healthCheck** | `Object` | optional | Subgraph health check configuration |
+| **forwardHeaders** | `string[]` | optional | HTTP headers to forward to this subgraph |
 
 
 ---

@@ -3,6 +3,8 @@ title: Analytics
 description: Analytics protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Analytics/Semantic Layer Protocol
 
 Defines the "Business Logic" for data analysis.
@@ -52,6 +54,7 @@ const result = AggregationMetricType.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
+| **cube** | `string` | optional | Target cube name (optional when provided externally, e.g. in API request wrapper) |
 | **measures** | `string[]` | ✅ | List of metrics to calculate |
 | **dimensions** | `string[]` | optional | List of dimensions to group by |
 | **filters** | `Object[]` | optional |  |

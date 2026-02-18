@@ -1,0 +1,276 @@
+---
+title: Metadata Plugin
+description: Metadata Plugin protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+# Metadata Plugin Protocol
+
+Defines the specification for the **Metadata Plugin** — the central authority
+
+responsible for managing ALL metadata across the ObjectStack platform.
+
+## Architecture
+
+The Metadata Plugin consolidates all scattered metadata operations into a single,
+
+cohesive plugin that "takes over" the entire platform's metadata management:
+
+```
+
+┌──────────────────────────────────────────────────────────────────┐
+
+│                     Metadata Plugin                             │
+
+│                                                                  │
+
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+
+│  │ Type Registry │  │  Loader      │  │ Customization Layer  │  │
+
+│  │ (all types)   │  │  (file/db/s3)│  │ (overlay / merge)    │  │
+
+│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
+
+│                                                                  │
+
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+
+│  │ Persistence  │  │  Query       │  │ Lifecycle            │  │
+
+│  │ (db records) │  │  (search)    │  │ (validate/deploy)    │  │
+
+│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
+
+└──────────────────────────────────────────────────────────────────┘
+
+```
+
+## Alignment
+
+- **Salesforce**: Metadata API (deploy, retrieve, describe)
+
+- **ServiceNow**: System Dictionary + Metadata API
+
+- **Kubernetes**: API Server + CRD Registry
+
+## References
+
+- kernel/metadata-loader.zod.ts — Storage backend protocol
+
+- kernel/metadata-customization.zod.ts — Overlay/merge protocol
+
+- system/metadata-persistence.zod.ts — Database record format
+
+- contracts/metadata-service.ts — Service interface
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/metadata-plugin.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { MetadataBulkRegisterRequest, MetadataBulkResult, MetadataDependency, MetadataEvent, MetadataPluginConfig, MetadataPluginManifest, MetadataQuery, MetadataQueryResult, MetadataType, MetadataTypeRegistryEntry, MetadataValidationResult } from '@objectstack/spec/kernel';
+import type { MetadataBulkRegisterRequest, MetadataBulkResult, MetadataDependency, MetadataEvent, MetadataPluginConfig, MetadataPluginManifest, MetadataQuery, MetadataQueryResult, MetadataType, MetadataTypeRegistryEntry, MetadataValidationResult } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = MetadataBulkRegisterRequest.parse(data);
+```
+
+---
+
+## MetadataBulkRegisterRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **items** | `Object[]` | ✅ | Items to register |
+| **continueOnError** | `boolean` | ✅ | Continue if individual item fails |
+| **validate** | `boolean` | ✅ | Validate before register |
+
+
+---
+
+## MetadataBulkResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **total** | `integer` | ✅ | Total items processed |
+| **succeeded** | `integer` | ✅ | Successfully processed |
+| **failed** | `integer` | ✅ | Failed items |
+| **errors** | `Object[]` | optional | Per-item errors |
+
+
+---
+
+## MetadataDependency
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **sourceType** | `string` | ✅ | Dependent metadata type |
+| **sourceName** | `string` | ✅ | Dependent metadata name |
+| **targetType** | `string` | ✅ | Referenced metadata type |
+| **targetName** | `string` | ✅ | Referenced metadata name |
+| **kind** | `Enum<'reference' \| 'extends' \| 'includes' \| 'triggers'>` | ✅ | How the dependency is formed |
+
+
+---
+
+## MetadataEvent
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **event** | `Enum<'metadata.registered' \| 'metadata.updated' \| 'metadata.unregistered' \| 'metadata.validated' \| 'metadata.deployed' \| 'metadata.overlay.applied' \| 'metadata.overlay.removed' \| 'metadata.imported' \| 'metadata.exported'>` | ✅ | Event type |
+| **metadataType** | `Enum<'object' \| 'field' \| 'trigger' \| 'validation' \| 'hook' \| 'view' \| 'page' \| 'dashboard' \| 'app' \| 'action' \| 'report' \| 'flow' \| 'workflow' \| 'approval' \| 'datasource' \| 'translation' \| 'router' \| 'function' \| 'service' \| 'permission' \| 'profile' \| 'role' \| 'agent'>` | ✅ | Metadata type |
+| **name** | `string` | ✅ | Metadata item name |
+| **namespace** | `string` | optional | Namespace |
+| **packageId** | `string` | optional | Owning package ID |
+| **timestamp** | `string` | ✅ | Event timestamp |
+| **actor** | `string` | optional | User or system that triggered the event |
+| **payload** | `Record<string, any>` | optional | Event-specific payload |
+
+
+---
+
+## MetadataPluginConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **storage** | `Object` | ✅ | Storage backend configuration |
+| **customizationPolicies** | `Object[]` | optional | Default customization policies per type |
+| **mergeStrategy** | `Object` | optional | Merge strategy for package upgrades |
+| **additionalTypes** | `Object[]` | optional | Additional custom metadata types |
+| **enableEvents** | `boolean` | ✅ | Emit metadata change events |
+| **validateOnWrite** | `boolean` | ✅ | Validate metadata on write |
+| **enableVersioning** | `boolean` | ✅ | Track metadata version history |
+| **cacheMaxItems** | `integer` | ✅ | Max items in memory cache |
+
+
+---
+
+## MetadataPluginManifest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Metadata plugin ID |
+| **name** | `string` | ✅ | Plugin name |
+| **version** | `string` | ✅ | Plugin version |
+| **type** | `string` | ✅ | Plugin type |
+| **description** | `string` | ✅ | Plugin description |
+| **capabilities** | `Object` | ✅ | Plugin capabilities |
+| **config** | `Object` | optional | Plugin configuration |
+
+
+---
+
+## MetadataQuery
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **types** | `Enum<'object' \| 'field' \| 'trigger' \| 'validation' \| 'hook' \| 'view' \| 'page' \| 'dashboard' \| 'app' \| 'action' \| 'report' \| 'flow' \| 'workflow' \| 'approval' \| 'datasource' \| 'translation' \| 'router' \| 'function' \| 'service' \| 'permission' \| 'profile' \| 'role' \| 'agent'>[]` | optional | Filter by metadata types |
+| **namespaces** | `string[]` | optional | Filter by namespaces |
+| **packageId** | `string` | optional | Filter by owning package |
+| **search** | `string` | optional | Full-text search query |
+| **scope** | `Enum<'system' \| 'platform' \| 'user'>` | optional | Filter by scope |
+| **state** | `Enum<'draft' \| 'active' \| 'archived' \| 'deprecated'>` | optional | Filter by lifecycle state |
+| **tags** | `string[]` | optional | Filter by tags |
+| **sortBy** | `Enum<'name' \| 'type' \| 'updatedAt' \| 'createdAt'>` | ✅ | Sort field |
+| **sortOrder** | `Enum<'asc' \| 'desc'>` | ✅ | Sort direction |
+| **page** | `integer` | ✅ | Page number |
+| **pageSize** | `integer` | ✅ | Items per page |
+
+
+---
+
+## MetadataQueryResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **items** | `Object[]` | ✅ | Matched metadata items |
+| **total** | `integer` | ✅ | Total matching items |
+| **page** | `integer` | ✅ | Current page |
+| **pageSize** | `integer` | ✅ | Page size |
+
+
+---
+
+## MetadataType
+
+### Allowed Values
+
+* `object`
+* `field`
+* `trigger`
+* `validation`
+* `hook`
+* `view`
+* `page`
+* `dashboard`
+* `app`
+* `action`
+* `report`
+* `flow`
+* `workflow`
+* `approval`
+* `datasource`
+* `translation`
+* `router`
+* `function`
+* `service`
+* `permission`
+* `profile`
+* `role`
+* `agent`
+
+
+---
+
+## MetadataTypeRegistryEntry
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'object' \| 'field' \| 'trigger' \| 'validation' \| 'hook' \| 'view' \| 'page' \| 'dashboard' \| 'app' \| 'action' \| 'report' \| 'flow' \| 'workflow' \| 'approval' \| 'datasource' \| 'translation' \| 'router' \| 'function' \| 'service' \| 'permission' \| 'profile' \| 'role' \| 'agent'>` | ✅ | Metadata type identifier |
+| **label** | `string` | ✅ | Display label for the metadata type |
+| **description** | `string` | optional | Description of the metadata type |
+| **filePatterns** | `string[]` | ✅ | Glob patterns to discover files of this type |
+| **supportsOverlay** | `boolean` | ✅ | Whether overlay customization is supported |
+| **allowRuntimeCreate** | `boolean` | ✅ | Allow runtime creation via API |
+| **supportsVersioning** | `boolean` | ✅ | Whether version history is tracked |
+| **loadOrder** | `integer` | ✅ | Loading priority (lower = earlier) |
+| **domain** | `Enum<'data' \| 'ui' \| 'automation' \| 'system' \| 'security' \| 'ai'>` | ✅ | Protocol domain |
+
+
+---
+
+## MetadataValidationResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **valid** | `boolean` | ✅ | Whether the metadata is valid |
+| **errors** | `Object[]` | optional | Validation errors |
+| **warnings** | `Object[]` | optional | Validation warnings |
+
+
+---
+

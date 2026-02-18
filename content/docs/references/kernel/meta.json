@@ -3,11 +3,17 @@
   "pages": [
     "cli-extension",
     "context",
-    "events",
+    "dev-plugin",
     "execution-context",
     "feature",
     "manifest",
+    "metadata-customization",
+    "metadata-persistence",
+    "metadata-plugin",
+    "misc",
     "package-registry",
+    "package-upgrade",
+    "permission",
     "plugin",
     "plugin-capability",
     "plugin-lifecycle-advanced",
@@ -21,6 +27,7 @@
     "plugin-validator",
     "plugin-versioning",
     "service-registry",
-    "startup-orchestrator"
+    "startup-orchestrator",
+    "state-machine"
   ]
 }

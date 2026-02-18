@@ -3,6 +3,8 @@ title: Approval
 description: Approval protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Approval Step Approver Type
 
 <Callout type="info">
@@ -63,6 +65,7 @@ const result = ApprovalAction.parse(data);
 | **entryCriteria** | `string` | optional | Formula to allow submission |
 | **lockRecord** | `boolean` | ✅ | Lock record from editing during approval |
 | **steps** | `Object[]` | ✅ | Sequence of approval steps |
+| **escalation** | `Object` | optional | SLA escalation configuration for pending approval steps |
 | **onSubmit** | `Object[]` | optional | Actions on initial submission |
 | **onFinalApprove** | `Object[]` | optional | Actions on final approval |
 | **onFinalReject** | `Object[]` | optional | Actions on final rejection |

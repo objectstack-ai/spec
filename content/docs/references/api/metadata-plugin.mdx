@@ -1,0 +1,36 @@
+---
+title: Metadata Plugin
+description: Metadata Plugin protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/metadata-plugin.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { MetadataBulkRegisterRequest } from '@objectstack/spec/api';
+import type { MetadataBulkRegisterRequest } from '@objectstack/spec/api';
+
+// Validate data
+const result = MetadataBulkRegisterRequest.parse(data);
+```
+
+---
+
+## MetadataBulkRegisterRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **items** | `Object[]` | ✅ | Items to register |
+| **continueOnError** | `boolean` | ✅ | Continue on individual failure |
+| **validate** | `boolean` | ✅ | Validate before registering |
+
+
+---
+

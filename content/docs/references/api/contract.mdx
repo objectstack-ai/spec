@@ -3,6 +3,8 @@ title: Contract
 description: Contract protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Standard Create Request
 
 <Callout type="info">
@@ -12,8 +14,8 @@ Standard Create Request
 ## TypeScript Usage
 
 ```typescript
-import { ApiError, BaseResponse, BulkRequest, BulkResponse, CreateRequest, DeleteResponse, ExportRequest, IdRequest, ListRecordResponse, ModificationResult, RecordData, SingleRecordResponse, UpdateRequest } from '@objectstack/spec/api';
-import type { ApiError, BaseResponse, BulkRequest, BulkResponse, CreateRequest, DeleteResponse, ExportRequest, IdRequest, ListRecordResponse, ModificationResult, RecordData, SingleRecordResponse, UpdateRequest } from '@objectstack/spec/api';
+import { ApiError, BaseResponse, BatchLoadingStrategy, BulkRequest, BulkResponse, CreateRequest, DataLoaderConfig, DeleteResponse, ExportRequest, IdRequest, ListRecordResponse, ModificationResult, QueryOptimizationConfig, RecordData, SingleRecordResponse, UpdateRequest } from '@objectstack/spec/api';
+import type { ApiError, BaseResponse, BatchLoadingStrategy, BulkRequest, BulkResponse, CreateRequest, DataLoaderConfig, DeleteResponse, ExportRequest, IdRequest, ListRecordResponse, ModificationResult, QueryOptimizationConfig, RecordData, SingleRecordResponse, UpdateRequest } from '@objectstack/spec/api';
 
 // Validate data
 const result = ApiError.parse(data);
@@ -45,6 +47,20 @@ const result = ApiError.parse(data);
 | **success** | `boolean` | ✅ | Operation success status |
 | **error** | `Object` | optional | Error details if success is false |
 | **meta** | `Object` | optional | Response metadata |
+
+
+---
+
+## BatchLoadingStrategy
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **strategy** | `Enum<'dataloader' \| 'windowed' \| 'prefetch'>` | ✅ | Batch loading strategy type |
+| **windowMs** | `number` | optional | Collection window duration in milliseconds (for windowed strategy) |
+| **prefetchDepth** | `integer` | optional | Depth of relation prefetching (for prefetch strategy) |
+| **associationLoading** | `Enum<'lazy' \| 'eager' \| 'batch'>` | ✅ | How to load related associations |
 
 
 ---
@@ -82,6 +98,23 @@ const result = ApiError.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **data** | `Record<string, any>` | ✅ | Record data to insert |
+
+
+---
+
+## DataLoaderConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **maxBatchSize** | `integer` | ✅ | Maximum number of keys per batch load |
+| **batchScheduleFn** | `Enum<'microtask' \| 'timeout' \| 'manual'>` | ✅ | Scheduling strategy for collecting batch keys |
+| **cacheEnabled** | `boolean` | ✅ | Enable per-request result caching |
+| **cacheKeyFn** | `string` | optional | Name or identifier of the cache key function |
+| **cacheTtl** | `number` | optional | Cache time-to-live in seconds (0 = no expiration) |
+| **coalesceRequests** | `boolean` | ✅ | Deduplicate identical requests within a batch window |
+| **maxConcurrency** | `integer` | optional | Maximum parallel batch requests |
 
 
 ---
@@ -163,6 +196,22 @@ const result = ApiError.parse(data);
 | **errors** | `Object[]` | optional |  |
 | **index** | `number` | optional | Index in original request |
 | **data** | `any` | optional | Result data (e.g. created record) |
+
+
+---
+
+## QueryOptimizationConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **preventNPlusOne** | `boolean` | ✅ | Enable N+1 query detection and prevention |
+| **dataLoader** | `Object` | optional | DataLoader batch loading configuration |
+| **batchStrategy** | `Object` | optional | Batch loading strategy configuration |
+| **maxQueryDepth** | `integer` | ✅ | Maximum depth for nested relation queries |
+| **queryComplexityLimit** | `number` | optional | Maximum allowed query complexity score |
+| **enableQueryPlan** | `boolean` | ✅ | Log query execution plans for debugging |
 
 
 ---

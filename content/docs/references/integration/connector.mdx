@@ -3,6 +3,8 @@ title: Connector
 description: Connector protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Connector Protocol - LEVEL 3: Enterprise Connector
 
 Defines the standard connector specification for external system integration.
@@ -100,25 +102,29 @@ Authentication is now imported from the canonical auth/config.zod.ts.
 ## TypeScript Usage
 
 ```typescript
-import { ConflictResolution, Connector, ConnectorAction, ConnectorStatus, ConnectorTrigger, ConnectorType, DataSyncConfig, RateLimitStrategy, RetryConfig, RetryStrategy, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
-import type { ConflictResolution, Connector, ConnectorAction, ConnectorStatus, ConnectorTrigger, ConnectorType, DataSyncConfig, RateLimitStrategy, RetryConfig, RetryStrategy, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
+import { CircuitBreakerConfig, Connector, ConnectorAction, ConnectorHealth, ConnectorStatus, ConnectorTrigger, ConnectorType, DataSyncConfig, ErrorCategory, ErrorMappingConfig, ErrorMappingRule, HealthCheckConfig, RateLimitStrategy, RetryConfig, RetryStrategy, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
+import type { CircuitBreakerConfig, Connector, ConnectorAction, ConnectorHealth, ConnectorStatus, ConnectorTrigger, ConnectorType, DataSyncConfig, ErrorCategory, ErrorMappingConfig, ErrorMappingRule, HealthCheckConfig, RateLimitStrategy, RetryConfig, RetryStrategy, SyncStrategy, WebhookConfig, WebhookEvent, WebhookSignatureAlgorithm } from '@objectstack/spec/integration';
 
 // Validate data
-const result = ConflictResolution.parse(data);
+const result = CircuitBreakerConfig.parse(data);
 ```
 
 ---
 
-## ConflictResolution
+## CircuitBreakerConfig
 
-Conflict resolution strategy
+Circuit breaker configuration
 
-### Allowed Values
+### Properties
 
-* `source_wins`
-* `target_wins`
-* `latest_wins`
-* `manual`
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable circuit breaker |
+| **failureThreshold** | `number` | ✅ | Failures before opening circuit |
+| **resetTimeoutMs** | `number` | ✅ | Time in open state before half-open |
+| **halfOpenMaxRequests** | `number` | ✅ | Requests allowed in half-open state |
+| **monitoringWindow** | `number` | ✅ | Rolling window for failure count in ms |
+| **fallbackStrategy** | `Enum<'cache' \| 'default_value' \| 'error' \| 'queue'>` | optional | Fallback strategy when circuit is open |
 
 
 ---
@@ -146,6 +152,8 @@ Conflict resolution strategy
 | **requestTimeoutMs** | `number` | ✅ | Request timeout in ms |
 | **status** | `Enum<'active' \| 'inactive' \| 'error' \| 'configuring'>` | ✅ | Connector status |
 | **enabled** | `boolean` | ✅ | Enable connector |
+| **errorMapping** | `Object` | optional | Error mapping configuration |
+| **health** | `Object` | optional | Health and resilience configuration |
 | **metadata** | `Record<string, any>` | optional | Custom connector metadata |
 
 
@@ -162,6 +170,20 @@ Conflict resolution strategy
 | **description** | `string` | optional |  |
 | **inputSchema** | `Record<string, any>` | optional | Input parameters schema (JSON Schema) |
 | **outputSchema** | `Record<string, any>` | optional | Output schema (JSON Schema) |
+
+
+---
+
+## ConnectorHealth
+
+Connector health configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **healthCheck** | `Object` | optional | Health check configuration |
+| **circuitBreaker** | `Object` | optional | Circuit breaker configuration |
 
 
 ---
@@ -226,6 +248,79 @@ Connector type
 | **batchSize** | `number` | ✅ | Records per batch |
 | **deleteMode** | `Enum<'hard_delete' \| 'soft_delete' \| 'ignore'>` | ✅ | Delete handling mode |
 | **filters** | `Record<string, any>` | optional | Filter criteria for selective sync |
+
+
+---
+
+## ErrorCategory
+
+Standard error category
+
+### Allowed Values
+
+* `validation`
+* `authorization`
+* `not_found`
+* `conflict`
+* `rate_limit`
+* `timeout`
+* `server_error`
+* `integration_error`
+
+
+---
+
+## ErrorMappingConfig
+
+Error mapping configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **rules** | `Object[]` | ✅ | Error mapping rules |
+| **defaultCategory** | `Enum<'validation' \| 'authorization' \| 'not_found' \| 'conflict' \| 'rate_limit' \| 'timeout' \| 'server_error' \| 'integration_error'>` | ✅ | Default category for unmapped errors |
+| **unmappedBehavior** | `Enum<'passthrough' \| 'generic_error' \| 'throw'>` | ✅ | What to do with unmapped errors |
+| **logUnmapped** | `boolean` | ✅ | Log unmapped errors |
+
+
+---
+
+## ErrorMappingRule
+
+Error mapping rule
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **sourceCode** | `string \| number` | ✅ | External system error code |
+| **sourceMessage** | `string` | optional | Pattern to match against error message |
+| **targetCode** | `string` | ✅ | ObjectStack standard error code |
+| **targetCategory** | `Enum<'validation' \| 'authorization' \| 'not_found' \| 'conflict' \| 'rate_limit' \| 'timeout' \| 'server_error' \| 'integration_error'>` | ✅ | Error category |
+| **severity** | `Enum<'low' \| 'medium' \| 'high' \| 'critical'>` | ✅ | Error severity level |
+| **retryable** | `boolean` | ✅ | Whether the error is retryable |
+| **userMessage** | `string` | optional | Human-readable message to show users |
+
+
+---
+
+## HealthCheckConfig
+
+Health check configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable health checks |
+| **intervalMs** | `number` | ✅ | Health check interval in milliseconds |
+| **timeoutMs** | `number` | ✅ | Health check timeout in milliseconds |
+| **endpoint** | `string` | optional | Health check endpoint path |
+| **method** | `Enum<'GET' \| 'HEAD' \| 'OPTIONS'>` | optional | HTTP method for health check |
+| **expectedStatus** | `number` | ✅ | Expected HTTP status code |
+| **unhealthyThreshold** | `number` | ✅ | Consecutive failures before marking unhealthy |
+| **healthyThreshold** | `number` | ✅ | Consecutive successes before marking healthy |
 
 
 ---

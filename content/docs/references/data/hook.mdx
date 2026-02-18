@@ -3,6 +3,8 @@ title: Hook
 description: Hook protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Hook Lifecycle Events
 
 Defines the interception points in the ObjectQL execution pipeline.
@@ -38,6 +40,8 @@ const result = HookContext.parse(data);
 | **session** | `Object` | optional | Current session context |
 | **transaction** | `any` | optional | Database transaction handle |
 | **ql** | `any` | ✅ | ObjectQL Engine Reference |
+| **api** | `any` | optional | Cross-object data access (ScopedContext) |
+| **user** | `Object` | optional | Current user info shortcut |
 
 
 ---

@@ -236,7 +236,6 @@ export function createStudioProxyPlugin(vitePort: number) {
             method: c.req.method,
             headers,
             body: isBodyAllowed ? c.req.raw.body : undefined,
-            // @ts-expect-error — duplex required for streaming request body
             duplex: isBodyAllowed ? 'half' : undefined,
           });
 

@@ -3,6 +3,8 @@ title: Workflow
 description: Workflow protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Trigger events for workflow automation
 
 <Callout type="info">
@@ -295,6 +297,7 @@ This schema accepts one of the following structures:
 | **actions** | `Object \| Object \| Object \| Object \| Object \| Object \| Object[]` | optional | Immediate actions |
 | **timeTriggers** | `Object[]` | optional | Scheduled actions relative to trigger or date field |
 | **active** | `boolean` | ✅ | Whether this workflow is active |
+| **executionOrder** | `integer` | ✅ | Deterministic execution order when multiple workflows match (lower runs first) |
 | **reevaluateOnChange** | `boolean` | ✅ | Re-evaluate rule if field updates change the record validity |
 
 

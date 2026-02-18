@@ -1,6 +1,8 @@
 {
   "title": "Studio Protocol",
   "pages": [
+    "object-designer",
+    "page-builder",
     "plugin"
   ]
 }

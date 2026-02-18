@@ -1,10 +1,13 @@
 {
   "title": "Shared Protocol",
   "pages": [
+    "branded-types",
     "enums",
     "http",
     "identifiers",
     "mapping",
-    "metadata-types"
+    "metadata-persistence",
+    "metadata-types",
+    "view"
   ]
 }

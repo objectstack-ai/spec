@@ -3,6 +3,8 @@ title: Component
 description: Component protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Empty Properties Schema
 
 <Callout type="info">
@@ -12,12 +14,153 @@ Empty Properties Schema
 ## TypeScript Usage
 
 ```typescript
-import { PageCardProps, PageHeaderProps, PageTabsProps, RecordDetailsProps, RecordHighlightsProps, RecordRelatedListProps } from '@objectstack/spec/ui';
-import type { PageCardProps, PageHeaderProps, PageTabsProps, RecordDetailsProps, RecordHighlightsProps, RecordRelatedListProps } from '@objectstack/spec/ui';
+import { AIChatWindowProps, ElementButtonProps, ElementFilterProps, ElementFormProps, ElementImageProps, ElementNumberProps, ElementRecordPickerProps, ElementTextProps, PageAccordionProps, PageCardProps, PageHeaderProps, PageTabsProps, RecordActivityProps, RecordDetailsProps, RecordHighlightsProps, RecordPathProps, RecordRelatedListProps } from '@objectstack/spec/ui';
+import type { AIChatWindowProps, ElementButtonProps, ElementFilterProps, ElementFormProps, ElementImageProps, ElementNumberProps, ElementRecordPickerProps, ElementTextProps, PageAccordionProps, PageCardProps, PageHeaderProps, PageTabsProps, RecordActivityProps, RecordDetailsProps, RecordHighlightsProps, RecordPathProps, RecordRelatedListProps } from '@objectstack/spec/ui';
 
 // Validate data
-const result = PageCardProps.parse(data);
+const result = AIChatWindowProps.parse(data);
 ```
+
+---
+
+## AIChatWindowProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **mode** | `Enum<'float' \| 'sidebar' \| 'inline'>` | ✅ | Display mode for the chat window |
+| **agentId** | `string` | optional | Specific AI agent to use |
+| **context** | `Record<string, any>` | optional | Contextual data to pass to the AI |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+
+
+---
+
+## ElementButtonProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **label** | `string \| Object` | ✅ | Button display label |
+| **variant** | `Enum<'primary' \| 'secondary' \| 'danger' \| 'ghost' \| 'link'>` | ✅ | Button visual variant |
+| **size** | `Enum<'small' \| 'medium' \| 'large'>` | ✅ | Button size |
+| **icon** | `string` | optional | Icon name (Lucide icon) |
+| **iconPosition** | `Enum<'left' \| 'right'>` | ✅ | Icon position relative to label |
+| **disabled** | `boolean` | ✅ | Disable the button |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+
+
+---
+
+## ElementFilterProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object to filter |
+| **fields** | `string[]` | ✅ | Filterable field names |
+| **targetVariable** | `string` | optional | Page variable to store filter state |
+| **layout** | `Enum<'inline' \| 'dropdown' \| 'sidebar'>` | ✅ | Filter display layout |
+| **showSearch** | `boolean` | ✅ | Show search input |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+
+
+---
+
+## ElementFormProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object for the form |
+| **fields** | `string[]` | optional | Fields to display (defaults to all editable fields) |
+| **mode** | `Enum<'create' \| 'edit'>` | ✅ | Form mode |
+| **submitLabel** | `string \| Object` | optional | Submit button label |
+| **onSubmit** | `string` | optional | Action expression on form submit |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+
+
+---
+
+## ElementImageProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **src** | `string` | ✅ | Image URL or attachment field |
+| **alt** | `string` | optional | Alt text for accessibility |
+| **fit** | `Enum<'cover' \| 'contain' \| 'fill'>` | ✅ | Image object-fit mode |
+| **height** | `number` | optional | Fixed height in pixels |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+
+
+---
+
+## ElementNumberProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Source object |
+| **field** | `string` | optional | Field to aggregate |
+| **aggregate** | `Enum<'count' \| 'sum' \| 'avg' \| 'min' \| 'max'>` | ✅ | Aggregation function |
+| **filter** | `any` | optional | Filter criteria |
+| **format** | `Enum<'number' \| 'currency' \| 'percent'>` | optional | Number display format |
+| **prefix** | `string` | optional | Prefix text (e.g. "$") |
+| **suffix** | `string` | optional | Suffix text (e.g. "%") |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+
+
+---
+
+## ElementRecordPickerProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object to pick records from |
+| **displayField** | `string` | ✅ | Field to display as the record label |
+| **searchFields** | `string[]` | optional | Fields to search against |
+| **filter** | `any` | optional | Filter criteria for available records |
+| **multiple** | `boolean` | ✅ | Allow multiple record selection |
+| **targetVariable** | `string` | optional | Page variable to bind selected record ID(s) |
+| **placeholder** | `string \| Object` | optional | Placeholder text |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+
+
+---
+
+## ElementTextProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **content** | `string` | ✅ | Text or Markdown content |
+| **variant** | `Enum<'heading' \| 'subheading' \| 'body' \| 'caption'>` | ✅ | Text style variant |
+| **align** | `Enum<'left' \| 'center' \| 'right'>` | ✅ | Text alignment |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+
+
+---
+
+## PageAccordionProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **items** | `Object[]` | ✅ |  |
+| **allowMultiple** | `boolean` | ✅ | Allow multiple panels to be expanded simultaneously |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+
 
 ---
 
@@ -67,15 +210,31 @@ const result = PageCardProps.parse(data);
 
 ---
 
+## RecordActivityProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **types** | `Enum<'task' \| 'event' \| 'email' \| 'call' \| 'note'>[]` | optional | Activity types to display |
+| **limit** | `integer` | ✅ | Number of activities to show |
+| **showCompleted** | `boolean` | ✅ | Include completed activities |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+
+
+---
+
 ## RecordDetailsProps
 
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **columns** | `Enum<'1' \| '2' \| '3' \| '4'>` | ✅ |  |
-| **layout** | `Enum<'auto' \| 'custom'>` | ✅ |  |
-| **sections** | `string[]` | optional | Section IDs to show |
+| **columns** | `Enum<'1' \| '2' \| '3' \| '4'>` | ✅ | Number of columns for field layout (1-4) |
+| **layout** | `Enum<'auto' \| 'custom'>` | ✅ | Layout mode: auto uses object compactLayout, custom uses explicit sections |
+| **sections** | `string[]` | optional | Section IDs to show (required when layout is "custom") |
+| **fields** | `string[]` | optional | Explicit field list to display (optional, overrides compactLayout) |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
 
 
 ---
@@ -86,7 +245,22 @@ const result = PageCardProps.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **fields** | `string[]` | ✅ | Key fields to highlights (max 7) |
+| **fields** | `string[]` | ✅ | Key fields to highlight (1-7 fields max, typically displayed as prominent cards) |
+| **layout** | `Enum<'horizontal' \| 'vertical'>` | ✅ | Layout orientation for highlight fields |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+
+
+---
+
+## RecordPathProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **statusField** | `string` | ✅ | Field name representing the current status/stage |
+| **stages** | `Object[]` | optional | Explicit stage definitions (if not using field metadata) |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
 
 
 ---
@@ -97,11 +271,16 @@ const result = PageCardProps.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **objectName** | `string` | ✅ | Related object name |
-| **relationshipField** | `string` | ✅ | Field on related object that points to this record |
-| **columns** | `string[]` | ✅ | Fields to display |
-| **sort** | `string` | optional |  |
-| **limit** | `number` | ✅ |  |
+| **objectName** | `string` | ✅ | Related object name (e.g., "task", "opportunity") |
+| **relationshipField** | `string` | ✅ | Field on related object that points to this record (e.g., "account_id") |
+| **columns** | `string[]` | ✅ | Fields to display in the related list |
+| **sort** | `string \| Object[]` | optional | Sort order for related records |
+| **limit** | `integer` | ✅ | Number of records to display initially |
+| **filter** | `any[]` | optional | Additional filter criteria for related records |
+| **title** | `string \| Object` | optional | Custom title for the related list |
+| **showViewAll** | `boolean` | ✅ | Show "View All" link to see all related records |
+| **actions** | `string[]` | optional | Action IDs available for related records |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
 
 
 ---

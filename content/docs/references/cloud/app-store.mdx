@@ -1,0 +1,282 @@
+---
+title: App Store
+description: App Store protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+# App Store Protocol (Customer Experience)
+
+Defines schemas for the end-customer experience when browsing, evaluating,
+
+installing, and managing marketplace apps from within ObjectOS.
+
+## Architecture Alignment
+
+- **Salesforce AppExchange (Customer)**: Browse apps, read reviews, 1-click install
+
+- **Shopify App Store (Merchant)**: App evaluation, trial, install, manage subscriptions
+
+- **Apple App Store (User)**: Ratings, reviews, featured collections, personalized recs
+
+## Customer Journey
+
+```
+
+Discover → Evaluate → Install → Configure → Use → Rate/Review → Manage
+
+```
+
+## Key Concepts
+
+- **Reviews & Ratings**: User-submitted ratings and reviews with moderation
+
+- **Collections & Recommendations**: Personalized discovery and curated picks
+
+- **Subscription Management**: Manage licenses, billing, and renewals
+
+- **Installed App Management**: Enable, disable, configure, upgrade, uninstall
+
+<Callout type="info">
+**Source:** `packages/spec/src/cloud/app-store.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AppDiscoveryRequest, AppDiscoveryResponse, AppSubscription, InstalledAppSummary, ListInstalledAppsRequest, ListInstalledAppsResponse, ListReviewsRequest, ListReviewsResponse, RecommendationReason, RecommendedApp, ReviewModerationStatus, SubmitReviewRequest, SubscriptionStatus, UserReview } from '@objectstack/spec/cloud';
+import type { AppDiscoveryRequest, AppDiscoveryResponse, AppSubscription, InstalledAppSummary, ListInstalledAppsRequest, ListInstalledAppsResponse, ListReviewsRequest, ListReviewsResponse, RecommendationReason, RecommendedApp, ReviewModerationStatus, SubmitReviewRequest, SubscriptionStatus, UserReview } from '@objectstack/spec/cloud';
+
+// Validate data
+const result = AppDiscoveryRequest.parse(data);
+```
+
+---
+
+## AppDiscoveryRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **tenantId** | `string` | optional |  |
+| **categories** | `Enum<'crm' \| 'erp' \| 'hr' \| 'finance' \| 'project' \| 'collaboration' \| 'analytics' \| 'integration' \| 'automation' \| 'ai' \| 'security' \| 'developer-tools' \| 'ui-theme' \| 'storage' \| 'other'>[]` | optional |  |
+| **platformVersion** | `string` | optional |  |
+| **limit** | `integer` | ✅ |  |
+
+
+---
+
+## AppDiscoveryResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **featured** | `Object[]` | optional |  |
+| **recommended** | `Object[]` | optional |  |
+| **trending** | `Object[]` | optional |  |
+| **newArrivals** | `Object[]` | optional |  |
+| **collections** | `Object[]` | optional |  |
+
+
+---
+
+## AppSubscription
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Subscription ID |
+| **listingId** | `string` | ✅ | App listing ID |
+| **tenantId** | `string` | ✅ | Customer tenant ID |
+| **status** | `Enum<'active' \| 'trialing' \| 'past-due' \| 'cancelled' \| 'expired'>` | ✅ |  |
+| **licenseKey** | `string` | optional |  |
+| **plan** | `string` | optional | Subscription plan name |
+| **billingCycle** | `Enum<'monthly' \| 'annual'>` | optional |  |
+| **priceInCents** | `integer` | optional |  |
+| **currentPeriodStart** | `string` | optional |  |
+| **currentPeriodEnd** | `string` | optional |  |
+| **trialEndDate** | `string` | optional |  |
+| **autoRenew** | `boolean` | ✅ |  |
+| **createdAt** | `string` | ✅ |  |
+
+
+---
+
+## InstalledAppSummary
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **listingId** | `string` | ✅ |  |
+| **packageId** | `string` | ✅ |  |
+| **name** | `string` | ✅ |  |
+| **iconUrl** | `string` | optional |  |
+| **installedVersion** | `string` | ✅ |  |
+| **latestVersion** | `string` | optional |  |
+| **updateAvailable** | `boolean` | ✅ |  |
+| **enabled** | `boolean` | ✅ |  |
+| **subscriptionStatus** | `Enum<'active' \| 'trialing' \| 'past-due' \| 'cancelled' \| 'expired'>` | optional |  |
+| **installedAt** | `string` | ✅ |  |
+
+
+---
+
+## ListInstalledAppsRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **tenantId** | `string` | optional |  |
+| **enabled** | `boolean` | optional |  |
+| **updateAvailable** | `boolean` | optional |  |
+| **sortBy** | `Enum<'name' \| 'installed-date' \| 'updated-date'>` | ✅ |  |
+| **page** | `integer` | ✅ |  |
+| **pageSize** | `integer` | ✅ |  |
+
+
+---
+
+## ListInstalledAppsResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **items** | `Object[]` | ✅ |  |
+| **total** | `integer` | ✅ |  |
+| **page** | `integer` | ✅ |  |
+| **pageSize** | `integer` | ✅ |  |
+
+
+---
+
+## ListReviewsRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **listingId** | `string` | ✅ | Listing to get reviews for |
+| **sortBy** | `Enum<'newest' \| 'oldest' \| 'highest' \| 'lowest' \| 'most-helpful'>` | ✅ |  |
+| **rating** | `integer` | optional |  |
+| **page** | `integer` | ✅ |  |
+| **pageSize** | `integer` | ✅ |  |
+
+
+---
+
+## ListReviewsResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **items** | `Object[]` | ✅ |  |
+| **total** | `integer` | ✅ |  |
+| **page** | `integer` | ✅ |  |
+| **pageSize** | `integer` | ✅ |  |
+| **ratingSummary** | `Object` | optional |  |
+
+
+---
+
+## RecommendationReason
+
+### Allowed Values
+
+* `popular-in-category`
+* `similar-users`
+* `complements-installed`
+* `trending`
+* `new-release`
+* `editor-pick`
+
+
+---
+
+## RecommendedApp
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **listingId** | `string` | ✅ |  |
+| **name** | `string` | ✅ |  |
+| **tagline** | `string` | optional |  |
+| **iconUrl** | `string` | optional |  |
+| **category** | `Enum<'crm' \| 'erp' \| 'hr' \| 'finance' \| 'project' \| 'collaboration' \| 'analytics' \| 'integration' \| 'automation' \| 'ai' \| 'security' \| 'developer-tools' \| 'ui-theme' \| 'storage' \| 'other'>` | ✅ |  |
+| **pricing** | `Enum<'free' \| 'freemium' \| 'paid' \| 'subscription' \| 'usage-based' \| 'contact-sales'>` | ✅ |  |
+| **averageRating** | `number` | optional |  |
+| **activeInstalls** | `integer` | optional |  |
+| **reason** | `Enum<'popular-in-category' \| 'similar-users' \| 'complements-installed' \| 'trending' \| 'new-release' \| 'editor-pick'>` | ✅ |  |
+
+
+---
+
+## ReviewModerationStatus
+
+### Allowed Values
+
+* `pending`
+* `approved`
+* `flagged`
+* `rejected`
+
+
+---
+
+## SubmitReviewRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **listingId** | `string` | ✅ | Listing to review |
+| **rating** | `integer` | ✅ | Star rating |
+| **title** | `string` | optional |  |
+| **body** | `string` | optional |  |
+
+
+---
+
+## SubscriptionStatus
+
+### Allowed Values
+
+* `active`
+* `trialing`
+* `past-due`
+* `cancelled`
+* `expired`
+
+
+---
+
+## UserReview
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Review ID |
+| **listingId** | `string` | ✅ | Listing being reviewed |
+| **userId** | `string` | ✅ | Review author user ID |
+| **displayName** | `string` | optional | Reviewer display name |
+| **rating** | `integer` | ✅ | Star rating (1-5) |
+| **title** | `string` | optional | Review title |
+| **body** | `string` | optional | Review text |
+| **appVersion** | `string` | optional | App version being reviewed |
+| **moderationStatus** | `Enum<'pending' \| 'approved' \| 'flagged' \| 'rejected'>` | ✅ |  |
+| **helpfulCount** | `integer` | ✅ |  |
+| **publisherResponse** | `Object` | optional | Publisher response to review |
+| **submittedAt** | `string` | ✅ |  |
+| **updatedAt** | `string` | optional |  |
+
+
+---
+

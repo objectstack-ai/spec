@@ -3,6 +3,8 @@ title: Action
 description: Action protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Action Parameter Schema
 
 Defines inputs required before executing an action.
@@ -30,23 +32,24 @@ const result = Action.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ | Machine name (lowercase snake_case) |
-| **label** | `string` | ✅ | Display label |
+| **label** | `string \| Object` | ✅ | Display label |
 | **icon** | `string` | optional | Icon name |
 | **locations** | `Enum<'list_toolbar' \| 'list_item' \| 'record_header' \| 'record_more' \| 'record_related' \| 'global_nav'>[]` | optional | Locations where this action is visible |
 | **component** | `Enum<'action:button' \| 'action:icon' \| 'action:menu' \| 'action:group'>` | optional | Visual component override |
-| **location** | `any` | optional | DEPRECATED: Use `locations` field instead. Scheduled for removal in v2.0.0 |
 | **type** | `Enum<'script' \| 'url' \| 'modal' \| 'flow' \| 'api'>` | ✅ | Action functionality type |
 | **target** | `string` | optional | URL, Script Name, Flow ID, or API Endpoint |
 | **execute** | `string` | optional | Legacy execution logic |
 | **params** | `Object[]` | optional | Input parameters required from user |
-| **confirmText** | `string` | optional | Confirmation message before execution |
-| **successMessage** | `string` | optional | Success message to show after execution |
+| **variant** | `Enum<'primary' \| 'secondary' \| 'danger' \| 'ghost' \| 'link'>` | optional | Button visual variant for styling (primary = highlighted, danger = destructive, ghost = transparent) |
+| **confirmText** | `string \| Object` | optional | Confirmation message before execution |
+| **successMessage** | `string \| Object` | optional | Success message to show after execution |
 | **refreshAfter** | `boolean` | ✅ | Refresh view after execution |
 | **visible** | `string` | optional | Formula returning boolean |
 | **disabled** | `boolean \| string` | optional | Whether the action is disabled, or a condition expression string |
 | **shortcut** | `string` | optional | Keyboard shortcut to trigger this action (e.g., "Ctrl+S") |
 | **bulkEnabled** | `boolean` | optional | Whether this action can be applied to multiple selected records |
 | **timeout** | `number` | optional | Maximum execution time in milliseconds for the action |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
 
 
 ---
@@ -58,7 +61,7 @@ const result = Action.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **name** | `string` | ✅ |  |
-| **label** | `string` | ✅ |  |
+| **label** | `string \| Object` | ✅ | Display label: plain string or i18n translation object |
 | **type** | `Enum<'text' \| 'textarea' \| 'email' \| 'url' \| 'phone' \| 'password' \| 'markdown' \| 'html' \| 'richtext' \| 'number' \| 'currency' \| 'percent' \| 'date' \| 'datetime' \| 'time' \| 'boolean' \| 'toggle' \| 'select' \| 'multiselect' \| 'radio' \| 'checkboxes' \| 'lookup' \| 'master_detail' \| 'tree' \| 'image' \| 'file' \| 'avatar' \| 'video' \| 'audio' \| 'formula' \| 'summary' \| 'autonumber' \| 'location' \| 'address' \| 'code' \| 'json' \| 'color' \| 'rating' \| 'slider' \| 'signature' \| 'qrcode' \| 'progress' \| 'tags' \| 'vector'>` | ✅ |  |
 | **required** | `boolean` | ✅ |  |
 | **options** | `Object[]` | optional |  |

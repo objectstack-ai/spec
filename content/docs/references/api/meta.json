@@ -5,6 +5,7 @@
     "auth",
     "auth-endpoints",
     "batch",
+    "connector",
     "contract",
     "discovery",
     "dispatcher",
@@ -13,10 +14,16 @@
     "errors",
     "graphql",
     "http-cache",
+    "identity",
     "metadata",
+    "metadata-plugin",
+    "notification",
+    "object",
     "odata",
+    "package-registry",
     "plugin-rest-api",
     "protocol",
+    "query-adapter",
     "realtime",
     "realtime-shared",
     "registry",
@@ -24,6 +31,7 @@
     "router",
     "storage",
     "versioning",
+    "view",
     "websocket"
   ]
 }

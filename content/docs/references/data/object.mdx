@@ -3,6 +3,8 @@ title: Object
 description: Object protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 API Operations Enum
 
 <Callout type="info">
@@ -97,7 +99,9 @@ const result = ApiMethod.parse(data);
 | **cdc** | `Object` | optional | Change Data Capture (CDC) configuration for real-time data streaming |
 | **validations** | `[__schema0](./__schema0)[]` | optional | Object-level validation rules |
 | **stateMachines** | `Record<string, Object>` | optional | Named state machines for parallel lifecycles (e.g., status, payment, approval) |
-| **titleFormat** | `string` | optional | Title expression (e.g. "`{name}` - `{code}`"). Overrides nameField. |
+| **displayNameField** | `string` | optional | Field to use as the record display name (e.g., "name", "title"). Defaults to "name" if present. |
+| **recordName** | `Object` | optional | Record name generation configuration (Salesforce pattern) |
+| **titleFormat** | `string` | optional | Title expression (e.g. "`{name}` - `{code}`"). Overrides displayNameField. |
 | **compactLayout** | `string[]` | optional | Primary fields for hover/cards/lookups |
 | **search** | `Object` | optional | Search engine configuration |
 | **enable** | `Object` | optional | Enabled system features modules |
@@ -136,11 +140,11 @@ const result = ApiMethod.parse(data);
 | :--- | :--- | :--- | :--- |
 | **extend** | `string` | ✅ | Target object name (FQN) to extend |
 | **fields** | `Record<string, Object>` | optional | Fields to add/override |
-| **label** | `string` | optional |  |
-| **pluralLabel** | `string` | optional |  |
-| **description** | `string` | optional |  |
-| **validations** | `[__schema0](./__schema0)[]` | optional |  |
-| **indexes** | `Object[]` | optional |  |
+| **label** | `string` | optional | Override label for the extended object |
+| **pluralLabel** | `string` | optional | Override plural label for the extended object |
+| **description** | `string` | optional | Override description for the extended object |
+| **validations** | `[__schema0](./__schema0)[]` | optional | Additional validation rules to merge into the target object |
+| **indexes** | `Object[]` | optional | Additional indexes to merge into the target object |
 | **priority** | `integer` | ✅ | Merge priority (higher = applied later) |
 
 

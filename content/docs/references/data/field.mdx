@@ -3,6 +3,8 @@ title: Field
 description: Field protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Field Type Enum
 
 <Callout type="info">
@@ -145,6 +147,8 @@ const result = Address.parse(data);
 | **dependencies** | `string[]` | optional | Array of field names that this field depends on (for formulas, visibility rules, etc.) |
 | **cached** | `Object` | optional | Caching configuration for computed/formula fields |
 | **dataQuality** | `Object` | optional | Data quality validation and monitoring rules |
+| **group** | `string` | optional | Field group name for organizing fields in forms and layouts (e.g., "contact_info", "billing", "system") |
+| **conditionalRequired** | `string` | optional | Formula expression that makes this field required when TRUE (e.g., "status = 'closed_won'") |
 | **hidden** | `boolean` | ✅ | Hidden from default UI |
 | **readonly** | `boolean` | ✅ | Read-only in UI |
 | **sortable** | `boolean` | ✅ | Whether field is sortable in list views |

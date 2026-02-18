@@ -3,6 +3,8 @@ title: Validation
 description: Validation protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 # ObjectStack Validation Protocol
 
 This module defines the validation schema protocol for ObjectStack, providing a comprehensive
@@ -98,6 +100,7 @@ const result = AsyncValidation.parse(data);
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -125,6 +128,7 @@ const result = AsyncValidation.parse(data);
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -147,6 +151,7 @@ const result = AsyncValidation.parse(data);
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -168,6 +173,7 @@ const result = AsyncValidation.parse(data);
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -189,6 +195,7 @@ const result = AsyncValidation.parse(data);
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -211,6 +218,7 @@ const result = AsyncValidation.parse(data);
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -232,6 +240,7 @@ const result = AsyncValidation.parse(data);
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -252,6 +261,7 @@ const result = AsyncValidation.parse(data);
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -273,6 +283,7 @@ const result = AsyncValidation.parse(data);
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -303,6 +314,7 @@ This schema accepts one of the following structures:
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -324,6 +336,7 @@ This schema accepts one of the following structures:
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -347,6 +360,7 @@ This schema accepts one of the following structures:
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -369,6 +383,7 @@ This schema accepts one of the following structures:
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -392,6 +407,7 @@ This schema accepts one of the following structures:
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -414,6 +430,7 @@ This schema accepts one of the following structures:
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -436,6 +453,7 @@ This schema accepts one of the following structures:
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |
@@ -464,6 +482,7 @@ This schema accepts one of the following structures:
 | **description** | `string` | optional | Administrative notes explaining the business reason |
 | **active** | `boolean` | ✅ |  |
 | **events** | `Enum<'insert' \| 'update' \| 'delete'>[]` | ✅ | Validation contexts |
+| **priority** | `integer` | ✅ | Execution priority (lower runs first, default: 100) |
 | **tags** | `string[]` | optional | Categorization tags (e.g., "compliance", "billing") |
 | **severity** | `Enum<'error' \| 'warning' \| 'info'>` | ✅ |  |
 | **message** | `string` | ✅ | Error message to display to the user |

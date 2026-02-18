@@ -3,11 +3,45 @@ title: Metadata
 description: Metadata protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Metadata Service Protocol
 
-Defines the standard API contracts for fetching system metadata.
+Defines the standard API contracts for the **@objectstack/metadata** package.
 
-Frontend, IDEs, and Mobile apps use this to build dynamic UIs.
+This is the single authority for ALL metadata-related services and APIs across
+
+the entire platform, including Hono, Next.js, and NestJS adapters.
+
+## Architecture
+
+```
+
+┌──────────────────────────────────────────────────────────────────┐
+
+│              @objectstack/metadata — API Contracts              │
+
+│                                                                  │
+
+│  CRUD        │ Query/Search │ Bulk Ops  │ Overlay   │ Watch     │
+
+│  Import/Export│ Validation   │ Type Reg  │ Deps      │           │
+
+├──────────────────────────────────────────────────────────────────┤
+
+│  Hono Adapter │ Next.js Adapter │ NestJS Adapter │ CLI         │
+
+└──────────────────────────────────────────────────────────────────┘
+
+```
+
+## Alignment
+
+- **Salesforce**: Metadata API (deploy, retrieve, describe)
+
+- **ServiceNow**: System Dictionary + Metadata API
+
+- **Kubernetes**: API Server + CRD Registry
 
 <Callout type="info">
 **Source:** `packages/spec/src/api/metadata.zod.ts`
@@ -16,8 +50,8 @@ Frontend, IDEs, and Mobile apps use this to build dynamic UIs.
 ## TypeScript Usage
 
 ```typescript
-import { AppDefinitionResponse, ConceptListResponse, ObjectDefinitionResponse } from '@objectstack/spec/api';
-import type { AppDefinitionResponse, ConceptListResponse, ObjectDefinitionResponse } from '@objectstack/spec/api';
+import { AppDefinitionResponse, ConceptListResponse, MetadataBulkResponse, MetadataBulkUnregisterRequest, MetadataDeleteResponse, MetadataDependenciesResponse, MetadataDependentsResponse, MetadataEffectiveResponse, MetadataExistsResponse, MetadataExportRequest, MetadataExportResponse, MetadataImportRequest, MetadataImportResponse, MetadataItemResponse, MetadataListResponse, MetadataNamesResponse, MetadataOverlayResponse, MetadataOverlaySaveRequest, MetadataQueryRequest, MetadataQueryResponse, MetadataRegisterRequest, MetadataTypeInfoResponse, MetadataTypesResponse, MetadataValidateRequest, MetadataValidateResponse, ObjectDefinitionResponse } from '@objectstack/spec/api';
+import type { AppDefinitionResponse, ConceptListResponse, MetadataBulkResponse, MetadataBulkUnregisterRequest, MetadataDeleteResponse, MetadataDependenciesResponse, MetadataDependentsResponse, MetadataEffectiveResponse, MetadataExistsResponse, MetadataExportRequest, MetadataExportResponse, MetadataImportRequest, MetadataImportResponse, MetadataItemResponse, MetadataListResponse, MetadataNamesResponse, MetadataOverlayResponse, MetadataOverlaySaveRequest, MetadataQueryRequest, MetadataQueryResponse, MetadataRegisterRequest, MetadataTypeInfoResponse, MetadataTypesResponse, MetadataValidateRequest, MetadataValidateResponse, ObjectDefinitionResponse } from '@objectstack/spec/api';
 
 // Validate data
 const result = AppDefinitionResponse.parse(data);
@@ -49,6 +83,344 @@ const result = AppDefinitionResponse.parse(data);
 | **error** | `Object` | optional | Error details if success is false |
 | **meta** | `Object` | optional | Response metadata |
 | **data** | `Object[]` | ✅ | List of available concepts (Objects, Apps, Flows) |
+
+
+---
+
+## MetadataBulkResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ | Bulk operation result |
+
+
+---
+
+## MetadataBulkUnregisterRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **items** | `Object[]` | ✅ | Items to unregister |
+
+
+---
+
+## MetadataDeleteResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## MetadataDependenciesResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object[]` | ✅ | Items this item depends on |
+
+
+---
+
+## MetadataDependentsResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object[]` | ✅ | Items that depend on this item |
+
+
+---
+
+## MetadataEffectiveResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Record<string, any>` | optional | Effective metadata with all overlays applied |
+
+
+---
+
+## MetadataExistsResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## MetadataExportRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **types** | `string[]` | optional | Filter by metadata types |
+| **namespaces** | `string[]` | optional | Filter by namespaces |
+| **format** | `Enum<'json' \| 'yaml'>` | ✅ | Export format |
+
+
+---
+
+## MetadataExportResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `any` | ✅ | Exported metadata bundle |
+
+
+---
+
+## MetadataImportRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **data** | `any` | ✅ | Metadata bundle to import |
+| **conflictResolution** | `Enum<'skip' \| 'overwrite' \| 'merge'>` | ✅ | Conflict resolution strategy |
+| **validate** | `boolean` | ✅ | Validate before import |
+| **dryRun** | `boolean` | ✅ | Dry run (no save) |
+
+
+---
+
+## MetadataImportResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ | Import result |
+
+
+---
+
+## MetadataItemResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ | Metadata item |
+
+
+---
+
+## MetadataListResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Record<string, any>[]` | ✅ | Array of metadata definitions |
+
+
+---
+
+## MetadataNamesResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `string[]` | ✅ | Array of metadata item names |
+
+
+---
+
+## MetadataOverlayResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | optional | Overlay definition, undefined if none |
+
+
+---
+
+## MetadataOverlaySaveRequest
+
+Overlay to save
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Overlay record ID (UUID) |
+| **baseType** | `string` | ✅ | Metadata type being customized |
+| **baseName** | `string` | ✅ | Metadata name being customized |
+| **packageId** | `string` | optional | Package ID that delivered the base metadata |
+| **packageVersion** | `string` | optional | Package version when overlay was created |
+| **scope** | `Enum<'platform' \| 'user'>` | ✅ | Customization scope (platform=admin, user=personal) |
+| **tenantId** | `string` | optional | Tenant identifier |
+| **owner** | `string` | optional | Owner user ID for user-scope overlays |
+| **patch** | `Record<string, any>` | ✅ | JSON Merge Patch payload (changed fields only) |
+| **changes** | `Object[]` | optional | Field-level change tracking for conflict detection |
+| **active** | `boolean` | ✅ | Whether this overlay is active |
+| **createdAt** | `string` | optional |  |
+| **createdBy** | `string` | optional |  |
+| **updatedAt** | `string` | optional |  |
+| **updatedBy** | `string` | optional |  |
+
+
+---
+
+## MetadataQueryRequest
+
+Metadata query with filtering, sorting, and pagination
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **types** | `Enum<'object' \| 'field' \| 'trigger' \| 'validation' \| 'hook' \| 'view' \| 'page' \| 'dashboard' \| 'app' \| 'action' \| 'report' \| 'flow' \| 'workflow' \| 'approval' \| 'datasource' \| 'translation' \| 'router' \| 'function' \| 'service' \| 'permission' \| 'profile' \| 'role' \| 'agent'>[]` | optional | Filter by metadata types |
+| **namespaces** | `string[]` | optional | Filter by namespaces |
+| **packageId** | `string` | optional | Filter by owning package |
+| **search** | `string` | optional | Full-text search query |
+| **scope** | `Enum<'system' \| 'platform' \| 'user'>` | optional | Filter by scope |
+| **state** | `Enum<'draft' \| 'active' \| 'archived' \| 'deprecated'>` | optional | Filter by lifecycle state |
+| **tags** | `string[]` | optional | Filter by tags |
+| **sortBy** | `Enum<'name' \| 'type' \| 'updatedAt' \| 'createdAt'>` | ✅ | Sort field |
+| **sortOrder** | `Enum<'asc' \| 'desc'>` | ✅ | Sort direction |
+| **page** | `integer` | ✅ | Page number |
+| **pageSize** | `integer` | ✅ | Items per page |
+
+
+---
+
+## MetadataQueryResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ | Paginated query result |
+
+
+---
+
+## MetadataRegisterRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'object' \| 'field' \| 'trigger' \| 'validation' \| 'hook' \| 'view' \| 'page' \| 'dashboard' \| 'app' \| 'action' \| 'report' \| 'flow' \| 'workflow' \| 'approval' \| 'datasource' \| 'translation' \| 'router' \| 'function' \| 'service' \| 'permission' \| 'profile' \| 'role' \| 'agent'>` | ✅ | Metadata type |
+| **name** | `string` | ✅ | Item name (snake_case) |
+| **data** | `Record<string, any>` | ✅ | Metadata payload |
+| **namespace** | `string` | optional | Optional namespace |
+
+
+---
+
+## MetadataTypeInfoResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | optional | Type info |
+
+
+---
+
+## MetadataTypesResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `string[]` | ✅ | Registered metadata type identifiers |
+
+
+---
+
+## MetadataValidateRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Metadata type to validate against |
+| **data** | `any` | ✅ | Metadata payload to validate |
+
+
+---
+
+## MetadataValidateResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ | Validation result |
 
 
 ---

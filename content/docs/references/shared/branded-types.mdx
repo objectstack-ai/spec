@@ -1,0 +1,65 @@
+---
+title: Branded Types
+description: Branded Types protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+Branded Types for ObjectStack Identifiers
+
+Branded types provide compile-time safety by preventing accidental mixing
+
+of different identifier kinds. For example, you cannot pass an ObjectName
+
+where a FieldName is expected, even though both are strings at runtime.
+
+@example
+
+```ts
+
+import \{ ObjectNameSchema, FieldNameSchema \} from '@objectstack/spec';
+
+const objName = ObjectNameSchema.parse('project_task');   // ObjectName
+
+const fieldName = FieldNameSchema.parse('task_name');     // FieldName
+
+// TypeScript will catch this at compile time:
+
+// const fn: FieldName = objName; // Error!
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/shared/branded-types.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AppName, FieldName, FlowName, ObjectName, RoleName, ViewName } from '@objectstack/spec/shared';
+import type { AppName, FieldName, FlowName, ObjectName, RoleName, ViewName } from '@objectstack/spec/shared';
+
+// Validate data
+const result = AppName.parse(data);
+```
+
+---
+
+
+---
+
+
+---
+
+
+---
+
+
+---
+
+
+---
+
+
+---
+

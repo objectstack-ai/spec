@@ -3,6 +3,8 @@ title: Errors
 description: Errors protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Standardized Error Codes Protocol
 
 Implements P0 requirement for ObjectStack kernel.
@@ -28,8 +30,8 @@ Industry alignment: Google Cloud Errors, AWS Error Codes, Stripe API Errors
 ## TypeScript Usage
 
 ```typescript
-import { EnhancedApiError, ErrorCategory, ErrorResponse, FieldError, StandardErrorCode } from '@objectstack/spec/api';
-import type { EnhancedApiError, ErrorCategory, ErrorResponse, FieldError, StandardErrorCode } from '@objectstack/spec/api';
+import { EnhancedApiError, ErrorResponse, FieldError, StandardErrorCode } from '@objectstack/spec/api';
+import type { EnhancedApiError, ErrorResponse, FieldError, StandardErrorCode } from '@objectstack/spec/api';
 
 // Validate data
 const result = EnhancedApiError.parse(data);
@@ -57,23 +59,6 @@ const result = EnhancedApiError.parse(data);
 | **traceId** | `string` | optional | Distributed trace ID |
 | **documentation** | `string` | optional | URL to error documentation |
 | **helpText** | `string` | optional | Suggested actions to resolve the error |
-
-
----
-
-## ErrorCategory
-
-### Allowed Values
-
-* `validation`
-* `authentication`
-* `authorization`
-* `not_found`
-* `conflict`
-* `rate_limit`
-* `server`
-* `external`
-* `maintenance`
 
 
 ---

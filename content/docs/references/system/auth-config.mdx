@@ -3,6 +3,8 @@ title: Auth Config
 description: Auth Config protocol schemas
 ---
 
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
 Better-Auth Configuration Protocol
 
 Defines the configuration required to initialize the Better-Auth kernel.
@@ -16,8 +18,8 @@ Used in server-side configuration injection.
 ## TypeScript Usage
 
 ```typescript
-import { AuthConfig, AuthPluginConfig, AuthProviderConfig } from '@objectstack/spec/system';
-import type { AuthConfig, AuthPluginConfig, AuthProviderConfig } from '@objectstack/spec/system';
+import { AuthConfig, AuthPluginConfig, AuthProviderConfig, MutualTLSConfig } from '@objectstack/spec/system';
+import type { AuthConfig, AuthPluginConfig, AuthProviderConfig, MutualTLSConfig } from '@objectstack/spec/system';
 
 // Validate data
 const result = AuthConfig.parse(data);
@@ -37,6 +39,7 @@ const result = AuthConfig.parse(data);
 | **providers** | `Object[]` | optional |  |
 | **plugins** | `Object` | optional |  |
 | **session** | `Object` | optional |  |
+| **mutualTls** | `Object` | optional | Mutual TLS (mTLS) configuration |
 
 
 ---
@@ -65,6 +68,25 @@ const result = AuthConfig.parse(data);
 | **clientId** | `string` | ✅ | OAuth Client ID |
 | **clientSecret** | `string` | ✅ | OAuth Client Secret |
 | **scope** | `string[]` | optional | Requested permissions |
+
+
+---
+
+## MutualTLSConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Enable mutual TLS authentication |
+| **clientCertRequired** | `boolean` | ✅ | Require client certificates for all connections |
+| **trustedCAs** | `string[]` | ✅ | PEM-encoded CA certificates or file paths |
+| **crlUrl** | `string` | optional | Certificate Revocation List (CRL) URL |
+| **ocspUrl** | `string` | optional | Online Certificate Status Protocol (OCSP) URL |
+| **certificateValidation** | `Enum<'strict' \| 'relaxed' \| 'none'>` | ✅ | Certificate validation strictness level |
+| **allowedCNs** | `string[]` | optional | Allowed Common Names (CN) on client certificates |
+| **allowedOUs** | `string[]` | optional | Allowed Organizational Units (OU) on client certificates |
+| **pinning** | `Object` | optional | Certificate pinning configuration |
 
 
 ---

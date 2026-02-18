@@ -1,0 +1,219 @@
+---
+title: Package Upgrade
+description: Package Upgrade protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+# Package Upgrade Protocol
+
+Defines the complete lifecycle for upgrading installed packages,
+
+including pre-upgrade analysis, snapshot/backup, execution, validation,
+
+and rollback capabilities.
+
+## Architecture Alignment
+
+- **Salesforce**: Managed Package upgrade with push upgrades and subscriber control
+
+- **ServiceNow**: Update Sets with preview, commit, and back-out support
+
+- **Helm**: Helm upgrade with rollback to previous release
+
+- **Kubernetes**: Rolling update with readiness probes and automatic rollback
+
+## Upgrade Flow
+
+```
+
+1. PreCheck    → Validate compatibility, check dependencies
+
+2. Plan        → Generate upgrade plan with metadata diff
+
+3. Snapshot    → Backup current state (metadata + customizations)
+
+4. Execute     → Apply new package metadata with 3-way merge
+
+5. Validate    → Run post-upgrade health checks
+
+6. Commit      → Finalize upgrade (or Rollback on failure)
+
+```
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/package-upgrade.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { MetadataChangeType, MetadataDiffItem, RollbackPackageRequest, RollbackPackageResponse, UpgradeImpactLevel, UpgradePackageRequest, UpgradePackageResponse, UpgradePhase, UpgradePlan, UpgradeSnapshot } from '@objectstack/spec/kernel';
+import type { MetadataChangeType, MetadataDiffItem, RollbackPackageRequest, RollbackPackageResponse, UpgradeImpactLevel, UpgradePackageRequest, UpgradePackageResponse, UpgradePhase, UpgradePlan, UpgradeSnapshot } from '@objectstack/spec/kernel';
+
+// Validate data
+const result = MetadataChangeType.parse(data);
+```
+
+---
+
+## MetadataChangeType
+
+### Allowed Values
+
+* `added`
+* `modified`
+* `removed`
+* `renamed`
+
+
+---
+
+## MetadataDiffItem
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Metadata type |
+| **name** | `string` | ✅ | Metadata name |
+| **changeType** | `Enum<'added' \| 'modified' \| 'removed' \| 'renamed'>` | ✅ |  |
+| **hasConflict** | `boolean` | ✅ | Whether this change may conflict with customizations |
+| **summary** | `string` | optional | Human-readable change summary |
+| **previousName** | `string` | optional | Previous name if renamed |
+
+
+---
+
+## RollbackPackageRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **packageId** | `string` | ✅ | Package ID to rollback |
+| **snapshotId** | `string` | ✅ | Snapshot ID to restore from |
+| **rollbackCustomizations** | `boolean` | ✅ | Whether to restore pre-upgrade customizations |
+
+
+---
+
+## RollbackPackageResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ |  |
+| **restoredVersion** | `string` | optional | Version restored to |
+| **message** | `string` | optional |  |
+
+
+---
+
+## UpgradeImpactLevel
+
+### Allowed Values
+
+* `none`
+* `low`
+* `medium`
+* `high`
+* `critical`
+
+
+---
+
+## UpgradePackageRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **packageId** | `string` | ✅ | Package ID to upgrade |
+| **targetVersion** | `string` | optional | Target version (defaults to latest) |
+| **manifest** | `Object` | optional | New manifest (if installing from local) |
+| **createSnapshot** | `boolean` | ✅ | Whether to create a pre-upgrade backup snapshot |
+| **mergeStrategy** | `Enum<'keep-custom' \| 'accept-incoming' \| 'three-way-merge'>` | ✅ | How to handle customer customizations |
+| **dryRun** | `boolean` | ✅ | Preview upgrade without making changes |
+| **skipValidation** | `boolean` | ✅ | Skip pre-upgrade compatibility checks |
+
+
+---
+
+## UpgradePackageResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Whether the upgrade succeeded |
+| **phase** | `Enum<'pending' \| 'analyzing' \| 'snapshot' \| 'executing' \| 'migrating' \| 'validating' \| 'completed' \| 'failed' \| 'rolling-back' \| 'rolled-back'>` | ✅ |  |
+| **plan** | `Object` | optional | Upgrade plan |
+| **snapshotId** | `string` | optional | Snapshot ID for rollback |
+| **conflicts** | `Object[]` | optional | Unresolved merge conflicts |
+| **errorMessage** | `string` | optional |  |
+| **message** | `string` | optional |  |
+
+
+---
+
+## UpgradePhase
+
+### Allowed Values
+
+* `pending`
+* `analyzing`
+* `snapshot`
+* `executing`
+* `migrating`
+* `validating`
+* `completed`
+* `failed`
+* `rolling-back`
+* `rolled-back`
+
+
+---
+
+## UpgradePlan
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **packageId** | `string` | ✅ | Package identifier |
+| **fromVersion** | `string` | ✅ | Currently installed version |
+| **toVersion** | `string` | ✅ | Target upgrade version |
+| **impactLevel** | `Enum<'none' \| 'low' \| 'medium' \| 'high' \| 'critical'>` | ✅ |  |
+| **changes** | `Object[]` | ✅ | All metadata changes |
+| **affectedCustomizations** | `integer` | ✅ | Count of customizations that may be affected |
+| **requiresMigration** | `boolean` | ✅ | Whether data migration scripts are needed |
+| **migrationScripts** | `string[]` | optional | Paths to migration scripts |
+| **dependencyUpgrades** | `Object[]` | optional | Dependent packages that also need upgrading |
+| **estimatedDuration** | `integer` | optional | Estimated upgrade duration in seconds |
+| **summary** | `string` | optional | Human-readable upgrade summary |
+
+
+---
+
+## UpgradeSnapshot
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Snapshot identifier |
+| **packageId** | `string` | ✅ | Package identifier |
+| **fromVersion** | `string` | ✅ | Version before upgrade |
+| **toVersion** | `string` | ✅ | Target upgrade version |
+| **tenantId** | `string` | optional | Tenant identifier |
+| **previousManifest** | `Object` | ✅ |  |
+| **metadataSnapshot** | `Object[]` | ✅ | Snapshot of all package metadata |
+| **customizationSnapshot** | `Record<string, any>[]` | optional | Snapshot of customer customizations |
+| **createdAt** | `string` | ✅ | Snapshot creation timestamp |
+| **expiresAt** | `string` | optional | Snapshot expiry timestamp |
+
+
+---
+
