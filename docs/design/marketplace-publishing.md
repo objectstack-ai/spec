@@ -1,0 +1,595 @@
+# Design Document: Marketplace Protocol — Package Publishing & Distribution
+
+> **Author:** ObjectStack Core Team  
+> **Created:** 2026-02-17  
+> **Status:** Design Specification  
+> **Target Version:** v3.2 – v4.0
+
+---
+
+## Table of Contents
+
+- [1. Executive Summary](#1-executive-summary)
+- [2. Architecture Overview](#2-architecture-overview)
+- [3. Developer Publishing Flow](#3-developer-publishing-flow)
+- [4. Customer Installation Flow](#4-customer-installation-flow)
+- [5. Lifecycle Management](#5-lifecycle-management)
+- [6. Publishing Strategies](#6-publishing-strategies-for-multi-plugin-applications)
+- [7. Security & Trust Model](#7-security--trust-model)
+- [8. Pricing & Billing](#8-pricing--billing)
+- [9. Development Roadmap](#9-development-roadmap)
+
+---
+
+## 1. Executive Summary
+
+This document defines the **Marketplace Protocol** for the ObjectStack ecosystem — a comprehensive specification covering how metadata-driven packages are published to the marketplace and how customers discover, install, and manage them.
+
+### Key Components
+
+The marketplace protocol consists of three primary schema files:
+
+1. **`packages/spec/src/kernel/manifest.zod.ts`** — Package manifest schema defining the structure of all packages
+2. **`packages/spec/src/kernel/package-registry.zod.ts`** — Runtime lifecycle management for installed packages
+3. **`packages/spec/src/cloud/marketplace.zod.ts`** — Marketplace ecosystem schemas for publishing and discovery
+
+### Reference Implementation
+
+**HotCRM** (`objectstack-ai/hotcrm`) demonstrates a real-world metadata-only application with:
+- Root `objectstack.config.ts` with `type: 'app'` aggregating 13 plugins
+- 13 sub-plugins (crm, finance, marketing, products, support, hr, analytics, integration, community, healthcare, real-estate, education, financial-services)
+- 30+ metadata types per plugin
+
+---
+
+## 2. Architecture Overview
+
+### 2.1 Package Taxonomy
+
+The ObjectStack ecosystem uses a clear hierarchy:
+
+```
+Package (ManifestSchema)
+├── Type: app | plugin | driver | server | ui | theme | agent | module
+├── Namespace: Scoped identifier (e.g., "crm" → crm__account, crm__deal)
+└── May Contain: Zero apps | One app | Multiple apps
+```
+
+### 2.2 Package vs App vs Plugin
+
+From `packages/spec/src/kernel/package-registry.zod.ts`:
+
+> **Package**: The unit of installation — a deployable artifact containing metadata  
+> **App**: A UI navigation shell defined inside a package  
+> A package may contain zero apps (driver), one app (typical), or multiple apps (suite)
+
+### 2.3 Namespace Scoping
+
+From `packages/spec/src/kernel/manifest.zod.ts`, namespace prevents naming collisions:
+
+- `namespace: "crm"` → objects become `crm__account`, `crm__deal`
+- `namespace: "sales"` → objects become `sales__account`, `sales__contact`
+- Platform-reserved: `"base"`, `"system"` keep short names
+
+### 2.4 Dependency Resolution
+
+Supports semantic versioning ranges:
+- `^2.0.0`: Compatible with 2.x.x
+- `~2.1.0`: Compatible with 2.1.x
+- Installation order: Dependencies before dependents
+- Circular dependencies: Detected and rejected
+
+---
+
+## 3. Developer Publishing Flow
+
+From `packages/spec/src/cloud/marketplace.zod.ts`:
+
+```
+1. Develop   → Build plugin locally using ObjectStack CLI
+2. Validate  → Run `os plugin validate` (schema + security checks)
+3. Build     → Run `os plugin build` (bundle + sign)
+4. Submit    → Run `os plugin publish` (submit to marketplace)
+5. Review    → Platform conducts automated + manual review
+6. Publish   → Approved listing goes live on marketplace
+```
+
+### 3.1 Step 1: Develop
+
+```bash
+os plugin init --name hotcrm-finance --namespace finance
+```
+
+Example `objectstack.config.ts`:
+
+```typescript
+import { defineStack } from '@objectstack/spec';
+
+export default defineStack({
+  id: 'com.hotcrm.finance',
+  namespace: 'finance',
+  version: '1.0.0',
+  type: 'plugin',
+  name: 'HotCRM Finance',
+  description: 'Financial management for HotCRM',
+  
+  permissions: ['system.object.create', 'system.object.read'],
+  objects: ['./src/objects/*.object.ts'],
+  dependencies: { 'com.hotcrm.core': '^1.0.0' },
+  
+  configuration: {
+    title: 'Finance Settings',
+    properties: {
+      defaultCurrency: { type: 'string', default: 'USD' },
+      taxRate: { type: 'number', default: 0.08 }
+    }
+  }
+});
+```
+
+### 3.2 Step 2: Validate
+
+```bash
+os plugin validate
+```
+
+Validates:
+- Schema compliance (all 30+ metadata types)
+- Manifest correctness (`ManifestSchema`)
+- Dependency resolution
+- Security checks (no hardcoded credentials, unsafe calls)
+
+### 3.3 Step 3: Build
+
+```bash
+os plugin build
+```
+
+Creates `.tgz` artifact with:
+- Bundled metadata (JSON format)
+- JSON Schema exports
+- Cryptographic signature
+
+### 3.4 Step 4: Submit
+
+Publisher must register first:
+
+```bash
+os publisher register --name "HotCRM Inc" --type organization
+os plugin publish ./dist/hotcrm-finance-1.0.0.tgz
+```
+
+`PackageSubmissionSchema` tracks submission through states:
+- `pending` → `scanning` → `in-review` → `approved`/`rejected`
+
+### 3.5 Step 5: Review
+
+**Automated:**
+- Security scan (static analysis, vulnerability check)
+- Compatibility check (platform version, dependencies)
+- Quality metrics (completeness, documentation)
+
+**Manual:**
+- Functionality review
+- Policy compliance
+- UX quality
+
+### 3.6 Step 6: Publish
+
+Creates `MarketplaceListingSchema` with:
+- Marketing info (name, tagline, description, category, tags)
+- Visual assets (icon, screenshots)
+- Links (docs, support, repository)
+- Pricing model
+- Version history
+- Statistics (installs, ratings, reviews)
+
+---
+
+## 4. Customer Installation Flow
+
+### 4.1 Discovery
+
+Search via `MarketplaceSearchRequestSchema`:
+
+```bash
+os marketplace search "financial" --category finance --pricing free
+```
+
+Supports:
+- Full-text search
+- Category/tag filtering
+- Pricing model filter
+- Publisher verification filter
+- Sort by: relevance, popularity, rating, newest
+
+### 4.2 Installation Channels
+
+**1. CLI:**
+```bash
+os marketplace install com.hotcrm.finance@1.0.0
+```
+
+**2. SDK:**
+```typescript
+await client.marketplace.install({
+  listingId: 'com.hotcrm.finance',
+  version: '1.0.0',
+  settings: { defaultCurrency: 'EUR' },
+  enableOnInstall: true
+});
+```
+
+**3. REST API:**
+```bash
+POST /api/v1/marketplace/install
+```
+
+**4. Studio UI:**
+- Browse catalog, view details
+- One-click install
+- Configuration wizard
+
+### 4.3 Installation Flow
+
+1. Fetch manifest from artifact storage
+2. Validate license (if paid)
+3. Map to `InstallPackageRequest`
+4. Call kernel's `SchemaRegistry.installPackage()`
+
+### 4.4 Kernel Registration
+
+```typescript
+class SchemaRegistry {
+  async installPackage(request) {
+    // 1. Validate manifest
+    // 2. Check namespace collision
+    // 3. Resolve dependencies
+    // 4. Register all metadata types (30+)
+    // 5. Create InstalledPackage record
+    // 6. Store in registry
+    // 7. Enable if requested
+  }
+}
+```
+
+Registers 30+ metadata types:
+- Objects, Views, Pages, Forms, Dashboards, Reports, Charts, Widgets
+- Workflows, Flows, Statemachines, Schedules
+- Permissions, Sharing, Security, Connectors
+- Notifications, Agents, MCP, Seed Data, Actions
+- Capabilities, Apps, Studio, Territories, Translations
+
+### 4.5 Package State
+
+`InstalledPackageSchema` tracks:
+- `manifest`: Full package definition
+- `status`: installing | installed | disabled | upgrading | uninstalling | error
+- `enabled`: Whether metadata is active
+- `installedVersion` / `previousVersion`: Version tracking
+- `settings`: User configuration
+
+---
+
+## 5. Lifecycle Management
+
+### 5.1 State Machine
+
+```
+installing → installed ⇄ disabled
+                ↓
+          upgrading → installed
+                ↓
+          uninstalling → [REMOVED]
+                ↓
+             error
+```
+
+### 5.2 Version Upgrade
+
+```bash
+os marketplace upgrade com.hotcrm.finance@2.0.0
+```
+
+Process:
+1. Check current version
+2. Fetch new version
+3. Validate compatibility
+4. Backup (store previousVersion)
+5. Set status to `upgrading`
+6. Unload current metadata
+7. Install new version
+8. Migrate data
+9. Update state
+
+Rollback: `os packages rollback com.hotcrm.finance`
+
+### 5.3 Enable/Disable
+
+**Disable:**
+```bash
+os packages disable com.hotcrm.finance
+```
+- Unload metadata (objects/views unavailable)
+- Keep package installed
+- Preserve data
+
+**Enable:**
+```bash
+os packages enable com.hotcrm.finance
+```
+- Load metadata back
+- Reactivate package
+
+### 5.4 Uninstall
+
+```bash
+os marketplace uninstall com.hotcrm.finance
+```
+
+Steps:
+1. Check no other packages depend on this
+2. Set status to `uninstalling`
+3. Unload metadata
+4. Handle data (preserve by default, or delete with flag)
+5. Remove package record
+6. Clean artifacts
+
+---
+
+## 6. Publishing Strategies for Multi-Plugin Applications
+
+### 6.1 HotCRM Architecture
+
+13 plugins: crm, finance, marketing, products, support, hr, analytics, integration, community, healthcare, real-estate, education, financial-services
+
+### 6.2 Strategy A: Suite Mode
+
+**Approach:** Bundle all 13 plugins in one package
+
+**Pros:** Simple install, guaranteed compatibility, single version  
+**Cons:** Large size, no modularity  
+**Use Case:** Enterprise bundle
+
+### 6.3 Strategy B: Individual Listings
+
+**Approach:** Each plugin published separately
+
+**Pros:** Modular, pay-per-module, independent versioning  
+**Cons:** Complex dependencies, version matrix  
+**Use Case:** Marketplace à la carte
+
+### 6.4 Strategy C: Hybrid (Recommended)
+
+**Approach:** Core bundle + industry extensions
+
+**Base Package:** crm + finance + products + support + hr + analytics + integration
+
+**Extensions (separate):**
+- healthcare
+- real-estate
+- education
+- financial-services
+
+**Pros:** Balanced, core always available, optional verticals  
+**Use Case:** Commercial SaaS with verticals
+
+### 6.5 Dependency Declaration
+
+```typescript
+export default defineStack({
+  id: 'com.hotcrm.healthcare',
+  dependencies: {
+    'com.hotcrm.base': '^1.0.0',
+    'com.hotcrm.analytics': '^1.1.0'
+  }
+});
+```
+
+Kernel resolves graph, installs deps first, validates versions, rejects cycles.
+
+---
+
+## 7. Security & Trust Model
+
+### 7.1 Publisher Verification
+
+5 levels:
+
+| Level | Requirements | Badge |
+|-------|-------------|-------|
+| unverified | None | None |
+| pending | Docs submitted | ⏳ |
+| verified | Identity confirmed | ✓ |
+| trusted | 10+ packages, >1000 installs, 4.5+ rating | ⭐ |
+| partner | Partnership agreement | 🤝 |
+
+### 7.2 Package Signing
+
+**Build:** RSA-SHA256 signature with publisher's private key  
+**Install:** Verify signature with public key, reject if invalid
+
+### 7.3 Security Scanning
+
+Automated checks:
+- No `eval()` or dangerous APIs
+- Dependency vulnerability scan (CVEs)
+- Permission analysis (flag excessive)
+- Secret detection (API keys, passwords)
+
+**Score:** 100 - (critical×25 + high×10 + medium×3 + low×1)  
+**Minimum to publish:** 70/100
+
+### 7.4 Permission Scope
+
+Reviewers ensure least privilege:
+
+```typescript
+// ✅ Good
+permissions: ['system.object.read', 'system.object.create']
+
+// ❌ Bad
+permissions: ['system.admin.write']  // Excessive
+```
+
+---
+
+## 8. Pricing & Billing
+
+### 8.1 Pricing Models
+
+6 models:
+- **free**: No cost
+- **freemium**: Core free, premium paid
+- **paid**: One-time purchase
+- **subscription**: Monthly/annual recurring
+- **usage-based**: Pay per usage
+- **contact-sales**: Enterprise custom
+
+### 8.2 License Validation
+
+```bash
+os marketplace install com.hotcrm.finance --license-key="KEY"
+```
+
+Validates:
+1. Signature
+2. Package match
+3. Expiration (subscriptions)
+4. Tenant match (enterprise)
+5. Server validation
+
+### 8.3 Billing Integration
+
+**Subscriptions:**
+- Create on install
+- Periodic validation
+- Disable on cancellation
+
+**Usage-based:**
+- Meter usage events
+- Aggregate per period
+- Generate invoices
+- Enforce limits
+
+---
+
+## 9. Development Roadmap
+
+### Phase 1: Foundation (Q1 2026)
+
+| Item | Complexity | Status |
+|------|-----------|--------|
+| Zod Schemas | Done | ✅ |
+| SchemaRegistry.installPackage() | XL | 🚧 |
+| Metadata registration (30+ types) | XL | 🔜 |
+| Namespace scoping | M | 🔜 |
+| Dependency resolution | L | 🔜 |
+| Package state tracking | M | 🔜 |
+
+**Deliverables:**
+- ✅ `packages/spec/src/kernel/manifest.zod.ts`
+- ✅ `packages/spec/src/kernel/package-registry.zod.ts`
+- ✅ `packages/spec/src/cloud/marketplace.zod.ts`
+- 🚧 `packages/kernel/src/registry/schema-registry.ts`
+
+### Phase 2: CLI Tooling (Q2 2026)
+
+| Item | Complexity | Status |
+|------|-----------|--------|
+| os plugin validate | L | 🔜 |
+| os plugin build | L | 🔜 |
+| os plugin publish | M | 🔜 |
+| os marketplace search | M | 🔜 |
+| os marketplace install | L | 🔜 |
+| os marketplace upgrade | M | 🔜 |
+| os marketplace uninstall | M | 🔜 |
+| os packages list/enable/disable | S | 🔜 |
+| os publisher register | M | 🔜 |
+
+**Deliverables:**
+- `packages/cli/src/commands/plugin.ts`
+- `packages/cli/src/commands/marketplace.ts`
+- `packages/cli/src/commands/packages.ts`
+
+### Phase 3: Marketplace Backend (Q2-Q3 2026)
+
+| Item | Complexity | Status |
+|------|-----------|--------|
+| Publisher registry | M | 🔜 |
+| Submission pipeline | M | 🔜 |
+| Security scanner | XL | 🔜 |
+| Review workflow | L | 🔜 |
+| Listing management | M | 🔜 |
+| Search & discovery | L | 🔜 |
+| Artifact storage & CDN | M | 🔜 |
+| License validation | L | 🔜 |
+| Analytics & metrics | M | 🔜 |
+
+**Deliverables:**
+- `apps/marketplace-api/` (REST service)
+- `packages/marketplace-scanner/` (security scanner)
+- `packages/artifact-storage/` (CDN)
+
+### Phase 4: Marketplace Frontend (Q3 2026)
+
+| Item | Complexity | Status |
+|------|-----------|--------|
+| Browse & search UI | L | 🔜 |
+| Package detail pages | M | 🔜 |
+| One-click install | M | 🔜 |
+| Install wizard | L | 🔜 |
+| Installed packages UI | M | 🔜 |
+| Package settings UI | M | 🔜 |
+| Review & rating system | M | 🔜 |
+| Publisher dashboard | L | 🔜 |
+
+**Deliverables:**
+- `apps/studio/src/pages/marketplace/` (UI)
+- `apps/studio/src/pages/publisher/` (dashboard)
+
+### Phase 5: Enterprise Features (Q4 2026)
+
+| Item | Complexity | Status |
+|------|-----------|--------|
+| Private marketplace | L | 🔜 |
+| Approval workflow | M | 🔜 |
+| Usage-based billing | XL | 🔜 |
+| Analytics dashboard | L | 🔜 |
+| Auto-update policies | L | 🔜 |
+| Multi-tenant isolation | M | 🔜 |
+| Package sandboxing | XL | 🔜 |
+| Compliance reporting | L | 🔜 |
+
+**Deliverables:**
+- `packages/kernel/src/enterprise/` (isolation, sandbox)
+- `packages/billing/` (metered billing)
+
+---
+
+## Summary
+
+This comprehensive design document establishes the **Marketplace Protocol** for ObjectStack:
+
+1. **Architecture**: Package taxonomy, namespace scoping, dependency resolution
+2. **Publishing**: 6-step flow (develop → validate → build → submit → review → publish)
+3. **Installation**: 4 channels (CLI, SDK, API, UI) with 30+ metadata type registration
+4. **Lifecycle**: State machine for install/enable/disable/upgrade/uninstall
+5. **Strategies**: 3 approaches for multi-plugin apps (Suite, Individual, Hybrid)
+6. **Security**: 5-level verification, signing, automated scanning, permission review
+7. **Pricing**: 6 models (free to enterprise) with license validation
+8. **Roadmap**: 5 phases across 4 quarters
+
+**Key Protocol Files:**
+- ✅ `packages/spec/src/kernel/manifest.zod.ts`
+- ✅ `packages/spec/src/kernel/package-registry.zod.ts`
+- ✅ `packages/spec/src/cloud/marketplace.zod.ts`
+
+**Next Steps:**
+1. Implement Phase 1: SchemaRegistry.installPackage() with 30+ metadata registration
+2. Build Phase 2: CLI tooling (os plugin/marketplace/packages commands)
+3. Deploy Phase 3: Marketplace backend services
+
+---
+
+**End of Document**
