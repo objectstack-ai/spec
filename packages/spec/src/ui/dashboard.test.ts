@@ -2,6 +2,9 @@ import { describe, it, expect } from 'vitest';
 import {
   DashboardSchema,
   DashboardWidgetSchema,
+  DashboardHeaderSchema,
+  DashboardHeaderActionSchema,
+  WidgetMeasureSchema,
   Dashboard,
   WidgetColorVariantSchema,
   WidgetActionTypeSchema,
@@ -9,6 +12,9 @@ import {
   GlobalFilterOptionsFromSchema,
   type Dashboard as DashboardType,
   type DashboardWidget,
+  type DashboardHeader,
+  type DashboardHeaderAction,
+  type WidgetMeasure,
   type GlobalFilter,
   type GlobalFilterOptionsFrom,
 } from './dashboard.zod';
@@ -1160,5 +1166,274 @@ describe('DashboardSchema - enhanced globalFilters', () => {
     expect(dashboard.globalFilters![0].optionsFrom!.object).toBe('user');
     expect(dashboard.globalFilters![1].defaultValue).toBe('open');
     expect(dashboard.globalFilters![2].targetWidgets).toEqual(['revenue_chart']);
+  });
+});
+
+// ============================================================================
+// Protocol Enhancement Tests: DashboardHeaderSchema (#714)
+// ============================================================================
+
+describe('DashboardHeaderActionSchema', () => {
+  it('should accept valid header action', () => {
+    const result = DashboardHeaderActionSchema.parse({
+      label: 'Export PDF',
+      actionUrl: '/export/pdf',
+    });
+    expect(result.label).toBe('Export PDF');
+    expect(result.actionUrl).toBe('/export/pdf');
+  });
+
+  it('should accept action with all fields', () => {
+    const result = DashboardHeaderActionSchema.parse({
+      label: 'Run Report',
+      actionUrl: 'generate_report_flow',
+      actionType: 'flow',
+      icon: 'play',
+    });
+    expect(result.actionType).toBe('flow');
+    expect(result.icon).toBe('play');
+  });
+
+  it('should accept i18n label', () => {
+    const result = DashboardHeaderActionSchema.parse({
+      label: { key: 'actions.export', defaultValue: 'Export' },
+      actionUrl: '/export',
+    });
+    expect(result.label).toEqual({ key: 'actions.export', defaultValue: 'Export' });
+  });
+
+  it('should reject action without required fields', () => {
+    expect(() => DashboardHeaderActionSchema.parse({ label: 'Test' })).toThrow();
+    expect(() => DashboardHeaderActionSchema.parse({ actionUrl: '/test' })).toThrow();
+    expect(() => DashboardHeaderActionSchema.parse({})).toThrow();
+  });
+});
+
+describe('DashboardHeaderSchema', () => {
+  it('should accept empty header with defaults', () => {
+    const result = DashboardHeaderSchema.parse({});
+    expect(result.showTitle).toBe(true);
+    expect(result.showDescription).toBe(true);
+    expect(result.actions).toBeUndefined();
+  });
+
+  it('should accept header with showTitle/showDescription overrides', () => {
+    const result = DashboardHeaderSchema.parse({
+      showTitle: false,
+      showDescription: false,
+    });
+    expect(result.showTitle).toBe(false);
+    expect(result.showDescription).toBe(false);
+  });
+
+  it('should accept header with actions', () => {
+    const result = DashboardHeaderSchema.parse({
+      actions: [
+        { label: 'Export', actionUrl: '/export/pdf', icon: 'download' },
+        { label: 'Share', actionUrl: 'share_modal', actionType: 'modal', icon: 'share' },
+      ],
+    });
+    expect(result.actions).toHaveLength(2);
+    expect(result.actions![0].label).toBe('Export');
+    expect(result.actions![1].actionType).toBe('modal');
+  });
+});
+
+describe('DashboardSchema - header', () => {
+  it('should accept dashboard with header configuration', () => {
+    const result = DashboardSchema.parse({
+      name: 'sales_dashboard',
+      label: 'Sales Dashboard',
+      description: 'Q4 sales performance',
+      header: {
+        showTitle: true,
+        showDescription: true,
+        actions: [
+          { label: 'Export PDF', actionUrl: '/export/pdf', icon: 'download' },
+        ],
+      },
+      widgets: [],
+    });
+    expect(result.header).toBeDefined();
+    expect(result.header!.showTitle).toBe(true);
+    expect(result.header!.actions).toHaveLength(1);
+  });
+
+  it('should accept dashboard without header (backward compat)', () => {
+    const result = DashboardSchema.parse({
+      name: 'simple_dash',
+      label: 'Simple',
+      widgets: [],
+    });
+    expect(result.header).toBeUndefined();
+  });
+
+  it('should accept dashboard with header hiding title/description', () => {
+    const result = DashboardSchema.parse({
+      name: 'minimal_header_dash',
+      label: 'Minimal',
+      header: {
+        showTitle: false,
+        showDescription: false,
+      },
+      widgets: [],
+    });
+    expect(result.header!.showTitle).toBe(false);
+    expect(result.header!.showDescription).toBe(false);
+  });
+
+  it('should work with Dashboard factory', () => {
+    const dashboard = Dashboard.create({
+      name: 'executive_dash',
+      label: 'Executive Dashboard',
+      description: 'Key business metrics',
+      header: {
+        actions: [
+          { label: 'Export', actionUrl: '/export', actionType: 'url', icon: 'download' },
+          { label: 'Refresh', actionUrl: 'refresh_flow', actionType: 'flow', icon: 'refresh' },
+        ],
+      },
+      widgets: [
+        { title: 'Revenue', type: 'metric', layout: { x: 0, y: 0, w: 3, h: 2 } },
+      ],
+    });
+    expect(dashboard.header!.showTitle).toBe(true);
+    expect(dashboard.header!.actions).toHaveLength(2);
+    expect(dashboard.header!.actions![1].actionType).toBe('flow');
+  });
+});
+
+// ============================================================================
+// Protocol Enhancement Tests: WidgetMeasureSchema / multi-measure pivot (#714)
+// ============================================================================
+
+describe('WidgetMeasureSchema', () => {
+  it('should accept minimal measure', () => {
+    const result = WidgetMeasureSchema.parse({
+      valueField: 'amount',
+    });
+    expect(result.valueField).toBe('amount');
+    expect(result.aggregate).toBe('count');
+  });
+
+  it('should accept measure with all fields', () => {
+    const result = WidgetMeasureSchema.parse({
+      valueField: 'amount',
+      aggregate: 'sum',
+      label: 'Total Amount',
+      format: '$0,0.00',
+    });
+    expect(result.aggregate).toBe('sum');
+    expect(result.label).toBe('Total Amount');
+    expect(result.format).toBe('$0,0.00');
+  });
+
+  it('should accept measure with i18n label', () => {
+    const result = WidgetMeasureSchema.parse({
+      valueField: 'quantity',
+      aggregate: 'avg',
+      label: { key: 'measures.avg_qty', defaultValue: 'Average Quantity' },
+    });
+    expect(result.label).toEqual({ key: 'measures.avg_qty', defaultValue: 'Average Quantity' });
+  });
+
+  it('should accept all aggregate functions', () => {
+    const aggregates = ['count', 'sum', 'avg', 'min', 'max'] as const;
+    aggregates.forEach(aggregate => {
+      expect(() => WidgetMeasureSchema.parse({ valueField: 'f', aggregate })).not.toThrow();
+    });
+  });
+
+  it('should reject measure without valueField', () => {
+    expect(() => WidgetMeasureSchema.parse({})).toThrow();
+    expect(() => WidgetMeasureSchema.parse({ aggregate: 'sum' })).toThrow();
+  });
+});
+
+describe('DashboardWidgetSchema - measures (multi-measure pivot)', () => {
+  it('should accept pivot widget with measures', () => {
+    const widget = DashboardWidgetSchema.parse({
+      title: 'Sales by Region and Product',
+      type: 'pivot',
+      object: 'opportunity',
+      categoryField: 'region',
+      measures: [
+        { valueField: 'amount', aggregate: 'sum', label: 'Total Amount', format: '$0,0' },
+        { valueField: 'amount', aggregate: 'avg', label: 'Avg Deal Size', format: '$0,0.00' },
+        { valueField: 'amount', aggregate: 'count', label: 'Deal Count' },
+      ],
+      layout: { x: 0, y: 0, w: 12, h: 6 },
+    });
+    expect(widget.measures).toHaveLength(3);
+    expect(widget.measures![0].aggregate).toBe('sum');
+    expect(widget.measures![1].aggregate).toBe('avg');
+    expect(widget.measures![2].aggregate).toBe('count');
+  });
+
+  it('should accept widget without measures (backward compat)', () => {
+    const result = DashboardWidgetSchema.parse({
+      type: 'bar',
+      object: 'opportunity',
+      valueField: 'amount',
+      aggregate: 'sum',
+      layout: { x: 0, y: 0, w: 6, h: 4 },
+    });
+    expect(result.measures).toBeUndefined();
+  });
+
+  it('should accept table widget with measures for multi-aggregate', () => {
+    const widget = DashboardWidgetSchema.parse({
+      title: 'Regional Summary',
+      type: 'table',
+      object: 'order',
+      categoryField: 'region',
+      measures: [
+        { valueField: 'revenue', aggregate: 'sum', label: 'Revenue' },
+        { valueField: 'quantity', aggregate: 'sum', label: 'Units Sold' },
+        { valueField: 'revenue', aggregate: 'avg', label: 'Avg Order Value' },
+      ],
+      layout: { x: 0, y: 0, w: 12, h: 6 },
+    });
+    expect(widget.measures).toHaveLength(3);
+  });
+
+  it('should work in full dashboard with pivot multi-measure', () => {
+    const dashboard = Dashboard.create({
+      name: 'analytics_dashboard',
+      label: 'Analytics Dashboard',
+      header: {
+        actions: [
+          { label: 'Export CSV', actionUrl: '/export/csv', icon: 'download' },
+        ],
+      },
+      widgets: [
+        {
+          title: 'Revenue',
+          type: 'metric',
+          object: 'order',
+          valueField: 'amount',
+          aggregate: 'sum',
+          layout: { x: 0, y: 0, w: 4, h: 2 },
+        },
+        {
+          title: 'Sales Pivot Analysis',
+          type: 'pivot',
+          object: 'opportunity',
+          categoryField: 'region',
+          measures: [
+            { valueField: 'amount', aggregate: 'sum', label: 'Total Revenue', format: '$0,0' },
+            { valueField: 'amount', aggregate: 'count', label: 'Deals' },
+            { valueField: 'amount', aggregate: 'avg', label: 'Avg Deal', format: '$0,0.00' },
+            { valueField: 'margin', aggregate: 'avg', label: 'Avg Margin', format: '0.0%' },
+          ],
+          layout: { x: 0, y: 2, w: 12, h: 6 },
+        },
+      ],
+    });
+
+    expect(dashboard.header!.actions).toHaveLength(1);
+    expect(dashboard.widgets[1].measures).toHaveLength(4);
+    expect(dashboard.widgets[1].measures![0].format).toBe('$0,0');
+    expect(dashboard.widgets[1].measures![3].valueField).toBe('margin');
   });
 });
