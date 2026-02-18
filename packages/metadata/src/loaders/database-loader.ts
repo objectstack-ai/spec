@@ -18,7 +18,7 @@ import type {
   MetadataSaveResult,
   MetadataRecord,
 } from '@objectstack/spec/system';
-import { SysMetadataObject } from '@objectstack/spec/system';
+import { SysMetadataObject } from '../objects/sys-metadata.object.js';
 import type { IDataDriver } from '@objectstack/spec/contracts';
 import type { MetadataLoader } from './loader-interface.js';
 

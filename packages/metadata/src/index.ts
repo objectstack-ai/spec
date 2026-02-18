@@ -19,6 +19,9 @@ export { MemoryLoader } from './loaders/memory-loader.js';
 export { RemoteLoader } from './loaders/remote-loader.js';
 export { DatabaseLoader, type DatabaseLoaderOptions } from './loaders/database-loader.js';
 
+// Objects
+export { SysMetadataObject } from './objects/sys-metadata.object.js';
+
 // Serializers
 export { type MetadataSerializer, type SerializeOptions } from './serializers/serializer-interface.js';
 export { JSONSerializer } from './serializers/json-serializer.js';

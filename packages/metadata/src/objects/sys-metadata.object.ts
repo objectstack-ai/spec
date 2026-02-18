@@ -1,7 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { ObjectSchema } from '../data/object.zod';
-import { Field } from '../data/field.zod';
+import { ObjectSchema, Field } from '@objectstack/spec/data';
 
 /**
  * sys_metadata — System Metadata Object
