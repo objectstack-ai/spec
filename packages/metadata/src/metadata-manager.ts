@@ -39,7 +39,9 @@ import { JSONSerializer } from './serializers/json-serializer.js';
 import { YAMLSerializer } from './serializers/yaml-serializer.js';
 import { TypeScriptSerializer } from './serializers/typescript-serializer.js';
 import type { MetadataSerializer } from './serializers/serializer-interface.js';
+import type { IDataDriver } from '@objectstack/spec/contracts';
 import type { MetadataLoader } from './loaders/loader-interface.js';
+import { DatabaseLoader } from './loaders/database-loader.js';
 
 /**
  * Watch callback function (legacy)
@@ -48,6 +50,8 @@ export type WatchCallback = (event: MetadataWatchEvent) => void | Promise<void>;
 
 export interface MetadataManagerOptions extends MetadataManagerConfig {
   loaders?: MetadataLoader[];
+  /** Optional IDataDriver instance. When provided alongside config.datasource, auto-configures DatabaseLoader. */
+  driver?: IDataDriver;
 }
 
 /**
@@ -99,6 +103,11 @@ export class MetadataManager implements IMetadataService {
     if (config.loaders && config.loaders.length > 0) {
       config.loaders.forEach(loader => this.registerLoader(loader));
     }
+
+    // Auto-configure DatabaseLoader when datasource + driver are provided
+    if (config.datasource && config.driver) {
+      this.setDatabaseDriver(config.driver);
+    }
     // Note: No default loader in base class. Subclasses (NodeMetadataManager) or caller must provide one.
   }
 
@@ -107,6 +116,22 @@ export class MetadataManager implements IMetadataService {
    */
   setTypeRegistry(entries: MetadataTypeRegistryEntry[]): void {
     this.typeRegistry = entries;
+  }
+
+  /**
+   * Configure and register a DatabaseLoader for database-backed metadata persistence.
+   * Can be called at any time to enable database storage (e.g. after kernel resolves the driver).
+   *
+   * @param driver - An IDataDriver instance for database operations
+   */
+  setDatabaseDriver(driver: IDataDriver): void {
+    const tableName = this.config.tableName ?? 'sys_metadata';
+    const dbLoader = new DatabaseLoader({
+      driver,
+      tableName,
+    });
+    this.registerLoader(dbLoader);
+    this.logger.info('DatabaseLoader configured', { datasource: this.config.datasource, tableName });
   }
 
   /**

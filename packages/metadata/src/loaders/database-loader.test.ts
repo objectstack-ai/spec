@@ -482,3 +482,68 @@ describe('MetadataManager with DatabaseLoader', () => {
     expect((overlayResult.data as any).patch.label).toBe('Custom Account');
   });
 });
+
+// ---------- MetadataManager Auto-Configuration ----------
+
+describe('MetadataManager auto-configuration', () => {
+  it('should auto-register DatabaseLoader when datasource and driver are provided', async () => {
+    const mockDriver = createMockDriver();
+    const manager = new MetadataManager({
+      formats: ['json'],
+      datasource: 'default',
+      driver: mockDriver,
+    });
+
+    // The database loader should have been registered automatically
+    // Verify by saving and loading data through the manager
+    await manager.save('object', 'account', { name: 'account', label: 'Account' });
+    const result = await manager.load('object', 'account');
+    expect(result).toEqual({ name: 'account', label: 'Account' });
+  });
+
+  it('should NOT auto-register DatabaseLoader when only datasource is set (no driver)', async () => {
+    const manager = new MetadataManager({
+      formats: ['json'],
+      datasource: 'default',
+      // No driver provided
+    });
+
+    // No loaders should be registered, so save should fail
+    await expect(
+      manager.save('object', 'account', { name: 'account' })
+    ).rejects.toThrow('No loader available');
+  });
+
+  it('should use custom tableName from config', async () => {
+    const mockDriver = createMockDriver();
+    const manager = new MetadataManager({
+      formats: ['json'],
+      datasource: 'default',
+      tableName: 'custom_metadata',
+      driver: mockDriver,
+    });
+
+    await manager.save('object', 'account', { name: 'account' });
+    // syncSchema should be called with custom table name
+    expect(mockDriver.syncSchema).toHaveBeenCalledWith(
+      'custom_metadata',
+      expect.objectContaining({ name: 'custom_metadata' })
+    );
+  });
+
+  it('should support deferred database setup via setDatabaseDriver', async () => {
+    const mockDriver = createMockDriver();
+    const manager = new MetadataManager({
+      formats: ['json'],
+      datasource: 'default',
+    });
+
+    // No database loader yet — use deferred setup
+    manager.setDatabaseDriver(mockDriver);
+
+    // Now save and load should work via the database loader
+    await manager.save('object', 'account', { name: 'account', label: 'Account' });
+    const result = await manager.load('object', 'account');
+    expect(result).toEqual({ name: 'account', label: 'Account' });
+  });
+});
