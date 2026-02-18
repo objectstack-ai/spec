@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Command } from 'commander';
+import { Args, Command, Flags } from '@oclif/core';
 import chalk from 'chalk';
 import { normalizeStackInput } from '@objectstack/spec';
 import { loadConfig } from '../utils/config.js';
@@ -188,15 +188,24 @@ function lintConfig(config: any): LintIssue[] {
 
 // ─── Command ────────────────────────────────────────────────────────
 
-export const lintCommand = new Command('lint')
-  .description('Check ObjectStack configuration for style and convention issues')
-  .argument('[config]', 'Configuration file path')
-  .option('--json', 'Output as JSON')
-  .option('--fix', 'Show what would be fixed (dry-run)')
-  .action(async (configPath, options) => {
+export default class Lint extends Command {
+  static override description = 'Check ObjectStack configuration for style and convention issues';
+
+  static override args = {
+    config: Args.string({ description: 'Configuration file path', required: false }),
+  };
+
+  static override flags = {
+    json: Flags.boolean({ description: 'Output as JSON' }),
+    fix: Flags.boolean({ description: 'Show what would be fixed (dry-run)' }),
+  };
+
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(Lint);
+    const configPath = args.config;
     const timer = createTimer();
 
-    if (!options.json) {
+    if (!flags.json) {
       printHeader('Lint');
       printStep('Loading configuration...');
     }
@@ -204,7 +213,7 @@ export const lintCommand = new Command('lint')
     try {
       const { config, absolutePath } = await loadConfig(configPath);
 
-      if (!options.json) {
+      if (!flags.json) {
         printInfo(`Config: ${chalk.white(absolutePath)}`);
       }
 
@@ -212,7 +221,7 @@ export const lintCommand = new Command('lint')
       const issues = lintConfig(normalized);
 
       // ── JSON output ──
-      if (options.json) {
+      if (flags.json) {
         const errors = issues.filter((i) => i.severity === 'error');
         const warnings = issues.filter((i) => i.severity === 'warning');
         const suggestions = issues.filter((i) => i.severity === 'suggestion');
@@ -254,7 +263,7 @@ export const lintCommand = new Command('lint')
 
         console.log(`  ${color(icon)} ${color(issue.message)}`);
         console.log(chalk.dim(`    ${issue.rule}  at ${issue.path}`));
-        if (options.fix && issue.fix) {
+        if (flags.fix && issue.fix) {
           console.log(chalk.green(`    → fix: ${issue.fix}`));
         }
       };
@@ -284,7 +293,7 @@ export const lintCommand = new Command('lint')
       if (suggestions.length > 0) parts.push(chalk.blue(`${suggestions.length} suggestion(s)`));
       console.log(`  ${parts.join(', ')} ${chalk.dim(`(${timer.display()})`)}`);
 
-      if (options.fix) {
+      if (flags.fix) {
         console.log('');
         printInfo('Dry-run mode: no files were modified.');
       }
@@ -294,7 +303,7 @@ export const lintCommand = new Command('lint')
       if (errors.length > 0) process.exit(1);
 
     } catch (error: any) {
-      if (options.json) {
+      if (flags.json) {
         console.log(JSON.stringify({ error: error.message }));
         process.exit(1);
       }
@@ -302,4 +311,5 @@ export const lintCommand = new Command('lint')
       printError(error.message || String(error));
       process.exit(1);
     }
-  });
+  }
+}

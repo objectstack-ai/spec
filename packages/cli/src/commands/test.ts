@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Command } from 'commander';
+import { Args, Command, Flags } from '@oclif/core';
 import chalk from 'chalk';
 import path from 'path';
 import fs from 'fs';
@@ -52,18 +52,28 @@ function resolveGlob(pattern: string): string[] {
     .filter(fullPath => fs.statSync(fullPath).isFile());
 }
 
-export const testCommand = new Command('test')
-  .description('Run Quality Protocol test scenarios against a running server')
-  .argument('[files]', 'Glob pattern for test files (e.g. "qa/*.test.json")', 'qa/*.test.json')
-  .option('--url <url>', 'Target base URL', 'http://localhost:3000')
-  .option('--token <token>', 'Authentication token')
-  .action(async (filesPattern, options) => {
+export default class Test extends Command {
+  static override description = 'Run Quality Protocol test scenarios against a running server';
+
+  static override args = {
+    files: Args.string({ description: 'Glob pattern for test files (e.g. "qa/*.test.json")', required: false, default: 'qa/*.test.json' }),
+  };
+
+  static override flags = {
+    url: Flags.string({ description: 'Target base URL', default: 'http://localhost:3000' }),
+    token: Flags.string({ description: 'Authentication token' }),
+  };
+
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(Test);
+    const filesPattern = args.files;
+
     console.log(chalk.bold(`\n🧪 ObjectStack Quality Protocol Runner`));
     console.log(chalk.dim(`-------------------------------------`));
-    console.log(`Target: ${chalk.blue(options.url)}`);
+    console.log(`Target: ${chalk.blue(flags.url)}`);
     
     // 1. Setup Runner
-    const adapter = new CoreQA.HttpTestAdapter(options.url, options.token);
+    const adapter = new CoreQA.HttpTestAdapter(flags.url, flags.token);
     const runner = new CoreQA.TestRunner(adapter);
 
     // 2. Find test files using glob-style pattern matching
@@ -121,4 +131,5 @@ export const testCommand = new Command('test')
         console.log(chalk.green(`SUCCESS: All ${totalPassed} scenarios passed.`));
         process.exit(0);
     }
-  });
+  }
+}
