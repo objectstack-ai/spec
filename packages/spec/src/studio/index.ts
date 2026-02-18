@@ -83,15 +83,19 @@ export {
 } from './object-designer.zod';
 
 export {
-  // Interface Builder Schemas
+  // Page Builder Schemas
   CanvasSnapSettingsSchema,
   CanvasZoomSettingsSchema,
   ElementPaletteItemSchema,
+  PageBuilderConfigSchema,
+  /** @deprecated Use PageBuilderConfigSchema instead */
   InterfaceBuilderConfigSchema,
 
-  // Interface Builder Types
+  // Page Builder Types
   type CanvasSnapSettings,
   type CanvasZoomSettings,
   type ElementPaletteItem,
+  type PageBuilderConfig,
+  /** @deprecated Use PageBuilderConfig instead */
   type InterfaceBuilderConfig,
-} from './interface-builder.zod';
+} from './page-builder.zod';

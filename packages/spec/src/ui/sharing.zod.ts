@@ -6,14 +6,14 @@
  * Sharing & Embedding Protocol
  *
  * Defines schemas for public link sharing, embed configuration,
- * domain restrictions, and password protection for interfaces and forms.
+ * domain restrictions, and password protection for apps, pages, and forms.
  */
 
 import { z } from 'zod';
 
 /**
  * Sharing Config Schema
- * Configuration for public sharing of an interface or form.
+ * Configuration for public sharing of an app, page, or form.
  * Supports public links, password protection, domain restrictions, and expiration.
  */
 export const SharingConfigSchema = z.object({
@@ -30,7 +30,7 @@ export const SharingConfigSchema = z.object({
 
 /**
  * Embed Config Schema
- * Configuration for iframe embedding of an interface or form.
+ * Configuration for iframe embedding of an app, page, or form.
  * Supports origin restrictions, display options, and responsive sizing.
  */
 export const EmbedConfigSchema = z.object({

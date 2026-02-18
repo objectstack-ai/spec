@@ -129,7 +129,7 @@ The following renames are planned for packages that implement core service contr
 
 - [x] **Data Protocol** — Object, Field (35+ types), Query, Filter, Validation, Hook, Datasource, Dataset, Analytics, Document
 - [x] **Driver Specifications** — Memory, PostgreSQL, MongoDB driver schemas + SQL/NoSQL abstractions
-- [x] **UI Protocol** — View (List/Form/Kanban/Calendar/Gantt), App, Dashboard, Report, Action, Page (16 types), Chart, Widget, Theme, Animation, DnD, Touch, Keyboard, Responsive, Offline, Notification, i18n, Interface, Content Elements
+- [x] **UI Protocol** — View (List/Form/Kanban/Calendar/Gantt), App, Dashboard, Report, Action, Page (16 types), Chart, Widget, Theme, Animation, DnD, Touch, Keyboard, Responsive, Offline, Notification, i18n, Content Elements
 - [x] **System Protocol** — Manifest, Auth Config, Cache, Logging, Metrics, Tracing, Audit, Encryption, Masking, Migration, Tenant, Translation, Search Engine, HTTP Server, Worker, Job, Object Storage, Notification, Message Queue, Registry Config, Collaboration, Compliance, Change Management, Disaster Recovery, License, Security Context, Core Services
 - [x] **Automation Protocol** — Flow (autolaunched/screen/schedule), Workflow, State Machine, Trigger Registry, Approval, ETL, Sync, Webhook
 - [x] **AI Protocol** — Agent, Agent Action, Conversation, Cost, MCP, Model Registry, NLQ, Orchestration, Predictive, RAG Pipeline, Runtime Ops, Feedback Loop, DevOps Agent, Plugin Development
@@ -142,7 +142,7 @@ The following renames are planned for packages that implement core service contr
 - [x] **QA Protocol** — Testing framework schemas
 - [x] **Studio Protocol** — Plugin extension schemas
 - [x] **Contracts** — 25 service interfaces with full method signatures
-- [x] **Stack Definition** — `defineStack()`, `defineView()`, `defineApp()`, `defineInterface()`, `defineFlow()`, `defineAgent()` helpers
+- [x] **Stack Definition** — `defineStack()`, `defineView()`, `defineApp()`, `defineFlow()`, `defineAgent()` helpers
 - [x] **Error Map** — Custom Zod error messages with `objectStackErrorMap`
 - [x] **DX Utilities** — `safeParsePretty()`, `formatZodError()`, `suggestFieldType()`
 
@@ -355,10 +355,11 @@ The following renames are planned for packages that implement core service contr
 ### 8.1 UI Protocol Enhancement — Airtable Interface Parity
 
 > See [Airtable Interface Gap Analysis](docs/design/airtable-interface-gap-analysis.md) for the full evaluation.
+> **Note:** The `InterfaceSchema` layer has been removed in favor of direct App→Page navigation.
+> App now supports unlimited nesting depth and sharing/embed capabilities directly.
 
-#### Phase A: Interface Foundation (v3.2) ✅
+#### Phase A: Page Foundation (v3.2) ✅
 
-- [x] `InterfaceSchema` — Self-contained, shareable, multi-page application surface (`src/ui/interface.zod.ts`)
 - [x] `RecordReviewConfigSchema` — Sequential record review/approval page type with navigation and actions
 - [x] Content elements — `element:text`, `element:number`, `element:image`, `element:divider` as `PageComponentType` extensions
 - [x] Per-element data binding — `dataSource` property on `PageComponentSchema` for multi-object pages
@@ -369,26 +370,26 @@ The following renames are planned for packages that implement core service contr
 - [x] Interactive elements — `element:button`, `element:filter`, `element:form`, `element:record_picker`
 - [x] `BlankPageLayoutSchema` — Free-form canvas composition with grid-based positioning
 - [x] Record picker variable binding — `PageVariableSchema` integration with `element:record_picker`
-- [x] `InterfaceBuilderConfigSchema` — Canvas snap, zoom, element palette, layer panel configuration
-- [ ] Studio Interface Builder — Drag-and-drop element placement UI (runtime)
+- [x] `PageBuilderConfigSchema` — Canvas snap, zoom, element palette, layer panel configuration
+- [ ] Studio Page Builder — Drag-and-drop element placement UI (runtime)
 
 #### Phase C: Sharing, Embedding & Permissions (v4.0) 🟡
 
 - [x] `SharingConfigSchema` — Public link, password, domain restriction, expiration (`src/ui/sharing.zod.ts`)
 - [x] `EmbedConfigSchema` — iframe embedding with origin restrictions and display options
-- [x] Per-interface role assignment — `assignedRoles` on `InterfaceSchema`
+- [x] App-level sharing/embed — `sharing` and `embed` on `AppSchema`
 - [x] Public form sharing — `sharing` property on `FormViewSchema`
-- [ ] Design-time user impersonation — `previewAs` option for interface preview (see [UX Optimization](docs/design/visual-design-ux-optimization.md))
+- [ ] Design-time user impersonation — `previewAs` option for page preview (see [UX Optimization](docs/design/visual-design-ux-optimization.md))
 - [ ] Share link generation runtime service
 - [ ] Embed code generation runtime service
 - [ ] Security audit for shared/embedded access control
 
-#### Phase D: Advanced Interface Features (v4.1)
+#### Phase D: Advanced Page Features (v4.1)
 
-- [ ] Interface templates and duplication
-- [ ] Interface versioning — draft → published → archived lifecycle
-- [ ] Real-time collaborative interface editing
-- [ ] Interface analytics — page views, element interactions, user engagement
+- [ ] Page templates and duplication
+- [ ] Page versioning — draft → published → archived lifecycle
+- [ ] Real-time collaborative page editing
+- [ ] Page analytics — page views, element interactions, user engagement
 
 ### 8.2 Studio IDE
 
@@ -398,7 +399,7 @@ The following renames are planned for packages that implement core service contr
 - [ ] ER Diagram — interactive entity-relationship diagram with force/hierarchy/grid layouts, minimap, zoom, export (PNG/SVG)
 - [ ] Object Manager — unified object list with search, filter, card/table/tree views, quick preview, statistics
 - [ ] View Builder — drag-and-drop list/form/dashboard designers
-- [ ] Interface Builder — drag-and-drop interface designer with element palette (see [Gap Analysis](docs/design/airtable-interface-gap-analysis.md))
+- [ ] Page Builder — drag-and-drop page designer with element palette (see [Gap Analysis](docs/design/airtable-interface-gap-analysis.md))
 - [ ] Flow Builder — visual automation flow editor
 - [ ] Security Console — permission matrix, RLS policy editor
 - [ ] AI Playground — agent testing, NLQ sandbox
@@ -525,10 +526,10 @@ The following renames are planned for packages that implement core service contr
 |:---|:---|:---|
 | **v3.0** | ✅ Shipped | Protocol specification complete, core runtime stable |
 | **v3.1** | Q2 2026 | Essential services (`service-cache`, `service-queue`, `service-job`, `service-storage`), PostgreSQL driver, Turso/libSQL core driver ([design](docs/design/driver-turso.md)) |
-| **v3.2** | Q3 2026 | Communication services (`service-realtime`, `service-graphql`, `service-i18n`, `service-notification`), Turso embedded replica & edge sync, UI Protocol Enhancement Phase A (`InterfaceSchema`, `RecordReviewConfig`, content elements) — see [gap analysis](docs/design/airtable-interface-gap-analysis.md) |
-| **v3.3** | Q4 2026 | Business logic services (`service-automation`, `service-workflow`, `service-search`), Turso multi-tenancy (database-per-tenant), UI Protocol Enhancement Phase B spec ✅ complete (interactive elements, blank page layout), Studio Interface Builder runtime, Visual Design UX optimization ([plan](docs/design/visual-design-ux-optimization.md)) |
+| **v3.2** | Q3 2026 | Communication services (`service-realtime`, `service-graphql`, `service-i18n`, `service-notification`), Turso embedded replica & edge sync, UI Protocol Enhancement Phase A (`RecordReviewConfig`, content elements) — see [gap analysis](docs/design/airtable-interface-gap-analysis.md) |
+| **v3.3** | Q4 2026 | Business logic services (`service-automation`, `service-workflow`, `service-search`), Turso multi-tenancy (database-per-tenant), UI Protocol Enhancement Phase B spec ✅ complete (interactive elements, blank page layout), Studio Page Builder runtime, Visual Design UX optimization ([plan](docs/design/visual-design-ux-optimization.md)) |
 | **v4.0** | Q1 2027 | Zod v4 migration, `plugin-auth` → `service-auth` rename, JSON Schema output, OpenAPI generation, AI services, multi-tenancy, Turso vector search & FTS5 integration, UI Protocol Enhancement Phase C spec 🟡 mostly complete (sharing, embedding), `previewAs` design-time preview, Data Studio protocol, runtime share/embed services |
-| **v4.1** | Q2 2027 | Studio IDE general availability, marketplace launch, UI Protocol Enhancement Phase D (templates, versioning, collaborative editing), Interface Builder enhancements (selection model, clipboard, alignment) |
+| **v4.1** | Q2 2027 | Studio IDE general availability, marketplace launch, UI Protocol Enhancement Phase D (templates, versioning, collaborative editing), Page Builder enhancements (selection model, clipboard, alignment) |
 | **v5.0** | 2027+ | Managed cloud, app store, global ecosystem |
 
 ---
