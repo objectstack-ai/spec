@@ -402,7 +402,7 @@ Protocol enhancements and core component implementations for dashboard feature p
 
 **Spec Protocol Changes:**
 - [x] Add `colorVariant`, `actionUrl`, `description`, `actionType`, `actionIcon` to `DashboardWidgetSchema` ([#713](https://github.com/objectstack-ai/spec/issues/713))
-- [ ] Enhance `globalFilters` with `options`, `optionsFrom`, `defaultValue`, `scope`, `targetWidgets` ([#712](https://github.com/objectstack-ai/spec/issues/712))
+- [x] Enhance `globalFilters` with `options`, `optionsFrom`, `defaultValue`, `scope`, `targetWidgets` ([#712](https://github.com/objectstack-ai/spec/issues/712))
 - [ ] Add `header` configuration to `DashboardSchema` with `showTitle`, `showDescription`, `actions` ([#714](https://github.com/objectstack-ai/spec/issues/714))
 - [ ] Add `pivotConfig` and `measures` array to `DashboardWidgetSchema` for multi-measure pivots ([#714](https://github.com/objectstack-ai/spec/issues/714))
 

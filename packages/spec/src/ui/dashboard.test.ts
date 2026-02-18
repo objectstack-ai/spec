@@ -5,8 +5,12 @@ import {
   Dashboard,
   WidgetColorVariantSchema,
   WidgetActionTypeSchema,
+  GlobalFilterSchema,
+  GlobalFilterOptionsFromSchema,
   type Dashboard as DashboardType,
   type DashboardWidget,
+  type GlobalFilter,
+  type GlobalFilterOptionsFrom,
 } from './dashboard.zod';
 import { ChartTypeSchema } from './chart.zod';
 
@@ -850,5 +854,311 @@ describe('DashboardWidgetSchema - combined new fields', () => {
     expect(dashboard.widgets[1].actionUrl).toBe('/issues');
     expect(dashboard.widgets[2].description).toBe('P0/P1 bugs requiring attention');
     expect(dashboard.widgets[3].colorVariant).toBe('blue');
+  });
+});
+
+// ============================================================================
+// Protocol Enhancement Tests: GlobalFilterSchema — options, optionsFrom,
+// defaultValue, scope, targetWidgets (#712)
+// ============================================================================
+
+describe('GlobalFilterOptionsFromSchema', () => {
+  it('should accept valid optionsFrom config', () => {
+    const result = GlobalFilterOptionsFromSchema.parse({
+      object: 'account',
+      valueField: 'id',
+      labelField: 'name',
+    });
+    expect(result.object).toBe('account');
+    expect(result.valueField).toBe('id');
+    expect(result.labelField).toBe('name');
+  });
+
+  it('should accept optionsFrom with filter', () => {
+    const result = GlobalFilterOptionsFromSchema.parse({
+      object: 'account',
+      valueField: 'id',
+      labelField: 'name',
+      filter: { is_active: true },
+    });
+    expect(result.filter).toEqual({ is_active: true });
+  });
+
+  it('should reject optionsFrom without required fields', () => {
+    expect(() => GlobalFilterOptionsFromSchema.parse({ object: 'account' })).toThrow();
+    expect(() => GlobalFilterOptionsFromSchema.parse({ valueField: 'id' })).toThrow();
+    expect(() => GlobalFilterOptionsFromSchema.parse({})).toThrow();
+  });
+});
+
+describe('GlobalFilterSchema', () => {
+  it('should accept minimal filter (backward compat)', () => {
+    const result = GlobalFilterSchema.parse({
+      field: 'status',
+    });
+    expect(result.field).toBe('status');
+    expect(result.scope).toBe('dashboard');
+  });
+
+  it('should accept old-style filter with label and type', () => {
+    const result = GlobalFilterSchema.parse({
+      field: 'status',
+      label: 'Status',
+      type: 'select',
+    });
+    expect(result.field).toBe('status');
+    expect(result.label).toBe('Status');
+    expect(result.type).toBe('select');
+  });
+
+  it('should accept all filter types including lookup', () => {
+    const types = ['text', 'select', 'date', 'number', 'lookup'] as const;
+    types.forEach(type => {
+      expect(() => GlobalFilterSchema.parse({ field: 'f', type })).not.toThrow();
+    });
+  });
+
+  it('should reject invalid filter type', () => {
+    expect(() => GlobalFilterSchema.parse({ field: 'f', type: 'checkbox' })).toThrow();
+  });
+
+  it('should accept filter with static options', () => {
+    const result = GlobalFilterSchema.parse({
+      field: 'priority',
+      type: 'select',
+      options: [
+        { value: 'high', label: 'High' },
+        { value: 'medium', label: 'Medium' },
+        { value: 'low', label: 'Low' },
+      ],
+    });
+    expect(result.options).toHaveLength(3);
+    expect(result.options![0].value).toBe('high');
+    expect(result.options![0].label).toBe('High');
+  });
+
+  it('should accept filter with i18n option labels', () => {
+    const result = GlobalFilterSchema.parse({
+      field: 'priority',
+      type: 'select',
+      options: [
+        { value: 'high', label: { key: 'filter.priority.high', defaultValue: 'High' } },
+      ],
+    });
+    expect(result.options![0].label).toEqual({ key: 'filter.priority.high', defaultValue: 'High' });
+  });
+
+  it('should accept filter with optionsFrom (dynamic binding)', () => {
+    const result = GlobalFilterSchema.parse({
+      field: 'account_id',
+      type: 'lookup',
+      optionsFrom: {
+        object: 'account',
+        valueField: 'id',
+        labelField: 'name',
+      },
+    });
+    expect(result.optionsFrom).toBeDefined();
+    expect(result.optionsFrom!.object).toBe('account');
+    expect(result.optionsFrom!.valueField).toBe('id');
+    expect(result.optionsFrom!.labelField).toBe('name');
+  });
+
+  it('should accept filter with optionsFrom and filter', () => {
+    const result = GlobalFilterSchema.parse({
+      field: 'owner_id',
+      type: 'lookup',
+      optionsFrom: {
+        object: 'user',
+        valueField: 'id',
+        labelField: 'full_name',
+        filter: { is_active: true },
+      },
+    });
+    expect(result.optionsFrom!.filter).toEqual({ is_active: true });
+  });
+
+  it('should accept filter with defaultValue', () => {
+    const result = GlobalFilterSchema.parse({
+      field: 'status',
+      type: 'select',
+      defaultValue: 'open',
+    });
+    expect(result.defaultValue).toBe('open');
+  });
+
+  it('should default scope to dashboard', () => {
+    const result = GlobalFilterSchema.parse({ field: 'status' });
+    expect(result.scope).toBe('dashboard');
+  });
+
+  it('should accept scope widget', () => {
+    const result = GlobalFilterSchema.parse({
+      field: 'status',
+      scope: 'widget',
+    });
+    expect(result.scope).toBe('widget');
+  });
+
+  it('should reject invalid scope', () => {
+    expect(() => GlobalFilterSchema.parse({ field: 'f', scope: 'global' })).toThrow();
+  });
+
+  it('should accept targetWidgets', () => {
+    const result = GlobalFilterSchema.parse({
+      field: 'region',
+      scope: 'widget',
+      targetWidgets: ['revenue_chart', 'pipeline_table'],
+    });
+    expect(result.targetWidgets).toEqual(['revenue_chart', 'pipeline_table']);
+  });
+
+  it('should accept filter without targetWidgets (optional)', () => {
+    const result = GlobalFilterSchema.parse({ field: 'status' });
+    expect(result.targetWidgets).toBeUndefined();
+  });
+});
+
+describe('DashboardSchema - enhanced globalFilters', () => {
+  it('should still accept old-style globalFilters (backward compat)', () => {
+    const result = DashboardSchema.parse({
+      name: 'compat_dash',
+      label: 'Compat Dashboard',
+      widgets: [],
+      globalFilters: [
+        { field: 'status', label: 'Status', type: 'select' },
+        { field: 'created_at', type: 'date' },
+      ],
+    });
+    expect(result.globalFilters).toHaveLength(2);
+    expect(result.globalFilters![0].scope).toBe('dashboard');
+  });
+
+  it('should accept globalFilters with optionsFrom', () => {
+    const result = DashboardSchema.parse({
+      name: 'dynamic_filters_dash',
+      label: 'Dynamic Filters',
+      widgets: [],
+      globalFilters: [
+        {
+          field: 'account_id',
+          label: 'Account',
+          type: 'lookup',
+          optionsFrom: {
+            object: 'account',
+            valueField: 'id',
+            labelField: 'name',
+          },
+        },
+      ],
+    });
+    expect(result.globalFilters![0].optionsFrom!.object).toBe('account');
+  });
+
+  it('should accept globalFilters with static options', () => {
+    const result = DashboardSchema.parse({
+      name: 'static_options_dash',
+      label: 'Static Options',
+      widgets: [],
+      globalFilters: [
+        {
+          field: 'priority',
+          label: 'Priority',
+          type: 'select',
+          options: [
+            { value: 'high', label: 'High' },
+            { value: 'medium', label: 'Medium' },
+            { value: 'low', label: 'Low' },
+          ],
+          defaultValue: 'medium',
+        },
+      ],
+    });
+    expect(result.globalFilters![0].options).toHaveLength(3);
+    expect(result.globalFilters![0].defaultValue).toBe('medium');
+  });
+
+  it('should accept globalFilters with targetWidgets', () => {
+    const result = DashboardSchema.parse({
+      name: 'targeted_filter_dash',
+      label: 'Targeted Filters',
+      widgets: [
+        { title: 'Chart A', type: 'bar', layout: { x: 0, y: 0, w: 6, h: 4 } },
+        { title: 'Chart B', type: 'line', layout: { x: 6, y: 0, w: 6, h: 4 } },
+      ],
+      globalFilters: [
+        {
+          field: 'region',
+          label: 'Region',
+          type: 'select',
+          scope: 'widget',
+          targetWidgets: ['chart_a'],
+          options: [
+            { value: 'na', label: 'North America' },
+            { value: 'eu', label: 'Europe' },
+          ],
+        },
+      ],
+    });
+    expect(result.globalFilters![0].scope).toBe('widget');
+    expect(result.globalFilters![0].targetWidgets).toEqual(['chart_a']);
+  });
+
+  it('should accept Airtable-style dashboard with full filter bar config', () => {
+    const dashboard = Dashboard.create({
+      name: 'airtable_style_dash',
+      label: 'Airtable Style Dashboard',
+      widgets: [
+        {
+          title: 'Revenue by Region',
+          type: 'bar',
+          object: 'opportunity',
+          categoryField: 'region',
+          valueField: 'amount',
+          aggregate: 'sum',
+          layout: { x: 0, y: 0, w: 12, h: 4 },
+        },
+      ],
+      globalFilters: [
+        {
+          field: 'owner_id',
+          label: 'Owner',
+          type: 'lookup',
+          optionsFrom: {
+            object: 'user',
+            valueField: 'id',
+            labelField: 'full_name',
+            filter: { is_active: true },
+          },
+        },
+        {
+          field: 'status',
+          label: 'Status',
+          type: 'select',
+          options: [
+            { value: 'open', label: 'Open' },
+            { value: 'closed', label: 'Closed' },
+          ],
+          defaultValue: 'open',
+        },
+        {
+          field: 'region',
+          label: 'Region',
+          type: 'select',
+          scope: 'widget',
+          targetWidgets: ['revenue_chart'],
+          optionsFrom: {
+            object: 'region',
+            valueField: 'code',
+            labelField: 'name',
+          },
+        },
+      ],
+    });
+
+    expect(dashboard.globalFilters).toHaveLength(3);
+    expect(dashboard.globalFilters![0].optionsFrom!.object).toBe('user');
+    expect(dashboard.globalFilters![1].defaultValue).toBe('open');
+    expect(dashboard.globalFilters![2].targetWidgets).toEqual(['revenue_chart']);
   });
 });
