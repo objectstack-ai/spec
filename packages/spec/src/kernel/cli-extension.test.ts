@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   CLICommandContributionSchema,
-  CLIExtensionExportSchema,
+  OclifPluginConfigSchema,
 } from './cli-extension.zod';
 
 describe('CLICommandContributionSchema', () => {
@@ -18,9 +18,9 @@ describe('CLICommandContributionSchema', () => {
     const result = CLICommandContributionSchema.parse({
       name: 'deploy',
       description: 'Deploy to cloud',
-      module: './dist/cli.js',
+      module: './dist/commands/deploy.js',
     });
-    expect(result.module).toBe('./dist/cli.js');
+    expect(result.module).toBe('./dist/commands/deploy.js');
   });
 
   it('should accept minimal command (name only)', () => {
@@ -64,30 +64,44 @@ describe('CLICommandContributionSchema', () => {
   });
 });
 
-describe('CLIExtensionExportSchema', () => {
-  it('should accept named commands export', () => {
-    const result = CLIExtensionExportSchema.parse({
-      commands: [{}, {}],
+describe('OclifPluginConfigSchema', () => {
+  it('should accept valid oclif plugin config', () => {
+    const result = OclifPluginConfigSchema.parse({
+      commands: {
+        strategy: 'pattern',
+        target: './dist/commands',
+        glob: '**/*.js',
+      },
     });
-    expect(result.commands).toHaveLength(2);
+    expect(result.commands?.strategy).toBe('pattern');
+    expect(result.commands?.target).toBe('./dist/commands');
   });
 
-  it('should accept default export', () => {
-    const result = CLIExtensionExportSchema.parse({
-      default: {},
+  it('should accept config with topicSeparator', () => {
+    const result = OclifPluginConfigSchema.parse({
+      commands: { strategy: 'pattern' },
+      topicSeparator: ' ',
     });
-    expect(result.default).toBeDefined();
+    expect(result.topicSeparator).toBe(' ');
   });
 
-  it('should accept default array export', () => {
-    const result = CLIExtensionExportSchema.parse({
-      default: [{}, {}],
-    });
-    expect(Array.isArray(result.default)).toBe(true);
-  });
-
-  it('should accept empty object', () => {
-    const result = CLIExtensionExportSchema.parse({});
+  it('should accept empty config', () => {
+    const result = OclifPluginConfigSchema.parse({});
     expect(result).toBeDefined();
+  });
+
+  it('should accept config with only commands', () => {
+    const result = OclifPluginConfigSchema.parse({
+      commands: {
+        strategy: 'explicit',
+      },
+    });
+    expect(result.commands?.strategy).toBe('explicit');
+  });
+
+  it('should reject invalid strategy', () => {
+    expect(() => OclifPluginConfigSchema.parse({
+      commands: { strategy: 'invalid' },
+    })).toThrow();
   });
 });

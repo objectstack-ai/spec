@@ -7,58 +7,69 @@ import { z } from 'zod';
  * 
  * Defines the contract for plugins that extend the ObjectStack CLI with
  * custom commands. This enables third-party packages (e.g., marketplace,
- * deployment tools) to register new top-level or nested CLI commands.
+ * cloud deployment tools) to register new CLI commands via oclif's
+ * built-in plugin system.
  * 
- * ## How It Works
+ * ## How It Works (oclif Plugin Model)
  * 
- * 1. **Declare** — Plugin's manifest declares `contributes.commands` entries.
- * 2. **Discover** — The CLI scans installed plugins for command contributions.
- * 3. **Load** — The CLI dynamically imports the plugin module and registers
- *    exported Commander.js `Command` instances.
+ * 1. **Declare** — Plugin's `package.json` includes an `oclif` config section
+ *    declaring its commands directory and any topics.
+ * 2. **Discover** — The main CLI (`@objectstack/cli`) lists the plugin in its
+ *    `oclif.plugins` array, or users install it via `os plugins install <pkg>`.
+ * 3. **Load** — oclif automatically discovers and registers all Command classes
+ *    exported from the plugin's commands directory.
  * 
- * ## Plugin Module Contract
+ * ## Plugin Package Contract
  * 
- * The plugin must export commands in one of these forms:
+ * The plugin must be a valid oclif plugin:
  * 
- * ```typescript
- * // Form 1: Named export array
- * export const commands = [marketplaceCommand, deployCommand];
- * 
- * // Form 2: Default export (single command)
- * export default marketplaceCommand;
- * 
- * // Form 3: Default export (array)
- * export default [marketplaceCommand, deployCommand];
+ * ```json
+ * // package.json of the plugin
+ * {
+ *   "name": "@acme/plugin-marketplace",
+ *   "oclif": {
+ *     "commands": {
+ *       "strategy": "pattern",
+ *       "target": "./dist/commands",
+ *       "glob": "**\/*.js"
+ *     }
+ *   }
+ * }
  * ```
  * 
- * @example
+ * Commands are standard oclif Command classes:
+ * 
  * ```typescript
- * // In @acme/plugin-marketplace/src/cli.ts
- * import { Command } from 'commander';
+ * // src/commands/marketplace/search.ts
+ * import { Args, Command, Flags } from '@oclif/core';
  * 
- * const marketplaceCommand = new Command('marketplace')
- *   .description('Manage marketplace applications')
- *   .addCommand(
- *     new Command('publish')
- *       .description('Publish app to marketplace')
- *       .action(async () => { ... })
- *   )
- *   .addCommand(
- *     new Command('search')
- *       .description('Search marketplace apps')
- *       .argument('<query>', 'Search query')
- *       .action(async (query) => { ... })
- *   );
- * 
- * export const commands = [marketplaceCommand];
+ * export default class MarketplaceSearch extends Command {
+ *   static override description = 'Search marketplace apps';
+ *   static override args = {
+ *     query: Args.string({ description: 'Search query', required: true }),
+ *   };
+ *   async run() {
+ *     const { args } = await this.parse(MarketplaceSearch);
+ *     // ...
+ *   }
+ * }
  * ```
+ * 
+ * ## Migration from Commander.js
+ * 
+ * The previous plugin model required `contributes.commands` in the manifest
+ * and exported Commander.js `Command` instances. The new model uses oclif's
+ * native plugin system for automatic command discovery and registration.
+ * The `objectstack.config.ts` plugins array no longer determines CLI commands.
  */
 
 /**
  * Schema for a CLI Command Contribution declaration in the manifest.
  * 
- * This is the declarative metadata — the actual Commander.js `Command`
- * objects are loaded at runtime from the plugin's module.
+ * This declarative metadata describes CLI commands contributed by a plugin.
+ * With the oclif migration, commands are auto-discovered from the plugin's
+ * commands directory. This schema is retained for backward compatibility
+ * and for describing command metadata in plugin manifests.
  */
 export const CLICommandContributionSchema = z.object({
   /** 
@@ -77,38 +88,41 @@ export const CLICommandContributionSchema = z.object({
   description: z.string().optional().describe('Command description for help text'),
 
   /** 
-   * Module path that exports the Commander.js command(s).
-   * Relative to the plugin package root. If omitted, the CLI 
-   * imports from the package's main entry point.
+   * Module path that exports the oclif Command class(es).
+   * Relative to the plugin package root. With oclif, this is typically
+   * auto-discovered from the `commands` directory, but can be specified
+   * for documentation or manifest purposes.
    * 
-   * The module must export one of:
-   * - `export const commands: Command[]`
-   * - `export default Command | Command[]`
-   * 
-   * @example "./dist/cli.js"
-   * @example "./cli"
+   * @example "./dist/commands/marketplace.js"
+   * @example "./dist/commands"
    */
-  module: z.string().optional().describe('Module path exporting Commander.js commands'),
+  module: z.string().optional().describe('Module path exporting oclif Command classes'),
 });
 
 /**
- * Schema for the CLI Extension module contract.
- * Validates the shape of what a plugin module should export for CLI integration.
+ * Schema for oclif plugin configuration in package.json.
+ * Validates the shape of the `oclif` section in a plugin's package.json.
  */
-export const CLIExtensionExportSchema = z.object({
-  /** Named export: array of Commander.js Command instances */
-  commands: z.array(z.unknown()).optional()
-    .describe('Array of Commander.js Command instances'),
+export const OclifPluginConfigSchema = z.object({
+  /** Command discovery configuration */
+  commands: z.object({
+    /** Discovery strategy — typically "pattern" for file-based discovery */
+    strategy: z.enum(['pattern', 'explicit', 'single']).optional()
+      .describe('Command discovery strategy'),
+    /** Directory path containing compiled command files */
+    target: z.string().optional()
+      .describe('Target directory for command files'),
+    /** Glob pattern for matching command files */
+    glob: z.string().optional()
+      .describe('Glob pattern for command file matching'),
+  }).optional().describe('Command discovery configuration'),
 
-  /** Default export: single Command or array of Commands */
-  default: z.union([
-    z.unknown(),
-    z.array(z.unknown()),
-  ]).optional()
-    .describe('Default export: Command or Command[]'),
-});
+  /** Topic separator character (default: space) */
+  topicSeparator: z.string().optional()
+    .describe('Character separating topic and command names'),
+}).describe('oclif plugin configuration section');
 
 // ─── Types ───────────────────────────────────────────────────────────
 
 export type CLICommandContribution = z.infer<typeof CLICommandContributionSchema>;
-export type CLIExtensionExport = z.infer<typeof CLIExtensionExportSchema>;
+export type OclifPluginConfig = z.infer<typeof OclifPluginConfigSchema>;
