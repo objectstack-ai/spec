@@ -143,6 +143,7 @@ The following renames are planned for packages that implement core service contr
 - [x] **Studio Protocol** — Plugin extension schemas
 - [x] **Contracts** — 25 service interfaces with full method signatures
 - [x] **Stack Definition** — `defineStack()`, `defineView()`, `defineApp()`, `defineFlow()`, `defineAgent()` helpers
+- [x] **Stack Composition** — `composeStacks()` for declarative multi-stack merging with conflict resolution (`error`/`override`/`merge`)
 - [x] **Error Map** — Custom Zod error messages with `objectStackErrorMap`
 - [x] **DX Utilities** — `safeParsePretty()`, `formatZodError()`, `suggestFieldType()`
 

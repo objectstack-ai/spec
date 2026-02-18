@@ -63,6 +63,9 @@ export * as Studio from './studio';
 
 export {
   defineStack,
+  composeStacks,
+  ComposeStacksOptionsSchema,
+  ConflictStrategySchema,
   ObjectStackDefinitionSchema,
   ObjectStackSchema,
   ObjectStackCapabilitiesSchema,
@@ -71,7 +74,7 @@ export {
   ObjectOSCapabilitiesSchema
 } from './stack.zod';
 
-export type { DefineStackOptions, ObjectStackDefinitionInput } from './stack.zod';
+export type { DefineStackOptions, ComposeStacksOptions, ConflictStrategy, ObjectStackDefinitionInput } from './stack.zod';
 
 export * from './stack.zod';
 

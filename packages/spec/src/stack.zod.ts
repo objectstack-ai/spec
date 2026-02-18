@@ -404,6 +404,227 @@ export function defineStack(
 }
 
 
+// ─── composeStacks ──────────────────────────────────────────────────
+
+/**
+ * Strategy for resolving conflicts when multiple stacks define the same named item.
+ *
+ * - `'error'`    — Throw an error when a duplicate name is detected (default).
+ * - `'override'` — Last stack wins; later definitions replace earlier ones.
+ * - `'merge'`    — Shallow-merge items with the same name (later fields win).
+ */
+export const ConflictStrategySchema = z.enum(['error', 'override', 'merge']);
+export type ConflictStrategy = z.infer<typeof ConflictStrategySchema>;
+
+/**
+ * Options for {@link composeStacks}.
+ */
+export const ComposeStacksOptionsSchema = z.object({
+  /**
+   * How to handle same-name objects across stacks.
+   * @default 'error'
+   */
+  objectConflict: ConflictStrategySchema.default('error'),
+
+  /**
+   * Which manifest to keep when multiple stacks provide one.
+   * - `'first'` — Use the first manifest found.
+   * - `'last'`  — Use the last manifest found (default).
+   * - A number  — Use the manifest from the stack at the given index.
+   * @default 'last'
+   */
+  manifest: z.union([z.enum(['first', 'last']), z.number().int().min(0)]).default('last'),
+
+  /**
+   * Optional namespace prefix (reserved for Phase 2 — Marketplace isolation).
+   * When set, object names from this composition are prefixed for isolation.
+   */
+  namespace: z.string().optional(),
+});
+
+export type ComposeStacksOptions = z.input<typeof ComposeStacksOptionsSchema>;
+
+/**
+ * All array fields on `ObjectStackDefinition` that are simply concatenated.
+ * @internal
+ */
+const CONCAT_ARRAY_FIELDS = [
+  'datasources',
+  'translations',
+  'objectExtensions',
+  'apps',
+  'views',
+  'pages',
+  'dashboards',
+  'reports',
+  'actions',
+  'themes',
+  'workflows',
+  'approvals',
+  'flows',
+  'roles',
+  'permissions',
+  'sharingRules',
+  'policies',
+  'apis',
+  'webhooks',
+  'agents',
+  'ragPipelines',
+  'hooks',
+  'mappings',
+  'analyticsCubes',
+  'connectors',
+  'data',
+  'plugins',
+  'devPlugins',
+] as const satisfies readonly (keyof ObjectStackDefinition)[];
+
+/**
+ * Merge objects from multiple stacks according to the chosen conflict strategy.
+ * @internal
+ */
+function mergeObjects(
+  stacks: ObjectStackDefinition[],
+  strategy: ConflictStrategy,
+): ObjectStackDefinition['objects'] {
+  type Obj = NonNullable<ObjectStackDefinition['objects']>[number];
+  const map = new Map<string, Obj>();
+  const result: Obj[] = [];
+
+  for (const stack of stacks) {
+    if (!stack.objects) continue;
+    for (const obj of stack.objects) {
+      const existing = map.get(obj.name);
+      if (!existing) {
+        map.set(obj.name, obj);
+        result.push(obj);
+        continue;
+      }
+
+      switch (strategy) {
+        case 'error':
+          throw new Error(
+            `composeStacks conflict: object '${obj.name}' is defined in multiple stacks. ` +
+              `Use { objectConflict: 'override' } or { objectConflict: 'merge' } to resolve.`,
+          );
+        case 'override': {
+          // Replace in-place in the result array
+          const idx = result.indexOf(existing);
+          result[idx] = obj;
+          map.set(obj.name, obj);
+          break;
+        }
+        case 'merge': {
+          const merged = { ...existing, ...obj, fields: { ...existing.fields, ...obj.fields } } as Obj;
+          const idx = result.indexOf(existing);
+          result[idx] = merged;
+          map.set(obj.name, merged);
+          break;
+        }
+      }
+    }
+  }
+
+  return result.length > 0 ? result : undefined;
+}
+
+/**
+ * Select the manifest to use from multiple stacks.
+ * @internal
+ */
+function selectManifest(
+  stacks: ObjectStackDefinition[],
+  strategy: 'first' | 'last' | number,
+): ObjectStackDefinition['manifest'] {
+  if (typeof strategy === 'number') {
+    return stacks[strategy]?.manifest;
+  }
+  if (strategy === 'first') {
+    for (const s of stacks) {
+      if (s.manifest) return s.manifest;
+    }
+    return undefined;
+  }
+  // 'last' (default)
+  for (let i = stacks.length - 1; i >= 0; i--) {
+    if (stacks[i].manifest) return stacks[i].manifest;
+  }
+  return undefined;
+}
+
+/**
+ * Declaratively compose multiple stack definitions into a single unified stack.
+ *
+ * This eliminates the manual `...spread` merging pattern when combining
+ * multiple applications (e.g., CRM + Todo + BI) into a single project.
+ *
+ * **Array fields** (apps, views, dashboards, etc.) are concatenated in order.
+ * **Objects** are merged according to the `objectConflict` strategy.
+ * **Manifest** is selected based on the `manifest` option.
+ *
+ * @param stacks  - Stack definitions to compose (order matters for conflict resolution)
+ * @param options - Composition options (conflict strategy, manifest selection, etc.)
+ * @returns A single merged `ObjectStackDefinition`
+ *
+ * @example
+ * ```ts
+ * import { composeStacks, defineStack } from '@objectstack/spec';
+ *
+ * const crm = defineStack({ ... });
+ * const todo = defineStack({ ... });
+ *
+ * // Simple composition — throws on duplicate objects
+ * const combined = composeStacks([crm, todo]);
+ *
+ * // Override strategy — later stacks win
+ * const combined = composeStacks([crm, todo], { objectConflict: 'override' });
+ *
+ * // Merge strategy — fields from later stacks are shallow-merged
+ * const combined = composeStacks([crm, todo], { objectConflict: 'merge' });
+ * ```
+ */
+export function composeStacks(
+  stacks: ObjectStackDefinition[],
+  options?: ComposeStacksOptions,
+): ObjectStackDefinition {
+  if (stacks.length === 0) return {} as ObjectStackDefinition;
+  if (stacks.length === 1) return stacks[0];
+
+  const opts = ComposeStacksOptionsSchema.parse(options ?? {});
+
+  const composed: Record<string, unknown> = {};
+
+  // 1. Manifest — pick based on strategy
+  composed.manifest = selectManifest(stacks, opts.manifest);
+
+  // 2. i18n — last-wins (single object, not array)
+  for (let i = stacks.length - 1; i >= 0; i--) {
+    if (stacks[i].i18n) {
+      composed.i18n = stacks[i].i18n;
+      break;
+    }
+  }
+
+  // 3. Objects — use conflict strategy
+  const objects = mergeObjects(stacks, opts.objectConflict);
+  if (objects) {
+    composed.objects = objects;
+  }
+
+  // 4. All other array fields — simple concatenation
+  for (const field of CONCAT_ARRAY_FIELDS) {
+    const arrays = stacks
+      .map((s) => (s as Record<string, unknown>)[field])
+      .filter((v): v is unknown[] => Array.isArray(v));
+    if (arrays.length > 0) {
+      composed[field] = arrays.flat();
+    }
+  }
+
+  return composed as ObjectStackDefinition;
+}
+
+
 /**
  * 2. RUNTIME CAPABILITIES PROTOCOL (Dynamic)
  * ----------------------------------------------------------------------
