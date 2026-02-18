@@ -3,6 +3,8 @@ import {
   DashboardSchema,
   DashboardWidgetSchema,
   Dashboard,
+  WidgetColorVariantSchema,
+  WidgetActionTypeSchema,
   type Dashboard as DashboardType,
   type DashboardWidget,
 } from './dashboard.zod';
@@ -608,5 +610,245 @@ describe('DashboardSchema - dateRange', () => {
       widgets: [],
     });
     expect(result.dateRange).toBeUndefined();
+  });
+});
+
+// ============================================================================
+// Protocol Enhancement Tests: colorVariant, description, actionUrl/actionType
+// ============================================================================
+
+describe('WidgetColorVariantSchema', () => {
+  it('should accept all color variants', () => {
+    const variants = ['default', 'blue', 'teal', 'orange', 'purple', 'success', 'warning', 'danger'];
+    variants.forEach(variant => {
+      expect(() => WidgetColorVariantSchema.parse(variant)).not.toThrow();
+    });
+  });
+
+  it('should reject invalid color variants', () => {
+    expect(() => WidgetColorVariantSchema.parse('red')).toThrow();
+    expect(() => WidgetColorVariantSchema.parse('unknown')).toThrow();
+  });
+});
+
+describe('WidgetActionTypeSchema', () => {
+  it('should accept all action types', () => {
+    const types = ['url', 'modal', 'flow'];
+    types.forEach(type => {
+      expect(() => WidgetActionTypeSchema.parse(type)).not.toThrow();
+    });
+  });
+
+  it('should reject invalid action types', () => {
+    expect(() => WidgetActionTypeSchema.parse('script')).toThrow();
+    expect(() => WidgetActionTypeSchema.parse('invalid')).toThrow();
+  });
+});
+
+describe('DashboardWidgetSchema - colorVariant', () => {
+  it('should accept widget with colorVariant', () => {
+    const widget: DashboardWidget = {
+      title: 'Total Revenue',
+      type: 'metric',
+      colorVariant: 'teal',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    };
+    const result = DashboardWidgetSchema.parse(widget);
+    expect(result.colorVariant).toBe('teal');
+  });
+
+  it('should accept widget without colorVariant (optional)', () => {
+    const result = DashboardWidgetSchema.parse({
+      type: 'metric',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    });
+    expect(result.colorVariant).toBeUndefined();
+  });
+
+  it('should reject invalid colorVariant', () => {
+    expect(() => DashboardWidgetSchema.parse({
+      type: 'metric',
+      colorVariant: 'neon',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    })).toThrow();
+  });
+});
+
+describe('DashboardWidgetSchema - description', () => {
+  it('should accept widget with string description', () => {
+    const result = DashboardWidgetSchema.parse({
+      title: 'Revenue',
+      description: 'Year-to-date total revenue',
+      type: 'metric',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    });
+    expect(result.description).toBe('Year-to-date total revenue');
+  });
+
+  it('should accept widget with i18n description', () => {
+    const result = DashboardWidgetSchema.parse({
+      title: 'Revenue',
+      description: { key: 'widgets.revenue.desc', defaultValue: 'Total revenue' },
+      type: 'metric',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    });
+    expect(result.description).toEqual({ key: 'widgets.revenue.desc', defaultValue: 'Total revenue' });
+  });
+
+  it('should accept widget without description (optional)', () => {
+    const result = DashboardWidgetSchema.parse({
+      type: 'metric',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    });
+    expect(result.description).toBeUndefined();
+  });
+});
+
+describe('DashboardWidgetSchema - actionUrl/actionType/actionIcon', () => {
+  it('should accept widget with actionUrl and actionType', () => {
+    const result = DashboardWidgetSchema.parse({
+      title: 'Open Tickets',
+      type: 'metric',
+      actionUrl: 'https://example.com/tickets',
+      actionType: 'url',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    });
+    expect(result.actionUrl).toBe('https://example.com/tickets');
+    expect(result.actionType).toBe('url');
+  });
+
+  it('should accept widget with actionIcon', () => {
+    const result = DashboardWidgetSchema.parse({
+      title: 'Details',
+      type: 'metric',
+      actionUrl: '/details',
+      actionType: 'url',
+      actionIcon: 'external-link',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    });
+    expect(result.actionIcon).toBe('external-link');
+  });
+
+  it('should accept widget with modal action type', () => {
+    const result = DashboardWidgetSchema.parse({
+      title: 'Breakdown',
+      type: 'metric',
+      actionUrl: 'revenue_breakdown',
+      actionType: 'modal',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    });
+    expect(result.actionType).toBe('modal');
+  });
+
+  it('should accept widget with flow action type', () => {
+    const result = DashboardWidgetSchema.parse({
+      title: 'Refresh Data',
+      type: 'metric',
+      actionUrl: 'refresh_pipeline_flow',
+      actionType: 'flow',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    });
+    expect(result.actionType).toBe('flow');
+  });
+
+  it('should accept widget without action fields (optional)', () => {
+    const result = DashboardWidgetSchema.parse({
+      type: 'metric',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    });
+    expect(result.actionUrl).toBeUndefined();
+    expect(result.actionType).toBeUndefined();
+    expect(result.actionIcon).toBeUndefined();
+  });
+
+  it('should reject invalid actionType', () => {
+    expect(() => DashboardWidgetSchema.parse({
+      type: 'metric',
+      actionType: 'invalid',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    })).toThrow();
+  });
+});
+
+describe('DashboardWidgetSchema - combined new fields', () => {
+  it('should accept KPI widget with all new fields', () => {
+    const widget: DashboardWidget = {
+      title: 'Revenue',
+      description: 'Q4 total revenue across all regions',
+      type: 'metric',
+      colorVariant: 'success',
+      actionUrl: 'https://reports.example.com/revenue',
+      actionType: 'url',
+      actionIcon: 'external-link',
+      object: 'opportunity',
+      valueField: 'amount',
+      aggregate: 'sum',
+      layout: { x: 0, y: 0, w: 3, h: 2 },
+    };
+
+    const result = DashboardWidgetSchema.parse(widget);
+    expect(result.description).toBe('Q4 total revenue across all regions');
+    expect(result.colorVariant).toBe('success');
+    expect(result.actionUrl).toBe('https://reports.example.com/revenue');
+    expect(result.actionType).toBe('url');
+    expect(result.actionIcon).toBe('external-link');
+  });
+
+  it('should work in a full dashboard with color-coded KPI cards', () => {
+    const dashboard = Dashboard.create({
+      name: 'kpi_dashboard',
+      label: 'KPI Dashboard',
+      widgets: [
+        {
+          title: 'Revenue',
+          description: 'Total quarterly revenue',
+          type: 'metric',
+          colorVariant: 'success',
+          object: 'opportunity',
+          valueField: 'amount',
+          aggregate: 'sum',
+          layout: { x: 0, y: 0, w: 3, h: 2 },
+        },
+        {
+          title: 'Open Issues',
+          description: 'Unresolved support tickets',
+          type: 'metric',
+          colorVariant: 'warning',
+          actionUrl: '/issues',
+          actionType: 'url',
+          object: 'case',
+          aggregate: 'count',
+          layout: { x: 3, y: 0, w: 3, h: 2 },
+        },
+        {
+          title: 'Critical Bugs',
+          description: 'P0/P1 bugs requiring attention',
+          type: 'metric',
+          colorVariant: 'danger',
+          actionUrl: 'bug_triage_flow',
+          actionType: 'flow',
+          actionIcon: 'alert-triangle',
+          object: 'bug',
+          aggregate: 'count',
+          layout: { x: 6, y: 0, w: 3, h: 2 },
+        },
+        {
+          title: 'Team Velocity',
+          type: 'bar',
+          colorVariant: 'blue',
+          object: 'sprint',
+          categoryField: 'sprint_name',
+          valueField: 'story_points',
+          aggregate: 'sum',
+          layout: { x: 0, y: 2, w: 12, h: 4 },
+        },
+      ],
+    });
+
+    expect(dashboard.widgets).toHaveLength(4);
+    expect(dashboard.widgets[0].colorVariant).toBe('success');
+    expect(dashboard.widgets[1].actionUrl).toBe('/issues');
+    expect(dashboard.widgets[2].description).toBe('P0/P1 bugs requiring attention');
+    expect(dashboard.widgets[3].colorVariant).toBe('blue');
   });
 });

@@ -401,7 +401,7 @@ The following renames are planned for packages that implement core service contr
 Protocol enhancements and core component implementations for dashboard feature parity.
 
 **Spec Protocol Changes:**
-- [ ] Add `colorVariant`, `actionUrl`, `description`, `actionType`, `actionIcon` to `DashboardWidgetSchema` ([#713](https://github.com/objectstack-ai/spec/issues/713))
+- [x] Add `colorVariant`, `actionUrl`, `description`, `actionType`, `actionIcon` to `DashboardWidgetSchema` ([#713](https://github.com/objectstack-ai/spec/issues/713))
 - [ ] Enhance `globalFilters` with `options`, `optionsFrom`, `defaultValue`, `scope`, `targetWidgets` ([#712](https://github.com/objectstack-ai/spec/issues/712))
 - [ ] Add `header` configuration to `DashboardSchema` with `showTitle`, `showDescription`, `actions` ([#714](https://github.com/objectstack-ai/spec/issues/714))
 - [ ] Add `pivotConfig` and `measures` array to `DashboardWidgetSchema` for multi-measure pivots ([#714](https://github.com/objectstack-ai/spec/issues/714))

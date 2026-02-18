@@ -8,18 +8,56 @@ import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 import { ResponsiveConfigSchema, PerformanceConfigSchema } from './responsive.zod';
 
 /**
+ * Color variant for dashboard widgets (e.g., KPI cards).
+ */
+export const WidgetColorVariantSchema = z.enum([
+  'default',
+  'blue',
+  'teal',
+  'orange',
+  'purple',
+  'success',
+  'warning',
+  'danger',
+]).describe('Widget color variant');
+
+/**
+ * Action type for widget action buttons.
+ */
+export const WidgetActionTypeSchema = z.enum([
+  'url',
+  'modal',
+  'flow',
+]).describe('Widget action type');
+
+/**
  * Dashboard Widget Schema
  * A single component on the dashboard grid.
  */
 export const DashboardWidgetSchema = z.object({
   /** Widget Title */
   title: I18nLabelSchema.optional().describe('Widget title'),
+
+  /** Widget Description (displayed below the title) */
+  description: I18nLabelSchema.optional().describe('Widget description text below the header'),
   
   /** Visualization Type */
   type: ChartTypeSchema.default('metric').describe('Visualization type'),
   
   /** Chart Configuration */
   chartConfig: ChartConfigSchema.optional().describe('Chart visualization configuration'),
+
+  /** Color variant for the widget (e.g., KPI card accent color) */
+  colorVariant: WidgetColorVariantSchema.optional().describe('Widget color variant for theming'),
+
+  /** Action URL for the widget header action button */
+  actionUrl: z.string().optional().describe('URL or target for the widget action button'),
+
+  /** Action type for the widget header action button */
+  actionType: WidgetActionTypeSchema.optional().describe('Type of action for the widget action button'),
+
+  /** Icon for the widget header action button */
+  actionIcon: z.string().optional().describe('Icon identifier for the widget action button'),
   
   /** Data Source Object */
   object: z.string().optional().describe('Data source object name'),
@@ -129,6 +167,8 @@ export const DashboardSchema = z.object({
 export type Dashboard = z.infer<typeof DashboardSchema>;
 export type DashboardInput = z.input<typeof DashboardSchema>;
 export type DashboardWidget = z.infer<typeof DashboardWidgetSchema>;
+export type WidgetColorVariant = z.infer<typeof WidgetColorVariantSchema>;
+export type WidgetActionType = z.infer<typeof WidgetActionTypeSchema>;
 
 /**
  * Dashboard Factory Helper
