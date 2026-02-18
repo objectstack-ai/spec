@@ -1,69 +1,109 @@
 import { describe, it, expect } from 'vitest';
 import Compile from '../src/commands/compile';
-import { serveCommand } from '../src/commands/serve';
-import { devCommand } from '../src/commands/dev';
-import { doctorCommand } from '../src/commands/doctor';
-import { createCommand } from '../src/commands/create';
-import { testCommand } from '../src/commands/test';
-import { validateCommand } from '../src/commands/validate';
+import Serve from '../src/commands/serve';
+import Dev from '../src/commands/dev';
+import Doctor from '../src/commands/doctor';
+import Create from '../src/commands/create';
+import Test from '../src/commands/test';
+import Validate from '../src/commands/validate';
 import Init from '../src/commands/init';
-import { infoCommand } from '../src/commands/info';
-import { generateCommand } from '../src/commands/generate';
-import { pluginCommand } from '../src/commands/plugin';
+import Info from '../src/commands/info';
+import Generate from '../src/commands/generate';
+import Lint from '../src/commands/lint';
+import Diff from '../src/commands/diff';
+import Explain from '../src/commands/explain';
+import Studio from '../src/commands/studio';
+import PluginList from '../src/commands/plugin/list';
+import PluginInfo from '../src/commands/plugin/info';
+import PluginAdd from '../src/commands/plugin/add';
+import PluginRemove from '../src/commands/plugin/remove';
+import V2ToV3 from '../src/commands/codemod/v2-to-v3';
 
-describe('CLI Commands', () => {
+describe('CLI Commands (oclif)', () => {
   it('should have compile command', () => {
     expect(Compile.description).toContain('Compile');
   });
 
   it('should have serve command', () => {
-    expect(serveCommand.name()).toBe('serve');
-    expect(serveCommand.description()).toContain('server');
+    expect(Serve.description).toContain('server');
   });
 
   it('should have dev command', () => {
-    expect(devCommand.name()).toBe('dev');
-    expect(devCommand.description()).toContain('development mode');
+    expect(Dev.description).toContain('development mode');
   });
 
   it('should have doctor command', () => {
-    expect(doctorCommand.name()).toBe('doctor');
-    expect(doctorCommand.description()).toContain('health');
+    expect(Doctor.description).toContain('health');
   });
 
   it('should have create command', () => {
-    expect(createCommand.name()).toBe('create');
-    expect(createCommand.description()).toContain('Create');
+    expect(Create.description).toContain('Create');
   });
 
   it('should have test command', () => {
-    expect(testCommand.name()).toBe('test');
-    expect(testCommand.description()).toContain('Quality Protocol');
+    expect(Test.description).toContain('Quality Protocol');
   });
 
   it('should have validate command', () => {
-    expect(validateCommand.name()).toBe('validate');
-    expect(validateCommand.description()).toContain('Validate');
+    expect(Validate.description).toContain('Validate');
   });
 
   it('should have init command', () => {
-    expect(Init.id).toBe('init');
     expect(Init.description).toContain('Initialize');
   });
 
   it('should have info command', () => {
-    expect(infoCommand.name()).toBe('info');
-    expect(infoCommand.description()).toContain('summary');
+    expect(Info.description).toContain('summary');
   });
 
   it('should have generate command with alias', () => {
-    expect(generateCommand.name()).toBe('generate');
-    expect(generateCommand.alias()).toBe('g');
-    expect(generateCommand.description()).toContain('Generate');
+    expect(Generate.aliases).toContain('g');
+    expect(Generate.description).toContain('Generate');
   });
 
-  it('should have plugin command with subcommands', () => {
-    expect(pluginCommand.name()).toBe('plugin');
-    expect(pluginCommand.description()).toContain('plugin');
+  it('should have lint command', () => {
+    expect(Lint.description).toContain('style');
+  });
+
+  it('should have diff command', () => {
+    expect(Diff.description).toContain('Compare');
+  });
+
+  it('should have explain command', () => {
+    expect(Explain.description).toContain('explanation');
+  });
+
+  it('should have studio command', () => {
+    expect(Studio.description).toContain('Studio');
+  });
+
+  it('should have codemod v2-to-v3 command', () => {
+    expect(V2ToV3.description).toContain('v2');
+  });
+
+  describe('Plugin subcommands', () => {
+    it('should have plugin list command', () => {
+      expect(PluginList.description).toContain('List');
+    });
+
+    it('should have plugin info command', () => {
+      expect(PluginInfo.description).toContain('information');
+    });
+
+    it('should have plugin add command', () => {
+      expect(PluginAdd.description).toContain('Add');
+    });
+
+    it('should have plugin remove command', () => {
+      expect(PluginRemove.description).toContain('Remove');
+    });
+
+    it('should have plugin remove alias', () => {
+      expect(PluginRemove.aliases).toContain('plugin rm');
+    });
+
+    it('should have plugin list alias', () => {
+      expect(PluginList.aliases).toContain('plugin ls');
+    });
   });
 });

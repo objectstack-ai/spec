@@ -1,162 +1,44 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Command } from 'commander';
-import { loadPluginCommands } from '../src/utils/plugin-commands';
+import { describe, it, expect } from 'vitest';
 
-// Mock the config loader
-vi.mock('../src/utils/config.js', () => ({
-  loadConfig: vi.fn(),
-}));
+/**
+ * The custom loadPluginCommands mechanism has been removed.
+ * Plugin command extension is now handled by oclif's built-in plugin system.
+ *
+ * Plugins extend the CLI by:
+ * 1. Including `oclif` config in their package.json
+ * 2. Exporting oclif Command classes from `src/commands/`
+ * 3. Being installed via `os plugins install <package>`
+ *
+ * The objectstack.config.ts no longer determines CLI command availability.
+ */
 
-import { loadConfig } from '../src/utils/config';
+describe('oclif Plugin System', () => {
+  it('should have oclif plugins configured in package.json', async () => {
+    const { createRequire } = await import('module');
+    const require = createRequire(import.meta.url);
+    const pkg = require('../package.json');
 
-const mockedLoadConfig = vi.mocked(loadConfig);
-
-describe('loadPluginCommands', () => {
-  let program: Command;
-
-  beforeEach(() => {
-    program = new Command();
-    program.name('objectstack');
-    vi.clearAllMocks();
+    expect(pkg.oclif).toBeDefined();
+    expect(pkg.oclif.plugins).toContain('@oclif/plugin-help');
+    expect(pkg.oclif.plugins).toContain('@oclif/plugin-plugins');
   });
 
-  it('should do nothing when no config file exists', async () => {
-    mockedLoadConfig.mockRejectedValue(new Error('No config found'));
+  it('should have oclif command discovery configured', async () => {
+    const { createRequire } = await import('module');
+    const require = createRequire(import.meta.url);
+    const pkg = require('../package.json');
 
-    await loadPluginCommands(program);
-    expect(program.commands).toHaveLength(0);
+    expect(pkg.oclif.commands).toBeDefined();
+    expect(pkg.oclif.commands.strategy).toBe('pattern');
+    expect(pkg.oclif.commands.target).toBe('./dist/commands');
   });
 
-  it('should do nothing when no plugins have command contributions', async () => {
-    mockedLoadConfig.mockResolvedValue({
-      config: {
-        plugins: [
-          { name: 'simple-plugin' },
-        ],
-      },
-      absolutePath: '/test/objectstack.config.ts',
-      duration: 10,
-    });
+  it('should have bin entries pointing to oclif runner', async () => {
+    const { createRequire } = await import('module');
+    const require = createRequire(import.meta.url);
+    const pkg = require('../package.json');
 
-    await loadPluginCommands(program);
-    expect(program.commands).toHaveLength(0);
-  });
-
-  it('should do nothing when plugins array is empty', async () => {
-    mockedLoadConfig.mockResolvedValue({
-      config: {
-        plugins: [],
-      },
-      absolutePath: '/test/objectstack.config.ts',
-      duration: 10,
-    });
-
-    await loadPluginCommands(program);
-    expect(program.commands).toHaveLength(0);
-  });
-
-  it('should do nothing when config has no plugins key', async () => {
-    mockedLoadConfig.mockResolvedValue({
-      config: {},
-      absolutePath: '/test/objectstack.config.ts',
-      duration: 10,
-    });
-
-    await loadPluginCommands(program);
-    expect(program.commands).toHaveLength(0);
-  });
-
-  it('should detect command contributions from plugin manifest', async () => {
-    // This test verifies that the contribution detection logic works,
-    // even though the dynamic import will fail (no real module to load)
-    mockedLoadConfig.mockResolvedValue({
-      config: {
-        plugins: [
-          {
-            name: '@acme/plugin-marketplace',
-            manifest: {
-              contributes: {
-                commands: [
-                  {
-                    name: 'marketplace',
-                    description: 'Manage marketplace apps',
-                    module: './cli',
-                  },
-                ],
-              },
-            },
-          },
-        ],
-      },
-      absolutePath: '/test/objectstack.config.ts',
-      duration: 10,
-    });
-
-    // loadPluginCommands will try to import the module and fail silently
-    // (since no real module exists), but it should not throw
-    await loadPluginCommands(program);
-  });
-
-  it('should detect contributions from top-level contributes field', async () => {
-    mockedLoadConfig.mockResolvedValue({
-      config: {
-        plugins: [
-          {
-            name: '@acme/plugin-deploy',
-            contributes: {
-              commands: [
-                {
-                  name: 'deploy',
-                  description: 'Deploy to cloud',
-                },
-              ],
-            },
-          },
-        ],
-      },
-      absolutePath: '/test/objectstack.config.ts',
-      duration: 10,
-    });
-
-    // Should not throw even if import fails
-    await loadPluginCommands(program);
-  });
-
-  it('should skip non-object plugins', async () => {
-    mockedLoadConfig.mockResolvedValue({
-      config: {
-        plugins: [
-          'some-string-plugin',
-          null,
-          undefined,
-          42,
-        ],
-      },
-      absolutePath: '/test/objectstack.config.ts',
-      duration: 10,
-    });
-
-    await loadPluginCommands(program);
-    expect(program.commands).toHaveLength(0);
-  });
-
-  it('should handle plugins with non-array commands gracefully', async () => {
-    mockedLoadConfig.mockResolvedValue({
-      config: {
-        plugins: [
-          {
-            name: '@acme/bad-plugin',
-            contributes: {
-              commands: 'not-an-array',
-            },
-          },
-        ],
-      },
-      absolutePath: '/test/objectstack.config.ts',
-      duration: 10,
-    });
-
-    await loadPluginCommands(program);
-    expect(program.commands).toHaveLength(0);
+    expect(pkg.bin.os).toBe('./bin/run.js');
+    expect(pkg.bin.objectstack).toBe('./bin/run.js');
   });
 });
