@@ -13,7 +13,7 @@ import { serveCommand } from './commands/serve.js';
 import { studioCommand } from './commands/studio.js';
 import { testCommand } from './commands/test.js';
 import { validateCommand } from './commands/validate.js';
-import { initCommand } from './commands/init.js';
+
 import { infoCommand } from './commands/info.js';
 import { generateCommand } from './commands/generate.js';
 import { pluginCommand } from './commands/plugin.js';
@@ -63,7 +63,7 @@ ${chalk.dim('Docs: https://objectstack.dev')}
 `);
 
 // ── Development ──
-program.addCommand(initCommand);
+// initCommand has been migrated to oclif (auto-discovered from commands/)
 program.addCommand(devCommand);
 program.addCommand(serveCommand);
 program.addCommand(studioCommand);

@@ -6,7 +6,7 @@ import { doctorCommand } from '../src/commands/doctor';
 import { createCommand } from '../src/commands/create';
 import { testCommand } from '../src/commands/test';
 import { validateCommand } from '../src/commands/validate';
-import { initCommand } from '../src/commands/init';
+import Init from '../src/commands/init';
 import { infoCommand } from '../src/commands/info';
 import { generateCommand } from '../src/commands/generate';
 import { pluginCommand } from '../src/commands/plugin';
@@ -48,8 +48,8 @@ describe('CLI Commands', () => {
   });
 
   it('should have init command', () => {
-    expect(initCommand.name()).toBe('init');
-    expect(initCommand.description()).toContain('Initialize');
+    expect(Init.id).toBe('init');
+    expect(Init.description).toContain('Initialize');
   });
 
   it('should have info command', () => {
