@@ -178,12 +178,22 @@ describe('DatabaseLoader', () => {
   });
 
   describe('schema bootstrapping', () => {
-    it('should call syncSchema on first operation', async () => {
+    it('should call syncSchema with SysMetadataObject on first operation', async () => {
       await loader.list('object');
       expect(mockDriver.syncSchema).toHaveBeenCalledOnce();
       expect(mockDriver.syncSchema).toHaveBeenCalledWith(
         'sys_metadata',
-        expect.objectContaining({ name: 'sys_metadata' })
+        expect.objectContaining({
+          name: 'sys_metadata',
+          isSystem: true,
+          fields: expect.objectContaining({
+            id: expect.objectContaining({ type: 'text' }),
+            name: expect.objectContaining({ type: 'text' }),
+            type: expect.objectContaining({ type: 'text' }),
+            scope: expect.objectContaining({ type: 'select' }),
+            metadata: expect.objectContaining({ type: 'textarea' }),
+          }),
+        })
       );
     });
 

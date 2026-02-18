@@ -18,6 +18,7 @@ import type {
   MetadataSaveResult,
   MetadataRecord,
 } from '@objectstack/spec/system';
+import { SysMetadataObject } from '@objectstack/spec/system';
 import type { IDataDriver } from '@objectstack/spec/contracts';
 import type { MetadataLoader } from './loader-interface.js';
 
@@ -34,37 +35,6 @@ export interface DatabaseLoaderOptions {
   /** Tenant ID for multi-tenant isolation */
   tenantId?: string;
 }
-
-/**
- * Schema definition for the sys_metadata table.
- * Used by syncSchema to auto-create the table on first use.
- */
-const METADATA_TABLE_SCHEMA = {
-  name: 'sys_metadata',
-  fields: {
-    id: { type: 'text', required: true },
-    name: { type: 'text', required: true },
-    type: { type: 'text', required: true },
-    namespace: { type: 'text', required: false },
-    package_id: { type: 'text', required: false },
-    managed_by: { type: 'text', required: false },
-    scope: { type: 'text', required: true },
-    metadata: { type: 'text', required: true },
-    extends: { type: 'text', required: false },
-    strategy: { type: 'text', required: false },
-    owner: { type: 'text', required: false },
-    state: { type: 'text', required: false },
-    tenant_id: { type: 'text', required: false },
-    version: { type: 'number', required: false },
-    checksum: { type: 'text', required: false },
-    source: { type: 'text', required: false },
-    tags: { type: 'text', required: false },
-    created_by: { type: 'text', required: false },
-    created_at: { type: 'text', required: false },
-    updated_by: { type: 'text', required: false },
-    updated_at: { type: 'text', required: false },
-  },
-};
 
 /**
  * DatabaseLoader — Datasource-backed metadata persistence.
@@ -98,14 +68,15 @@ export class DatabaseLoader implements MetadataLoader {
 
   /**
    * Ensure the metadata table exists.
-   * Uses IDataDriver.syncSchema to idempotently create/update the table.
+   * Uses IDataDriver.syncSchema with the SysMetadataObject definition
+   * to idempotently create/update the table.
    */
   private async ensureSchema(): Promise<void> {
     if (this.schemaReady) return;
 
     try {
       await this.driver.syncSchema(this.tableName, {
-        ...METADATA_TABLE_SCHEMA,
+        ...SysMetadataObject,
         name: this.tableName,
       });
       this.schemaReady = true;
