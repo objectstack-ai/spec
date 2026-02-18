@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Command } from 'commander';
+import { Args, Command, Flags } from '@oclif/core';
 import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
@@ -19,47 +19,55 @@ import {
   printMetadataStats,
 } from '../utils/format.js';
 
-export const compileCommand = new Command('compile')
-  .description('Compile ObjectStack configuration to JSON artifact')
-  .argument('[config]', 'Source configuration file')
-  .option('-o, --output <path>', 'Output JSON file', 'dist/objectstack.json')
-  .option('--json', 'Output compile result as JSON (for CI)')
-  .action(async (configPath, options) => {
+export default class Compile extends Command {
+  static override description = 'Compile ObjectStack configuration to JSON artifact';
+
+  static override args = {
+    config: Args.string({ description: 'Source configuration file', required: false }),
+  };
+
+  static override flags = {
+    output: Flags.string({ char: 'o', description: 'Output JSON file', default: 'dist/objectstack.json' }),
+    json: Flags.boolean({ description: 'Output compile result as JSON (for CI)' }),
+  };
+
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(Compile);
     const timer = createTimer();
 
-    if (!options.json) {
+    if (!flags.json) {
       printHeader('Compile');
     }
 
     try {
       // 1. Load Configuration
-      if (!options.json) printStep('Loading configuration...');
-      const { config, absolutePath, duration } = await loadConfig(configPath);
+      if (!flags.json) printStep('Loading configuration...');
+      const { config, absolutePath, duration } = await loadConfig(args.config);
 
-      if (!options.json) {
+      if (!flags.json) {
         printKV('Config', path.relative(process.cwd(), absolutePath));
         printKV('Load time', `${duration}ms`);
       }
 
       // 2. Normalize map-formatted stack definition and validate against Protocol
-      if (!options.json) printStep('Validating protocol compliance...');
+      if (!flags.json) printStep('Validating protocol compliance...');
       const normalized = normalizeStackInput(config as Record<string, unknown>);
       const result = ObjectStackDefinitionSchema.safeParse(normalized);
 
       if (!result.success) {
-        if (options.json) {
+        if (flags.json) {
           console.log(JSON.stringify({ success: false, errors: (result.error as unknown as ZodError).issues }));
-          process.exit(1);
+          this.exit(1);
         }
         console.log('');
         printError('Validation failed');
         formatZodErrors(result.error as unknown as ZodError);
-        process.exit(1);
+        this.exit(1);
       }
 
       // 3. Generate Artifact
-      if (!options.json) printStep('Writing artifact...');
-      const output = options.output;
+      if (!flags.json) printStep('Writing artifact...');
+      const output = flags.output!;
       const artifactPath = path.resolve(process.cwd(), output);
       const artifactDir = path.dirname(artifactPath);
 
@@ -73,7 +81,7 @@ export const compileCommand = new Command('compile')
       const sizeKB = (jsonContent.length / 1024).toFixed(1);
       const stats = collectMetadataStats(config);
 
-      if (options.json) {
+      if (flags.json) {
         console.log(JSON.stringify({
           success: true,
           output: artifactPath,
@@ -94,12 +102,13 @@ export const compileCommand = new Command('compile')
       console.log('');
 
     } catch (error: any) {
-      if (options.json) {
+      if (flags.json) {
         console.log(JSON.stringify({ success: false, error: error.message }));
-        process.exit(1);
+        this.exit(1);
       }
       console.log('');
       printError(error.message || String(error));
-      process.exit(1);
+      this.error(error.message || String(error));
     }
-  });
+  }
+}

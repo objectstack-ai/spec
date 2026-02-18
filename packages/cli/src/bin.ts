@@ -5,7 +5,6 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 
 // Commands
-import { compileCommand } from './commands/compile.js';
 import { devCommand } from './commands/dev.js';
 import { doctorCommand } from './commands/doctor.js';
 import { createCommand } from './commands/create.js';
@@ -69,7 +68,7 @@ program.addCommand(serveCommand);
 program.addCommand(studioCommand);
 
 // ── Build & Validate ──
-program.addCommand(compileCommand);
+// compileCommand has been migrated to oclif (auto-discovered from commands/)
 program.addCommand(validateCommand);
 program.addCommand(infoCommand);
 

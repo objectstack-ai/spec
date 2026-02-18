@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { compileCommand } from '../src/commands/compile';
+import Compile from '../src/commands/compile';
 import { serveCommand } from '../src/commands/serve';
 import { devCommand } from '../src/commands/dev';
 import { doctorCommand } from '../src/commands/doctor';
@@ -13,8 +13,7 @@ import { pluginCommand } from '../src/commands/plugin';
 
 describe('CLI Commands', () => {
   it('should have compile command', () => {
-    expect(compileCommand.name()).toBe('compile');
-    expect(compileCommand.description()).toContain('Compile');
+    expect(Compile.description).toContain('Compile');
   });
 
   it('should have serve command', () => {
