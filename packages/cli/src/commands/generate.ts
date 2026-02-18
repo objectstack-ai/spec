@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Command } from 'commander';
+import { Args, Command, Flags } from '@oclif/core';
 import chalk from 'chalk';
 import fs from 'fs';
 import path from 'path';
@@ -305,14 +305,7 @@ function generateTypesFromConfig(config: Record<string, unknown>): string {
 
 // ─── Command ────────────────────────────────────────────────────────
 
-const generateMetadataCommand = new Command('metadata')
-  .alias('m')
-  .description('Generate metadata scaffold (object, view, action, flow, agent, dashboard, app)')
-  .argument('<type>', 'Metadata type to generate')
-  .argument('<name>', 'Name for the metadata (use kebab-case)')
-  .option('-d, --dir <directory>', 'Target directory (overrides default)')
-  .option('--dry-run', 'Show what would be created without writing files')
-  .action(async (type: string, name: string, options) => {
+async function runMetadataGeneration(type: string, name: string, flags: { dir?: string; dryRun?: boolean }): Promise<void> {
     printHeader('Generate');
 
     const generator = GENERATORS[type];
@@ -330,7 +323,7 @@ const generateMetadataCommand = new Command('metadata')
       process.exit(1);
     }
 
-    const dir = options.dir || generator.defaultDir;
+    const dir = flags.dir || generator.defaultDir;
     const fileName = `${toSnakeCase(name)}.ts`;
     const filePath = path.join(process.cwd(), dir, fileName);
 
@@ -339,7 +332,7 @@ const generateMetadataCommand = new Command('metadata')
     console.log(`  ${chalk.dim('File:')}  ${chalk.white(path.join(dir, fileName))}`);
     console.log('');
 
-    if (options.dryRun) {
+    if (flags.dryRun) {
       printInfo('Dry run — no files written');
       console.log('');
       console.log(chalk.dim('  Content:'));
@@ -395,14 +388,9 @@ const generateMetadataCommand = new Command('metadata')
       printError(error.message || String(error));
       process.exit(1);
     }
-  });
+}
 
-const generateTypesCommand = new Command('types')
-  .description('Generate TypeScript type definitions from ObjectStack configuration')
-  .argument('[config]', 'Configuration file path')
-  .option('-o, --output <file>', 'Output file path', 'src/types/objectstack.d.ts')
-  .option('--dry-run', 'Show what would be generated without writing files')
-  .action(async (configPath, options) => {
+async function runTypesGeneration(configPath: string | undefined, flags: { output: string; dryRun?: boolean }): Promise<void> {
     printHeader('Generate Types');
 
     try {
@@ -411,12 +399,12 @@ const generateTypesCommand = new Command('types')
       const { config, absolutePath } = await loadConfig(configPath);
 
       console.log(`  ${chalk.dim('Config:')} ${chalk.white(absolutePath)}`);
-      console.log(`  ${chalk.dim('Output:')} ${chalk.white(options.output)}`);
+      console.log(`  ${chalk.dim('Output:')} ${chalk.white(flags.output)}`);
       console.log('');
 
       const content = generateTypesFromConfig(config as Record<string, unknown>);
 
-      if (options.dryRun) {
+      if (flags.dryRun) {
         printInfo('Dry run — no files written');
         console.log('');
         for (const line of content.split('\n')) {
@@ -426,20 +414,20 @@ const generateTypesCommand = new Command('types')
         return;
       }
 
-      const outPath = path.resolve(process.cwd(), options.output);
+      const outPath = path.resolve(process.cwd(), flags.output);
       const outDir = path.dirname(outPath);
       if (!fs.existsSync(outDir)) {
         fs.mkdirSync(outDir, { recursive: true });
       }
       fs.writeFileSync(outPath, content);
-      printSuccess(`Generated types at ${options.output}`);
+      printSuccess(`Generated types at ${flags.output}`);
       console.log('');
 
     } catch (error: any) {
       printError(error.message || String(error));
       process.exit(1);
     }
-  });
+}
 
 // ─── Client SDK Generator ───────────────────────────────────────────
 
@@ -541,12 +529,7 @@ function generateClientFromConfig(config: Record<string, unknown>): string {
   return lines.join('\n') + '\n';
 }
 
-const generateClientCommand = new Command('client')
-  .description('Generate a type-safe client SDK from ObjectStack configuration')
-  .argument('[config]', 'Configuration file path')
-  .option('-o, --output <file>', 'Output file path', 'src/client/objectstack-client.ts')
-  .option('--dry-run', 'Show output without writing')
-  .action(async (configPath, options) => {
+async function runClientGeneration(configPath: string | undefined, flags: { output: string; dryRun?: boolean }): Promise<void> {
     printHeader('Generate Client SDK');
 
     try {
@@ -556,13 +539,13 @@ const generateClientCommand = new Command('client')
       const { config, absolutePath } = await loadConfig(configPath);
 
       console.log(`  ${chalk.dim('Config:')} ${chalk.white(absolutePath)}`);
-      console.log(`  ${chalk.dim('Output:')} ${chalk.white(options.output)}`);
+      console.log(`  ${chalk.dim('Output:')} ${chalk.white(flags.output)}`);
       console.log('');
 
       printStep('Generating client SDK...');
       const content = generateClientFromConfig(config as Record<string, unknown>);
 
-      if (options.dryRun) {
+      if (flags.dryRun) {
         printInfo('Dry run — no files written');
         console.log('');
         for (const line of content.split('\n')) {
@@ -572,20 +555,20 @@ const generateClientCommand = new Command('client')
         return;
       }
 
-      const outPath = path.resolve(process.cwd(), options.output);
+      const outPath = path.resolve(process.cwd(), flags.output);
       const outDir = path.dirname(outPath);
       if (!fs.existsSync(outDir)) {
         fs.mkdirSync(outDir, { recursive: true });
       }
       fs.writeFileSync(outPath, content);
-      printSuccess(`Generated client SDK at ${options.output} (${timer.display()})`);
+      printSuccess(`Generated client SDK at ${flags.output} (${timer.display()})`);
       console.log('');
 
     } catch (error: any) {
       printError(error.message || String(error));
       process.exit(1);
     }
-  });
+}
 
 // ─── Migration Generator ────────────────────────────────────────────
 
@@ -777,13 +760,7 @@ function generateMigrationTs(config: Record<string, unknown>): string {
   return lines.join('\n') + '\n';
 }
 
-const generateMigrationCommand = new Command('migration')
-  .description('Generate database migration from ObjectStack schema')
-  .argument('[config]', 'Configuration file path')
-  .option('-o, --output <file>', 'Output file path')
-  .option('--format <format>', 'Output format: sql or typescript', 'typescript')
-  .option('--dry-run', 'Show output without writing')
-  .action(async (configPath, options) => {
+async function runMigrationGeneration(configPath: string | undefined, flags: { output?: string; format: string; dryRun?: boolean }): Promise<void> {
     printHeader('Generate Migration');
 
     try {
@@ -792,23 +769,23 @@ const generateMigrationCommand = new Command('migration')
       printInfo('Loading configuration...');
       const { config, absolutePath } = await loadConfig(configPath);
 
-      const ext = options.format === 'sql' ? 'sql' : 'ts';
+      const ext = flags.format === 'sql' ? 'sql' : 'ts';
       // Format: YYYYMMDDHHmmss (e.g. 20250101120000)
       const timestamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
       const defaultOutput = `migrations/${timestamp}_migration.${ext}`;
-      const output = options.output || defaultOutput;
+      const output = flags.output || defaultOutput;
 
       console.log(`  ${chalk.dim('Config:')} ${chalk.white(absolutePath)}`);
-      console.log(`  ${chalk.dim('Format:')} ${chalk.white(options.format)}`);
+      console.log(`  ${chalk.dim('Format:')} ${chalk.white(flags.format)}`);
       console.log(`  ${chalk.dim('Output:')} ${chalk.white(output)}`);
       console.log('');
 
       printStep('Generating migration...');
-      const content = options.format === 'sql'
+      const content = flags.format === 'sql'
         ? generateMigrationSql(config as Record<string, unknown>)
         : generateMigrationTs(config as Record<string, unknown>);
 
-      if (options.dryRun) {
+      if (flags.dryRun) {
         printInfo('Dry run — no files written');
         console.log('');
         for (const line of content.split('\n')) {
@@ -831,15 +808,11 @@ const generateMigrationCommand = new Command('migration')
       printError(error.message || String(error));
       process.exit(1);
     }
-  });
+}
 
 // ─── JSON Schema Generator ──────────────────────────────────────────
 
-const generateSchemaCommand = new Command('schema')
-  .description('Generate JSON Schema for objectstack.config.ts (for IDE autocomplete)')
-  .option('-o, --output <file>', 'Output file path', 'objectstack.schema.json')
-  .option('--dry-run', 'Show output without writing')
-  .action(async (options) => {
+async function runSchemaGeneration(flags: { output: string; dryRun?: boolean }): Promise<void> {
     printHeader('Generate Schema');
 
     try {
@@ -864,20 +837,20 @@ const generateSchemaCommand = new Command('schema')
 
       const content = JSON.stringify(schema, null, 2) + '\n';
 
-      if (options.dryRun) {
+      if (flags.dryRun) {
         printInfo('Dry run — no files written');
         console.log('');
         console.log(content);
         return;
       }
 
-      const outPath = path.resolve(process.cwd(), options.output);
+      const outPath = path.resolve(process.cwd(), flags.output);
       const outDir = path.dirname(outPath);
       if (!fs.existsSync(outDir)) {
         fs.mkdirSync(outDir, { recursive: true });
       }
       fs.writeFileSync(outPath, content);
-      printSuccess(`Generated JSON Schema at ${options.output} (${timer.display()})`);
+      printSuccess(`Generated JSON Schema at ${flags.output} (${timer.display()})`);
       console.log('');
       console.log(chalk.dim('  Usage: Reference in your IDE or editor for autocomplete'));
       console.log(chalk.dim(`  Path:  ${outPath}`));
@@ -887,47 +860,65 @@ const generateSchemaCommand = new Command('schema')
       printError(error.message || String(error));
       process.exit(1);
     }
-  });
+}
 
 // ─── Main Generate Command ──────────────────────────────────────────
 
-export const generateCommand = new Command('generate')
-  .alias('g')
-  .description('Generate metadata files or TypeScript types')
-  .argument('[type]', 'Metadata type to generate (object, view, action, flow, agent, dashboard, app)')
-  .argument('[name]', 'Name for the metadata (use kebab-case)')
-  .option('-d, --dir <directory>', 'Target directory (overrides default)')
-  .option('--dry-run', 'Show what would be created without writing files')
-  .addCommand(generateTypesCommand)
-  .addCommand(generateClientCommand)
-  .addCommand(generateMigrationCommand)
-  .addCommand(generateSchemaCommand)
-  .action(async (type: string | undefined, name: string | undefined, options) => {
-    if (!type) {
-      printHeader('Generate');
-      console.log(chalk.bold('  Sub-commands:'));
-      console.log(`    ${chalk.cyan('types'.padEnd(12))} Generate TypeScript type definitions from config`);
-      console.log(`    ${chalk.cyan('client'.padEnd(12))} Generate a type-safe client SDK from config`);
-      console.log(`    ${chalk.cyan('migration'.padEnd(12))} Generate database migration from schema`);
-      console.log(`    ${chalk.cyan('schema'.padEnd(12))} Generate JSON Schema for objectstack.config.ts (IDE autocomplete)`);
-      console.log('');
-      console.log(chalk.bold('  Metadata types:'));
-      for (const [key, gen] of Object.entries(GENERATORS)) {
-        console.log(`    ${chalk.cyan(key.padEnd(12))} ${chalk.dim(gen.description)}`);
-      }
-      console.log('');
-      console.log(chalk.dim('  Usage: objectstack generate <type> <name>'));
-      console.log(chalk.dim('  Usage: objectstack generate types [config]'));
-      return;
+export default class Generate extends Command {
+  static override description = 'Generate metadata files or TypeScript types';
+
+  static override aliases = ['g'];
+
+  static override args = {
+    type: Args.string({ description: 'Metadata type to generate (object, view, action, flow, agent, dashboard, app)', required: true }),
+    name: Args.string({ description: 'Name for the metadata (use kebab-case)', required: false }),
+  };
+
+  static override flags = {
+    dir: Flags.string({ char: 'd', description: 'Target directory (overrides default)' }),
+    'dry-run': Flags.boolean({ description: 'Show what would be created without writing files' }),
+    output: Flags.string({ char: 'o', description: 'Output file path' }),
+    format: Flags.string({ description: 'Output format: sql or typescript', default: 'typescript' }),
+  };
+
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(Generate);
+
+    // Route to sub-commands by type name
+    switch (args.type) {
+      case 'types':
+        return runTypesGeneration(args.name, {
+          output: flags.output ?? 'src/types/objectstack.d.ts',
+          dryRun: flags['dry-run'],
+        });
+      case 'client':
+        return runClientGeneration(args.name, {
+          output: flags.output ?? 'src/client/objectstack-client.ts',
+          dryRun: flags['dry-run'],
+        });
+      case 'migration':
+        return runMigrationGeneration(args.name, {
+          output: flags.output,
+          format: flags.format ?? 'typescript',
+          dryRun: flags['dry-run'],
+        });
+      case 'schema':
+        return runSchemaGeneration({
+          output: flags.output ?? 'objectstack.schema.json',
+          dryRun: flags['dry-run'],
+        });
     }
 
-    // Delegate to metadata command action
-    if (!name) {
+    // Metadata generation
+    if (!args.name) {
       printError('Missing required argument: <name>');
       console.log(chalk.dim('  Usage: objectstack generate <type> <name>'));
       process.exit(1);
     }
 
-    // Execute metadata generation inline
-    await generateMetadataCommand.parseAsync([type, name, ...process.argv.slice(4)], { from: 'user' });
-  });
+    await runMetadataGeneration(args.type, args.name, {
+      dir: flags.dir,
+      dryRun: flags['dry-run'],
+    });
+  }
+}

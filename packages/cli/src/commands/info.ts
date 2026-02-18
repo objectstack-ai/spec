@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Command } from 'commander';
+import { Args, Command, Flags } from '@oclif/core';
 import chalk from 'chalk';
 import { normalizeStackInput } from '@objectstack/spec';
 import { loadConfig } from '../utils/config.js';
@@ -15,23 +15,31 @@ import {
   printMetadataStats,
 } from '../utils/format.js';
 
-export const infoCommand = new Command('info')
-  .description('Display metadata summary of an ObjectStack configuration')
-  .argument('[config]', 'Configuration file path')
-  .option('--json', 'Output as JSON')
-  .action(async (configPath, options) => {
+export default class Info extends Command {
+  static override description = 'Display metadata summary of an ObjectStack configuration';
+
+  static override args = {
+    config: Args.string({ description: 'Configuration file path', required: false }),
+  };
+
+  static override flags = {
+    json: Flags.boolean({ description: 'Output as JSON' }),
+  };
+
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(Info);
     const timer = createTimer();
 
-    if (!options.json) {
+    if (!flags.json) {
       printHeader('Info');
     }
 
     try {
-      const { config: rawConfig, absolutePath, duration } = await loadConfig(configPath);
+      const { config: rawConfig, absolutePath, duration } = await loadConfig(args.config);
       const config: any = normalizeStackInput(rawConfig as Record<string, unknown>);
       const stats = collectMetadataStats(config);
 
-      if (options.json) {
+      if (flags.json) {
         console.log(JSON.stringify({
           config: absolutePath,
           manifest: config.manifest || null,
@@ -104,7 +112,7 @@ export const infoCommand = new Command('info')
       console.log('');
 
     } catch (error: any) {
-      if (options.json) {
+      if (flags.json) {
         console.log(JSON.stringify({ error: error.message }));
         process.exit(1);
       }
@@ -112,4 +120,5 @@ export const infoCommand = new Command('info')
       printError(error.message || String(error));
       process.exit(1);
     }
-  });
+  }
+}
