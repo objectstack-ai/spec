@@ -1,0 +1,484 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { DatabaseLoader, type DatabaseLoaderOptions } from './database-loader';
+import type { IDataDriver } from '@objectstack/spec/contracts';
+import { MetadataManager } from '../metadata-manager';
+import { MemoryLoader } from './memory-loader';
+
+// Suppress logger output during tests
+vi.mock('@objectstack/core', () => ({
+  createLogger: () => ({
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+  }),
+}));
+
+/**
+ * In-memory IDataDriver mock for testing DatabaseLoader.
+ * Stores records in a Map keyed by table name → id.
+ */
+function createMockDriver(): IDataDriver {
+  const tables = new Map<string, Map<string, Record<string, unknown>>>();
+
+  function getTable(name: string): Map<string, Record<string, unknown>> {
+    if (!tables.has(name)) {
+      tables.set(name, new Map());
+    }
+    return tables.get(name)!;
+  }
+
+  return {
+    name: 'mock',
+    version: '1.0.0',
+    supports: {
+      transactions: false,
+      joins: false,
+      aggregations: false,
+      streaming: false,
+      bulkOperations: true,
+      nestedObjects: false,
+      fullTextSearch: false,
+      geoQueries: false,
+      changeStreams: false,
+    },
+
+    connect: vi.fn().mockResolvedValue(undefined),
+    disconnect: vi.fn().mockResolvedValue(undefined),
+    checkHealth: vi.fn().mockResolvedValue(true),
+
+    execute: vi.fn().mockResolvedValue(undefined),
+
+    find: vi.fn().mockImplementation((tableName: string, query: any) => {
+      const table = getTable(tableName);
+      const where = query?.where ?? {};
+      const fields = query?.fields as string[] | undefined;
+
+      const results: Record<string, unknown>[] = [];
+      for (const row of table.values()) {
+        let match = true;
+        for (const [key, val] of Object.entries(where)) {
+          if (row[key] !== val) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          if (fields && fields.length > 0) {
+            const partial: Record<string, unknown> = {};
+            for (const f of fields) {
+              partial[f] = row[f];
+            }
+            results.push(partial);
+          } else {
+            results.push({ ...row });
+          }
+        }
+      }
+      return Promise.resolve(results);
+    }),
+
+    findOne: vi.fn().mockImplementation((tableName: string, query: any) => {
+      const table = getTable(tableName);
+      const where = query?.where ?? {};
+
+      for (const row of table.values()) {
+        let match = true;
+        for (const [key, val] of Object.entries(where)) {
+          if (row[key] !== val) {
+            match = false;
+            break;
+          }
+        }
+        if (match) return Promise.resolve({ ...row });
+      }
+      return Promise.resolve(null);
+    }),
+
+    findStream: vi.fn(),
+
+    create: vi.fn().mockImplementation((tableName: string, data: Record<string, unknown>) => {
+      const table = getTable(tableName);
+      const id = data.id as string;
+      table.set(id, { ...data });
+      return Promise.resolve({ ...data });
+    }),
+
+    update: vi.fn().mockImplementation((tableName: string, id: string, data: Record<string, unknown>) => {
+      const table = getTable(tableName);
+      const existing = table.get(id);
+      if (!existing) throw new Error('Not found');
+      const updated = { ...existing, ...data };
+      table.set(id, updated);
+      return Promise.resolve(updated);
+    }),
+
+    upsert: vi.fn().mockResolvedValue({}),
+
+    delete: vi.fn().mockImplementation((tableName: string, id: string) => {
+      const table = getTable(tableName);
+      const existed = table.has(id);
+      table.delete(id);
+      return Promise.resolve(existed);
+    }),
+
+    count: vi.fn().mockImplementation((tableName: string, query: any) => {
+      const table = getTable(tableName);
+      const where = query?.where ?? {};
+
+      let count = 0;
+      for (const row of table.values()) {
+        let match = true;
+        for (const [key, val] of Object.entries(where)) {
+          if (row[key] !== val) {
+            match = false;
+            break;
+          }
+        }
+        if (match) count++;
+      }
+      return Promise.resolve(count);
+    }),
+
+    bulkCreate: vi.fn().mockResolvedValue([]),
+    bulkUpdate: vi.fn().mockResolvedValue([]),
+    bulkDelete: vi.fn().mockResolvedValue(undefined),
+
+    beginTransaction: vi.fn().mockResolvedValue({}),
+    commit: vi.fn().mockResolvedValue(undefined),
+    rollback: vi.fn().mockResolvedValue(undefined),
+
+    syncSchema: vi.fn().mockResolvedValue(undefined),
+    dropTable: vi.fn().mockResolvedValue(undefined),
+  };
+}
+
+// ---------- DatabaseLoader ----------
+
+describe('DatabaseLoader', () => {
+  let loader: DatabaseLoader;
+  let mockDriver: IDataDriver;
+
+  beforeEach(() => {
+    mockDriver = createMockDriver();
+    loader = new DatabaseLoader({ driver: mockDriver });
+  });
+
+  describe('contract', () => {
+    it('should have correct contract metadata', () => {
+      expect(loader.contract.name).toBe('database');
+      expect(loader.contract.protocol).toBe('datasource:');
+      expect(loader.contract.capabilities.read).toBe(true);
+      expect(loader.contract.capabilities.write).toBe(true);
+      expect(loader.contract.capabilities.watch).toBe(false);
+      expect(loader.contract.capabilities.list).toBe(true);
+    });
+  });
+
+  describe('schema bootstrapping', () => {
+    it('should call syncSchema on first operation', async () => {
+      await loader.list('object');
+      expect(mockDriver.syncSchema).toHaveBeenCalledOnce();
+      expect(mockDriver.syncSchema).toHaveBeenCalledWith(
+        'sys_metadata',
+        expect.objectContaining({ name: 'sys_metadata' })
+      );
+    });
+
+    it('should only call syncSchema once (idempotent)', async () => {
+      await loader.list('object');
+      await loader.list('view');
+      await loader.exists('object', 'account');
+      expect(mockDriver.syncSchema).toHaveBeenCalledOnce();
+    });
+
+    it('should use custom table name', async () => {
+      const customLoader = new DatabaseLoader({
+        driver: mockDriver,
+        tableName: 'custom_metadata',
+      });
+      await customLoader.list('object');
+      expect(mockDriver.syncSchema).toHaveBeenCalledWith(
+        'custom_metadata',
+        expect.objectContaining({ name: 'custom_metadata' })
+      );
+    });
+  });
+
+  describe('save and load', () => {
+    it('should save and load a metadata item', async () => {
+      const data = { name: 'account', label: 'Account', fields: {} };
+      await loader.save('object', 'account', data);
+
+      const result = await loader.load('object', 'account');
+      expect(result.data).toEqual(data);
+      expect(result.source).toBe('database');
+      expect(result.format).toBe('json');
+    });
+
+    it('should return null for non-existent item', async () => {
+      const result = await loader.load('object', 'missing');
+      expect(result.data).toBeNull();
+    });
+
+    it('should update existing item on re-save', async () => {
+      await loader.save('object', 'account', { name: 'account', label: 'V1' });
+      await loader.save('object', 'account', { name: 'account', label: 'V2' });
+
+      const result = await loader.load('object', 'account');
+      expect(result.data).toEqual({ name: 'account', label: 'V2' });
+    });
+
+    it('should return save result with path', async () => {
+      const result = await loader.save('object', 'account', { name: 'account' });
+      expect(result.success).toBe(true);
+      expect(result.path).toBe('datasource://sys_metadata/object/account');
+      expect(result.size).toBeGreaterThan(0);
+      expect(result.saveTime).toBeDefined();
+    });
+
+    it('should increment version on update', async () => {
+      await loader.save('object', 'account', { name: 'account' });
+      await loader.save('object', 'account', { name: 'account', label: 'Updated' });
+
+      // The update call should have been made with incremented version
+      expect(mockDriver.update).toHaveBeenCalledWith(
+        'sys_metadata',
+        expect.any(String),
+        expect.objectContaining({ version: 2 })
+      );
+    });
+  });
+
+  describe('exists', () => {
+    it('should return false for non-existent items', async () => {
+      expect(await loader.exists('object', 'nope')).toBe(false);
+    });
+
+    it('should return true for existing items', async () => {
+      await loader.save('object', 'account', { name: 'account' });
+      expect(await loader.exists('object', 'account')).toBe(true);
+    });
+
+    it('should differentiate between types', async () => {
+      await loader.save('object', 'account', { name: 'account' });
+      expect(await loader.exists('object', 'account')).toBe(true);
+      expect(await loader.exists('view', 'account')).toBe(false);
+    });
+  });
+
+  describe('list', () => {
+    it('should return empty array for empty type', async () => {
+      const items = await loader.list('object');
+      expect(items).toEqual([]);
+    });
+
+    it('should list all items of a type', async () => {
+      await loader.save('object', 'account', { name: 'account' });
+      await loader.save('object', 'contact', { name: 'contact' });
+      await loader.save('view', 'account_list', { name: 'account_list' });
+
+      const objects = await loader.list('object');
+      expect(objects).toHaveLength(2);
+      expect(objects).toContain('account');
+      expect(objects).toContain('contact');
+
+      const views = await loader.list('view');
+      expect(views).toHaveLength(1);
+      expect(views).toContain('account_list');
+    });
+  });
+
+  describe('loadMany', () => {
+    it('should return empty array for unknown type', async () => {
+      const items = await loader.loadMany('object');
+      expect(items).toEqual([]);
+    });
+
+    it('should return all items of a type', async () => {
+      await loader.save('object', 'account', { name: 'account' });
+      await loader.save('object', 'contact', { name: 'contact' });
+
+      const items = await loader.loadMany<{ name: string }>('object');
+      expect(items).toHaveLength(2);
+      expect(items.map(i => i.name)).toContain('account');
+      expect(items.map(i => i.name)).toContain('contact');
+    });
+
+    it('should not include items from other types', async () => {
+      await loader.save('object', 'account', { name: 'account' });
+      await loader.save('view', 'account_list', { name: 'account_list' });
+
+      const objects = await loader.loadMany('object');
+      expect(objects).toHaveLength(1);
+    });
+  });
+
+  describe('stat', () => {
+    it('should return null for missing items', async () => {
+      const stats = await loader.stat('object', 'missing');
+      expect(stats).toBeNull();
+    });
+
+    it('should return stats for existing items', async () => {
+      await loader.save('object', 'account', { name: 'account' });
+      const stats = await loader.stat('object', 'account');
+      expect(stats).not.toBeNull();
+      expect(stats!.format).toBe('json');
+      expect(stats!.size).toBeGreaterThan(0);
+    });
+  });
+
+  describe('multi-tenant isolation', () => {
+    it('should filter by tenantId when configured', async () => {
+      const tenantLoader = new DatabaseLoader({
+        driver: mockDriver,
+        tenantId: 'tenant-1',
+      });
+
+      await tenantLoader.save('object', 'account', { name: 'account' });
+
+      // The create call should include tenant_id
+      expect(mockDriver.create).toHaveBeenCalledWith(
+        'sys_metadata',
+        expect.objectContaining({ tenant_id: 'tenant-1' })
+      );
+
+      // The find calls should filter by tenant_id
+      await tenantLoader.load('object', 'account');
+      expect(mockDriver.findOne).toHaveBeenCalledWith(
+        'sys_metadata',
+        expect.objectContaining({
+          where: expect.objectContaining({ tenant_id: 'tenant-1' }),
+        })
+      );
+    });
+  });
+
+  describe('error handling', () => {
+    it('should return null data on load failure', async () => {
+      const failingDriver = createMockDriver();
+      failingDriver.findOne = vi.fn().mockRejectedValue(new Error('DB error'));
+      const failLoader = new DatabaseLoader({ driver: failingDriver });
+
+      const result = await failLoader.load('object', 'account');
+      expect(result.data).toBeNull();
+    });
+
+    it('should return empty array on loadMany failure', async () => {
+      const failingDriver = createMockDriver();
+      failingDriver.find = vi.fn().mockRejectedValue(new Error('DB error'));
+      const failLoader = new DatabaseLoader({ driver: failingDriver });
+
+      const result = await failLoader.loadMany('object');
+      expect(result).toEqual([]);
+    });
+
+    it('should return false on exists failure', async () => {
+      const failingDriver = createMockDriver();
+      failingDriver.count = vi.fn().mockRejectedValue(new Error('DB error'));
+      const failLoader = new DatabaseLoader({ driver: failingDriver });
+
+      expect(await failLoader.exists('object', 'account')).toBe(false);
+    });
+
+    it('should return null on stat failure', async () => {
+      const failingDriver = createMockDriver();
+      failingDriver.findOne = vi.fn().mockRejectedValue(new Error('DB error'));
+      const failLoader = new DatabaseLoader({ driver: failingDriver });
+
+      expect(await failLoader.stat('object', 'account')).toBeNull();
+    });
+
+    it('should return empty array on list failure', async () => {
+      const failingDriver = createMockDriver();
+      failingDriver.find = vi.fn().mockRejectedValue(new Error('DB error'));
+      const failLoader = new DatabaseLoader({ driver: failingDriver });
+
+      expect(await failLoader.list('object')).toEqual([]);
+    });
+
+    it('should throw descriptive error on save failure', async () => {
+      const failingDriver = createMockDriver();
+      failingDriver.findOne = vi.fn().mockResolvedValue(null);
+      failingDriver.create = vi.fn().mockRejectedValue(new Error('Insert failed'));
+      const failLoader = new DatabaseLoader({ driver: failingDriver });
+
+      await expect(
+        failLoader.save('object', 'account', { name: 'account' })
+      ).rejects.toThrow('DatabaseLoader save failed for object/account: Insert failed');
+    });
+  });
+});
+
+// ---------- MetadataManager + DatabaseLoader Integration ----------
+
+describe('MetadataManager with DatabaseLoader', () => {
+  let manager: MetadataManager;
+  let dbLoader: DatabaseLoader;
+  let memoryLoader: MemoryLoader;
+  let mockDriver: IDataDriver;
+
+  beforeEach(() => {
+    mockDriver = createMockDriver();
+    dbLoader = new DatabaseLoader({ driver: mockDriver });
+    memoryLoader = new MemoryLoader();
+    manager = new MetadataManager({
+      formats: ['json'],
+      loaders: [memoryLoader, dbLoader],
+    });
+  });
+
+  it('should save and load via DatabaseLoader', async () => {
+    await manager.save('object', 'account', { name: 'account' }, { loader: 'database' } as any);
+    const result = await manager.load('object', 'account');
+    expect(result).toEqual({ name: 'account' });
+  });
+
+  it('should list items from both loaders', async () => {
+    await memoryLoader.save('object', 'account', { name: 'account' });
+    await dbLoader.save('object', 'contact', { name: 'contact' });
+
+    const names = await manager.listNames('object');
+    expect(names).toContain('account');
+    expect(names).toContain('contact');
+  });
+
+  it('should deduplicate items across memory and database loaders', async () => {
+    await memoryLoader.save('object', 'account', { name: 'account', label: 'Memory' });
+    await dbLoader.save('object', 'account', { name: 'account', label: 'Database' });
+
+    const items = await manager.loadMany<{ name: string; label: string }>('object');
+    const accounts = items.filter(i => i.name === 'account');
+    expect(accounts).toHaveLength(1);
+    // First loader (memory) wins
+    expect(accounts[0].label).toBe('Memory');
+  });
+
+  it('should check existence across both loaders', async () => {
+    await dbLoader.save('object', 'contact', { name: 'contact' });
+    expect(await manager.exists('object', 'contact')).toBe(true);
+  });
+
+  it('should use DatabaseLoader for overlay persistence', async () => {
+    // Register base metadata
+    await manager.register('object', 'account', { name: 'account', label: 'Account' });
+
+    // Save an overlay to the database
+    await dbLoader.save('overlay', 'account_platform', {
+      name: 'account_platform',
+      baseType: 'object',
+      baseName: 'account',
+      scope: 'platform',
+      patch: { label: 'Custom Account' },
+      active: true,
+    });
+
+    // Verify the overlay is persisted in database
+    const overlayResult = await dbLoader.load('overlay', 'account_platform');
+    expect(overlayResult.data).toBeDefined();
+    expect((overlayResult.data as any).patch.label).toBe('Custom Account');
+  });
+});

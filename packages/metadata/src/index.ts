@@ -17,6 +17,7 @@ export { MetadataPlugin } from './plugin.js';
 export { type MetadataLoader } from './loaders/loader-interface.js';
 export { MemoryLoader } from './loaders/memory-loader.js';
 export { RemoteLoader } from './loaders/remote-loader.js';
+export { DatabaseLoader, type DatabaseLoaderOptions } from './loaders/database-loader.js';
 
 // Serializers
 export { type MetadataSerializer, type SerializeOptions } from './serializers/serializer-interface.js';
