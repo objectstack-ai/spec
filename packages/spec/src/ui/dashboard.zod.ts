@@ -99,6 +99,57 @@ export const DashboardWidgetSchema = z.object({
 });
 
 /**
+ * Dynamic options binding for global filters.
+ * Allows dropdown options to be fetched from an object at runtime.
+ */
+export const GlobalFilterOptionsFromSchema = z.object({
+  /** Source object name to fetch options from */
+  object: z.string().describe('Source object name'),
+
+  /** Field to use as option value */
+  valueField: z.string().describe('Field to use as option value'),
+
+  /** Field to use as option label */
+  labelField: z.string().describe('Field to use as option label'),
+
+  /** Optional filter to apply when fetching options */
+  filter: FilterConditionSchema.optional().describe('Filter to apply to source object'),
+}).describe('Dynamic filter options from object');
+
+/**
+ * Global Filter Schema
+ * Defines a single global filter control for the dashboard filter bar.
+ */
+export const GlobalFilterSchema = z.object({
+  /** Field name to filter on */
+  field: z.string().describe('Field name to filter on'),
+
+  /** Display label for the filter */
+  label: I18nLabelSchema.optional().describe('Display label for the filter'),
+
+  /** Filter input type */
+  type: z.enum(['text', 'select', 'date', 'number', 'lookup']).optional().describe('Filter input type'),
+
+  /** Static options for select/lookup filters */
+  options: z.array(z.object({
+    value: z.any(),
+    label: I18nLabelSchema,
+  })).optional().describe('Static filter options'),
+
+  /** Dynamic data binding for filter options */
+  optionsFrom: GlobalFilterOptionsFromSchema.optional().describe('Dynamic filter options from object'),
+
+  /** Default filter value */
+  defaultValue: z.any().optional().describe('Default filter value'),
+
+  /** Filter application scope */
+  scope: z.enum(['dashboard', 'widget']).default('dashboard').describe('Filter application scope'),
+
+  /** Widget IDs to apply this filter to (when scope is widget) */
+  targetWidgets: z.array(z.string()).optional().describe('Widget IDs to apply this filter to'),
+});
+
+/**
  * Dashboard Schema
  * Represents a page containing multiple visualizations.
  * 
@@ -151,11 +202,7 @@ export const DashboardSchema = z.object({
   }).optional().describe('Global dashboard date range filter configuration'),
 
   /** Global Filters */
-  globalFilters: z.array(z.object({
-    field: z.string().describe('Field name to filter on'),
-    label: I18nLabelSchema.optional().describe('Display label for the filter'),
-    type: z.enum(['text', 'select', 'date', 'number']).optional().describe('Filter input type'),
-  })).optional().describe('Global filters that apply to all widgets in the dashboard'),
+  globalFilters: z.array(GlobalFilterSchema).optional().describe('Global filters that apply to all widgets in the dashboard'),
 
   /** ARIA accessibility attributes */
   aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
@@ -169,6 +216,8 @@ export type DashboardInput = z.input<typeof DashboardSchema>;
 export type DashboardWidget = z.infer<typeof DashboardWidgetSchema>;
 export type WidgetColorVariant = z.infer<typeof WidgetColorVariantSchema>;
 export type WidgetActionType = z.infer<typeof WidgetActionTypeSchema>;
+export type GlobalFilter = z.infer<typeof GlobalFilterSchema>;
+export type GlobalFilterOptionsFrom = z.infer<typeof GlobalFilterOptionsFromSchema>;
 
 /**
  * Dashboard Factory Helper
