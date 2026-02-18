@@ -1,10 +1,10 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Command } from 'commander';
+import { Command, Flags } from '@oclif/core';
 import chalk from 'chalk';
 import fs from 'fs';
 import path from 'path';
-import { printHeader, printSuccess, printError, printInfo, printStep, createTimer } from '../utils/format.js';
+import { printHeader, printSuccess, printError, printInfo, printStep, createTimer } from '../../utils/format.js';
 
 // ─── Transform Definitions ──────────────────────────────────────────
 
@@ -76,25 +76,31 @@ function walkDir(dir: string, ext: string): string[] {
   return results;
 }
 
-// ─── v2-to-v3 Sub-Command ──────────────────────────────────────────
+// ─── Command ────────────────────────────────────────────────────────
 
-const v2ToV3Command = new Command('v2-to-v3')
-  .description('Migrate ObjectStack v2 code patterns to v3')
-  .option('--dir <directory>', 'Directory to scan', 'src/')
-  .option('--dry-run', 'Show changes without writing files')
-  .action(async (options) => {
+export default class V2ToV3 extends Command {
+  static override description = 'Migrate ObjectStack v2 config to v3 format';
+
+  static override flags = {
+    dir: Flags.string({ description: 'Directory to scan', default: 'src/' }),
+    'dry-run': Flags.boolean({ description: 'Show changes without writing files' }),
+  };
+
+  async run(): Promise<void> {
+    const { flags } = await this.parse(V2ToV3);
+
     printHeader('Codemod: v2 → v3');
 
     const timer = createTimer();
-    const dir = path.resolve(process.cwd(), options.dir);
+    const dir = path.resolve(process.cwd(), flags.dir);
 
     if (!fs.existsSync(dir)) {
       printError(`Directory not found: ${dir}`);
       process.exit(1);
     }
 
-    console.log(`  ${chalk.dim('Directory:')} ${chalk.white(options.dir)}`);
-    console.log(`  ${chalk.dim('Dry run:')}   ${chalk.white(options.dryRun ? 'yes' : 'no')}`);
+    console.log(`  ${chalk.dim('Directory:')} ${chalk.white(flags.dir)}`);
+    console.log(`  ${chalk.dim('Dry run:')}   ${chalk.white(flags['dry-run'] ? 'yes' : 'no')}`);
     console.log('');
 
     printStep('Scanning TypeScript files...');
@@ -132,7 +138,7 @@ const v2ToV3Command = new Command('v2-to-v3')
         filesModified++;
         totalTransforms += fileTransforms;
 
-        if (options.dryRun) {
+        if (flags['dry-run']) {
           printInfo(`${relPath} — ${fileTransforms} change(s)`);
         } else {
           fs.writeFileSync(file, content);
@@ -152,7 +158,7 @@ const v2ToV3Command = new Command('v2-to-v3')
       }
       console.log('');
 
-      if (options.dryRun) {
+      if (flags['dry-run']) {
         printInfo(`Would modify ${filesModified} file(s) with ${totalTransforms} total change(s)`);
         console.log(chalk.dim('  Run without --dry-run to apply changes'));
       } else {
@@ -161,18 +167,5 @@ const v2ToV3Command = new Command('v2-to-v3')
     }
 
     console.log('');
-  });
-
-// ─── Main Codemod Command ───────────────────────────────────────────
-
-export const codemodCommand = new Command('codemod')
-  .description('Run automated code transformations')
-  .addCommand(v2ToV3Command)
-  .action(() => {
-    printHeader('Codemod');
-    console.log(chalk.bold('  Available codemods:'));
-    console.log(`    ${chalk.cyan('v2-to-v3'.padEnd(16))} Migrate ObjectStack v2 code patterns to v3`);
-    console.log('');
-    console.log(chalk.dim('  Usage: objectstack codemod v2-to-v3 [--dir src/] [--dry-run]'));
-    console.log('');
-  });
+  }
+}
