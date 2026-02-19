@@ -16,7 +16,7 @@ import {
   RemoveReactionResponseSchema,
   SubscribeRequestSchema,
   SubscribeResponseSchema,
-  UnsubscribeRequestSchema,
+  FeedUnsubscribeRequestSchema,
   UnsubscribeResponseSchema,
   FeedApiErrorCode,
   FeedApiContracts,
@@ -482,9 +482,9 @@ describe('SubscribeResponseSchema', () => {
   });
 });
 
-describe('UnsubscribeRequestSchema', () => {
+describe('FeedUnsubscribeRequestSchema', () => {
   it('should accept valid unsubscribe params', () => {
-    const req = UnsubscribeRequestSchema.parse({
+    const req = FeedUnsubscribeRequestSchema.parse({
       object: 'account',
       recordId: 'rec_123',
     });

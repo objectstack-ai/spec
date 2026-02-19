@@ -255,8 +255,8 @@ export type SubscribeResponse = z.infer<typeof SubscribeResponseSchema>;
  *
  * @example DELETE /api/data/account/rec_123/subscribe
  */
-export const UnsubscribeRequestSchema = FeedPathParamsSchema;
-export type UnsubscribeRequest = z.infer<typeof UnsubscribeRequestSchema>;
+export const FeedUnsubscribeRequestSchema = FeedPathParamsSchema;
+export type FeedUnsubscribeRequest = z.infer<typeof FeedUnsubscribeRequestSchema>;
 
 /**
  * Response after unsubscribing.
@@ -344,7 +344,7 @@ export const FeedApiContracts = {
   unsubscribe: {
     method: 'DELETE' as const,
     path: '/api/data/:object/:recordId/subscribe',
-    input: UnsubscribeRequestSchema,
+    input: FeedUnsubscribeRequestSchema,
     output: UnsubscribeResponseSchema,
   },
 };
