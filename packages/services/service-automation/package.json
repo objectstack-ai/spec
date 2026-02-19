@@ -1,0 +1,29 @@
+{
+  "name": "@objectstack/service-automation",
+  "version": "3.0.7",
+  "license": "Apache-2.0",
+  "description": "Automation Service for ObjectStack — implements IAutomationService with plugin-based DAG flow execution engine",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup --config ../../../tsup.config.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@objectstack/core": "workspace:*",
+    "@objectstack/spec": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.18",
+    "@types/node": "^25.2.3"
+  }
+}
