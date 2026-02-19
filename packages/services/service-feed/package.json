@@ -1,0 +1,29 @@
+{
+  "name": "@objectstack/service-feed",
+  "version": "3.0.7",
+  "license": "Apache-2.0",
+  "description": "Feed/Chatter Service for ObjectStack — implements IFeedService with in-memory adapter for comments, reactions, field changes, and record subscriptions",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup --config ../../../tsup.config.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@objectstack/core": "workspace:*",
+    "@objectstack/spec": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.18",
+    "@types/node": "^25.2.3"
+  }
+}

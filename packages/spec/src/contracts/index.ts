@@ -32,3 +32,4 @@ export * from './ai-service.js';
 export * from './i18n-service.js';
 export * from './ui-service.js';
 export * from './workflow-service.js';
+export * from './feed-service.js';

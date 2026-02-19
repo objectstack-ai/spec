@@ -304,11 +304,13 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 |:---|:---:|:---|:---|
 | `II18nService` | **P1** | `@objectstack/service-i18n` | Map-backed translation with locale resolution |
 | `IRealtimeService` | **P1** | `@objectstack/service-realtime` | WebSocket/SSE push (replaces Studio setTimeout hack) |
+| `IFeedService` | **P1** | `@objectstack/service-feed` | ✅ Feed/Chatter with comments, reactions, subscriptions |
 | `ISearchService` | **P1** | `@objectstack/service-search` | In-memory search first, then Meilisearch driver |
 | `INotificationService` | **P2** | `@objectstack/service-notification` | Email adapter (console logger in dev mode) |
 
 - [x] `service-i18n` — Implement `II18nService` with file-based locale loading
 - [x] `service-realtime` — Implement `IRealtimeService` with WebSocket + in-memory pub/sub
+- [x] `service-feed` — Implement `IFeedService` with in-memory adapter (Feed CRUD, Reactions, Subscriptions, Threading)
 - [ ] `service-search` — Implement `ISearchService` with in-memory search + Meilisearch adapter
 - [ ] `service-notification` — Implement `INotificationService` with email adapter
 
@@ -571,19 +573,20 @@ Final polish and advanced features.
 | 12 | Job Service | `IJobService` | ✅ | `@objectstack/service-job` | Interval + cron skeleton |
 | 13 | Storage Service | `IStorageService` | ✅ | `@objectstack/service-storage` | Local FS + S3 skeleton |
 | 14 | Realtime Service | `IRealtimeService` | ✅ | `@objectstack/service-realtime` | In-memory pub/sub |
-| 15 | Search Service | `ISearchService` | ❌ | `@objectstack/service-search` (planned) | Spec only |
-| 16 | Notification Service | `INotificationService` | ❌ | `@objectstack/service-notification` (planned) | Spec only |
-| 17 | AI Service | `IAIService` | ❌ | `@objectstack/service-ai` (planned) | Spec only |
-| 18 | Automation Service | `IAutomationService` | ✅ | `@objectstack/service-automation` | Plugin-based DAG engine (MVP) |
-| 19 | Workflow Service | `IWorkflowService` | ❌ | `@objectstack/service-workflow` (planned) | Spec only |
-| 20 | GraphQL Service | `IGraphQLService` | ❌ | `@objectstack/service-graphql` (planned) | Spec only |
-| 21 | i18n Service | `II18nService` | ✅ | `@objectstack/service-i18n` | File-based locale loading |
-| 22 | UI Service | `IUIService` | ⚠️ | — | **Deprecated** — merged into `IMetadataService` |
-| 23 | Schema Driver | `ISchemaDriver` | ❌ | — | Spec only |
-| 24 | Startup Orchestrator | `IStartupOrchestrator` | ❌ | — | Kernel handles basics |
-| 25 | Plugin Validator | `IPluginValidator` | ❌ | — | Spec only |
+| 15 | Feed Service | `IFeedService` | ✅ | `@objectstack/service-feed` | In-memory feed/chatter (comments, reactions, subscriptions) |
+| 16 | Search Service | `ISearchService` | ❌ | `@objectstack/service-search` (planned) | Spec only |
+| 17 | Notification Service | `INotificationService` | ❌ | `@objectstack/service-notification` (planned) | Spec only |
+| 18 | AI Service | `IAIService` | ❌ | `@objectstack/service-ai` (planned) | Spec only |
+| 19 | Automation Service | `IAutomationService` | ✅ | `@objectstack/service-automation` | Plugin-based DAG engine (MVP) |
+| 20 | Workflow Service | `IWorkflowService` | ❌ | `@objectstack/service-workflow` (planned) | Spec only |
+| 21 | GraphQL Service | `IGraphQLService` | ❌ | `@objectstack/service-graphql` (planned) | Spec only |
+| 22 | i18n Service | `II18nService` | ✅ | `@objectstack/service-i18n` | File-based locale loading |
+| 23 | UI Service | `IUIService` | ⚠️ | — | **Deprecated** — merged into `IMetadataService` |
+| 24 | Schema Driver | `ISchemaDriver` | ❌ | — | Spec only |
+| 25 | Startup Orchestrator | `IStartupOrchestrator` | ❌ | — | Kernel handles basics |
+| 26 | Plugin Validator | `IPluginValidator` | ❌ | — | Spec only |
 
-**Summary:** 13 fully implemented · 2 partially implemented · 10 specification only
+**Summary:** 14 fully implemented · 2 partially implemented · 10 specification only
 
 ---
 
@@ -612,6 +615,7 @@ Final polish and advanced features.
 | `@objectstack/service-storage` | 3.0.6 | 8 | ✅ Stable | 7/10 |
 | `@objectstack/service-i18n` | 3.0.7 | 20 | ✅ Stable | 7/10 |
 | `@objectstack/service-realtime` | 3.0.7 | 14 | ✅ Stable | 7/10 |
+| `@objectstack/service-feed` | 3.0.7 | 40 | ✅ Stable | 7/10 |
 | `@objectstack/nextjs` | 3.0.2 | ✅ | ✅ Stable | 10/10 |
 | `@objectstack/nestjs` | 3.0.2 | ✅ | ✅ Stable | 10/10 |
 | `@objectstack/hono` | 3.0.2 | ✅ | ✅ Stable | 10/10 |
