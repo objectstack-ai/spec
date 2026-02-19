@@ -2,6 +2,28 @@
 
 import type { IDataEngine } from '@objectstack/core';
 import type { CleanedWhere } from 'better-auth/adapters';
+import { SystemObjectName } from '@objectstack/spec/system';
+
+/**
+ * Mapping from better-auth model names to ObjectStack protocol object names.
+ *
+ * better-auth uses hardcoded model names ('user', 'session', 'account', 'verification')
+ * while ObjectStack's protocol layer uses `sys_` prefixed names. This map bridges the two.
+ */
+export const AUTH_MODEL_TO_PROTOCOL: Record<string, string> = {
+  user: SystemObjectName.USER,
+  session: SystemObjectName.SESSION,
+  account: SystemObjectName.ACCOUNT,
+  verification: SystemObjectName.VERIFICATION,
+};
+
+/**
+ * Resolve a better-auth model name to the ObjectStack protocol object name.
+ * Falls back to the original model name for custom / non-core models.
+ */
+export function resolveProtocolName(model: string): string {
+  return AUTH_MODEL_TO_PROTOCOL[model] ?? model;
+}
 
 /**
  * ObjectQL Adapter for better-auth
@@ -10,7 +32,8 @@ import type { CleanedWhere } from 'better-auth/adapters';
  * This allows better-auth to use ObjectQL for data persistence instead of
  * third-party ORMs like drizzle-orm.
  * 
- * Uses better-auth's native naming conventions (camelCase) for seamless migration.
+ * Model names from better-auth (e.g. 'user') are automatically mapped to
+ * ObjectStack protocol names (e.g. 'sys_user') via {@link AUTH_MODEL_TO_PROTOCOL}.
  * 
  * @param dataEngine - ObjectQL data engine instance
  * @returns better-auth CustomAdapter
@@ -50,8 +73,7 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
 
   return {
     create: async <T extends Record<string, any>>({ model, data, select: _select }: { model: string; data: T; select?: string[] }): Promise<T> => {
-      // Use model name as-is (no conversion needed)
-      const objectName = model;
+      const objectName = resolveProtocolName(model);
       
       // Note: select parameter is currently not supported by ObjectQL's insert operation
       // The full record is always returned after insertion
@@ -60,7 +82,7 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
     },
     
     findOne: async <T>({ model, where, select, join: _join }: { model: string; where: CleanedWhere[]; select?: string[]; join?: any }): Promise<T | null> => {
-      const objectName = model;
+      const objectName = resolveProtocolName(model);
       const filter = convertWhere(where);
       
       // Note: join parameter is not currently supported by ObjectQL's findOne operation
@@ -76,7 +98,7 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
     },
     
     findMany: async <T>({ model, where, limit, offset, sortBy, join: _join }: { model: string; where?: CleanedWhere[]; limit: number; offset?: number; sortBy?: { field: string; direction: 'asc' | 'desc' }; join?: any }): Promise<T[]> => {
-      const objectName = model;
+      const objectName = resolveProtocolName(model);
       const filter = where ? convertWhere(where) : {};
       
       // Note: join parameter is not currently supported by ObjectQL's find operation
@@ -98,14 +120,14 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
     },
     
     count: async ({ model, where }: { model: string; where?: CleanedWhere[] }): Promise<number> => {
-      const objectName = model;
+      const objectName = resolveProtocolName(model);
       const filter = where ? convertWhere(where) : {};
       
       return await dataEngine.count(objectName, { filter });
     },
     
     update: async <T>({ model, where, update }: { model: string; where: CleanedWhere[]; update: Record<string, any> }): Promise<T | null> => {
-      const objectName = model;
+      const objectName = resolveProtocolName(model);
       const filter = convertWhere(where);
       
       // Find the record first to get its ID
@@ -123,7 +145,7 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
     },
     
     updateMany: async ({ model, where, update }: { model: string; where: CleanedWhere[]; update: Record<string, any> }): Promise<number> => {
-      const objectName = model;
+      const objectName = resolveProtocolName(model);
       const filter = convertWhere(where);
       
       // Note: Sequential updates are used here because ObjectQL's IDataEngine interface
@@ -145,7 +167,7 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
     },
     
     delete: async ({ model, where }: { model: string; where: CleanedWhere[] }): Promise<void> => {
-      const objectName = model;
+      const objectName = resolveProtocolName(model);
       const filter = convertWhere(where);
       
       // Note: We need to find the record first to get its ID because ObjectQL's
@@ -160,7 +182,7 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
     },
     
     deleteMany: async ({ model, where }: { model: string; where: CleanedWhere[] }): Promise<number> => {
-      const objectName = model;
+      const objectName = resolveProtocolName(model);
       const filter = convertWhere(where);
       
       // Note: Sequential deletes are used here because ObjectQL's delete operation

@@ -15,7 +15,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * - image: string | null
  */
 export const AuthUser = ObjectSchema.create({
-  name: 'user',
+  name: 'sys_user',
   label: 'User',
   pluralLabel: 'Users',
   icon: 'user',

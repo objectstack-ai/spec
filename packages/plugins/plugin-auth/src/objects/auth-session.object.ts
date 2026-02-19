@@ -16,7 +16,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * - user_agent: string | null
  */
 export const AuthSession = ObjectSchema.create({
-  name: 'session',
+  name: 'sys_session',
   label: 'Session',
   pluralLabel: 'Sessions',
   icon: 'key',
