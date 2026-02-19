@@ -42,3 +42,4 @@ export * from './metadata.zod';
 export * from './dispatcher.zod';
 export * from './plugin-rest-api.zod';
 export * from './query-adapter.zod';
+export * from './feed-api.zod';
