@@ -317,13 +317,13 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 
 | Contract | Priority | Package | Notes |
 |:---|:---:|:---|:---|
-| `IAutomationService` | **P2** | `@objectstack/service-automation` | Flow execution engine |
+| `IAutomationService` | **P2** | `@objectstack/service-automation` | ✅ Plugin-based DAG flow engine (MVP) |
 | `IWorkflowService` | **P2** | `@objectstack/service-workflow` | State machine + approval processes |
 | `IGraphQLService` | **P2** | `@objectstack/service-graphql` | Auto-generated GraphQL from objects |
 | `IAIService` | **P2** | `@objectstack/service-ai` | LLM integration (OpenAI/Anthropic/local) |
 | `IAnalyticsService` | **P3** | `@objectstack/service-analytics` | BI/OLAP queries |
 
-- [ ] `service-automation` — Implement `IAutomationService` with flow execution engine
+- [x] `service-automation` — Implement `IAutomationService` with plugin-based DAG flow engine (MVP: CRUD/Logic/HTTP nodes)
 - [ ] `service-workflow` — Implement `IWorkflowService` with state machine runtime
 - [ ] `service-graphql` — Implement `IGraphQLService` with auto-schema generation
 - [ ] `service-ai` — Implement `IAIService` with multi-provider LLM routing
@@ -573,7 +573,7 @@ Final polish and advanced features.
 | 15 | Search Service | `ISearchService` | ❌ | `@objectstack/service-search` (planned) | Spec only |
 | 16 | Notification Service | `INotificationService` | ❌ | `@objectstack/service-notification` (planned) | Spec only |
 | 17 | AI Service | `IAIService` | ❌ | `@objectstack/service-ai` (planned) | Spec only |
-| 18 | Automation Service | `IAutomationService` | ❌ | `@objectstack/service-automation` (planned) | Spec only |
+| 18 | Automation Service | `IAutomationService` | ✅ | `@objectstack/service-automation` | Plugin-based DAG engine (MVP) |
 | 19 | Workflow Service | `IWorkflowService` | ❌ | `@objectstack/service-workflow` (planned) | Spec only |
 | 20 | GraphQL Service | `IGraphQLService` | ❌ | `@objectstack/service-graphql` (planned) | Spec only |
 | 21 | i18n Service | `II18nService` | ✅ | `@objectstack/service-i18n` | File-based locale loading |
