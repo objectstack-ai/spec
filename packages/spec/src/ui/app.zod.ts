@@ -31,12 +31,21 @@ const BaseNavItemSchema = z.object({
   /** Icon name (Lucide) */
   icon: z.string().optional().describe('Icon name'),
 
+  /** Sort order within the same level (lower numbers appear first) */
+  order: z.number().optional().describe('Sort order within the same level (lower = first)'),
+
+  /** Badge text or count displayed on the navigation item (e.g. "3", "New") */
+  badge: z.union([z.string(), z.number()]).optional().describe('Badge text or count displayed on the item'),
+
   /** 
    * Visibility condition. 
    * Formula expression returning boolean. 
    * e.g. "user.is_admin || user.department == 'sales'"
    */
   visible: z.string().optional().describe('Visibility formula condition'),
+
+  /** Permissions required to see/access this navigation item */
+  requiredPermissions: z.array(z.string()).optional().describe('Permissions required to access this item'),
 });
 
 /**
@@ -79,7 +88,28 @@ export const UrlNavItemSchema = BaseNavItemSchema.extend({
 });
 
 /**
- * 5. Group Navigation Item
+ * 5. Report Navigation Item
+ * Navigates to a specific report.
+ */
+export const ReportNavItemSchema = BaseNavItemSchema.extend({
+  type: z.literal('report'),
+  reportName: z.string().describe('Target report name'),
+});
+
+/**
+ * 6. Action Navigation Item
+ * Triggers an action (e.g. opening a flow, running a script, or launching a screen action).
+ */
+export const ActionNavItemSchema = BaseNavItemSchema.extend({
+  type: z.literal('action'),
+  actionDef: z.object({
+    actionName: z.string().describe('Action machine name to execute'),
+    params: z.record(z.string(), z.unknown()).optional().describe('Parameters passed to the action'),
+  }).describe('Action definition to execute when clicked'),
+});
+
+/**
+ * 7. Group Navigation Item
  * A container for child navigation items (Sub-menu).
  * Does not perform navigation itself.
  */
@@ -101,6 +131,8 @@ export const NavigationItemSchema: z.ZodType<any> = z.lazy(() =>
     DashboardNavItemSchema,
     PageNavItemSchema,
     UrlNavItemSchema,
+    ReportNavItemSchema,
+    ActionNavItemSchema,
     GroupNavItemSchema.extend({
       children: z.array(NavigationItemSchema).describe('Child navigation items'),
     })
@@ -115,6 +147,60 @@ export const AppBrandingSchema = z.object({
   primaryColor: z.string().optional().describe('Primary theme color hex code'),
   logo: z.string().optional().describe('Custom logo URL for this app'),
   favicon: z.string().optional().describe('Custom favicon URL for this app'),
+});
+
+/**
+ * Navigation Area Schema
+ * 
+ * A logical grouping (zone/section) of navigation items, similar to Salesforce "App Areas"
+ * or Dynamics 365 "Site Map Areas". Each area represents a business domain (e.g. Sales, Service, Settings)
+ * and contains its own independent navigation tree.
+ * 
+ * Areas allow large applications to partition navigation by business function while
+ * keeping a single AppSchema definition. The runtime may render areas as top-level tabs,
+ * sidebar sections, or a switchable navigation context.
+ * 
+ * @example
+ * ```ts
+ * const salesArea: NavigationArea = {
+ *   id: 'area_sales',
+ *   label: 'Sales',
+ *   icon: 'briefcase',
+ *   order: 1,
+ *   navigation: [
+ *     { id: 'nav_leads', type: 'object', label: 'Leads', objectName: 'lead' },
+ *     { id: 'nav_opportunities', type: 'object', label: 'Opportunities', objectName: 'opportunity' },
+ *   ],
+ * };
+ * ```
+ */
+export const NavigationAreaSchema = z.object({
+  /** Unique area identifier */
+  id: SnakeCaseIdentifierSchema.describe('Unique area identifier (lowercase snake_case)'),
+
+  /** Display label */
+  label: I18nLabelSchema.describe('Area display label'),
+
+  /** Icon name (Lucide) */
+  icon: z.string().optional().describe('Area icon name'),
+
+  /** Sort order among areas (lower = first) */
+  order: z.number().optional().describe('Sort order among areas (lower = first)'),
+
+  /** Area description */
+  description: I18nLabelSchema.optional().describe('Area description'),
+
+  /** 
+   * Visibility condition.
+   * Formula expression returning boolean.
+   */
+  visible: z.string().optional().describe('Visibility formula condition for this area'),
+
+  /** Permissions required to access this area */
+  requiredPermissions: z.array(z.string()).optional().describe('Permissions required to access this area'),
+
+  /** Navigation items within this area */
+  navigation: z.array(NavigationItemSchema).describe('Navigation items within this area'),
 });
 
 /**
@@ -187,9 +273,28 @@ export const AppSchema = z.object({
    * Full Navigation Tree — supports unlimited nesting depth.
    * Pages are referenced by name via `type: 'page'` items.
    * Groups can contain other groups for arbitrary sidebar depth.
+   * 
+   * For simple apps, use `navigation` directly.
+   * For enterprise apps with multiple business domains, use `areas` instead.
    */
   navigation: z.array(NavigationItemSchema).optional()
     .describe('Full navigation tree for the app sidebar'),
+
+  /**
+   * Navigation Areas — partitions navigation by business domain.
+   * Each area defines an independent navigation tree (e.g. Sales, Service, Settings).
+   * When areas are defined, they take precedence over the top-level `navigation` array.
+   * 
+   * @example
+   * ```ts
+   * areas: [
+   *   { id: 'area_sales', label: 'Sales', icon: 'briefcase', order: 1, navigation: [...] },
+   *   { id: 'area_service', label: 'Service', icon: 'headset', order: 2, navigation: [...] },
+   * ]
+   * ```
+   */
+  areas: z.array(NavigationAreaSchema).optional()
+    .describe('Navigation areas for partitioning navigation by business domain'),
   
   /** 
    * App-level Home Page Override
@@ -267,10 +372,13 @@ export type App = z.infer<typeof AppSchema>;
 export type AppInput = z.input<typeof AppSchema>;
 export type AppBranding = z.infer<typeof AppBrandingSchema>;
 export type NavigationItem = z.infer<typeof NavigationItemSchema>;
+export type NavigationArea = z.infer<typeof NavigationAreaSchema>;
 
 // Discriminated Item Types (Helper exports)
 export type ObjectNavItem = z.infer<typeof ObjectNavItemSchema>;
 export type DashboardNavItem = z.infer<typeof DashboardNavItemSchema>;
 export type PageNavItem = z.infer<typeof PageNavItemSchema>;
 export type UrlNavItem = z.infer<typeof UrlNavItemSchema>;
+export type ReportNavItem = z.infer<typeof ReportNavItemSchema>;
+export type ActionNavItem = z.infer<typeof ActionNavItemSchema>;
 export type GroupNavItem = z.infer<typeof GroupNavItemSchema> & { children: NavigationItem[] };

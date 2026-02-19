@@ -3,14 +3,18 @@ import {
   AppSchema,
   AppBrandingSchema,
   NavigationItemSchema,
+  NavigationAreaSchema,
   ObjectNavItemSchema,
   DashboardNavItemSchema,
   PageNavItemSchema,
   UrlNavItemSchema,
+  ReportNavItemSchema,
+  ActionNavItemSchema,
   GroupNavItemSchema,
   defineApp,
   type App,
   type NavigationItem,
+  type NavigationArea,
 } from './app.zod';
 
 describe('AppBrandingSchema', () => {
@@ -662,5 +666,319 @@ describe('AppSchema sharing and embed fields', () => {
     expect(app.sharing).toBeUndefined();
     expect(app.embed).toBeUndefined();
     expect(app.navigation).toHaveLength(1);
+  });
+});
+
+describe('BaseNavItem new fields (order, badge, requiredPermissions)', () => {
+  it('should accept nav item with order', () => {
+    const item = NavigationItemSchema.parse({
+      id: 'nav_home',
+      label: 'Home',
+      type: 'dashboard',
+      dashboardName: 'home',
+      order: 1,
+    });
+    expect(item.order).toBe(1);
+  });
+
+  it('should accept nav item with string badge', () => {
+    const item = NavigationItemSchema.parse({
+      id: 'nav_inbox',
+      label: 'Inbox',
+      type: 'object',
+      objectName: 'message',
+      badge: 'New',
+    });
+    expect(item.badge).toBe('New');
+  });
+
+  it('should accept nav item with numeric badge', () => {
+    const item = NavigationItemSchema.parse({
+      id: 'nav_tasks',
+      label: 'Tasks',
+      type: 'object',
+      objectName: 'task',
+      badge: 5,
+    });
+    expect(item.badge).toBe(5);
+  });
+
+  it('should accept nav item with requiredPermissions', () => {
+    const item = NavigationItemSchema.parse({
+      id: 'nav_admin',
+      label: 'Admin Panel',
+      type: 'page',
+      pageName: 'admin_panel',
+      requiredPermissions: ['admin.access', 'system.manage'],
+    });
+    expect(item.requiredPermissions).toEqual(['admin.access', 'system.manage']);
+  });
+
+  it('should accept nav item with all new fields combined', () => {
+    const item = NavigationItemSchema.parse({
+      id: 'nav_reports',
+      label: 'Reports',
+      type: 'page',
+      pageName: 'reports_page',
+      order: 10,
+      badge: 3,
+      visible: 'user.is_admin',
+      requiredPermissions: ['reports.view'],
+    });
+    expect(item.order).toBe(10);
+    expect(item.badge).toBe(3);
+    expect(item.requiredPermissions).toEqual(['reports.view']);
+  });
+
+  it('should still accept nav items without new fields (backward compatibility)', () => {
+    const item = NavigationItemSchema.parse({
+      id: 'nav_accounts',
+      label: 'Accounts',
+      type: 'object',
+      objectName: 'account',
+    });
+    expect(item.order).toBeUndefined();
+    expect(item.badge).toBeUndefined();
+    expect(item.requiredPermissions).toBeUndefined();
+  });
+});
+
+describe('ReportNavItemSchema', () => {
+  it('should accept report nav item', () => {
+    const navItem = {
+      id: 'nav_sales_report',
+      label: 'Sales Report',
+      icon: 'file-text',
+      type: 'report' as const,
+      reportName: 'quarterly_sales',
+    };
+
+    const result = ReportNavItemSchema.parse(navItem);
+    expect(result.type).toBe('report');
+    expect(result.reportName).toBe('quarterly_sales');
+  });
+
+  it('should accept report nav item via NavigationItemSchema', () => {
+    const item = NavigationItemSchema.parse({
+      id: 'nav_pipeline_report',
+      label: 'Pipeline Report',
+      type: 'report',
+      reportName: 'pipeline_overview',
+      order: 5,
+    });
+    expect(item.type).toBe('report');
+    expect(item.reportName).toBe('pipeline_overview');
+  });
+
+  it('should reject report nav item without reportName', () => {
+    expect(() => ReportNavItemSchema.parse({
+      id: 'nav_bad_report',
+      label: 'Bad Report',
+      type: 'report',
+    })).toThrow();
+  });
+});
+
+describe('ActionNavItemSchema', () => {
+  it('should accept action nav item', () => {
+    const navItem = {
+      id: 'nav_new_lead',
+      label: 'New Lead',
+      icon: 'plus',
+      type: 'action' as const,
+      actionDef: {
+        actionName: 'create_lead',
+      },
+    };
+
+    const result = ActionNavItemSchema.parse(navItem);
+    expect(result.type).toBe('action');
+    expect(result.actionDef.actionName).toBe('create_lead');
+  });
+
+  it('should accept action nav item with params', () => {
+    const result = ActionNavItemSchema.parse({
+      id: 'nav_run_flow',
+      label: 'Run Flow',
+      type: 'action',
+      actionDef: {
+        actionName: 'launch_approval_flow',
+        params: { recordType: 'contract', priority: 'high' },
+      },
+    });
+    expect(result.actionDef.params).toEqual({ recordType: 'contract', priority: 'high' });
+  });
+
+  it('should accept action nav item via NavigationItemSchema', () => {
+    const item = NavigationItemSchema.parse({
+      id: 'nav_export',
+      label: 'Export Data',
+      type: 'action',
+      actionDef: { actionName: 'export_csv' },
+      badge: 'New',
+    });
+    expect(item.type).toBe('action');
+    expect(item.actionDef.actionName).toBe('export_csv');
+  });
+
+  it('should reject action nav item without actionDef', () => {
+    expect(() => ActionNavItemSchema.parse({
+      id: 'nav_bad_action',
+      label: 'Bad Action',
+      type: 'action',
+    })).toThrow();
+  });
+});
+
+describe('NavigationAreaSchema', () => {
+  it('should accept minimal area', () => {
+    const area = NavigationAreaSchema.parse({
+      id: 'area_sales',
+      label: 'Sales',
+      navigation: [],
+    });
+    expect(area.id).toBe('area_sales');
+    expect(area.navigation).toEqual([]);
+  });
+
+  it('should accept area with full properties', () => {
+    const area = NavigationAreaSchema.parse({
+      id: 'area_service',
+      label: 'Service',
+      icon: 'headset',
+      order: 2,
+      description: 'Customer service management',
+      visible: 'user.has_permission("service.access")',
+      requiredPermissions: ['service.access'],
+      navigation: [
+        { id: 'nav_cases', type: 'object', label: 'Cases', objectName: 'case' },
+        { id: 'nav_knowledge', type: 'page', label: 'Knowledge Base', pageName: 'knowledge_base' },
+      ],
+    });
+    expect(area.id).toBe('area_service');
+    expect(area.icon).toBe('headset');
+    expect(area.order).toBe(2);
+    expect(area.requiredPermissions).toEqual(['service.access']);
+    expect(area.navigation).toHaveLength(2);
+  });
+
+  it('should enforce snake_case for area id', () => {
+    expect(() => NavigationAreaSchema.parse({
+      id: 'AreaSales',
+      label: 'Sales',
+      navigation: [],
+    })).toThrow();
+  });
+});
+
+describe('AppSchema with areas', () => {
+  it('should accept app with areas', () => {
+    const app = AppSchema.parse({
+      name: 'enterprise_crm',
+      label: 'Enterprise CRM',
+      areas: [
+        {
+          id: 'area_sales',
+          label: 'Sales',
+          icon: 'briefcase',
+          order: 1,
+          navigation: [
+            { id: 'nav_leads', type: 'object', label: 'Leads', objectName: 'lead' },
+            { id: 'nav_opportunities', type: 'object', label: 'Opportunities', objectName: 'opportunity' },
+          ],
+        },
+        {
+          id: 'area_service',
+          label: 'Service',
+          icon: 'headset',
+          order: 2,
+          navigation: [
+            { id: 'nav_cases', type: 'object', label: 'Cases', objectName: 'case' },
+          ],
+        },
+        {
+          id: 'area_settings',
+          label: 'Settings',
+          icon: 'settings',
+          order: 99,
+          requiredPermissions: ['admin.access'],
+          navigation: [
+            { id: 'nav_users', type: 'object', label: 'Users', objectName: 'user' },
+          ],
+        },
+      ],
+    });
+
+    expect(app.areas).toHaveLength(3);
+    expect(app.areas![0].id).toBe('area_sales');
+    expect(app.areas![0].navigation).toHaveLength(2);
+    expect(app.areas![2].requiredPermissions).toEqual(['admin.access']);
+  });
+
+  it('should accept app with both navigation and areas (backward compatibility)', () => {
+    const app = AppSchema.parse({
+      name: 'hybrid_app',
+      label: 'Hybrid App',
+      navigation: [
+        { id: 'nav_home', type: 'dashboard', label: 'Home', dashboardName: 'home' },
+      ],
+      areas: [
+        {
+          id: 'area_main',
+          label: 'Main',
+          navigation: [
+            { id: 'nav_accounts', type: 'object', label: 'Accounts', objectName: 'account' },
+          ],
+        },
+      ],
+    });
+    expect(app.navigation).toHaveLength(1);
+    expect(app.areas).toHaveLength(1);
+  });
+
+  it('should accept app without areas (backward compatibility)', () => {
+    const app = AppSchema.parse({
+      name: 'simple_app',
+      label: 'Simple App',
+      navigation: [
+        { id: 'nav_home', type: 'object', label: 'Home', objectName: 'account' },
+      ],
+    });
+    expect(app.areas).toBeUndefined();
+    expect(app.navigation).toHaveLength(1);
+  });
+
+  it('should accept enterprise app with areas containing all nav item types', () => {
+    const app = AppSchema.parse({
+      name: 'full_enterprise',
+      label: 'Full Enterprise',
+      areas: [
+        {
+          id: 'area_main',
+          label: 'Main',
+          order: 1,
+          navigation: [
+            { id: 'nav_home', type: 'dashboard', label: 'Home', dashboardName: 'home' },
+            { id: 'nav_accounts', type: 'object', label: 'Accounts', objectName: 'account', order: 1 },
+            { id: 'nav_custom', type: 'page', label: 'Custom Page', pageName: 'custom' },
+            { id: 'nav_report', type: 'report', label: 'Sales Report', reportName: 'quarterly_sales' },
+            { id: 'nav_action', type: 'action', label: 'New Lead', actionDef: { actionName: 'create_lead' } },
+            { id: 'nav_docs', type: 'url', label: 'Docs', url: 'https://docs.example.com', target: '_blank' },
+            {
+              id: 'grp_nested',
+              type: 'group',
+              label: 'Nested',
+              expanded: true,
+              children: [
+                { id: 'nav_nested_item', type: 'object', label: 'Nested Item', objectName: 'nested', badge: 3 },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(app.areas).toHaveLength(1);
+    expect(app.areas![0].navigation).toHaveLength(7);
   });
 });
