@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
+import { FeedItemType, FeedFilterMode } from '../data/feed.zod';
 
 /**
  * Empty Properties Schema
@@ -91,9 +92,43 @@ export const RecordHighlightsProps = z.object({
 });
 
 export const RecordActivityProps = z.object({
-  types: z.array(z.enum(['task', 'event', 'email', 'call', 'note'])).optional().describe('Activity types to display'),
-  limit: z.number().int().positive().default(10).describe('Number of activities to show'),
+  /** Activity types to display (unified enum including comment, field_change, etc.) */
+  types: z.array(FeedItemType).optional().describe('Feed item types to show (default: all)'),
+  /** Default filter mode (Airtable-style dropdown) */
+  filterMode: FeedFilterMode.default('all').describe('Default activity filter'),
+  /** Allow user to switch filter modes */
+  showFilterToggle: z.boolean().default(true).describe('Show filter dropdown in panel header'),
+  /** Pagination */
+  limit: z.number().int().positive().default(20).describe('Number of items to load per page'),
+  /** Show completed activities */
   showCompleted: z.boolean().default(false).describe('Include completed activities'),
+  /** Merge field_change + comment in a unified timeline */
+  unifiedTimeline: z.boolean().default(true).describe('Mix field changes and comments in one timeline (Airtable style)'),
+  /** Show the comment input box at the bottom */
+  showCommentInput: z.boolean().default(true).describe('Show "Leave a comment" input at the bottom'),
+  /** Enable @mentions in comments */
+  enableMentions: z.boolean().default(true).describe('Enable @mentions in comments'),
+  /** Enable emoji reactions */
+  enableReactions: z.boolean().default(false).describe('Enable emoji reactions on feed items'),
+  /** Enable threaded replies */
+  enableThreading: z.boolean().default(false).describe('Enable threaded replies on comments'),
+  /** Show notification subscription toggle (bell icon) */
+  showSubscriptionToggle: z.boolean().default(true).describe('Show bell icon for record-level notification subscription'),
+  /** ARIA accessibility */
+  aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
+});
+
+export const RecordChatterProps = z.object({
+  /** Panel position */
+  position: z.enum(['sidebar', 'inline', 'drawer']).default('sidebar').describe('Where to render the chatter panel'),
+  /** Panel width (for sidebar/drawer) */
+  width: z.union([z.string(), z.number()]).optional().describe('Panel width (e.g., "350px", "30%")'),
+  /** Collapsible */
+  collapsible: z.boolean().default(true).describe('Whether the panel can be collapsed'),
+  /** Default collapsed state */
+  defaultCollapsed: z.boolean().default(false).describe('Whether the panel starts collapsed'),
+  /** Feed configuration (delegates to RecordActivityProps) */
+  feed: RecordActivityProps.optional().describe('Embedded activity feed configuration'),
   /** ARIA accessibility */
   aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
 });
@@ -241,7 +276,7 @@ export const ComponentPropsMap = {
   'record:related_list': RecordRelatedListProps,
   'record:highlights': RecordHighlightsProps,
   'record:activity': RecordActivityProps,
-  'record:chatter': EmptyProps,
+  'record:chatter': RecordChatterProps,
   'record:path': RecordPathProps,
 
   // Navigation

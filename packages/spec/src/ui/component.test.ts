@@ -6,6 +6,8 @@ import {
   RecordDetailsProps,
   RecordRelatedListProps,
   RecordHighlightsProps,
+  RecordActivityProps,
+  RecordChatterProps,
   ComponentPropsMap,
   ElementTextPropsSchema,
   ElementNumberPropsSchema,
@@ -598,5 +600,161 @@ describe('ComponentPropsMap interactive elements', () => {
       displayField: 'name',
     });
     expect(result.object).toBe('account');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Enhanced RecordActivityProps (Unified Timeline)
+// ---------------------------------------------------------------------------
+describe('RecordActivityProps (enhanced)', () => {
+  it('should accept empty with defaults', () => {
+    const result = RecordActivityProps.parse({});
+    expect(result.filterMode).toBe('all');
+    expect(result.showFilterToggle).toBe(true);
+    expect(result.limit).toBe(20);
+    expect(result.showCompleted).toBe(false);
+    expect(result.unifiedTimeline).toBe(true);
+    expect(result.showCommentInput).toBe(true);
+    expect(result.enableMentions).toBe(true);
+    expect(result.enableReactions).toBe(false);
+    expect(result.enableThreading).toBe(false);
+    expect(result.showSubscriptionToggle).toBe(true);
+  });
+
+  it('should accept unified feed item types including comment and field_change', () => {
+    const result = RecordActivityProps.parse({
+      types: ['comment', 'field_change', 'task', 'email'],
+    });
+    expect(result.types).toEqual(['comment', 'field_change', 'task', 'email']);
+  });
+
+  it('should accept custom filter mode', () => {
+    const result = RecordActivityProps.parse({ filterMode: 'comments_only' });
+    expect(result.filterMode).toBe('comments_only');
+  });
+
+  it('should accept all filter modes', () => {
+    const modes = ['all', 'comments_only', 'changes_only', 'tasks_only'] as const;
+    modes.forEach(mode => {
+      expect(() => RecordActivityProps.parse({ filterMode: mode })).not.toThrow();
+    });
+  });
+
+  it('should accept full configuration', () => {
+    const result = RecordActivityProps.parse({
+      types: ['comment', 'field_change'],
+      filterMode: 'all',
+      showFilterToggle: true,
+      limit: 50,
+      showCompleted: true,
+      unifiedTimeline: true,
+      showCommentInput: true,
+      enableMentions: true,
+      enableReactions: true,
+      enableThreading: true,
+      showSubscriptionToggle: false,
+    });
+    expect(result.enableReactions).toBe(true);
+    expect(result.enableThreading).toBe(true);
+    expect(result.showSubscriptionToggle).toBe(false);
+    expect(result.limit).toBe(50);
+  });
+
+  it('should reject invalid feed item type', () => {
+    expect(() => RecordActivityProps.parse({ types: ['invalid_type'] })).toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// RecordChatterProps (replaces EmptyProps)
+// ---------------------------------------------------------------------------
+describe('RecordChatterProps', () => {
+  it('should accept empty with defaults', () => {
+    const result = RecordChatterProps.parse({});
+    expect(result.position).toBe('sidebar');
+    expect(result.collapsible).toBe(true);
+    expect(result.defaultCollapsed).toBe(false);
+    expect(result.width).toBeUndefined();
+    expect(result.feed).toBeUndefined();
+  });
+
+  it('should accept sidebar position with width', () => {
+    const result = RecordChatterProps.parse({
+      position: 'sidebar',
+      width: '350px',
+    });
+    expect(result.position).toBe('sidebar');
+    expect(result.width).toBe('350px');
+  });
+
+  it('should accept numeric width', () => {
+    const result = RecordChatterProps.parse({ width: 400 });
+    expect(result.width).toBe(400);
+  });
+
+  it('should accept all position modes', () => {
+    const positions = ['sidebar', 'inline', 'drawer'] as const;
+    positions.forEach(position => {
+      expect(() => RecordChatterProps.parse({ position })).not.toThrow();
+    });
+  });
+
+  it('should accept collapsed state', () => {
+    const result = RecordChatterProps.parse({
+      collapsible: true,
+      defaultCollapsed: true,
+    });
+    expect(result.defaultCollapsed).toBe(true);
+  });
+
+  it('should accept embedded feed configuration', () => {
+    const result = RecordChatterProps.parse({
+      position: 'sidebar',
+      width: '30%',
+      feed: {
+        types: ['comment', 'field_change'],
+        filterMode: 'all',
+        limit: 30,
+        enableMentions: true,
+        enableReactions: true,
+      },
+    });
+    expect(result.feed).toBeDefined();
+    expect(result.feed!.types).toEqual(['comment', 'field_change']);
+    expect(result.feed!.limit).toBe(30);
+    expect(result.feed!.enableReactions).toBe(true);
+  });
+
+  it('should reject invalid position', () => {
+    expect(() => RecordChatterProps.parse({ position: 'modal' })).toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ComponentPropsMap — record:chatter is no longer empty
+// ---------------------------------------------------------------------------
+describe('ComponentPropsMap record:chatter', () => {
+  it('should parse record:chatter with defaults', () => {
+    const result = ComponentPropsMap['record:chatter'].parse({});
+    expect(result.position).toBe('sidebar');
+    expect(result.collapsible).toBe(true);
+  });
+
+  it('should parse record:chatter with feed config', () => {
+    const result = ComponentPropsMap['record:chatter'].parse({
+      position: 'drawer',
+      feed: { filterMode: 'comments_only' },
+    });
+    expect(result.position).toBe('drawer');
+    expect(result.feed!.filterMode).toBe('comments_only');
+  });
+
+  it('should parse record:activity with unified types', () => {
+    const result = ComponentPropsMap['record:activity'].parse({
+      types: ['comment', 'field_change', 'task'],
+      unifiedTimeline: true,
+    });
+    expect(result.types).toEqual(['comment', 'field_change', 'task']);
+    expect(result.unifiedTimeline).toBe(true);
   });
 });

@@ -24,3 +24,9 @@ export * from './datasource.zod';
 // Analytics Protocol (Semantic Layer)
 export * from './analytics.zod';
 
+// Feed & Activity Protocol
+export * from './feed.zod';
+
+// Subscription Protocol
+export * from './subscription.zod';
+
