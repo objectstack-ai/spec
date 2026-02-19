@@ -162,6 +162,7 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 
 **Migration (v3.x → v4.0):**
 - v3.x: The `SystemObjectName` constants now emit `sys_`-prefixed names. Implementations using `StorageNameMapping.resolveTableName()` can set `tableName` to preserve legacy physical table names during the transition.
+- v3.x: The `@objectstack/plugin-auth` ObjectQL adapter now includes `AUTH_MODEL_TO_PROTOCOL` mapping to translate better-auth's hardcoded model names (`user`, `session`, `account`, `verification`) to protocol names (`sys_user`, `sys_session`, `sys_account`, `sys_verification`). Custom adapters must adopt the same mapping.
 - v4.0: Legacy un-prefixed aliases will be fully removed.
 
 ---
@@ -364,7 +365,7 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
   - [ ] **Phase A: Core Driver** (v3.1) — `IDataDriver` + `ISchemaDriver` implementation, QueryAST→SQL compiler, plugin wrapper
   - [ ] **Phase B: Edge & Sync** (v3.2) — Embedded replica sync, WASM build for Cloudflare/Deno, offline write queue
   - [ ] **Phase C: Multi-Tenancy** (v3.3) — Database-per-tenant router, Turso Platform API integration
-  - [ ] **Phase D: Advanced** (v4.0) — Vector search + `IAIService`, FTS5 + `ISearchService`, better-auth adapter
+  - [ ] **Phase D: Advanced** (v4.0) — Vector search + `IAIService`, FTS5 + `ISearchService`, ~~better-auth adapter~~ (✅ done in plugin-auth)
 - [ ] Driver benchmark suite comparing performance across all drivers
 
 ### 6.2 Multi-Tenancy
