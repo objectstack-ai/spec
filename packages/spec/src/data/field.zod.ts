@@ -349,6 +349,9 @@ export const FieldSchema = z.object({
   description: z.string().optional().describe('Tooltip/Help text'),
   format: z.string().optional().describe('Format string (e.g. email, phone)'),
 
+  /** Storage Layer Mapping */
+  columnName: z.string().optional().describe('Physical column name in the target datasource. Defaults to the field key when not set.'),
+
   /** Database Constraints */
   required: z.boolean().default(false).describe('Is required'),
   searchable: z.boolean().default(false).describe('Is searchable'),

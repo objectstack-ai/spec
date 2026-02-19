@@ -1433,3 +1433,32 @@ describe('FieldSchema - conditionalRequired property', () => {
     expect(result.conditionalRequired).toBe('amount > 1000');
   });
 });
+
+// ============================================================================
+// columnName — Storage Layer Mapping
+// ============================================================================
+
+describe('FieldSchema - columnName', () => {
+  it('should accept columnName for storage layer mapping', () => {
+    const result = FieldSchema.parse({
+      type: 'text',
+      columnName: 'user_email',
+    });
+    expect(result.columnName).toBe('user_email');
+  });
+
+  it('should accept field without columnName (optional, defaults to key)', () => {
+    const result = FieldSchema.parse({
+      type: 'text',
+    });
+    expect(result.columnName).toBeUndefined();
+  });
+
+  it('should accept camelCase columnName for legacy DB compatibility', () => {
+    const result = FieldSchema.parse({
+      type: 'datetime',
+      columnName: 'expiresAt',
+    });
+    expect(result.columnName).toBe('expiresAt');
+  });
+});

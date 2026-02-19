@@ -47,5 +47,8 @@ export * from './tenant.zod';
 export * from './license.zod';
 export * from './registry-config.zod';
 
+// Constants
+export * from './constants';
+
 // Types
 export * from './types';

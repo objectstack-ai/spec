@@ -283,6 +283,28 @@ describe('ObjectSchema', () => {
 
       expect(() => ObjectSchema.parse(fullObject)).not.toThrow();
     });
+
+    it('should accept object with tableName and field-level columnName for storage decoupling', () => {
+      const object = ObjectSchema.parse({
+        name: 'user',
+        tableName: 'ba_users',
+        fields: {
+          email: {
+            type: 'email',
+            columnName: 'email_address',
+          },
+          created_at: {
+            type: 'datetime',
+            columnName: 'createdAt',
+          },
+        },
+      });
+
+      expect(object.name).toBe('user');
+      expect(object.tableName).toBe('ba_users');
+      expect(object.fields.email.columnName).toBe('email_address');
+      expect(object.fields.created_at.columnName).toBe('createdAt');
+    });
   });
 
   describe('Object with Indexes', () => {
