@@ -21,7 +21,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * - password: string | null (for email/password provider)
  */
 export const AuthAccount = ObjectSchema.create({
-  name: 'account',
+  name: 'sys_account',
   label: 'Account',
   pluralLabel: 'Accounts',
   icon: 'link',

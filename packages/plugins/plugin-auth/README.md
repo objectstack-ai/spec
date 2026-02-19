@@ -34,10 +34,10 @@ Authentication & Identity Plugin for ObjectStack.
 - ✅ **No Third-Party ORM** - No dependency on drizzle-orm or other ORMs
 - ✅ **Better-Auth Native Schema** - Uses better-auth's naming conventions for seamless migration
 - ✅ **Object Definitions** - Auth objects defined using ObjectStack's Object Protocol
-  - `user` - User accounts (better-auth native table name)
-  - `session` - Active sessions (better-auth native table name)
-  - `account` - OAuth provider accounts (better-auth native table name)
-  - `verification` - Email/phone verification tokens (better-auth native table name)
+  - `sys_user` - User accounts (protocol name, mapped from better-auth's `user`)
+  - `sys_session` - Active sessions (protocol name, mapped from better-auth's `session`)
+  - `sys_account` - OAuth provider accounts (protocol name, mapped from better-auth's `account`)
+  - `sys_verification` - Email/phone verification tokens (protocol name, mapped from better-auth's `verification`)
 - ✅ **ObjectQL Adapter** - Custom adapter bridges better-auth to ObjectQL
 
 The plugin uses [better-auth](https://www.better-auth.com/) for robust, production-ready authentication functionality. All requests are forwarded directly to better-auth's universal handler, ensuring full compatibility with all better-auth features. Data persistence is handled by ObjectQL using **ObjectStack's snake_case naming conventions** for field names to maintain consistency across the platform.
@@ -187,7 +187,7 @@ The plugin uses **ObjectQL** for data persistence instead of third-party ORMs:
 ```typescript
 // Object definitions use ObjectStack's snake_case naming conventions
 export const AuthUser = ObjectSchema.create({
-  name: 'user',  // better-auth compatible table name
+  name: 'sys_user',  // ObjectStack protocol name (better-auth model 'user' is mapped automatically)
   fields: {
     id: Field.text({ label: 'User ID', required: true }),
     email: Field.email({ label: 'Email', required: true }),
@@ -213,18 +213,24 @@ export const AuthUser = ObjectSchema.create({
 - ✅ **Compatible Schema** - Uses better-auth compatible table structure with ObjectStack's snake_case field naming
 
 **Database Objects:**
-Uses better-auth compatible table names with ObjectStack's snake_case field naming:
-- `user` - User accounts (id, email, name, email_verified, created_at, etc.)
-- `session` - Active sessions (id, token, user_id, expires_at, ip_address, etc.)
-- `account` - OAuth provider accounts (id, provider_id, account_id, user_id, tokens, etc.)
-- `verification` - Verification tokens (id, value, identifier, expires_at, etc.)
+Uses ObjectStack `sys_` prefixed protocol names with snake_case field naming.
+The adapter automatically maps better-auth model names to protocol names:
+- `sys_user` (← better-auth `user`) - User accounts (id, email, name, email_verified, created_at, etc.)
+- `sys_session` (← better-auth `session`) - Active sessions (id, token, user_id, expires_at, ip_address, etc.)
+- `sys_account` (← better-auth `account`) - OAuth provider accounts (id, provider_id, account_id, user_id, tokens, etc.)
+- `sys_verification` (← better-auth `verification`) - Verification tokens (id, value, identifier, expires_at, etc.)
 
 **Adapter:**
-The `createObjectQLAdapter()` function bridges better-auth's database interface to ObjectQL's IDataEngine with field name transformation:
+The `createObjectQLAdapter()` function bridges better-auth's database interface to ObjectQL's IDataEngine. It includes a model→protocol name mapping (`AUTH_MODEL_TO_PROTOCOL`) that translates better-auth's hardcoded model names (e.g. `user`) to ObjectStack protocol names (e.g. `sys_user`):
 
 ```typescript
-// Better-auth → ObjectQL Adapter (handles snake_case transformation)
+// Better-auth → ObjectQL Adapter (handles model name mapping + field transformation)
+import { createObjectQLAdapter, AUTH_MODEL_TO_PROTOCOL } from '@objectstack/plugin-auth';
+
 const adapter = createObjectQLAdapter(dataEngine);
+
+// Mapping: { user: 'sys_user', session: 'sys_session', account: 'sys_account', verification: 'sys_verification' }
+console.log(AUTH_MODEL_TO_PROTOCOL);
 
 // Better-auth uses this adapter for all database operations
 const auth = betterAuth({

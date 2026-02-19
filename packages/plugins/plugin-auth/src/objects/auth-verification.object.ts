@@ -14,7 +14,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * - identifier: string (email or phone number)
  */
 export const AuthVerification = ObjectSchema.create({
-  name: 'verification',
+  name: 'sys_verification',
   label: 'Verification',
   pluralLabel: 'Verifications',
   icon: 'shield-check',
