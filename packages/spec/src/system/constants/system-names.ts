@@ -21,13 +21,13 @@
  */
 export const SystemObjectName = {
   /** Authentication: user identity */
-  USER: 'user',
+  USER: 'sys_user',
   /** Authentication: active session */
-  SESSION: 'session',
+  SESSION: 'sys_session',
   /** Authentication: OAuth / credential account */
-  ACCOUNT: 'account',
+  ACCOUNT: 'sys_account',
   /** Authentication: email / phone verification */
-  VERIFICATION: 'verification',
+  VERIFICATION: 'sys_verification',
   /** System metadata storage */
   METADATA: 'sys_metadata',
 } as const;

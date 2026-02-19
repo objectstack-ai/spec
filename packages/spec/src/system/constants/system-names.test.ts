@@ -10,18 +10,18 @@ import {
 // ============================================================================
 
 describe('SystemObjectName', () => {
-  it('should expose all expected object names', () => {
-    expect(SystemObjectName.USER).toBe('user');
-    expect(SystemObjectName.SESSION).toBe('session');
-    expect(SystemObjectName.ACCOUNT).toBe('account');
-    expect(SystemObjectName.VERIFICATION).toBe('verification');
+  it('should expose all expected object names with sys_ prefix', () => {
+    expect(SystemObjectName.USER).toBe('sys_user');
+    expect(SystemObjectName.SESSION).toBe('sys_session');
+    expect(SystemObjectName.ACCOUNT).toBe('sys_account');
+    expect(SystemObjectName.VERIFICATION).toBe('sys_verification');
     expect(SystemObjectName.METADATA).toBe('sys_metadata');
   });
 
   it('should be readonly (const assertion)', () => {
     const names: readonly string[] = Object.values(SystemObjectName);
-    expect(names).toContain('user');
-    expect(names).toContain('session');
+    expect(names).toContain('sys_user');
+    expect(names).toContain('sys_session');
   });
 });
 

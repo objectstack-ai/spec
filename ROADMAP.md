@@ -138,6 +138,32 @@ The following renames are planned for packages that implement core service contr
 > The existing `plugin-auth` package will be preserved with a deprecation notice and re-export shim
 > until v4.0 removes the old name.
 
+### System Object Naming Convention (`sys_` Prefix)
+
+> **Adopted:** 2026-02-19  
+> **Scope:** All system kernel objects in `SystemObjectName` constants.
+
+All system kernel objects use the `sys_` prefix to clearly distinguish platform-internal objects from
+business/custom objects, aligning with industry best practices (e.g., ServiceNow `sys_user`, `sys_audit`).
+
+| Constant Key | Protocol Name | Description |
+|:---|:---|:---|
+| `SystemObjectName.USER` | `sys_user` | Authentication: user identity |
+| `SystemObjectName.SESSION` | `sys_session` | Authentication: active session |
+| `SystemObjectName.ACCOUNT` | `sys_account` | Authentication: OAuth / credential account |
+| `SystemObjectName.VERIFICATION` | `sys_verification` | Authentication: email / phone verification |
+| `SystemObjectName.METADATA` | `sys_metadata` | System metadata storage |
+
+**Rationale:**
+- Prevents naming collisions between system objects and business objects (e.g., a CRM `account` vs. `sys_account`)
+- Aligns with ServiceNow and similar platforms that use `sys_` as a reserved namespace
+- ObjectStack already uses namespace + FQN for business object isolation; the `sys_` prefix completes the picture for kernel-level objects
+- Physical storage table names can differ via `ObjectSchema.tableName` + `StorageNameMapping.resolveTableName()` for backward compatibility
+
+**Migration (v3.x → v4.0):**
+- v3.x: The `SystemObjectName` constants now emit `sys_`-prefixed names. Implementations using `StorageNameMapping.resolveTableName()` can set `tableName` to preserve legacy physical table names during the transition.
+- v4.0: Legacy un-prefixed aliases will be fully removed.
+
 ---
 
 ## Phase 1: Protocol Specification (✅ Complete)
