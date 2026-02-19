@@ -1,0 +1,154 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+import type {
+  IRealtimeService,
+  RealtimeEventPayload,
+  RealtimeEventHandler,
+  RealtimeSubscriptionOptions,
+} from '@objectstack/spec/contracts';
+
+/**
+ * Internal subscription entry.
+ */
+interface Subscription {
+  id: string;
+  channel: string;
+  handler: RealtimeEventHandler;
+  options?: RealtimeSubscriptionOptions;
+}
+
+/**
+ * Configuration options for InMemoryRealtimeAdapter.
+ */
+export interface InMemoryRealtimeAdapterOptions {
+  /** Maximum number of subscriptions allowed (0 = unlimited) */
+  maxSubscriptions?: number;
+}
+
+/**
+ * In-memory pub/sub adapter implementing IRealtimeService.
+ *
+ * Uses a Map-backed subscription store with channel-based routing.
+ * Supports event type and object filtering via subscription options.
+ *
+ * Suitable for single-process environments, development, and testing.
+ * For production multi-instance deployments, use a Redis-backed adapter.
+ *
+ * @example
+ * ```ts
+ * const realtime = new InMemoryRealtimeAdapter();
+ *
+ * const subId = await realtime.subscribe('records', (event) => {
+ *   console.log('Received:', event.type, event.payload);
+ * }, { object: 'account', eventTypes: ['record.created'] });
+ *
+ * await realtime.publish({
+ *   type: 'record.created',
+ *   object: 'account',
+ *   payload: { id: 'acc-1', name: 'Acme' },
+ *   timestamp: new Date().toISOString(),
+ * });
+ *
+ * await realtime.unsubscribe(subId);
+ * ```
+ */
+export class InMemoryRealtimeAdapter implements IRealtimeService {
+  private readonly subscriptions = new Map<string, Subscription>();
+  private readonly channelIndex = new Map<string, Set<string>>();
+  private counter = 0;
+  private readonly maxSubscriptions: number;
+
+  constructor(options: InMemoryRealtimeAdapterOptions = {}) {
+    this.maxSubscriptions = options.maxSubscriptions ?? 0;
+  }
+
+  async publish(event: RealtimeEventPayload): Promise<void> {
+    // Deliver to all channel subscriptions that match filters
+    for (const sub of this.subscriptions.values()) {
+      if (this.matchesSubscription(event, sub)) {
+        try {
+          await sub.handler(event);
+        } catch {
+          // Swallow handler errors to avoid breaking the publish loop
+        }
+      }
+    }
+  }
+
+  async subscribe(
+    channel: string,
+    handler: RealtimeEventHandler,
+    options?: RealtimeSubscriptionOptions,
+  ): Promise<string> {
+    if (this.maxSubscriptions > 0 && this.subscriptions.size >= this.maxSubscriptions) {
+      throw new Error(
+        `Maximum subscription limit reached (${this.maxSubscriptions}). ` +
+        'Unsubscribe from existing channels before adding new subscriptions.',
+      );
+    }
+
+    const id = `sub-${++this.counter}`;
+    const sub: Subscription = { id, channel, handler, options };
+    this.subscriptions.set(id, sub);
+
+    // Maintain channel index for efficient lookups
+    if (!this.channelIndex.has(channel)) {
+      this.channelIndex.set(channel, new Set());
+    }
+    this.channelIndex.get(channel)!.add(id);
+
+    return id;
+  }
+
+  async unsubscribe(subscriptionId: string): Promise<void> {
+    const sub = this.subscriptions.get(subscriptionId);
+    if (!sub) return;
+
+    this.subscriptions.delete(subscriptionId);
+
+    // Clean up channel index
+    const channelSubs = this.channelIndex.get(sub.channel);
+    if (channelSubs) {
+      channelSubs.delete(subscriptionId);
+      if (channelSubs.size === 0) {
+        this.channelIndex.delete(sub.channel);
+      }
+    }
+  }
+
+  /**
+   * Get the number of active subscriptions.
+   */
+  getSubscriptionCount(): number {
+    return this.subscriptions.size;
+  }
+
+  /**
+   * Get all active channel names.
+   */
+  getChannels(): string[] {
+    return Array.from(this.channelIndex.keys());
+  }
+
+  /**
+   * Check if an event matches a subscription's filters.
+   */
+  private matchesSubscription(event: RealtimeEventPayload, sub: Subscription): boolean {
+    const opts = sub.options;
+    if (!opts) return true;
+
+    // Filter by object name
+    if (opts.object && event.object !== opts.object) {
+      return false;
+    }
+
+    // Filter by event types
+    if (opts.eventTypes && opts.eventTypes.length > 0) {
+      if (!opts.eventTypes.includes(event.type)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+}

@@ -61,7 +61,7 @@ the ecosystem for enterprise workloads.
 
 ### What Needs Building
 
-12 of 25 service contracts are specification-only (no runtime implementation).
+10 of 25 service contracts are specification-only (no runtime implementation).
 These are the backbone of ObjectStack's enterprise capabilities.
 
 ### Minimal Implementation Strategy
@@ -96,7 +96,7 @@ This strategy ensures rapid iteration while maintaining a clear path to producti
 | Exported Schemas | 1,100+ |
 | `.describe()` Annotations | 7,111+ |
 | Service Contracts | 25 |
-| Contracts Implemented | 11 (44%) |
+| Contracts Implemented | 13 (52%) |
 | Test Files | 199 |
 | Tests Passing | 5,468 / 5,468 |
 | `@deprecated` Items | 3 |
@@ -280,8 +280,8 @@ The following renames are planned for packages that implement core service contr
 | `ISearchService` | **P1** | `@objectstack/service-search` | In-memory search first, then Meilisearch driver |
 | `INotificationService` | **P2** | `@objectstack/service-notification` | Email adapter (console logger in dev mode) |
 
-- [ ] `service-i18n` — Implement `II18nService` with file-based locale loading
-- [ ] `service-realtime` — Implement `IRealtimeService` with WebSocket + in-memory pub/sub
+- [x] `service-i18n` — Implement `II18nService` with file-based locale loading
+- [x] `service-realtime` — Implement `IRealtimeService` with WebSocket + in-memory pub/sub
 - [ ] `service-search` — Implement `ISearchService` with in-memory search + Meilisearch adapter
 - [ ] `service-notification` — Implement `INotificationService` with email adapter
 
@@ -543,20 +543,20 @@ Final polish and advanced features.
 | 11 | Queue Service | `IQueueService` | ✅ | `@objectstack/service-queue` | Memory + BullMQ skeleton |
 | 12 | Job Service | `IJobService` | ✅ | `@objectstack/service-job` | Interval + cron skeleton |
 | 13 | Storage Service | `IStorageService` | ✅ | `@objectstack/service-storage` | Local FS + S3 skeleton |
-| 14 | Realtime Service | `IRealtimeService` | ❌ | `@objectstack/service-realtime` (planned) | Spec only |
+| 14 | Realtime Service | `IRealtimeService` | ✅ | `@objectstack/service-realtime` | In-memory pub/sub |
 | 15 | Search Service | `ISearchService` | ❌ | `@objectstack/service-search` (planned) | Spec only |
 | 16 | Notification Service | `INotificationService` | ❌ | `@objectstack/service-notification` (planned) | Spec only |
 | 17 | AI Service | `IAIService` | ❌ | `@objectstack/service-ai` (planned) | Spec only |
 | 18 | Automation Service | `IAutomationService` | ❌ | `@objectstack/service-automation` (planned) | Spec only |
 | 19 | Workflow Service | `IWorkflowService` | ❌ | `@objectstack/service-workflow` (planned) | Spec only |
 | 20 | GraphQL Service | `IGraphQLService` | ❌ | `@objectstack/service-graphql` (planned) | Spec only |
-| 21 | i18n Service | `II18nService` | ❌ | `@objectstack/service-i18n` (planned) | Spec only |
+| 21 | i18n Service | `II18nService` | ✅ | `@objectstack/service-i18n` | File-based locale loading |
 | 22 | UI Service | `IUIService` | ⚠️ | — | **Deprecated** — merged into `IMetadataService` |
 | 23 | Schema Driver | `ISchemaDriver` | ❌ | — | Spec only |
 | 24 | Startup Orchestrator | `IStartupOrchestrator` | ❌ | — | Kernel handles basics |
 | 25 | Plugin Validator | `IPluginValidator` | ❌ | — | Spec only |
 
-**Summary:** 11 fully implemented · 2 partially implemented · 12 specification only
+**Summary:** 13 fully implemented · 2 partially implemented · 10 specification only
 
 ---
 
@@ -583,6 +583,8 @@ Final polish and advanced features.
 | `@objectstack/service-queue` | 3.0.6 | 8 | ✅ Stable | 7/10 |
 | `@objectstack/service-job` | 3.0.6 | 11 | ✅ Stable | 7/10 |
 | `@objectstack/service-storage` | 3.0.6 | 8 | ✅ Stable | 7/10 |
+| `@objectstack/service-i18n` | 3.0.7 | 20 | ✅ Stable | 7/10 |
+| `@objectstack/service-realtime` | 3.0.7 | 14 | ✅ Stable | 7/10 |
 | `@objectstack/nextjs` | 3.0.2 | ✅ | ✅ Stable | 10/10 |
 | `@objectstack/nestjs` | 3.0.2 | ✅ | ✅ Stable | 10/10 |
 | `@objectstack/hono` | 3.0.2 | ✅ | ✅ Stable | 10/10 |
