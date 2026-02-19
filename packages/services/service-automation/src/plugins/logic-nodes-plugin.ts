@@ -25,6 +25,9 @@ export class LogicNodesPlugin implements Plugin {
                 const conditions = (config?.conditions ?? []) as Array<{ label: string; expression: string }>;
 
                 for (const cond of conditions) {
+                    // MVP: Simple template replacement + expression evaluation.
+                    // Flow definitions are authored by trusted developers/admins.
+                    // TODO: Replace with safe expression evaluator (e.g., jexl) for production.
                     let expr = cond.expression;
                     for (const [k, v] of variables) {
                         expr = expr.replaceAll(`{${k}}`, String(v));

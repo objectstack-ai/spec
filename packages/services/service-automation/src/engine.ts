@@ -224,7 +224,9 @@ export class AutomationEngine implements IAutomationService {
     }
 
     private evaluateCondition(expression: string, variables: Map<string, unknown>): boolean {
-        // Simple template replacement + expression evaluation (MVP version)
+        // MVP: Simple template replacement + expression evaluation.
+        // Flow definitions are authored by trusted developers/admins.
+        // TODO: Replace with safe expression evaluator (e.g., jexl) for production.
         let resolved = expression;
         for (const [key, value] of variables) {
             resolved = resolved.replaceAll(`{${key}}`, String(value));
