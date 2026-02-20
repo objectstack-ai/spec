@@ -177,6 +177,81 @@ export const RowColorConfigSchema = z.object({
 }).describe('Row color configuration based on field values');
 
 /**
+ * Visualization Type Schema
+ * Whitelist of visualization types the user can switch between.
+ * Maps to Airtable's "Visualizations" setting in Appearance panel.
+ */
+export const VisualizationTypeSchema = z.enum([
+  'grid',
+  'kanban',
+  'gallery',
+  'calendar',
+  'timeline',
+  'gantt',
+  'map',
+]).describe('Visualization type that users can switch to');
+
+/**
+ * User Actions Configuration Schema (Airtable Interface parity)
+ * Controls which interactive actions are available to users in the view toolbar.
+ * Each boolean toggles the corresponding toolbar element on/off.
+ *
+ * @see Airtable Interface → "User actions" panel
+ */
+export const UserActionsConfigSchema = z.object({
+  sort: z.boolean().default(true).describe('Allow users to sort records'),
+  search: z.boolean().default(true).describe('Allow users to search records'),
+  filter: z.boolean().default(true).describe('Allow users to filter records'),
+  rowHeight: z.boolean().default(true).describe('Allow users to toggle row height/density'),
+  addRecordForm: z.boolean().default(false).describe('Add records through a form instead of inline'),
+  buttons: z.array(z.string()).optional().describe('Custom action button IDs to show in the toolbar'),
+}).describe('User action toggles for the view toolbar');
+
+/**
+ * Appearance Configuration Schema (Airtable Interface parity)
+ * Controls visual presentation options for the view.
+ *
+ * @see Airtable Interface → "Appearance" panel
+ */
+export const AppearanceConfigSchema = z.object({
+  showDescription: z.boolean().default(true).describe('Show the view description text'),
+  allowedVisualizations: z.array(VisualizationTypeSchema).optional()
+    .describe('Whitelist of visualization types users can switch between (e.g. ["grid", "gallery", "kanban"])'),
+}).describe('Appearance and visualization configuration');
+
+/**
+ * View Tab Schema (Airtable Interface parity)
+ * Defines a tab in a multi-tab view interface.
+ * Each tab references a named list view and can be ordered, pinned, or set as default.
+ *
+ * @see Airtable Interface → "Tabs" panel
+ */
+export const ViewTabSchema = z.object({
+  name: SnakeCaseIdentifierSchema.describe('Tab identifier (snake_case)'),
+  label: I18nLabelSchema.optional().describe('Display label'),
+  icon: z.string().optional().describe('Tab icon name'),
+  view: z.string().optional().describe('Referenced list view name from listViews'),
+  filter: z.array(z.unknown()).optional().describe('Tab-specific filter criteria'),
+  order: z.number().int().min(0).optional().describe('Tab display order'),
+  pinned: z.boolean().default(false).describe('Pin tab (cannot be removed by users)'),
+  isDefault: z.boolean().default(false).describe('Set as the default active tab'),
+  visible: z.boolean().default(true).describe('Tab visibility'),
+}).describe('Tab configuration for multi-tab view interface');
+
+/**
+ * Add Record Configuration Schema (Airtable Interface parity)
+ * Configures the "Add Record" entry point for a list view.
+ *
+ * @see Airtable Interface → "+ Add record" button
+ */
+export const AddRecordConfigSchema = z.object({
+  enabled: z.boolean().default(true).describe('Show the add record entry point'),
+  position: z.enum(['top', 'bottom', 'both']).default('bottom').describe('Position of the add record button'),
+  mode: z.enum(['inline', 'form', 'modal']).default('inline').describe('How to add a new record'),
+  formView: z.string().optional().describe('Named form view to use when mode is "form" or "modal"'),
+}).describe('Add record entry point configuration');
+
+/**
  * Kanban Settings
  */
 export const KanbanConfigSchema = z.object({
@@ -363,6 +438,24 @@ export const ListViewSchema = z.object({
   /** Export */
   exportOptions: z.array(z.enum(['csv', 'xlsx', 'pdf', 'json'])).optional().describe('Available export format options'),
 
+  /** User Actions (Airtable Interface parity) */
+  userActions: UserActionsConfigSchema.optional().describe('User action toggles for the view toolbar'),
+
+  /** Appearance (Airtable Interface parity) */
+  appearance: AppearanceConfigSchema.optional().describe('Appearance and visualization configuration'),
+
+  /** Tabs (Airtable Interface parity) */
+  tabs: z.array(ViewTabSchema).optional().describe('Tab definitions for multi-tab view interface'),
+
+  /** Add Record (Airtable Interface parity) */
+  addRecord: AddRecordConfigSchema.optional().describe('Add record entry point configuration'),
+
+  /** Record Count Display (Airtable Interface parity) */
+  showRecordCount: z.boolean().optional().describe('Show record count at the bottom of the list'),
+
+  /** Advanced: Allow Printing (Airtable Interface parity) */
+  allowPrinting: z.boolean().optional().describe('Allow users to print the view'),
+
   /** Empty State */
   emptyState: z.object({
     title: I18nLabelSchema.optional(),
@@ -523,3 +616,8 @@ export type GalleryConfig = z.infer<typeof GalleryConfigSchema>;
 export type TimelineConfig = z.infer<typeof TimelineConfigSchema>;
 export type ViewSharing = z.infer<typeof ViewSharingSchema>;
 export type RowColorConfig = z.infer<typeof RowColorConfigSchema>;
+export type VisualizationType = z.infer<typeof VisualizationTypeSchema>;
+export type UserActionsConfig = z.infer<typeof UserActionsConfigSchema>;
+export type AppearanceConfig = z.infer<typeof AppearanceConfigSchema>;
+export type ViewTab = z.infer<typeof ViewTabSchema>;
+export type AddRecordConfig = z.infer<typeof AddRecordConfigSchema>;

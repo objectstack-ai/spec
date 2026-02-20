@@ -8,11 +8,13 @@ import {
   ElementDataSourceSchema,
   BlankPageLayoutSchema,
   PageVariableSchema,
+  InterfacePageConfigSchema,
   type Page,
   type PageComponent,
   type PageRegion,
   type ElementDataSource,
   type RecordReviewConfig,
+  type InterfacePageConfig,
 } from './page.zod';
 
 describe('PageComponentSchema', () => {
@@ -946,5 +948,150 @@ describe('Page end-to-end', () => {
 
     expect(page.type).toBe('grid');
     expect(page.object).toBe('order');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// InterfacePageConfigSchema — Airtable Interface parity
+// ---------------------------------------------------------------------------
+describe('InterfacePageConfigSchema', () => {
+  it('should accept empty config', () => {
+    const config: InterfacePageConfig = InterfacePageConfigSchema.parse({});
+    expect(config).toBeDefined();
+  });
+
+  it('should accept full interface page config', () => {
+    const config = InterfacePageConfigSchema.parse({
+      source: 'customers',
+      levels: 1,
+      filterBy: [{ field: 'status', operator: 'equals', value: 'active' }],
+      appearance: {
+        showDescription: true,
+        allowedVisualizations: ['grid', 'gallery', 'kanban'],
+      },
+      userFilters: {
+        elements: ['grid', 'gallery', 'kanban'],
+        tabs: [
+          { name: 'my_customers', label: 'my customers', isDefault: true },
+          { name: 'all_records', label: 'All records' },
+        ],
+      },
+      userActions: {
+        sort: true,
+        search: true,
+        filter: true,
+        rowHeight: true,
+        addRecordForm: false,
+        buttons: [],
+      },
+      addRecord: {
+        enabled: true,
+        position: 'bottom',
+        mode: 'inline',
+      },
+      showRecordCount: true,
+      allowPrinting: true,
+    });
+
+    expect(config.source).toBe('customers');
+    expect(config.levels).toBe(1);
+    expect(config.appearance?.allowedVisualizations).toHaveLength(3);
+    expect(config.userFilters?.tabs).toHaveLength(2);
+    expect(config.userActions?.sort).toBe(true);
+    expect(config.showRecordCount).toBe(true);
+    expect(config.allowPrinting).toBe(true);
+  });
+
+  it('should accept config with only source and levels', () => {
+    const config = InterfacePageConfigSchema.parse({
+      source: 'orders',
+      levels: 2,
+    });
+    expect(config.source).toBe('orders');
+    expect(config.levels).toBe(2);
+  });
+
+  it('should reject levels < 1', () => {
+    expect(() => InterfacePageConfigSchema.parse({
+      levels: 0,
+    })).toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PageSchema with interfaceConfig
+// ---------------------------------------------------------------------------
+describe('PageSchema with interfaceConfig', () => {
+  it('should accept page with interfaceConfig', () => {
+    const page = PageSchema.parse({
+      name: 'customer_list_page',
+      label: '客户列表页面',
+      description: '浏览并筛选所有客户信息',
+      type: 'list',
+      object: 'customers',
+      interfaceConfig: {
+        source: 'customers',
+        levels: 1,
+        filterBy: [],
+        appearance: {
+          showDescription: true,
+          allowedVisualizations: ['grid', 'gallery', 'kanban'],
+        },
+        userFilters: {
+          elements: ['grid', 'gallery', 'kanban'],
+          tabs: [
+            { name: 'my_customers', label: 'my customers', isDefault: true, pinned: true },
+            { name: 'all_records', label: 'All records' },
+          ],
+        },
+        userActions: {
+          sort: true,
+          search: true,
+          filter: true,
+          rowHeight: true,
+          addRecordForm: false,
+        },
+        addRecord: {
+          enabled: true,
+          position: 'bottom',
+          mode: 'inline',
+        },
+        showRecordCount: true,
+        allowPrinting: true,
+      },
+      regions: [],
+    });
+
+    expect(page.interfaceConfig?.source).toBe('customers');
+    expect(page.interfaceConfig?.appearance?.allowedVisualizations).toHaveLength(3);
+    expect(page.interfaceConfig?.userActions?.sort).toBe(true);
+    expect(page.interfaceConfig?.showRecordCount).toBe(true);
+    expect(page.interfaceConfig?.allowPrinting).toBe(true);
+  });
+
+  it('should accept page without interfaceConfig (backward compatibility)', () => {
+    const page = PageSchema.parse({
+      name: 'test_page',
+      label: 'Test Page',
+      regions: [],
+    });
+    expect(page.interfaceConfig).toBeUndefined();
+  });
+
+  it('should accept dashboard page with interfaceConfig', () => {
+    const page = PageSchema.parse({
+      name: 'sales_dashboard',
+      label: 'Sales Dashboard',
+      type: 'dashboard',
+      interfaceConfig: {
+        appearance: {
+          showDescription: false,
+        },
+        allowPrinting: false,
+      },
+      regions: [],
+    });
+    expect(page.interfaceConfig?.appearance?.showDescription).toBe(false);
+    expect(page.interfaceConfig?.allowPrinting).toBe(false);
   });
 });
