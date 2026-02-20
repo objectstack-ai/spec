@@ -1,5 +1,16 @@
 # @objectstack/plugin-msw
 
+## 3.0.8
+
+### Patch Changes
+
+- Updated dependencies [5a968a2]
+  - @objectstack/spec@3.0.8
+  - @objectstack/core@3.0.8
+  - @objectstack/objectql@3.0.8
+  - @objectstack/runtime@3.0.8
+  - @objectstack/types@3.0.8
+
 ## 3.0.7
 
 ### Patch Changes
