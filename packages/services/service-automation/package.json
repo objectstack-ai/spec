@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/service-automation",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "license": "Apache-2.0",
   "description": "Automation Service for ObjectStack — implements IAutomationService with plugin-based DAG flow execution engine",
   "type": "module",

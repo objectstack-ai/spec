@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 3.0.8
+
+### Patch Changes
+
+- 5a968a2: Unify all package version numbers across the monorepo. All packages now share the same version and are released together via the changeset fixed group.
+
 ## 3.0.7
 
 ### Patch Changes
