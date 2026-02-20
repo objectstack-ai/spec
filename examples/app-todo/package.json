@@ -1,6 +1,6 @@
 {
   "name": "@example/app-todo",
-  "version": "1.2.16",
+  "version": "3.0.7",
   "description": "Example Todo App using ObjectStack Protocol",
   "license": "Apache-2.0",
   "private": true,
