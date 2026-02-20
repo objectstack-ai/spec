@@ -5,6 +5,12 @@ import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 import { SortItemSchema } from '../shared/enums.zod';
 import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 import { ResponsiveConfigSchema } from './responsive.zod';
+import {
+  UserActionsConfigSchema,
+  AppearanceConfigSchema,
+  ViewTabSchema,
+  AddRecordConfigSchema,
+} from './view.zod';
 
 /**
  * Page Region Schema
@@ -195,6 +201,43 @@ export const RecordReviewConfigSchema = z.object({
 });
 
 /**
+ * Interface Page Configuration Schema (Airtable Interface parity)
+ * Page-level declarative configuration for Airtable-style interface pages.
+ * Covers title/data binding, levels, filter by, appearance, user actions,
+ * tabs, record count, add record, and advanced options (printing).
+ *
+ * @see Airtable Interface → right panel (Page / Data / Appearance / User filters / User actions / Advanced)
+ */
+export const InterfacePageConfigSchema = z.object({
+  /** Data binding */
+  source: z.string().optional().describe('Source object name for the page'),
+  levels: z.number().int().min(1).optional().describe('Number of hierarchy levels to display'),
+  filterBy: z.array(z.unknown()).optional().describe('Page-level filter criteria'),
+
+  /** Appearance */
+  appearance: AppearanceConfigSchema.optional().describe('Appearance and visualization configuration'),
+
+  /** User filters */
+  userFilters: z.object({
+    elements: z.array(z.enum(['grid', 'gallery', 'kanban'])).optional()
+      .describe('Visualization element types available in user filter bar'),
+    tabs: z.array(ViewTabSchema).optional().describe('User-configurable tabs'),
+  }).optional().describe('User filter configuration'),
+
+  /** User actions */
+  userActions: UserActionsConfigSchema.optional().describe('User action toggles'),
+
+  /** Add record */
+  addRecord: AddRecordConfigSchema.optional().describe('Add record entry point configuration'),
+
+  /** Record count */
+  showRecordCount: z.boolean().optional().describe('Show record count at page bottom'),
+
+  /** Advanced */
+  allowPrinting: z.boolean().optional().describe('Allow users to print the page'),
+}).describe('Interface-level page configuration (Airtable parity)');
+
+/**
  * Page Schema
  * Defines a composition of components for a specific context.
  * Supports both platform pages (Salesforce FlexiPage style: record, home, app, utility)
@@ -249,6 +292,10 @@ export const PageSchema = z.object({
   isDefault: z.boolean().default(false),
   assignedProfiles: z.array(z.string()).optional(),
 
+  /** Interface Page Configuration (Airtable Interface parity) */
+  interfaceConfig: InterfacePageConfigSchema.optional()
+    .describe('Interface-level page configuration (for Airtable-style interface pages)'),
+
   /** ARIA accessibility attributes */
   aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes'),
 });
@@ -262,3 +309,4 @@ export type ElementDataSource = z.infer<typeof ElementDataSourceSchema>;
 export type RecordReviewConfig = z.infer<typeof RecordReviewConfigSchema>;
 export type BlankPageLayoutItem = z.infer<typeof BlankPageLayoutItemSchema>;
 export type BlankPageLayout = z.infer<typeof BlankPageLayoutSchema>;
+export type InterfacePageConfig = z.infer<typeof InterfacePageConfigSchema>;

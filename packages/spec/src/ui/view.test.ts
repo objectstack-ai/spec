@@ -22,6 +22,11 @@ import {
   TimelineConfigSchema,
   ViewSharingSchema,
   RowColorConfigSchema,
+  VisualizationTypeSchema,
+  UserActionsConfigSchema,
+  AppearanceConfigSchema,
+  ViewTabSchema,
+  AddRecordConfigSchema,
   type View,
   type ListView,
   type FormView,
@@ -2008,5 +2013,290 @@ describe('FormViewSchema sharing', () => {
     });
 
     expect(form.sharing).toBeUndefined();
+  });
+});
+
+// ============================================================================
+// Airtable Interface Parity — New schemas
+// ============================================================================
+
+describe('VisualizationTypeSchema', () => {
+  it('should accept all visualization types', () => {
+    const types = ['grid', 'kanban', 'gallery', 'calendar', 'timeline', 'gantt', 'map'] as const;
+
+    types.forEach(type => {
+      expect(() => VisualizationTypeSchema.parse(type)).not.toThrow();
+    });
+  });
+
+  it('should reject invalid visualization type', () => {
+    expect(() => VisualizationTypeSchema.parse('spreadsheet')).toThrow();
+  });
+});
+
+describe('UserActionsConfigSchema', () => {
+  it('should apply default values', () => {
+    const config = UserActionsConfigSchema.parse({});
+    expect(config.sort).toBe(true);
+    expect(config.search).toBe(true);
+    expect(config.filter).toBe(true);
+    expect(config.rowHeight).toBe(true);
+    expect(config.addRecordForm).toBe(false);
+    expect(config.buttons).toBeUndefined();
+  });
+
+  it('should accept full configuration', () => {
+    const config = UserActionsConfigSchema.parse({
+      sort: false,
+      search: true,
+      filter: false,
+      rowHeight: true,
+      addRecordForm: true,
+      buttons: ['btn_export', 'btn_archive'],
+    });
+    expect(config.sort).toBe(false);
+    expect(config.filter).toBe(false);
+    expect(config.addRecordForm).toBe(true);
+    expect(config.buttons).toEqual(['btn_export', 'btn_archive']);
+  });
+
+  it('should accept partial configuration', () => {
+    const config = UserActionsConfigSchema.parse({
+      sort: false,
+      search: false,
+    });
+    expect(config.sort).toBe(false);
+    expect(config.search).toBe(false);
+    expect(config.filter).toBe(true);
+  });
+});
+
+describe('AppearanceConfigSchema', () => {
+  it('should apply default values', () => {
+    const config = AppearanceConfigSchema.parse({});
+    expect(config.showDescription).toBe(true);
+    expect(config.allowedVisualizations).toBeUndefined();
+  });
+
+  it('should accept full configuration', () => {
+    const config = AppearanceConfigSchema.parse({
+      showDescription: false,
+      allowedVisualizations: ['grid', 'gallery', 'kanban'],
+    });
+    expect(config.showDescription).toBe(false);
+    expect(config.allowedVisualizations).toEqual(['grid', 'gallery', 'kanban']);
+  });
+
+  it('should reject invalid visualization in whitelist', () => {
+    expect(() => AppearanceConfigSchema.parse({
+      allowedVisualizations: ['grid', 'invalid_type'],
+    })).toThrow();
+  });
+});
+
+describe('ViewTabSchema', () => {
+  it('should accept minimal tab', () => {
+    const tab = ViewTabSchema.parse({
+      name: 'my_customers',
+    });
+    expect(tab.name).toBe('my_customers');
+    expect(tab.pinned).toBe(false);
+    expect(tab.isDefault).toBe(false);
+    expect(tab.visible).toBe(true);
+  });
+
+  it('should accept full tab configuration', () => {
+    const tab = ViewTabSchema.parse({
+      name: 'all_records',
+      label: 'All Records',
+      icon: 'list',
+      view: 'all_contacts',
+      filter: [{ field: 'status', operator: 'equals', value: 'active' }],
+      order: 1,
+      pinned: true,
+      isDefault: true,
+      visible: true,
+    });
+    expect(tab.label).toBe('All Records');
+    expect(tab.icon).toBe('list');
+    expect(tab.pinned).toBe(true);
+    expect(tab.isDefault).toBe(true);
+    expect(tab.order).toBe(1);
+  });
+
+  it('should reject non-snake_case tab name', () => {
+    expect(() => ViewTabSchema.parse({
+      name: 'My Tab',
+    })).toThrow();
+  });
+});
+
+describe('AddRecordConfigSchema', () => {
+  it('should apply default values', () => {
+    const config = AddRecordConfigSchema.parse({});
+    expect(config.enabled).toBe(true);
+    expect(config.position).toBe('bottom');
+    expect(config.mode).toBe('inline');
+    expect(config.formView).toBeUndefined();
+  });
+
+  it('should accept full configuration', () => {
+    const config = AddRecordConfigSchema.parse({
+      enabled: true,
+      position: 'top',
+      mode: 'form',
+      formView: 'quick_create',
+    });
+    expect(config.position).toBe('top');
+    expect(config.mode).toBe('form');
+    expect(config.formView).toBe('quick_create');
+  });
+
+  it('should accept all position values', () => {
+    const positions = ['top', 'bottom', 'both'] as const;
+    positions.forEach(position => {
+      expect(() => AddRecordConfigSchema.parse({ position })).not.toThrow();
+    });
+  });
+
+  it('should accept all mode values', () => {
+    const modes = ['inline', 'form', 'modal'] as const;
+    modes.forEach(mode => {
+      expect(() => AddRecordConfigSchema.parse({ mode })).not.toThrow();
+    });
+  });
+
+  it('should accept disabled add record', () => {
+    const config = AddRecordConfigSchema.parse({ enabled: false });
+    expect(config.enabled).toBe(false);
+  });
+});
+
+describe('ListViewSchema — Airtable Interface parity fields', () => {
+  it('should accept list view with userActions', () => {
+    const listView = ListViewSchema.parse({
+      columns: ['name', 'status'],
+      userActions: {
+        sort: true,
+        search: true,
+        filter: false,
+        rowHeight: false,
+      },
+    });
+    expect(listView.userActions?.sort).toBe(true);
+    expect(listView.userActions?.filter).toBe(false);
+  });
+
+  it('should accept list view with appearance', () => {
+    const listView = ListViewSchema.parse({
+      columns: ['name', 'status'],
+      appearance: {
+        showDescription: true,
+        allowedVisualizations: ['grid', 'gallery', 'kanban'],
+      },
+    });
+    expect(listView.appearance?.showDescription).toBe(true);
+    expect(listView.appearance?.allowedVisualizations).toHaveLength(3);
+  });
+
+  it('should accept list view with tabs', () => {
+    const listView = ListViewSchema.parse({
+      columns: ['name', 'status'],
+      tabs: [
+        { name: 'my_customers', label: 'My Customers', isDefault: true },
+        { name: 'all_records', label: 'All Records' },
+      ],
+    });
+    expect(listView.tabs).toHaveLength(2);
+    expect(listView.tabs![0].isDefault).toBe(true);
+  });
+
+  it('should accept list view with addRecord', () => {
+    const listView = ListViewSchema.parse({
+      columns: ['name', 'status'],
+      addRecord: {
+        enabled: true,
+        position: 'bottom',
+        mode: 'form',
+        formView: 'quick_create',
+      },
+    });
+    expect(listView.addRecord?.mode).toBe('form');
+    expect(listView.addRecord?.formView).toBe('quick_create');
+  });
+
+  it('should accept list view with showRecordCount', () => {
+    const listView = ListViewSchema.parse({
+      columns: ['name', 'status'],
+      showRecordCount: true,
+    });
+    expect(listView.showRecordCount).toBe(true);
+  });
+
+  it('should accept list view with allowPrinting', () => {
+    const listView = ListViewSchema.parse({
+      columns: ['name', 'status'],
+      allowPrinting: true,
+    });
+    expect(listView.allowPrinting).toBe(true);
+  });
+
+  it('should accept full Airtable Interface-style list view', () => {
+    const listView = ListViewSchema.parse({
+      name: 'customer_list',
+      label: '客户列表页面',
+      description: '浏览并筛选所有客户信息',
+      type: 'grid',
+      columns: [
+        { field: 'customer_name', pinned: 'left', sortable: true },
+        { field: 'industry', width: 150 },
+        { field: 'region', width: 120 },
+        { field: 'account_owner', width: 120 },
+      ],
+      sort: [{ field: 'customer_name', order: 'asc' }],
+      rowHeight: 'medium',
+      userActions: {
+        sort: true,
+        search: true,
+        filter: true,
+        rowHeight: true,
+        addRecordForm: false,
+        buttons: [],
+      },
+      appearance: {
+        showDescription: true,
+        allowedVisualizations: ['grid', 'gallery', 'kanban'],
+      },
+      tabs: [
+        { name: 'my_customers', label: 'my customers', isDefault: true, pinned: true },
+        { name: 'all_records', label: 'All records' },
+      ],
+      addRecord: {
+        enabled: true,
+        position: 'bottom',
+        mode: 'inline',
+      },
+      showRecordCount: true,
+      allowPrinting: true,
+    });
+    expect(listView.name).toBe('customer_list');
+    expect(listView.userActions?.sort).toBe(true);
+    expect(listView.appearance?.allowedVisualizations).toHaveLength(3);
+    expect(listView.tabs).toHaveLength(2);
+    expect(listView.showRecordCount).toBe(true);
+    expect(listView.allowPrinting).toBe(true);
+  });
+
+  it('should maintain backward compatibility with existing list view config', () => {
+    const listView = ListViewSchema.parse({
+      columns: ['name', 'status'],
+      filter: [{ field: 'status', operator: 'equals', value: 'active' }],
+    });
+    expect(listView.userActions).toBeUndefined();
+    expect(listView.appearance).toBeUndefined();
+    expect(listView.tabs).toBeUndefined();
+    expect(listView.addRecord).toBeUndefined();
+    expect(listView.showRecordCount).toBeUndefined();
+    expect(listView.allowPrinting).toBeUndefined();
   });
 });
