@@ -229,7 +229,7 @@ export class AutomationEngine implements IAutomationService {
         // TODO: Replace with safe expression evaluator (e.g., jexl) for production.
         let resolved = expression;
         for (const [key, value] of variables) {
-            resolved = resolved.replaceAll(`{${key}}`, String(value));
+            resolved = resolved.split(`{${key}}`).join(String(value));
         }
         try {
             return new Function(`return (${resolved})`)() as boolean;

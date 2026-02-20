@@ -30,7 +30,7 @@ export class LogicNodesPlugin implements Plugin {
                     // TODO: Replace with safe expression evaluator (e.g., jexl) for production.
                     let expr = cond.expression;
                     for (const [k, v] of variables) {
-                        expr = expr.replaceAll(`{${k}}`, String(v));
+                        expr = expr.split(`{${k}}`).join(String(v));
                     }
                     try {
                         if (new Function(`return (${expr})`)()) {
