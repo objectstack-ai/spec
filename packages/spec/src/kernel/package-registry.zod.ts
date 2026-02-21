@@ -40,7 +40,7 @@ export const PackageStatusEnum = z.enum([
   'upgrading',     // Upgrade in progress
   'uninstalling',  // Removal in progress
   'error',         // Installation or runtime error
-]);
+]).describe('Package installation status');
 export type PackageStatus = z.infer<typeof PackageStatusEnum>;
 
 /**
@@ -53,28 +53,32 @@ export const InstalledPackageSchema = z.object({
   /** 
    * The full package manifest (source of truth for package definition).
    */
-  manifest: ManifestSchema,
+  manifest: ManifestSchema.describe('Full package manifest'),
 
   /**
    * Current lifecycle status.
    */
-  status: PackageStatusEnum.default('installed'),
+  status: PackageStatusEnum.default('installed')
+    .describe('Package state: installed, disabled, installing, upgrading, uninstalling, or error'),
 
   /**
    * Whether the package is currently enabled (active).
    * When disabled, the package's metadata is not loaded into the registry.
    */
-  enabled: z.boolean().default(true),
+  enabled: z.boolean().default(true)
+    .describe('Whether the package is currently enabled'),
 
   /**
    * ISO 8601 timestamp of when the package was installed.
    */
-  installedAt: z.string().datetime().optional(),
+  installedAt: z.string().datetime().optional()
+    .describe('Installation timestamp'),
 
   /**
    * ISO 8601 timestamp of last update.
    */
-  updatedAt: z.string().datetime().optional(),
+  updatedAt: z.string().datetime().optional()
+    .describe('Last update timestamp'),
 
   /**
    * The currently installed version string.
@@ -93,18 +97,21 @@ export const InstalledPackageSchema = z.object({
   /**
    * ISO 8601 timestamp of when the package was last enabled/disabled.
    */
-  statusChangedAt: z.string().datetime().optional(),
+  statusChangedAt: z.string().datetime().optional()
+    .describe('Status change timestamp'),
 
   /**
    * Error message if status is 'error'.
    */
-  errorMessage: z.string().optional(),
+  errorMessage: z.string().optional()
+    .describe('Error message when status is error'),
 
   /**
    * Configuration values set by the user for this package.
    * Keys correspond to the package's `configuration.properties`.
    */
-  settings: z.record(z.string(), z.unknown()).optional(),
+  settings: z.record(z.string(), z.unknown()).optional()
+    .describe('User-provided configuration settings'),
 
   /**
    * Upgrade history for this package.
@@ -190,21 +197,21 @@ export type NamespaceConflictError = z.infer<typeof NamespaceConflictErrorSchema
  */
 export const ListPackagesRequestSchema = z.object({
   /** Filter by status */
-  status: PackageStatusEnum.optional(),
+  status: PackageStatusEnum.optional().describe('Filter by package status'),
   /** Filter by package type */
-  type: ManifestSchema.shape.type.optional(),
+  type: ManifestSchema.shape.type.optional().describe('Filter by package type'),
   /** Filter by enabled state */
-  enabled: z.boolean().optional(),
-});
+  enabled: z.boolean().optional().describe('Filter by enabled state'),
+}).describe('List packages request');
 export type ListPackagesRequest = z.infer<typeof ListPackagesRequestSchema>;
 
 /**
  * List Packages Response
  */
 export const ListPackagesResponseSchema = z.object({
-  packages: z.array(InstalledPackageSchema),
-  total: z.number(),
-});
+  packages: z.array(InstalledPackageSchema).describe('List of installed packages'),
+  total: z.number().describe('Total package count'),
+}).describe('List packages response');
 export type ListPackagesResponse = z.infer<typeof ListPackagesResponseSchema>;
 
 /**
@@ -212,16 +219,16 @@ export type ListPackagesResponse = z.infer<typeof ListPackagesResponseSchema>;
  */
 export const GetPackageRequestSchema = z.object({
   /** Package ID (reverse domain identifier from manifest) */
-  id: z.string(),
-});
+  id: z.string().describe('Package identifier'),
+}).describe('Get package request');
 export type GetPackageRequest = z.infer<typeof GetPackageRequestSchema>;
 
 /**
  * Get Package Response
  */
 export const GetPackageResponseSchema = z.object({
-  package: InstalledPackageSchema,
-});
+  package: InstalledPackageSchema.describe('Package details'),
+}).describe('Get package response');
 export type GetPackageResponse = z.infer<typeof GetPackageResponseSchema>;
 
 /**
@@ -232,11 +239,13 @@ export type GetPackageResponse = z.infer<typeof GetPackageResponseSchema>;
  */
 export const InstallPackageRequestSchema = z.object({
   /** The package manifest to install */
-  manifest: ManifestSchema,
+  manifest: ManifestSchema.describe('Package manifest to install'),
   /** Optional: user-provided settings at install time */
-  settings: z.record(z.string(), z.unknown()).optional(),
+  settings: z.record(z.string(), z.unknown()).optional()
+    .describe('User-provided settings at install time'),
   /** Whether to enable immediately after install (default: true) */
-  enableOnInstall: z.boolean().default(true),
+  enableOnInstall: z.boolean().default(true)
+    .describe('Whether to enable immediately after install'),
   /**
    * Current platform version for compatibility checking.
    * When provided, the system compares this against the package's
@@ -251,8 +260,8 @@ export type InstallPackageRequest = z.infer<typeof InstallPackageRequestSchema>;
  * Install Package Response
  */
 export const InstallPackageResponseSchema = z.object({
-  package: InstalledPackageSchema,
-  message: z.string().optional(),
+  package: InstalledPackageSchema.describe('Installed package details'),
+  message: z.string().optional().describe('Installation status message'),
   /** Dependency resolution result (when dependencies were analyzed) */
   dependencyResolution: DependencyResolutionResultSchema.optional()
     .describe('Dependency resolution result from install analysis'),
@@ -264,18 +273,18 @@ export type InstallPackageResponse = z.infer<typeof InstallPackageResponseSchema
  */
 export const UninstallPackageRequestSchema = z.object({
   /** Package ID to uninstall */
-  id: z.string(),
-});
+  id: z.string().describe('Package ID to uninstall'),
+}).describe('Uninstall package request');
 export type UninstallPackageRequest = z.infer<typeof UninstallPackageRequestSchema>;
 
 /**
  * Uninstall Package Response
  */
 export const UninstallPackageResponseSchema = z.object({
-  id: z.string(),
-  success: z.boolean(),
-  message: z.string().optional(),
-});
+  id: z.string().describe('Uninstalled package ID'),
+  success: z.boolean().describe('Whether uninstall succeeded'),
+  message: z.string().optional().describe('Uninstall status message'),
+}).describe('Uninstall package response');
 export type UninstallPackageResponse = z.infer<typeof UninstallPackageResponseSchema>;
 
 /**
@@ -283,17 +292,17 @@ export type UninstallPackageResponse = z.infer<typeof UninstallPackageResponseSc
  */
 export const EnablePackageRequestSchema = z.object({
   /** Package ID to enable */
-  id: z.string(),
-});
+  id: z.string().describe('Package ID to enable'),
+}).describe('Enable package request');
 export type EnablePackageRequest = z.infer<typeof EnablePackageRequestSchema>;
 
 /**
  * Enable Package Response
  */
 export const EnablePackageResponseSchema = z.object({
-  package: InstalledPackageSchema,
-  message: z.string().optional(),
-});
+  package: InstalledPackageSchema.describe('Enabled package details'),
+  message: z.string().optional().describe('Enable status message'),
+}).describe('Enable package response');
 export type EnablePackageResponse = z.infer<typeof EnablePackageResponseSchema>;
 
 /**
@@ -301,15 +310,15 @@ export type EnablePackageResponse = z.infer<typeof EnablePackageResponseSchema>;
  */
 export const DisablePackageRequestSchema = z.object({
   /** Package ID to disable */
-  id: z.string(),
-});
+  id: z.string().describe('Package ID to disable'),
+}).describe('Disable package request');
 export type DisablePackageRequest = z.infer<typeof DisablePackageRequestSchema>;
 
 /**
  * Disable Package Response
  */
 export const DisablePackageResponseSchema = z.object({
-  package: InstalledPackageSchema,
-  message: z.string().optional(),
-});
+  package: InstalledPackageSchema.describe('Disabled package details'),
+  message: z.string().optional().describe('Disable status message'),
+}).describe('Disable package response');
 export type DisablePackageResponse = z.infer<typeof DisablePackageResponseSchema>;

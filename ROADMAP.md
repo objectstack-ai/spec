@@ -697,6 +697,18 @@ Final polish and advanced features.
 - [x] Namespace collision detection — registry entries, conflict errors
 - [x] Upgrade migration context — version context for onUpgrade hooks, upgrade history
 - [ ] Plugin marketplace runtime — publish, discover, install community plugins
+  - [ ] CLI: `os plugin build` — generate `.tgz` per PackageArtifactSchema
+  - [ ] CLI: `os plugin validate` — verify artifact structure, checksums, signatures
+  - [ ] CLI: `os plugin publish` — upload artifact to marketplace REST API
+  - [ ] Runtime: package dependency resolution & platform compatibility enforcement
+  - [ ] Runtime: namespace conflict detection at install time
+  - [ ] Runtime: package upgrade lifecycle — plan, snapshot, execute, validate, rollback
+  - [ ] API: `/api/v1/packages/install` — install with dependency & namespace checks
+  - [ ] API: `/api/v1/packages/upgrade` — upgrade with plan, rollback support
+  - [ ] API: `/api/v1/packages/resolve-dependencies` — topological sort & conflict detection
+  - [ ] API: `/api/v1/packages/upload` — artifact upload & validation
+  - [ ] Studio: marketplace browse/search, install, upgrade, uninstall UI
+  - [ ] Cloud: artifact storage, distribution, SHA256 verification, security scanning
 - [ ] App store — pre-built applications (CRM, HRM, Project Management)
 - [ ] Developer portal — API keys, usage metrics, billing
 - [ ] Managed cloud offering — ObjectStack-as-a-Service
