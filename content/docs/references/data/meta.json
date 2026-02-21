@@ -10,13 +10,16 @@
     "driver-nosql",
     "driver-sql",
     "external-lookup",
+    "feed",
     "field",
     "filter",
     "hook",
     "mapping",
+    "notification",
     "object",
     "query",
     "search-engine",
+    "subscription",
     "validation"
   ]
 }

@@ -8,24 +8,35 @@ description: Dependency Resolution protocol schemas
 # Dependency Resolution Protocol
 
 Defines schemas for runtime dependency resolution when installing,
+
 upgrading, or managing packages. Provides a standardized way to
+
 express dependency conflicts, resolution results, and installation order.
 
 ## Architecture Alignment
 
 - **npm**: Dependency tree resolution with conflict detection
+
 - **Helm**: Dependency management with version constraints
+
 - **Salesforce**: Package dependency validation at install time
 
 ## Resolution Flow
 
 ```
+
 1. Parse manifest.dependencies (SemVer ranges)
+
 2. Check installed packages registry
+
 3. Resolve each dependency → satisfied | needs_install | needs_upgrade | conflict
+
 4. Detect circular dependencies
+
 5. Compute topological install order
+
 6. Return resolution result with required actions
+
 ```
 
 <Callout type="info">
@@ -35,28 +46,47 @@ express dependency conflicts, resolution results, and installation order.
 ## TypeScript Usage
 
 ```typescript
-import { DependencyResolutionResultSchema, ResolvedDependencySchema } from '@objectstack/spec/kernel';
-import type { DependencyResolutionResult, ResolvedDependency } from '@objectstack/spec/kernel';
+import { DependencyStatusEnum, RequiredAction, ResolvedDependency } from '@objectstack/spec/kernel';
+import type { DependencyStatusEnum, RequiredAction, ResolvedDependency } from '@objectstack/spec/kernel';
 
-// Validate resolution result
-const result = DependencyResolutionResultSchema.parse(data);
+// Validate data
+const result = DependencyStatusEnum.parse(data);
 ```
 
 ---
 
-## DependencyStatus
+## DependencyStatusEnum
+
+Resolution status for a dependency
 
 ### Allowed Values
 
-* `satisfied` — Already installed and version compatible
-* `needs_install` — Not installed, needs to be installed
-* `needs_upgrade` — Installed but version incompatible, needs upgrade
-* `conflict` — Conflicts with another package's dependency
+* `satisfied`
+* `needs_install`
+* `needs_upgrade`
+* `conflict`
+
+
+---
+
+## RequiredAction
+
+Action required before installation can proceed
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'install' \| 'upgrade' \| 'confirm_conflict'>` | ✅ | Type of action required |
+| **packageId** | `string` | ✅ | Target package identifier |
+| **description** | `string` | ✅ | Human-readable action description |
 
 
 ---
 
 ## ResolvedDependency
+
+Resolution result for a single dependency
 
 ### Properties
 
@@ -72,30 +102,3 @@ const result = DependencyResolutionResultSchema.parse(data);
 
 ---
 
-## RequiredAction
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `Enum<'install' \| 'upgrade' \| 'confirm_conflict'>` | ✅ | Type of action required |
-| **packageId** | `string` | ✅ | Target package identifier |
-| **description** | `string` | ✅ | Human-readable action description |
-
-
----
-
-## DependencyResolutionResult
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **dependencies** | `ResolvedDependency[]` | ✅ | Resolution result for each dependency |
-| **canProceed** | `boolean` | ✅ | Whether installation can proceed |
-| **requiredActions** | `RequiredAction[]` | ✅ | Actions required before proceeding |
-| **installOrder** | `string[]` | ✅ | Topologically sorted package IDs |
-| **circularDependencies** | `string[][]` | optional | Circular dependency chains detected |
-
-
----

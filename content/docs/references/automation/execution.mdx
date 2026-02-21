@@ -1,0 +1,184 @@
+---
+title: Execution
+description: Execution protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+Automation Execution Protocol
+
+Defines schemas for execution logging, error tracking, checkpointing,
+
+concurrency control, and scheduled execution persistence.
+
+Industry alignment: Salesforce Flow Interviews, Temporal Workflow History,
+
+AWS Step Functions execution logs.
+
+<Callout type="info">
+**Source:** `packages/spec/src/automation/execution.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { Checkpoint, ConcurrencyPolicy, ExecutionError, ExecutionErrorSeverity, ExecutionLog, ExecutionStatus, ExecutionStepLog, ScheduleState } from '@objectstack/spec/automation';
+import type { Checkpoint, ConcurrencyPolicy, ExecutionError, ExecutionErrorSeverity, ExecutionLog, ExecutionStatus, ExecutionStepLog, ScheduleState } from '@objectstack/spec/automation';
+
+// Validate data
+const result = Checkpoint.parse(data);
+```
+
+---
+
+## Checkpoint
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Checkpoint ID |
+| **executionId** | `string` | ✅ | Parent execution ID |
+| **flowName** | `string` | ✅ | Flow machine name |
+| **currentNodeId** | `string` | ✅ | Node ID where execution is paused |
+| **variables** | `Record<string, any>` | ✅ | Flow variable state at checkpoint |
+| **completedNodeIds** | `string[]` | ✅ | List of node IDs already executed |
+| **createdAt** | `string` | ✅ | Checkpoint creation timestamp |
+| **expiresAt** | `string` | optional | Checkpoint expiration (auto-cleanup) |
+| **reason** | `Enum<'wait' \| 'screen_input' \| 'approval' \| 'error' \| 'manual_pause'>` | ✅ | Why the execution was checkpointed |
+
+
+---
+
+## ConcurrencyPolicy
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **maxConcurrent** | `integer` | ✅ | Maximum number of concurrent executions allowed |
+| **onConflict** | `Enum<'queue' \| 'reject' \| 'cancel_existing'>` | ✅ | queue = enqueue for later, reject = fail immediately, cancel_existing = stop running instance |
+| **lockScope** | `Enum<'global' \| 'per_record' \| 'per_user'>` | ✅ | Scope of the concurrency lock |
+| **queueTimeoutMs** | `integer` | optional | Maximum time to wait in queue before timing out (ms) |
+
+
+---
+
+## ExecutionError
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Error record ID |
+| **executionId** | `string` | ✅ | Parent execution ID |
+| **nodeId** | `string` | optional | Node where the error occurred |
+| **severity** | `Enum<'warning' \| 'error' \| 'critical'>` | ✅ | Error severity level |
+| **code** | `string` | ✅ | Machine-readable error code |
+| **message** | `string` | ✅ | Human-readable error message |
+| **stack** | `string` | optional | Stack trace for debugging |
+| **context** | `Record<string, any>` | optional | Additional diagnostic context (input data, config snapshot) |
+| **timestamp** | `string` | ✅ | When the error occurred |
+| **retryable** | `boolean` | ✅ | Whether this error can be retried |
+| **resolvedAt** | `string` | optional | When the error was resolved (e.g., after successful retry) |
+
+
+---
+
+## ExecutionErrorSeverity
+
+### Allowed Values
+
+* `warning`
+* `error`
+* `critical`
+
+
+---
+
+## ExecutionLog
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Execution instance ID |
+| **flowName** | `string` | ✅ | Machine name of the executed flow |
+| **flowVersion** | `integer` | optional | Version of the flow that was executed |
+| **status** | `Enum<'pending' \| 'running' \| 'paused' \| 'completed' \| 'failed' \| 'cancelled' \| 'timed_out' \| 'retrying'>` | ✅ | Current execution status |
+| **trigger** | `Object` | ✅ | What triggered this execution |
+| **steps** | `Object[]` | ✅ | Ordered list of executed steps |
+| **variables** | `Record<string, any>` | optional | Final state of flow variables |
+| **startedAt** | `string` | ✅ | Execution start timestamp |
+| **completedAt** | `string` | optional | Execution completion timestamp |
+| **durationMs** | `integer` | optional | Total execution duration in milliseconds |
+| **runAs** | `Enum<'system' \| 'user'>` | optional | Execution context identity |
+| **tenantId** | `string` | optional | Tenant ID for multi-tenant isolation |
+
+
+---
+
+## ExecutionStatus
+
+### Allowed Values
+
+* `pending`
+* `running`
+* `paused`
+* `completed`
+* `failed`
+* `cancelled`
+* `timed_out`
+* `retrying`
+
+
+---
+
+## ExecutionStepLog
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **nodeId** | `string` | ✅ | Node ID that was executed |
+| **nodeType** | `string` | ✅ | Node action type (e.g., "decision", "http_request") |
+| **nodeLabel** | `string` | optional | Human-readable node label |
+| **status** | `Enum<'success' \| 'failure' \| 'skipped'>` | ✅ | Step execution result |
+| **startedAt** | `string` | ✅ | When the step started |
+| **completedAt** | `string` | optional | When the step completed |
+| **durationMs** | `integer` | optional | Step execution duration in milliseconds |
+| **input** | `Record<string, any>` | optional | Input data passed to the node |
+| **output** | `Record<string, any>` | optional | Output data produced by the node |
+| **error** | `Object` | optional | Error details if step failed |
+| **retryAttempt** | `integer` | optional | Retry attempt number (0 = first try) |
+
+
+---
+
+## ScheduleState
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Schedule instance ID |
+| **flowName** | `string` | ✅ | Flow machine name |
+| **cronExpression** | `string` | ✅ | Cron expression (e.g., "0 9 * * MON-FRI") |
+| **timezone** | `string` | ✅ | IANA timezone for cron evaluation |
+| **status** | `Enum<'active' \| 'paused' \| 'disabled' \| 'expired'>` | ✅ | Current schedule status |
+| **nextRunAt** | `string` | optional | Next scheduled execution timestamp |
+| **lastRunAt** | `string` | optional | Last execution timestamp |
+| **lastExecutionId** | `string` | optional | Execution ID of the last run |
+| **lastRunStatus** | `Enum<'pending' \| 'running' \| 'paused' \| 'completed' \| 'failed' \| 'cancelled' \| 'timed_out' \| 'retrying'>` | optional | Status of the last run |
+| **totalRuns** | `integer` | ✅ | Total number of executions |
+| **consecutiveFailures** | `integer` | ✅ | Consecutive failed executions |
+| **startDate** | `string` | optional | Schedule effective start date |
+| **endDate** | `string` | optional | Schedule expiration date |
+| **maxRuns** | `integer` | optional | Maximum total executions before auto-disable |
+| **createdAt** | `string` | ✅ | Schedule creation timestamp |
+| **updatedAt** | `string` | optional | Last update timestamp |
+| **createdBy** | `string` | optional | User who created the schedule |
+
+
+---
+

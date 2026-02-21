@@ -380,6 +380,7 @@ const result = AiChatRequest.parse(data);
 | **object** | `string` | ✅ | The object name for the returned records. |
 | **records** | `Record<string, any>[]` | ✅ | The list of matching records. |
 | **total** | `number` | optional | Total number of records matching the filter (if requested). |
+| **nextCursor** | `string` | optional | Cursor for the next page of results (cursor-based pagination). |
 | **hasMore** | `boolean` | optional | True if there are more records available (pagination). |
 
 

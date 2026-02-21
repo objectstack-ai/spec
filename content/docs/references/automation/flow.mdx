@@ -14,8 +14,8 @@ Flow Node Types
 ## TypeScript Usage
 
 ```typescript
-import { Flow, FlowEdge, FlowNode, FlowNodeAction, FlowVariable } from '@objectstack/spec/automation';
-import type { Flow, FlowEdge, FlowNode, FlowNodeAction, FlowVariable } from '@objectstack/spec/automation';
+import { Flow, FlowEdge, FlowNode, FlowNodeAction, FlowVariable, FlowVersionHistory } from '@objectstack/spec/automation';
+import type { Flow, FlowEdge, FlowNode, FlowNodeAction, FlowVariable, FlowVersionHistory } from '@objectstack/spec/automation';
 
 // Validate data
 const result = Flow.parse(data);
@@ -74,6 +74,9 @@ const result = Flow.parse(data);
 | **config** | `Record<string, any>` | optional | Node configuration |
 | **connectorConfig** | `Object` | optional |  |
 | **position** | `Object` | optional |  |
+| **timeoutMs** | `integer` | optional | Maximum execution time for this node in milliseconds |
+| **inputSchema** | `Record<string, Object>` | optional | Input parameter schema for this node |
+| **outputSchema** | `Record<string, Object>` | optional | Output schema declaration for this node |
 
 
 ---
@@ -111,6 +114,22 @@ const result = Flow.parse(data);
 | **type** | `string` | ✅ | Data type (text, number, boolean, object, list) |
 | **isInput** | `boolean` | ✅ | Is input parameter |
 | **isOutput** | `boolean` | ✅ | Is output parameter |
+
+
+---
+
+## FlowVersionHistory
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **flowName** | `string` | ✅ | Flow machine name |
+| **version** | `integer` | ✅ | Version number |
+| **definition** | `Object` | ✅ | Complete flow definition snapshot |
+| **createdAt** | `string` | ✅ | When this version was created |
+| **createdBy** | `string` | optional | User who created this version |
+| **changeNote** | `string` | optional | Description of what changed in this version |
 
 
 ---

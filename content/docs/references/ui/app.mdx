@@ -34,12 +34,31 @@ Navigation item IDs are used in URLs and configuration and must be lowercase sna
 ## TypeScript Usage
 
 ```typescript
-import { App, AppBranding, DashboardNavItem, GroupNavItem, NavigationItem, ObjectNavItem, PageNavItem, UrlNavItem } from '@objectstack/spec/ui';
-import type { App, AppBranding, DashboardNavItem, GroupNavItem, NavigationItem, ObjectNavItem, PageNavItem, UrlNavItem } from '@objectstack/spec/ui';
+import { ActionNavItem, App, AppBranding, DashboardNavItem, GroupNavItem, NavigationArea, NavigationItem, ObjectNavItem, PageNavItem, ReportNavItem, UrlNavItem } from '@objectstack/spec/ui';
+import type { ActionNavItem, App, AppBranding, DashboardNavItem, GroupNavItem, NavigationArea, NavigationItem, ObjectNavItem, PageNavItem, ReportNavItem, UrlNavItem } from '@objectstack/spec/ui';
 
 // Validate data
-const result = App.parse(data);
+const result = ActionNavItem.parse(data);
 ```
+
+---
+
+## ActionNavItem
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string \| Object` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **order** | `number` | optional | Sort order within the same level (lower = first) |
+| **badge** | `string \| number` | optional | Badge text or count displayed on the item |
+| **visible** | `string` | optional | Visibility formula condition |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this item |
+| **type** | `string` | ✅ |  |
+| **actionDef** | `Object` | ✅ | Action definition to execute when clicked |
+
 
 ---
 
@@ -58,6 +77,7 @@ const result = App.parse(data);
 | **active** | `boolean` | ✅ | Whether the app is enabled |
 | **isDefault** | `boolean` | ✅ | Is default app |
 | **navigation** | `[__schema0](./__schema0)[]` | optional | Full navigation tree for the app sidebar |
+| **areas** | `Object[]` | optional | Navigation areas for partitioning navigation by business domain |
 | **homePageId** | `string` | optional | ID of the navigation item to serve as landing page |
 | **requiredPermissions** | `string[]` | optional | Permissions required to access this app |
 | **objects** | `any[]` | optional | Objects belonging to this app |
@@ -92,7 +112,10 @@ const result = App.parse(data);
 | **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
 | **label** | `string \| Object` | ✅ | Display proper label |
 | **icon** | `string` | optional | Icon name |
+| **order** | `number` | optional | Sort order within the same level (lower = first) |
+| **badge** | `string \| number` | optional | Badge text or count displayed on the item |
 | **visible** | `string` | optional | Visibility formula condition |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this item |
 | **type** | `string` | ✅ |  |
 | **dashboardName** | `string` | ✅ | Target dashboard name |
 
@@ -108,9 +131,30 @@ const result = App.parse(data);
 | **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
 | **label** | `string \| Object` | ✅ | Display proper label |
 | **icon** | `string` | optional | Icon name |
+| **order** | `number` | optional | Sort order within the same level (lower = first) |
+| **badge** | `string \| number` | optional | Badge text or count displayed on the item |
 | **visible** | `string` | optional | Visibility formula condition |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this item |
 | **type** | `string` | ✅ |  |
 | **expanded** | `boolean` | ✅ | Default expansion state in sidebar |
+
+
+---
+
+## NavigationArea
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique area identifier (lowercase snake_case) |
+| **label** | `string \| Object` | ✅ | Area display label |
+| **icon** | `string` | optional | Area icon name |
+| **order** | `number` | optional | Sort order among areas (lower = first) |
+| **description** | `string \| Object` | optional | Area description |
+| **visible** | `string` | optional | Visibility formula condition for this area |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this area |
+| **navigation** | `[__schema0](./__schema0)[]` | ✅ | Navigation items within this area |
 
 
 ---
@@ -132,7 +176,10 @@ This schema accepts one of the following structures:
 | **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
 | **label** | `string \| Object` | ✅ | Display proper label |
 | **icon** | `string` | optional | Icon name |
+| **order** | `number` | optional | Sort order within the same level (lower = first) |
+| **badge** | `string \| number` | optional | Badge text or count displayed on the item |
 | **visible** | `string` | optional | Visibility formula condition |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this item |
 | **type** | `string` | ✅ |  |
 | **objectName** | `string` | ✅ | Target object name |
 | **viewName** | `string` | optional | Default list view to open. Defaults to "all" |
@@ -151,7 +198,10 @@ This schema accepts one of the following structures:
 | **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
 | **label** | `string \| Object` | ✅ | Display proper label |
 | **icon** | `string` | optional | Icon name |
+| **order** | `number` | optional | Sort order within the same level (lower = first) |
+| **badge** | `string \| number` | optional | Badge text or count displayed on the item |
 | **visible** | `string` | optional | Visibility formula condition |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this item |
 | **type** | `string` | ✅ |  |
 | **dashboardName** | `string` | ✅ | Target dashboard name |
 
@@ -168,7 +218,10 @@ This schema accepts one of the following structures:
 | **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
 | **label** | `string \| Object` | ✅ | Display proper label |
 | **icon** | `string` | optional | Icon name |
+| **order** | `number` | optional | Sort order within the same level (lower = first) |
+| **badge** | `string \| number` | optional | Badge text or count displayed on the item |
 | **visible** | `string` | optional | Visibility formula condition |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this item |
 | **type** | `string` | ✅ |  |
 | **pageName** | `string` | ✅ | Target custom page component name |
 | **params** | `Record<string, any>` | optional | Parameters passed to the page context |
@@ -186,7 +239,10 @@ This schema accepts one of the following structures:
 | **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
 | **label** | `string \| Object` | ✅ | Display proper label |
 | **icon** | `string` | optional | Icon name |
+| **order** | `number` | optional | Sort order within the same level (lower = first) |
+| **badge** | `string \| number` | optional | Badge text or count displayed on the item |
 | **visible** | `string` | optional | Visibility formula condition |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this item |
 | **type** | `string` | ✅ |  |
 | **url** | `string` | ✅ | Target external URL |
 | **target** | `Enum<'_self' \| '_blank'>` | ✅ | Link target window |
@@ -194,6 +250,46 @@ This schema accepts one of the following structures:
 ---
 
 #### Option 5
+
+**Type:** `report`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string \| Object` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **order** | `number` | optional | Sort order within the same level (lower = first) |
+| **badge** | `string \| number` | optional | Badge text or count displayed on the item |
+| **visible** | `string` | optional | Visibility formula condition |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this item |
+| **type** | `string` | ✅ |  |
+| **reportName** | `string` | ✅ | Target report name |
+
+---
+
+#### Option 6
+
+**Type:** `action`
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string \| Object` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **order** | `number` | optional | Sort order within the same level (lower = first) |
+| **badge** | `string \| number` | optional | Badge text or count displayed on the item |
+| **visible** | `string` | optional | Visibility formula condition |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this item |
+| **type** | `string` | ✅ |  |
+| **actionDef** | `Object` | ✅ | Action definition to execute when clicked |
+
+---
+
+#### Option 7
 
 **Type:** `group`
 
@@ -204,7 +300,10 @@ This schema accepts one of the following structures:
 | **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
 | **label** | `string \| Object` | ✅ | Display proper label |
 | **icon** | `string` | optional | Icon name |
+| **order** | `number` | optional | Sort order within the same level (lower = first) |
+| **badge** | `string \| number` | optional | Badge text or count displayed on the item |
 | **visible** | `string` | optional | Visibility formula condition |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this item |
 | **type** | `string` | ✅ |  |
 | **expanded** | `boolean` | ✅ | Default expansion state in sidebar |
 | **children** | `[#](./#)[]` | ✅ | Child navigation items |
@@ -223,7 +322,10 @@ This schema accepts one of the following structures:
 | **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
 | **label** | `string \| Object` | ✅ | Display proper label |
 | **icon** | `string` | optional | Icon name |
+| **order** | `number` | optional | Sort order within the same level (lower = first) |
+| **badge** | `string \| number` | optional | Badge text or count displayed on the item |
 | **visible** | `string` | optional | Visibility formula condition |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this item |
 | **type** | `string` | ✅ |  |
 | **objectName** | `string` | ✅ | Target object name |
 | **viewName** | `string` | optional | Default list view to open. Defaults to "all" |
@@ -240,10 +342,32 @@ This schema accepts one of the following structures:
 | **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
 | **label** | `string \| Object` | ✅ | Display proper label |
 | **icon** | `string` | optional | Icon name |
+| **order** | `number` | optional | Sort order within the same level (lower = first) |
+| **badge** | `string \| number` | optional | Badge text or count displayed on the item |
 | **visible** | `string` | optional | Visibility formula condition |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this item |
 | **type** | `string` | ✅ |  |
 | **pageName** | `string` | ✅ | Target custom page component name |
 | **params** | `Record<string, any>` | optional | Parameters passed to the page context |
+
+
+---
+
+## ReportNavItem
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
+| **label** | `string \| Object` | ✅ | Display proper label |
+| **icon** | `string` | optional | Icon name |
+| **order** | `number` | optional | Sort order within the same level (lower = first) |
+| **badge** | `string \| number` | optional | Badge text or count displayed on the item |
+| **visible** | `string` | optional | Visibility formula condition |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this item |
+| **type** | `string` | ✅ |  |
+| **reportName** | `string` | ✅ | Target report name |
 
 
 ---
@@ -257,7 +381,10 @@ This schema accepts one of the following structures:
 | **id** | `string` | ✅ | Unique identifier for this navigation item (lowercase snake_case) |
 | **label** | `string \| Object` | ✅ | Display proper label |
 | **icon** | `string` | optional | Icon name |
+| **order** | `number` | optional | Sort order within the same level (lower = first) |
+| **badge** | `string \| number` | optional | Badge text or count displayed on the item |
 | **visible** | `string` | optional | Visibility formula condition |
+| **requiredPermissions** | `string[]` | optional | Permissions required to access this item |
 | **type** | `string` | ✅ |  |
 | **url** | `string` | ✅ | Target external URL |
 | **target** | `Enum<'_self' \| '_blank'>` | ✅ | Link target window |

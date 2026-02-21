@@ -16,8 +16,8 @@ A named region in the template where components are dropped.
 ## TypeScript Usage
 
 ```typescript
-import { BlankPageLayout, BlankPageLayoutItem, ElementDataSource, Page, PageComponent, PageComponentType, PageRegion, PageType, PageVariable, RecordReviewConfig } from '@objectstack/spec/ui';
-import type { BlankPageLayout, BlankPageLayoutItem, ElementDataSource, Page, PageComponent, PageComponentType, PageRegion, PageType, PageVariable, RecordReviewConfig } from '@objectstack/spec/ui';
+import { BlankPageLayout, BlankPageLayoutItem, ElementDataSource, InterfacePageConfig, Page, PageComponent, PageComponentType, PageRegion, PageType, PageVariable, RecordReviewConfig } from '@objectstack/spec/ui';
+import type { BlankPageLayout, BlankPageLayoutItem, ElementDataSource, InterfacePageConfig, Page, PageComponent, PageComponentType, PageRegion, PageType, PageVariable, RecordReviewConfig } from '@objectstack/spec/ui';
 
 // Validate data
 const result = BlankPageLayout.parse(data);
@@ -69,6 +69,27 @@ const result = BlankPageLayout.parse(data);
 
 ---
 
+## InterfacePageConfig
+
+Interface-level page configuration (Airtable parity)
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **source** | `string` | optional | Source object name for the page |
+| **levels** | `integer` | optional | Number of hierarchy levels to display |
+| **filterBy** | `any[]` | optional | Page-level filter criteria |
+| **appearance** | `Object` | optional | Appearance and visualization configuration |
+| **userFilters** | `Object` | optional | User filter configuration |
+| **userActions** | `Object` | optional | User action toggles |
+| **addRecord** | `Object` | optional | Add record entry point configuration |
+| **showRecordCount** | `boolean` | optional | Show record count at page bottom |
+| **allowPrinting** | `boolean` | optional | Allow users to print the page |
+
+
+---
+
 ## Page
 
 ### Properties
@@ -88,6 +109,7 @@ const result = BlankPageLayout.parse(data);
 | **regions** | `Object[]` | ✅ | Defined regions with components |
 | **isDefault** | `boolean` | ✅ |  |
 | **assignedProfiles** | `string[]` | optional |  |
+| **interfaceConfig** | `Object` | optional | Interface-level page configuration (for Airtable-style interface pages) |
 | **aria** | `Object` | optional | ARIA accessibility attributes |
 
 

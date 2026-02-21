@@ -68,16 +68,52 @@ platform, and customers who install plugins.
 ## TypeScript Usage
 
 ```typescript
-import { ListingStatus, MarketplaceCategory, MarketplaceInstallRequest, MarketplaceInstallResponse, MarketplaceListing, MarketplaceSearchRequest, MarketplaceSearchResponse, PackageSubmission, PricingModel, Publisher, PublisherVerification } from '@objectstack/spec/cloud';
-import type { ListingStatus, MarketplaceCategory, MarketplaceInstallRequest, MarketplaceInstallResponse, MarketplaceListing, MarketplaceSearchRequest, MarketplaceSearchResponse, PackageSubmission, PricingModel, Publisher, PublisherVerification } from '@objectstack/spec/cloud';
+import { ArtifactDownloadResponse, ArtifactReference, ListingStatus, MarketplaceCategory, MarketplaceInstallRequest, MarketplaceInstallResponse, MarketplaceListing, MarketplaceSearchRequest, MarketplaceSearchResponse, PackageSubmission, PricingModel, Publisher, PublisherVerification } from '@objectstack/spec/cloud';
+import type { ArtifactDownloadResponse, ArtifactReference, ListingStatus, MarketplaceCategory, MarketplaceInstallRequest, MarketplaceInstallResponse, MarketplaceListing, MarketplaceSearchRequest, MarketplaceSearchResponse, PackageSubmission, PricingModel, Publisher, PublisherVerification } from '@objectstack/spec/cloud';
 
 // Validate data
-const result = ListingStatus.parse(data);
+const result = ArtifactDownloadResponse.parse(data);
 ```
 
 ---
 
+## ArtifactDownloadResponse
+
+Artifact download response with integrity metadata
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **downloadUrl** | `string` | ✅ | Artifact download URL (may be pre-signed) |
+| **sha256** | `string` | ✅ | SHA256 checksum for verification |
+| **size** | `integer` | ✅ | Artifact size in bytes |
+| **format** | `Enum<'tgz' \| 'zip'>` | ✅ | Artifact format |
+| **expiresAt** | `string` | optional | URL expiration timestamp for pre-signed URLs |
+
+
+---
+
+## ArtifactReference
+
+Reference to a downloadable package artifact
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **url** | `string` | ✅ | Artifact download URL |
+| **sha256** | `string` | ✅ | SHA256 checksum |
+| **size** | `integer` | ✅ | Artifact size in bytes |
+| **format** | `Enum<'tgz' \| 'zip'>` | ✅ | Artifact format |
+| **uploadedAt** | `string` | ✅ | Upload timestamp |
+
+
+---
+
 ## ListingStatus
+
+Marketplace listing status
 
 ### Allowed Values
 
@@ -95,6 +131,8 @@ const result = ListingStatus.parse(data);
 ---
 
 ## MarketplaceCategory
+
+Marketplace package category
 
 ### Allowed Values
 
@@ -119,6 +157,8 @@ const result = ListingStatus.parse(data);
 
 ## MarketplaceInstallRequest
 
+Install from marketplace request
+
 ### Properties
 
 | Property | Type | Required | Description |
@@ -126,29 +166,33 @@ const result = ListingStatus.parse(data);
 | **listingId** | `string` | ✅ | Marketplace listing ID |
 | **version** | `string` | optional | Version to install |
 | **licenseKey** | `string` | optional | License key for paid packages |
-| **settings** | `Record<string, any>` | optional |  |
-| **enableOnInstall** | `boolean` | ✅ |  |
+| **settings** | `Record<string, any>` | optional | User-provided settings at install time |
+| **enableOnInstall** | `boolean` | ✅ | Whether to enable immediately after install |
 | **artifactRef** | `Object` | optional | Artifact reference for direct installation |
-| **tenantId** | `string` | optional |  |
+| **tenantId** | `string` | optional | Tenant identifier |
 
 
 ---
 
 ## MarketplaceInstallResponse
 
+Install from marketplace response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ |  |
-| **packageId** | `string` | optional |  |
-| **version** | `string` | optional |  |
-| **message** | `string` | optional |  |
+| **success** | `boolean` | ✅ | Whether installation succeeded |
+| **packageId** | `string` | optional | Installed package identifier |
+| **version** | `string` | optional | Installed version |
+| **message** | `string` | optional | Installation status message |
 
 
 ---
 
 ## MarketplaceListing
+
+Public-facing package listing on the marketplace
 
 ### Properties
 
@@ -157,44 +201,46 @@ const result = ListingStatus.parse(data);
 | **id** | `string` | ✅ | Listing ID (matches package manifest ID) |
 | **packageId** | `string` | ✅ | Package identifier |
 | **publisherId** | `string` | ✅ | Publisher ID |
-| **status** | `Enum<'draft' \| 'submitted' \| 'in-review' \| 'approved' \| 'published' \| 'rejected' \| 'suspended' \| 'deprecated' \| 'unlisted'>` | ✅ |  |
+| **status** | `Enum<'draft' \| 'submitted' \| 'in-review' \| 'approved' \| 'published' \| 'rejected' \| 'suspended' \| 'deprecated' \| 'unlisted'>` | ✅ | Publication state: draft, published, under-review, suspended, deprecated, or unlisted |
 | **name** | `string` | ✅ | Display name |
 | **tagline** | `string` | optional | Short tagline (max 120 chars) |
 | **description** | `string` | optional | Full description (Markdown) |
-| **category** | `Enum<'crm' \| 'erp' \| 'hr' \| 'finance' \| 'project' \| 'collaboration' \| 'analytics' \| 'integration' \| 'automation' \| 'ai' \| 'security' \| 'developer-tools' \| 'ui-theme' \| 'storage' \| 'other'>` | ✅ |  |
+| **category** | `Enum<'crm' \| 'erp' \| 'hr' \| 'finance' \| 'project' \| 'collaboration' \| 'analytics' \| 'integration' \| 'automation' \| 'ai' \| 'security' \| 'developer-tools' \| 'ui-theme' \| 'storage' \| 'other'>` | ✅ | Package category |
 | **tags** | `string[]` | optional | Search tags |
 | **iconUrl** | `string` | optional | Package icon URL |
 | **screenshots** | `Object[]` | optional | Screenshots |
-| **documentationUrl** | `string` | optional |  |
-| **supportUrl** | `string` | optional |  |
-| **repositoryUrl** | `string` | optional |  |
-| **pricing** | `Enum<'free' \| 'freemium' \| 'paid' \| 'subscription' \| 'usage-based' \| 'contact-sales'>` | ✅ |  |
+| **documentationUrl** | `string` | optional | Documentation URL |
+| **supportUrl** | `string` | optional | Support URL |
+| **repositoryUrl** | `string` | optional | Source repository URL |
+| **pricing** | `Enum<'free' \| 'freemium' \| 'paid' \| 'subscription' \| 'usage-based' \| 'contact-sales'>` | ✅ | Pricing model |
 | **priceInCents** | `integer` | optional | Price in cents (e.g. 999 = $9.99) |
 | **latestVersion** | `string` | ✅ | Latest published version |
 | **minPlatformVersion** | `string` | optional | Minimum ObjectStack platform version |
 | **versions** | `Object[]` | optional | Published versions |
 | **stats** | `Object` | optional | Aggregate marketplace statistics |
-| **publishedAt** | `string` | optional |  |
-| **updatedAt** | `string` | optional |  |
+| **publishedAt** | `string` | optional | First published timestamp |
+| **updatedAt** | `string` | optional | Last updated timestamp |
 
 
 ---
 
 ## MarketplaceSearchRequest
 
+Marketplace search request
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **query** | `string` | optional | Full-text search query |
-| **category** | `Enum<'crm' \| 'erp' \| 'hr' \| 'finance' \| 'project' \| 'collaboration' \| 'analytics' \| 'integration' \| 'automation' \| 'ai' \| 'security' \| 'developer-tools' \| 'ui-theme' \| 'storage' \| 'other'>` | optional |  |
-| **tags** | `string[]` | optional |  |
-| **pricing** | `Enum<'free' \| 'freemium' \| 'paid' \| 'subscription' \| 'usage-based' \| 'contact-sales'>` | optional |  |
-| **publisherVerification** | `Enum<'unverified' \| 'pending' \| 'verified' \| 'trusted' \| 'partner'>` | optional |  |
-| **sortBy** | `Enum<'relevance' \| 'popularity' \| 'rating' \| 'newest' \| 'updated' \| 'name'>` | ✅ |  |
-| **sortDirection** | `Enum<'asc' \| 'desc'>` | ✅ |  |
-| **page** | `integer` | ✅ |  |
-| **pageSize** | `integer` | ✅ |  |
+| **category** | `Enum<'crm' \| 'erp' \| 'hr' \| 'finance' \| 'project' \| 'collaboration' \| 'analytics' \| 'integration' \| 'automation' \| 'ai' \| 'security' \| 'developer-tools' \| 'ui-theme' \| 'storage' \| 'other'>` | optional | Filter by category |
+| **tags** | `string[]` | optional | Filter by tags |
+| **pricing** | `Enum<'free' \| 'freemium' \| 'paid' \| 'subscription' \| 'usage-based' \| 'contact-sales'>` | optional | Filter by pricing model |
+| **publisherVerification** | `Enum<'unverified' \| 'pending' \| 'verified' \| 'trusted' \| 'partner'>` | optional | Filter by publisher verification level |
+| **sortBy** | `Enum<'relevance' \| 'popularity' \| 'rating' \| 'newest' \| 'updated' \| 'name'>` | ✅ | Sort field |
+| **sortDirection** | `Enum<'asc' \| 'desc'>` | ✅ | Sort direction |
+| **page** | `integer` | ✅ | Page number |
+| **pageSize** | `integer` | ✅ | Items per page |
 | **platformVersion** | `string` | optional | Filter by platform version compatibility |
 
 
@@ -202,20 +248,24 @@ const result = ListingStatus.parse(data);
 
 ## MarketplaceSearchResponse
 
+Marketplace search response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **items** | `Object[]` | ✅ |  |
-| **total** | `integer` | ✅ |  |
-| **page** | `integer` | ✅ |  |
-| **pageSize** | `integer` | ✅ |  |
-| **facets** | `Object` | optional |  |
+| **items** | `Object[]` | ✅ | Search result listings |
+| **total** | `integer` | ✅ | Total matching results |
+| **page** | `integer` | ✅ | Current page number |
+| **pageSize** | `integer` | ✅ | Items per page |
+| **facets** | `Object` | optional | Aggregation facets for refining search |
 
 
 ---
 
 ## PackageSubmission
+
+Developer submission of a package version for review
 
 ### Properties
 
@@ -225,19 +275,21 @@ const result = ListingStatus.parse(data);
 | **packageId** | `string` | ✅ | Package identifier |
 | **version** | `string` | ✅ | Version being submitted |
 | **publisherId** | `string` | ✅ | Publisher submitting |
-| **status** | `Enum<'pending' \| 'scanning' \| 'in-review' \| 'changes-requested' \| 'approved' \| 'rejected'>` | ✅ |  |
+| **status** | `Enum<'pending' \| 'scanning' \| 'in-review' \| 'changes-requested' \| 'approved' \| 'rejected'>` | ✅ | Review status |
 | **artifactUrl** | `string` | ✅ | Package artifact URL for review |
-| **releaseNotes** | `string` | optional |  |
-| **isNewListing** | `boolean` | ✅ |  |
+| **releaseNotes** | `string` | optional | Release notes for this version |
+| **isNewListing** | `boolean` | ✅ | Whether this is a new listing submission |
 | **scanResults** | `Object` | optional | Automated scan results |
-| **reviewerNotes** | `string` | optional |  |
-| **submittedAt** | `string` | optional |  |
-| **reviewedAt** | `string` | optional |  |
+| **reviewerNotes** | `string` | optional | Notes from the platform reviewer |
+| **submittedAt** | `string` | optional | Submission timestamp |
+| **reviewedAt** | `string` | optional | Review completion timestamp |
 
 
 ---
 
 ## PricingModel
+
+Package pricing model
 
 ### Allowed Values
 
@@ -253,6 +305,8 @@ const result = ListingStatus.parse(data);
 
 ## Publisher
 
+Developer or organization that publishes packages
+
 ### Properties
 
 | Property | Type | Required | Description |
@@ -260,17 +314,19 @@ const result = ListingStatus.parse(data);
 | **id** | `string` | ✅ | Publisher ID |
 | **name** | `string` | ✅ | Publisher display name |
 | **type** | `Enum<'individual' \| 'organization'>` | ✅ | Publisher type |
-| **verification** | `Enum<'unverified' \| 'pending' \| 'verified' \| 'trusted' \| 'partner'>` | ✅ |  |
+| **verification** | `Enum<'unverified' \| 'pending' \| 'verified' \| 'trusted' \| 'partner'>` | ✅ | Publisher verification status |
 | **email** | `string` | optional | Contact email |
 | **website** | `string` | optional | Publisher website |
 | **logoUrl** | `string` | optional | Publisher logo URL |
 | **description** | `string` | optional | Publisher description |
-| **registeredAt** | `string` | optional |  |
+| **registeredAt** | `string` | optional | Publisher registration timestamp |
 
 
 ---
 
 ## PublisherVerification
+
+Publisher verification status
 
 ### Allowed Values
 
@@ -279,40 +335,6 @@ const result = ListingStatus.parse(data);
 * `verified`
 * `trusted`
 * `partner`
-
-
----
-
-## ArtifactReference
-
-Reference to a downloadable package artifact with integrity verification.
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **url** | `string` | ✅ | Artifact download URL |
-| **sha256** | `string` | ✅ | SHA256 checksum |
-| **size** | `integer` | ✅ | Artifact size in bytes |
-| **format** | `Enum<'tgz' \| 'zip'>` | ✅ | Artifact format |
-| **uploadedAt** | `string` | ✅ | Upload timestamp |
-
-
----
-
-## ArtifactDownloadResponse
-
-Response from the artifact download API endpoint.
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **downloadUrl** | `string` | ✅ | Artifact download URL (may be pre-signed) |
-| **sha256** | `string` | ✅ | SHA256 checksum for verification |
-| **size** | `integer` | ✅ | Artifact size in bytes |
-| **format** | `Enum<'tgz' \| 'zip'>` | ✅ | Artifact format |
-| **expiresAt** | `string` | optional | URL expiration timestamp for pre-signed URLs |
 
 
 ---

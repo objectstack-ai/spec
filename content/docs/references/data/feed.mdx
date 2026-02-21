@@ -1,0 +1,163 @@
+---
+title: Feed
+description: Feed protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+Feed Item Type
+
+Unified activity types for the record timeline.
+
+Covers comments, field changes, tasks, events, and system activities.
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/feed.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { FeedActor, FeedFilterMode, FeedItem, FeedItemType, FeedVisibility, FieldChangeEntry, Mention, Reaction } from '@objectstack/spec/data';
+import type { FeedActor, FeedFilterMode, FeedItem, FeedItemType, FeedVisibility, FieldChangeEntry, Mention, Reaction } from '@objectstack/spec/data';
+
+// Validate data
+const result = FeedActor.parse(data);
+```
+
+---
+
+## FeedActor
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'user' \| 'system' \| 'service' \| 'automation'>` | ✅ | Actor type |
+| **id** | `string` | ✅ | Actor ID |
+| **name** | `string` | optional | Actor display name |
+| **avatarUrl** | `string` | optional | Actor avatar URL |
+| **source** | `string` | optional | Source application (e.g., "Omni", "API", "Studio") |
+
+
+---
+
+## FeedFilterMode
+
+### Allowed Values
+
+* `all`
+* `comments_only`
+* `changes_only`
+* `tasks_only`
+
+
+---
+
+## FeedItem
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Feed item ID |
+| **type** | `Enum<'comment' \| 'field_change' \| 'task' \| 'event' \| 'email' \| 'call' \| 'note' \| 'file' \| 'record_create' \| 'record_delete' \| 'approval' \| 'sharing' \| 'system'>` | ✅ | Activity type |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID this feed item belongs to |
+| **actor** | `Object` | ✅ | Who performed this action |
+| **body** | `string` | optional | Rich text body (Markdown supported) |
+| **mentions** | `Object[]` | optional | Mentioned users/teams/records |
+| **changes** | `Object[]` | optional | Field-level changes |
+| **reactions** | `Object[]` | optional | Emoji reactions on this item |
+| **parentId** | `string` | optional | Parent feed item ID for threaded replies |
+| **replyCount** | `integer` | ✅ | Number of replies |
+| **pinned** | `boolean` | ✅ | Whether the feed item is pinned to the top of the timeline |
+| **pinnedAt** | `string` | optional | Timestamp when the item was pinned |
+| **pinnedBy** | `string` | optional | User ID who pinned the item |
+| **starred** | `boolean` | ✅ | Whether the feed item is starred/bookmarked by the current user |
+| **starredAt** | `string` | optional | Timestamp when the item was starred |
+| **visibility** | `Enum<'public' \| 'internal' \| 'private'>` | ✅ | Visibility: public (all users), internal (team only), private (author + mentioned) |
+| **createdAt** | `string` | ✅ | Creation timestamp |
+| **updatedAt** | `string` | optional | Last update timestamp |
+| **editedAt** | `string` | optional | When comment was last edited |
+| **isEdited** | `boolean` | ✅ | Whether comment has been edited |
+
+
+---
+
+## FeedItemType
+
+### Allowed Values
+
+* `comment`
+* `field_change`
+* `task`
+* `event`
+* `email`
+* `call`
+* `note`
+* `file`
+* `record_create`
+* `record_delete`
+* `approval`
+* `sharing`
+* `system`
+
+
+---
+
+## FeedVisibility
+
+### Allowed Values
+
+* `public`
+* `internal`
+* `private`
+
+
+---
+
+## FieldChangeEntry
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Field machine name |
+| **fieldLabel** | `string` | optional | Field display label |
+| **oldValue** | `any` | optional | Previous value |
+| **newValue** | `any` | optional | New value |
+| **oldDisplayValue** | `string` | optional | Human-readable old value |
+| **newDisplayValue** | `string` | optional | Human-readable new value |
+
+
+---
+
+## Mention
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `Enum<'user' \| 'team' \| 'record'>` | ✅ | Mention target type |
+| **id** | `string` | ✅ | Target ID |
+| **name** | `string` | ✅ | Display name for rendering |
+| **offset** | `integer` | ✅ | Character offset in body text |
+| **length** | `integer` | ✅ | Length of mention token in body text |
+
+
+---
+
+## Reaction
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **emoji** | `string` | ✅ | Emoji character or shortcode (e.g., "👍", ":thumbsup:") |
+| **userIds** | `string[]` | ✅ | Users who reacted |
+| **count** | `integer` | ✅ | Total reaction count |
+
+
+---
+

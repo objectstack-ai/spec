@@ -136,7 +136,7 @@ export const InstalledPackageSchema = z.object({
    */
   registeredNamespaces: z.array(z.string()).optional()
     .describe('Namespace prefixes registered by this package'),
-});
+}).describe('Installed package with runtime lifecycle state');
 export type InstalledPackage = z.infer<typeof InstalledPackageSchema>;
 
 // ==========================================
@@ -253,7 +253,7 @@ export const InstallPackageRequestSchema = z.object({
    */
   platformVersion: z.string().optional()
     .describe('Current platform version for compatibility verification'),
-});
+}).describe('Install package request');
 export type InstallPackageRequest = z.infer<typeof InstallPackageRequestSchema>;
 
 /**
@@ -265,7 +265,7 @@ export const InstallPackageResponseSchema = z.object({
   /** Dependency resolution result (when dependencies were analyzed) */
   dependencyResolution: DependencyResolutionResultSchema.optional()
     .describe('Dependency resolution result from install analysis'),
-});
+}).describe('Install package response');
 export type InstallPackageResponse = z.infer<typeof InstallPackageResponseSchema>;
 
 /**

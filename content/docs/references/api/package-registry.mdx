@@ -23,142 +23,168 @@ const result = DisablePackageRequest.parse(data);
 
 ## DisablePackageRequest
 
+Disable package request
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ |  |
+| **id** | `string` | ✅ | Package ID to disable |
 
 
 ---
 
 ## DisablePackageResponse
 
+Disable package response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **package** | `Object` | ✅ |  |
-| **message** | `string` | optional |  |
+| **package** | `Object` | ✅ | Disabled package details |
+| **message** | `string` | optional | Disable status message |
 
 
 ---
 
 ## EnablePackageRequest
 
+Enable package request
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ |  |
+| **id** | `string` | ✅ | Package ID to enable |
 
 
 ---
 
 ## EnablePackageResponse
 
+Enable package response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **package** | `Object` | ✅ |  |
-| **message** | `string` | optional |  |
+| **package** | `Object` | ✅ | Enabled package details |
+| **message** | `string` | optional | Enable status message |
 
 
 ---
 
 ## GetPackageRequest
 
+Get package request
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ |  |
+| **id** | `string` | ✅ | Package identifier |
 
 
 ---
 
 ## GetPackageResponse
 
+Get package response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **package** | `Object` | ✅ |  |
+| **package** | `Object` | ✅ | Package details |
 
 
 ---
 
 ## InstallPackageRequest
 
+Install package request
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **manifest** | `Object` | ✅ |  |
-| **settings** | `Record<string, any>` | optional |  |
-| **enableOnInstall** | `boolean` | ✅ |  |
+| **manifest** | `Object` | ✅ | Package manifest to install |
+| **settings** | `Record<string, any>` | optional | User-provided settings at install time |
+| **enableOnInstall** | `boolean` | ✅ | Whether to enable immediately after install |
+| **platformVersion** | `string` | optional | Current platform version for compatibility verification |
 
 
 ---
 
 ## InstallPackageResponse
 
+Install package response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **package** | `Object` | ✅ |  |
-| **message** | `string` | optional |  |
+| **package** | `Object` | ✅ | Installed package details |
+| **message** | `string` | optional | Installation status message |
+| **dependencyResolution** | `Object` | optional | Dependency resolution result from install analysis |
 
 
 ---
 
 ## ListPackagesRequest
 
+List packages request
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **status** | `Enum<'installed' \| 'disabled' \| 'installing' \| 'upgrading' \| 'uninstalling' \| 'error'>` | optional |  |
-| **type** | `Enum<'plugin' \| 'ui' \| 'driver' \| 'server' \| 'app' \| 'theme' \| 'agent' \| 'objectql' \| 'module' \| 'gateway' \| 'adapter'>` | optional | Type of package |
-| **enabled** | `boolean` | optional |  |
+| **status** | `Enum<'installed' \| 'disabled' \| 'installing' \| 'upgrading' \| 'uninstalling' \| 'error'>` | optional | Filter by package status |
+| **type** | `Enum<'plugin' \| 'ui' \| 'driver' \| 'server' \| 'app' \| 'theme' \| 'agent' \| 'objectql' \| 'module' \| 'gateway' \| 'adapter'>` | optional | Filter by package type |
+| **enabled** | `boolean` | optional | Filter by enabled state |
 
 
 ---
 
 ## ListPackagesResponse
 
+List packages response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **packages** | `Object[]` | ✅ |  |
-| **total** | `number` | ✅ |  |
+| **packages** | `Object[]` | ✅ | List of installed packages |
+| **total** | `number` | ✅ | Total package count |
 
 
 ---
 
 ## UninstallPackageRequest
 
+Uninstall package request
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ |  |
+| **id** | `string` | ✅ | Package ID to uninstall |
 
 
 ---
 
 ## UninstallPackageResponse
 
+Uninstall package response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ |  |
-| **success** | `boolean` | ✅ |  |
-| **message** | `string` | optional |  |
+| **id** | `string` | ✅ | Uninstalled package ID |
+| **success** | `boolean` | ✅ | Whether uninstall succeeded |
+| **message** | `string` | optional | Uninstall status message |
 
 
 ---
