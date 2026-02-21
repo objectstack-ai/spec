@@ -11,7 +11,7 @@ import { ExecutionLogSchema } from '../automation/execution.zod';
  * Defines REST CRUD endpoint schemas for managing automation flows,
  * triggering executions, and querying execution history.
  *
- * Base path: /api/v1/automation
+ * Base path: /api/automation
  *
  * @example Endpoints
  * GET    /api/automation                         — List flows

@@ -682,7 +682,7 @@ export class HttpDispatcher {
      *   GET    /:name/runs           → listRuns
      *   GET    /:name/runs/:runId    → getRun
      */
-    async handleAutomation(path: string, method: string, body: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+    async handleAutomation(path: string, method: string, body: any, context: HttpProtocolContext, query?: any): Promise<HttpDispatcherResult> {
         const automationService = this.getService(CoreServiceName.enum.automation);
         if (!automationService) return { handled: false };
 
@@ -751,7 +751,8 @@ export class HttpDispatcher {
             // GET /:name/runs → listRuns
             if (parts[1] === 'runs' && !parts[2] && m === 'GET') {
                 if (typeof automationService.listRuns === 'function') {
-                    const runs = await automationService.listRuns(name, body);
+                    const options = query ? { limit: query.limit ? Number(query.limit) : undefined, cursor: query.cursor } : undefined;
+                    const runs = await automationService.listRuns(name, options);
                     return { handled: true, response: this.success({ runs, hasMore: false }) };
                 }
             }
@@ -874,7 +875,7 @@ export class HttpDispatcher {
         }
 
         if (cleanPath.startsWith('/automation')) {
-             return this.handleAutomation(cleanPath.substring(11), method, body, context);
+             return this.handleAutomation(cleanPath.substring(11), method, body, context, query);
         }
         
         if (cleanPath.startsWith('/analytics')) {

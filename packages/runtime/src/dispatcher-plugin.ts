@@ -294,7 +294,7 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
 
             server.get(`${prefix}/automation/:name/runs`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleAutomation(`${req.params.name}/runs`, 'GET', {}, { request: req });
+                    const result = await dispatcher.handleAutomation(`${req.params.name}/runs`, 'GET', {}, { request: req }, req.query);
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);

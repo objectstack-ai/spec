@@ -79,6 +79,7 @@ export class AutomationEngine implements IAutomationService {
     private nodeExecutors = new Map<string, NodeExecutor>();
     private triggers = new Map<string, FlowTrigger>();
     private executionLogs: ExecutionLogEntry[] = [];
+    private maxLogSize = 1000;
     private logger: Logger;
     private runCounter = 0;
 
@@ -221,7 +222,7 @@ export class AutomationEngine implements IAutomationService {
             const durationMs = Date.now() - startTime;
 
             // Record execution log
-            this.executionLogs.push({
+            this.recordLog({
                 id: runId,
                 flowName,
                 status: 'completed',
@@ -247,7 +248,7 @@ export class AutomationEngine implements IAutomationService {
 
             // Record failed execution log
             const durationMs = Date.now() - startTime;
-            this.executionLogs.push({
+            this.recordLog({
                 id: runId,
                 flowName,
                 status: 'failed',
@@ -276,6 +277,14 @@ export class AutomationEngine implements IAutomationService {
     }
 
     // ── DAG Traversal Core ──────────────────────────────────
+
+    private recordLog(entry: ExecutionLogEntry): void {
+        this.executionLogs.push(entry);
+        // Evict oldest logs when exceeding max size
+        if (this.executionLogs.length > this.maxLogSize) {
+            this.executionLogs.splice(0, this.executionLogs.length - this.maxLogSize);
+        }
+    }
 
     private async executeNode(
         node: FlowNodeParsed,
