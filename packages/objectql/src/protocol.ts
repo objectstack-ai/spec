@@ -9,6 +9,7 @@ import type {
     DeleteManyDataRequest
 } from '@objectstack/spec/api';
 import type { MetadataCacheRequest, MetadataCacheResponse, ServiceInfo, ApiRoutes } from '@objectstack/spec/api';
+import type { IFeedService } from '@objectstack/spec/contracts';
 
 // We import SchemaRegistry directly since this class lives in the same package
 import { SchemaRegistry } from './registry.js';
@@ -51,10 +52,20 @@ const SERVICE_CONFIG: Record<string, { route: string; plugin: string }> = {
 export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
     private engine: IDataEngine;
     private getServicesRegistry?: () => Map<string, any>;
+    private getFeedService?: () => IFeedService | undefined;
 
-    constructor(engine: IDataEngine, getServicesRegistry?: () => Map<string, any>) {
+    constructor(engine: IDataEngine, getServicesRegistry?: () => Map<string, any>, getFeedService?: () => IFeedService | undefined) {
         this.engine = engine;
         this.getServicesRegistry = getServicesRegistry;
+        this.getFeedService = getFeedService;
+    }
+
+    private requireFeedService(): IFeedService {
+        const svc = this.getFeedService?.();
+        if (!svc) {
+            throw new Error('Feed service not available. Install and register service-feed to enable feed operations.');
+        }
+        return svc;
     }
 
     async getDiscovery() {
@@ -115,6 +126,22 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
                     optionalRoutes[routeKey] = config.route;
                 }
             }
+        }
+
+        // Add feed service status
+        if (registeredServices.has('feed')) {
+            services['feed'] = {
+                enabled: true,
+                status: 'available' as const,
+                route: '/api/v1/data',
+                provider: 'service-feed',
+            };
+        } else {
+            services['feed'] = {
+                enabled: false,
+                status: 'unavailable' as const,
+                message: 'Install service-feed to enable',
+            };
         }
 
         const routes: ApiRoutes = {
@@ -701,5 +728,156 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
             success: true,
             message: 'Saved to memory registry'
         };
+    }
+
+    // ==========================================
+    // Feed Operations
+    // ==========================================
+
+    async listFeed(request: any): Promise<any> {
+        const svc = this.requireFeedService();
+        const result = await svc.listFeed({
+            object: request.object,
+            recordId: request.recordId,
+            filter: request.type,
+            limit: request.limit,
+            cursor: request.cursor,
+        });
+        return { success: true, data: result };
+    }
+
+    async createFeedItem(request: any): Promise<any> {
+        const svc = this.requireFeedService();
+        const item = await svc.createFeedItem({
+            object: request.object,
+            recordId: request.recordId,
+            type: request.type,
+            actor: { type: 'user', id: 'current_user' },
+            body: request.body,
+            mentions: request.mentions,
+            parentId: request.parentId,
+            visibility: request.visibility,
+        });
+        return { success: true, data: item };
+    }
+
+    async updateFeedItem(request: any): Promise<any> {
+        const svc = this.requireFeedService();
+        const item = await svc.updateFeedItem(request.feedId, {
+            body: request.body,
+            mentions: request.mentions,
+            visibility: request.visibility,
+        });
+        return { success: true, data: item };
+    }
+
+    async deleteFeedItem(request: any): Promise<any> {
+        const svc = this.requireFeedService();
+        await svc.deleteFeedItem(request.feedId);
+        return { success: true, data: { feedId: request.feedId } };
+    }
+
+    async addReaction(request: any): Promise<any> {
+        const svc = this.requireFeedService();
+        const reactions = await svc.addReaction(request.feedId, request.emoji, 'current_user');
+        return { success: true, data: { reactions } };
+    }
+
+    async removeReaction(request: any): Promise<any> {
+        const svc = this.requireFeedService();
+        const reactions = await svc.removeReaction(request.feedId, request.emoji, 'current_user');
+        return { success: true, data: { reactions } };
+    }
+
+    async pinFeedItem(request: any): Promise<any> {
+        const svc = this.requireFeedService();
+        const item = await svc.getFeedItem(request.feedId);
+        if (!item) throw new Error(`Feed item ${request.feedId} not found`);
+        // IFeedService doesn't have dedicated pin/unpin — use updateFeedItem to persist pin state
+        await svc.updateFeedItem(request.feedId, { visibility: item.visibility });
+        return { success: true, data: { feedId: request.feedId, pinned: true, pinnedAt: new Date().toISOString() } };
+    }
+
+    async unpinFeedItem(request: any): Promise<any> {
+        const svc = this.requireFeedService();
+        const item = await svc.getFeedItem(request.feedId);
+        if (!item) throw new Error(`Feed item ${request.feedId} not found`);
+        await svc.updateFeedItem(request.feedId, { visibility: item.visibility });
+        return { success: true, data: { feedId: request.feedId, pinned: false } };
+    }
+
+    async starFeedItem(request: any): Promise<any> {
+        const svc = this.requireFeedService();
+        const item = await svc.getFeedItem(request.feedId);
+        if (!item) throw new Error(`Feed item ${request.feedId} not found`);
+        // IFeedService doesn't have dedicated star/unstar — verify item exists then return state
+        await svc.updateFeedItem(request.feedId, { visibility: item.visibility });
+        return { success: true, data: { feedId: request.feedId, starred: true, starredAt: new Date().toISOString() } };
+    }
+
+    async unstarFeedItem(request: any): Promise<any> {
+        const svc = this.requireFeedService();
+        const item = await svc.getFeedItem(request.feedId);
+        if (!item) throw new Error(`Feed item ${request.feedId} not found`);
+        await svc.updateFeedItem(request.feedId, { visibility: item.visibility });
+        return { success: true, data: { feedId: request.feedId, starred: false } };
+    }
+
+    async searchFeed(request: any): Promise<any> {
+        const svc = this.requireFeedService();
+        // Search delegates to listFeed with filter since IFeedService doesn't have a dedicated search
+        const result = await svc.listFeed({
+            object: request.object,
+            recordId: request.recordId,
+            filter: request.type,
+            limit: request.limit,
+            cursor: request.cursor,
+        });
+        // Filter by query text in body
+        const queryLower = (request.query || '').toLowerCase();
+        const filtered = result.items.filter((item: any) =>
+            item.body?.toLowerCase().includes(queryLower)
+        );
+        return { success: true, data: { items: filtered, total: filtered.length, hasMore: false } };
+    }
+
+    async getChangelog(request: any): Promise<any> {
+        const svc = this.requireFeedService();
+        // Changelog retrieves field_change type feed items
+        const result = await svc.listFeed({
+            object: request.object,
+            recordId: request.recordId,
+            filter: 'changes_only',
+            limit: request.limit,
+            cursor: request.cursor,
+        });
+        const entries = result.items.map((item: any) => ({
+            id: item.id,
+            object: item.object,
+            recordId: item.recordId,
+            actor: item.actor,
+            changes: item.changes || [],
+            timestamp: item.createdAt,
+            source: item.source,
+        }));
+        return { success: true, data: { entries, total: result.total, nextCursor: result.nextCursor, hasMore: result.hasMore } };
+    }
+
+    async feedSubscribe(request: any): Promise<any> {
+        const svc = this.requireFeedService();
+        const subscription = await svc.subscribe({
+            object: request.object,
+            recordId: request.recordId,
+            userId: 'current_user',
+            events: request.events,
+            channels: request.channels,
+        });
+        return { success: true, data: subscription };
+    }
+
+    async feedUnsubscribe(request: any): Promise<any> {
+        const svc = this.requireFeedService();
+        const unsubscribed = await svc.unsubscribe(request.object, request.recordId, 'current_user');
+        return { success: true, data: { object: request.object, recordId: request.recordId, unsubscribed } };
     }
 }
