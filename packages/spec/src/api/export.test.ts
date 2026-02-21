@@ -13,6 +13,13 @@ import {
   ExportImportTemplateSchema,
   ScheduledExportSchema,
   ExportApiContracts,
+  GetExportJobDownloadRequestSchema,
+  GetExportJobDownloadResponseSchema,
+  ListExportJobsRequestSchema,
+  ListExportJobsResponseSchema,
+  ExportJobSummarySchema,
+  ScheduleExportRequestSchema,
+  ScheduleExportResponseSchema,
 } from './export.zod';
 
 // ==========================================
@@ -475,21 +482,235 @@ describe('ScheduledExportSchema', () => {
 });
 
 // ==========================================
+// Get Export Job Download
+// ==========================================
+
+describe('GetExportJobDownloadRequestSchema', () => {
+  it('should accept a valid request', () => {
+    const req = GetExportJobDownloadRequestSchema.parse({ jobId: 'job_001' });
+    expect(req.jobId).toBe('job_001');
+  });
+
+  it('should reject missing jobId', () => {
+    expect(() => GetExportJobDownloadRequestSchema.parse({})).toThrow();
+  });
+});
+
+describe('GetExportJobDownloadResponseSchema', () => {
+  it('should accept a valid response', () => {
+    const resp = GetExportJobDownloadResponseSchema.parse({
+      success: true,
+      data: {
+        jobId: 'job_001',
+        downloadUrl: 'https://storage.example.com/exports/job_001.csv?token=abc',
+        fileName: 'account_export_2026-02-01.csv',
+        fileSize: 5242880,
+        format: 'csv',
+        expiresAt: '2026-02-02T10:00:00Z',
+        checksum: 'sha256:abc123',
+      },
+    });
+    expect(resp.data.downloadUrl).toContain('storage.example.com');
+    expect(resp.data.fileName).toContain('.csv');
+    expect(resp.data.checksum).toBe('sha256:abc123');
+  });
+
+  it('should accept response without optional checksum', () => {
+    const resp = GetExportJobDownloadResponseSchema.parse({
+      success: true,
+      data: {
+        jobId: 'job_001',
+        downloadUrl: 'https://storage.example.com/exports/job_001.json',
+        fileName: 'export.json',
+        fileSize: 1024,
+        format: 'json',
+        expiresAt: '2026-02-02T10:00:00Z',
+      },
+    });
+    expect(resp.data.checksum).toBeUndefined();
+  });
+});
+
+// ==========================================
+// List Export Jobs
+// ==========================================
+
+describe('ListExportJobsRequestSchema', () => {
+  it('should apply defaults', () => {
+    const req = ListExportJobsRequestSchema.parse({});
+    expect(req.limit).toBe(20);
+    expect(req.object).toBeUndefined();
+    expect(req.status).toBeUndefined();
+    expect(req.cursor).toBeUndefined();
+  });
+
+  it('should accept a full request', () => {
+    const req = ListExportJobsRequestSchema.parse({
+      object: 'account',
+      status: 'completed',
+      limit: 50,
+      cursor: 'cursor_abc',
+    });
+    expect(req.object).toBe('account');
+    expect(req.status).toBe('completed');
+    expect(req.limit).toBe(50);
+    expect(req.cursor).toBe('cursor_abc');
+  });
+
+  it('should reject limit exceeding max', () => {
+    expect(() => ListExportJobsRequestSchema.parse({ limit: 200 })).toThrow();
+  });
+});
+
+describe('ExportJobSummarySchema', () => {
+  it('should accept a valid summary', () => {
+    const summary = ExportJobSummarySchema.parse({
+      jobId: 'job_001',
+      object: 'account',
+      status: 'completed',
+      format: 'csv',
+      totalRecords: 5000,
+      fileSize: 2048000,
+      createdAt: '2026-02-01T10:00:00Z',
+      completedAt: '2026-02-01T10:05:00Z',
+      createdBy: 'user_admin',
+    });
+    expect(summary.jobId).toBe('job_001');
+    expect(summary.totalRecords).toBe(5000);
+  });
+});
+
+describe('ListExportJobsResponseSchema', () => {
+  it('should accept a response with jobs', () => {
+    const resp = ListExportJobsResponseSchema.parse({
+      success: true,
+      data: {
+        jobs: [
+          {
+            jobId: 'job_001',
+            object: 'account',
+            status: 'completed',
+            format: 'csv',
+            createdAt: '2026-02-01T10:00:00Z',
+          },
+        ],
+        nextCursor: 'cursor_next',
+        hasMore: true,
+      },
+    });
+    expect(resp.data.jobs).toHaveLength(1);
+    expect(resp.data.nextCursor).toBe('cursor_next');
+    expect(resp.data.hasMore).toBe(true);
+  });
+
+  it('should accept an empty list', () => {
+    const resp = ListExportJobsResponseSchema.parse({
+      success: true,
+      data: {
+        jobs: [],
+        hasMore: false,
+      },
+    });
+    expect(resp.data.jobs).toHaveLength(0);
+    expect(resp.data.hasMore).toBe(false);
+  });
+});
+
+// ==========================================
+// Schedule Export Request/Response
+// ==========================================
+
+describe('ScheduleExportRequestSchema', () => {
+  it('should accept a valid request', () => {
+    const req = ScheduleExportRequestSchema.parse({
+      name: 'weekly_account_export',
+      label: 'Weekly Account Export',
+      object: 'account',
+      format: 'csv',
+      fields: ['name', 'email'],
+      schedule: {
+        cronExpression: '0 6 * * MON',
+        timezone: 'America/New_York',
+      },
+      delivery: {
+        method: 'email',
+        recipients: ['admin@example.com'],
+      },
+    });
+    expect(req.name).toBe('weekly_account_export');
+    expect(req.schedule.cronExpression).toBe('0 6 * * MON');
+    expect(req.delivery.method).toBe('email');
+  });
+
+  it('should apply defaults', () => {
+    const req = ScheduleExportRequestSchema.parse({
+      name: 'daily_export',
+      object: 'order',
+      schedule: { cronExpression: '0 0 * * *' },
+      delivery: { method: 'storage', storagePath: '/exports/daily/' },
+    });
+    expect(req.format).toBe('csv');
+    expect(req.schedule.timezone).toBe('UTC');
+  });
+
+  it('should reject invalid name (not snake_case)', () => {
+    expect(() => ScheduleExportRequestSchema.parse({
+      name: 'WeeklyExport',
+      object: 'account',
+      schedule: { cronExpression: '0 6 * * MON' },
+      delivery: { method: 'email' },
+    })).toThrow();
+  });
+});
+
+describe('ScheduleExportResponseSchema', () => {
+  it('should accept a valid response', () => {
+    const resp = ScheduleExportResponseSchema.parse({
+      success: true,
+      data: {
+        id: 'sched_001',
+        name: 'weekly_account_export',
+        enabled: true,
+        nextRunAt: '2026-02-24T06:00:00Z',
+        createdAt: '2026-02-21T09:00:00Z',
+      },
+    });
+    expect(resp.data.id).toBe('sched_001');
+    expect(resp.data.enabled).toBe(true);
+    expect(resp.data.nextRunAt).toBeDefined();
+  });
+});
+
+// ==========================================
 // Export API Contracts
 // ==========================================
 
 describe('ExportApiContracts', () => {
-  it('should define 2 contracts', () => {
-    expect(Object.keys(ExportApiContracts)).toHaveLength(2);
+  it('should define 6 contracts', () => {
+    expect(Object.keys(ExportApiContracts)).toHaveLength(6);
   });
 
   it('should have correct HTTP methods', () => {
     expect(ExportApiContracts.createExportJob.method).toBe('POST');
     expect(ExportApiContracts.getExportJobProgress.method).toBe('GET');
+    expect(ExportApiContracts.getExportJobDownload.method).toBe('GET');
+    expect(ExportApiContracts.listExportJobs.method).toBe('GET');
+    expect(ExportApiContracts.scheduleExport.method).toBe('POST');
+    expect(ExportApiContracts.cancelExportJob.method).toBe('POST');
   });
 
   it('should have valid paths', () => {
     expect(ExportApiContracts.createExportJob.path).toContain('/export');
     expect(ExportApiContracts.getExportJobProgress.path).toContain('/export');
+    expect(ExportApiContracts.getExportJobDownload.path).toContain('/download');
+    expect(ExportApiContracts.listExportJobs.path).toBe('/api/v1/data/export');
+    expect(ExportApiContracts.scheduleExport.path).toContain('/schedules');
+    expect(ExportApiContracts.cancelExportJob.path).toContain('/cancel');
+  });
+
+  it('should have input/output schemas for all contracts', () => {
+    Object.values(ExportApiContracts).forEach((contract) => {
+      expect(contract.output).toBeDefined();
+    });
   });
 });

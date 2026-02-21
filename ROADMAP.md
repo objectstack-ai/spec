@@ -196,8 +196,12 @@ Cursor/Pagination protocol for large-scale data import/export with template-base
 | Streaming/chunked export endpoint (CSV/JSON/Excel) | ✅ | `api/export.zod.ts` → `CreateExportJobRequestSchema`, `ExportFormat` |
 | Import validation & deduplication | ✅ | `api/export.zod.ts` → `ImportValidationConfigSchema`, `DeduplicationStrategy` |
 | Template-based field mapping for import/export | ✅ | `api/export.zod.ts` → `ExportImportTemplateSchema`, `FieldMappingEntrySchema` |
-| Scheduled export jobs & status query | ✅ | `api/export.zod.ts` → `ScheduledExportSchema` |
-| Export job progress & download URL | ✅ | `api/export.zod.ts` → `ExportJobProgressSchema` |
+| Scheduled export jobs & status query | ✅ | `api/export.zod.ts` → `ScheduledExportSchema`, `ScheduleExportRequestSchema` |
+| Export job progress & download URL | ✅ | `api/export.zod.ts` → `ExportJobProgressSchema`, `GetExportJobDownloadResponseSchema` |
+| Export job listing & history | ✅ | `api/export.zod.ts` → `ListExportJobsRequestSchema`, `ExportJobSummarySchema` |
+| Export API contracts (6 endpoints) | ✅ | `api/export.zod.ts` → `ExportApiContracts` |
+| IExportService contract | ✅ | `contracts/export-service.ts` |
+| Cursor-based pagination in data.find() | ✅ | `api/protocol.zod.ts` → `FindDataResponseSchema` (`nextCursor` + `hasMore`) |
 
 ### 5. API Capability Declaration & Service Discovery
 

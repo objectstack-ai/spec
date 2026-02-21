@@ -305,7 +305,139 @@ export const ScheduledExportSchema = z.object({
 export type ScheduledExport = z.infer<typeof ScheduledExportSchema>;
 
 // ==========================================
-// 6. Export API Contracts
+// 6. Get Export Job Download
+// ==========================================
+
+/**
+ * Get Export Job Download Request
+ * Retrieves a presigned download link for a completed export job.
+ *
+ * @example GET /api/v1/data/export/:jobId/download
+ */
+export const GetExportJobDownloadRequestSchema = z.object({
+  jobId: z.string().describe('Export job ID'),
+});
+export type GetExportJobDownloadRequest = z.infer<typeof GetExportJobDownloadRequestSchema>;
+
+/**
+ * Get Export Job Download Response
+ * Returns the presigned download URL and metadata.
+ */
+export const GetExportJobDownloadResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    jobId: z.string().describe('Export job ID'),
+    downloadUrl: z.string().describe('Presigned download URL'),
+    fileName: z.string().describe('Suggested file name'),
+    fileSize: z.number().int().describe('File size in bytes'),
+    format: ExportFormat.describe('Export file format'),
+    expiresAt: z.string().datetime().describe('Download URL expiration timestamp'),
+    checksum: z.string().optional().describe('File checksum (SHA-256)'),
+  }),
+});
+export type GetExportJobDownloadResponse = z.infer<typeof GetExportJobDownloadResponseSchema>;
+
+// ==========================================
+// 7. List Export Jobs
+// ==========================================
+
+/**
+ * List Export Jobs Request
+ * Retrieves a paginated list of historical export jobs.
+ *
+ * @example GET /api/v1/data/export?object=account&status=completed&limit=20
+ */
+export const ListExportJobsRequestSchema = z.object({
+  object: z.string().optional().describe('Filter by object name'),
+  status: ExportJobStatus.optional().describe('Filter by job status'),
+  limit: z.number().int().min(1).max(100).default(20)
+    .describe('Maximum number of jobs to return'),
+  cursor: z.string().optional()
+    .describe('Pagination cursor from a previous response'),
+});
+export type ListExportJobsRequest = z.infer<typeof ListExportJobsRequestSchema>;
+
+/**
+ * Export Job Summary
+ * Compact representation of an export job for list views.
+ */
+export const ExportJobSummarySchema = z.object({
+  jobId: z.string().describe('Export job ID'),
+  object: z.string().describe('Object name that was exported'),
+  status: ExportJobStatus.describe('Current job status'),
+  format: ExportFormat.describe('Export file format'),
+  totalRecords: z.number().int().optional().describe('Total records exported'),
+  fileSize: z.number().int().optional().describe('File size in bytes'),
+  createdAt: z.string().datetime().describe('Job creation timestamp'),
+  completedAt: z.string().datetime().optional().describe('Completion timestamp'),
+  createdBy: z.string().optional().describe('User who initiated the export'),
+});
+export type ExportJobSummary = z.infer<typeof ExportJobSummarySchema>;
+
+/**
+ * List Export Jobs Response
+ * Paginated list of export jobs with cursor-based pagination.
+ */
+export const ListExportJobsResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    jobs: z.array(ExportJobSummarySchema).describe('List of export jobs'),
+    nextCursor: z.string().optional().describe('Cursor for the next page'),
+    hasMore: z.boolean().describe('Whether more jobs are available'),
+  }),
+});
+export type ListExportJobsResponse = z.infer<typeof ListExportJobsResponseSchema>;
+
+// ==========================================
+// 8. Schedule Export Request/Response
+// ==========================================
+
+/**
+ * Schedule Export Request
+ * Creates a new scheduled (recurring) export job.
+ *
+ * @example POST /api/v1/data/export/schedules
+ */
+export const ScheduleExportRequestSchema = z.object({
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Schedule name (snake_case)'),
+  label: z.string().optional().describe('Human-readable label'),
+  object: z.string().describe('Object name to export'),
+  format: ExportFormat.default('csv').describe('Export file format'),
+  fields: z.array(z.string()).optional().describe('Fields to include'),
+  filter: z.record(z.string(), z.unknown()).optional().describe('Record filter criteria'),
+  templateId: z.string().optional().describe('Export template ID for field mappings'),
+  schedule: z.object({
+    cronExpression: z.string().describe('Cron expression for schedule'),
+    timezone: z.string().default('UTC').describe('IANA timezone'),
+  }).describe('Schedule timing configuration'),
+  delivery: z.object({
+    method: z.enum(['email', 'storage', 'webhook'])
+      .describe('How to deliver the export file'),
+    recipients: z.array(z.string()).optional()
+      .describe('Email recipients (for email delivery)'),
+    storagePath: z.string().optional()
+      .describe('Storage path (for storage delivery)'),
+    webhookUrl: z.string().optional()
+      .describe('Webhook URL (for webhook delivery)'),
+  }).describe('Export delivery configuration'),
+});
+export type ScheduleExportRequest = z.infer<typeof ScheduleExportRequestSchema>;
+
+/**
+ * Schedule Export Response
+ * Returns the created scheduled export with generated ID and next run info.
+ */
+export const ScheduleExportResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    id: z.string().describe('Scheduled export ID'),
+    name: z.string().describe('Schedule name'),
+    enabled: z.boolean().describe('Whether the schedule is active'),
+    nextRunAt: z.string().datetime().optional().describe('Next scheduled execution'),
+    createdAt: z.string().datetime().describe('Creation timestamp'),
+  }),
+});
+export type ScheduleExportResponse = z.infer<typeof ScheduleExportResponseSchema>;
+
+// ==========================================
+// 9. Export API Contracts
 // ==========================================
 
 /**
@@ -324,5 +456,29 @@ export const ExportApiContracts = {
     path: '/api/v1/data/export/:jobId',
     input: z.object({ jobId: z.string() }),
     output: ExportJobProgressSchema,
+  },
+  getExportJobDownload: {
+    method: 'GET' as const,
+    path: '/api/v1/data/export/:jobId/download',
+    input: GetExportJobDownloadRequestSchema,
+    output: GetExportJobDownloadResponseSchema,
+  },
+  listExportJobs: {
+    method: 'GET' as const,
+    path: '/api/v1/data/export',
+    input: ListExportJobsRequestSchema,
+    output: ListExportJobsResponseSchema,
+  },
+  scheduleExport: {
+    method: 'POST' as const,
+    path: '/api/v1/data/export/schedules',
+    input: ScheduleExportRequestSchema,
+    output: ScheduleExportResponseSchema,
+  },
+  cancelExportJob: {
+    method: 'POST' as const,
+    path: '/api/v1/data/export/:jobId/cancel',
+    input: z.object({ jobId: z.string() }),
+    output: BaseResponseSchema,
   },
 };
