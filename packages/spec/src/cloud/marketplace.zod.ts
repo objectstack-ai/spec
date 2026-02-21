@@ -86,7 +86,7 @@ export const PublisherSchema = z.object({
   /** Registration date */
   registeredAt: z.string().datetime().optional()
     .describe('Publisher registration timestamp'),
-});
+}).describe('Developer or organization that publishes packages');
 
 // ==========================================
 // Artifact Reference & Distribution
@@ -225,7 +225,7 @@ export const MarketplaceListingSchema = z.object({
   description: z.string().optional().describe('Full description (Markdown)'),
 
   /** Category */
-  category: MarketplaceCategorySchema,
+  category: MarketplaceCategorySchema.describe('Package category'),
 
   /** Additional tags for search discovery */
   tags: z.array(z.string()).optional().describe('Search tags'),
@@ -268,11 +268,11 @@ export const MarketplaceListingSchema = z.object({
 
   /** Available versions for installation */
   versions: z.array(z.object({
-    version: z.string(),
-    releaseDate: z.string().datetime(),
-    releaseNotes: z.string().optional(),
-    minPlatformVersion: z.string().optional(),
-    deprecated: z.boolean().default(false),
+    version: z.string().describe('Version string'),
+    releaseDate: z.string().datetime().describe('Release date'),
+    releaseNotes: z.string().optional().describe('Release notes'),
+    minPlatformVersion: z.string().optional().describe('Minimum platform version'),
+    deprecated: z.boolean().default(false).describe('Whether this version is deprecated'),
     /** Artifact reference for this version */
     artifact: ArtifactReferenceSchema.optional()
       .describe('Downloadable artifact for this version'),
@@ -280,19 +280,21 @@ export const MarketplaceListingSchema = z.object({
 
   /** Aggregate statistics */
   stats: z.object({
-    totalInstalls: z.number().int().min(0).default(0),
-    activeInstalls: z.number().int().min(0).default(0),
-    averageRating: z.number().min(0).max(5).optional(),
-    totalRatings: z.number().int().min(0).default(0),
-    totalReviews: z.number().int().min(0).default(0),
+    totalInstalls: z.number().int().min(0).default(0).describe('Total installs'),
+    activeInstalls: z.number().int().min(0).default(0).describe('Active installs'),
+    averageRating: z.number().min(0).max(5).optional().describe('Average user rating (0-5)'),
+    totalRatings: z.number().int().min(0).default(0).describe('Total ratings count'),
+    totalReviews: z.number().int().min(0).default(0).describe('Total reviews count'),
   }).optional().describe('Aggregate marketplace statistics'),
 
   /** First published date */
-  publishedAt: z.string().datetime().optional(),
+  publishedAt: z.string().datetime().optional()
+    .describe('First published timestamp'),
 
   /** Last updated date */
-  updatedAt: z.string().datetime().optional(),
-});
+  updatedAt: z.string().datetime().optional()
+    .describe('Last updated timestamp'),
+}).describe('Public-facing package listing on the marketplace');
 
 // ==========================================
 // Package Submission & Review
@@ -323,7 +325,7 @@ export const PackageSubmissionSchema = z.object({
     'changes-requested', // Reviewer requests changes
     'approved',       // Approved for publishing
     'rejected',       // Rejected
-  ]).default('pending'),
+  ]).default('pending').describe('Review status'),
 
   /**
    * Package artifact URL or reference.
@@ -332,10 +334,10 @@ export const PackageSubmissionSchema = z.object({
   artifactUrl: z.string().describe('Package artifact URL for review'),
 
   /** Release notes for this version */
-  releaseNotes: z.string().optional(),
+  releaseNotes: z.string().optional().describe('Release notes for this version'),
 
   /** Whether this is the first submission (new listing) vs version update */
-  isNewListing: z.boolean().default(false),
+  isNewListing: z.boolean().default(false).describe('Whether this is a new listing submission'),
 
   /** Automated scan results */
   scanResults: z.object({
@@ -355,14 +357,14 @@ export const PackageSubmissionSchema = z.object({
   }).optional().describe('Automated scan results'),
 
   /** Reviewer notes (from platform reviewer) */
-  reviewerNotes: z.string().optional(),
+  reviewerNotes: z.string().optional().describe('Notes from the platform reviewer'),
 
   /** Submitted timestamp */
-  submittedAt: z.string().datetime().optional(),
+  submittedAt: z.string().datetime().optional().describe('Submission timestamp'),
 
   /** Review completed timestamp */
-  reviewedAt: z.string().datetime().optional(),
-});
+  reviewedAt: z.string().datetime().optional().describe('Review completion timestamp'),
+}).describe('Developer submission of a package version for review');
 
 // ==========================================
 // Marketplace Search & Discovery
@@ -376,16 +378,17 @@ export const MarketplaceSearchRequestSchema = z.object({
   query: z.string().optional().describe('Full-text search query'),
 
   /** Filter by category */
-  category: MarketplaceCategorySchema.optional(),
+  category: MarketplaceCategorySchema.optional().describe('Filter by category'),
 
   /** Filter by tags */
-  tags: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional().describe('Filter by tags'),
 
   /** Filter by pricing model */
-  pricing: PricingModelSchema.optional(),
+  pricing: PricingModelSchema.optional().describe('Filter by pricing model'),
 
   /** Filter by publisher verification level */
-  publisherVerification: PublisherVerificationSchema.optional(),
+  publisherVerification: PublisherVerificationSchema.optional()
+    .describe('Filter by publisher verification level'),
 
   /** Sort by */
   sortBy: z.enum([
@@ -395,37 +398,37 @@ export const MarketplaceSearchRequestSchema = z.object({
     'newest',       // Most recently published
     'updated',      // Most recently updated
     'name',         // Alphabetical
-  ]).default('relevance'),
+  ]).default('relevance').describe('Sort field'),
 
   /** Sort direction */
-  sortDirection: z.enum(['asc', 'desc']).default('desc'),
+  sortDirection: z.enum(['asc', 'desc']).default('desc').describe('Sort direction'),
 
   /** Pagination: page number */
-  page: z.number().int().min(1).default(1),
+  page: z.number().int().min(1).default(1).describe('Page number'),
 
   /** Pagination: items per page */
-  pageSize: z.number().int().min(1).max(100).default(20),
+  pageSize: z.number().int().min(1).max(100).default(20).describe('Items per page'),
 
   /** Filter by minimum platform version compatibility */
   platformVersion: z.string().optional()
     .describe('Filter by platform version compatibility'),
-});
+}).describe('Marketplace search request');
 
 /**
  * Marketplace Search Response
  */
 export const MarketplaceSearchResponseSchema = z.object({
   /** Search results */
-  items: z.array(MarketplaceListingSchema),
+  items: z.array(MarketplaceListingSchema).describe('Search result listings'),
 
   /** Total count (for pagination) */
-  total: z.number().int().min(0),
+  total: z.number().int().min(0).describe('Total matching results'),
 
   /** Current page */
-  page: z.number().int().min(1),
+  page: z.number().int().min(1).describe('Current page number'),
 
   /** Items per page */
-  pageSize: z.number().int().min(1),
+  pageSize: z.number().int().min(1).describe('Items per page'),
 
   /** Facets for filtering */
   facets: z.object({
@@ -437,8 +440,8 @@ export const MarketplaceSearchResponseSchema = z.object({
       model: PricingModelSchema,
       count: z.number().int().min(0),
     })).optional(),
-  }).optional(),
-});
+  }).optional().describe('Aggregation facets for refining search'),
+}).describe('Marketplace search response');
 
 // ==========================================
 // Marketplace Install from Marketplace
@@ -459,35 +462,37 @@ export const MarketplaceInstallRequestSchema = z.object({
   licenseKey: z.string().optional().describe('License key for paid packages'),
 
   /** User-provided settings at install time */
-  settings: z.record(z.string(), z.unknown()).optional(),
+  settings: z.record(z.string(), z.unknown()).optional()
+    .describe('User-provided settings at install time'),
 
   /** Whether to enable immediately after install */
-  enableOnInstall: z.boolean().default(true),
+  enableOnInstall: z.boolean().default(true)
+    .describe('Whether to enable immediately after install'),
 
   /** Artifact reference (resolved from listing version, or provided directly) */
   artifactRef: ArtifactReferenceSchema.optional()
     .describe('Artifact reference for direct installation'),
 
   /** Tenant ID */
-  tenantId: z.string().optional(),
-});
+  tenantId: z.string().optional().describe('Tenant identifier'),
+}).describe('Install from marketplace request');
 
 /**
  * Install from Marketplace Response
  */
 export const MarketplaceInstallResponseSchema = z.object({
   /** Whether installation was successful */
-  success: z.boolean(),
+  success: z.boolean().describe('Whether installation succeeded'),
 
   /** Installed package ID */
-  packageId: z.string().optional(),
+  packageId: z.string().optional().describe('Installed package identifier'),
 
   /** Installed version */
-  version: z.string().optional(),
+  version: z.string().optional().describe('Installed version'),
 
   /** Human-readable message */
-  message: z.string().optional(),
-});
+  message: z.string().optional().describe('Installation status message'),
+}).describe('Install from marketplace response');
 
 // ==========================================
 // Export Types

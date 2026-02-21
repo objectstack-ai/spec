@@ -106,16 +106,17 @@ Compatibility level between versions
 
 ## DependencyResolutionResult
 
+Complete dependency resolution result
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ |  |
-| **resolved** | `Object[]` | optional |  |
-| **conflicts** | `Object[]` | optional |  |
-| **warnings** | `string[]` | optional |  |
-| **installationOrder** | `string[]` | optional | Plugin IDs in order they should be installed |
-| **dependencyGraph** | `Record<string, string[]>` | optional | Map of plugin ID to its dependencies |
+| **dependencies** | `Object[]` | ✅ | Resolution result for each dependency |
+| **canProceed** | `boolean` | ✅ | Whether installation can proceed |
+| **requiredActions** | `Object[]` | ✅ | Actions required before proceeding |
+| **installOrder** | `string[]` | ✅ | Topologically sorted package IDs for installation |
+| **circularDependencies** | `string[][]` | optional | Circular dependency chains detected (e.g. [["A", "B", "A"]]) |
 
 
 ---

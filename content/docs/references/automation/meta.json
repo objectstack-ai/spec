@@ -4,6 +4,7 @@
     "approval",
     "connector",
     "etl",
+    "execution",
     "flow",
     "offline",
     "state-machine",

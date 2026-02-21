@@ -1,0 +1,360 @@
+---
+title: Automation Api
+description: Automation Api protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+Automation API Protocol
+
+Defines REST CRUD endpoint schemas for managing automation flows,
+
+triggering executions, and querying execution history.
+
+Base path: /api/automation
+
+@example Endpoints
+
+GET    /api/automation                         — List flows
+
+GET    /api/automation/:name                   — Get flow
+
+POST   /api/automation                         — Create flow
+
+PUT    /api/automation/:name                   — Update flow
+
+DELETE /api/automation/:name                   — Delete flow
+
+POST   /api/automation/:name/trigger           — Trigger flow execution
+
+POST   /api/automation/:name/toggle            — Enable/disable flow
+
+GET    /api/automation/:name/runs              — List execution runs
+
+GET    /api/automation/:name/runs/:runId       — Get single execution run
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/automation-api.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AutomationApiErrorCode, AutomationFlowPathParams, AutomationRunPathParams, CreateFlowRequest, CreateFlowResponse, DeleteFlowRequest, DeleteFlowResponse, FlowSummary, GetFlowRequest, GetFlowResponse, GetRunRequest, GetRunResponse, ListFlowsRequest, ListFlowsResponse, ListRunsRequest, ListRunsResponse, ToggleFlowRequest, ToggleFlowResponse, TriggerFlowRequest, TriggerFlowResponse, UpdateFlowRequest, UpdateFlowResponse } from '@objectstack/spec/api';
+import type { AutomationApiErrorCode, AutomationFlowPathParams, AutomationRunPathParams, CreateFlowRequest, CreateFlowResponse, DeleteFlowRequest, DeleteFlowResponse, FlowSummary, GetFlowRequest, GetFlowResponse, GetRunRequest, GetRunResponse, ListFlowsRequest, ListFlowsResponse, ListRunsRequest, ListRunsResponse, ToggleFlowRequest, ToggleFlowResponse, TriggerFlowRequest, TriggerFlowResponse, UpdateFlowRequest, UpdateFlowResponse } from '@objectstack/spec/api';
+
+// Validate data
+const result = AutomationApiErrorCode.parse(data);
+```
+
+---
+
+## AutomationApiErrorCode
+
+### Allowed Values
+
+* `flow_not_found`
+* `flow_already_exists`
+* `flow_validation_failed`
+* `flow_disabled`
+* `execution_not_found`
+* `execution_failed`
+* `execution_timeout`
+* `node_executor_not_found`
+* `concurrent_execution_limit`
+
+
+---
+
+## AutomationFlowPathParams
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Flow machine name (snake_case) |
+
+
+---
+
+## AutomationRunPathParams
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Flow machine name (snake_case) |
+| **runId** | `string` | ✅ | Execution run ID |
+
+
+---
+
+## CreateFlowRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Machine name |
+| **label** | `string` | ✅ | Flow label |
+| **description** | `string` | optional |  |
+| **version** | `integer` | ✅ | Version number |
+| **status** | `Enum<'draft' \| 'active' \| 'obsolete' \| 'invalid'>` | ✅ | Deployment status |
+| **template** | `boolean` | ✅ | Is logic template (Subflow) |
+| **type** | `Enum<'autolaunched' \| 'record_change' \| 'schedule' \| 'screen' \| 'api'>` | ✅ | Flow type |
+| **variables** | `Object[]` | optional | Flow variables |
+| **nodes** | `Object[]` | ✅ | Flow nodes |
+| **edges** | `Object[]` | ✅ | Flow connections |
+| **active** | `boolean` | ✅ | Is active (Deprecated: use status) |
+| **runAs** | `Enum<'system' \| 'user'>` | ✅ | Execution context |
+| **errorHandling** | `Object` | optional | Flow-level error handling configuration |
+
+
+---
+
+## CreateFlowResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ | The created flow definition |
+
+
+---
+
+## DeleteFlowRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Flow machine name (snake_case) |
+
+
+---
+
+## DeleteFlowResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## FlowSummary
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Flow machine name |
+| **label** | `string` | ✅ | Flow display label |
+| **type** | `string` | ✅ | Flow type |
+| **status** | `string` | ✅ | Flow deployment status |
+| **version** | `integer` | ✅ | Flow version number |
+| **enabled** | `boolean` | ✅ | Whether the flow is enabled for execution |
+| **nodeCount** | `integer` | optional | Number of nodes in the flow |
+| **lastRunAt** | `string` | optional | Last execution timestamp |
+
+
+---
+
+## GetFlowRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Flow machine name (snake_case) |
+
+
+---
+
+## GetFlowResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ | Full flow definition |
+
+
+---
+
+## GetRunRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Flow machine name (snake_case) |
+| **runId** | `string` | ✅ | Execution run ID |
+
+
+---
+
+## GetRunResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ | Full execution log with step details |
+
+
+---
+
+## ListFlowsRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **status** | `Enum<'draft' \| 'active' \| 'obsolete' \| 'invalid'>` | optional | Filter by flow status |
+| **type** | `Enum<'autolaunched' \| 'record_change' \| 'schedule' \| 'screen' \| 'api'>` | optional | Filter by flow type |
+| **limit** | `integer` | ✅ | Maximum number of flows to return |
+| **cursor** | `string` | optional | Cursor for pagination |
+
+
+---
+
+## ListFlowsResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## ListRunsRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Flow machine name (snake_case) |
+| **status** | `Enum<'pending' \| 'running' \| 'paused' \| 'completed' \| 'failed' \| 'cancelled' \| 'timed_out' \| 'retrying'>` | optional | Filter by execution status |
+| **limit** | `integer` | ✅ | Maximum number of runs to return |
+| **cursor** | `string` | optional | Cursor for pagination |
+
+
+---
+
+## ListRunsResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## ToggleFlowRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Flow machine name (snake_case) |
+| **enabled** | `boolean` | ✅ | Whether to enable (true) or disable (false) the flow |
+
+
+---
+
+## ToggleFlowResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## TriggerFlowRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Flow machine name (snake_case) |
+| **record** | `Record<string, any>` | optional | Record that triggered the automation |
+| **object** | `string` | optional | Object name the record belongs to |
+| **event** | `string` | optional | Trigger event type |
+| **userId** | `string` | optional | User who triggered the automation |
+| **params** | `Record<string, any>` | optional | Additional contextual data |
+
+
+---
+
+## TriggerFlowResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## UpdateFlowRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Flow machine name (snake_case) |
+| **definition** | `Object` | ✅ | Partial flow definition to update |
+
+
+---
+
+## UpdateFlowResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ | The updated flow definition |
+
+
+---
+

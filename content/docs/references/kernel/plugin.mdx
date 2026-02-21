@@ -5,9 +5,13 @@ description: Plugin protocol schemas
 
 {/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
 
-Shared Plugin Types
+Upgrade Context Schema
 
-These are the specialized plugin types common between Manifest (Package) and Plugin (Runtime).
+Provides version migration context to the `onUpgrade` lifecycle hook.
+
+Enables developers to write conditional migration logic based on
+
+the previous and new versions.
 
 <Callout type="info">
 **Source:** `packages/spec/src/kernel/plugin.zod.ts`
@@ -16,8 +20,8 @@ These are the specialized plugin types common between Manifest (Package) and Plu
 ## TypeScript Usage
 
 ```typescript
-import { ActivationEvent } from '@objectstack/spec/kernel';
-import type { ActivationEvent } from '@objectstack/spec/kernel';
+import { ActivationEvent, UpgradeContext } from '@objectstack/spec/kernel';
+import type { ActivationEvent, UpgradeContext } from '@objectstack/spec/kernel';
 
 // Validate data
 const result = ActivationEvent.parse(data);
@@ -35,6 +39,22 @@ Lazy activation trigger for a dynamic plugin
 | :--- | :--- | :--- | :--- |
 | **type** | `Enum<'onCommand' \| 'onRoute' \| 'onObject' \| 'onEvent' \| 'onService' \| 'onSchedule' \| 'onStartup'>` | ✅ | Trigger type for lazy activation |
 | **pattern** | `string` | ✅ | Match pattern for the activation trigger |
+
+
+---
+
+## UpgradeContext
+
+Version migration context for onUpgrade hook
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **previousVersion** | `string` | ✅ | Version before upgrade |
+| **newVersion** | `string` | ✅ | Version after upgrade |
+| **isMajorUpgrade** | `boolean` | ✅ | Whether this is a major version bump |
+| **previousMetadata** | `Record<string, any>` | optional | Metadata snapshot before upgrade |
 
 
 ---

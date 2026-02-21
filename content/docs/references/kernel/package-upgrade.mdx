@@ -59,6 +59,8 @@ const result = MetadataChangeType.parse(data);
 
 ## MetadataChangeType
 
+Type of metadata change between package versions
+
 ### Allowed Values
 
 * `added`
@@ -71,13 +73,15 @@ const result = MetadataChangeType.parse(data);
 
 ## MetadataDiffItem
 
+Single metadata change between package versions
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **type** | `string` | ✅ | Metadata type |
 | **name** | `string` | ✅ | Metadata name |
-| **changeType** | `Enum<'added' \| 'modified' \| 'removed' \| 'renamed'>` | ✅ |  |
+| **changeType** | `Enum<'added' \| 'modified' \| 'removed' \| 'renamed'>` | ✅ | Category of metadata modification (added, modified, removed, or renamed) |
 | **hasConflict** | `boolean` | ✅ | Whether this change may conflict with customizations |
 | **summary** | `string` | optional | Human-readable change summary |
 | **previousName** | `string` | optional | Previous name if renamed |
@@ -86,6 +90,8 @@ const result = MetadataChangeType.parse(data);
 ---
 
 ## RollbackPackageRequest
+
+Rollback package request
 
 ### Properties
 
@@ -100,18 +106,22 @@ const result = MetadataChangeType.parse(data);
 
 ## RollbackPackageResponse
 
+Rollback package response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **success** | `boolean` | ✅ |  |
+| **success** | `boolean` | ✅ | Whether the rollback succeeded |
 | **restoredVersion** | `string` | optional | Version restored to |
-| **message** | `string` | optional |  |
+| **message** | `string` | optional | Rollback status message |
 
 
 ---
 
 ## UpgradeImpactLevel
+
+Severity of upgrade impact
 
 ### Allowed Values
 
@@ -125,6 +135,8 @@ const result = MetadataChangeType.parse(data);
 ---
 
 ## UpgradePackageRequest
+
+Upgrade package request
 
 ### Properties
 
@@ -143,22 +155,26 @@ const result = MetadataChangeType.parse(data);
 
 ## UpgradePackageResponse
 
+Upgrade package response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **success** | `boolean` | ✅ | Whether the upgrade succeeded |
-| **phase** | `Enum<'pending' \| 'analyzing' \| 'snapshot' \| 'executing' \| 'migrating' \| 'validating' \| 'completed' \| 'failed' \| 'rolling-back' \| 'rolled-back'>` | ✅ |  |
+| **phase** | `Enum<'pending' \| 'analyzing' \| 'snapshot' \| 'executing' \| 'migrating' \| 'validating' \| 'completed' \| 'failed' \| 'rolling-back' \| 'rolled-back'>` | ✅ | Current upgrade phase |
 | **plan** | `Object` | optional | Upgrade plan |
 | **snapshotId** | `string` | optional | Snapshot ID for rollback |
 | **conflicts** | `Object[]` | optional | Unresolved merge conflicts |
-| **errorMessage** | `string` | optional |  |
-| **message** | `string` | optional |  |
+| **errorMessage** | `string` | optional | Error message if upgrade failed |
+| **message** | `string` | optional | Human-readable status message |
 
 
 ---
 
 ## UpgradePhase
+
+Current phase of the upgrade process
 
 ### Allowed Values
 
@@ -178,6 +194,8 @@ const result = MetadataChangeType.parse(data);
 
 ## UpgradePlan
 
+Upgrade analysis plan generated before execution
+
 ### Properties
 
 | Property | Type | Required | Description |
@@ -185,7 +203,7 @@ const result = MetadataChangeType.parse(data);
 | **packageId** | `string` | ✅ | Package identifier |
 | **fromVersion** | `string` | ✅ | Currently installed version |
 | **toVersion** | `string` | ✅ | Target upgrade version |
-| **impactLevel** | `Enum<'none' \| 'low' \| 'medium' \| 'high' \| 'critical'>` | ✅ |  |
+| **impactLevel** | `Enum<'none' \| 'low' \| 'medium' \| 'high' \| 'critical'>` | ✅ | Severity assessment from none (seamless) to critical (breaking changes) |
 | **changes** | `Object[]` | ✅ | All metadata changes |
 | **affectedCustomizations** | `integer` | ✅ | Count of customizations that may be affected |
 | **requiresMigration** | `boolean` | ✅ | Whether data migration scripts are needed |
@@ -199,6 +217,8 @@ const result = MetadataChangeType.parse(data);
 
 ## UpgradeSnapshot
 
+Pre-upgrade state snapshot for rollback capability
+
 ### Properties
 
 | Property | Type | Required | Description |
@@ -208,7 +228,7 @@ const result = MetadataChangeType.parse(data);
 | **fromVersion** | `string` | ✅ | Version before upgrade |
 | **toVersion** | `string` | ✅ | Target upgrade version |
 | **tenantId** | `string` | optional | Tenant identifier |
-| **previousManifest** | `Object` | ✅ |  |
+| **previousManifest** | `Object` | ✅ | Complete manifest of the previous package version |
 | **metadataSnapshot** | `Object[]` | ✅ | Snapshot of all package metadata |
 | **customizationSnapshot** | `Record<string, any>[]` | optional | Snapshot of customer customizations |
 | **createdAt** | `string` | ✅ | Snapshot creation timestamp |

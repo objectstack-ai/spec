@@ -1,0 +1,329 @@
+---
+title: Export
+description: Export protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+Data Export & Import Protocol
+
+Defines schemas for streaming data export, import validation,
+
+template-based field mapping, and scheduled export jobs.
+
+Industry alignment: Salesforce Data Export, Airtable CSV Export,
+
+Dynamics 365 Data Management.
+
+Base path: /api/v1/data/\{object\}/export
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/export.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { CreateExportJobRequest, CreateExportJobResponse, DeduplicationStrategy, ExportFormat, ExportImportTemplate, ExportJobProgress, ExportJobStatus, ExportJobSummary, FieldMappingEntry, GetExportJobDownloadRequest, GetExportJobDownloadResponse, ImportValidationConfig, ImportValidationMode, ImportValidationResult, ListExportJobsRequest, ListExportJobsResponse, ScheduleExportRequest, ScheduleExportResponse, ScheduledExport } from '@objectstack/spec/api';
+import type { CreateExportJobRequest, CreateExportJobResponse, DeduplicationStrategy, ExportFormat, ExportImportTemplate, ExportJobProgress, ExportJobStatus, ExportJobSummary, FieldMappingEntry, GetExportJobDownloadRequest, GetExportJobDownloadResponse, ImportValidationConfig, ImportValidationMode, ImportValidationResult, ListExportJobsRequest, ListExportJobsResponse, ScheduleExportRequest, ScheduleExportResponse, ScheduledExport } from '@objectstack/spec/api';
+
+// Validate data
+const result = CreateExportJobRequest.parse(data);
+```
+
+---
+
+## CreateExportJobRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name to export |
+| **format** | `Enum<'csv' \| 'json' \| 'jsonl' \| 'xlsx' \| 'parquet'>` | ✅ | Export file format |
+| **fields** | `string[]` | optional | Specific fields to include (omit for all fields) |
+| **filter** | `Record<string, any>` | optional | Filter criteria for records to export |
+| **sort** | `Object[]` | optional | Sort order for exported records |
+| **limit** | `integer` | optional | Maximum number of records to export |
+| **includeHeaders** | `boolean` | ✅ | Include header row (CSV/XLSX) |
+| **encoding** | `string` | ✅ | Character encoding for the export file |
+| **templateId** | `string` | optional | Export template ID for predefined field mappings |
+
+
+---
+
+## CreateExportJobResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## DeduplicationStrategy
+
+### Allowed Values
+
+* `skip`
+* `update`
+* `create_new`
+* `fail`
+
+
+---
+
+## ExportFormat
+
+### Allowed Values
+
+* `csv`
+* `json`
+* `jsonl`
+* `xlsx`
+* `parquet`
+
+
+---
+
+## ExportImportTemplate
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Template ID (generated on save) |
+| **name** | `string` | ✅ | Template machine name (snake_case) |
+| **label** | `string` | ✅ | Human-readable template label |
+| **description** | `string` | optional | Template description |
+| **object** | `string` | ✅ | Target object name |
+| **direction** | `Enum<'import' \| 'export' \| 'bidirectional'>` | ✅ | Template direction |
+| **format** | `Enum<'csv' \| 'json' \| 'jsonl' \| 'xlsx' \| 'parquet'>` | optional | Default file format for this template |
+| **mappings** | `Object[]` | ✅ | Field mapping entries |
+| **createdAt** | `string` | optional | Template creation timestamp |
+| **updatedAt** | `string` | optional | Last update timestamp |
+| **createdBy** | `string` | optional | User who created the template |
+
+
+---
+
+## ExportJobProgress
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## ExportJobStatus
+
+### Allowed Values
+
+* `pending`
+* `processing`
+* `completed`
+* `failed`
+* `cancelled`
+* `expired`
+
+
+---
+
+## ExportJobSummary
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **jobId** | `string` | ✅ | Export job ID |
+| **object** | `string` | ✅ | Object name that was exported |
+| **status** | `Enum<'pending' \| 'processing' \| 'completed' \| 'failed' \| 'cancelled' \| 'expired'>` | ✅ | Current job status |
+| **format** | `Enum<'csv' \| 'json' \| 'jsonl' \| 'xlsx' \| 'parquet'>` | ✅ | Export file format |
+| **totalRecords** | `integer` | optional | Total records exported |
+| **fileSize** | `integer` | optional | File size in bytes |
+| **createdAt** | `string` | ✅ | Job creation timestamp |
+| **completedAt** | `string` | optional | Completion timestamp |
+| **createdBy** | `string` | optional | User who initiated the export |
+
+
+---
+
+## FieldMappingEntry
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **sourceField** | `string` | ✅ | Field name in the source data (import) or object (export) |
+| **targetField** | `string` | ✅ | Field name in the target object (import) or file column (export) |
+| **targetLabel** | `string` | optional | Display label for the target column (export) |
+| **transform** | `Enum<'none' \| 'uppercase' \| 'lowercase' \| 'trim' \| 'date_format' \| 'lookup'>` | ✅ | Transformation to apply during mapping |
+| **defaultValue** | `any` | optional | Default value if source field is null/empty |
+| **required** | `boolean` | ✅ | Whether this field is required (import validation) |
+
+
+---
+
+## GetExportJobDownloadRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **jobId** | `string` | ✅ | Export job ID |
+
+
+---
+
+## GetExportJobDownloadResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## ImportValidationConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **mode** | `Enum<'strict' \| 'lenient' \| 'dry_run'>` | ✅ | Validation mode for the import |
+| **deduplication** | `Object` | optional | Deduplication configuration |
+| **maxErrors** | `integer` | ✅ | Maximum validation errors before aborting |
+| **trimWhitespace** | `boolean` | ✅ | Trim leading/trailing whitespace from string fields |
+| **dateFormat** | `string` | optional | Expected date format in import data (e.g., "YYYY-MM-DD") |
+| **nullValues** | `string[]` | optional | Strings to treat as null (e.g., ["", "N/A", "null"]) |
+
+
+---
+
+## ImportValidationMode
+
+### Allowed Values
+
+* `strict`
+* `lenient`
+* `dry_run`
+
+
+---
+
+## ImportValidationResult
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## ListExportJobsRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | optional | Filter by object name |
+| **status** | `Enum<'pending' \| 'processing' \| 'completed' \| 'failed' \| 'cancelled' \| 'expired'>` | optional | Filter by job status |
+| **limit** | `integer` | ✅ | Maximum number of jobs to return |
+| **cursor** | `string` | optional | Pagination cursor from a previous response |
+
+
+---
+
+## ListExportJobsResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## ScheduleExportRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Schedule name (snake_case) |
+| **label** | `string` | optional | Human-readable label |
+| **object** | `string` | ✅ | Object name to export |
+| **format** | `Enum<'csv' \| 'json' \| 'jsonl' \| 'xlsx' \| 'parquet'>` | ✅ | Export file format |
+| **fields** | `string[]` | optional | Fields to include |
+| **filter** | `Record<string, any>` | optional | Record filter criteria |
+| **templateId** | `string` | optional | Export template ID for field mappings |
+| **schedule** | `Object` | ✅ | Schedule timing configuration |
+| **delivery** | `Object` | ✅ | Export delivery configuration |
+
+
+---
+
+## ScheduleExportResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## ScheduledExport
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | optional | Scheduled export ID |
+| **name** | `string` | ✅ | Schedule name (snake_case) |
+| **label** | `string` | optional | Human-readable label |
+| **object** | `string` | ✅ | Object name to export |
+| **format** | `Enum<'csv' \| 'json' \| 'jsonl' \| 'xlsx' \| 'parquet'>` | ✅ | Export file format |
+| **fields** | `string[]` | optional | Fields to include |
+| **filter** | `Record<string, any>` | optional | Record filter criteria |
+| **templateId** | `string` | optional | Export template ID for field mappings |
+| **schedule** | `Object` | ✅ | Schedule timing configuration |
+| **delivery** | `Object` | ✅ | Export delivery configuration |
+| **enabled** | `boolean` | ✅ | Whether the scheduled export is active |
+| **lastRunAt** | `string` | optional | Last execution timestamp |
+| **nextRunAt** | `string` | optional | Next scheduled execution |
+| **createdAt** | `string` | optional | Creation timestamp |
+| **createdBy** | `string` | optional | User who created the schedule |
+
+
+---
+

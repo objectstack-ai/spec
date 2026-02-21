@@ -696,6 +696,7 @@ Final polish and advanced features.
 - [x] Dependency resolution protocol — conflict detection, topological install ordering
 - [x] Namespace collision detection — registry entries, conflict errors
 - [x] Upgrade migration context — version context for onUpgrade hooks, upgrade history
+- [x] Protocol `.describe()` completeness — all marketplace lifecycle schemas fully annotated
 - [ ] Plugin marketplace runtime — publish, discover, install community plugins
   - [ ] CLI: `os plugin build` — generate `.tgz` per PackageArtifactSchema
   - [ ] CLI: `os plugin validate` — verify artifact structure, checksums, signatures

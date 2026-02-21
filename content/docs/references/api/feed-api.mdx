@@ -1,0 +1,542 @@
+---
+title: Feed Api
+description: Feed Api protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+Feed / Chatter API Protocol
+
+Defines the HTTP interface for the unified activity timeline (Feed).
+
+Covers Feed CRUD, Emoji Reactions, Pin/Star, Search, Changelog,
+
+and Record Subscription endpoints.
+
+Base path: /api/data/\{object\}/\{recordId\}/feed
+
+@example Endpoints
+
+GET    /api/data/\{object\}/\{recordId\}/feed                        — List feed items
+
+POST   /api/data/\{object\}/\{recordId\}/feed                        — Create feed item
+
+PUT    /api/data/\{object\}/\{recordId\}/feed/\{feedId\}               — Update feed item
+
+DELETE /api/data/\{object\}/\{recordId\}/feed/\{feedId\}               — Delete feed item
+
+POST   /api/data/\{object\}/\{recordId\}/feed/\{feedId\}/reactions     — Add reaction
+
+DELETE /api/data/\{object\}/\{recordId\}/feed/\{feedId\}/reactions/\{emoji\} — Remove reaction
+
+POST   /api/data/\{object\}/\{recordId\}/feed/\{feedId\}/pin           — Pin feed item
+
+DELETE /api/data/\{object\}/\{recordId\}/feed/\{feedId\}/pin           — Unpin feed item
+
+POST   /api/data/\{object\}/\{recordId\}/feed/\{feedId\}/star          — Star feed item
+
+DELETE /api/data/\{object\}/\{recordId\}/feed/\{feedId\}/star          — Unstar feed item
+
+GET    /api/data/\{object\}/\{recordId\}/feed/search                 — Search feed items
+
+GET    /api/data/\{object\}/\{recordId\}/changelog                   — Get field-level changelog
+
+POST   /api/data/\{object\}/\{recordId\}/subscribe                   — Subscribe
+
+DELETE /api/data/\{object\}/\{recordId\}/subscribe                   — Unsubscribe
+
+<Callout type="info">
+**Source:** `packages/spec/src/api/feed-api.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { AddReactionRequest, AddReactionResponse, ChangelogEntry, CreateFeedItemRequest, CreateFeedItemResponse, DeleteFeedItemRequest, DeleteFeedItemResponse, FeedApiErrorCode, FeedItemPathParams, FeedListFilterType, FeedPathParams, FeedUnsubscribeRequest, GetChangelogRequest, GetChangelogResponse, GetFeedRequest, GetFeedResponse, PinFeedItemRequest, PinFeedItemResponse, RemoveReactionRequest, RemoveReactionResponse, SearchFeedRequest, SearchFeedResponse, StarFeedItemRequest, StarFeedItemResponse, SubscribeRequest, SubscribeResponse, UnpinFeedItemRequest, UnpinFeedItemResponse, UnstarFeedItemRequest, UnstarFeedItemResponse, UnsubscribeResponse, UpdateFeedItemRequest, UpdateFeedItemResponse } from '@objectstack/spec/api';
+import type { AddReactionRequest, AddReactionResponse, ChangelogEntry, CreateFeedItemRequest, CreateFeedItemResponse, DeleteFeedItemRequest, DeleteFeedItemResponse, FeedApiErrorCode, FeedItemPathParams, FeedListFilterType, FeedPathParams, FeedUnsubscribeRequest, GetChangelogRequest, GetChangelogResponse, GetFeedRequest, GetFeedResponse, PinFeedItemRequest, PinFeedItemResponse, RemoveReactionRequest, RemoveReactionResponse, SearchFeedRequest, SearchFeedResponse, StarFeedItemRequest, StarFeedItemResponse, SubscribeRequest, SubscribeResponse, UnpinFeedItemRequest, UnpinFeedItemResponse, UnstarFeedItemRequest, UnstarFeedItemResponse, UnsubscribeResponse, UpdateFeedItemRequest, UpdateFeedItemResponse } from '@objectstack/spec/api';
+
+// Validate data
+const result = AddReactionRequest.parse(data);
+```
+
+---
+
+## AddReactionRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+| **feedId** | `string` | ✅ | Feed item ID |
+| **emoji** | `string` | ✅ | Emoji character or shortcode (e.g., "👍", ":thumbsup:") |
+
+
+---
+
+## AddReactionResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## ChangelogEntry
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Changelog entry ID |
+| **object** | `string` | ✅ | Object name |
+| **recordId** | `string` | ✅ | Record ID |
+| **actor** | `Object` | ✅ | Who made the change |
+| **changes** | `Object[]` | ✅ | Field-level changes |
+| **timestamp** | `string` | ✅ | When the change occurred |
+| **source** | `string` | optional | Change source (e.g., "API", "UI", "automation") |
+
+
+---
+
+## CreateFeedItemRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+| **type** | `Enum<'comment' \| 'field_change' \| 'task' \| 'event' \| 'email' \| 'call' \| 'note' \| 'file' \| 'record_create' \| 'record_delete' \| 'approval' \| 'sharing' \| 'system'>` | ✅ | Type of feed item to create |
+| **body** | `string` | optional | Rich text body (Markdown supported) |
+| **mentions** | `Object[]` | optional | Mentioned users, teams, or records |
+| **parentId** | `string` | optional | Parent feed item ID for threaded replies |
+| **visibility** | `Enum<'public' \| 'internal' \| 'private'>` | ✅ | Visibility: public, internal, or private |
+
+
+---
+
+## CreateFeedItemResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ | The created feed item |
+
+
+---
+
+## DeleteFeedItemRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+| **feedId** | `string` | ✅ | Feed item ID |
+
+
+---
+
+## DeleteFeedItemResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## FeedApiErrorCode
+
+### Allowed Values
+
+* `feed_item_not_found`
+* `feed_permission_denied`
+* `feed_item_not_editable`
+* `feed_invalid_parent`
+* `reaction_already_exists`
+* `reaction_not_found`
+* `subscription_already_exists`
+* `subscription_not_found`
+* `invalid_feed_type`
+* `feed_already_pinned`
+* `feed_not_pinned`
+* `feed_already_starred`
+* `feed_not_starred`
+* `feed_search_query_too_short`
+
+
+---
+
+## FeedItemPathParams
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+| **feedId** | `string` | ✅ | Feed item ID |
+
+
+---
+
+## FeedListFilterType
+
+### Allowed Values
+
+* `all`
+* `comments_only`
+* `changes_only`
+* `tasks_only`
+
+
+---
+
+## FeedPathParams
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+
+
+---
+
+## FeedUnsubscribeRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+
+
+---
+
+## GetChangelogRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+| **field** | `string` | optional | Filter changelog to a specific field name |
+| **actorId** | `string` | optional | Filter changelog by actor user ID |
+| **dateFrom** | `string` | optional | Filter changes after this timestamp |
+| **dateTo** | `string` | optional | Filter changes before this timestamp |
+| **limit** | `integer` | ✅ | Maximum number of changelog entries to return |
+| **cursor** | `string` | optional | Cursor for pagination |
+
+
+---
+
+## GetChangelogResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## GetFeedRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+| **type** | `Enum<'all' \| 'comments_only' \| 'changes_only' \| 'tasks_only'>` | ✅ | Filter by feed item category |
+| **limit** | `integer` | ✅ | Maximum number of items to return |
+| **cursor** | `string` | optional | Cursor for pagination (opaque string from previous response) |
+
+
+---
+
+## GetFeedResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## PinFeedItemRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+| **feedId** | `string` | ✅ | Feed item ID |
+
+
+---
+
+## PinFeedItemResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## RemoveReactionRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+| **feedId** | `string` | ✅ | Feed item ID |
+| **emoji** | `string` | ✅ | Emoji character or shortcode to remove |
+
+
+---
+
+## RemoveReactionResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## SearchFeedRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+| **query** | `string` | ✅ | Full-text search query against feed body content |
+| **type** | `Enum<'all' \| 'comments_only' \| 'changes_only' \| 'tasks_only'>` | optional | Filter by feed item category |
+| **actorId** | `string` | optional | Filter by actor user ID |
+| **dateFrom** | `string` | optional | Filter feed items created after this timestamp |
+| **dateTo** | `string` | optional | Filter feed items created before this timestamp |
+| **hasAttachments** | `boolean` | optional | Filter for items with file attachments |
+| **pinnedOnly** | `boolean` | optional | Return only pinned items |
+| **starredOnly** | `boolean` | optional | Return only starred items |
+| **limit** | `integer` | ✅ | Maximum number of items to return |
+| **cursor** | `string` | optional | Cursor for pagination |
+
+
+---
+
+## SearchFeedResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## StarFeedItemRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+| **feedId** | `string` | ✅ | Feed item ID |
+
+
+---
+
+## StarFeedItemResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## SubscribeRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+| **events** | `Enum<'comment' \| 'mention' \| 'field_change' \| 'task' \| 'approval' \| 'all'>[]` | ✅ | Event types to subscribe to |
+| **channels** | `Enum<'in_app' \| 'email' \| 'push' \| 'slack'>[]` | ✅ | Notification delivery channels |
+
+
+---
+
+## SubscribeResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ | The created or updated subscription |
+
+
+---
+
+## UnpinFeedItemRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+| **feedId** | `string` | ✅ | Feed item ID |
+
+
+---
+
+## UnpinFeedItemResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## UnstarFeedItemRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+| **feedId** | `string` | ✅ | Feed item ID |
+
+
+---
+
+## UnstarFeedItemResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## UnsubscribeResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ |  |
+
+
+---
+
+## UpdateFeedItemRequest
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Object name (e.g., "account") |
+| **recordId** | `string` | ✅ | Record ID |
+| **feedId** | `string` | ✅ | Feed item ID |
+| **body** | `string` | optional | Updated rich text body |
+| **mentions** | `Object[]` | optional | Updated mentions |
+| **visibility** | `Enum<'public' \| 'internal' \| 'private'>` | optional | Updated visibility |
+
+
+---
+
+## UpdateFeedItemResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **success** | `boolean` | ✅ | Operation success status |
+| **error** | `Object` | optional | Error details if success is false |
+| **meta** | `Object` | optional | Response metadata |
+| **data** | `Object` | ✅ | The updated feed item |
+
+
+---
+

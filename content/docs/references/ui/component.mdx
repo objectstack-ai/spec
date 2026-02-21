@@ -14,8 +14,8 @@ Empty Properties Schema
 ## TypeScript Usage
 
 ```typescript
-import { AIChatWindowProps, ElementButtonProps, ElementFilterProps, ElementFormProps, ElementImageProps, ElementNumberProps, ElementRecordPickerProps, ElementTextProps, PageAccordionProps, PageCardProps, PageHeaderProps, PageTabsProps, RecordActivityProps, RecordDetailsProps, RecordHighlightsProps, RecordPathProps, RecordRelatedListProps } from '@objectstack/spec/ui';
-import type { AIChatWindowProps, ElementButtonProps, ElementFilterProps, ElementFormProps, ElementImageProps, ElementNumberProps, ElementRecordPickerProps, ElementTextProps, PageAccordionProps, PageCardProps, PageHeaderProps, PageTabsProps, RecordActivityProps, RecordDetailsProps, RecordHighlightsProps, RecordPathProps, RecordRelatedListProps } from '@objectstack/spec/ui';
+import { AIChatWindowProps, ElementButtonProps, ElementFilterProps, ElementFormProps, ElementImageProps, ElementNumberProps, ElementRecordPickerProps, ElementTextProps, PageAccordionProps, PageCardProps, PageHeaderProps, PageTabsProps, RecordActivityProps, RecordChatterProps, RecordDetailsProps, RecordHighlightsProps, RecordPathProps, RecordRelatedListProps } from '@objectstack/spec/ui';
+import type { AIChatWindowProps, ElementButtonProps, ElementFilterProps, ElementFormProps, ElementImageProps, ElementNumberProps, ElementRecordPickerProps, ElementTextProps, PageAccordionProps, PageCardProps, PageHeaderProps, PageTabsProps, RecordActivityProps, RecordChatterProps, RecordDetailsProps, RecordHighlightsProps, RecordPathProps, RecordRelatedListProps } from '@objectstack/spec/ui';
 
 // Validate data
 const result = AIChatWindowProps.parse(data);
@@ -216,9 +216,33 @@ const result = AIChatWindowProps.parse(data);
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **types** | `Enum<'task' \| 'event' \| 'email' \| 'call' \| 'note'>[]` | optional | Activity types to display |
-| **limit** | `integer` | ✅ | Number of activities to show |
+| **types** | `Enum<'comment' \| 'field_change' \| 'task' \| 'event' \| 'email' \| 'call' \| 'note' \| 'file' \| 'record_create' \| 'record_delete' \| 'approval' \| 'sharing' \| 'system'>[]` | optional | Feed item types to show (default: all) |
+| **filterMode** | `Enum<'all' \| 'comments_only' \| 'changes_only' \| 'tasks_only'>` | ✅ | Default activity filter |
+| **showFilterToggle** | `boolean` | ✅ | Show filter dropdown in panel header |
+| **limit** | `integer` | ✅ | Number of items to load per page |
 | **showCompleted** | `boolean` | ✅ | Include completed activities |
+| **unifiedTimeline** | `boolean` | ✅ | Mix field changes and comments in one timeline (Airtable style) |
+| **showCommentInput** | `boolean` | ✅ | Show "Leave a comment" input at the bottom |
+| **enableMentions** | `boolean` | ✅ | Enable @mentions in comments |
+| **enableReactions** | `boolean` | ✅ | Enable emoji reactions on feed items |
+| **enableThreading** | `boolean` | ✅ | Enable threaded replies on comments |
+| **showSubscriptionToggle** | `boolean` | ✅ | Show bell icon for record-level notification subscription |
+| **aria** | `Object` | optional | ARIA accessibility attributes |
+
+
+---
+
+## RecordChatterProps
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **position** | `Enum<'sidebar' \| 'inline' \| 'drawer'>` | ✅ | Where to render the chatter panel |
+| **width** | `string \| number` | optional | Panel width (e.g., "350px", "30%") |
+| **collapsible** | `boolean` | ✅ | Whether the panel can be collapsed |
+| **defaultCollapsed** | `boolean` | ✅ | Whether the panel starts collapsed |
+| **feed** | `Object` | optional | Embedded activity feed configuration |
 | **aria** | `Object` | optional | ARIA accessibility attributes |
 
 

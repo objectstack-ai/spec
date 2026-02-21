@@ -42,8 +42,8 @@ A package may contain:
 ## TypeScript Usage
 
 ```typescript
-import { DisablePackageRequest, DisablePackageResponse, EnablePackageRequest, EnablePackageResponse, GetPackageRequest, GetPackageResponse, InstallPackageRequest, InstallPackageResponse, InstalledPackage, ListPackagesRequest, ListPackagesResponse, PackageStatusEnum, UninstallPackageRequest, UninstallPackageResponse } from '@objectstack/spec/kernel';
-import type { DisablePackageRequest, DisablePackageResponse, EnablePackageRequest, EnablePackageResponse, GetPackageRequest, GetPackageResponse, InstallPackageRequest, InstallPackageResponse, InstalledPackage, ListPackagesRequest, ListPackagesResponse, PackageStatusEnum, UninstallPackageRequest, UninstallPackageResponse } from '@objectstack/spec/kernel';
+import { DisablePackageRequest, DisablePackageResponse, EnablePackageRequest, EnablePackageResponse, GetPackageRequest, GetPackageResponse, InstallPackageRequest, InstallPackageResponse, InstalledPackage, ListPackagesRequest, ListPackagesResponse, NamespaceConflictError, NamespaceRegistryEntry, PackageStatusEnum, UninstallPackageRequest, UninstallPackageResponse } from '@objectstack/spec/kernel';
+import type { DisablePackageRequest, DisablePackageResponse, EnablePackageRequest, EnablePackageResponse, GetPackageRequest, GetPackageResponse, InstallPackageRequest, InstallPackageResponse, InstalledPackage, ListPackagesRequest, ListPackagesResponse, NamespaceConflictError, NamespaceRegistryEntry, PackageStatusEnum, UninstallPackageRequest, UninstallPackageResponse } from '@objectstack/spec/kernel';
 
 // Validate data
 const result = DisablePackageRequest.parse(data);
@@ -53,81 +53,95 @@ const result = DisablePackageRequest.parse(data);
 
 ## DisablePackageRequest
 
+Disable package request
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ |  |
+| **id** | `string` | ✅ | Package ID to disable |
 
 
 ---
 
 ## DisablePackageResponse
 
+Disable package response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **package** | `Object` | ✅ |  |
-| **message** | `string` | optional |  |
+| **package** | `Object` | ✅ | Disabled package details |
+| **message** | `string` | optional | Disable status message |
 
 
 ---
 
 ## EnablePackageRequest
 
+Enable package request
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ |  |
+| **id** | `string` | ✅ | Package ID to enable |
 
 
 ---
 
 ## EnablePackageResponse
 
+Enable package response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **package** | `Object` | ✅ |  |
-| **message** | `string` | optional |  |
+| **package** | `Object` | ✅ | Enabled package details |
+| **message** | `string` | optional | Enable status message |
 
 
 ---
 
 ## GetPackageRequest
 
+Get package request
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ |  |
+| **id** | `string` | ✅ | Package identifier |
 
 
 ---
 
 ## GetPackageResponse
 
+Get package response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **package** | `Object` | ✅ |  |
+| **package** | `Object` | ✅ | Package details |
 
 
 ---
 
 ## InstallPackageRequest
 
+Install package request
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **manifest** | `Object` | ✅ |  |
-| **settings** | `Record<string, any>` | optional |  |
-| **enableOnInstall** | `boolean` | ✅ |  |
+| **manifest** | `Object` | ✅ | Package manifest to install |
+| **settings** | `Record<string, any>` | optional | User-provided settings at install time |
+| **enableOnInstall** | `boolean` | ✅ | Whether to enable immediately after install |
 | **platformVersion** | `string` | optional | Current platform version for compatibility verification |
 
 
@@ -135,12 +149,14 @@ const result = DisablePackageRequest.parse(data);
 
 ## InstallPackageResponse
 
+Install package response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **package** | `Object` | ✅ |  |
-| **message** | `string` | optional |  |
+| **package** | `Object` | ✅ | Installed package details |
+| **message** | `string` | optional | Installation status message |
 | **dependencyResolution** | `Object` | optional | Dependency resolution result from install analysis |
 
 
@@ -148,20 +164,22 @@ const result = DisablePackageRequest.parse(data);
 
 ## InstalledPackage
 
+Installed package with runtime lifecycle state
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **manifest** | `Object` | ✅ |  |
-| **status** | `Enum<'installed' \| 'disabled' \| 'installing' \| 'upgrading' \| 'uninstalling' \| 'error'>` | ✅ |  |
-| **enabled** | `boolean` | ✅ |  |
-| **installedAt** | `string` | optional |  |
-| **updatedAt** | `string` | optional |  |
+| **manifest** | `Object` | ✅ | Full package manifest |
+| **status** | `Enum<'installed' \| 'disabled' \| 'installing' \| 'upgrading' \| 'uninstalling' \| 'error'>` | ✅ | Package state: installed, disabled, installing, upgrading, uninstalling, or error |
+| **enabled** | `boolean` | ✅ | Whether the package is currently enabled |
+| **installedAt** | `string` | optional | Installation timestamp |
+| **updatedAt** | `string` | optional | Last update timestamp |
 | **installedVersion** | `string` | optional | Currently installed version for quick access |
 | **previousVersion** | `string` | optional | Version before the last upgrade |
-| **statusChangedAt** | `string` | optional |  |
-| **errorMessage** | `string` | optional |  |
-| **settings** | `Record<string, any>` | optional |  |
+| **statusChangedAt** | `string` | optional | Status change timestamp |
+| **errorMessage** | `string` | optional | Error message when status is error |
+| **settings** | `Record<string, any>` | optional | User-provided configuration settings |
 | **upgradeHistory** | `Object[]` | optional | Version upgrade history |
 | **registeredNamespaces** | `string[]` | optional | Namespace prefixes registered by this package |
 
@@ -170,30 +188,69 @@ const result = DisablePackageRequest.parse(data);
 
 ## ListPackagesRequest
 
+List packages request
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **status** | `Enum<'installed' \| 'disabled' \| 'installing' \| 'upgrading' \| 'uninstalling' \| 'error'>` | optional |  |
-| **type** | `Enum<'plugin' \| 'ui' \| 'driver' \| 'server' \| 'app' \| 'theme' \| 'agent' \| 'objectql' \| 'module' \| 'gateway' \| 'adapter'>` | optional | Type of package |
-| **enabled** | `boolean` | optional |  |
+| **status** | `Enum<'installed' \| 'disabled' \| 'installing' \| 'upgrading' \| 'uninstalling' \| 'error'>` | optional | Filter by package status |
+| **type** | `Enum<'plugin' \| 'ui' \| 'driver' \| 'server' \| 'app' \| 'theme' \| 'agent' \| 'objectql' \| 'module' \| 'gateway' \| 'adapter'>` | optional | Filter by package type |
+| **enabled** | `boolean` | optional | Filter by enabled state |
 
 
 ---
 
 ## ListPackagesResponse
 
+List packages response
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **packages** | `Object[]` | ✅ |  |
-| **total** | `number` | ✅ |  |
+| **packages** | `Object[]` | ✅ | List of installed packages |
+| **total** | `number` | ✅ | Total package count |
+
+
+---
+
+## NamespaceConflictError
+
+Namespace collision error during installation
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `string` | ✅ | Error type |
+| **requestedNamespace** | `string` | ✅ | Requested namespace |
+| **conflictingPackageId** | `string` | ✅ | Conflicting package ID |
+| **conflictingPackageName** | `string` | ✅ | Conflicting package display name |
+| **suggestion** | `string` | optional | Suggested alternative namespace |
+
+
+---
+
+## NamespaceRegistryEntry
+
+Namespace ownership entry in the registry
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **namespace** | `string` | ✅ | Namespace prefix |
+| **packageId** | `string` | ✅ | Owning package ID |
+| **registeredAt** | `string` | ✅ | Registration timestamp |
+| **status** | `Enum<'active' \| 'disabled' \| 'reserved'>` | ✅ | Namespace status |
 
 
 ---
 
 ## PackageStatusEnum
+
+Package installation status
 
 ### Allowed Values
 
@@ -209,57 +266,28 @@ const result = DisablePackageRequest.parse(data);
 
 ## UninstallPackageRequest
 
+Uninstall package request
+
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ |  |
+| **id** | `string` | ✅ | Package ID to uninstall |
 
 
 ---
 
 ## UninstallPackageResponse
 
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **id** | `string` | ✅ |  |
-| **success** | `boolean` | ✅ |  |
-| **message** | `string` | optional |  |
-
-
----
-
-## NamespaceRegistryEntry
-
-Tracks namespace ownership within the platform instance.
+Uninstall package response
 
 ### Properties
 
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| **namespace** | `string` | ✅ | Namespace prefix |
-| **packageId** | `string` | ✅ | Owning package ID |
-| **registeredAt** | `string` | ✅ | Registration timestamp |
-| **status** | `Enum<'active' \| 'disabled' \| 'reserved'>` | ✅ | Namespace status |
-
-
----
-
-## NamespaceConflictError
-
-Describes a namespace collision detected during package installation.
-
-### Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **type** | `literal<'namespace_conflict'>` | ✅ | Error type |
-| **requestedNamespace** | `string` | ✅ | Requested namespace |
-| **conflictingPackageId** | `string` | ✅ | Conflicting package ID |
-| **conflictingPackageName** | `string` | ✅ | Conflicting package display name |
-| **suggestion** | `string` | optional | Suggested alternative namespace |
+| **id** | `string` | ✅ | Uninstalled package ID |
+| **success** | `boolean` | ✅ | Whether uninstall succeeded |
+| **message** | `string` | optional | Uninstall status message |
 
 
 ---

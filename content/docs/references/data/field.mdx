@@ -102,6 +102,7 @@ const result = Address.parse(data);
 | **type** | `Enum<'text' \| 'textarea' \| 'email' \| 'url' \| 'phone' \| 'password' \| 'markdown' \| 'html' \| 'richtext' \| 'number' \| 'currency' \| 'percent' \| 'date' \| 'datetime' \| 'time' \| 'boolean' \| 'toggle' \| 'select' \| 'multiselect' \| 'radio' \| 'checkboxes' \| 'lookup' \| 'master_detail' \| 'tree' \| 'image' \| 'file' \| 'avatar' \| 'video' \| 'audio' \| 'formula' \| 'summary' \| 'autonumber' \| 'location' \| 'address' \| 'code' \| 'json' \| 'color' \| 'rating' \| 'slider' \| 'signature' \| 'qrcode' \| 'progress' \| 'tags' \| 'vector'>` | ✅ | Field Data Type |
 | **description** | `string` | optional | Tooltip/Help text |
 | **format** | `string` | optional | Format string (e.g. email, phone) |
+| **columnName** | `string` | optional | Physical column name in the target datasource. Defaults to the field key when not set. |
 | **required** | `boolean` | ✅ | Is required |
 | **searchable** | `boolean` | ✅ | Is searchable |
 | **multiple** | `boolean` | ✅ | Allow multiple values (Stores as Array/JSON). Applicable for select, lookup, file, image. |

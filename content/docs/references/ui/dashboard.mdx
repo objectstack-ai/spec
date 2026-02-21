@@ -5,9 +5,7 @@ description: Dashboard protocol schemas
 
 {/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
 
-Dashboard Widget Schema
-
-A single component on the dashboard grid.
+Color variant for dashboard widgets (e.g., KPI cards).
 
 <Callout type="info">
 **Source:** `packages/spec/src/ui/dashboard.zod.ts`
@@ -16,8 +14,8 @@ A single component on the dashboard grid.
 ## TypeScript Usage
 
 ```typescript
-import { Dashboard, DashboardWidget } from '@objectstack/spec/ui';
-import type { Dashboard, DashboardWidget } from '@objectstack/spec/ui';
+import { Dashboard, DashboardHeader, DashboardHeaderAction, DashboardWidget, GlobalFilter, GlobalFilterOptionsFrom, WidgetActionType, WidgetColorVariant, WidgetMeasure } from '@objectstack/spec/ui';
+import type { Dashboard, DashboardHeader, DashboardHeaderAction, DashboardWidget, GlobalFilter, GlobalFilterOptionsFrom, WidgetActionType, WidgetColorVariant, WidgetMeasure } from '@objectstack/spec/ui';
 
 // Validate data
 const result = Dashboard.parse(data);
@@ -34,12 +32,44 @@ const result = Dashboard.parse(data);
 | **name** | `string` | ✅ | Dashboard unique name |
 | **label** | `string \| Object` | ✅ | Dashboard label |
 | **description** | `string \| Object` | optional | Dashboard description |
+| **header** | `Object` | optional | Dashboard header configuration |
 | **widgets** | `Object[]` | ✅ | Widgets to display |
 | **refreshInterval** | `number` | optional | Auto-refresh interval in seconds |
 | **dateRange** | `Object` | optional | Global dashboard date range filter configuration |
 | **globalFilters** | `Object[]` | optional | Global filters that apply to all widgets in the dashboard |
 | **aria** | `Object` | optional | ARIA accessibility attributes |
 | **performance** | `Object` | optional | Performance optimization settings |
+
+
+---
+
+## DashboardHeader
+
+Dashboard header configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **showTitle** | `boolean` | ✅ | Show dashboard title in header |
+| **showDescription** | `boolean` | ✅ | Show dashboard description in header |
+| **actions** | `Object[]` | optional | Header action buttons |
+
+
+---
+
+## DashboardHeaderAction
+
+Dashboard header action
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **label** | `string \| Object` | ✅ | Action button label |
+| **actionUrl** | `string` | ✅ | URL or target for the action |
+| **actionType** | `Enum<'url' \| 'modal' \| 'flow'>` | optional | Type of action |
+| **icon** | `string` | optional | Icon identifier for the action button |
 
 
 ---
@@ -51,17 +81,104 @@ const result = Dashboard.parse(data);
 | Property | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | **title** | `string \| Object` | optional | Widget title |
+| **description** | `string \| Object` | optional | Widget description text below the header |
 | **type** | `Enum<'bar' \| 'horizontal-bar' \| 'column' \| 'grouped-bar' \| 'stacked-bar' \| 'bi-polar-bar' \| 'line' \| 'area' \| 'stacked-area' \| 'step-line' \| 'spline' \| 'pie' \| 'donut' \| 'funnel' \| 'pyramid' \| 'scatter' \| 'bubble' \| 'treemap' \| 'sunburst' \| 'sankey' \| 'word-cloud' \| 'gauge' \| 'solid-gauge' \| 'metric' \| 'kpi' \| 'bullet' \| 'choropleth' \| 'bubble-map' \| 'gl-map' \| 'heatmap' \| 'radar' \| 'waterfall' \| 'box-plot' \| 'violin' \| 'candlestick' \| 'stock' \| 'table' \| 'pivot'>` | ✅ | Visualization type |
 | **chartConfig** | `Object` | optional | Chart visualization configuration |
+| **colorVariant** | `Enum<'default' \| 'blue' \| 'teal' \| 'orange' \| 'purple' \| 'success' \| 'warning' \| 'danger'>` | optional | Widget color variant for theming |
+| **actionUrl** | `string` | optional | URL or target for the widget action button |
+| **actionType** | `Enum<'url' \| 'modal' \| 'flow'>` | optional | Type of action for the widget action button |
+| **actionIcon** | `string` | optional | Icon identifier for the widget action button |
 | **object** | `string` | optional | Data source object name |
 | **filter** | `[__schema0](./__schema0)` | optional | Data filter criteria |
 | **categoryField** | `string` | optional | Field for grouping (X-Axis) |
 | **valueField** | `string` | optional | Field for values (Y-Axis) |
 | **aggregate** | `Enum<'count' \| 'sum' \| 'avg' \| 'min' \| 'max'>` | ✅ | Aggregate function |
+| **measures** | `Object[]` | optional | Multiple measures for pivot/matrix analysis |
 | **layout** | `Object` | ✅ | Grid layout position |
 | **options** | `any` | optional | Widget specific configuration |
 | **responsive** | `Object` | optional | Responsive layout configuration |
 | **aria** | `Object` | optional | ARIA accessibility attributes |
+
+
+---
+
+## GlobalFilter
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Field name to filter on |
+| **label** | `string \| Object` | optional | Display label for the filter |
+| **type** | `Enum<'text' \| 'select' \| 'date' \| 'number' \| 'lookup'>` | optional | Filter input type |
+| **options** | `Object[]` | optional | Static filter options |
+| **optionsFrom** | `Object` | optional | Dynamic filter options from object |
+| **defaultValue** | `any` | optional | Default filter value |
+| **scope** | `Enum<'dashboard' \| 'widget'>` | ✅ | Filter application scope |
+| **targetWidgets** | `string[]` | optional | Widget IDs to apply this filter to |
+
+
+---
+
+## GlobalFilterOptionsFrom
+
+Dynamic filter options from object
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **object** | `string` | ✅ | Source object name |
+| **valueField** | `string` | ✅ | Field to use as option value |
+| **labelField** | `string` | ✅ | Field to use as option label |
+| **filter** | `[__schema0](./__schema0)` | optional | Filter to apply to source object |
+
+
+---
+
+## WidgetActionType
+
+Widget action type
+
+### Allowed Values
+
+* `url`
+* `modal`
+* `flow`
+
+
+---
+
+## WidgetColorVariant
+
+Widget color variant
+
+### Allowed Values
+
+* `default`
+* `blue`
+* `teal`
+* `orange`
+* `purple`
+* `success`
+* `warning`
+* `danger`
+
+
+---
+
+## WidgetMeasure
+
+Widget measure definition
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **valueField** | `string` | ✅ | Field to aggregate |
+| **aggregate** | `Enum<'count' \| 'sum' \| 'avg' \| 'min' \| 'max'>` | ✅ | Aggregate function |
+| **label** | `string \| Object` | optional | Measure display label |
+| **format** | `string` | optional | Number format string |
 
 
 ---

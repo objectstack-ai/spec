@@ -65,7 +65,7 @@ export const MetadataDiffItemSchema = z.object({
 
   /** Previous name (for renames) */
   previousName: z.string().optional().describe('Previous name if renamed'),
-});
+}).describe('Single metadata change between package versions');
 
 /**
  * Upgrade Impact Level
@@ -125,7 +125,7 @@ export const UpgradePlanSchema = z.object({
 
   /** Human-readable summary */
   summary: z.string().optional().describe('Human-readable upgrade summary'),
-});
+}).describe('Upgrade analysis plan generated before execution');
 
 // ==========================================
 // Upgrade Snapshot (Pre-Upgrade Backup)
@@ -152,7 +152,7 @@ export const UpgradeSnapshotSchema = z.object({
   tenantId: z.string().optional().describe('Tenant identifier'),
 
   /** Complete manifest of the old package version */
-  previousManifest: ManifestSchema,
+  previousManifest: ManifestSchema.describe('Complete manifest of the previous package version'),
 
   /**
    * Snapshot of all metadata records owned by this package.
@@ -175,7 +175,7 @@ export const UpgradeSnapshotSchema = z.object({
 
   /** Expiry time for snapshot cleanup */
   expiresAt: z.string().datetime().optional().describe('Snapshot expiry timestamp'),
-});
+}).describe('Pre-upgrade state snapshot for rollback capability');
 
 // ==========================================
 // Upgrade Request/Response
@@ -212,7 +212,7 @@ export const UpgradePackageRequestSchema = z.object({
   /** Whether to skip pre-upgrade validation */
   skipValidation: z.boolean().default(false)
     .describe('Skip pre-upgrade compatibility checks'),
-});
+}).describe('Upgrade package request');
 
 /**
  * Upgrade Phase
@@ -239,7 +239,7 @@ export const UpgradePackageResponseSchema = z.object({
   success: z.boolean().describe('Whether the upgrade succeeded'),
 
   /** Current upgrade phase */
-  phase: UpgradePhaseSchema,
+  phase: UpgradePhaseSchema.describe('Current upgrade phase'),
 
   /** The upgrade plan that was executed */
   plan: UpgradePlanSchema.optional().describe('Upgrade plan'),
@@ -256,11 +256,11 @@ export const UpgradePackageResponseSchema = z.object({
   })).optional().describe('Unresolved merge conflicts'),
 
   /** Error message (if failed) */
-  errorMessage: z.string().optional(),
+  errorMessage: z.string().optional().describe('Error message if upgrade failed'),
 
   /** Human-readable summary */
-  message: z.string().optional(),
-});
+  message: z.string().optional().describe('Human-readable status message'),
+}).describe('Upgrade package response');
 
 // ==========================================
 // Rollback
@@ -279,21 +279,21 @@ export const RollbackPackageRequestSchema = z.object({
   /** Whether to also rollback customizations */
   rollbackCustomizations: z.boolean().default(true)
     .describe('Whether to restore pre-upgrade customizations'),
-});
+}).describe('Rollback package request');
 
 /**
  * Rollback Package Response
  */
 export const RollbackPackageResponseSchema = z.object({
   /** Whether the rollback was successful */
-  success: z.boolean(),
+  success: z.boolean().describe('Whether the rollback succeeded'),
 
   /** Restored version */
   restoredVersion: z.string().optional().describe('Version restored to'),
 
   /** Message */
-  message: z.string().optional(),
-});
+  message: z.string().optional().describe('Rollback status message'),
+}).describe('Rollback package response');
 
 // ==========================================
 // Export Types

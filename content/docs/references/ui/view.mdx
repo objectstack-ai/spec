@@ -14,12 +14,42 @@ HTTP Method Enum
 ## TypeScript Usage
 
 ```typescript
-import { CalendarConfig, ColumnSummary, FormField, GalleryConfig, GanttConfig, GroupingConfig, GroupingField, HttpMethod, HttpRequest, KanbanConfig, ListColumn, ListView, NavigationConfig, NavigationMode, PaginationConfig, RowColorConfig, RowHeight, SelectionConfig, TimelineConfig, ViewData, ViewSharing } from '@objectstack/spec/ui';
-import type { CalendarConfig, ColumnSummary, FormField, GalleryConfig, GanttConfig, GroupingConfig, GroupingField, HttpMethod, HttpRequest, KanbanConfig, ListColumn, ListView, NavigationConfig, NavigationMode, PaginationConfig, RowColorConfig, RowHeight, SelectionConfig, TimelineConfig, ViewData, ViewSharing } from '@objectstack/spec/ui';
+import { AddRecordConfig, AppearanceConfig, CalendarConfig, ColumnSummary, FormField, GalleryConfig, GanttConfig, GroupingConfig, GroupingField, HttpMethod, HttpRequest, KanbanConfig, ListColumn, ListView, NavigationConfig, NavigationMode, PaginationConfig, RowColorConfig, RowHeight, SelectionConfig, TimelineConfig, UserActionsConfig, ViewData, ViewSharing, ViewTab, VisualizationType } from '@objectstack/spec/ui';
+import type { AddRecordConfig, AppearanceConfig, CalendarConfig, ColumnSummary, FormField, GalleryConfig, GanttConfig, GroupingConfig, GroupingField, HttpMethod, HttpRequest, KanbanConfig, ListColumn, ListView, NavigationConfig, NavigationMode, PaginationConfig, RowColorConfig, RowHeight, SelectionConfig, TimelineConfig, UserActionsConfig, ViewData, ViewSharing, ViewTab, VisualizationType } from '@objectstack/spec/ui';
 
 // Validate data
-const result = CalendarConfig.parse(data);
+const result = AddRecordConfig.parse(data);
 ```
+
+---
+
+## AddRecordConfig
+
+Add record entry point configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Show the add record entry point |
+| **position** | `Enum<'top' \| 'bottom' \| 'both'>` | ✅ | Position of the add record button |
+| **mode** | `Enum<'inline' \| 'form' \| 'modal'>` | ✅ | How to add a new record |
+| **formView** | `string` | optional | Named form view to use when mode is "form" or "modal" |
+
+
+---
+
+## AppearanceConfig
+
+Appearance and visualization configuration
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **showDescription** | `boolean` | ✅ | Show the view description text |
+| **allowedVisualizations** | `Enum<'grid' \| 'kanban' \| 'gallery' \| 'calendar' \| 'timeline' \| 'gantt' \| 'map'>[]` | optional | Whitelist of visualization types users can switch between (e.g. ["grid", "gallery", "kanban"]) |
+
 
 ---
 
@@ -241,6 +271,12 @@ Record grouping configuration
 | **conditionalFormatting** | `Object[]` | optional | Conditional formatting rules for list rows |
 | **inlineEdit** | `boolean` | optional | Allow inline editing of records directly in the list view |
 | **exportOptions** | `Enum<'csv' \| 'xlsx' \| 'pdf' \| 'json'>[]` | optional | Available export format options |
+| **userActions** | `Object` | optional | User action toggles for the view toolbar |
+| **appearance** | `Object` | optional | Appearance and visualization configuration |
+| **tabs** | `Object[]` | optional | Tab definitions for multi-tab view interface |
+| **addRecord** | `Object` | optional | Add record entry point configuration |
+| **showRecordCount** | `boolean` | optional | Show record count at the bottom of the list |
+| **allowPrinting** | `boolean` | optional | Allow users to print the view |
 | **emptyState** | `Object` | optional | Empty state configuration when no records found |
 | **aria** | `Object` | optional | ARIA accessibility attributes for the list view |
 
@@ -347,6 +383,24 @@ Timeline view configuration
 
 ---
 
+## UserActionsConfig
+
+User action toggles for the view toolbar
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **sort** | `boolean` | ✅ | Allow users to sort records |
+| **search** | `boolean` | ✅ | Allow users to search records |
+| **filter** | `boolean` | ✅ | Allow users to filter records |
+| **rowHeight** | `boolean` | ✅ | Allow users to toggle row height/density |
+| **addRecordForm** | `boolean` | ✅ | Add records through a form instead of inline |
+| **buttons** | `string[]` | optional | Custom action button IDs to show in the toolbar |
+
+
+---
+
 ## ViewData
 
 ### Union Options
@@ -400,6 +454,44 @@ View sharing and access configuration
 | :--- | :--- | :--- | :--- |
 | **type** | `Enum<'personal' \| 'collaborative'>` | ✅ | View ownership type |
 | **lockedBy** | `string` | optional | User who locked the view configuration |
+
+
+---
+
+## ViewTab
+
+Tab configuration for multi-tab view interface
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Tab identifier (snake_case) |
+| **label** | `string \| Object` | optional | Display label |
+| **icon** | `string` | optional | Tab icon name |
+| **view** | `string` | optional | Referenced list view name from listViews |
+| **filter** | `any[]` | optional | Tab-specific filter criteria |
+| **order** | `integer` | optional | Tab display order |
+| **pinned** | `boolean` | ✅ | Pin tab (cannot be removed by users) |
+| **isDefault** | `boolean` | ✅ | Set as the default active tab |
+| **visible** | `boolean` | ✅ | Tab visibility |
+
+
+---
+
+## VisualizationType
+
+Visualization type that users can switch to
+
+### Allowed Values
+
+* `grid`
+* `kanban`
+* `gallery`
+* `calendar`
+* `timeline`
+* `gantt`
+* `map`
 
 
 ---
