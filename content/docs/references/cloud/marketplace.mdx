@@ -128,6 +128,7 @@ const result = ListingStatus.parse(data);
 | **licenseKey** | `string` | optional | License key for paid packages |
 | **settings** | `Record<string, any>` | optional |  |
 | **enableOnInstall** | `boolean` | ✅ |  |
+| **artifactRef** | `Object` | optional | Artifact reference for direct installation |
 | **tenantId** | `string` | optional |  |
 
 
@@ -278,6 +279,40 @@ const result = ListingStatus.parse(data);
 * `verified`
 * `trusted`
 * `partner`
+
+
+---
+
+## ArtifactReference
+
+Reference to a downloadable package artifact with integrity verification.
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **url** | `string` | ✅ | Artifact download URL |
+| **sha256** | `string` | ✅ | SHA256 checksum |
+| **size** | `integer` | ✅ | Artifact size in bytes |
+| **format** | `Enum<'tgz' \| 'zip'>` | ✅ | Artifact format |
+| **uploadedAt** | `string` | ✅ | Upload timestamp |
+
+
+---
+
+## ArtifactDownloadResponse
+
+Response from the artifact download API endpoint.
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **downloadUrl** | `string` | ✅ | Artifact download URL (may be pre-signed) |
+| **sha256** | `string` | ✅ | SHA256 checksum for verification |
+| **size** | `integer` | ✅ | Artifact size in bytes |
+| **format** | `Enum<'tgz' \| 'zip'>` | ✅ | Artifact format |
+| **expiresAt** | `string` | optional | URL expiration timestamp for pre-signed URLs |
 
 
 ---

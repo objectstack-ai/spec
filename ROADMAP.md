@@ -691,7 +691,12 @@ Final polish and advanced features.
 
 ### 8.5 Marketplace & Cloud
 
-- [ ] Plugin marketplace — publish, discover, install community plugins
+- [x] Plugin marketplace protocol — package artifact format, artifact storage & distribution
+- [x] Platform version compatibility — engine requirements in manifest
+- [x] Dependency resolution protocol — conflict detection, topological install ordering
+- [x] Namespace collision detection — registry entries, conflict errors
+- [x] Upgrade migration context — version context for onUpgrade hooks, upgrade history
+- [ ] Plugin marketplace runtime — publish, discover, install community plugins
 - [ ] App store — pre-built applications (CRM, HRM, Project Management)
 - [ ] Developer portal — API keys, usage metrics, billing
 - [ ] Managed cloud offering — ObjectStack-as-a-Service

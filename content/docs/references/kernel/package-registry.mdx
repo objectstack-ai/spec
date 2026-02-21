@@ -128,6 +128,7 @@ const result = DisablePackageRequest.parse(data);
 | **manifest** | `Object` | ✅ |  |
 | **settings** | `Record<string, any>` | optional |  |
 | **enableOnInstall** | `boolean` | ✅ |  |
+| **platformVersion** | `string` | optional | Current platform version for compatibility verification |
 
 
 ---
@@ -140,6 +141,7 @@ const result = DisablePackageRequest.parse(data);
 | :--- | :--- | :--- | :--- |
 | **package** | `Object` | ✅ |  |
 | **message** | `string` | optional |  |
+| **dependencyResolution** | `Object` | optional | Dependency resolution result from install analysis |
 
 
 ---
@@ -160,6 +162,8 @@ const result = DisablePackageRequest.parse(data);
 | **statusChangedAt** | `string` | optional |  |
 | **errorMessage** | `string` | optional |  |
 | **settings** | `Record<string, any>` | optional |  |
+| **upgradeHistory** | `Object[]` | optional | Version upgrade history |
+| **registeredNamespaces** | `string[]` | optional | Namespace prefixes registered by this package |
 
 
 ---
@@ -223,6 +227,39 @@ const result = DisablePackageRequest.parse(data);
 | **id** | `string` | ✅ |  |
 | **success** | `boolean` | ✅ |  |
 | **message** | `string` | optional |  |
+
+
+---
+
+## NamespaceRegistryEntry
+
+Tracks namespace ownership within the platform instance.
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **namespace** | `string` | ✅ | Namespace prefix |
+| **packageId** | `string` | ✅ | Owning package ID |
+| **registeredAt** | `string` | ✅ | Registration timestamp |
+| **status** | `Enum<'active' \| 'disabled' \| 'reserved'>` | ✅ | Namespace status |
+
+
+---
+
+## NamespaceConflictError
+
+Describes a namespace collision detected during package installation.
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **type** | `literal<'namespace_conflict'>` | ✅ | Error type |
+| **requestedNamespace** | `string` | ✅ | Requested namespace |
+| **conflictingPackageId** | `string` | ✅ | Conflicting package ID |
+| **conflictingPackageName** | `string` | ✅ | Conflicting package display name |
+| **suggestion** | `string` | optional | Suggested alternative namespace |
 
 
 ---

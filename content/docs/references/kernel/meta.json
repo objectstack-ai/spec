@@ -3,6 +3,7 @@
   "pages": [
     "cli-extension",
     "context",
+    "dependency-resolution",
     "dev-plugin",
     "execution-context",
     "feature",
@@ -11,6 +12,7 @@
     "metadata-persistence",
     "metadata-plugin",
     "misc",
+    "package-artifact",
     "package-registry",
     "package-upgrade",
     "permission",

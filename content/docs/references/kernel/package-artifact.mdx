@@ -1,0 +1,126 @@
+---
+title: Package Artifact
+description: Package Artifact format protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+# Package Artifact Format Protocol
+
+Defines the standard structure of a package artifact (.tgz) produced by
+`os plugin build`. The marketplace uses these schemas to validate, store,
+and distribute package artifacts.
+
+## Artifact Internal Structure
+
+```
+├── manifest.json          ← ManifestSchema serialized
+├── metadata/              ← 30+ metadata types (JSON)
+│   ├── objects/            ← *.object.json
+│   ├── views/              ← *.view.json
+│   ├── pages/              ← *.page.json
+│   ├── flows/              ← *.flow.json
+│   ├── dashboards/         ← *.dashboard.json
+│   ├── permissions/        ← *.permission.json
+│   ├── agents/             ← *.agent.json
+│   └── ...                 ← Other metadata types
+├── assets/                ← Static resources
+├── data/                  ← Seed data (DatasetSchema serialized)
+├── locales/               ← i18n translation files
+├── checksums.json         ← SHA256 checksum per file
+└── signature.sig          ← RSA-SHA256 package signature
+```
+
+## Architecture Alignment
+
+- **Salesforce**: Managed Package .zip with metadata components
+- **npm**: .tgz with package.json + contents
+- **Helm**: Chart .tgz with Chart.yaml + templates
+- **VS Code**: .vsix (zip) with extension manifest + assets
+
+<Callout type="info">
+**Source:** `packages/spec/src/kernel/package-artifact.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { PackageArtifactSchema, ArtifactChecksumSchema, ArtifactSignatureSchema } from '@objectstack/spec/kernel';
+import type { PackageArtifact, ArtifactChecksum, ArtifactSignature } from '@objectstack/spec/kernel';
+
+// Validate artifact metadata
+const result = PackageArtifactSchema.parse(data);
+```
+
+---
+
+## PackageArtifact
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **formatVersion** | `string` | ✅ | Artifact format version (e.g. "1.0") |
+| **packageId** | `string` | ✅ | Package identifier from manifest |
+| **version** | `string` | ✅ | Package version from manifest |
+| **format** | `Enum<'tgz' \| 'zip'>` | ✅ | Archive format of the artifact |
+| **size** | `integer` | optional | Total artifact file size in bytes |
+| **builtAt** | `string` | ✅ | ISO 8601 build timestamp |
+| **builtWith** | `string` | optional | Build tool identifier |
+| **files** | `Object[]` | optional | List of files in the artifact |
+| **metadataCategories** | `string[]` | optional | Metadata categories included |
+| **checksums** | `Object` | optional | SHA256 checksums for integrity |
+| **signature** | `Object` | optional | Digital signature for authenticity |
+
+
+---
+
+## ArtifactChecksum
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **algorithm** | `Enum<'sha256' \| 'sha384' \| 'sha512'>` | ✅ | Hash algorithm used |
+| **files** | `Record<string, string>` | ✅ | File path to hash value mapping |
+
+
+---
+
+## ArtifactSignature
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **algorithm** | `Enum<'RSA-SHA256' \| 'RSA-SHA384' \| 'RSA-SHA512' \| 'ECDSA-SHA256'>` | ✅ | Signing algorithm |
+| **publicKeyRef** | `string` | ✅ | Public key reference for verification |
+| **signature** | `string` | ✅ | Base64-encoded signature |
+| **signedAt** | `string` | optional | Signing timestamp |
+| **signedBy** | `string` | optional | Signer identity |
+
+
+---
+
+## MetadataCategory
+
+### Allowed Values
+
+* `objects`
+* `views`
+* `pages`
+* `flows`
+* `dashboards`
+* `permissions`
+* `agents`
+* `reports`
+* `actions`
+* `translations`
+* `themes`
+* `datasets`
+* `apis`
+* `triggers`
+* `workflows`
+
+
+---
