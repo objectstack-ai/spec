@@ -51,7 +51,7 @@ export const PublisherVerificationSchema = z.enum([
   'verified',    // Identity verified by platform
   'trusted',     // Trusted publisher (track record of quality)
   'partner',     // Official platform partner
-]);
+]).describe('Publisher verification status');
 
 /**
  * Publisher Schema
@@ -68,7 +68,8 @@ export const PublisherSchema = z.object({
   type: z.enum(['individual', 'organization']).describe('Publisher type'),
 
   /** Verification status */
-  verification: PublisherVerificationSchema.default('unverified'),
+  verification: PublisherVerificationSchema.default('unverified')
+    .describe('Publisher verification status'),
 
   /** Contact email */
   email: z.string().email().optional().describe('Contact email'),
@@ -83,7 +84,8 @@ export const PublisherSchema = z.object({
   description: z.string().optional().describe('Publisher description'),
 
   /** Registration date */
-  registeredAt: z.string().datetime().optional(),
+  registeredAt: z.string().datetime().optional()
+    .describe('Publisher registration timestamp'),
 });
 
 // ==========================================
@@ -164,7 +166,7 @@ export const MarketplaceCategorySchema = z.enum([
   'ui-theme',        // UI Themes & Appearance
   'storage',         // Storage & Drivers
   'other',           // Other / Uncategorized
-]);
+]).describe('Marketplace package category');
 
 /**
  * Listing Status
@@ -179,7 +181,7 @@ export const ListingStatusSchema = z.enum([
   'suspended',       // Suspended by platform (policy violation)
   'deprecated',      // Deprecated by publisher
   'unlisted',        // Available by direct link only
-]);
+]).describe('Marketplace listing status');
 
 /**
  * Pricing Model
@@ -191,7 +193,7 @@ export const PricingModelSchema = z.enum([
   'subscription',    // Recurring subscription
   'usage-based',     // Pay per usage
   'contact-sales',   // Enterprise pricing, contact for quote
-]);
+]).describe('Package pricing model');
 
 /**
  * Marketplace Listing Schema
@@ -210,7 +212,8 @@ export const MarketplaceListingSchema = z.object({
   publisherId: z.string().describe('Publisher ID'),
 
   /** Current listing status */
-  status: ListingStatusSchema.default('draft'),
+  status: ListingStatusSchema.default('draft')
+    .describe('Current listing status'),
 
   /** Display name */
   name: z.string().describe('Display name'),
@@ -237,16 +240,20 @@ export const MarketplaceListingSchema = z.object({
   })).optional().describe('Screenshots'),
 
   /** Documentation URL */
-  documentationUrl: z.string().url().optional(),
+  documentationUrl: z.string().url().optional()
+    .describe('Documentation URL'),
 
   /** Support URL */
-  supportUrl: z.string().url().optional(),
+  supportUrl: z.string().url().optional()
+    .describe('Support URL'),
 
   /** Source repository URL (if open source) */
-  repositoryUrl: z.string().url().optional(),
+  repositoryUrl: z.string().url().optional()
+    .describe('Source repository URL'),
 
   /** Pricing model */
-  pricing: PricingModelSchema.default('free'),
+  pricing: PricingModelSchema.default('free')
+    .describe('Pricing model'),
 
   /** Price in cents (if paid) */
   priceInCents: z.number().int().min(0).optional()

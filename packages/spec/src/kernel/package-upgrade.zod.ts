@@ -40,7 +40,7 @@ export const MetadataChangeTypeSchema = z.enum([
   'modified', // Existing metadata item modified
   'removed',  // Metadata item removed in new version
   'renamed',  // Metadata item renamed
-]);
+]).describe('Type of metadata change between package versions');
 
 /**
  * Metadata Diff Item
@@ -54,7 +54,7 @@ export const MetadataDiffItemSchema = z.object({
   name: z.string().describe('Metadata name'),
 
   /** Type of change */
-  changeType: MetadataChangeTypeSchema,
+  changeType: MetadataChangeTypeSchema.describe('Type of change'),
 
   /** Whether this change has potential conflicts with customizations */
   hasConflict: z.boolean().default(false)
@@ -77,7 +77,7 @@ export const UpgradeImpactLevelSchema = z.enum([
   'medium',   // Some changes that may affect workflows
   'high',     // Significant changes, user review recommended
   'critical', // Breaking changes, manual intervention required
-]);
+]).describe('Severity of upgrade impact');
 
 /**
  * Upgrade Plan Schema
@@ -95,7 +95,7 @@ export const UpgradePlanSchema = z.object({
   toVersion: z.string().describe('Target upgrade version'),
 
   /** Overall impact level */
-  impactLevel: UpgradeImpactLevelSchema,
+  impactLevel: UpgradeImpactLevelSchema.describe('Overall upgrade impact level'),
 
   /** List of all metadata changes between versions */
   changes: z.array(MetadataDiffItemSchema).describe('All metadata changes'),
@@ -229,7 +229,7 @@ export const UpgradePhaseSchema = z.enum([
   'failed',      // Upgrade failed
   'rolling-back', // Rollback in progress
   'rolled-back', // Rollback completed
-]);
+]).describe('Current phase of the upgrade process');
 
 /**
  * Upgrade Package Response
