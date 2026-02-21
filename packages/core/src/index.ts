@@ -31,6 +31,10 @@ export * from './health-monitor.js';
 export * from './hot-reload.js';
 export * from './dependency-resolver.js';
 
+// Export Phase 3 components - Package lifecycle management
+export * from './namespace-resolver.js';
+export * from './package-manager.js';
+
 // Re-export contracts from @objectstack/spec for backward compatibility
 export type { 
     Logger,
