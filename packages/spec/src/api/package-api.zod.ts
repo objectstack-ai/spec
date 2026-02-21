@@ -1,0 +1,418 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+import { z } from 'zod';
+import { BaseResponseSchema } from './contract.zod';
+import { InstalledPackageSchema } from '../kernel/package-registry.zod';
+import { DependencyResolutionResultSchema } from '../kernel/dependency-resolution.zod';
+import { UpgradePlanSchema, UpgradePackageResponseSchema, RollbackPackageResponseSchema } from '../kernel/package-upgrade.zod';
+import { PackageArtifactSchema } from '../kernel/package-artifact.zod';
+import { ManifestSchema } from '../kernel/manifest.zod';
+import { ArtifactReferenceSchema } from '../cloud/marketplace.zod';
+
+/**
+ * # Package API Protocol
+ *
+ * REST API endpoint schemas for package lifecycle management.
+ *
+ * Base path: /api/v1/packages
+ *
+ * @example Endpoints
+ * POST   /api/v1/packages/install              — Install a package
+ * POST   /api/v1/packages/upgrade              — Upgrade a package
+ * POST   /api/v1/packages/resolve-dependencies — Resolve dependencies
+ * POST   /api/v1/packages/upload               — Upload an artifact
+ * GET    /api/v1/packages                      — List installed packages
+ * GET    /api/v1/packages/:packageId           — Get package details
+ * POST   /api/v1/packages/:packageId/rollback  — Rollback a package
+ * DELETE /api/v1/packages/:packageId           — Uninstall a package
+ */
+
+// ==========================================
+// 1. Path Parameters
+// ==========================================
+
+/**
+ * Path parameters for package-level operations.
+ */
+export const PackagePathParamsSchema = z.object({
+  packageId: z.string().describe('Package identifier'),
+});
+export type PackagePathParams = z.infer<typeof PackagePathParamsSchema>;
+
+// ==========================================
+// 2. List Packages (GET /api/v1/packages)
+// ==========================================
+
+/**
+ * Query parameters for listing installed packages.
+ */
+export const ListInstalledPackagesRequestSchema = z.object({
+  /** Filter by package status */
+  status: z.enum(['installed', 'disabled', 'installing', 'upgrading', 'uninstalling', 'error']).optional()
+    .describe('Filter by package status'),
+  /** Filter by enabled state */
+  enabled: z.boolean().optional()
+    .describe('Filter by enabled state'),
+  /** Maximum number of packages to return */
+  limit: z.number().int().min(1).max(100).default(50)
+    .describe('Maximum number of packages to return'),
+  /** Cursor for pagination */
+  cursor: z.string().optional()
+    .describe('Cursor for pagination'),
+}).describe('List installed packages request');
+export type ListInstalledPackagesRequest = z.infer<typeof ListInstalledPackagesRequestSchema>;
+
+/**
+ * Response for listing installed packages.
+ */
+export const ListInstalledPackagesResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    packages: z.array(InstalledPackageSchema).describe('Installed packages'),
+    total: z.number().int().optional().describe('Total matching packages'),
+    nextCursor: z.string().optional().describe('Cursor for the next page'),
+    hasMore: z.boolean().describe('Whether more packages are available'),
+  }),
+}).describe('List installed packages response');
+export type ListInstalledPackagesResponse = z.infer<typeof ListInstalledPackagesResponseSchema>;
+
+// ==========================================
+// 3. Get Package (GET /api/v1/packages/:packageId)
+// ==========================================
+
+/**
+ * Request for getting a single installed package.
+ */
+export const GetInstalledPackageRequestSchema = PackagePathParamsSchema;
+export type GetInstalledPackageRequest = z.infer<typeof GetInstalledPackageRequestSchema>;
+
+/**
+ * Response for getting a single installed package.
+ */
+export const GetInstalledPackageResponseSchema = BaseResponseSchema.extend({
+  data: InstalledPackageSchema.describe('Installed package details'),
+}).describe('Get installed package response');
+export type GetInstalledPackageResponse = z.infer<typeof GetInstalledPackageResponseSchema>;
+
+// ==========================================
+// 4. Install Package (POST /api/v1/packages/install)
+// ==========================================
+
+/**
+ * Request body for installing a package.
+ *
+ * @example POST /api/v1/packages/install
+ * { manifest: {...}, platformVersion: '3.2.0', enableOnInstall: true }
+ */
+export const PackageInstallRequestSchema = z.object({
+  /** Package manifest to install */
+  manifest: ManifestSchema.describe('Package manifest to install'),
+
+  /** User-provided settings at install time */
+  settings: z.record(z.string(), z.unknown()).optional()
+    .describe('User-provided settings at install time'),
+
+  /** Whether to enable immediately after install */
+  enableOnInstall: z.boolean().default(true)
+    .describe('Whether to enable immediately after install'),
+
+  /** Current platform version for compatibility verification */
+  platformVersion: z.string().optional()
+    .describe('Current platform version for compatibility verification'),
+
+  /** Artifact reference for the package (if installing from marketplace) */
+  artifactRef: ArtifactReferenceSchema.optional()
+    .describe('Artifact reference for marketplace installation'),
+}).describe('Install package request');
+export type PackageInstallRequest = z.infer<typeof PackageInstallRequestSchema>;
+
+/**
+ * Response after installing a package.
+ */
+export const PackageInstallResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    package: InstalledPackageSchema.describe('Installed package details'),
+    dependencyResolution: DependencyResolutionResultSchema.optional()
+      .describe('Dependency resolution result'),
+    namespaceConflicts: z.array(z.object({
+      type: z.literal('namespace_conflict').describe('Error type'),
+      requestedNamespace: z.string().describe('Requested namespace'),
+      conflictingPackageId: z.string().describe('Conflicting package ID'),
+      conflictingPackageName: z.string().describe('Conflicting package name'),
+      suggestion: z.string().optional().describe('Suggested alternative'),
+    })).optional().describe('Namespace conflicts detected'),
+    message: z.string().optional().describe('Installation status message'),
+  }),
+}).describe('Install package response');
+export type PackageInstallResponse = z.infer<typeof PackageInstallResponseSchema>;
+
+// ==========================================
+// 5. Upgrade Package (POST /api/v1/packages/upgrade)
+// ==========================================
+
+/**
+ * Request body for upgrading a package.
+ *
+ * @example POST /api/v1/packages/upgrade
+ * { packageId: 'com.acme.crm', targetVersion: '2.0.0', createSnapshot: true }
+ */
+export const PackageUpgradeRequestSchema = z.object({
+  /** Package ID to upgrade */
+  packageId: z.string().describe('Package ID to upgrade'),
+
+  /** Target version (defaults to latest) */
+  targetVersion: z.string().optional()
+    .describe('Target version (defaults to latest)'),
+
+  /** New manifest for the target version */
+  manifest: ManifestSchema.optional()
+    .describe('New manifest for the target version'),
+
+  /** Whether to create a pre-upgrade snapshot */
+  createSnapshot: z.boolean().default(true)
+    .describe('Whether to create a pre-upgrade backup snapshot'),
+
+  /** Merge strategy for handling customizations */
+  mergeStrategy: z.enum(['keep-custom', 'accept-incoming', 'three-way-merge'])
+    .default('three-way-merge')
+    .describe('How to handle customer customizations'),
+
+  /** Preview upgrade without making changes */
+  dryRun: z.boolean().default(false)
+    .describe('Preview upgrade without making changes'),
+
+  /** Skip pre-upgrade compatibility checks */
+  skipValidation: z.boolean().default(false)
+    .describe('Skip pre-upgrade compatibility checks'),
+}).describe('Upgrade package request');
+export type PackageUpgradeRequest = z.infer<typeof PackageUpgradeRequestSchema>;
+
+/**
+ * Response after upgrading a package.
+ */
+export const PackageUpgradeResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    success: z.boolean().describe('Whether the upgrade succeeded'),
+    phase: z.string().describe('Current upgrade phase'),
+    plan: UpgradePlanSchema.optional().describe('Upgrade plan that was executed'),
+    snapshotId: z.string().optional().describe('Snapshot ID for rollback'),
+    conflicts: z.array(z.object({
+      path: z.string().describe('Conflict path'),
+      baseValue: z.unknown().describe('Base value'),
+      incomingValue: z.unknown().describe('Incoming value'),
+      customValue: z.unknown().describe('Custom value'),
+    })).optional().describe('Unresolved merge conflicts'),
+    errorMessage: z.string().optional().describe('Error message if failed'),
+    message: z.string().optional().describe('Human-readable status message'),
+  }),
+}).describe('Upgrade package response');
+export type PackageUpgradeResponse = z.infer<typeof PackageUpgradeResponseSchema>;
+
+// ==========================================
+// 6. Resolve Dependencies (POST /api/v1/packages/resolve-dependencies)
+// ==========================================
+
+/**
+ * Request body for resolving package dependencies.
+ *
+ * @example POST /api/v1/packages/resolve-dependencies
+ * { manifest: {...}, platformVersion: '3.2.0' }
+ */
+export const ResolveDependenciesRequestSchema = z.object({
+  /** Package manifest whose dependencies to resolve */
+  manifest: ManifestSchema.describe('Package manifest to resolve dependencies for'),
+
+  /** Current platform version for compatibility checking */
+  platformVersion: z.string().optional()
+    .describe('Current platform version for compatibility filtering'),
+}).describe('Resolve dependencies request');
+export type ResolveDependenciesRequest = z.infer<typeof ResolveDependenciesRequestSchema>;
+
+/**
+ * Response with dependency resolution results.
+ */
+export const ResolveDependenciesResponseSchema = BaseResponseSchema.extend({
+  data: DependencyResolutionResultSchema.describe('Dependency resolution result with topological sort'),
+}).describe('Resolve dependencies response');
+export type ResolveDependenciesResponse = z.infer<typeof ResolveDependenciesResponseSchema>;
+
+// ==========================================
+// 7. Upload Artifact (POST /api/v1/packages/upload)
+// ==========================================
+
+/**
+ * Request body for uploading a package artifact.
+ *
+ * @example POST /api/v1/packages/upload
+ * Content-Type: multipart/form-data
+ * { artifact: <metadata>, file: <binary> }
+ */
+export const UploadArtifactRequestSchema = z.object({
+  /** Artifact metadata */
+  artifact: PackageArtifactSchema.describe('Package artifact metadata'),
+
+  /** SHA256 checksum of the uploaded file (for verification) */
+  sha256: z.string().regex(/^[a-f0-9]{64}$/).optional()
+    .describe('SHA256 checksum of the uploaded file'),
+
+  /** Publisher authentication token */
+  token: z.string().optional()
+    .describe('Publisher authentication token'),
+
+  /** Release notes for this version */
+  releaseNotes: z.string().optional()
+    .describe('Release notes for this version'),
+}).describe('Upload artifact request');
+export type UploadArtifactRequest = z.infer<typeof UploadArtifactRequestSchema>;
+
+/**
+ * Response after uploading a package artifact.
+ */
+export const UploadArtifactResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    /** Whether the upload succeeded */
+    success: z.boolean().describe('Whether the upload succeeded'),
+    /** Artifact reference for the uploaded package */
+    artifactRef: ArtifactReferenceSchema.optional()
+      .describe('Artifact reference in the registry'),
+    /** Submission ID for review tracking */
+    submissionId: z.string().optional()
+      .describe('Marketplace submission ID for review tracking'),
+    /** Message */
+    message: z.string().optional().describe('Upload status message'),
+  }),
+}).describe('Upload artifact response');
+export type UploadArtifactResponse = z.infer<typeof UploadArtifactResponseSchema>;
+
+// ==========================================
+// 8. Rollback Package (POST /api/v1/packages/:packageId/rollback)
+// ==========================================
+
+/**
+ * Request body for rolling back a package upgrade.
+ */
+export const PackageRollbackRequestSchema = PackagePathParamsSchema.extend({
+  /** Snapshot ID to restore from */
+  snapshotId: z.string().describe('Snapshot ID to restore from'),
+
+  /** Whether to also rollback customizations */
+  rollbackCustomizations: z.boolean().default(true)
+    .describe('Whether to restore pre-upgrade customizations'),
+}).describe('Rollback package request');
+export type PackageRollbackRequest = z.infer<typeof PackageRollbackRequestSchema>;
+
+/**
+ * Response after rolling back a package.
+ */
+export const PackageRollbackResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    success: z.boolean().describe('Whether the rollback succeeded'),
+    restoredVersion: z.string().optional().describe('Restored version'),
+    message: z.string().optional().describe('Rollback status message'),
+  }),
+}).describe('Rollback package response');
+export type PackageRollbackResponse = z.infer<typeof PackageRollbackResponseSchema>;
+
+// ==========================================
+// 9. Uninstall Package (DELETE /api/v1/packages/:packageId)
+// ==========================================
+
+/**
+ * Request for uninstalling a package.
+ */
+export const UninstallPackageApiRequestSchema = PackagePathParamsSchema;
+export type UninstallPackageApiRequest = z.infer<typeof UninstallPackageApiRequestSchema>;
+
+/**
+ * Response after uninstalling a package.
+ */
+export const UninstallPackageApiResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    packageId: z.string().describe('Uninstalled package ID'),
+    success: z.boolean().describe('Whether uninstall succeeded'),
+    message: z.string().optional().describe('Uninstall status message'),
+  }),
+}).describe('Uninstall package response');
+export type UninstallPackageApiResponse = z.infer<typeof UninstallPackageApiResponseSchema>;
+
+// ==========================================
+// 10. Package API Error Codes
+// ==========================================
+
+/**
+ * Error codes specific to Package operations.
+ */
+export const PackageApiErrorCode = z.enum([
+  'package_not_found',
+  'package_already_installed',
+  'version_not_found',
+  'dependency_conflict',
+  'namespace_conflict',
+  'platform_incompatible',
+  'artifact_invalid',
+  'checksum_mismatch',
+  'signature_invalid',
+  'upgrade_failed',
+  'rollback_failed',
+  'snapshot_not_found',
+  'upload_failed',
+]);
+export type PackageApiErrorCode = z.infer<typeof PackageApiErrorCode>;
+
+// ==========================================
+// 11. Package API Contract Registry
+// ==========================================
+
+/**
+ * Standard Package API contracts map.
+ * Used for generating SDKs, documentation, and route registration.
+ */
+export const PackageApiContracts = {
+  listPackages: {
+    method: 'GET' as const,
+    path: '/api/v1/packages',
+    input: ListInstalledPackagesRequestSchema,
+    output: ListInstalledPackagesResponseSchema,
+  },
+  getPackage: {
+    method: 'GET' as const,
+    path: '/api/v1/packages/:packageId',
+    input: GetInstalledPackageRequestSchema,
+    output: GetInstalledPackageResponseSchema,
+  },
+  installPackage: {
+    method: 'POST' as const,
+    path: '/api/v1/packages/install',
+    input: PackageInstallRequestSchema,
+    output: PackageInstallResponseSchema,
+  },
+  upgradePackage: {
+    method: 'POST' as const,
+    path: '/api/v1/packages/upgrade',
+    input: PackageUpgradeRequestSchema,
+    output: PackageUpgradeResponseSchema,
+  },
+  resolveDependencies: {
+    method: 'POST' as const,
+    path: '/api/v1/packages/resolve-dependencies',
+    input: ResolveDependenciesRequestSchema,
+    output: ResolveDependenciesResponseSchema,
+  },
+  uploadArtifact: {
+    method: 'POST' as const,
+    path: '/api/v1/packages/upload',
+    input: UploadArtifactRequestSchema,
+    output: UploadArtifactResponseSchema,
+  },
+  rollbackPackage: {
+    method: 'POST' as const,
+    path: '/api/v1/packages/:packageId/rollback',
+    input: PackageRollbackRequestSchema,
+    output: PackageRollbackResponseSchema,
+  },
+  uninstallPackage: {
+    method: 'DELETE' as const,
+    path: '/api/v1/packages/:packageId',
+    input: UninstallPackageApiRequestSchema,
+    output: UninstallPackageApiResponseSchema,
+  },
+};

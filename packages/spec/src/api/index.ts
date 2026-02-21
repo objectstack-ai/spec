@@ -45,3 +45,4 @@ export * from './query-adapter.zod';
 export * from './feed-api.zod';
 export * from './export.zod';
 export * from './automation-api.zod';
+export * from './package-api.zod';
