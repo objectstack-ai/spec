@@ -25,19 +25,8 @@ export class LogicNodesPlugin implements Plugin {
                 const conditions = (config?.conditions ?? []) as Array<{ label: string; expression: string }>;
 
                 for (const cond of conditions) {
-                    // MVP: Simple template replacement + expression evaluation.
-                    // Flow definitions are authored by trusted developers/admins.
-                    // TODO: Replace with safe expression evaluator (e.g., jexl) for production.
-                    let expr = cond.expression;
-                    for (const [k, v] of variables) {
-                        expr = expr.split(`{${k}}`).join(String(v));
-                    }
-                    try {
-                        if (new Function(`return (${expr})`)()) {
-                            return { success: true, branchLabel: cond.label };
-                        }
-                    } catch {
-                        // Continue to next condition
+                    if (engine.evaluateCondition(cond.expression, variables)) {
+                        return { success: true, branchLabel: cond.label };
                     }
                 }
                 return { success: true, branchLabel: 'default' };
