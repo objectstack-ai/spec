@@ -34,3 +34,4 @@ export * from './ui-service.js';
 export * from './workflow-service.js';
 export * from './feed-service.js';
 export * from './export-service.js';
+export * from './package-service.js';

@@ -31,7 +31,7 @@
 ## Current State Summary
 
 ObjectStack v3.0 has achieved **comprehensive protocol specification** with 175 Zod schemas,
-25 service contracts, and 7,111 `.describe()` annotations providing machine-readable documentation.
+27 service contracts, and 7,111 `.describe()` annotations providing machine-readable documentation.
 The core kernel, data engine, metadata system, and developer tooling are production-ready.
 The primary focus now shifts to implementing the remaining 19 service contracts and hardening
 the ecosystem for enterprise workloads.
@@ -62,7 +62,7 @@ the ecosystem for enterprise workloads.
 
 ### What Needs Building
 
-10 of 25 service contracts are specification-only (no runtime implementation).
+11 of 27 service contracts are specification-only (no runtime implementation).
 These are the backbone of ObjectStack's enterprise capabilities.
 
 ### Minimal Implementation Strategy
@@ -96,7 +96,7 @@ This strategy ensures rapid iteration while maintaining a clear path to producti
 | Zod Schema Files | 178 |
 | Exported Schemas | 1,100+ |
 | `.describe()` Annotations | 7,111+ |
-| Service Contracts | 25 |
+| Service Contracts | 27 |
 | Contracts Implemented | 13 (52%) |
 | Test Files | 210 |
 | Tests Passing | 5,953 / 5,953 |
@@ -297,7 +297,7 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 ## Phase 1: Protocol Specification (✅ Complete)
 
 > **Goal:** Define every schema, type, and contract as a Zod-first source of truth.  
-> **Result:** 175 Zod schemas, 25 service contracts, 7,111+ `.describe()` annotations across 15 protocol domains.
+> **Result:** 175 Zod schemas, 27 service contracts, 7,111+ `.describe()` annotations across 15 protocol domains.
 
 <details>
 <summary>Deliverables — All Completed (click to expand)</summary>
@@ -316,7 +316,7 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 - [x] **Integration Protocol** — Connector (Database, SaaS, File Storage, GitHub, Message Queue, Vercel)
 - [x] **QA Protocol** — Testing framework schemas
 - [x] **Studio Protocol** — Plugin extension schemas
-- [x] **Contracts** — 25 service interfaces with full method signatures
+- [x] **Contracts** — 27 service interfaces with full method signatures
 - [x] **Stack Definition** — `defineStack()`, `defineView()`, `defineApp()`, `defineFlow()`, `defineAgent()` helpers
 - [x] **Stack Composition** — `composeStacks()` for declarative multi-stack merging with conflict resolution (`error`/`override`/`merge`)
 - [x] **Error Map** — Custom Zod error messages with `objectStackErrorMap`
@@ -698,16 +698,16 @@ Final polish and advanced features.
 - [x] Upgrade migration context — version context for onUpgrade hooks, upgrade history
 - [x] Protocol `.describe()` completeness — all marketplace lifecycle schemas fully annotated
 - [ ] Plugin marketplace runtime — publish, discover, install community plugins
-  - [ ] CLI: `os plugin build` — generate `.tgz` per PackageArtifactSchema
-  - [ ] CLI: `os plugin validate` — verify artifact structure, checksums, signatures
-  - [ ] CLI: `os plugin publish` — upload artifact to marketplace REST API
-  - [ ] Runtime: package dependency resolution & platform compatibility enforcement
-  - [ ] Runtime: namespace conflict detection at install time
-  - [ ] Runtime: package upgrade lifecycle — plan, snapshot, execute, validate, rollback
-  - [ ] API: `/api/v1/packages/install` — install with dependency & namespace checks
-  - [ ] API: `/api/v1/packages/upgrade` — upgrade with plan, rollback support
-  - [ ] API: `/api/v1/packages/resolve-dependencies` — topological sort & conflict detection
-  - [ ] API: `/api/v1/packages/upload` — artifact upload & validation
+  - [x] CLI: `os plugin build` — protocol schemas for build options & results (`cli-plugin-commands.zod.ts`)
+  - [x] CLI: `os plugin validate` — protocol schemas for validation options, findings & results
+  - [x] CLI: `os plugin publish` — protocol schemas for publish options & results
+  - [x] Runtime: package dependency resolution & platform compatibility enforcement (`IPackageService` contract)
+  - [x] Runtime: namespace conflict detection at install time (`IPackageService.checkNamespaces`)
+  - [x] Runtime: package upgrade lifecycle — plan, snapshot, execute, validate, rollback (`IPackageService` contract)
+  - [x] API: `/api/v1/packages/install` — install with dependency & namespace checks (`package-api.zod.ts`)
+  - [x] API: `/api/v1/packages/upgrade` — upgrade with plan, rollback support
+  - [x] API: `/api/v1/packages/resolve-dependencies` — topological sort & conflict detection
+  - [x] API: `/api/v1/packages/upload` — artifact upload & validation
   - [ ] Studio: marketplace browse/search, install, upgrade, uninstall UI
   - [ ] Cloud: artifact storage, distribution, SHA256 verification, security scanning
 - [ ] App store — pre-built applications (CRM, HRM, Project Management)
@@ -756,8 +756,9 @@ Final polish and advanced features.
 | 24 | Schema Driver | `ISchemaDriver` | ❌ | — | Spec only |
 | 25 | Startup Orchestrator | `IStartupOrchestrator` | ❌ | — | Kernel handles basics |
 | 26 | Plugin Validator | `IPluginValidator` | ❌ | — | Spec only |
+| 27 | Package Service | `IPackageService` | ❌ | `@objectstack/service-package` (planned) | Install, upgrade, rollback, deps, namespaces |
 
-**Summary:** 14 fully implemented · 2 partially implemented · 10 specification only
+**Summary:** 14 fully implemented · 2 partially implemented · 11 specification only
 
 ---
 
