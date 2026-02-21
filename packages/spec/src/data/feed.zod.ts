@@ -141,6 +141,13 @@ export const FeedItemSchema = z.object({
   parentId: z.string().optional().describe('Parent feed item ID for threaded replies'),
   replyCount: z.number().int().min(0).default(0).describe('Number of replies'),
 
+  /** Pin / Star */
+  pinned: z.boolean().default(false).describe('Whether the feed item is pinned to the top of the timeline'),
+  pinnedAt: z.string().datetime().optional().describe('Timestamp when the item was pinned'),
+  pinnedBy: z.string().optional().describe('User ID who pinned the item'),
+  starred: z.boolean().default(false).describe('Whether the feed item is starred/bookmarked by the current user'),
+  starredAt: z.string().datetime().optional().describe('Timestamp when the item was starred'),
+
   /** Visibility */
   visibility: FeedVisibility.default('public')
     .describe('Visibility: public (all users), internal (team only), private (author + mentioned)'),

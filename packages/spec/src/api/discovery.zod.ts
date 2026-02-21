@@ -17,8 +17,17 @@ export const ServiceInfoSchema = z.object({
   route: z.string().optional().describe('e.g. /api/v1/analytics'),
   /** Implementation provider name */
   provider: z.string().optional().describe('e.g. "objectql", "plugin-redis", "driver-memory"'),
+  /** Service version */
+  version: z.string().optional().describe('Semantic version of the service implementation (e.g. "3.0.6")'),
   /** Human-readable reason if unavailable */
   message: z.string().optional().describe('e.g. "Install plugin-workflow to enable"'),
+  /** Rate limit configuration for this service */
+  rateLimit: z.object({
+    requestsPerMinute: z.number().int().optional().describe('Maximum requests per minute'),
+    requestsPerHour: z.number().int().optional().describe('Maximum requests per hour'),
+    burstLimit: z.number().int().optional().describe('Maximum burst request count'),
+    retryAfterMs: z.number().int().optional().describe('Suggested retry-after delay in milliseconds when rate-limited'),
+  }).optional().describe('Rate limit and quota info for this service'),
 });
 
 /**
@@ -107,6 +116,29 @@ export const DiscoverySchema = z.object({
   services: z.record(z.string(), ServiceInfoSchema).describe(
     'Per-service availability map keyed by CoreServiceName'
   ),
+
+  /**
+   * Hierarchical capability descriptors.
+   * Declares platform features so clients can adapt UI without probing individual services.
+   * Each key is a capability domain (e.g., "comments", "automation", "search"),
+   * and its value describes what sub-features are available.
+   */
+  capabilities: z.record(z.string(), z.object({
+    enabled: z.boolean().describe('Whether this capability is available'),
+    features: z.record(z.string(), z.boolean()).optional()
+      .describe('Sub-feature flags within this capability'),
+    description: z.string().optional()
+      .describe('Human-readable capability description'),
+  })).optional().describe('Hierarchical capability descriptors for frontend intelligent adaptation'),
+
+  /**
+   * Schema discovery URLs for cross-ecosystem interoperability.
+   */
+  schemaDiscovery: z.object({
+    openapi: z.string().optional().describe('URL to OpenAPI (Swagger) specification (e.g., "/api/v1/openapi.json")'),
+    graphql: z.string().optional().describe('URL to GraphQL schema endpoint (e.g., "/graphql")'),
+    jsonSchema: z.string().optional().describe('URL to JSON Schema definitions'),
+  }).optional().describe('Schema discovery endpoints for API toolchain integration'),
 
   /**
    * Custom metadata key-value pairs for extensibility

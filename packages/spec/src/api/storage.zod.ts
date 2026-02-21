@@ -52,3 +52,128 @@ export type GetPresignedUrlRequest = z.infer<typeof GetPresignedUrlRequestSchema
 export type CompleteUploadRequest = z.infer<typeof CompleteUploadRequestSchema>;
 export type PresignedUrlResponse = z.infer<typeof PresignedUrlResponseSchema>;
 export type FileUploadResponse = z.infer<typeof FileUploadResponseSchema>;
+
+// ==========================================
+// Chunked / Resumable Upload Protocol
+// ==========================================
+
+/**
+ * File Type Validation Schema
+ * Configures allowed and blocked file types for upload endpoints.
+ *
+ * @example Allow images only
+ * { mode: 'whitelist', mimeTypes: ['image/jpeg', 'image/png', 'image/webp'], maxFileSize: 10485760 }
+ */
+export const FileTypeValidationSchema = z.object({
+  mode: z.enum(['whitelist', 'blacklist'])
+    .describe('whitelist = only allow listed types, blacklist = block listed types'),
+  mimeTypes: z.array(z.string()).min(1)
+    .describe('List of MIME types to allow or block (e.g., "image/jpeg", "application/pdf")'),
+  extensions: z.array(z.string()).optional()
+    .describe('List of file extensions to allow or block (e.g., ".jpg", ".pdf")'),
+  maxFileSize: z.number().int().min(1).optional()
+    .describe('Maximum file size in bytes'),
+  minFileSize: z.number().int().min(0).optional()
+    .describe('Minimum file size in bytes (e.g., reject empty files)'),
+});
+export type FileTypeValidation = z.infer<typeof FileTypeValidationSchema>;
+
+/**
+ * Initiate Chunked Upload Request
+ * Starts a resumable multipart upload session.
+ *
+ * @example POST /api/v1/storage/upload/chunked
+ * { filename: 'large-video.mp4', mimeType: 'video/mp4', totalSize: 1073741824, chunkSize: 5242880 }
+ */
+export const InitiateChunkedUploadRequestSchema = z.object({
+  filename: z.string().describe('Original filename'),
+  mimeType: z.string().describe('File MIME type'),
+  totalSize: z.number().int().min(1).describe('Total file size in bytes'),
+  chunkSize: z.number().int().min(5242880).default(5242880)
+    .describe('Size of each chunk in bytes (minimum 5MB per S3 spec)'),
+  scope: z.string().default('user').describe('Target storage scope'),
+  bucket: z.string().optional().describe('Specific bucket override (admin only)'),
+  metadata: z.record(z.string(), z.string()).optional().describe('Custom metadata key-value pairs'),
+});
+export type InitiateChunkedUploadRequest = z.infer<typeof InitiateChunkedUploadRequestSchema>;
+
+/**
+ * Initiate Chunked Upload Response
+ * Returns a resume token and upload session details.
+ */
+export const InitiateChunkedUploadResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    uploadId: z.string().describe('Multipart upload session ID'),
+    resumeToken: z.string().describe('Opaque token for resuming interrupted uploads'),
+    fileId: z.string().describe('Assigned file ID'),
+    totalChunks: z.number().int().min(1).describe('Expected number of chunks'),
+    chunkSize: z.number().int().describe('Chunk size in bytes'),
+    expiresAt: z.string().datetime().describe('Upload session expiration timestamp'),
+  }),
+});
+export type InitiateChunkedUploadResponse = z.infer<typeof InitiateChunkedUploadResponseSchema>;
+
+/**
+ * Upload Chunk Request
+ * Uploads a single chunk of a multipart upload.
+ *
+ * @example PUT /api/v1/storage/upload/chunked/:uploadId/chunk/:chunkIndex
+ */
+export const UploadChunkRequestSchema = z.object({
+  uploadId: z.string().describe('Multipart upload session ID'),
+  chunkIndex: z.number().int().min(0).describe('Zero-based chunk index'),
+  resumeToken: z.string().describe('Resume token from initiate response'),
+});
+export type UploadChunkRequest = z.infer<typeof UploadChunkRequestSchema>;
+
+/**
+ * Upload Chunk Response
+ * Confirms a single chunk upload with ETag for assembly.
+ */
+export const UploadChunkResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    chunkIndex: z.number().int().describe('Chunk index that was uploaded'),
+    eTag: z.string().describe('Chunk ETag for multipart completion'),
+    bytesReceived: z.number().int().describe('Bytes received for this chunk'),
+  }),
+});
+export type UploadChunkResponse = z.infer<typeof UploadChunkResponseSchema>;
+
+/**
+ * Complete Chunked Upload Request
+ * Assembles all uploaded chunks into a final file.
+ *
+ * @example POST /api/v1/storage/upload/chunked/:uploadId/complete
+ */
+export const CompleteChunkedUploadRequestSchema = z.object({
+  uploadId: z.string().describe('Multipart upload session ID'),
+  parts: z.array(z.object({
+    chunkIndex: z.number().int().describe('Chunk index'),
+    eTag: z.string().describe('ETag returned from chunk upload'),
+  })).min(1).describe('Ordered list of uploaded parts for assembly'),
+});
+export type CompleteChunkedUploadRequest = z.infer<typeof CompleteChunkedUploadRequestSchema>;
+
+/**
+ * Upload Progress Schema
+ * Represents the current progress of an active upload session.
+ *
+ * @example GET /api/v1/storage/upload/chunked/:uploadId/progress
+ */
+export const UploadProgressSchema = BaseResponseSchema.extend({
+  data: z.object({
+    uploadId: z.string().describe('Multipart upload session ID'),
+    fileId: z.string().describe('Assigned file ID'),
+    filename: z.string().describe('Original filename'),
+    totalSize: z.number().int().describe('Total file size in bytes'),
+    uploadedSize: z.number().int().describe('Bytes uploaded so far'),
+    totalChunks: z.number().int().describe('Total expected chunks'),
+    uploadedChunks: z.number().int().describe('Number of chunks uploaded'),
+    percentComplete: z.number().min(0).max(100).describe('Upload progress percentage'),
+    status: z.enum(['in_progress', 'completing', 'completed', 'failed', 'expired'])
+      .describe('Current upload session status'),
+    startedAt: z.string().datetime().describe('Upload session start timestamp'),
+    expiresAt: z.string().datetime().describe('Session expiration timestamp'),
+  }),
+});
+export type UploadProgress = z.infer<typeof UploadProgressSchema>;

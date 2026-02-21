@@ -98,8 +98,8 @@ This strategy ensures rapid iteration while maintaining a clear path to producti
 | `.describe()` Annotations | 7,111+ |
 | Service Contracts | 25 |
 | Contracts Implemented | 13 (52%) |
-| Test Files | 199 |
-| Tests Passing | 5,805 / 5,805 |
+| Test Files | 208 |
+| Tests Passing | 5,921 / 5,921 |
 | `@deprecated` Items | 3 |
 | Protocol Domains | 15 (Data, UI, AI, API, Automation, Cloud, Contracts, Identity, Integration, Kernel, QA, Security, Shared, Studio, System) |
 
@@ -127,10 +127,10 @@ Support record comments, @mention, activity feed, and changelog for the ObjectUI
 | Real-time collaboration (OT/CRDT) | ✅ | `system/collaboration.zod.ts` |
 | `IFeedService` contract | ✅ | `contracts/feed-service.ts` |
 | `service-feed` in-memory implementation | ✅ | `@objectstack/service-feed` (40 tests) |
-| Pin/star comments | 🔴 | Not yet specified |
+| Pin/star comments | ✅ | `data/feed.zod.ts` → `pinned`/`starred`, `api/feed-api.zod.ts` → Pin/Star endpoints |
 | Comment notification integration with `INotificationService` | 🔴 | `service-notification` not implemented |
-| Activity feed search/filter endpoint | 🔴 | Not yet specified |
-| Changelog (field-level audit trail) endpoint | 🟡 | `FieldChangeSchema` exists; dedicated API pending |
+| Activity feed search/filter endpoint | ✅ | `api/feed-api.zod.ts` → `SearchFeedRequestSchema` |
+| Changelog (field-level audit trail) endpoint | ✅ | `api/feed-api.zod.ts` → `GetChangelogRequestSchema`, `ChangelogEntrySchema` |
 
 ### 2. Automation Persistence & Scheduling Specs
 
@@ -146,11 +146,11 @@ Multi-stage triggers, action pipelines, execution logs, and cron scheduling stan
 | Retry policies with exponential backoff | ✅ | `automation/webhook.zod.ts` |
 | `IAutomationService` contract | ✅ | `contracts/automation-service.ts` |
 | `service-automation` DAG engine (MVP) | ✅ | `@objectstack/service-automation` (27 tests) |
-| Execution log/history storage protocol | 🔴 | No dedicated `ExecutionLogSchema`; only string arrays in results |
-| Execution error tracking & diagnostics | 🔴 | Not yet specified |
-| Conflict resolution for concurrent executions | 🔴 | Not yet specified |
-| Checkpointing/resume for interrupted flows | 🔴 | Not yet specified |
-| Scheduled execution persistence (next-run, pause/resume) | 🔴 | Limited to cron strings; no runtime state tracking |
+| Execution log/history storage protocol | ✅ | `automation/execution.zod.ts` → `ExecutionLogSchema`, `ExecutionStepLogSchema` |
+| Execution error tracking & diagnostics | ✅ | `automation/execution.zod.ts` → `ExecutionErrorSchema`, `ExecutionErrorSeverity` |
+| Conflict resolution for concurrent executions | ✅ | `automation/execution.zod.ts` → `ConcurrencyPolicySchema` |
+| Checkpointing/resume for interrupted flows | ✅ | `automation/execution.zod.ts` → `CheckpointSchema` |
+| Scheduled execution persistence (next-run, pause/resume) | ✅ | `automation/execution.zod.ts` → `ScheduleStateSchema` |
 
 ### 3. File Direct Upload & Resumable Upload Protocol
 
@@ -165,10 +165,10 @@ CloudFile / PresignedUrl schema supporting S3/Azure/GCS direct-to-cloud file upl
 | Bucket encryption & CORS | ✅ | `system/object-storage.zod.ts` |
 | `IStorageService` contract | ✅ | `contracts/storage-service.ts` |
 | `service-storage` local FS + S3 skeleton | ✅ | `@objectstack/service-storage` (8 tests) |
-| Chunked upload with resume token | 🔴 | No resume token for interrupted uploads |
-| Upload progress tracking protocol | 🔴 | Not yet specified |
-| Mobile / file picker / browser fallback | 🔴 | Not yet specified |
-| File type whitelist/blacklist validation | 🔴 | Not yet specified |
+| Chunked upload with resume token | ✅ | `api/storage.zod.ts` → `InitiateChunkedUploadRequestSchema`, `resumeToken` |
+| Upload progress tracking protocol | ✅ | `api/storage.zod.ts` → `UploadProgressSchema` |
+| Mobile / file picker / browser fallback | 🔴 | Not yet specified (runtime concern) |
+| File type whitelist/blacklist validation | ✅ | `api/storage.zod.ts` → `FileTypeValidationSchema` |
 
 ### 4. Streaming Data Export & Batch Operation Optimization
 
@@ -182,11 +182,11 @@ Cursor/Pagination protocol for large-scale data import/export with template-base
 | Import mapping configuration | ✅ | `data/mapping.zod.ts` |
 | Dataset import mode | ✅ | `data/dataset.zod.ts` |
 | Full query & filter language | ✅ | `data/filter.zod.ts` |
-| Streaming/chunked export endpoint (CSV/JSON/Excel) | 🔴 | Not yet specified |
-| Import validation & deduplication | 🔴 | Not yet specified |
-| Template-based field mapping for import/export | 🔴 | Mapping schema exists; no template registry |
-| Scheduled export jobs & status query | 🔴 | Not yet specified |
-| Export job progress & download URL | 🔴 | Not yet specified |
+| Streaming/chunked export endpoint (CSV/JSON/Excel) | ✅ | `api/export.zod.ts` → `CreateExportJobRequestSchema`, `ExportFormat` |
+| Import validation & deduplication | ✅ | `api/export.zod.ts` → `ImportValidationConfigSchema`, `DeduplicationStrategy` |
+| Template-based field mapping for import/export | ✅ | `api/export.zod.ts` → `ExportImportTemplateSchema`, `FieldMappingEntrySchema` |
+| Scheduled export jobs & status query | ✅ | `api/export.zod.ts` → `ScheduledExportSchema` |
+| Export job progress & download URL | ✅ | `api/export.zod.ts` → `ExportJobProgressSchema` |
 
 ### 5. API Capability Declaration & Service Discovery
 
@@ -198,10 +198,10 @@ Strengthen discovery capabilities for frontend intelligent adaptation.
 | Dynamic API route mapping | ✅ | `api/discovery.zod.ts` → `ApiRoutesSchema` |
 | Localization info (locale, timezone) | ✅ | `api/discovery.zod.ts` |
 | Custom metadata extensions | ✅ | `api/discovery.zod.ts` |
-| Capabilities declaration (comments, automation, search, cron, files, analytics) | 🔴 | No hierarchical capability descriptors |
-| Per-service version info | 🔴 | Not yet specified |
-| Rate limit & quota disclosure | 🔴 | Not yet specified |
-| OpenAPI/GraphQL schema discovery endpoint | 🔴 | Not yet specified |
+| Capabilities declaration (comments, automation, search, cron, files, analytics) | ✅ | `api/discovery.zod.ts` → `capabilities` with hierarchical descriptors |
+| Per-service version info | ✅ | `api/discovery.zod.ts` → `ServiceInfoSchema.version` |
+| Rate limit & quota disclosure | ✅ | `api/discovery.zod.ts` → `ServiceInfoSchema.rateLimit` |
+| OpenAPI/GraphQL schema discovery endpoint | ✅ | `api/discovery.zod.ts` → `DiscoverySchema.schemaDiscovery` |
 
 > **Recommendation:** Sync this roadmap with ObjectUI / client / runner / console and prioritize v3.1 protocol to fill core platform gaps.
 

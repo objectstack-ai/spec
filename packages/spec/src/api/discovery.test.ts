@@ -536,3 +536,150 @@ describe('DiscoverySchema with services', () => {
     expect(discovery.services['ai'].enabled).toBe(false);
   });
 });
+
+// ==========================================
+// ServiceInfoSchema — version & rateLimit
+// ==========================================
+
+describe('ServiceInfoSchema (version field)', () => {
+  it('should accept a service with version', () => {
+    const info = ServiceInfoSchema.parse({
+      enabled: true,
+      status: 'available',
+      route: '/api/v1/data',
+      provider: 'objectql',
+      version: '3.0.6',
+    });
+    expect(info.version).toBe('3.0.6');
+  });
+
+  it('should allow version to be omitted', () => {
+    const info = ServiceInfoSchema.parse({
+      enabled: true,
+      status: 'available',
+    });
+    expect(info.version).toBeUndefined();
+  });
+});
+
+describe('ServiceInfoSchema (rateLimit field)', () => {
+  it('should accept a service with rateLimit', () => {
+    const info = ServiceInfoSchema.parse({
+      enabled: true,
+      status: 'available',
+      rateLimit: {
+        requestsPerMinute: 60,
+        requestsPerHour: 1000,
+        burstLimit: 10,
+        retryAfterMs: 5000,
+      },
+    });
+    expect(info.rateLimit?.requestsPerMinute).toBe(60);
+    expect(info.rateLimit?.burstLimit).toBe(10);
+  });
+
+  it('should allow rateLimit to be omitted', () => {
+    const info = ServiceInfoSchema.parse({
+      enabled: true,
+      status: 'available',
+    });
+    expect(info.rateLimit).toBeUndefined();
+  });
+
+  it('should allow partial rateLimit fields', () => {
+    const info = ServiceInfoSchema.parse({
+      enabled: true,
+      status: 'available',
+      rateLimit: {
+        requestsPerMinute: 100,
+      },
+    });
+    expect(info.rateLimit?.requestsPerMinute).toBe(100);
+    expect(info.rateLimit?.requestsPerHour).toBeUndefined();
+  });
+});
+
+// ==========================================
+// DiscoverySchema — capabilities
+// ==========================================
+
+describe('DiscoverySchema (capabilities field)', () => {
+  const fixture = {
+    name: 'ObjectStack',
+    version: '1.0.0',
+    environment: 'production' as const,
+    routes: { data: '/api/v1/data', metadata: '/api/v1/meta' },
+    services: minimalServices,
+    locale: { default: 'en-US', supported: ['en-US'], timezone: 'UTC' },
+  };
+
+  it('should accept discovery with capabilities', () => {
+    const discovery = DiscoverySchema.parse({
+      ...fixture,
+      capabilities: {
+        comments: {
+          enabled: true,
+          features: { threaded: true, reactions: true, mentions: true },
+          description: 'Feed and comments support',
+        },
+        automation: {
+          enabled: false,
+          description: 'Flow automation engine',
+        },
+      },
+    });
+    expect(discovery.capabilities?.comments.enabled).toBe(true);
+    expect(discovery.capabilities?.comments.features?.threaded).toBe(true);
+    expect(discovery.capabilities?.automation.enabled).toBe(false);
+  });
+
+  it('should allow capabilities to be omitted', () => {
+    const discovery = DiscoverySchema.parse(fixture);
+    expect(discovery.capabilities).toBeUndefined();
+  });
+});
+
+// ==========================================
+// DiscoverySchema — schemaDiscovery
+// ==========================================
+
+describe('DiscoverySchema (schemaDiscovery field)', () => {
+  const fixture = {
+    name: 'ObjectStack',
+    version: '1.0.0',
+    environment: 'production' as const,
+    routes: { data: '/api/v1/data', metadata: '/api/v1/meta' },
+    services: minimalServices,
+    locale: { default: 'en-US', supported: ['en-US'], timezone: 'UTC' },
+  };
+
+  it('should accept discovery with schemaDiscovery', () => {
+    const discovery = DiscoverySchema.parse({
+      ...fixture,
+      schemaDiscovery: {
+        openapi: '/api/v1/openapi.json',
+        graphql: '/graphql',
+        jsonSchema: '/api/v1/schemas',
+      },
+    });
+    expect(discovery.schemaDiscovery?.openapi).toBe('/api/v1/openapi.json');
+    expect(discovery.schemaDiscovery?.graphql).toBe('/graphql');
+    expect(discovery.schemaDiscovery?.jsonSchema).toBe('/api/v1/schemas');
+  });
+
+  it('should allow schemaDiscovery to be omitted', () => {
+    const discovery = DiscoverySchema.parse(fixture);
+    expect(discovery.schemaDiscovery).toBeUndefined();
+  });
+
+  it('should allow partial schemaDiscovery fields', () => {
+    const discovery = DiscoverySchema.parse({
+      ...fixture,
+      schemaDiscovery: {
+        openapi: '/api/v1/openapi.json',
+      },
+    });
+    expect(discovery.schemaDiscovery?.openapi).toBe('/api/v1/openapi.json');
+    expect(discovery.schemaDiscovery?.graphql).toBeUndefined();
+  });
+});

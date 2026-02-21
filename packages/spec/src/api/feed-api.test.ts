@@ -20,6 +20,15 @@ import {
   UnsubscribeResponseSchema,
   FeedApiErrorCode,
   FeedApiContracts,
+  PinFeedItemRequestSchema,
+  PinFeedItemResponseSchema,
+  StarFeedItemRequestSchema,
+  StarFeedItemResponseSchema,
+  SearchFeedRequestSchema,
+  SearchFeedResponseSchema,
+  GetChangelogRequestSchema,
+  ChangelogEntrySchema,
+  GetChangelogResponseSchema,
 } from './feed-api.zod';
 
 // ==========================================
@@ -540,8 +549,8 @@ describe('FeedApiErrorCode', () => {
 // ==========================================
 
 describe('FeedApiContracts', () => {
-  it('should define all 8 endpoints', () => {
-    expect(Object.keys(FeedApiContracts)).toHaveLength(8);
+  it('should define all 14 endpoints', () => {
+    expect(Object.keys(FeedApiContracts)).toHaveLength(14);
   });
 
   it('should have correct HTTP methods', () => {
@@ -551,6 +560,12 @@ describe('FeedApiContracts', () => {
     expect(FeedApiContracts.deleteFeedItem.method).toBe('DELETE');
     expect(FeedApiContracts.addReaction.method).toBe('POST');
     expect(FeedApiContracts.removeReaction.method).toBe('DELETE');
+    expect(FeedApiContracts.pinFeedItem.method).toBe('POST');
+    expect(FeedApiContracts.unpinFeedItem.method).toBe('DELETE');
+    expect(FeedApiContracts.starFeedItem.method).toBe('POST');
+    expect(FeedApiContracts.unstarFeedItem.method).toBe('DELETE');
+    expect(FeedApiContracts.searchFeed.method).toBe('GET');
+    expect(FeedApiContracts.getChangelog.method).toBe('GET');
     expect(FeedApiContracts.subscribe.method).toBe('POST');
     expect(FeedApiContracts.unsubscribe.method).toBe('DELETE');
   });
@@ -558,6 +573,278 @@ describe('FeedApiContracts', () => {
   it('should have valid paths', () => {
     expect(FeedApiContracts.listFeed.path).toContain('/feed');
     expect(FeedApiContracts.addReaction.path).toContain('/reactions');
+    expect(FeedApiContracts.pinFeedItem.path).toContain('/pin');
+    expect(FeedApiContracts.starFeedItem.path).toContain('/star');
+    expect(FeedApiContracts.searchFeed.path).toContain('/feed/search');
+    expect(FeedApiContracts.getChangelog.path).toContain('/changelog');
     expect(FeedApiContracts.subscribe.path).toContain('/subscribe');
+  });
+});
+
+// ==========================================
+// Pin Feed Item
+// ==========================================
+
+describe('PinFeedItemRequestSchema', () => {
+  it('should accept valid pin request', () => {
+    const req = PinFeedItemRequestSchema.parse({
+      object: 'account',
+      recordId: 'rec_123',
+      feedId: 'feed_001',
+    });
+    expect(req.feedId).toBe('feed_001');
+  });
+
+  it('should reject missing feedId', () => {
+    expect(() =>
+      PinFeedItemRequestSchema.parse({ object: 'account', recordId: 'rec_123' })
+    ).toThrow();
+  });
+});
+
+describe('PinFeedItemResponseSchema', () => {
+  it('should accept valid pin response', () => {
+    const resp = PinFeedItemResponseSchema.parse({
+      success: true,
+      data: {
+        feedId: 'feed_001',
+        pinned: true,
+        pinnedAt: '2026-01-15T12:00:00Z',
+      },
+    });
+    expect(resp.data.pinned).toBe(true);
+    expect(resp.data.pinnedAt).toBeDefined();
+  });
+
+  it('should reject missing pinnedAt', () => {
+    expect(() =>
+      PinFeedItemResponseSchema.parse({
+        success: true,
+        data: { feedId: 'feed_001', pinned: true },
+      })
+    ).toThrow();
+  });
+});
+
+// ==========================================
+// Star Feed Item
+// ==========================================
+
+describe('StarFeedItemRequestSchema', () => {
+  it('should accept valid star request', () => {
+    const req = StarFeedItemRequestSchema.parse({
+      object: 'account',
+      recordId: 'rec_123',
+      feedId: 'feed_001',
+    });
+    expect(req.feedId).toBe('feed_001');
+  });
+
+  it('should reject missing object', () => {
+    expect(() =>
+      StarFeedItemRequestSchema.parse({ recordId: 'rec_123', feedId: 'feed_001' })
+    ).toThrow();
+  });
+});
+
+describe('StarFeedItemResponseSchema', () => {
+  it('should accept valid star response', () => {
+    const resp = StarFeedItemResponseSchema.parse({
+      success: true,
+      data: {
+        feedId: 'feed_001',
+        starred: true,
+        starredAt: '2026-01-15T12:00:00Z',
+      },
+    });
+    expect(resp.data.starred).toBe(true);
+    expect(resp.data.starredAt).toBeDefined();
+  });
+
+  it('should reject missing starredAt', () => {
+    expect(() =>
+      StarFeedItemResponseSchema.parse({
+        success: true,
+        data: { feedId: 'feed_001', starred: true },
+      })
+    ).toThrow();
+  });
+});
+
+// ==========================================
+// Search Feed
+// ==========================================
+
+describe('SearchFeedRequestSchema', () => {
+  it('should accept a valid search request with defaults', () => {
+    const req = SearchFeedRequestSchema.parse({
+      object: 'account',
+      recordId: 'rec_123',
+      query: 'follow up',
+    });
+    expect(req.query).toBe('follow up');
+    expect(req.limit).toBe(20);
+    expect(req.type).toBeUndefined();
+  });
+
+  it('should accept search with all filters', () => {
+    const req = SearchFeedRequestSchema.parse({
+      object: 'account',
+      recordId: 'rec_123',
+      query: 'budget review',
+      type: 'comments_only',
+      actorId: 'user_456',
+      dateFrom: '2026-01-01T00:00:00Z',
+      dateTo: '2026-01-31T23:59:59Z',
+      hasAttachments: true,
+      pinnedOnly: false,
+      starredOnly: true,
+      limit: 50,
+      cursor: 'cursor_abc',
+    });
+    expect(req.actorId).toBe('user_456');
+    expect(req.hasAttachments).toBe(true);
+    expect(req.starredOnly).toBe(true);
+  });
+
+  it('should reject empty query', () => {
+    expect(() =>
+      SearchFeedRequestSchema.parse({
+        object: 'account',
+        recordId: 'rec_123',
+        query: '',
+      })
+    ).toThrow();
+  });
+});
+
+describe('SearchFeedResponseSchema', () => {
+  it('should accept valid search response', () => {
+    const resp = SearchFeedResponseSchema.parse({
+      success: true,
+      data: {
+        items: [
+          {
+            id: 'feed_001',
+            type: 'comment',
+            object: 'account',
+            recordId: 'rec_123',
+            actor: { type: 'user', id: 'user_456', name: 'John' },
+            body: 'Follow up on budget',
+            createdAt: '2026-01-15T10:30:00Z',
+          },
+        ],
+        total: 1,
+        hasMore: false,
+      },
+    });
+    expect(resp.data.items).toHaveLength(1);
+    expect(resp.data.hasMore).toBe(false);
+  });
+});
+
+// ==========================================
+// Changelog
+// ==========================================
+
+describe('GetChangelogRequestSchema', () => {
+  it('should accept request with defaults', () => {
+    const req = GetChangelogRequestSchema.parse({
+      object: 'account',
+      recordId: 'rec_123',
+    });
+    expect(req.limit).toBe(50);
+    expect(req.field).toBeUndefined();
+  });
+
+  it('should accept request with all filters', () => {
+    const req = GetChangelogRequestSchema.parse({
+      object: 'account',
+      recordId: 'rec_123',
+      field: 'status',
+      actorId: 'user_456',
+      dateFrom: '2026-01-01T00:00:00Z',
+      dateTo: '2026-01-31T23:59:59Z',
+      limit: 100,
+      cursor: 'cursor_xyz',
+    });
+    expect(req.field).toBe('status');
+    expect(req.limit).toBe(100);
+  });
+});
+
+describe('ChangelogEntrySchema', () => {
+  it('should accept a valid entry', () => {
+    const entry = ChangelogEntrySchema.parse({
+      id: 'cl_001',
+      object: 'account',
+      recordId: 'rec_123',
+      actor: { type: 'user', id: 'user_456', name: 'Jane' },
+      changes: [
+        { field: 'status', oldValue: 'draft', newValue: 'active' },
+      ],
+      timestamp: '2026-01-15T10:30:00Z',
+      source: 'UI',
+    });
+    expect(entry.changes).toHaveLength(1);
+    expect(entry.actor.type).toBe('user');
+    expect(entry.source).toBe('UI');
+  });
+
+  it('should reject empty changes array', () => {
+    expect(() =>
+      ChangelogEntrySchema.parse({
+        id: 'cl_002',
+        object: 'account',
+        recordId: 'rec_123',
+        actor: { type: 'system', id: 'sys' },
+        changes: [],
+        timestamp: '2026-01-15T10:30:00Z',
+      })
+    ).toThrow();
+  });
+});
+
+describe('GetChangelogResponseSchema', () => {
+  it('should accept a valid changelog response', () => {
+    const resp = GetChangelogResponseSchema.parse({
+      success: true,
+      data: {
+        entries: [
+          {
+            id: 'cl_001',
+            object: 'account',
+            recordId: 'rec_123',
+            actor: { type: 'user', id: 'user_456' },
+            changes: [{ field: 'name', oldValue: 'Old Corp', newValue: 'New Corp' }],
+            timestamp: '2026-01-15T10:30:00Z',
+          },
+        ],
+        total: 1,
+        hasMore: false,
+      },
+    });
+    expect(resp.data.entries).toHaveLength(1);
+    expect(resp.data.hasMore).toBe(false);
+  });
+});
+
+// ==========================================
+// New FeedApiErrorCode Values
+// ==========================================
+
+describe('FeedApiErrorCode (new values)', () => {
+  it('should accept pin-related error codes', () => {
+    expect(FeedApiErrorCode.parse('feed_already_pinned')).toBe('feed_already_pinned');
+    expect(FeedApiErrorCode.parse('feed_not_pinned')).toBe('feed_not_pinned');
+  });
+
+  it('should accept star-related error codes', () => {
+    expect(FeedApiErrorCode.parse('feed_already_starred')).toBe('feed_already_starred');
+    expect(FeedApiErrorCode.parse('feed_not_starred')).toBe('feed_not_starred');
+  });
+
+  it('should accept search-related error codes', () => {
+    expect(FeedApiErrorCode.parse('feed_search_query_too_short')).toBe('feed_search_query_too_short');
   });
 });
