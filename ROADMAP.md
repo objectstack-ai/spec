@@ -148,7 +148,7 @@ Multi-stage triggers, action pipelines, execution logs, and cron scheduling stan
 | State machine & approval processes | ✅ | `automation/state-machine.zod.ts`, `automation/workflow.zod.ts` |
 | Retry policies with exponential backoff | ✅ | `automation/webhook.zod.ts` |
 | `IAutomationService` contract | ✅ | `contracts/automation-service.ts` (typed: `FlowParsed`, `ExecutionLog`) |
-| `service-automation` DAG engine (MVP) | ✅ | `@objectstack/service-automation` (42 tests) |
+| `service-automation` DAG engine (MVP) | ✅ | `@objectstack/service-automation` (67 tests) |
 | Execution log/history storage protocol | ✅ | `automation/execution.zod.ts` → `ExecutionLogSchema`, `ExecutionStepLogSchema` |
 | Execution error tracking & diagnostics | ✅ | `automation/execution.zod.ts` → `ExecutionErrorSchema`, `ExecutionErrorSeverity` |
 | Conflict resolution for concurrent executions | ✅ | `automation/execution.zod.ts` → `ConcurrencyPolicySchema` |
@@ -157,6 +157,15 @@ Multi-stage triggers, action pipelines, execution logs, and cron scheduling stan
 | Automation API protocol (REST CRUD schemas) | ✅ | `api/automation-api.zod.ts` → 9 endpoints, all with `input`/`output` schemas |
 | Automation HTTP route handler (9 routes) | ✅ | `runtime/http-dispatcher.ts` → `handleAutomation()` CRUD + toggle + runs |
 | Client SDK `automation` namespace (10 methods) | ✅ | `client/src/index.ts` → `list`, `get`, `create`, `update`, `delete`, `toggle`, `runs.*` |
+| Fault edge error path support | ✅ | `@objectstack/service-automation` → fault-type edge routing in DAG executor |
+| Node step-level execution logging | ✅ | `@objectstack/service-automation` → per-node timing/status in `ExecutionLogEntry.steps` |
+| Retry with exponential backoff & jitter | ✅ | `automation/flow.zod.ts` → `backoffMultiplier`, `maxRetryDelayMs`, `jitter` |
+| Parallel branch execution (Promise.all) | ✅ | `@objectstack/service-automation` → unconditional edges run in parallel |
+| Node timeout mechanism (Promise.race) | ✅ | `automation/flow.zod.ts` → `timeoutMs` per node, engine enforces via `Promise.race` |
+| DAG cycle detection on registerFlow | ✅ | `@objectstack/service-automation` → DFS-based cycle detection with friendly error messages |
+| Safe expression evaluation (no `new Function`) | ✅ | `@objectstack/service-automation` → operator-based parser, no code execution |
+| Node input/output schema validation | ✅ | `automation/flow.zod.ts` → `inputSchema`/`outputSchema` per node, runtime validation |
+| Flow version history & rollback | ✅ | `automation/flow.zod.ts` → `FlowVersionHistorySchema`, engine version management |
 
 ### 3. File Direct Upload & Resumable Upload Protocol
 
@@ -446,13 +455,13 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 
 | Contract | Priority | Package | Notes |
 |:---|:---:|:---|:---|
-| `IAutomationService` | **P2** | `@objectstack/service-automation` | ✅ Plugin-based DAG flow engine + HTTP API + Client SDK (42 tests) |
+| `IAutomationService` | **P2** | `@objectstack/service-automation` | ✅ Plugin-based DAG flow engine + HTTP API + Client SDK (67 tests) |
 | `IWorkflowService` | **P2** | `@objectstack/service-workflow` | State machine + approval processes |
 | `IGraphQLService` | **P2** | `@objectstack/service-graphql` | Auto-generated GraphQL from objects |
 | `IAIService` | **P2** | `@objectstack/service-ai` | LLM integration (OpenAI/Anthropic/local) |
 | `IAnalyticsService` | **P3** | `@objectstack/service-analytics` | BI/OLAP queries |
 
-- [x] `service-automation` — Implement `IAutomationService` with plugin-based DAG flow engine (MVP: CRUD/Logic/HTTP nodes), HTTP API CRUD (9 routes), Client SDK (10 methods), execution history
+- [x] `service-automation` — Implement `IAutomationService` with plugin-based DAG flow engine (CRUD/Logic/HTTP nodes, fault edges, parallel branches, cycle detection, safe eval, timeout, versioning), HTTP API CRUD (9 routes), Client SDK (10 methods), execution history with step-level logging
 - [ ] `service-workflow` — Implement `IWorkflowService` with state machine runtime
 - [ ] `service-graphql` — Implement `IGraphQLService` with auto-schema generation
 - [ ] `service-ai` — Implement `IAIService` with multi-provider LLM routing
@@ -721,7 +730,7 @@ Final polish and advanced features.
 | 16 | Search Service | `ISearchService` | ❌ | `@objectstack/service-search` (planned) | Spec only |
 | 17 | Notification Service | `INotificationService` | ❌ | `@objectstack/service-notification` (planned) | Spec only |
 | 18 | AI Service | `IAIService` | ❌ | `@objectstack/service-ai` (planned) | Spec only |
-| 19 | Automation Service | `IAutomationService` | ✅ | `@objectstack/service-automation` | DAG engine + HTTP API CRUD + Client SDK + typed returns (42 tests) |
+| 19 | Automation Service | `IAutomationService` | ✅ | `@objectstack/service-automation` | DAG engine + HTTP API CRUD + Client SDK + typed returns (67 tests) |
 | 20 | Workflow Service | `IWorkflowService` | ❌ | `@objectstack/service-workflow` (planned) | Spec only |
 | 21 | GraphQL Service | `IGraphQLService` | ❌ | `@objectstack/service-graphql` (planned) | Spec only |
 | 22 | i18n Service | `II18nService` | ✅ | `@objectstack/service-i18n` | File-based locale loading |
