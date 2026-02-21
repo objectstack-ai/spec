@@ -51,11 +51,36 @@ export interface FlowTrigger {
 
 // ─── Core Automation Engine ─────────────────────────────────────────
 
+/**
+ * Internal execution log entry.
+ */
+interface ExecutionLogEntry {
+    id: string;
+    flowName: string;
+    status: 'completed' | 'failed';
+    startedAt: string;
+    completedAt: string;
+    durationMs: number;
+    trigger: { type: string; userId?: string; object?: string };
+    steps: Array<{
+        nodeId: string;
+        nodeType: string;
+        status: 'success' | 'failure' | 'skipped';
+        startedAt: string;
+        durationMs?: number;
+    }>;
+    output?: unknown;
+    error?: string;
+}
+
 export class AutomationEngine implements IAutomationService {
     private flows = new Map<string, FlowParsed>();
+    private flowEnabled = new Map<string, boolean>();
     private nodeExecutors = new Map<string, NodeExecutor>();
     private triggers = new Map<string, FlowTrigger>();
+    private executionLogs: ExecutionLogEntry[] = [];
     private logger: Logger;
+    private runCounter = 0;
 
     constructor(logger: Logger) {
         this.logger = logger;
@@ -105,16 +130,42 @@ export class AutomationEngine implements IAutomationService {
     registerFlow(name: string, definition: unknown): void {
         const parsed = FlowSchema.parse(definition);
         this.flows.set(name, parsed);
+        if (!this.flowEnabled.has(name)) {
+            this.flowEnabled.set(name, true);
+        }
         this.logger.info(`Flow registered: ${name}`);
     }
 
     unregisterFlow(name: string): void {
         this.flows.delete(name);
+        this.flowEnabled.delete(name);
         this.logger.info(`Flow unregistered: ${name}`);
     }
 
     async listFlows(): Promise<string[]> {
         return [...this.flows.keys()];
+    }
+
+    async getFlow(name: string): Promise<FlowParsed | null> {
+        return this.flows.get(name) ?? null;
+    }
+
+    async toggleFlow(name: string, enabled: boolean): Promise<void> {
+        if (!this.flows.has(name)) {
+            throw new Error(`Flow '${name}' not found`);
+        }
+        this.flowEnabled.set(name, enabled);
+        this.logger.info(`Flow '${name}' ${enabled ? 'enabled' : 'disabled'}`);
+    }
+
+    async listRuns(flowName: string, options?: { limit?: number; cursor?: string }): Promise<ExecutionLogEntry[]> {
+        const limit = options?.limit ?? 20;
+        const logs = this.executionLogs.filter(l => l.flowName === flowName);
+        return logs.slice(-limit).reverse();
+    }
+
+    async getRun(runId: string): Promise<ExecutionLogEntry | null> {
+        return this.executionLogs.find(l => l.id === runId) ?? null;
     }
 
     async execute(flowName: string, context?: AutomationContext): Promise<AutomationResult> {
@@ -123,6 +174,11 @@ export class AutomationEngine implements IAutomationService {
 
         if (!flow) {
             return { success: false, error: `Flow '${flowName}' not found` };
+        }
+
+        // Check if flow is disabled
+        if (this.flowEnabled.get(flowName) === false) {
+            return { success: false, error: `Flow '${flowName}' is disabled` };
         }
 
         // Initialize variable context
@@ -138,6 +194,9 @@ export class AutomationEngine implements IAutomationService {
         if (context?.record) {
             variables.set('$record', context.record);
         }
+
+        const runId = `run_${++this.runCounter}`;
+        const startedAt = new Date().toISOString();
 
         try {
             // Find the start node
@@ -159,13 +218,50 @@ export class AutomationEngine implements IAutomationService {
                 }
             }
 
+            const durationMs = Date.now() - startTime;
+
+            // Record execution log
+            this.executionLogs.push({
+                id: runId,
+                flowName,
+                status: 'completed',
+                startedAt,
+                completedAt: new Date().toISOString(),
+                durationMs,
+                trigger: {
+                    type: context?.event ?? 'manual',
+                    userId: context?.userId,
+                    object: context?.object,
+                },
+                steps: [],
+                output,
+            });
+
             return {
                 success: true,
                 output,
-                durationMs: Date.now() - startTime,
+                durationMs,
             };
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : String(err);
+
+            // Record failed execution log
+            const durationMs = Date.now() - startTime;
+            this.executionLogs.push({
+                id: runId,
+                flowName,
+                status: 'failed',
+                startedAt,
+                completedAt: new Date().toISOString(),
+                durationMs,
+                trigger: {
+                    type: context?.event ?? 'manual',
+                    userId: context?.userId,
+                    object: context?.object,
+                },
+                steps: [],
+                error: errorMessage,
+            });
 
             // Error handling strategy
             if (flow.errorHandling?.strategy === 'retry') {
@@ -174,7 +270,7 @@ export class AutomationEngine implements IAutomationService {
             return {
                 success: false,
                 error: errorMessage,
-                durationMs: Date.now() - startTime,
+                durationMs,
             };
         }
     }

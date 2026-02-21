@@ -606,3 +606,184 @@ describe('HttpConnectorPlugin', () => {
         expect(types).toContain('connector_action');
     });
 });
+
+// ─── Execution History & Flow Management Tests ──────────────────────
+
+describe('AutomationEngine - Execution History', () => {
+    let engine: AutomationEngine;
+
+    const simpleFlow = {
+        name: 'test_flow',
+        label: 'Test Flow',
+        type: 'api' as const,
+        nodes: [
+            { id: 'start', type: 'start' as const, label: 'Start' },
+            { id: 'end', type: 'end' as const, label: 'End' },
+        ],
+        edges: [{ id: 'e1', source: 'start', target: 'end' }],
+    };
+
+    beforeEach(() => {
+        engine = new AutomationEngine(createTestLogger());
+    });
+
+    describe('getFlow', () => {
+        it('should return the flow definition for a registered flow', async () => {
+            engine.registerFlow('test_flow', simpleFlow);
+            const flow = await engine.getFlow('test_flow');
+            expect(flow).not.toBeNull();
+            expect(flow!.name).toBe('test_flow');
+        });
+
+        it('should return null for a non-existent flow', async () => {
+            const flow = await engine.getFlow('non_existent');
+            expect(flow).toBeNull();
+        });
+    });
+
+    describe('toggleFlow', () => {
+        it('should disable a flow', async () => {
+            engine.registerFlow('test_flow', simpleFlow);
+            await engine.toggleFlow('test_flow', false);
+
+            const result = await engine.execute('test_flow');
+            expect(result.success).toBe(false);
+            expect(result.error).toContain('disabled');
+        });
+
+        it('should enable a disabled flow', async () => {
+            engine.registerFlow('test_flow', simpleFlow);
+            await engine.toggleFlow('test_flow', false);
+            await engine.toggleFlow('test_flow', true);
+
+            const result = await engine.execute('test_flow');
+            expect(result.success).toBe(true);
+        });
+
+        it('should throw for non-existent flow', async () => {
+            await expect(engine.toggleFlow('missing', true)).rejects.toThrow('not found');
+        });
+    });
+
+    describe('listRuns', () => {
+        it('should return empty array when no runs exist', async () => {
+            engine.registerFlow('test_flow', simpleFlow);
+            const runs = await engine.listRuns('test_flow');
+            expect(runs).toHaveLength(0);
+        });
+
+        it('should return execution logs after running a flow', async () => {
+            engine.registerFlow('test_flow', simpleFlow);
+            await engine.execute('test_flow');
+            await engine.execute('test_flow');
+
+            const runs = await engine.listRuns('test_flow');
+            expect(runs).toHaveLength(2);
+            expect(runs[0].status).toBe('completed');
+        });
+
+        it('should filter runs by flow name', async () => {
+            engine.registerFlow('flow_a', { ...simpleFlow, name: 'flow_a' });
+            engine.registerFlow('flow_b', { ...simpleFlow, name: 'flow_b' });
+            await engine.execute('flow_a');
+            await engine.execute('flow_b');
+            await engine.execute('flow_a');
+
+            const runsA = await engine.listRuns('flow_a');
+            const runsB = await engine.listRuns('flow_b');
+            expect(runsA).toHaveLength(2);
+            expect(runsB).toHaveLength(1);
+        });
+
+        it('should respect limit option', async () => {
+            engine.registerFlow('test_flow', simpleFlow);
+            for (let i = 0; i < 5; i++) {
+                await engine.execute('test_flow');
+            }
+
+            const runs = await engine.listRuns('test_flow', { limit: 3 });
+            expect(runs).toHaveLength(3);
+        });
+    });
+
+    describe('getRun', () => {
+        it('should return null for non-existent run', async () => {
+            const run = await engine.getRun('non_existent');
+            expect(run).toBeNull();
+        });
+
+        it('should return an execution log by run ID', async () => {
+            engine.registerFlow('test_flow', simpleFlow);
+            await engine.execute('test_flow');
+
+            const runs = await engine.listRuns('test_flow');
+            const run = await engine.getRun(runs[0].id);
+            expect(run).not.toBeNull();
+            expect(run!.flowName).toBe('test_flow');
+            expect(run!.status).toBe('completed');
+        });
+    });
+
+    describe('execution log recording', () => {
+        it('should record run ID and timing', async () => {
+            engine.registerFlow('test_flow', simpleFlow);
+            await engine.execute('test_flow');
+
+            const runs = await engine.listRuns('test_flow');
+            expect(runs[0].id).toMatch(/^run_/);
+            expect(runs[0].startedAt).toBeTruthy();
+            expect(runs[0].completedAt).toBeTruthy();
+            expect(typeof runs[0].durationMs).toBe('number');
+        });
+
+        it('should record failed executions', async () => {
+            const failingFlow = {
+                ...simpleFlow,
+                name: 'failing_flow',
+                nodes: [
+                    { id: 'start', type: 'start' as const, label: 'Start' },
+                    { id: 'bad', type: 'script' as const, label: 'Bad' },
+                    { id: 'end', type: 'end' as const, label: 'End' },
+                ],
+                edges: [
+                    { id: 'e1', source: 'start', target: 'bad' },
+                    { id: 'e2', source: 'bad', target: 'end' },
+                ],
+            };
+            engine.registerFlow('failing_flow', failingFlow);
+            await engine.execute('failing_flow');
+
+            const runs = await engine.listRuns('failing_flow');
+            expect(runs).toHaveLength(1);
+            expect(runs[0].status).toBe('failed');
+            expect(runs[0].error).toBeTruthy();
+        });
+
+        it('should record trigger context', async () => {
+            engine.registerFlow('test_flow', simpleFlow);
+            await engine.execute('test_flow', {
+                event: 'on_create',
+                userId: 'user_1',
+                object: 'account',
+            });
+
+            const runs = await engine.listRuns('test_flow');
+            expect(runs[0].trigger.type).toBe('on_create');
+            expect(runs[0].trigger.userId).toBe('user_1');
+            expect(runs[0].trigger.object).toBe('account');
+        });
+    });
+
+    describe('unregisterFlow cleans up enabled state', () => {
+        it('should remove enabled state on unregister', async () => {
+            engine.registerFlow('test_flow', simpleFlow);
+            await engine.toggleFlow('test_flow', false);
+            engine.unregisterFlow('test_flow');
+
+            // Re-register should default to enabled
+            engine.registerFlow('test_flow', simpleFlow);
+            const result = await engine.execute('test_flow');
+            expect(result.success).toBe(true);
+        });
+    });
+});
