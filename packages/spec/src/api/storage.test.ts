@@ -4,6 +4,13 @@ import {
   CompleteUploadRequestSchema,
   PresignedUrlResponseSchema,
   FileUploadResponseSchema,
+  FileTypeValidationSchema,
+  InitiateChunkedUploadRequestSchema,
+  InitiateChunkedUploadResponseSchema,
+  UploadChunkRequestSchema,
+  UploadChunkResponseSchema,
+  CompleteChunkedUploadRequestSchema,
+  UploadProgressSchema,
 } from './storage.zod';
 
 describe('GetPresignedUrlRequestSchema', () => {
@@ -210,6 +217,320 @@ describe('FileUploadResponseSchema', () => {
           mimeType: 'text/plain',
           lastModified: 'not-a-date',
           created: '2025-01-01T00:00:00Z',
+        },
+      })
+    ).toThrow();
+  });
+});
+
+// ==========================================
+// File Type Validation
+// ==========================================
+
+describe('FileTypeValidationSchema', () => {
+  it('should accept a whitelist config', () => {
+    const config = FileTypeValidationSchema.parse({
+      mode: 'whitelist',
+      mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
+      maxFileSize: 10485760,
+    });
+    expect(config.mode).toBe('whitelist');
+    expect(config.mimeTypes).toHaveLength(3);
+    expect(config.maxFileSize).toBe(10485760);
+  });
+
+  it('should accept a blacklist config', () => {
+    const config = FileTypeValidationSchema.parse({
+      mode: 'blacklist',
+      mimeTypes: ['application/x-executable'],
+      extensions: ['.exe', '.bat', '.sh'],
+    });
+    expect(config.mode).toBe('blacklist');
+    expect(config.extensions).toHaveLength(3);
+  });
+
+  it('should reject invalid mode', () => {
+    expect(() =>
+      FileTypeValidationSchema.parse({
+        mode: 'graylist',
+        mimeTypes: ['image/png'],
+      })
+    ).toThrow();
+  });
+
+  it('should reject empty mimeTypes', () => {
+    expect(() =>
+      FileTypeValidationSchema.parse({
+        mode: 'whitelist',
+        mimeTypes: [],
+      })
+    ).toThrow();
+  });
+
+  it('should reject missing mimeTypes', () => {
+    expect(() =>
+      FileTypeValidationSchema.parse({ mode: 'whitelist' })
+    ).toThrow();
+  });
+});
+
+// ==========================================
+// Chunked Upload — Initiate
+// ==========================================
+
+describe('InitiateChunkedUploadRequestSchema', () => {
+  it('should accept a valid request', () => {
+    const req = InitiateChunkedUploadRequestSchema.parse({
+      filename: 'large-video.mp4',
+      mimeType: 'video/mp4',
+      totalSize: 1073741824,
+      chunkSize: 10485760,
+    });
+    expect(req.filename).toBe('large-video.mp4');
+    expect(req.totalSize).toBe(1073741824);
+    expect(req.chunkSize).toBe(10485760);
+  });
+
+  it('should apply defaults', () => {
+    const req = InitiateChunkedUploadRequestSchema.parse({
+      filename: 'data.bin',
+      mimeType: 'application/octet-stream',
+      totalSize: 52428800,
+    });
+    expect(req.chunkSize).toBe(5242880);
+    expect(req.scope).toBe('user');
+    expect(req.bucket).toBeUndefined();
+    expect(req.metadata).toBeUndefined();
+  });
+
+  it('should reject chunkSize below minimum (5MB)', () => {
+    expect(() =>
+      InitiateChunkedUploadRequestSchema.parse({
+        filename: 'test.bin',
+        mimeType: 'application/octet-stream',
+        totalSize: 10000000,
+        chunkSize: 1000000,
+      })
+    ).toThrow();
+  });
+
+  it('should reject totalSize less than 1', () => {
+    expect(() =>
+      InitiateChunkedUploadRequestSchema.parse({
+        filename: 'empty.bin',
+        mimeType: 'application/octet-stream',
+        totalSize: 0,
+      })
+    ).toThrow();
+  });
+
+  it('should accept request with metadata', () => {
+    const req = InitiateChunkedUploadRequestSchema.parse({
+      filename: 'report.pdf',
+      mimeType: 'application/pdf',
+      totalSize: 20000000,
+      metadata: { source: 'upload-form', project: 'proj_123' },
+    });
+    expect(req.metadata?.source).toBe('upload-form');
+  });
+});
+
+describe('InitiateChunkedUploadResponseSchema', () => {
+  it('should accept a valid response', () => {
+    const resp = InitiateChunkedUploadResponseSchema.parse({
+      success: true,
+      data: {
+        uploadId: 'upload_001',
+        resumeToken: 'tok_abc123',
+        fileId: 'file_001',
+        totalChunks: 20,
+        chunkSize: 5242880,
+        expiresAt: '2026-02-02T10:00:00Z',
+      },
+    });
+    expect(resp.data.uploadId).toBe('upload_001');
+    expect(resp.data.totalChunks).toBe(20);
+    expect(resp.data.resumeToken).toBe('tok_abc123');
+  });
+
+  it('should reject missing required fields', () => {
+    expect(() =>
+      InitiateChunkedUploadResponseSchema.parse({
+        success: true,
+        data: {
+          uploadId: 'upload_001',
+          fileId: 'file_001',
+        },
+      })
+    ).toThrow();
+  });
+});
+
+// ==========================================
+// Chunked Upload — Chunk
+// ==========================================
+
+describe('UploadChunkRequestSchema', () => {
+  it('should accept a valid chunk request', () => {
+    const req = UploadChunkRequestSchema.parse({
+      uploadId: 'upload_001',
+      chunkIndex: 0,
+      resumeToken: 'tok_abc123',
+    });
+    expect(req.uploadId).toBe('upload_001');
+    expect(req.chunkIndex).toBe(0);
+  });
+
+  it('should reject negative chunkIndex', () => {
+    expect(() =>
+      UploadChunkRequestSchema.parse({
+        uploadId: 'upload_001',
+        chunkIndex: -1,
+        resumeToken: 'tok_abc123',
+      })
+    ).toThrow();
+  });
+});
+
+describe('UploadChunkResponseSchema', () => {
+  it('should accept a valid chunk response', () => {
+    const resp = UploadChunkResponseSchema.parse({
+      success: true,
+      data: {
+        chunkIndex: 3,
+        eTag: '"abc123def456"',
+        bytesReceived: 5242880,
+      },
+    });
+    expect(resp.data.chunkIndex).toBe(3);
+    expect(resp.data.eTag).toBe('"abc123def456"');
+    expect(resp.data.bytesReceived).toBe(5242880);
+  });
+});
+
+// ==========================================
+// Chunked Upload — Complete
+// ==========================================
+
+describe('CompleteChunkedUploadRequestSchema', () => {
+  it('should accept a valid complete request', () => {
+    const req = CompleteChunkedUploadRequestSchema.parse({
+      uploadId: 'upload_001',
+      parts: [
+        { chunkIndex: 0, eTag: '"etag0"' },
+        { chunkIndex: 1, eTag: '"etag1"' },
+        { chunkIndex: 2, eTag: '"etag2"' },
+      ],
+    });
+    expect(req.parts).toHaveLength(3);
+  });
+
+  it('should reject empty parts array', () => {
+    expect(() =>
+      CompleteChunkedUploadRequestSchema.parse({
+        uploadId: 'upload_001',
+        parts: [],
+      })
+    ).toThrow();
+  });
+
+  it('should reject missing uploadId', () => {
+    expect(() =>
+      CompleteChunkedUploadRequestSchema.parse({
+        parts: [{ chunkIndex: 0, eTag: '"etag0"' }],
+      })
+    ).toThrow();
+  });
+});
+
+// ==========================================
+// Upload Progress
+// ==========================================
+
+describe('UploadProgressSchema', () => {
+  it('should accept a valid in-progress upload', () => {
+    const progress = UploadProgressSchema.parse({
+      success: true,
+      data: {
+        uploadId: 'upload_001',
+        fileId: 'file_001',
+        filename: 'large-video.mp4',
+        totalSize: 1073741824,
+        uploadedSize: 52428800,
+        totalChunks: 205,
+        uploadedChunks: 10,
+        percentComplete: 4.88,
+        status: 'in_progress',
+        startedAt: '2026-02-01T10:00:00Z',
+        expiresAt: '2026-02-02T10:00:00Z',
+      },
+    });
+    expect(progress.data.status).toBe('in_progress');
+    expect(progress.data.uploadedChunks).toBe(10);
+    expect(progress.data.percentComplete).toBeCloseTo(4.88);
+  });
+
+  it('should accept a completed upload', () => {
+    const progress = UploadProgressSchema.parse({
+      success: true,
+      data: {
+        uploadId: 'upload_001',
+        fileId: 'file_001',
+        filename: 'report.pdf',
+        totalSize: 20000000,
+        uploadedSize: 20000000,
+        totalChunks: 4,
+        uploadedChunks: 4,
+        percentComplete: 100,
+        status: 'completed',
+        startedAt: '2026-02-01T10:00:00Z',
+        expiresAt: '2026-02-02T10:00:00Z',
+      },
+    });
+    expect(progress.data.status).toBe('completed');
+    expect(progress.data.percentComplete).toBe(100);
+  });
+
+  it('should accept all valid statuses', () => {
+    const statuses = ['in_progress', 'completing', 'completed', 'failed', 'expired'];
+    statuses.forEach((s) => {
+      expect(() =>
+        UploadProgressSchema.parse({
+          success: true,
+          data: {
+            uploadId: 'u1',
+            fileId: 'f1',
+            filename: 'test.bin',
+            totalSize: 100,
+            uploadedSize: 0,
+            totalChunks: 1,
+            uploadedChunks: 0,
+            percentComplete: 0,
+            status: s,
+            startedAt: '2026-02-01T10:00:00Z',
+            expiresAt: '2026-02-02T10:00:00Z',
+          },
+        })
+      ).not.toThrow();
+    });
+  });
+
+  it('should reject invalid status', () => {
+    expect(() =>
+      UploadProgressSchema.parse({
+        success: true,
+        data: {
+          uploadId: 'u1',
+          fileId: 'f1',
+          filename: 'test.bin',
+          totalSize: 100,
+          uploadedSize: 0,
+          totalChunks: 1,
+          uploadedChunks: 0,
+          percentComplete: 0,
+          status: 'paused',
+          startedAt: '2026-02-01T10:00:00Z',
+          expiresAt: '2026-02-02T10:00:00Z',
         },
       })
     ).toThrow();
