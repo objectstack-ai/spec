@@ -670,21 +670,117 @@ export class HttpDispatcher {
     /**
      * Handles Automation requests
      * path: sub-path after /automation/
+     *
+     * Routes:
+     *   GET    /                     → listFlows
+     *   GET    /:name                → getFlow
+     *   POST   /                     → createFlow (registerFlow)
+     *   PUT    /:name                → updateFlow
+     *   DELETE /:name                → deleteFlow (unregisterFlow)
+     *   POST   /:name/trigger        → execute (legacy: trigger/:name also supported)
+     *   POST   /:name/toggle         → toggleFlow
+     *   GET    /:name/runs           → listRuns
+     *   GET    /:name/runs/:runId    → getRun
      */
-    async handleAutomation(path: string, method: string, body: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+    async handleAutomation(path: string, method: string, body: any, context: HttpProtocolContext, query?: any): Promise<HttpDispatcherResult> {
         const automationService = this.getService(CoreServiceName.enum.automation);
         if (!automationService) return { handled: false };
 
         const m = method.toUpperCase();
-        const parts = path.replace(/^\/+/, '').split('/');
-        
-        // POST /automation/trigger/:name
+        const parts = path.replace(/^\/+/, '').split('/').filter(Boolean);
+
+        // Legacy: POST /automation/trigger/:name
         if (parts[0] === 'trigger' && parts[1] && m === 'POST') {
              const triggerName = parts[1];
              if (typeof automationService.trigger === 'function') {
                  const result = await automationService.trigger(triggerName, body, { request: context.request });
                  return { handled: true, response: this.success(result) };
              }
+             // Fallback to execute
+             if (typeof automationService.execute === 'function') {
+                 const result = await automationService.execute(triggerName, body);
+                 return { handled: true, response: this.success(result) };
+             }
+        }
+
+        // GET / → listFlows
+        if (parts.length === 0 && m === 'GET') {
+            if (typeof automationService.listFlows === 'function') {
+                const names = await automationService.listFlows();
+                return { handled: true, response: this.success({ flows: names, total: names.length, hasMore: false }) };
+            }
+        }
+
+        // POST / → createFlow
+        if (parts.length === 0 && m === 'POST') {
+            if (typeof automationService.registerFlow === 'function') {
+                automationService.registerFlow(body?.name, body);
+                return { handled: true, response: this.success(body) };
+            }
+        }
+
+        // Routes with :name
+        if (parts.length >= 1) {
+            const name = parts[0];
+
+            // POST /:name/trigger → execute
+            if (parts[1] === 'trigger' && m === 'POST') {
+                if (typeof automationService.execute === 'function') {
+                    const result = await automationService.execute(name, body);
+                    return { handled: true, response: this.success(result) };
+                }
+            }
+
+            // POST /:name/toggle → toggleFlow
+            if (parts[1] === 'toggle' && m === 'POST') {
+                if (typeof automationService.toggleFlow === 'function') {
+                    await automationService.toggleFlow(name, body?.enabled ?? true);
+                    return { handled: true, response: this.success({ name, enabled: body?.enabled ?? true }) };
+                }
+            }
+
+            // GET /:name/runs/:runId → getRun
+            if (parts[1] === 'runs' && parts[2] && m === 'GET') {
+                if (typeof automationService.getRun === 'function') {
+                    const run = await automationService.getRun(parts[2]);
+                    if (!run) return { handled: true, response: this.error('Execution not found', 404) };
+                    return { handled: true, response: this.success(run) };
+                }
+            }
+
+            // GET /:name/runs → listRuns
+            if (parts[1] === 'runs' && !parts[2] && m === 'GET') {
+                if (typeof automationService.listRuns === 'function') {
+                    const options = query ? { limit: query.limit ? Number(query.limit) : undefined, cursor: query.cursor } : undefined;
+                    const runs = await automationService.listRuns(name, options);
+                    return { handled: true, response: this.success({ runs, hasMore: false }) };
+                }
+            }
+
+            // GET /:name → getFlow (no sub-path)
+            if (parts.length === 1 && m === 'GET') {
+                if (typeof automationService.getFlow === 'function') {
+                    const flow = await automationService.getFlow(name);
+                    if (!flow) return { handled: true, response: this.error('Flow not found', 404) };
+                    return { handled: true, response: this.success(flow) };
+                }
+            }
+
+            // PUT /:name → updateFlow
+            if (parts.length === 1 && m === 'PUT') {
+                if (typeof automationService.registerFlow === 'function') {
+                    automationService.registerFlow(name, body?.definition ?? body);
+                    return { handled: true, response: this.success(body?.definition ?? body) };
+                }
+            }
+
+            // DELETE /:name → deleteFlow
+            if (parts.length === 1 && m === 'DELETE') {
+                if (typeof automationService.unregisterFlow === 'function') {
+                    automationService.unregisterFlow(name);
+                    return { handled: true, response: this.success({ name, deleted: true }) };
+                }
+            }
         }
         
         return { handled: false };
@@ -779,7 +875,7 @@ export class HttpDispatcher {
         }
 
         if (cleanPath.startsWith('/automation')) {
-             return this.handleAutomation(cleanPath.substring(11), method, body, context);
+             return this.handleAutomation(cleanPath.substring(11), method, body, context, query);
         }
         
         if (cleanPath.startsWith('/analytics')) {

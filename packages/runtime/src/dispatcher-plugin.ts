@@ -55,7 +55,7 @@ function errorResponse(err: any, res: any): void {
  *   - /packages  (package management)
 
  *   - /storage   (file storage)
- *   - /automation (triggers)
+ *   - /automation (CRUD + triggers + runs)
  *
  * Usage:
  * ```ts
@@ -220,9 +220,90 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
             });
 
             // ── Automation ──────────────────────────────────────────────
+            server.get(`${prefix}/automation`, async (req: any, res: any) => {
+                try {
+                    const result = await dispatcher.handleAutomation('', 'GET', {}, { request: req });
+                    sendResult(result, res);
+                } catch (err: any) {
+                    errorResponse(err, res);
+                }
+            });
+
+            server.post(`${prefix}/automation`, async (req: any, res: any) => {
+                try {
+                    const result = await dispatcher.handleAutomation('', 'POST', req.body, { request: req });
+                    sendResult(result, res);
+                } catch (err: any) {
+                    errorResponse(err, res);
+                }
+            });
+
+            server.get(`${prefix}/automation/:name`, async (req: any, res: any) => {
+                try {
+                    const result = await dispatcher.handleAutomation(`${req.params.name}`, 'GET', {}, { request: req });
+                    sendResult(result, res);
+                } catch (err: any) {
+                    errorResponse(err, res);
+                }
+            });
+
+            server.put(`${prefix}/automation/:name`, async (req: any, res: any) => {
+                try {
+                    const result = await dispatcher.handleAutomation(`${req.params.name}`, 'PUT', req.body, { request: req });
+                    sendResult(result, res);
+                } catch (err: any) {
+                    errorResponse(err, res);
+                }
+            });
+
+            server.delete(`${prefix}/automation/:name`, async (req: any, res: any) => {
+                try {
+                    const result = await dispatcher.handleAutomation(`${req.params.name}`, 'DELETE', {}, { request: req });
+                    sendResult(result, res);
+                } catch (err: any) {
+                    errorResponse(err, res);
+                }
+            });
+
             server.post(`${prefix}/automation/trigger/:name`, async (req: any, res: any) => {
                 try {
                     const result = await dispatcher.handleAutomation(`trigger/${req.params.name}`, 'POST', req.body, { request: req });
+                    sendResult(result, res);
+                } catch (err: any) {
+                    errorResponse(err, res);
+                }
+            });
+
+            server.post(`${prefix}/automation/:name/trigger`, async (req: any, res: any) => {
+                try {
+                    const result = await dispatcher.handleAutomation(`${req.params.name}/trigger`, 'POST', req.body, { request: req });
+                    sendResult(result, res);
+                } catch (err: any) {
+                    errorResponse(err, res);
+                }
+            });
+
+            server.post(`${prefix}/automation/:name/toggle`, async (req: any, res: any) => {
+                try {
+                    const result = await dispatcher.handleAutomation(`${req.params.name}/toggle`, 'POST', req.body, { request: req });
+                    sendResult(result, res);
+                } catch (err: any) {
+                    errorResponse(err, res);
+                }
+            });
+
+            server.get(`${prefix}/automation/:name/runs`, async (req: any, res: any) => {
+                try {
+                    const result = await dispatcher.handleAutomation(`${req.params.name}/runs`, 'GET', {}, { request: req }, req.query);
+                    sendResult(result, res);
+                } catch (err: any) {
+                    errorResponse(err, res);
+                }
+            });
+
+            server.get(`${prefix}/automation/:name/runs/:runId`, async (req: any, res: any) => {
+                try {
+                    const result = await dispatcher.handleAutomation(`${req.params.name}/runs/${req.params.runId}`, 'GET', {}, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);

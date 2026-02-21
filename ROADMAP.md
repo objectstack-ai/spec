@@ -93,13 +93,13 @@ This strategy ensures rapid iteration while maintaining a clear path to producti
 | Packages (total) | 27 |
 | Apps | 2 (Studio, Docs) |
 | Examples | 4 (Todo, CRM, Host, BI Plugin) |
-| Zod Schema Files | 177 |
+| Zod Schema Files | 178 |
 | Exported Schemas | 1,100+ |
 | `.describe()` Annotations | 7,111+ |
 | Service Contracts | 25 |
 | Contracts Implemented | 13 (52%) |
-| Test Files | 208 |
-| Tests Passing | 5,921 / 5,921 |
+| Test Files | 210 |
+| Tests Passing | 5,953 / 5,953 |
 | `@deprecated` Items | 3 |
 | Protocol Domains | 15 (Data, UI, AI, API, Automation, Cloud, Contracts, Identity, Integration, Kernel, QA, Security, Shared, Studio, System) |
 
@@ -147,13 +147,16 @@ Multi-stage triggers, action pipelines, execution logs, and cron scheduling stan
 | Action pipeline (webhook, email, CRUD, notification) | ✅ | `automation/flow.zod.ts` (HTTP, CRUD, script nodes) |
 | State machine & approval processes | ✅ | `automation/state-machine.zod.ts`, `automation/workflow.zod.ts` |
 | Retry policies with exponential backoff | ✅ | `automation/webhook.zod.ts` |
-| `IAutomationService` contract | ✅ | `contracts/automation-service.ts` |
-| `service-automation` DAG engine (MVP) | ✅ | `@objectstack/service-automation` (27 tests) |
+| `IAutomationService` contract | ✅ | `contracts/automation-service.ts` (getFlow, toggleFlow, listRuns, getRun) |
+| `service-automation` DAG engine (MVP) | ✅ | `@objectstack/service-automation` (42 tests) |
 | Execution log/history storage protocol | ✅ | `automation/execution.zod.ts` → `ExecutionLogSchema`, `ExecutionStepLogSchema` |
 | Execution error tracking & diagnostics | ✅ | `automation/execution.zod.ts` → `ExecutionErrorSchema`, `ExecutionErrorSeverity` |
 | Conflict resolution for concurrent executions | ✅ | `automation/execution.zod.ts` → `ConcurrencyPolicySchema` |
 | Checkpointing/resume for interrupted flows | ✅ | `automation/execution.zod.ts` → `CheckpointSchema` |
 | Scheduled execution persistence (next-run, pause/resume) | ✅ | `automation/execution.zod.ts` → `ScheduleStateSchema` |
+| Automation API protocol (REST CRUD schemas) | ✅ | `api/automation-api.zod.ts` → 9 endpoints, `AutomationApiContracts` |
+| Automation HTTP route handler (9 routes) | ✅ | `runtime/http-dispatcher.ts` → `handleAutomation()` CRUD + toggle + runs |
+| Client SDK `automation` namespace (10 methods) | ✅ | `client/src/index.ts` → `list`, `get`, `create`, `update`, `delete`, `toggle`, `runs.*` |
 
 ### 3. File Direct Upload & Resumable Upload Protocol
 
@@ -287,7 +290,7 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 - [x] **System Protocol** — Manifest, Auth Config, Cache, Logging, Metrics, Tracing, Audit, Encryption, Masking, Migration, Tenant, Translation, Search Engine, HTTP Server, Worker, Job, Object Storage, Notification, Message Queue, Registry Config, Collaboration, Compliance, Change Management, Disaster Recovery, License, Security Context, Core Services, SystemObjectName/SystemFieldName Constants, StorageNameMapping Utilities
 - [x] **Automation Protocol** — Flow (autolaunched/screen/schedule), Workflow, State Machine, Trigger Registry, Approval, ETL, Sync, Webhook
 - [x] **AI Protocol** — Agent, Agent Action, Conversation, Cost, MCP, Model Registry, NLQ, Orchestration, Predictive, RAG Pipeline, Runtime Ops, Feedback Loop, DevOps Agent, Plugin Development
-- [x] **API Protocol** — Protocol (104 schemas), Endpoint, Contract, Router, Dispatcher, REST Server, GraphQL, OData, WebSocket, Realtime, Batch, Versioning, HTTP Cache, Documentation, Discovery, Registry, Errors, Auth, Auth Endpoints, Metadata, Analytics, Query Adapter, Storage, Plugin REST API, Feed API (Feed CRUD, Reactions, Subscription)
+- [x] **API Protocol** — Protocol (104 schemas), Endpoint, Contract, Router, Dispatcher, REST Server, GraphQL, OData, WebSocket, Realtime, Batch, Versioning, HTTP Cache, Documentation, Discovery, Registry, Errors, Auth, Auth Endpoints, Metadata, Analytics, Query Adapter, Storage, Plugin REST API, Feed API (Feed CRUD, Reactions, Subscription), Automation API (CRUD + Toggle + Runs)
 - [x] **Security Protocol** — Permission, Policy, RLS, Sharing, Territory
 - [x] **Identity Protocol** — Identity, Organization, Role, SCIM
 - [x] **Kernel Protocol** — Plugin, Plugin Lifecycle, Plugin Loading, Plugin Registry, Plugin Security, Plugin Validator, Plugin Versioning, Service Registry, Startup Orchestrator, Feature Flags, Context, Events, Metadata Plugin, Metadata Loader, Metadata Customization, CLI Extension, Dev Plugin, Package Registry, Package Upgrade, Execution Context
@@ -434,13 +437,13 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 
 | Contract | Priority | Package | Notes |
 |:---|:---:|:---|:---|
-| `IAutomationService` | **P2** | `@objectstack/service-automation` | ✅ Plugin-based DAG flow engine (MVP) |
+| `IAutomationService` | **P2** | `@objectstack/service-automation` | ✅ Plugin-based DAG flow engine + HTTP API + Client SDK (42 tests) |
 | `IWorkflowService` | **P2** | `@objectstack/service-workflow` | State machine + approval processes |
 | `IGraphQLService` | **P2** | `@objectstack/service-graphql` | Auto-generated GraphQL from objects |
 | `IAIService` | **P2** | `@objectstack/service-ai` | LLM integration (OpenAI/Anthropic/local) |
 | `IAnalyticsService` | **P3** | `@objectstack/service-analytics` | BI/OLAP queries |
 
-- [x] `service-automation` — Implement `IAutomationService` with plugin-based DAG flow engine (MVP: CRUD/Logic/HTTP nodes)
+- [x] `service-automation` — Implement `IAutomationService` with plugin-based DAG flow engine (MVP: CRUD/Logic/HTTP nodes), HTTP API CRUD (9 routes), Client SDK (10 methods), execution history
 - [ ] `service-workflow` — Implement `IWorkflowService` with state machine runtime
 - [ ] `service-graphql` — Implement `IGraphQLService` with auto-schema generation
 - [ ] `service-ai` — Implement `IAIService` with multi-provider LLM routing
@@ -709,7 +712,7 @@ Final polish and advanced features.
 | 16 | Search Service | `ISearchService` | ❌ | `@objectstack/service-search` (planned) | Spec only |
 | 17 | Notification Service | `INotificationService` | ❌ | `@objectstack/service-notification` (planned) | Spec only |
 | 18 | AI Service | `IAIService` | ❌ | `@objectstack/service-ai` (planned) | Spec only |
-| 19 | Automation Service | `IAutomationService` | ✅ | `@objectstack/service-automation` | Plugin-based DAG engine (MVP) |
+| 19 | Automation Service | `IAutomationService` | ✅ | `@objectstack/service-automation` | DAG engine + HTTP API CRUD + Client SDK (42 tests) |
 | 20 | Workflow Service | `IWorkflowService` | ❌ | `@objectstack/service-workflow` (planned) | Spec only |
 | 21 | GraphQL Service | `IGraphQLService` | ❌ | `@objectstack/service-graphql` (planned) | Spec only |
 | 22 | i18n Service | `II18nService` | ✅ | `@objectstack/service-i18n` | File-based locale loading |

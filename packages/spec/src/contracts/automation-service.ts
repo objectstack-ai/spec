@@ -70,4 +70,33 @@ export interface IAutomationService {
      * @param name - Flow name (snake_case)
      */
     unregisterFlow?(name: string): void;
+
+    /**
+     * Get a flow definition by name
+     * @param name - Flow name (snake_case)
+     * @returns Flow definition or null if not found
+     */
+    getFlow?(name: string): Promise<unknown | null>;
+
+    /**
+     * Enable or disable a flow
+     * @param name - Flow name (snake_case)
+     * @param enabled - Whether to enable (true) or disable (false)
+     */
+    toggleFlow?(name: string, enabled: boolean): Promise<void>;
+
+    /**
+     * List execution runs for a flow
+     * @param flowName - Flow name (snake_case)
+     * @param options - Pagination options
+     * @returns Array of execution logs
+     */
+    listRuns?(flowName: string, options?: { limit?: number; cursor?: string }): Promise<unknown[]>;
+
+    /**
+     * Get a single execution run by ID
+     * @param runId - Execution run ID
+     * @returns Execution log or null if not found
+     */
+    getRun?(runId: string): Promise<unknown | null>;
 }

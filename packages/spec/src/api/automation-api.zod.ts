@@ -1,0 +1,337 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+import { z } from 'zod';
+import { BaseResponseSchema } from './contract.zod';
+import { FlowSchema } from '../automation/flow.zod';
+import { ExecutionLogSchema } from '../automation/execution.zod';
+
+/**
+ * Automation API Protocol
+ *
+ * Defines REST CRUD endpoint schemas for managing automation flows,
+ * triggering executions, and querying execution history.
+ *
+ * Base path: /api/automation
+ *
+ * @example Endpoints
+ * GET    /api/automation                         — List flows
+ * GET    /api/automation/:name                   — Get flow
+ * POST   /api/automation                         — Create flow
+ * PUT    /api/automation/:name                   — Update flow
+ * DELETE /api/automation/:name                   — Delete flow
+ * POST   /api/automation/:name/trigger           — Trigger flow execution
+ * POST   /api/automation/:name/toggle            — Enable/disable flow
+ * GET    /api/automation/:name/runs              — List execution runs
+ * GET    /api/automation/:name/runs/:runId       — Get single execution run
+ */
+
+// ==========================================
+// 1. Path Parameters
+// ==========================================
+
+/**
+ * Path parameters for flow-level operations.
+ */
+export const AutomationFlowPathParamsSchema = z.object({
+  name: z.string().describe('Flow machine name (snake_case)'),
+});
+export type AutomationFlowPathParams = z.infer<typeof AutomationFlowPathParamsSchema>;
+
+/**
+ * Path parameters for run-level operations.
+ */
+export const AutomationRunPathParamsSchema = AutomationFlowPathParamsSchema.extend({
+  runId: z.string().describe('Execution run ID'),
+});
+export type AutomationRunPathParams = z.infer<typeof AutomationRunPathParamsSchema>;
+
+// ==========================================
+// 2. List Flows (GET /api/automation)
+// ==========================================
+
+/**
+ * Query parameters for listing automation flows.
+ *
+ * @example GET /api/automation?status=active&limit=20
+ */
+export const ListFlowsRequestSchema = z.object({
+  status: z.enum(['draft', 'active', 'obsolete', 'invalid']).optional()
+    .describe('Filter by flow status'),
+  type: z.enum(['autolaunched', 'record_change', 'schedule', 'screen', 'api']).optional()
+    .describe('Filter by flow type'),
+  limit: z.number().int().min(1).max(100).default(50)
+    .describe('Maximum number of flows to return'),
+  cursor: z.string().optional()
+    .describe('Cursor for pagination'),
+});
+export type ListFlowsRequest = z.infer<typeof ListFlowsRequestSchema>;
+
+/**
+ * Summary information for a flow in list results.
+ */
+export const FlowSummarySchema = z.object({
+  name: z.string().describe('Flow machine name'),
+  label: z.string().describe('Flow display label'),
+  type: z.string().describe('Flow type'),
+  status: z.string().describe('Flow deployment status'),
+  version: z.number().int().describe('Flow version number'),
+  enabled: z.boolean().describe('Whether the flow is enabled for execution'),
+  nodeCount: z.number().int().optional().describe('Number of nodes in the flow'),
+  lastRunAt: z.string().datetime().optional().describe('Last execution timestamp'),
+});
+export type FlowSummary = z.infer<typeof FlowSummarySchema>;
+
+/**
+ * Response for the list flows endpoint.
+ */
+export const ListFlowsResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    flows: z.array(FlowSummarySchema).describe('Flow summaries'),
+    total: z.number().int().optional().describe('Total matching flows'),
+    nextCursor: z.string().optional().describe('Cursor for the next page'),
+    hasMore: z.boolean().describe('Whether more flows are available'),
+  }),
+});
+export type ListFlowsResponse = z.infer<typeof ListFlowsResponseSchema>;
+
+// ==========================================
+// 3. Get Flow (GET /api/automation/:name)
+// ==========================================
+
+/**
+ * Request parameters for getting a single flow.
+ */
+export const GetFlowRequestSchema = AutomationFlowPathParamsSchema;
+export type GetFlowRequest = z.infer<typeof GetFlowRequestSchema>;
+
+/**
+ * Response for the get flow endpoint.
+ */
+export const GetFlowResponseSchema = BaseResponseSchema.extend({
+  data: FlowSchema.describe('Full flow definition'),
+});
+export type GetFlowResponse = z.infer<typeof GetFlowResponseSchema>;
+
+// ==========================================
+// 4. Create Flow (POST /api/automation)
+// ==========================================
+
+/**
+ * Request body for creating a new flow.
+ *
+ * @example POST /api/automation
+ * { name: 'approval_flow', label: 'Approval Flow', type: 'autolaunched', ... }
+ */
+export const CreateFlowRequestSchema = FlowSchema;
+export type CreateFlowRequest = z.input<typeof CreateFlowRequestSchema>;
+
+/**
+ * Response after creating a flow.
+ */
+export const CreateFlowResponseSchema = BaseResponseSchema.extend({
+  data: FlowSchema.describe('The created flow definition'),
+});
+export type CreateFlowResponse = z.infer<typeof CreateFlowResponseSchema>;
+
+// ==========================================
+// 5. Update Flow (PUT /api/automation/:name)
+// ==========================================
+
+/**
+ * Request body for updating an existing flow.
+ *
+ * @example PUT /api/automation/approval_flow
+ * { label: 'Updated Label', nodes: [...], edges: [...] }
+ */
+export const UpdateFlowRequestSchema = AutomationFlowPathParamsSchema.extend({
+  definition: FlowSchema.partial().describe('Partial flow definition to update'),
+});
+export type UpdateFlowRequest = z.infer<typeof UpdateFlowRequestSchema>;
+
+/**
+ * Response after updating a flow.
+ */
+export const UpdateFlowResponseSchema = BaseResponseSchema.extend({
+  data: FlowSchema.describe('The updated flow definition'),
+});
+export type UpdateFlowResponse = z.infer<typeof UpdateFlowResponseSchema>;
+
+// ==========================================
+// 6. Delete Flow (DELETE /api/automation/:name)
+// ==========================================
+
+/**
+ * Request parameters for deleting a flow.
+ */
+export const DeleteFlowRequestSchema = AutomationFlowPathParamsSchema;
+export type DeleteFlowRequest = z.infer<typeof DeleteFlowRequestSchema>;
+
+/**
+ * Response after deleting a flow.
+ */
+export const DeleteFlowResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    name: z.string().describe('Name of the deleted flow'),
+    deleted: z.boolean().describe('Whether the flow was deleted'),
+  }),
+});
+export type DeleteFlowResponse = z.infer<typeof DeleteFlowResponseSchema>;
+
+// ==========================================
+// 7. Toggle Flow (POST /api/automation/:name/toggle)
+// ==========================================
+
+/**
+ * Request body for enabling/disabling a flow.
+ *
+ * @example POST /api/automation/approval_flow/toggle
+ * { enabled: true }
+ */
+export const ToggleFlowRequestSchema = AutomationFlowPathParamsSchema.extend({
+  enabled: z.boolean().describe('Whether to enable (true) or disable (false) the flow'),
+});
+export type ToggleFlowRequest = z.infer<typeof ToggleFlowRequestSchema>;
+
+/**
+ * Response after toggling a flow.
+ */
+export const ToggleFlowResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    name: z.string().describe('Flow name'),
+    enabled: z.boolean().describe('New enabled state'),
+  }),
+});
+export type ToggleFlowResponse = z.infer<typeof ToggleFlowResponseSchema>;
+
+// ==========================================
+// 8. List Runs (GET /api/automation/:name/runs)
+// ==========================================
+
+/**
+ * Query parameters for listing execution runs.
+ *
+ * @example GET /api/automation/approval_flow/runs?status=completed&limit=10
+ */
+export const ListRunsRequestSchema = AutomationFlowPathParamsSchema.extend({
+  status: z.enum(['pending', 'running', 'paused', 'completed', 'failed', 'cancelled', 'timed_out', 'retrying']).optional()
+    .describe('Filter by execution status'),
+  limit: z.number().int().min(1).max(100).default(20)
+    .describe('Maximum number of runs to return'),
+  cursor: z.string().optional()
+    .describe('Cursor for pagination'),
+});
+export type ListRunsRequest = z.infer<typeof ListRunsRequestSchema>;
+
+/**
+ * Response for the list runs endpoint.
+ */
+export const ListRunsResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    runs: z.array(ExecutionLogSchema).describe('Execution run logs'),
+    total: z.number().int().optional().describe('Total matching runs'),
+    nextCursor: z.string().optional().describe('Cursor for the next page'),
+    hasMore: z.boolean().describe('Whether more runs are available'),
+  }),
+});
+export type ListRunsResponse = z.infer<typeof ListRunsResponseSchema>;
+
+// ==========================================
+// 9. Get Run (GET /api/automation/:name/runs/:runId)
+// ==========================================
+
+/**
+ * Request parameters for getting a single execution run.
+ */
+export const GetRunRequestSchema = AutomationRunPathParamsSchema;
+export type GetRunRequest = z.infer<typeof GetRunRequestSchema>;
+
+/**
+ * Response for the get run endpoint.
+ */
+export const GetRunResponseSchema = BaseResponseSchema.extend({
+  data: ExecutionLogSchema.describe('Full execution log with step details'),
+});
+export type GetRunResponse = z.infer<typeof GetRunResponseSchema>;
+
+// ==========================================
+// 10. Automation API Error Codes
+// ==========================================
+
+/**
+ * Error codes specific to Automation operations.
+ */
+export const AutomationApiErrorCode = z.enum([
+  'flow_not_found',
+  'flow_already_exists',
+  'flow_validation_failed',
+  'flow_disabled',
+  'execution_not_found',
+  'execution_failed',
+  'execution_timeout',
+  'node_executor_not_found',
+  'concurrent_execution_limit',
+]);
+export type AutomationApiErrorCode = z.infer<typeof AutomationApiErrorCode>;
+
+// ==========================================
+// 11. Automation API Contract Registry
+// ==========================================
+
+/**
+ * Standard Automation API contracts map.
+ * Used for generating SDKs, documentation, and route registration.
+ */
+export const AutomationApiContracts = {
+  listFlows: {
+    method: 'GET' as const,
+    path: '/api/automation',
+    input: ListFlowsRequestSchema,
+    output: ListFlowsResponseSchema,
+  },
+  getFlow: {
+    method: 'GET' as const,
+    path: '/api/automation/:name',
+    input: GetFlowRequestSchema,
+    output: GetFlowResponseSchema,
+  },
+  createFlow: {
+    method: 'POST' as const,
+    path: '/api/automation',
+    input: CreateFlowRequestSchema,
+    output: CreateFlowResponseSchema,
+  },
+  updateFlow: {
+    method: 'PUT' as const,
+    path: '/api/automation/:name',
+    input: UpdateFlowRequestSchema,
+    output: UpdateFlowResponseSchema,
+  },
+  deleteFlow: {
+    method: 'DELETE' as const,
+    path: '/api/automation/:name',
+    input: DeleteFlowRequestSchema,
+    output: DeleteFlowResponseSchema,
+  },
+  triggerFlow: {
+    method: 'POST' as const,
+    path: '/api/automation/:name/trigger',
+  },
+  toggleFlow: {
+    method: 'POST' as const,
+    path: '/api/automation/:name/toggle',
+    input: ToggleFlowRequestSchema,
+    output: ToggleFlowResponseSchema,
+  },
+  listRuns: {
+    method: 'GET' as const,
+    path: '/api/automation/:name/runs',
+    input: ListRunsRequestSchema,
+    output: ListRunsResponseSchema,
+  },
+  getRun: {
+    method: 'GET' as const,
+    path: '/api/automation/:name/runs/:runId',
+    input: GetRunRequestSchema,
+    output: GetRunResponseSchema,
+  },
+};

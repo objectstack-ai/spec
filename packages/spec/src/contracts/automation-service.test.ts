@@ -18,10 +18,18 @@ describe('Automation Service Contract', () => {
       listFlows: async () => [],
       registerFlow: (_name, _definition) => {},
       unregisterFlow: (_name) => {},
+      getFlow: async (_name) => null,
+      toggleFlow: async (_name, _enabled) => {},
+      listRuns: async (_flowName, _options?) => [],
+      getRun: async (_runId) => null,
     };
 
     expect(service.registerFlow).toBeDefined();
     expect(service.unregisterFlow).toBeDefined();
+    expect(service.getFlow).toBeDefined();
+    expect(service.toggleFlow).toBeDefined();
+    expect(service.listRuns).toBeDefined();
+    expect(service.getRun).toBeDefined();
   });
 
   it('should execute a flow successfully', async () => {
