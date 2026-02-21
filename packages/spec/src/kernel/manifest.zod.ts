@@ -339,6 +339,24 @@ export const ManifestSchema = z.object({
    */
   loading: PluginLoadingConfigSchema.optional()
     .describe('Plugin loading and runtime behavior configuration'),
+
+  /**
+   * Platform Compatibility Requirements.
+   * Specifies the minimum ObjectStack platform version required to run this package.
+   * Used at install time to prevent incompatible packages from being installed.
+   *
+   * @example
+   * ```yaml
+   * engine:
+   *   objectstack: ">=3.0.0"
+   * ```
+   */
+  engine: z.object({
+    /** ObjectStack platform version requirement (SemVer range) */
+    objectstack: z.string()
+      .regex(/^[><=~^]*\d+\.\d+\.\d+/)
+      .describe('ObjectStack platform version requirement (SemVer range, e.g. ">=3.0.0")'),
+  }).optional().describe('Platform compatibility requirements'),
 });
 
 /**

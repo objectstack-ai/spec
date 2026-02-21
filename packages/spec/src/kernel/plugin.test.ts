@@ -3,6 +3,7 @@ import {
   PluginContextSchema, 
   PluginLifecycleSchema,
   PluginSchema,
+  UpgradeContextSchema,
   type PluginContextData,
   type PluginLifecycleHooks,
   type PluginDefinition,
@@ -223,6 +224,40 @@ describe('PluginLifecycleSchema', () => {
     };
 
     expect(() => PluginLifecycleSchema.parse(lifecycle)).not.toThrow();
+  });
+});
+
+describe('UpgradeContextSchema', () => {
+  it('should accept valid upgrade context', () => {
+    const context = {
+      previousVersion: '1.0.0',
+      newVersion: '2.0.0',
+      isMajorUpgrade: true,
+    };
+    const parsed = UpgradeContextSchema.parse(context);
+    expect(parsed.previousVersion).toBe('1.0.0');
+    expect(parsed.newVersion).toBe('2.0.0');
+    expect(parsed.isMajorUpgrade).toBe(true);
+  });
+
+  it('should accept upgrade context with metadata snapshot', () => {
+    const context = {
+      previousVersion: '1.2.0',
+      newVersion: '1.3.0',
+      isMajorUpgrade: false,
+      previousMetadata: {
+        'objects': { count: 5 },
+        'views': { count: 10 },
+      },
+    };
+    const parsed = UpgradeContextSchema.parse(context);
+    expect(parsed.previousMetadata).toBeDefined();
+    expect(parsed.isMajorUpgrade).toBe(false);
+  });
+
+  it('should reject missing required fields', () => {
+    expect(() => UpgradeContextSchema.parse({})).toThrow();
+    expect(() => UpgradeContextSchema.parse({ previousVersion: '1.0.0' })).toThrow();
   });
 });
 

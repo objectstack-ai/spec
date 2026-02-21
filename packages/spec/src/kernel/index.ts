@@ -2,6 +2,7 @@
 
 export * from './cli-extension.zod';
 export * from './context.zod';
+export * from './dependency-resolution.zod';
 export * from './dev-plugin.zod';
 export * from './events.zod';
 export * from './feature.zod';
@@ -9,6 +10,7 @@ export * from './manifest.zod';
 export * from './metadata-customization.zod';
 export * from './metadata-loader.zod';
 export * from './metadata-plugin.zod';
+export * from './package-artifact.zod';
 export * from './package-registry.zod';
 export * from './package-upgrade.zod';
 export * from './plugin-capability.zod';

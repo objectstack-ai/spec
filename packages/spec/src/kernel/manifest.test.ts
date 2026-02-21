@@ -382,6 +382,58 @@ describe('ManifestSchema', () => {
     });
   });
 
+  describe('Platform Compatibility (engine)', () => {
+    it('should accept manifest with engine requirements', () => {
+      const manifest = {
+        id: 'com.acme.crm',
+        version: '1.0.0',
+        type: 'app' as const,
+        name: 'Acme CRM',
+        engine: {
+          objectstack: '>=3.0.0',
+        },
+      };
+      const parsed = ManifestSchema.parse(manifest);
+      expect(parsed.engine?.objectstack).toBe('>=3.0.0');
+    });
+
+    it('should accept various semver range formats', () => {
+      const ranges = ['>=3.0.0', '^2.1.0', '~1.5.0', '>=1.0.0', '3.0.0'];
+      ranges.forEach(range => {
+        const manifest = {
+          id: 'com.test.app',
+          version: '1.0.0',
+          type: 'app' as const,
+          name: 'Test',
+          engine: { objectstack: range },
+        };
+        expect(() => ManifestSchema.parse(manifest)).not.toThrow();
+      });
+    });
+
+    it('should reject invalid engine version format', () => {
+      const manifest = {
+        id: 'com.test.app',
+        version: '1.0.0',
+        type: 'app' as const,
+        name: 'Test',
+        engine: { objectstack: 'latest' },
+      };
+      expect(() => ManifestSchema.parse(manifest)).toThrow();
+    });
+
+    it('should accept manifest without engine (backward compatible)', () => {
+      const manifest = {
+        id: 'com.test.app',
+        version: '1.0.0',
+        type: 'app' as const,
+        name: 'Test',
+      };
+      const parsed = ManifestSchema.parse(manifest);
+      expect(parsed.engine).toBeUndefined();
+    });
+  });
+
   describe('Reverse Domain Notation', () => {
     it('should accept various reverse domain notation formats', () => {
       const validIds = [

@@ -681,7 +681,15 @@ Create src/ai/governance.zod.ts:
 
 **Enhancement 1: Plugin Marketplace Protocol**
 
-The `cloud/marketplace.zod.ts` exists but needs tighter integration with the kernel for **security review, compatibility checking, and auto-update**.
+The `cloud/marketplace.zod.ts` now includes `ArtifactReferenceSchema` and `ArtifactDownloadResponseSchema` for artifact storage and distribution. The kernel has been extended with:
+- `package-artifact.zod.ts` — Standard artifact format (.tgz) with checksums and digital signatures
+- `dependency-resolution.zod.ts` — Runtime dependency resolution with conflict detection and topological ordering
+- `ManifestSchema.engine` — Platform version compatibility requirements
+- `UpgradeContextSchema` — Version migration context for onUpgrade hooks
+- `NamespaceRegistryEntrySchema` / `NamespaceConflictErrorSchema` — Namespace collision detection
+- `InstalledPackageSchema.upgradeHistory` — Version upgrade tracking
+
+Further integration needed for **auto-update orchestration and telemetry reporting**.
 
 **Enhancement 2: Plugin Telemetry Protocol**
 
