@@ -91,4 +91,39 @@ export interface IStorageService {
      * @returns Pre-signed URL string
      */
     getSignedUrl?(key: string, expiresIn: number): Promise<string>;
+
+    // ==========================================
+    // Chunked / Multipart Upload Methods
+    // ==========================================
+
+    /**
+     * Initiate a chunked (multipart) upload session
+     * @param key - Storage key/path for the final file
+     * @param options - Upload options (content type, metadata, ACL)
+     * @returns Upload session ID for use in subsequent chunk uploads
+     */
+    initiateChunkedUpload?(key: string, options?: StorageUploadOptions): Promise<string>;
+
+    /**
+     * Upload a single chunk of a multipart upload
+     * @param uploadId - Multipart upload session ID
+     * @param partNumber - Part number (1-based, per S3 convention)
+     * @param data - Chunk content as Buffer
+     * @returns ETag of the uploaded chunk for assembly
+     */
+    uploadChunk?(uploadId: string, partNumber: number, data: Buffer): Promise<string>;
+
+    /**
+     * Complete a chunked upload by assembling all parts
+     * @param uploadId - Multipart upload session ID
+     * @param parts - Ordered list of part numbers and their ETags
+     * @returns Storage key/path of the assembled file
+     */
+    completeChunkedUpload?(uploadId: string, parts: Array<{ partNumber: number; eTag: string }>): Promise<string>;
+
+    /**
+     * Abort a chunked upload session and clean up uploaded parts
+     * @param uploadId - Multipart upload session ID
+     */
+    abortChunkedUpload?(uploadId: string): Promise<void>;
 }

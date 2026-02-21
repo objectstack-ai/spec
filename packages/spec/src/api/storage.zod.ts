@@ -155,6 +155,22 @@ export const CompleteChunkedUploadRequestSchema = z.object({
 export type CompleteChunkedUploadRequest = z.infer<typeof CompleteChunkedUploadRequestSchema>;
 
 /**
+ * Complete Chunked Upload Response
+ * Confirms that all chunks have been assembled into the final file.
+ */
+export const CompleteChunkedUploadResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    fileId: z.string().describe('Final file ID'),
+    key: z.string().describe('Storage key/path of the assembled file'),
+    size: z.number().int().describe('Total file size in bytes'),
+    mimeType: z.string().describe('File MIME type'),
+    eTag: z.string().optional().describe('Final ETag of the assembled file'),
+    url: z.string().optional().describe('Download URL for the assembled file'),
+  }),
+});
+export type CompleteChunkedUploadResponse = z.infer<typeof CompleteChunkedUploadResponseSchema>;
+
+/**
  * Upload Progress Schema
  * Represents the current progress of an active upload session.
  *
@@ -177,3 +193,49 @@ export const UploadProgressSchema = BaseResponseSchema.extend({
   }),
 });
 export type UploadProgress = z.infer<typeof UploadProgressSchema>;
+
+// ==========================================
+// Storage API Contract Registry
+// ==========================================
+
+/**
+ * Standard Storage API contracts map.
+ * Used for generating SDKs, documentation, and route registration.
+ */
+export const StorageApiContracts = {
+  getPresignedUrl: {
+    method: 'POST' as const,
+    path: '/api/v1/storage/upload/presigned',
+    input: GetPresignedUrlRequestSchema,
+    output: PresignedUrlResponseSchema,
+  },
+  completeUpload: {
+    method: 'POST' as const,
+    path: '/api/v1/storage/upload/complete',
+    input: CompleteUploadRequestSchema,
+    output: FileUploadResponseSchema,
+  },
+  initiateChunkedUpload: {
+    method: 'POST' as const,
+    path: '/api/v1/storage/upload/chunked',
+    input: InitiateChunkedUploadRequestSchema,
+    output: InitiateChunkedUploadResponseSchema,
+  },
+  uploadChunk: {
+    method: 'PUT' as const,
+    path: '/api/v1/storage/upload/chunked/:uploadId/chunk/:chunkIndex',
+    input: UploadChunkRequestSchema,
+    output: UploadChunkResponseSchema,
+  },
+  completeChunkedUpload: {
+    method: 'POST' as const,
+    path: '/api/v1/storage/upload/chunked/:uploadId/complete',
+    input: CompleteChunkedUploadRequestSchema,
+    output: CompleteChunkedUploadResponseSchema,
+  },
+  getUploadProgress: {
+    method: 'GET' as const,
+    path: '/api/v1/storage/upload/chunked/:uploadId/progress',
+    output: UploadProgressSchema,
+  },
+};

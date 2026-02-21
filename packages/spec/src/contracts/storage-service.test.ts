@@ -147,4 +147,92 @@ describe('Storage Service Contract', () => {
     expect(url).toContain('docs/report.pdf');
     expect(url).toContain('expires=3600');
   });
+
+  it('should allow implementation with chunked upload methods', () => {
+    const storage: IStorageService = {
+      upload: async () => {},
+      download: async () => Buffer.from(''),
+      delete: async () => {},
+      exists: async () => false,
+      getInfo: async (key) => ({ key, size: 0, lastModified: new Date() }),
+      initiateChunkedUpload: async (_key, _options?) => 'upload_session_123',
+      uploadChunk: async (_uploadId, _partNumber, _data) => '"etag-abc"',
+      completeChunkedUpload: async (_uploadId, _parts) => 'uploads/final-file.bin',
+      abortChunkedUpload: async (_uploadId) => {},
+    };
+
+    expect(storage.initiateChunkedUpload).toBeDefined();
+    expect(storage.uploadChunk).toBeDefined();
+    expect(storage.completeChunkedUpload).toBeDefined();
+    expect(storage.abortChunkedUpload).toBeDefined();
+  });
+
+  it('should perform chunked upload lifecycle', async () => {
+    const chunks = new Map<string, Map<number, { data: Buffer; eTag: string }>>();
+
+    const storage: IStorageService = {
+      upload: async () => {},
+      download: async () => Buffer.from(''),
+      delete: async () => {},
+      exists: async () => false,
+      getInfo: async (key) => ({ key, size: 0, lastModified: new Date() }),
+      initiateChunkedUpload: async (key) => {
+        const uploadId = `upload_${Date.now()}`;
+        chunks.set(uploadId, new Map());
+        return uploadId;
+      },
+      uploadChunk: async (uploadId, partNumber, data) => {
+        const session = chunks.get(uploadId);
+        if (!session) throw new Error(`Upload session not found: ${uploadId}`);
+        const eTag = `"etag-part-${partNumber}"`;
+        session.set(partNumber, { data, eTag });
+        return eTag;
+      },
+      completeChunkedUpload: async (uploadId, parts) => {
+        const session = chunks.get(uploadId);
+        if (!session) throw new Error(`Upload session not found: ${uploadId}`);
+        expect(parts.length).toBeGreaterThan(0);
+        chunks.delete(uploadId);
+        return 'uploads/assembled-file.bin';
+      },
+      abortChunkedUpload: async (uploadId) => {
+        chunks.delete(uploadId);
+      },
+    };
+
+    // 1. Initiate
+    const uploadId = await storage.initiateChunkedUpload!('uploads/large-file.bin');
+    expect(uploadId).toBeDefined();
+
+    // 2. Upload chunks
+    const etag1 = await storage.uploadChunk!(uploadId, 1, Buffer.from('chunk-1'));
+    const etag2 = await storage.uploadChunk!(uploadId, 2, Buffer.from('chunk-2'));
+    expect(etag1).toBe('"etag-part-1"');
+    expect(etag2).toBe('"etag-part-2"');
+
+    // 3. Complete
+    const key = await storage.completeChunkedUpload!(uploadId, [
+      { partNumber: 1, eTag: etag1 },
+      { partNumber: 2, eTag: etag2 },
+    ]);
+    expect(key).toBe('uploads/assembled-file.bin');
+  });
+
+  it('should abort chunked upload', async () => {
+    let aborted = false;
+
+    const storage: IStorageService = {
+      upload: async () => {},
+      download: async () => Buffer.from(''),
+      delete: async () => {},
+      exists: async () => false,
+      getInfo: async (key) => ({ key, size: 0, lastModified: new Date() }),
+      abortChunkedUpload: async (_uploadId) => {
+        aborted = true;
+      },
+    };
+
+    await storage.abortChunkedUpload!('upload_to_abort');
+    expect(aborted).toBe(true);
+  });
 });

@@ -20,6 +20,12 @@ import {
   PresignedUrlResponse,
   CompleteUploadRequest,
   FileUploadResponse,
+  InitiateChunkedUploadRequest,
+  InitiateChunkedUploadResponse,
+  UploadChunkResponse,
+  CompleteChunkedUploadRequest,
+  CompleteChunkedUploadResponse,
+  UploadProgress,
   CheckPermissionRequest,
   CheckPermissionResponse,
   GetObjectPermissionsResponse,
@@ -602,7 +608,85 @@ export class ObjectStackClient {
         const res = await this.fetch(`${this.baseUrl}${route}/files/${fileId}/url`);
         const data = await res.json();
         return data.url;
-    }
+    },
+
+    /**
+     * Get a presigned URL for direct-to-cloud upload
+     */
+    getPresignedUrl: async (req: GetPresignedUrlRequest): Promise<PresignedUrlResponse> => {
+        const route = this.getRoute('storage');
+        const res = await this.fetch(`${this.baseUrl}${route}/upload/presigned`, {
+            method: 'POST',
+            body: JSON.stringify(req)
+        });
+        return res.json();
+    },
+
+    /**
+     * Initiate a chunked (multipart) upload session
+     */
+    initChunkedUpload: async (req: InitiateChunkedUploadRequest): Promise<InitiateChunkedUploadResponse> => {
+        const route = this.getRoute('storage');
+        const res = await this.fetch(`${this.baseUrl}${route}/upload/chunked`, {
+            method: 'POST',
+            body: JSON.stringify(req)
+        });
+        return res.json();
+    },
+
+    /**
+     * Upload a single chunk/part of a multipart upload
+     */
+    uploadPart: async (uploadId: string, chunkIndex: number, resumeToken: string, data: Blob | Buffer): Promise<UploadChunkResponse> => {
+        const route = this.getRoute('storage');
+        const res = await this.fetch(`${this.baseUrl}${route}/upload/chunked/${uploadId}/chunk/${chunkIndex}`, {
+            method: 'PUT',
+            headers: { 'x-resume-token': resumeToken },
+            body: data as any
+        });
+        return res.json();
+    },
+
+    /**
+     * Complete a chunked upload by assembling all parts
+     */
+    completeChunkedUpload: async (req: CompleteChunkedUploadRequest): Promise<CompleteChunkedUploadResponse> => {
+        const route = this.getRoute('storage');
+        const res = await this.fetch(`${this.baseUrl}${route}/upload/chunked/${req.uploadId}/complete`, {
+            method: 'POST',
+            body: JSON.stringify(req)
+        });
+        return res.json();
+    },
+
+    /**
+     * Resume an interrupted chunked upload.
+     * Fetches current progress, then uploads remaining chunks and completes.
+     */
+    resumeUpload: async (uploadId: string, file: Blob | ArrayBuffer, chunkSize: number, resumeToken: string): Promise<CompleteChunkedUploadResponse> => {
+        const route = this.getRoute('storage');
+
+        // 1. Get current progress
+        const progressRes = await this.fetch(`${this.baseUrl}${route}/upload/chunked/${uploadId}/progress`);
+        const progress = await progressRes.json() as UploadProgress;
+
+        const { totalChunks, uploadedChunks } = progress.data;
+        const parts: Array<{ chunkIndex: number; eTag: string }> = [];
+
+        // 2. Upload remaining chunks
+        const fileBuffer = file instanceof ArrayBuffer ? file : await file.arrayBuffer();
+        for (let i = uploadedChunks; i < totalChunks; i++) {
+            const start = i * chunkSize;
+            const end = Math.min(start + chunkSize, fileBuffer.byteLength);
+            const chunk = new Blob([fileBuffer.slice(start, end)]);
+
+            const chunkRes = await this.storage.uploadPart(uploadId, i, resumeToken, chunk);
+            parts.push({ chunkIndex: i, eTag: chunkRes.data.eTag });
+        }
+
+        // 3. Complete
+        return this.storage.completeChunkedUpload({ uploadId, parts });
+    },
   };
 
   /**

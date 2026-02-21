@@ -69,4 +69,20 @@ export class S3StorageAdapter implements IStorageService {
   async getSignedUrl(_key: string, _expiresIn: number): Promise<string> {
     throw new Error('S3StorageAdapter not yet implemented');
   }
+
+  async initiateChunkedUpload(_key: string, _options?: StorageUploadOptions): Promise<string> {
+    throw new Error('S3StorageAdapter.initiateChunkedUpload not yet implemented');
+  }
+
+  async uploadChunk(_uploadId: string, _partNumber: number, _data: Buffer): Promise<string> {
+    throw new Error('S3StorageAdapter.uploadChunk not yet implemented');
+  }
+
+  async completeChunkedUpload(_uploadId: string, _parts: Array<{ partNumber: number; eTag: string }>): Promise<string> {
+    throw new Error('S3StorageAdapter.completeChunkedUpload not yet implemented');
+  }
+
+  async abortChunkedUpload(_uploadId: string): Promise<void> {
+    throw new Error('S3StorageAdapter.abortChunkedUpload not yet implemented');
+  }
 }
