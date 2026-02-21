@@ -131,6 +131,9 @@ Support record comments, @mention, activity feed, and changelog for the ObjectUI
 | Comment notification integration with `INotificationService` | 🔴 | `service-notification` not implemented |
 | Activity feed search/filter endpoint | ✅ | `api/feed-api.zod.ts` → `SearchFeedRequestSchema` |
 | Changelog (field-level audit trail) endpoint | ✅ | `api/feed-api.zod.ts` → `GetChangelogRequestSchema`, `ChangelogEntrySchema` |
+| Feed route handler (14 methods in ObjectStackProtocol) | ✅ | `objectql/protocol.ts` → `listFeed`, `createFeedItem`, etc. |
+| Client SDK `feed` namespace (14 methods) | ✅ | `client/src/index.ts` → `client.feed.*` |
+| Feed service discovery | ✅ | `objectql/protocol.ts` → `getDiscovery()` → `services.feed` |
 
 ### 2. Automation Persistence & Scheduling Specs
 
