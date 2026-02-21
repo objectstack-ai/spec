@@ -5,6 +5,7 @@ import {
   FlowEdgeSchema,
   FlowVariableSchema,
   FlowNodeAction,
+  FlowVersionHistorySchema,
   defineFlow,
   type Flow,
   type FlowNode,
@@ -129,6 +130,39 @@ describe('FlowNodeSchema', () => {
       };
       expect(() => FlowNodeSchema.parse(node)).not.toThrow();
     });
+  });
+
+  it('should accept node with timeoutMs', () => {
+    const result = FlowNodeSchema.safeParse({
+      id: 'http_1',
+      type: 'http_request',
+      label: 'Call API',
+      timeoutMs: 5000,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.timeoutMs).toBe(5000);
+    }
+  });
+
+  it('should accept node with inputSchema and outputSchema', () => {
+    const result = FlowNodeSchema.safeParse({
+      id: 'script_1',
+      type: 'script',
+      label: 'Process Data',
+      inputSchema: {
+        name: { type: 'string', required: true, description: 'User name' },
+        age: { type: 'number', required: false },
+      },
+      outputSchema: {
+        greeting: { type: 'string', description: 'Generated greeting' },
+      },
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.inputSchema).toBeDefined();
+      expect(result.data.outputSchema).toBeDefined();
+    }
   });
 });
 
@@ -597,6 +631,53 @@ describe('FlowSchema - errorHandling', () => {
     });
     expect(result.errorHandling).toBeUndefined();
   });
+
+  it('should accept exponential backoff configuration', () => {
+    const result = FlowSchema.safeParse({
+      name: 'backoff_flow',
+      label: 'Backoff Flow',
+      type: 'autolaunched',
+      nodes: [
+        { id: 'start', type: 'start', label: 'Start' },
+        { id: 'end', type: 'end', label: 'End' },
+      ],
+      edges: [{ id: 'e1', source: 'start', target: 'end' }],
+      errorHandling: {
+        strategy: 'retry',
+        maxRetries: 5,
+        retryDelayMs: 1000,
+        backoffMultiplier: 2,
+        maxRetryDelayMs: 30000,
+        jitter: true,
+      },
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.errorHandling!.backoffMultiplier).toBe(2);
+      expect(result.data.errorHandling!.maxRetryDelayMs).toBe(30000);
+      expect(result.data.errorHandling!.jitter).toBe(true);
+    }
+  });
+
+  it('should use defaults for backoff fields', () => {
+    const result = FlowSchema.safeParse({
+      name: 'default_backoff',
+      label: 'Default Backoff',
+      type: 'autolaunched',
+      nodes: [
+        { id: 'start', type: 'start', label: 'Start' },
+        { id: 'end', type: 'end', label: 'End' },
+      ],
+      edges: [{ id: 'e1', source: 'start', target: 'end' }],
+      errorHandling: { strategy: 'retry' },
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.errorHandling!.backoffMultiplier).toBe(1);
+      expect(result.data.errorHandling!.maxRetryDelayMs).toBe(30000);
+      expect(result.data.errorHandling!.jitter).toBe(false);
+    }
+  });
 });
 
 describe('defineFlow', () => {
@@ -640,5 +721,33 @@ describe('defineFlow', () => {
       nodes: [],
       edges: [],
     })).toThrow();
+  });
+});
+
+describe('FlowVersionHistorySchema', () => {
+  it('should validate a flow version history entry', () => {
+    const result = FlowVersionHistorySchema.safeParse({
+      flowName: 'my_flow',
+      version: 1,
+      definition: {
+        name: 'my_flow',
+        label: 'My Flow',
+        type: 'autolaunched',
+        nodes: [
+          { id: 'start', type: 'start', label: 'Start' },
+          { id: 'end', type: 'end', label: 'End' },
+        ],
+        edges: [{ id: 'e1', source: 'start', target: 'end' }],
+      },
+      createdAt: '2026-01-01T00:00:00Z',
+      createdBy: 'admin',
+      changeNote: 'Initial version',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('should require flowName, version, definition, and createdAt', () => {
+    const result = FlowVersionHistorySchema.safeParse({});
+    expect(result.success).toBe(false);
   });
 });

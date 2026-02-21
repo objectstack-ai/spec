@@ -72,6 +72,22 @@ export const FlowNodeSchema = z.object({
 
   /** UI Position (for the canvas) */
   position: z.object({ x: z.number(), y: z.number() }).optional(),
+
+  /** Node-level execution timeout */
+  timeoutMs: z.number().int().min(0).optional().describe('Maximum execution time for this node in milliseconds'),
+
+  /** Node input schema declaration for Studio form generation and runtime validation */
+  inputSchema: z.record(z.string(), z.object({
+    type: z.enum(['string', 'number', 'boolean', 'object', 'array']).describe('Parameter type'),
+    required: z.boolean().default(false).describe('Whether the parameter is required'),
+    description: z.string().optional().describe('Parameter description'),
+  })).optional().describe('Input parameter schema for this node'),
+
+  /** Node output schema declaration */
+  outputSchema: z.record(z.string(), z.object({
+    type: z.enum(['string', 'number', 'boolean', 'object', 'array']).describe('Output type'),
+    description: z.string().optional().describe('Output description'),
+  })).optional().describe('Output schema declaration for this node'),
 });
 
 /**
@@ -143,6 +159,9 @@ export const FlowSchema = z.object({
     strategy: z.enum(['fail', 'retry', 'continue']).default('fail').describe('How to handle node execution errors'),
     maxRetries: z.number().int().min(0).max(10).default(0).describe('Number of retry attempts (only for retry strategy)'),
     retryDelayMs: z.number().int().min(0).default(1000).describe('Delay between retries in milliseconds'),
+    backoffMultiplier: z.number().min(1).default(1).describe('Multiplier for exponential backoff between retries'),
+    maxRetryDelayMs: z.number().int().min(0).default(30000).describe('Maximum delay between retries in milliseconds'),
+    jitter: z.boolean().default(false).describe('Add random jitter to retry delay to avoid thundering herd'),
     fallbackNodeId: z.string().optional().describe('Node ID to jump to on unrecoverable error'),
   }).optional().describe('Flow-level error handling configuration'),
 });
@@ -176,3 +195,21 @@ export type FlowNode = z.input<typeof FlowNodeSchema>;
 export type FlowNodeParsed = z.infer<typeof FlowNodeSchema>;
 export type FlowEdge = z.input<typeof FlowEdgeSchema>;
 export type FlowEdgeParsed = z.infer<typeof FlowEdgeSchema>;
+
+/**
+ * Flow Version History Schema
+ * Tracks historical versions of flow definitions for rollback support.
+ *
+ * Industry alignment: Salesforce Flow Versions, n8n Workflow History.
+ */
+export const FlowVersionHistorySchema = z.object({
+  flowName: z.string().describe('Flow machine name'),
+  version: z.number().int().min(1).describe('Version number'),
+  definition: FlowSchema.describe('Complete flow definition snapshot'),
+  createdAt: z.string().datetime().describe('When this version was created'),
+  createdBy: z.string().optional().describe('User who created this version'),
+  changeNote: z.string().optional().describe('Description of what changed in this version'),
+});
+
+export type FlowVersionHistory = z.input<typeof FlowVersionHistorySchema>;
+export type FlowVersionHistoryParsed = z.infer<typeof FlowVersionHistorySchema>;
