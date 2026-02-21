@@ -13,6 +13,9 @@
  * Aligned with CoreServiceName 'automation' in core-services.zod.ts.
  */
 
+import type { FlowParsed } from '../automation/flow.zod';
+import type { ExecutionLog } from '../automation/execution.zod';
+
 /**
  * Context passed to a flow/script execution
  */
@@ -76,7 +79,7 @@ export interface IAutomationService {
      * @param name - Flow name (snake_case)
      * @returns Flow definition or null if not found
      */
-    getFlow?(name: string): Promise<unknown | null>;
+    getFlow?(name: string): Promise<FlowParsed | null>;
 
     /**
      * Enable or disable a flow
@@ -91,12 +94,12 @@ export interface IAutomationService {
      * @param options - Pagination options
      * @returns Array of execution logs
      */
-    listRuns?(flowName: string, options?: { limit?: number; cursor?: string }): Promise<unknown[]>;
+    listRuns?(flowName: string, options?: { limit?: number; cursor?: string }): Promise<ExecutionLog[]>;
 
     /**
      * Get a single execution run by ID
      * @param runId - Execution run ID
      * @returns Execution log or null if not found
      */
-    getRun?(runId: string): Promise<unknown | null>;
+    getRun?(runId: string): Promise<ExecutionLog | null>;
 }
