@@ -77,7 +77,6 @@ export default class PluginBuild extends Command {
 
       // 5. Compute checksums
       if (!flags.json) printStep('Computing checksums...');
-      const fileHash = crypto.createHash(flags.checksumAlgorithm).update(configBuffer).digest('hex');
       const manifestChecksum = crypto.createHash(flags.checksumAlgorithm).update(configBuffer).digest('hex');
 
       // 6. Write output
@@ -136,7 +135,7 @@ export default class PluginBuild extends Command {
           checksums: {
             algorithm: flags.checksumAlgorithm,
             manifest: manifestChecksum,
-            files: { 'manifest.json': fileHash },
+            files: { 'manifest.json': manifestChecksum },
           },
           signature: signatureInfo,
           files: fileEntries,

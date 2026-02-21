@@ -135,15 +135,68 @@ export default class PluginValidate extends Command {
         const engine = (manifest as any).manifest?.engine || (manifest as any).engine;
         const required = engine?.objectstack as string | undefined;
         if (required) {
-          // Simple semver range check (>=X.Y.Z)
-          const rangeMatch = required.match(/>=?\s*([\d.]+)/);
-          if (rangeMatch) {
-            const [rMajor, rMinor = '0', rPatch = '0'] = rangeMatch[1].split('.');
-            const [pMajor, pMinor = '0', pPatch = '0'] = flags.platformVersion.split('.');
-            const compatible =
-              parseInt(pMajor) > parseInt(rMajor) ||
-              (parseInt(pMajor) === parseInt(rMajor) && parseInt(pMinor) > parseInt(rMinor)) ||
-              (parseInt(pMajor) === parseInt(rMajor) && parseInt(pMinor) === parseInt(rMinor) && parseInt(pPatch) >= parseInt(rPatch));
+          // Semver range check supporting >=, >, ^, ~, and exact versions
+          const parseSemver = (v: string) => {
+            const parts = v.replace(/^v/, '').split('.').map(p => parseInt(p, 10));
+            return { major: parts[0] || 0, minor: parts[1] || 0, patch: parts[2] || 0 };
+          };
+
+          const target = parseSemver(flags.platformVersion);
+          let compatible = false;
+          let matched = false;
+
+          // >=X.Y.Z — greater than or equal
+          const gteMatch = required.match(/^>=\s*([\d.]+)/);
+          if (gteMatch) {
+            const req = parseSemver(gteMatch[1]);
+            compatible = (target.major > req.major) ||
+              (target.major === req.major && target.minor > req.minor) ||
+              (target.major === req.major && target.minor === req.minor && target.patch >= req.patch);
+            matched = true;
+          }
+
+          // >X.Y.Z — strictly greater than
+          if (!matched) {
+            const gtMatch = required.match(/^>\s*([\d.]+)/);
+            if (gtMatch) {
+              const req = parseSemver(gtMatch[1]);
+              compatible = (target.major > req.major) ||
+                (target.major === req.major && target.minor > req.minor) ||
+                (target.major === req.major && target.minor === req.minor && target.patch > req.patch);
+              matched = true;
+            }
+          }
+
+          // ^X.Y.Z — caret range (same major, >= minor.patch)
+          if (!matched) {
+            const caretMatch = required.match(/^\^\s*([\d.]+)/);
+            if (caretMatch) {
+              const req = parseSemver(caretMatch[1]);
+              compatible = target.major === req.major &&
+                ((target.minor > req.minor) ||
+                  (target.minor === req.minor && target.patch >= req.patch));
+              matched = true;
+            }
+          }
+
+          // ~X.Y.Z — tilde range (same major.minor, >= patch)
+          if (!matched) {
+            const tildeMatch = required.match(/^~\s*([\d.]+)/);
+            if (tildeMatch) {
+              const req = parseSemver(tildeMatch[1]);
+              compatible = target.major === req.major && target.minor === req.minor && target.patch >= req.patch;
+              matched = true;
+            }
+          }
+
+          // Exact version match
+          if (!matched && /^\d+\.\d+\.\d+$/.test(required)) {
+            const req = parseSemver(required);
+            compatible = target.major === req.major && target.minor === req.minor && target.patch === req.patch;
+            matched = true;
+          }
+
+          if (matched) {
             platformResult = { compatible, requiredRange: required, targetVersion: flags.platformVersion };
             findings.push({
               severity: compatible ? 'info' : 'error',

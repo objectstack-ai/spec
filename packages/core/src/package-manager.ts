@@ -36,6 +36,8 @@ export interface PackageSnapshot {
   previousManifest: Record<string, unknown>;
   /** Namespaces before upgrade */
   previousNamespaces: string[];
+  /** Original installation timestamp */
+  installedAt: string;
   /** Snapshot timestamp */
   createdAt: string;
 }
@@ -254,7 +256,7 @@ export class PackageManager {
         packageId,
         fromVersion: '',
         toVersion: newVersion,
-        snapshot: { packageId, previousVersion: '', previousManifest: {}, previousNamespaces: [], createdAt: new Date().toISOString() },
+        snapshot: { packageId, previousVersion: '', previousManifest: {}, previousNamespaces: [], installedAt: '', createdAt: new Date().toISOString() },
         errorMessage: `Package ${packageId} is not installed`,
       };
     }
@@ -265,6 +267,7 @@ export class PackageManager {
       previousVersion: existing.version,
       previousManifest: existing.manifest,
       previousNamespaces: [...existing.namespaces],
+      installedAt: existing.installedAt,
       createdAt: new Date().toISOString(),
     };
     this.snapshots.set(packageId, snapshot);
@@ -351,7 +354,7 @@ export class PackageManager {
       packageId,
       version: snapshot.previousVersion,
       manifest: snapshot.previousManifest,
-      installedAt: new Date().toISOString(),
+      installedAt: snapshot.installedAt,
       status: 'installed',
       namespaces: snapshot.previousNamespaces,
       dependencies: deps ? Object.keys(deps) : [],
