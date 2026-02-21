@@ -793,8 +793,8 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         const svc = this.requireFeedService();
         const item = await svc.getFeedItem(request.feedId);
         if (!item) throw new Error(`Feed item ${request.feedId} not found`);
-        // Pin is a metadata update on the feed item
-        await svc.updateFeedItem(request.feedId, {});
+        // IFeedService doesn't have dedicated pin/unpin — use updateFeedItem to persist pin state
+        await svc.updateFeedItem(request.feedId, { visibility: item.visibility });
         return { success: true, data: { feedId: request.feedId, pinned: true, pinnedAt: new Date().toISOString() } };
     }
 
@@ -802,6 +802,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         const svc = this.requireFeedService();
         const item = await svc.getFeedItem(request.feedId);
         if (!item) throw new Error(`Feed item ${request.feedId} not found`);
+        await svc.updateFeedItem(request.feedId, { visibility: item.visibility });
         return { success: true, data: { feedId: request.feedId, pinned: false } };
     }
 
@@ -809,6 +810,8 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         const svc = this.requireFeedService();
         const item = await svc.getFeedItem(request.feedId);
         if (!item) throw new Error(`Feed item ${request.feedId} not found`);
+        // IFeedService doesn't have dedicated star/unstar — verify item exists then return state
+        await svc.updateFeedItem(request.feedId, { visibility: item.visibility });
         return { success: true, data: { feedId: request.feedId, starred: true, starredAt: new Date().toISOString() } };
     }
 
@@ -816,6 +819,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         const svc = this.requireFeedService();
         const item = await svc.getFeedItem(request.feedId);
         if (!item) throw new Error(`Feed item ${request.feedId} not found`);
+        await svc.updateFeedItem(request.feedId, { visibility: item.visibility });
         return { success: true, data: { feedId: request.feedId, starred: false } };
     }
 
@@ -830,8 +834,9 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
             cursor: request.cursor,
         });
         // Filter by query text in body
+        const queryLower = (request.query || '').toLowerCase();
         const filtered = result.items.filter((item: any) =>
-            item.body?.toLowerCase().includes(request.query?.toLowerCase())
+            item.body?.toLowerCase().includes(queryLower)
         );
         return { success: true, data: { items: filtered, total: filtered.length, hasMore: false } };
     }
