@@ -170,9 +170,14 @@ CloudFile / PresignedUrl schema supporting S3/Azure/GCS direct-to-cloud file upl
 | Storage lifecycle policies (transition/expiration) | ✅ | `system/object-storage.zod.ts` |
 | Bucket encryption & CORS | ✅ | `system/object-storage.zod.ts` |
 | `IStorageService` contract | ✅ | `contracts/storage-service.ts` |
+| `IStorageService` chunked upload methods | ✅ | `contracts/storage-service.ts` → `initiateChunkedUpload`, `uploadChunk`, `completeChunkedUpload`, `abortChunkedUpload` |
 | `service-storage` local FS + S3 skeleton | ✅ | `@objectstack/service-storage` (8 tests) |
+| `S3StorageAdapter` multipart upload stubs | ✅ | `@objectstack/service-storage` → `S3StorageAdapter` |
 | Chunked upload with resume token | ✅ | `api/storage.zod.ts` → `InitiateChunkedUploadRequestSchema`, `resumeToken` |
+| Complete chunked upload response | ✅ | `api/storage.zod.ts` → `CompleteChunkedUploadResponseSchema` |
 | Upload progress tracking protocol | ✅ | `api/storage.zod.ts` → `UploadProgressSchema` |
+| `StorageApiContracts` route registry | ✅ | `api/storage.zod.ts` → 6 endpoints (presigned, complete, chunked init/chunk/complete, progress) |
+| Client SDK chunked upload methods | ✅ | `client/src/index.ts` → `getPresignedUrl`, `initChunkedUpload`, `uploadPart`, `completeChunkedUpload`, `resumeUpload` |
 | Mobile / file picker / browser fallback | 🔴 | Not yet specified (runtime concern) |
 | File type whitelist/blacklist validation | ✅ | `api/storage.zod.ts` → `FileTypeValidationSchema` |
 
@@ -406,7 +411,7 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 | `ICacheService` | ✅ Memory adapter + Redis skeleton | Add Redis adapter implementation |
 | `IQueueService` | ✅ Memory adapter + BullMQ skeleton | Add BullMQ adapter implementation |
 | `IJobService` | ✅ Interval scheduler + cron skeleton | Add cron adapter implementation |
-| `IStorageService` | ✅ Local FS + S3 skeleton | Add S3 adapter implementation |
+| `IStorageService` | ✅ Local FS + S3 skeleton + chunked upload contract | Add S3 adapter implementation |
 
 - [ ] `service-cache` — Implement Redis adapter with connection pooling
 - [ ] `service-queue` — Implement BullMQ adapter with job persistence
