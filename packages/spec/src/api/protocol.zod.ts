@@ -258,6 +258,7 @@ export const FindDataResponseSchema = z.object({
   object: z.string().describe('The object name for the returned records.'),
   records: z.array(z.record(z.string(), z.unknown())).describe('The list of matching records.'),
   total: z.number().optional().describe('Total number of records matching the filter (if requested).'),
+  nextCursor: z.string().optional().describe('Cursor for the next page of results (cursor-based pagination).'),
   hasMore: z.boolean().optional().describe('True if there are more records available (pagination).'),
 });
 
