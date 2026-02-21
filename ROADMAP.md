@@ -1,6 +1,6 @@
 # ObjectStack Protocol — Road Map
 
-> **Last Updated:** 2026-02-18  
+> **Last Updated:** 2026-02-21  
 > **Current Version:** v3.0.6  
 > **Status:** Protocol Specification Complete · Runtime Implementation In Progress
 
@@ -10,12 +10,13 @@
 
 - [Current State Summary](#current-state-summary)
 - [Codebase Metrics](#codebase-metrics)
+- [🎯 Priority Roadmap — February 2026](#-priority-roadmap--february-2026)
 - [Package Naming Convention](#package-naming-convention)
 - [Phase 1: Protocol Specification (✅ Complete)](#phase-1-protocol-specification--complete)
 - [Phase 2: Core Runtime (✅ Complete)](#phase-2-core-runtime--complete)
 - [Phase 3: Data Layer (🟡 Mostly Complete)](#phase-3-data-layer--mostly-complete)
 - [Phase 4: Service Implementations (🔴 In Progress)](#phase-4-service-implementations--in-progress)
-- [Phase 5: Framework Adapters (🟡 Mostly Complete)](#phase-5-framework-adapters--mostly-complete)
+- [Phase 5: Framework Adapters (✅ Complete)](#phase-5-framework-adapters--complete)
 - [Phase 6: Enterprise Services (🔴 Planned)](#phase-6-enterprise-services--planned)
 - [Phase 7: AI & Intelligence (🔴 Planned)](#phase-7-ai--intelligence--planned)
 - [Phase 8: Platform & Ecosystem (🔴 Planned)](#phase-8-platform--ecosystem--planned)
@@ -104,6 +105,108 @@ This strategy ensures rapid iteration while maintaining a clear path to producti
 
 ---
 
+## 🎯 Priority Roadmap — February 2026
+
+> **Goal:** Prioritize APIs and client capabilities needed by [ObjectUI](https://github.com/objectstack-ai/objectui/blob/main/ROADMAP.md) frontend development.  
+> **Target:** v3.1 protocol to fill core platform gaps.  
+> **Updated:** 2026-02-21  
+> **Owner:** @hotlong
+
+### 1. Comments & Collaboration API for ObjectUI
+
+Support record comments, @mention, activity feed, and changelog for the ObjectUI frontend.
+
+| Item | Status | Location |
+|:---|:---:|:---|
+| Feed CRUD schema (create/list/update/delete) | ✅ | `api/feed-api.zod.ts` |
+| Feed item types (comment, field_change, task, note, file, etc.) | ✅ | `data/feed.zod.ts` (13 types) |
+| @mention support | ✅ | `data/feed.zod.ts` → `MentionSchema` |
+| Threaded replies (parentId) | ✅ | `data/feed.zod.ts` → `parentId` |
+| Emoji reactions (add/remove with counts) | ✅ | `api/feed-api.zod.ts` |
+| Record subscriptions (notification channels) | ✅ | `api/feed-api.zod.ts` |
+| Real-time collaboration (OT/CRDT) | ✅ | `system/collaboration.zod.ts` |
+| `IFeedService` contract | ✅ | `contracts/feed-service.ts` |
+| `service-feed` in-memory implementation | ✅ | `@objectstack/service-feed` (40 tests) |
+| Pin/star comments | 🔴 | Not yet specified |
+| Comment notification integration with `INotificationService` | 🔴 | `service-notification` not implemented |
+| Activity feed search/filter endpoint | 🔴 | Not yet specified |
+| Changelog (field-level audit trail) endpoint | 🟡 | `FieldChangeSchema` exists; dedicated API pending |
+
+### 2. Automation Persistence & Scheduling Specs
+
+Multi-stage triggers, action pipelines, execution logs, and cron scheduling standards.
+
+| Item | Status | Location |
+|:---|:---:|:---|
+| Flow orchestration (14 node types) | ✅ | `automation/flow.zod.ts` |
+| Trigger registry (record, field, webhook) | ✅ | `automation/trigger-registry.zod.ts` |
+| Cron scheduling expression | ✅ | `automation/etl.zod.ts`, `automation/webhook.zod.ts` |
+| Action pipeline (webhook, email, CRUD, notification) | ✅ | `automation/flow.zod.ts` (HTTP, CRUD, script nodes) |
+| State machine & approval processes | ✅ | `automation/state-machine.zod.ts`, `automation/workflow.zod.ts` |
+| Retry policies with exponential backoff | ✅ | `automation/webhook.zod.ts` |
+| `IAutomationService` contract | ✅ | `contracts/automation-service.ts` |
+| `service-automation` DAG engine (MVP) | ✅ | `@objectstack/service-automation` (27 tests) |
+| Execution log/history storage protocol | 🔴 | No dedicated `ExecutionLogSchema`; only string arrays in results |
+| Execution error tracking & diagnostics | 🔴 | Not yet specified |
+| Conflict resolution for concurrent executions | 🔴 | Not yet specified |
+| Checkpointing/resume for interrupted flows | 🔴 | Not yet specified |
+| Scheduled execution persistence (next-run, pause/resume) | 🔴 | Limited to cron strings; no runtime state tracking |
+
+### 3. File Direct Upload & Resumable Upload Protocol
+
+CloudFile / PresignedUrl schema supporting S3/Azure/GCS direct-to-cloud file uploads.
+
+| Item | Status | Location |
+|:---|:---:|:---|
+| Presigned URL generation (upload/download) | ✅ | `api/storage.zod.ts` |
+| Multi-provider support (S3, Azure, GCS, MinIO, R2, etc.) | ✅ | `system/object-storage.zod.ts` |
+| Multipart upload configuration | ✅ | `system/object-storage.zod.ts` (chunk size 5MB–5GB) |
+| Storage lifecycle policies (transition/expiration) | ✅ | `system/object-storage.zod.ts` |
+| Bucket encryption & CORS | ✅ | `system/object-storage.zod.ts` |
+| `IStorageService` contract | ✅ | `contracts/storage-service.ts` |
+| `service-storage` local FS + S3 skeleton | ✅ | `@objectstack/service-storage` (8 tests) |
+| Chunked upload with resume token | 🔴 | No resume token for interrupted uploads |
+| Upload progress tracking protocol | 🔴 | Not yet specified |
+| Mobile / file picker / browser fallback | 🔴 | Not yet specified |
+| File type whitelist/blacklist validation | 🔴 | Not yet specified |
+
+### 4. Streaming Data Export & Batch Operation Optimization
+
+Cursor/Pagination protocol for large-scale data import/export with template-based mapping.
+
+| Item | Status | Location |
+|:---|:---:|:---|
+| Batch CRUD (create/update/upsert/delete, max 200) | ✅ | `api/batch.zod.ts` |
+| Atomic transactions & dry-run validation | ✅ | `api/batch.zod.ts` |
+| Cursor-based & offset pagination | ✅ | `data/query.zod.ts` |
+| Import mapping configuration | ✅ | `data/mapping.zod.ts` |
+| Dataset import mode | ✅ | `data/dataset.zod.ts` |
+| Full query & filter language | ✅ | `data/filter.zod.ts` |
+| Streaming/chunked export endpoint (CSV/JSON/Excel) | 🔴 | Not yet specified |
+| Import validation & deduplication | 🔴 | Not yet specified |
+| Template-based field mapping for import/export | 🔴 | Mapping schema exists; no template registry |
+| Scheduled export jobs & status query | 🔴 | Not yet specified |
+| Export job progress & download URL | 🔴 | Not yet specified |
+
+### 5. API Capability Declaration & Service Discovery
+
+Strengthen discovery capabilities for frontend intelligent adaptation.
+
+| Item | Status | Location |
+|:---|:---:|:---|
+| Per-service status reporting (available/degraded/stub) | ✅ | `api/discovery.zod.ts` |
+| Dynamic API route mapping | ✅ | `api/discovery.zod.ts` → `ApiRoutesSchema` |
+| Localization info (locale, timezone) | ✅ | `api/discovery.zod.ts` |
+| Custom metadata extensions | ✅ | `api/discovery.zod.ts` |
+| Capabilities declaration (comments, automation, search, cron, files, analytics) | 🔴 | No hierarchical capability descriptors |
+| Per-service version info | 🔴 | Not yet specified |
+| Rate limit & quota disclosure | 🔴 | Not yet specified |
+| OpenAPI/GraphQL schema discovery endpoint | 🔴 | Not yet specified |
+
+> **Recommendation:** Sync this roadmap with ObjectUI / client / runner / console and prioritize v3.1 protocol to fill core platform gaps.
+
+---
+
 ## Package Naming Convention
 
 > **Adopted:** 2026-02-15  
@@ -169,9 +272,11 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 
 ## Phase 1: Protocol Specification (✅ Complete)
 
-> **Goal:** Define every schema, type, and contract as a Zod-first source of truth.
+> **Goal:** Define every schema, type, and contract as a Zod-first source of truth.  
+> **Result:** 175 Zod schemas, 25 service contracts, 7,111+ `.describe()` annotations across 15 protocol domains.
 
-### Deliverables — All Completed
+<details>
+<summary>Deliverables — All Completed (click to expand)</summary>
 
 - [x] **Data Protocol** — Object, Field (35+ types), Query, Filter, Validation, Hook, Datasource, Dataset, Analytics, Document, Storage Name Mapping (`tableName`/`columnName`), Feed & Activity Timeline (FeedItem, Comment, Mention, Reaction, FieldChange), Record Subscription (notification channels)
 - [x] **Driver Specifications** — Memory, PostgreSQL, MongoDB driver schemas + SQL/NoSQL abstractions
@@ -193,13 +298,17 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 - [x] **Error Map** — Custom Zod error messages with `objectStackErrorMap`
 - [x] **DX Utilities** — `safeParsePretty()`, `formatZodError()`, `suggestFieldType()`
 
+</details>
+
 ---
 
 ## Phase 2: Core Runtime (✅ Complete)
 
-> **Goal:** Build the microkernel, plugin system, and service infrastructure.
+> **Goal:** Build the microkernel, plugin system, and service infrastructure.  
+> **Result:** ObjectKernel + LiteKernel with full plugin lifecycle, service registry, security, and hot-reload.
 
-### Deliverables — All Completed
+<details>
+<summary>Deliverables — All Completed (click to expand)</summary>
 
 - [x] **ObjectKernel** — Full-featured async kernel with dependency resolution, rollback, health monitoring
 - [x] **LiteKernel** — Lightweight sync kernel for serverless/test environments
@@ -212,6 +321,8 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 - [x] **Dependency Resolver** — Semantic version parsing and constraint matching
 - [x] **Security** — Permission manager, plugin permission enforcer, config validator, signature verifier, sandbox runtime, security scanner
 - [x] **QA Module** — Testing adapter, HTTP adapter, test runner
+
+</details>
 
 ---
 
@@ -336,9 +447,11 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 
 ## Phase 5: Framework Adapters (✅ Complete)
 
-> **Goal:** First-class integration with popular web frameworks.
+> **Goal:** First-class integration with popular web frameworks.  
+> **Result:** 9 framework adapters — Next.js, NestJS, Hono, Express, Fastify, SvelteKit, Nuxt, plus Server Actions and Hono Server Plugin.
 
-### Completed
+<details>
+<summary>Deliverables — All Completed (click to expand)</summary>
 
 - [x] **Next.js Adapter** — App Router, Auth/GraphQL/Meta/Data/Storage handlers (10/10)
 - [x] **NestJS Adapter** — Full DI module, Express/Fastify support (10/10)
@@ -349,6 +462,8 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 - [x] **Fastify Adapter** — Fastify plugin with full route dispatchers
 - [x] **SvelteKit Adapter** — Web-standard Request/Response based handler for SvelteKit routes
 - [x] **Nuxt Adapter** — h3 router integration for Nuxt server routes
+
+</details>
 
 ---
 
@@ -665,9 +780,9 @@ Final polish and advanced features.
 | Version | Target | Focus |
 |:---|:---|:---|
 | **v3.0** | ✅ Shipped | Protocol specification complete, core runtime stable |
-| **v3.1** | Q2 2026 | Essential services (`service-cache`, `service-queue`, `service-job`, `service-storage`), PostgreSQL driver, Turso/libSQL core driver ([design](docs/design/driver-turso.md)) |
-| **v3.2** | Q3 2026 | Communication services (`service-realtime`, `service-graphql`, `service-i18n`, `service-notification`), Turso embedded replica & edge sync, UI Protocol Enhancement Phase A (`RecordReviewConfig`, content elements) — see [gap analysis](docs/design/airtable-interface-gap-analysis.md) |
-| **v3.3** | Q4 2026 | Business logic services (`service-automation`, `service-workflow`, `service-search`), Turso multi-tenancy (database-per-tenant), UI Protocol Enhancement Phase B spec ✅ complete (interactive elements, blank page layout), Studio Page Builder runtime, Visual Design UX optimization ([plan](docs/design/visual-design-ux-optimization.md)) |
+| **v3.1** | Q2 2026 | **ObjectUI Priority:** Comments & Collaboration API, Automation persistence/scheduling, File upload protocol, Data export/batch, API discovery capabilities; Essential services (`service-cache`, `service-queue`, `service-job`, `service-storage`), PostgreSQL driver, Turso/libSQL core driver ([design](docs/design/driver-turso.md)) |
+| **v3.2** | Q3 2026 | Communication services (`service-graphql`, `service-notification`), Turso embedded replica & edge sync, Streaming export & scheduled jobs |
+| **v3.3** | Q4 2026 | Business logic services (`service-workflow`, `service-search`), Turso multi-tenancy (database-per-tenant), Studio Page Builder runtime, Visual Design UX optimization ([plan](docs/design/visual-design-ux-optimization.md)) |
 | **v4.0** | Q1 2027 | Zod v4 migration, `plugin-auth` → `service-auth` rename, JSON Schema output, OpenAPI generation, AI services, multi-tenancy, Turso vector search & FTS5 integration, UI Protocol Enhancement Phase C spec 🟡 mostly complete (sharing, embedding), `previewAs` design-time preview, Data Studio protocol, runtime share/embed services |
 | **v4.1** | Q2 2027 | Studio IDE general availability, marketplace launch, UI Protocol Enhancement Phase D (templates, versioning, collaborative editing), Page Builder enhancements (selection model, clipboard, alignment) |
 | **v5.0** | 2027+ | Managed cloud, app store, global ecosystem |
