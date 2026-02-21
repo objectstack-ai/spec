@@ -393,6 +393,15 @@ export class AutomationEngine implements IAutomationService {
     }
 
     /**
+     * Get the runtime type name of a value for schema validation.
+     */
+    private getValueType(value: unknown): string {
+        if (Array.isArray(value)) return 'array';
+        if (typeof value === 'object' && value !== null) return 'object';
+        return typeof value;
+    }
+
+    /**
      * Validate node input schemas before execution.
      * Checks that node config matches declared inputSchema if present.
      */
@@ -407,9 +416,7 @@ export class AutomationEngine implements IAutomationService {
                     }
                     const value = (node.config as Record<string, unknown>)[paramName];
                     if (value !== undefined) {
-                        const actualType = Array.isArray(value) ? 'array'
-                            : typeof value === 'object' && value !== null ? 'object'
-                            : typeof value;
+                        const actualType = this.getValueType(value);
                         if (actualType !== paramDef.type) {
                             throw new Error(
                                 `Node '${node.id}' parameter '${paramName}' expected type '${paramDef.type}' but got '${actualType}'`,
@@ -659,7 +666,11 @@ export class AutomationEngine implements IAutomationService {
         switch (op) {
             case '==': case '===': return left === right;
             case '!=': case '!==': return left !== right;
-            default: return left > right ? op === '>' || op === '>=' : left < right ? op === '<' || op === '<=' : op === '>=' || op === '<=';
+            case '>': return left > right;
+            case '<': return left < right;
+            case '>=': return left >= right;
+            case '<=': return left <= right;
+            default: return false;
         }
     }
 
