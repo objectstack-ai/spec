@@ -154,7 +154,7 @@ Multi-stage triggers, action pipelines, execution logs, and cron scheduling stan
 | Conflict resolution for concurrent executions | ✅ | `automation/execution.zod.ts` → `ConcurrencyPolicySchema` |
 | Checkpointing/resume for interrupted flows | ✅ | `automation/execution.zod.ts` → `CheckpointSchema` |
 | Scheduled execution persistence (next-run, pause/resume) | ✅ | `automation/execution.zod.ts` → `ScheduleStateSchema` |
-| Automation API protocol (REST CRUD schemas) | ✅ | `api/automation-api.zod.ts` → 9 endpoints, all with `input`/`output` schemas |
+| Automation API protocol (REST CRUD schemas) | ✅ | `api/automation-api.zod.ts` → 9 endpoints, all with `input`/`output` schemas (37 schema tests) |
 | Automation HTTP route handler (9 routes) | ✅ | `runtime/http-dispatcher.ts` → `handleAutomation()` CRUD + toggle + runs |
 | Client SDK `automation` namespace (10 methods) | ✅ | `client/src/index.ts` → `list`, `get`, `create`, `update`, `delete`, `toggle`, `runs.*` |
 | Fault edge error path support | ✅ | `@objectstack/service-automation` → fault-type edge routing in DAG executor |
