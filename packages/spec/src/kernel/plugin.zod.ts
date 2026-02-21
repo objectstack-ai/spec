@@ -52,6 +52,30 @@ export const PluginContextSchema = z.object({
 export type PluginContextData = z.infer<typeof PluginContextSchema>;
 export type PluginContext = PluginContextData;
 
+/**
+ * Upgrade Context Schema
+ *
+ * Provides version migration context to the `onUpgrade` lifecycle hook.
+ * Enables developers to write conditional migration logic based on
+ * the previous and new versions.
+ */
+export const UpgradeContextSchema = z.object({
+  /** Version before upgrade */
+  previousVersion: z.string().describe('Version before upgrade'),
+
+  /** Version after upgrade */
+  newVersion: z.string().describe('Version after upgrade'),
+
+  /** Whether this is a major version bump */
+  isMajorUpgrade: z.boolean().describe('Whether this is a major version bump'),
+
+  /** Metadata snapshot before upgrade (for migration logic) */
+  previousMetadata: z.record(z.string(), z.unknown()).optional()
+    .describe('Metadata snapshot before upgrade'),
+}).describe('Version migration context for onUpgrade hook');
+
+export type UpgradeContext = z.infer<typeof UpgradeContextSchema>;
+
 export const PluginLifecycleSchema = z.object({
   onInstall: z.function().optional().describe('Called when plugin is installed'),
   
@@ -61,7 +85,7 @@ export const PluginLifecycleSchema = z.object({
   
   onUninstall: z.function().optional().describe('Called when plugin is uninstalled'),
   
-  onUpgrade: z.function().optional().describe('Called when plugin is upgraded'),
+  onUpgrade: z.function().optional().describe('Called when plugin is upgraded. Receives UpgradeContext with previousVersion, newVersion, and isMajorUpgrade'),
 });
 
 export type PluginLifecycleHooks = z.infer<typeof PluginLifecycleSchema>;

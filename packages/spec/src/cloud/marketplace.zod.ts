@@ -87,6 +87,61 @@ export const PublisherSchema = z.object({
 });
 
 // ==========================================
+// Artifact Reference & Distribution
+// ==========================================
+
+/**
+ * Artifact Reference Schema
+ *
+ * Points to a downloadable package artifact with integrity verification.
+ * Used in marketplace listings and install workflows.
+ */
+export const ArtifactReferenceSchema = z.object({
+  /** Artifact download URL */
+  url: z.string().url().describe('Artifact download URL'),
+
+  /** SHA256 integrity checksum */
+  sha256: z.string().regex(/^[a-f0-9]{64}$/).describe('SHA256 checksum'),
+
+  /** File size in bytes */
+  size: z.number().int().positive().describe('Artifact size in bytes'),
+
+  /** Artifact format */
+  format: z.enum(['tgz', 'zip']).default('tgz').describe('Artifact format'),
+
+  /** Upload timestamp */
+  uploadedAt: z.string().datetime().describe('Upload timestamp'),
+}).describe('Reference to a downloadable package artifact');
+
+export type ArtifactReference = z.infer<typeof ArtifactReferenceSchema>;
+
+/**
+ * Artifact Download Response Schema
+ *
+ * Response from the artifact download API endpoint.
+ * Provides a time-limited download URL with integrity metadata.
+ */
+export const ArtifactDownloadResponseSchema = z.object({
+  /** Pre-signed or direct download URL */
+  downloadUrl: z.string().url().describe('Artifact download URL (may be pre-signed)'),
+
+  /** SHA256 checksum for download verification */
+  sha256: z.string().regex(/^[a-f0-9]{64}$/).describe('SHA256 checksum for verification'),
+
+  /** File size in bytes */
+  size: z.number().int().positive().describe('Artifact size in bytes'),
+
+  /** Artifact format */
+  format: z.enum(['tgz', 'zip']).describe('Artifact format'),
+
+  /** URL expiration time (for pre-signed URLs) */
+  expiresAt: z.string().datetime().optional()
+    .describe('URL expiration timestamp for pre-signed URLs'),
+}).describe('Artifact download response with integrity metadata');
+
+export type ArtifactDownloadResponse = z.infer<typeof ArtifactDownloadResponseSchema>;
+
+// ==========================================
 // Marketplace Listing
 // ==========================================
 
@@ -211,6 +266,9 @@ export const MarketplaceListingSchema = z.object({
     releaseNotes: z.string().optional(),
     minPlatformVersion: z.string().optional(),
     deprecated: z.boolean().default(false),
+    /** Artifact reference for this version */
+    artifact: ArtifactReferenceSchema.optional()
+      .describe('Downloadable artifact for this version'),
   })).optional().describe('Published versions'),
 
   /** Aggregate statistics */
@@ -399,6 +457,10 @@ export const MarketplaceInstallRequestSchema = z.object({
   /** Whether to enable immediately after install */
   enableOnInstall: z.boolean().default(true),
 
+  /** Artifact reference (resolved from listing version, or provided directly) */
+  artifactRef: ArtifactReferenceSchema.optional()
+    .describe('Artifact reference for direct installation'),
+
   /** Tenant ID */
   tenantId: z.string().optional(),
 });
@@ -435,3 +497,5 @@ export type MarketplaceSearchRequest = z.infer<typeof MarketplaceSearchRequestSc
 export type MarketplaceSearchResponse = z.infer<typeof MarketplaceSearchResponseSchema>;
 export type MarketplaceInstallRequest = z.infer<typeof MarketplaceInstallRequestSchema>;
 export type MarketplaceInstallResponse = z.infer<typeof MarketplaceInstallResponseSchema>;
+export type ArtifactReference = z.infer<typeof ArtifactReferenceSchema>;
+export type ArtifactDownloadResponse = z.infer<typeof ArtifactDownloadResponseSchema>;

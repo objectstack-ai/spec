@@ -104,6 +104,23 @@ export const InstalledPackageSchema = z.object({
    * Keys correspond to the package's `configuration.properties`.
    */
   settings: z.record(z.string(), z.unknown()).optional(),
+
+  /**
+   * Upgrade history for this package.
+   * Records each version migration with status and optional log.
+   */
+  upgradeHistory: z.array(z.object({
+    /** Previous version before upgrade */
+    fromVersion: z.string().describe('Version before upgrade'),
+    /** New version after upgrade */
+    toVersion: z.string().describe('Version after upgrade'),
+    /** Timestamp of the upgrade */
+    upgradedAt: z.string().datetime().describe('Upgrade timestamp'),
+    /** Outcome of the upgrade */
+    status: z.enum(['success', 'failed', 'rolled_back']).describe('Upgrade outcome'),
+    /** Migration log entries */
+    migrationLog: z.array(z.string()).optional().describe('Migration step logs'),
+  })).optional().describe('Version upgrade history'),
 });
 export type InstalledPackage = z.infer<typeof InstalledPackageSchema>;
 
@@ -163,6 +180,13 @@ export const InstallPackageRequestSchema = z.object({
   settings: z.record(z.string(), z.unknown()).optional(),
   /** Whether to enable immediately after install (default: true) */
   enableOnInstall: z.boolean().default(true),
+  /**
+   * Current platform version for compatibility checking.
+   * When provided, the system compares this against the package's
+   * `engine.objectstack` requirement to verify compatibility.
+   */
+  platformVersion: z.string().optional()
+    .describe('Current platform version for compatibility verification'),
 });
 export type InstallPackageRequest = z.infer<typeof InstallPackageRequestSchema>;
 

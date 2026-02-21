@@ -67,6 +67,55 @@ describe('InstalledPackageSchema', () => {
     expect(parsed.settings?.apiKey).toBe('secret');
   });
 
+  it('should accept installed package with upgrade history', () => {
+    const pkg = {
+      manifest: validManifest,
+      upgradeHistory: [
+        {
+          fromVersion: '1.0.0',
+          toVersion: '2.0.0',
+          upgradedAt: '2025-03-01T12:00:00Z',
+          status: 'success' as const,
+          migrationLog: ['Migrated data schema', 'Updated indexes'],
+        },
+        {
+          fromVersion: '2.0.0',
+          toVersion: '2.1.0',
+          upgradedAt: '2025-04-01T12:00:00Z',
+          status: 'success' as const,
+        },
+      ],
+    };
+    const parsed = InstalledPackageSchema.parse(pkg);
+    expect(parsed.upgradeHistory).toHaveLength(2);
+    expect(parsed.upgradeHistory![0].status).toBe('success');
+    expect(parsed.upgradeHistory![0].migrationLog).toHaveLength(2);
+  });
+
+  it('should accept upgrade history with failed/rolled_back status', () => {
+    const pkg = {
+      manifest: validManifest,
+      upgradeHistory: [
+        {
+          fromVersion: '1.0.0',
+          toVersion: '2.0.0',
+          upgradedAt: '2025-03-01T12:00:00Z',
+          status: 'failed' as const,
+          migrationLog: ['Migration step failed: schema conflict'],
+        },
+        {
+          fromVersion: '1.0.0',
+          toVersion: '2.0.0',
+          upgradedAt: '2025-03-02T12:00:00Z',
+          status: 'rolled_back' as const,
+        },
+      ],
+    };
+    const parsed = InstalledPackageSchema.parse(pkg);
+    expect(parsed.upgradeHistory![0].status).toBe('failed');
+    expect(parsed.upgradeHistory![1].status).toBe('rolled_back');
+  });
+
   it('should reject invalid datetime for installedAt', () => {
     expect(() => InstalledPackageSchema.parse({
       manifest: validManifest,
@@ -153,6 +202,15 @@ describe('InstallPackageRequestSchema', () => {
     const parsed = InstallPackageRequestSchema.parse(request);
     expect(parsed.enableOnInstall).toBe(false);
     expect(parsed.settings?.apiKey).toBe('abc123');
+  });
+
+  it('should accept install request with platformVersion', () => {
+    const request = {
+      manifest: validManifest,
+      platformVersion: '3.2.1',
+    };
+    const parsed = InstallPackageRequestSchema.parse(request);
+    expect(parsed.platformVersion).toBe('3.2.1');
   });
 });
 

@@ -11,6 +11,8 @@ import {
   MarketplaceSearchResponseSchema,
   MarketplaceInstallRequestSchema,
   MarketplaceInstallResponseSchema,
+  ArtifactReferenceSchema,
+  ArtifactDownloadResponseSchema,
 } from './marketplace.zod';
 
 describe('PublisherVerificationSchema', () => {
@@ -338,5 +340,118 @@ describe('MarketplaceInstallResponseSchema', () => {
     };
     const parsed = MarketplaceInstallResponseSchema.parse(response);
     expect(parsed.success).toBe(false);
+  });
+});
+
+describe('ArtifactReferenceSchema', () => {
+  it('should accept valid artifact reference', () => {
+    const ref = {
+      url: 'https://registry.objectstack.io/packages/com.acme.crm-2.0.0.tgz',
+      sha256: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
+      size: 1048576,
+      uploadedAt: '2025-06-01T12:00:00Z',
+    };
+    const parsed = ArtifactReferenceSchema.parse(ref);
+    expect(parsed.format).toBe('tgz');
+    expect(parsed.size).toBe(1048576);
+  });
+
+  it('should accept zip format', () => {
+    const ref = {
+      url: 'https://registry.objectstack.io/packages/com.acme.crm-2.0.0.zip',
+      sha256: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
+      size: 2048576,
+      format: 'zip' as const,
+      uploadedAt: '2025-06-01T12:00:00Z',
+    };
+    const parsed = ArtifactReferenceSchema.parse(ref);
+    expect(parsed.format).toBe('zip');
+  });
+
+  it('should reject invalid SHA256', () => {
+    expect(() => ArtifactReferenceSchema.parse({
+      url: 'https://registry.objectstack.io/pkg.tgz',
+      sha256: 'invalid-hash',
+      size: 1024,
+      uploadedAt: '2025-06-01T12:00:00Z',
+    })).toThrow();
+  });
+
+  it('should reject non-positive size', () => {
+    expect(() => ArtifactReferenceSchema.parse({
+      url: 'https://registry.objectstack.io/pkg.tgz',
+      sha256: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
+      size: 0,
+      uploadedAt: '2025-06-01T12:00:00Z',
+    })).toThrow();
+  });
+});
+
+describe('ArtifactDownloadResponseSchema', () => {
+  it('should accept valid download response', () => {
+    const response = {
+      downloadUrl: 'https://cdn.objectstack.io/artifacts/com.acme.crm-2.0.0.tgz?token=abc',
+      sha256: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
+      size: 1048576,
+      format: 'tgz' as const,
+      expiresAt: '2025-06-01T13:00:00Z',
+    };
+    const parsed = ArtifactDownloadResponseSchema.parse(response);
+    expect(parsed.expiresAt).toBe('2025-06-01T13:00:00Z');
+  });
+
+  it('should accept response without expiration', () => {
+    const response = {
+      downloadUrl: 'https://cdn.objectstack.io/artifacts/com.acme.crm-2.0.0.tgz',
+      sha256: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
+      size: 1048576,
+      format: 'tgz' as const,
+    };
+    const parsed = ArtifactDownloadResponseSchema.parse(response);
+    expect(parsed.expiresAt).toBeUndefined();
+  });
+});
+
+describe('MarketplaceListingSchema - Artifact References', () => {
+  it('should accept listing with artifact references in versions', () => {
+    const listing = {
+      id: 'listing-001',
+      packageId: 'com.acme.crm',
+      publisherId: 'pub-001',
+      name: 'Acme CRM',
+      category: 'crm' as const,
+      latestVersion: '2.0.0',
+      versions: [
+        {
+          version: '2.0.0',
+          releaseDate: '2025-06-01T00:00:00Z',
+          artifact: {
+            url: 'https://registry.objectstack.io/packages/com.acme.crm-2.0.0.tgz',
+            sha256: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
+            size: 1048576,
+            uploadedAt: '2025-06-01T00:00:00Z',
+          },
+        },
+      ],
+    };
+    const parsed = MarketplaceListingSchema.parse(listing);
+    expect(parsed.versions![0].artifact?.sha256).toBe('a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2');
+  });
+});
+
+describe('MarketplaceInstallRequestSchema - Artifact Reference', () => {
+  it('should accept install request with artifact reference', () => {
+    const request = {
+      listingId: 'listing-001',
+      version: '2.0.0',
+      artifactRef: {
+        url: 'https://registry.objectstack.io/packages/com.acme.crm-2.0.0.tgz',
+        sha256: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
+        size: 1048576,
+        uploadedAt: '2025-06-01T00:00:00Z',
+      },
+    };
+    const parsed = MarketplaceInstallRequestSchema.parse(request);
+    expect(parsed.artifactRef?.url).toContain('com.acme.crm');
   });
 });
