@@ -497,5 +497,3 @@ export type MarketplaceSearchRequest = z.infer<typeof MarketplaceSearchRequestSc
 export type MarketplaceSearchResponse = z.infer<typeof MarketplaceSearchResponseSchema>;
 export type MarketplaceInstallRequest = z.infer<typeof MarketplaceInstallRequestSchema>;
 export type MarketplaceInstallResponse = z.infer<typeof MarketplaceInstallResponseSchema>;
-export type ArtifactReference = z.infer<typeof ArtifactReferenceSchema>;
-export type ArtifactDownloadResponse = z.infer<typeof ArtifactDownloadResponseSchema>;
