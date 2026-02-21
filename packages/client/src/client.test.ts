@@ -648,3 +648,142 @@ describe('FilterBuilder enhancements', () => {
         expect(f).toEqual(['phone', 'is_not_null', null]);
     });
 });
+
+// ==========================================
+// Automation Client Tests
+// ==========================================
+
+describe('ObjectStackClient.automation', () => {
+    it('should list flows', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { flows: ['flow_a', 'flow_b'], total: 2, hasMore: false },
+        });
+
+        const result = await client.automation.list();
+        expect(fetchMock).toHaveBeenCalledWith(
+            'http://localhost:3000/api/v1/automation',
+            expect.any(Object),
+        );
+        expect(result.flows).toEqual(['flow_a', 'flow_b']);
+    });
+
+    it('should get a flow by name', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { name: 'my_flow', label: 'My Flow' },
+        });
+
+        const result = await client.automation.get('my_flow');
+        expect(fetchMock).toHaveBeenCalledWith(
+            'http://localhost:3000/api/v1/automation/my_flow',
+            expect.any(Object),
+        );
+        expect(result.name).toBe('my_flow');
+    });
+
+    it('should create a flow', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { name: 'new_flow' },
+        });
+
+        await client.automation.create('new_flow', { label: 'New' });
+        expect(fetchMock).toHaveBeenCalledWith(
+            'http://localhost:3000/api/v1/automation',
+            expect.objectContaining({ method: 'POST' }),
+        );
+    });
+
+    it('should update a flow', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { name: 'my_flow', label: 'Updated' },
+        });
+
+        await client.automation.update('my_flow', { label: 'Updated' });
+        expect(fetchMock).toHaveBeenCalledWith(
+            'http://localhost:3000/api/v1/automation/my_flow',
+            expect.objectContaining({ method: 'PUT' }),
+        );
+    });
+
+    it('should delete a flow', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { name: 'old_flow', deleted: true },
+        });
+
+        const result = await client.automation.delete('old_flow');
+        expect(fetchMock).toHaveBeenCalledWith(
+            'http://localhost:3000/api/v1/automation/old_flow',
+            expect.objectContaining({ method: 'DELETE' }),
+        );
+        expect(result.deleted).toBe(true);
+    });
+
+    it('should toggle a flow', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { name: 'my_flow', enabled: false },
+        });
+
+        const result = await client.automation.toggle('my_flow', false);
+        expect(fetchMock).toHaveBeenCalledWith(
+            'http://localhost:3000/api/v1/automation/my_flow/toggle',
+            expect.objectContaining({ method: 'POST' }),
+        );
+        expect(result.enabled).toBe(false);
+    });
+
+    it('should list runs for a flow', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { runs: [{ id: 'run_1' }], hasMore: false },
+        });
+
+        const result = await client.automation.runs.list('my_flow');
+        expect(fetchMock).toHaveBeenCalledWith(
+            'http://localhost:3000/api/v1/automation/my_flow/runs',
+            expect.any(Object),
+        );
+        expect(result.runs).toHaveLength(1);
+    });
+
+    it('should list runs with pagination options', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { runs: [], hasMore: false },
+        });
+
+        await client.automation.runs.list('my_flow', { limit: 5, cursor: 'abc' });
+        expect(fetchMock).toHaveBeenCalledWith(
+            'http://localhost:3000/api/v1/automation/my_flow/runs?limit=5&cursor=abc',
+            expect.any(Object),
+        );
+    });
+
+    it('should get a single run', async () => {
+        const { client, fetchMock } = createMockClient({
+            success: true,
+            data: { id: 'run_1', status: 'completed' },
+        });
+
+        const result = await client.automation.runs.get('my_flow', 'run_1');
+        expect(fetchMock).toHaveBeenCalledWith(
+            'http://localhost:3000/api/v1/automation/my_flow/runs/run_1',
+            expect.any(Object),
+        );
+        expect(result.id).toBe('run_1');
+    });
+
+    it('should still support legacy trigger', async () => {
+        const { client, fetchMock } = createMockClient({ success: true, data: { result: 'ok' } });
+
+        await client.automation.trigger('my_flow', { key: 'val' });
+        expect(fetchMock).toHaveBeenCalledWith(
+            'http://localhost:3000/api/v1/automation/trigger/my_flow',
+            expect.objectContaining({ method: 'POST' }),
+        );
+    });
+});

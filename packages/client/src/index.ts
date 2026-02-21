@@ -609,6 +609,9 @@ export class ObjectStackClient {
    * Automation Services
    */
   automation = {
+      /**
+       * Trigger a named automation flow (legacy endpoint)
+       */
       trigger: async (triggerName: string, payload: any) => {
           const route = this.getRoute('automation');
           const res = await this.fetch(`${this.baseUrl}${route}/trigger/${triggerName}`, {
@@ -616,7 +619,99 @@ export class ObjectStackClient {
               body: JSON.stringify(payload)
           });
           return res.json();
-      }
+      },
+
+      /**
+       * List all registered automation flows
+       */
+      list: async (): Promise<{ flows: string[]; total: number; hasMore: boolean }> => {
+          const route = this.getRoute('automation');
+          const res = await this.fetch(`${this.baseUrl}${route}`);
+          return this.unwrapResponse(res);
+      },
+
+      /**
+       * Get a flow definition by name
+       */
+      get: async (name: string): Promise<any> => {
+          const route = this.getRoute('automation');
+          const res = await this.fetch(`${this.baseUrl}${route}/${name}`);
+          return this.unwrapResponse(res);
+      },
+
+      /**
+       * Create (register) a new flow
+       */
+      create: async (name: string, definition: any): Promise<any> => {
+          const route = this.getRoute('automation');
+          const res = await this.fetch(`${this.baseUrl}${route}`, {
+              method: 'POST',
+              body: JSON.stringify({ name, ...definition }),
+          });
+          return this.unwrapResponse(res);
+      },
+
+      /**
+       * Update an existing flow
+       */
+      update: async (name: string, definition: any): Promise<any> => {
+          const route = this.getRoute('automation');
+          const res = await this.fetch(`${this.baseUrl}${route}/${name}`, {
+              method: 'PUT',
+              body: JSON.stringify({ definition }),
+          });
+          return this.unwrapResponse(res);
+      },
+
+      /**
+       * Delete (unregister) a flow
+       */
+      delete: async (name: string): Promise<{ name: string; deleted: boolean }> => {
+          const route = this.getRoute('automation');
+          const res = await this.fetch(`${this.baseUrl}${route}/${name}`, {
+              method: 'DELETE',
+          });
+          return this.unwrapResponse(res);
+      },
+
+      /**
+       * Enable or disable a flow
+       */
+      toggle: async (name: string, enabled: boolean): Promise<{ name: string; enabled: boolean }> => {
+          const route = this.getRoute('automation');
+          const res = await this.fetch(`${this.baseUrl}${route}/${name}/toggle`, {
+              method: 'POST',
+              body: JSON.stringify({ enabled }),
+          });
+          return this.unwrapResponse(res);
+      },
+
+      /**
+       * Execution run history
+       */
+      runs: {
+          /**
+           * List execution runs for a flow
+           */
+          list: async (flowName: string, options?: { limit?: number; cursor?: string }): Promise<{ runs: any[]; hasMore: boolean }> => {
+              const route = this.getRoute('automation');
+              const params = new URLSearchParams();
+              if (options?.limit) params.set('limit', String(options.limit));
+              if (options?.cursor) params.set('cursor', options.cursor);
+              const qs = params.toString();
+              const res = await this.fetch(`${this.baseUrl}${route}/${flowName}/runs${qs ? `?${qs}` : ''}`);
+              return this.unwrapResponse(res);
+          },
+
+          /**
+           * Get a single execution run
+           */
+          get: async (flowName: string, runId: string): Promise<any> => {
+              const route = this.getRoute('automation');
+              const res = await this.fetch(`${this.baseUrl}${route}/${flowName}/runs/${runId}`);
+              return this.unwrapResponse(res);
+          },
+      },
   };
 
   /**
