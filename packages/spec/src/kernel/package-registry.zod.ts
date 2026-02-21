@@ -59,7 +59,7 @@ export const InstalledPackageSchema = z.object({
    * Current lifecycle status.
    */
   status: PackageStatusEnum.default('installed')
-    .describe('Current lifecycle status'),
+    .describe('Package state: installed, disabled, installing, upgrading, uninstalling, or error'),
 
   /**
    * Whether the package is currently enabled (active).

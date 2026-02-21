@@ -213,7 +213,7 @@ export const MarketplaceListingSchema = z.object({
 
   /** Current listing status */
   status: ListingStatusSchema.default('draft')
-    .describe('Current listing status'),
+    .describe('Publication state: draft, published, under-review, suspended, deprecated, or unlisted'),
 
   /** Display name */
   name: z.string().describe('Display name'),

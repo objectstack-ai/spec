@@ -54,7 +54,7 @@ export const MetadataDiffItemSchema = z.object({
   name: z.string().describe('Metadata name'),
 
   /** Type of change */
-  changeType: MetadataChangeTypeSchema.describe('Type of change'),
+  changeType: MetadataChangeTypeSchema.describe('Category of metadata modification (added, modified, removed, or renamed)'),
 
   /** Whether this change has potential conflicts with customizations */
   hasConflict: z.boolean().default(false)
@@ -95,7 +95,7 @@ export const UpgradePlanSchema = z.object({
   toVersion: z.string().describe('Target upgrade version'),
 
   /** Overall impact level */
-  impactLevel: UpgradeImpactLevelSchema.describe('Overall upgrade impact level'),
+  impactLevel: UpgradeImpactLevelSchema.describe('Severity assessment from none (seamless) to critical (breaking changes)'),
 
   /** List of all metadata changes between versions */
   changes: z.array(MetadataDiffItemSchema).describe('All metadata changes'),
