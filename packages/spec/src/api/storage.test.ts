@@ -10,7 +10,9 @@ import {
   UploadChunkRequestSchema,
   UploadChunkResponseSchema,
   CompleteChunkedUploadRequestSchema,
+  CompleteChunkedUploadResponseSchema,
   UploadProgressSchema,
+  StorageApiContracts,
 } from './storage.zod';
 
 describe('GetPresignedUrlRequestSchema', () => {
@@ -534,5 +536,114 @@ describe('UploadProgressSchema', () => {
         },
       })
     ).toThrow();
+  });
+});
+
+// ==========================================
+// Complete Chunked Upload Response
+// ==========================================
+
+describe('CompleteChunkedUploadResponseSchema', () => {
+  it('should accept a valid complete chunked upload response', () => {
+    const resp = CompleteChunkedUploadResponseSchema.parse({
+      success: true,
+      data: {
+        fileId: 'file_final_001',
+        key: 'uploads/user/large-video.mp4',
+        size: 1073741824,
+        mimeType: 'video/mp4',
+      },
+    });
+    expect(resp.data.fileId).toBe('file_final_001');
+    expect(resp.data.key).toBe('uploads/user/large-video.mp4');
+    expect(resp.data.size).toBe(1073741824);
+    expect(resp.data.mimeType).toBe('video/mp4');
+    expect(resp.data.eTag).toBeUndefined();
+    expect(resp.data.url).toBeUndefined();
+  });
+
+  it('should accept response with optional eTag and url', () => {
+    const resp = CompleteChunkedUploadResponseSchema.parse({
+      success: true,
+      data: {
+        fileId: 'file_final_002',
+        key: 'uploads/user/report.pdf',
+        size: 20000000,
+        mimeType: 'application/pdf',
+        eTag: '"final-etag-abc"',
+        url: 'https://cdn.example.com/uploads/report.pdf',
+      },
+    });
+    expect(resp.data.eTag).toBe('"final-etag-abc"');
+    expect(resp.data.url).toBe('https://cdn.example.com/uploads/report.pdf');
+  });
+
+  it('should reject missing required fields', () => {
+    expect(() =>
+      CompleteChunkedUploadResponseSchema.parse({
+        success: true,
+        data: {
+          fileId: 'file_001',
+          key: 'uploads/test.bin',
+        },
+      })
+    ).toThrow();
+  });
+
+  it('should reject missing fileId', () => {
+    expect(() =>
+      CompleteChunkedUploadResponseSchema.parse({
+        success: true,
+        data: {
+          key: 'uploads/test.bin',
+          size: 100,
+          mimeType: 'application/octet-stream',
+        },
+      })
+    ).toThrow();
+  });
+});
+
+// ==========================================
+// Storage API Contracts
+// ==========================================
+
+describe('StorageApiContracts', () => {
+  it('should define all required storage endpoints', () => {
+    expect(StorageApiContracts.getPresignedUrl).toBeDefined();
+    expect(StorageApiContracts.completeUpload).toBeDefined();
+    expect(StorageApiContracts.initiateChunkedUpload).toBeDefined();
+    expect(StorageApiContracts.uploadChunk).toBeDefined();
+    expect(StorageApiContracts.completeChunkedUpload).toBeDefined();
+    expect(StorageApiContracts.getUploadProgress).toBeDefined();
+  });
+
+  it('should have correct HTTP methods', () => {
+    expect(StorageApiContracts.getPresignedUrl.method).toBe('POST');
+    expect(StorageApiContracts.completeUpload.method).toBe('POST');
+    expect(StorageApiContracts.initiateChunkedUpload.method).toBe('POST');
+    expect(StorageApiContracts.uploadChunk.method).toBe('PUT');
+    expect(StorageApiContracts.completeChunkedUpload.method).toBe('POST');
+    expect(StorageApiContracts.getUploadProgress.method).toBe('GET');
+  });
+
+  it('should have valid paths', () => {
+    expect(StorageApiContracts.getPresignedUrl.path).toContain('/storage/upload/presigned');
+    expect(StorageApiContracts.initiateChunkedUpload.path).toContain('/storage/upload/chunked');
+    expect(StorageApiContracts.uploadChunk.path).toContain('/chunk/:chunkIndex');
+    expect(StorageApiContracts.completeChunkedUpload.path).toContain('/complete');
+    expect(StorageApiContracts.getUploadProgress.path).toContain('/progress');
+  });
+
+  it('should have input and output schemas for each endpoint', () => {
+    expect(StorageApiContracts.getPresignedUrl.input).toBeDefined();
+    expect(StorageApiContracts.getPresignedUrl.output).toBeDefined();
+    expect(StorageApiContracts.initiateChunkedUpload.input).toBeDefined();
+    expect(StorageApiContracts.initiateChunkedUpload.output).toBeDefined();
+    expect(StorageApiContracts.uploadChunk.input).toBeDefined();
+    expect(StorageApiContracts.uploadChunk.output).toBeDefined();
+    expect(StorageApiContracts.completeChunkedUpload.input).toBeDefined();
+    expect(StorageApiContracts.completeChunkedUpload.output).toBeDefined();
+    expect(StorageApiContracts.getUploadProgress.output).toBeDefined();
   });
 });
