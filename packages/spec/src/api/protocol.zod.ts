@@ -16,6 +16,36 @@ import { RealtimePresenceSchema, TransportProtocol } from './realtime.zod';
 import { ObjectPermissionSchema, FieldPermissionSchema } from '../security/permission.zod';
 import { WorkflowRuleSchema } from '../automation/workflow.zod';
 import { TranslationDataSchema } from '../system/translation.zod';
+import type {
+  GetFeedRequest,
+  GetFeedResponse,
+  CreateFeedItemRequest,
+  CreateFeedItemResponse,
+  UpdateFeedItemRequest,
+  UpdateFeedItemResponse,
+  DeleteFeedItemRequest,
+  DeleteFeedItemResponse,
+  AddReactionRequest,
+  AddReactionResponse,
+  RemoveReactionRequest,
+  RemoveReactionResponse,
+  PinFeedItemRequest,
+  PinFeedItemResponse,
+  UnpinFeedItemRequest,
+  UnpinFeedItemResponse,
+  StarFeedItemRequest,
+  StarFeedItemResponse,
+  UnstarFeedItemRequest,
+  UnstarFeedItemResponse,
+  SearchFeedRequest,
+  SearchFeedResponse,
+  GetChangelogRequest,
+  GetChangelogResponse,
+  SubscribeRequest,
+  SubscribeResponse,
+  FeedUnsubscribeRequest,
+  UnsubscribeResponse,
+} from './feed-api.zod';
 import {
   ListPackagesRequestSchema,
   ListPackagesResponseSchema,
@@ -1036,6 +1066,36 @@ export const ObjectStackProtocolSchema = z.object({
     .describe('Get translations for a locale'),
   getFieldLabels: z.function()
     .describe('Get translated field labels for an object'),
+
+  // Feed Operations
+  listFeed: z.function()
+    .describe('List feed items for a record'),
+  createFeedItem: z.function()
+    .describe('Create a new feed item'),
+  updateFeedItem: z.function()
+    .describe('Update an existing feed item'),
+  deleteFeedItem: z.function()
+    .describe('Delete a feed item'),
+  addReaction: z.function()
+    .describe('Add an emoji reaction to a feed item'),
+  removeReaction: z.function()
+    .describe('Remove an emoji reaction from a feed item'),
+  pinFeedItem: z.function()
+    .describe('Pin a feed item'),
+  unpinFeedItem: z.function()
+    .describe('Unpin a feed item'),
+  starFeedItem: z.function()
+    .describe('Star a feed item'),
+  unstarFeedItem: z.function()
+    .describe('Unstar a feed item'),
+  searchFeed: z.function()
+    .describe('Search feed items'),
+  getChangelog: z.function()
+    .describe('Get field-level changelog for a record'),
+  feedSubscribe: z.function()
+    .describe('Subscribe to record notifications'),
+  feedUnsubscribe: z.function()
+    .describe('Unsubscribe from record notifications'),
 });
 
 /**
@@ -1170,6 +1230,38 @@ export type GetTranslationsResponse = z.infer<typeof GetTranslationsResponseSche
 export type GetFieldLabelsRequest = z.input<typeof GetFieldLabelsRequestSchema>;
 export type GetFieldLabelsResponse = z.infer<typeof GetFieldLabelsResponseSchema>;
 
+// Feed Types (re-exported from feed-api.zod.ts for convenience)
+export type {
+  GetFeedRequest,
+  GetFeedResponse,
+  CreateFeedItemRequest,
+  CreateFeedItemResponse,
+  UpdateFeedItemRequest,
+  UpdateFeedItemResponse,
+  DeleteFeedItemRequest,
+  DeleteFeedItemResponse,
+  AddReactionRequest,
+  AddReactionResponse,
+  RemoveReactionRequest,
+  RemoveReactionResponse,
+  PinFeedItemRequest,
+  PinFeedItemResponse,
+  UnpinFeedItemRequest,
+  UnpinFeedItemResponse,
+  StarFeedItemRequest,
+  StarFeedItemResponse,
+  UnstarFeedItemRequest,
+  UnstarFeedItemResponse,
+  SearchFeedRequest,
+  SearchFeedResponse,
+  GetChangelogRequest,
+  GetChangelogResponse,
+  SubscribeRequest,
+  SubscribeResponse,
+  FeedUnsubscribeRequest,
+  UnsubscribeResponse,
+} from './feed-api.zod';
+
 // Package Management Types (re-exported from kernel for convenience)
 export type { 
   ListPackagesRequest,
@@ -1285,4 +1377,20 @@ export interface ObjectStackProtocol {
   getLocales?(request: GetLocalesRequest): Promise<GetLocalesResponse>;
   getTranslations?(request: GetTranslationsRequest): Promise<GetTranslationsResponse>;
   getFieldLabels?(request: GetFieldLabelsRequest): Promise<GetFieldLabelsResponse>;
+
+  // Feed (optional)
+  listFeed?(request: GetFeedRequest): Promise<GetFeedResponse>;
+  createFeedItem?(request: CreateFeedItemRequest): Promise<CreateFeedItemResponse>;
+  updateFeedItem?(request: UpdateFeedItemRequest): Promise<UpdateFeedItemResponse>;
+  deleteFeedItem?(request: DeleteFeedItemRequest): Promise<DeleteFeedItemResponse>;
+  addReaction?(request: AddReactionRequest): Promise<AddReactionResponse>;
+  removeReaction?(request: RemoveReactionRequest): Promise<RemoveReactionResponse>;
+  pinFeedItem?(request: PinFeedItemRequest): Promise<PinFeedItemResponse>;
+  unpinFeedItem?(request: UnpinFeedItemRequest): Promise<UnpinFeedItemResponse>;
+  starFeedItem?(request: StarFeedItemRequest): Promise<StarFeedItemResponse>;
+  unstarFeedItem?(request: UnstarFeedItemRequest): Promise<UnstarFeedItemResponse>;
+  searchFeed?(request: SearchFeedRequest): Promise<SearchFeedResponse>;
+  getChangelog?(request: GetChangelogRequest): Promise<GetChangelogResponse>;
+  feedSubscribe?(request: SubscribeRequest): Promise<SubscribeResponse>;
+  feedUnsubscribe?(request: FeedUnsubscribeRequest): Promise<UnsubscribeResponse>;
 }
