@@ -14,6 +14,8 @@ import {
   EnablePackageResponseSchema,
   DisablePackageRequestSchema,
   DisablePackageResponseSchema,
+  NamespaceRegistryEntrySchema,
+  NamespaceConflictErrorSchema,
 } from './package-registry.zod';
 
 const validManifest = {
@@ -283,5 +285,120 @@ describe('DisablePackageResponseSchema', () => {
       message: 'Disabled',
     };
     expect(() => DisablePackageResponseSchema.parse(response)).not.toThrow();
+  });
+});
+
+describe('NamespaceRegistryEntrySchema', () => {
+  it('should accept valid namespace entry', () => {
+    const entry = {
+      namespace: 'crm',
+      packageId: 'com.acme.crm',
+      registeredAt: '2025-06-01T12:00:00Z',
+      status: 'active' as const,
+    };
+    const parsed = NamespaceRegistryEntrySchema.parse(entry);
+    expect(parsed.namespace).toBe('crm');
+    expect(parsed.status).toBe('active');
+  });
+
+  it('should accept all namespace statuses', () => {
+    const statuses = ['active', 'disabled', 'reserved'] as const;
+    statuses.forEach(status => {
+      const entry = {
+        namespace: 'test',
+        packageId: 'com.test.pkg',
+        registeredAt: '2025-06-01T12:00:00Z',
+        status,
+      };
+      expect(() => NamespaceRegistryEntrySchema.parse(entry)).not.toThrow();
+    });
+  });
+
+  it('should reject missing required fields', () => {
+    expect(() => NamespaceRegistryEntrySchema.parse({})).toThrow();
+  });
+});
+
+describe('NamespaceConflictErrorSchema', () => {
+  it('should accept valid conflict error', () => {
+    const error = {
+      type: 'namespace_conflict' as const,
+      requestedNamespace: 'crm',
+      conflictingPackageId: 'com.acme.crm',
+      conflictingPackageName: 'Acme CRM',
+      suggestion: 'crm2',
+    };
+    const parsed = NamespaceConflictErrorSchema.parse(error);
+    expect(parsed.type).toBe('namespace_conflict');
+    expect(parsed.suggestion).toBe('crm2');
+  });
+
+  it('should accept conflict error without suggestion', () => {
+    const error = {
+      type: 'namespace_conflict' as const,
+      requestedNamespace: 'hr',
+      conflictingPackageId: 'com.acme.hr',
+      conflictingPackageName: 'Acme HR',
+    };
+    const parsed = NamespaceConflictErrorSchema.parse(error);
+    expect(parsed.suggestion).toBeUndefined();
+  });
+
+  it('should reject wrong type literal', () => {
+    expect(() => NamespaceConflictErrorSchema.parse({
+      type: 'other_error',
+      requestedNamespace: 'crm',
+      conflictingPackageId: 'com.acme.crm',
+      conflictingPackageName: 'Acme CRM',
+    })).toThrow();
+  });
+});
+
+describe('InstalledPackageSchema - registeredNamespaces', () => {
+  it('should accept package with registered namespaces', () => {
+    const pkg = {
+      manifest: validManifest,
+      registeredNamespaces: ['crm', 'crm_ext'],
+    };
+    const parsed = InstalledPackageSchema.parse(pkg);
+    expect(parsed.registeredNamespaces).toHaveLength(2);
+  });
+
+  it('should accept package without registered namespaces (backward compatible)', () => {
+    const pkg = { manifest: validManifest };
+    const parsed = InstalledPackageSchema.parse(pkg);
+    expect(parsed.registeredNamespaces).toBeUndefined();
+  });
+});
+
+describe('InstallPackageResponseSchema - dependencyResolution', () => {
+  it('should accept response with dependency resolution', () => {
+    const response = {
+      package: { manifest: validManifest },
+      message: 'Installed successfully',
+      dependencyResolution: {
+        dependencies: [
+          {
+            packageId: 'com.acme.auth',
+            requiredRange: '^2.0.0',
+            resolvedVersion: '2.1.0',
+            status: 'satisfied' as const,
+          },
+        ],
+        canProceed: true,
+        requiredActions: [],
+        installOrder: ['com.acme.auth', 'com.acme.crm'],
+      },
+    };
+    const parsed = InstallPackageResponseSchema.parse(response);
+    expect(parsed.dependencyResolution?.canProceed).toBe(true);
+  });
+
+  it('should accept response without dependency resolution (backward compatible)', () => {
+    const response = {
+      package: { manifest: validManifest },
+    };
+    const parsed = InstallPackageResponseSchema.parse(response);
+    expect(parsed.dependencyResolution).toBeUndefined();
   });
 });

@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import { ManifestSchema } from './manifest.zod';
+import { DependencyResolutionResultSchema } from './dependency-resolution.zod';
 
 /**
  * # Package Registry Protocol
@@ -121,8 +122,64 @@ export const InstalledPackageSchema = z.object({
     /** Migration log entries */
     migrationLog: z.array(z.string()).optional().describe('Migration step logs'),
   })).optional().describe('Version upgrade history'),
+
+  /**
+   * Namespaces registered by this package.
+   * Tracks which namespace prefixes are occupied by this package.
+   */
+  registeredNamespaces: z.array(z.string()).optional()
+    .describe('Namespace prefixes registered by this package'),
 });
 export type InstalledPackage = z.infer<typeof InstalledPackageSchema>;
+
+// ==========================================
+// Namespace Registry
+// ==========================================
+
+/**
+ * Namespace Registry Entry
+ * Tracks namespace ownership within the platform instance.
+ */
+export const NamespaceRegistryEntrySchema = z.object({
+  /** Namespace prefix */
+  namespace: z.string().describe('Namespace prefix'),
+
+  /** Package that owns this namespace */
+  packageId: z.string().describe('Owning package ID'),
+
+  /** Registration timestamp */
+  registeredAt: z.string().datetime().describe('Registration timestamp'),
+
+  /** Namespace status */
+  status: z.enum(['active', 'disabled', 'reserved'])
+    .describe('Namespace status'),
+}).describe('Namespace ownership entry in the registry');
+
+export type NamespaceRegistryEntry = z.infer<typeof NamespaceRegistryEntrySchema>;
+
+/**
+ * Namespace Conflict Error
+ * Describes a namespace collision detected during package installation.
+ */
+export const NamespaceConflictErrorSchema = z.object({
+  /** Error type discriminator */
+  type: z.literal('namespace_conflict').describe('Error type'),
+
+  /** Namespace that was requested */
+  requestedNamespace: z.string().describe('Requested namespace'),
+
+  /** ID of the package that already owns the namespace */
+  conflictingPackageId: z.string().describe('Conflicting package ID'),
+
+  /** Name of the conflicting package */
+  conflictingPackageName: z.string().describe('Conflicting package display name'),
+
+  /** Suggested alternative namespace */
+  suggestion: z.string().optional()
+    .describe('Suggested alternative namespace'),
+}).describe('Namespace collision error during installation');
+
+export type NamespaceConflictError = z.infer<typeof NamespaceConflictErrorSchema>;
 
 // ==========================================
 // Package Registry Request/Response Schemas
@@ -196,6 +253,9 @@ export type InstallPackageRequest = z.infer<typeof InstallPackageRequestSchema>;
 export const InstallPackageResponseSchema = z.object({
   package: InstalledPackageSchema,
   message: z.string().optional(),
+  /** Dependency resolution result (when dependencies were analyzed) */
+  dependencyResolution: DependencyResolutionResultSchema.optional()
+    .describe('Dependency resolution result from install analysis'),
 });
 export type InstallPackageResponse = z.infer<typeof InstallPackageResponseSchema>;
 

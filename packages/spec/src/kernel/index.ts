@@ -2,6 +2,7 @@
 
 export * from './cli-extension.zod';
 export * from './context.zod';
+export * from './dependency-resolution.zod';
 export * from './dev-plugin.zod';
 export * from './events.zod';
 export * from './feature.zod';
