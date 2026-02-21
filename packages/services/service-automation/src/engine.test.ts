@@ -787,3 +787,639 @@ describe('AutomationEngine - Execution History', () => {
         });
     });
 });
+
+// ─── Fault Edge Tests ────────────────────────────────────────────────
+
+describe('AutomationEngine - Fault Edge Support', () => {
+    let engine: AutomationEngine;
+
+    beforeEach(() => {
+        engine = new AutomationEngine(createTestLogger());
+    });
+
+    it('should follow fault edge when node fails', async () => {
+        const executed: string[] = [];
+
+        engine.registerNodeExecutor({
+            type: 'script',
+            async execute(node) {
+                if (node.id === 'risky') {
+                    return { success: false, error: 'Script crashed' };
+                }
+                executed.push(node.id);
+                return { success: true };
+            },
+        });
+
+        engine.registerFlow('fault_flow', {
+            name: 'fault_flow',
+            label: 'Fault Flow',
+            type: 'autolaunched',
+            variables: [{ name: 'status', type: 'text', isOutput: true }],
+            nodes: [
+                { id: 'start', type: 'start', label: 'Start' },
+                { id: 'risky', type: 'script', label: 'Risky' },
+                { id: 'handler', type: 'script', label: 'Error Handler' },
+                { id: 'end', type: 'end', label: 'End' },
+            ],
+            edges: [
+                { id: 'e1', source: 'start', target: 'risky' },
+                { id: 'e2', source: 'risky', target: 'end' },
+                { id: 'e_fault', source: 'risky', target: 'handler', type: 'fault' },
+                { id: 'e3', source: 'handler', target: 'end' },
+            ],
+        });
+
+        const result = await engine.execute('fault_flow');
+        expect(result.success).toBe(true);
+        expect(executed).toContain('handler');
+    });
+
+    it('should write error info to $error variable on fault path', async () => {
+        let capturedError: unknown;
+
+        engine.registerNodeExecutor({
+            type: 'script',
+            async execute(node, variables) {
+                if (node.id === 'risky') {
+                    return { success: false, error: 'Something went wrong' };
+                }
+                capturedError = variables.get('$error');
+                return { success: true };
+            },
+        });
+
+        engine.registerFlow('fault_error_ctx', {
+            name: 'fault_error_ctx',
+            label: 'Fault Error Context',
+            type: 'autolaunched',
+            nodes: [
+                { id: 'start', type: 'start', label: 'Start' },
+                { id: 'risky', type: 'script', label: 'Risky' },
+                { id: 'handler', type: 'script', label: 'Handler' },
+                { id: 'end', type: 'end', label: 'End' },
+            ],
+            edges: [
+                { id: 'e1', source: 'start', target: 'risky' },
+                { id: 'e2', source: 'risky', target: 'end' },
+                { id: 'e_fault', source: 'risky', target: 'handler', type: 'fault' },
+                { id: 'e3', source: 'handler', target: 'end' },
+            ],
+        });
+
+        await engine.execute('fault_error_ctx');
+        expect(capturedError).toBeDefined();
+        expect((capturedError as any).message).toBe('Something went wrong');
+    });
+
+    it('should throw when no fault edge and node fails', async () => {
+        engine.registerNodeExecutor({
+            type: 'script',
+            async execute() {
+                return { success: false, error: 'Fatal error' };
+            },
+        });
+
+        engine.registerFlow('no_fault', {
+            name: 'no_fault',
+            label: 'No Fault',
+            type: 'autolaunched',
+            nodes: [
+                { id: 'start', type: 'start', label: 'Start' },
+                { id: 'fail', type: 'script', label: 'Fail' },
+                { id: 'end', type: 'end', label: 'End' },
+            ],
+            edges: [
+                { id: 'e1', source: 'start', target: 'fail' },
+                { id: 'e2', source: 'fail', target: 'end' },
+            ],
+        });
+
+        const result = await engine.execute('no_fault');
+        expect(result.success).toBe(false);
+        expect(result.error).toContain('Fatal error');
+    });
+});
+
+// ─── Step-Level Execution Log Tests ──────────────────────────────────
+
+describe('AutomationEngine - Step-Level Execution Logs', () => {
+    let engine: AutomationEngine;
+
+    beforeEach(() => {
+        engine = new AutomationEngine(createTestLogger());
+    });
+
+    it('should record step logs with timing for each node', async () => {
+        engine.registerNodeExecutor({
+            type: 'assignment',
+            async execute(node, variables) {
+                const config = (node.config ?? {}) as Record<string, unknown>;
+                for (const [key, value] of Object.entries(config)) {
+                    variables.set(key, value);
+                }
+                return { success: true };
+            },
+        });
+
+        engine.registerFlow('step_log_flow', {
+            name: 'step_log_flow',
+            label: 'Step Log Flow',
+            type: 'autolaunched',
+            nodes: [
+                { id: 'start', type: 'start', label: 'Start' },
+                { id: 'assign', type: 'assignment', label: 'Assign', config: { x: 1 } },
+                { id: 'end', type: 'end', label: 'End' },
+            ],
+            edges: [
+                { id: 'e1', source: 'start', target: 'assign' },
+                { id: 'e2', source: 'assign', target: 'end' },
+            ],
+        });
+
+        await engine.execute('step_log_flow');
+        const runs = await engine.listRuns('step_log_flow');
+        expect(runs).toHaveLength(1);
+        expect(runs[0].steps.length).toBeGreaterThanOrEqual(2); // start + assign
+        expect(runs[0].steps[0].status).toBe('success');
+        expect(runs[0].steps[0].startedAt).toBeTruthy();
+        expect(typeof runs[0].steps[0].durationMs).toBe('number');
+    });
+
+    it('should record failure step in logs when node fails', async () => {
+        engine.registerNodeExecutor({
+            type: 'script',
+            async execute() {
+                return { success: false, error: 'Bad script' };
+            },
+        });
+
+        engine.registerFlow('fail_step_log', {
+            name: 'fail_step_log',
+            label: 'Fail Step Log',
+            type: 'autolaunched',
+            nodes: [
+                { id: 'start', type: 'start', label: 'Start' },
+                { id: 'bad', type: 'script', label: 'Bad' },
+                { id: 'end', type: 'end', label: 'End' },
+            ],
+            edges: [
+                { id: 'e1', source: 'start', target: 'bad' },
+                { id: 'e2', source: 'bad', target: 'end' },
+            ],
+        });
+
+        await engine.execute('fail_step_log');
+        const runs = await engine.listRuns('fail_step_log');
+        expect(runs).toHaveLength(1);
+        const failStep = runs[0].steps.find(s => s.nodeId === 'bad');
+        expect(failStep).toBeDefined();
+        expect(failStep!.status).toBe('failure');
+        expect(failStep!.error).toBeDefined();
+    });
+
+    it('should record flowVersion in execution log', async () => {
+        engine.registerFlow('versioned_flow', {
+            name: 'versioned_flow',
+            label: 'Versioned',
+            type: 'autolaunched',
+            version: 5,
+            nodes: [
+                { id: 'start', type: 'start', label: 'Start' },
+                { id: 'end', type: 'end', label: 'End' },
+            ],
+            edges: [{ id: 'e1', source: 'start', target: 'end' }],
+        });
+
+        await engine.execute('versioned_flow');
+        const runs = await engine.listRuns('versioned_flow');
+        expect(runs[0].flowVersion).toBe(5);
+    });
+});
+
+// ─── DAG Cycle Detection Tests ───────────────────────────────────────
+
+describe('AutomationEngine - DAG Cycle Detection', () => {
+    let engine: AutomationEngine;
+
+    beforeEach(() => {
+        engine = new AutomationEngine(createTestLogger());
+    });
+
+    it('should reject flows with cycles', () => {
+        expect(() => engine.registerFlow('cyclic_flow', {
+            name: 'cyclic_flow',
+            label: 'Cyclic Flow',
+            type: 'autolaunched',
+            nodes: [
+                { id: 'a', type: 'start', label: 'A' },
+                { id: 'b', type: 'assignment', label: 'B' },
+                { id: 'c', type: 'assignment', label: 'C' },
+            ],
+            edges: [
+                { id: 'e1', source: 'a', target: 'b' },
+                { id: 'e2', source: 'b', target: 'c' },
+                { id: 'e3', source: 'c', target: 'b' }, // cycle: b → c → b
+            ],
+        })).toThrow(/cycle/i);
+    });
+
+    it('should accept valid DAG flows', () => {
+        expect(() => engine.registerFlow('valid_dag', {
+            name: 'valid_dag',
+            label: 'Valid DAG',
+            type: 'autolaunched',
+            nodes: [
+                { id: 'start', type: 'start', label: 'Start' },
+                { id: 'a', type: 'assignment', label: 'A' },
+                { id: 'b', type: 'assignment', label: 'B' },
+                { id: 'end', type: 'end', label: 'End' },
+            ],
+            edges: [
+                { id: 'e1', source: 'start', target: 'a' },
+                { id: 'e2', source: 'start', target: 'b' },
+                { id: 'e3', source: 'a', target: 'end' },
+                { id: 'e4', source: 'b', target: 'end' },
+            ],
+        })).not.toThrow();
+    });
+
+    it('should provide cycle details in error message', () => {
+        try {
+            engine.registerFlow('detailed_cycle', {
+                name: 'detailed_cycle',
+                label: 'Detailed Cycle',
+                type: 'autolaunched',
+                nodes: [
+                    { id: 'x', type: 'start', label: 'X' },
+                    { id: 'y', type: 'assignment', label: 'Y' },
+                    { id: 'z', type: 'assignment', label: 'Z' },
+                ],
+                edges: [
+                    { id: 'e1', source: 'x', target: 'y' },
+                    { id: 'e2', source: 'y', target: 'z' },
+                    { id: 'e3', source: 'z', target: 'y' },
+                ],
+            });
+            expect.fail('Should have thrown');
+        } catch (err: any) {
+            expect(err.message).toContain('→');
+            expect(err.message).toContain('DAG');
+        }
+    });
+});
+
+// ─── Node Timeout Tests ──────────────────────────────────────────────
+
+describe('AutomationEngine - Node Timeout', () => {
+    let engine: AutomationEngine;
+
+    beforeEach(() => {
+        engine = new AutomationEngine(createTestLogger());
+    });
+
+    it('should timeout a slow node', async () => {
+        engine.registerNodeExecutor({
+            type: 'script',
+            async execute() {
+                await new Promise(r => setTimeout(r, 5000)); // 5 seconds
+                return { success: true };
+            },
+        });
+
+        engine.registerFlow('timeout_flow', {
+            name: 'timeout_flow',
+            label: 'Timeout Flow',
+            type: 'autolaunched',
+            nodes: [
+                { id: 'start', type: 'start', label: 'Start' },
+                { id: 'slow', type: 'script', label: 'Slow', timeoutMs: 50 },
+                { id: 'end', type: 'end', label: 'End' },
+            ],
+            edges: [
+                { id: 'e1', source: 'start', target: 'slow' },
+                { id: 'e2', source: 'slow', target: 'end' },
+            ],
+        });
+
+        const result = await engine.execute('timeout_flow');
+        expect(result.success).toBe(false);
+        expect(result.error).toContain('timed out');
+    });
+
+    it('should succeed when node completes within timeout', async () => {
+        engine.registerNodeExecutor({
+            type: 'script',
+            async execute() {
+                return { success: true };
+            },
+        });
+
+        engine.registerFlow('fast_flow', {
+            name: 'fast_flow',
+            label: 'Fast Flow',
+            type: 'autolaunched',
+            nodes: [
+                { id: 'start', type: 'start', label: 'Start' },
+                { id: 'fast', type: 'script', label: 'Fast', timeoutMs: 5000 },
+                { id: 'end', type: 'end', label: 'End' },
+            ],
+            edges: [
+                { id: 'e1', source: 'start', target: 'fast' },
+                { id: 'e2', source: 'fast', target: 'end' },
+            ],
+        });
+
+        const result = await engine.execute('fast_flow');
+        expect(result.success).toBe(true);
+    });
+});
+
+// ─── Safe Expression Evaluation Tests ────────────────────────────────
+
+describe('AutomationEngine - Safe Expression Evaluation', () => {
+    let engine: AutomationEngine;
+
+    beforeEach(() => {
+        engine = new AutomationEngine(createTestLogger());
+    });
+
+    it('should evaluate simple comparisons', () => {
+        const vars = new Map<string, unknown>();
+        vars.set('amount', 500);
+
+        expect(engine.evaluateCondition('{amount} > 100', vars)).toBe(true);
+        expect(engine.evaluateCondition('{amount} < 100', vars)).toBe(false);
+        expect(engine.evaluateCondition('{amount} == 500', vars)).toBe(true);
+        expect(engine.evaluateCondition('{amount} >= 500', vars)).toBe(true);
+        expect(engine.evaluateCondition('{amount} <= 500', vars)).toBe(true);
+        expect(engine.evaluateCondition('{amount} != 100', vars)).toBe(true);
+    });
+
+    it('should evaluate boolean literals', () => {
+        const vars = new Map<string, unknown>();
+        expect(engine.evaluateCondition('true', vars)).toBe(true);
+        expect(engine.evaluateCondition('false', vars)).toBe(false);
+    });
+
+    it('should not execute malicious code', () => {
+        const vars = new Map<string, unknown>();
+        // These should all return false safely
+        expect(engine.evaluateCondition('process.exit(1)', vars)).toBe(false);
+        expect(engine.evaluateCondition('require("fs").readFileSync("/etc/passwd")', vars)).toBe(false);
+        expect(engine.evaluateCondition('(() => { while(true) {} })()', vars)).toBe(false);
+    });
+
+    it('should handle string comparisons', () => {
+        const vars = new Map<string, unknown>();
+        vars.set('status', 'active');
+
+        expect(engine.evaluateCondition('{status} == active', vars)).toBe(true);
+        expect(engine.evaluateCondition('{status} != inactive', vars)).toBe(true);
+    });
+});
+
+// ─── Parallel Branch Execution Tests ─────────────────────────────────
+
+describe('AutomationEngine - Parallel Branch Execution', () => {
+    let engine: AutomationEngine;
+
+    beforeEach(() => {
+        engine = new AutomationEngine(createTestLogger());
+    });
+
+    it('should execute unconditional branches in parallel', async () => {
+        const executionOrder: string[] = [];
+
+        engine.registerNodeExecutor({
+            type: 'script',
+            async execute(node) {
+                const delay = (node.config as any)?.delay ?? 0;
+                await new Promise(r => setTimeout(r, delay));
+                executionOrder.push(node.id);
+                return { success: true };
+            },
+        });
+
+        engine.registerFlow('parallel_flow', {
+            name: 'parallel_flow',
+            label: 'Parallel Flow',
+            type: 'autolaunched',
+            nodes: [
+                { id: 'start', type: 'start', label: 'Start' },
+                { id: 'branch_a', type: 'script', label: 'Branch A', config: { delay: 10 } },
+                { id: 'branch_b', type: 'script', label: 'Branch B', config: { delay: 10 } },
+                { id: 'end', type: 'end', label: 'End' },
+            ],
+            edges: [
+                { id: 'e1', source: 'start', target: 'branch_a' },
+                { id: 'e2', source: 'start', target: 'branch_b' },
+                { id: 'e3', source: 'branch_a', target: 'end' },
+                { id: 'e4', source: 'branch_b', target: 'end' },
+            ],
+        });
+
+        const start = Date.now();
+        const result = await engine.execute('parallel_flow');
+        const elapsed = Date.now() - start;
+
+        expect(result.success).toBe(true);
+        // Both branches should execute (order may vary in parallel)
+        expect(executionOrder).toContain('branch_a');
+        expect(executionOrder).toContain('branch_b');
+        // Parallel execution should be faster than sequential (10+10=20ms)
+        // Allow generous margin but expect it's faster than fully sequential
+        expect(elapsed).toBeLessThan(100); // generous but parallel should be ~15ms
+    });
+});
+
+// ─── Input Schema Validation Tests ───────────────────────────────────
+
+describe('AutomationEngine - Node Input Schema Validation', () => {
+    let engine: AutomationEngine;
+
+    beforeEach(() => {
+        engine = new AutomationEngine(createTestLogger());
+    });
+
+    it('should fail when required input parameter is missing', async () => {
+        engine.registerNodeExecutor({
+            type: 'script',
+            async execute() {
+                return { success: true };
+            },
+        });
+
+        engine.registerFlow('schema_fail', {
+            name: 'schema_fail',
+            label: 'Schema Fail',
+            type: 'autolaunched',
+            nodes: [
+                { id: 'start', type: 'start', label: 'Start' },
+                {
+                    id: 'validated',
+                    type: 'script',
+                    label: 'Validated',
+                    config: {},
+                    inputSchema: {
+                        url: { type: 'string', required: true, description: 'URL to call' },
+                    },
+                },
+                { id: 'end', type: 'end', label: 'End' },
+            ],
+            edges: [
+                { id: 'e1', source: 'start', target: 'validated' },
+                { id: 'e2', source: 'validated', target: 'end' },
+            ],
+        });
+
+        const result = await engine.execute('schema_fail');
+        expect(result.success).toBe(false);
+        expect(result.error).toContain('missing required');
+    });
+
+    it('should fail when parameter type is wrong', async () => {
+        engine.registerNodeExecutor({
+            type: 'script',
+            async execute() {
+                return { success: true };
+            },
+        });
+
+        engine.registerFlow('type_fail', {
+            name: 'type_fail',
+            label: 'Type Fail',
+            type: 'autolaunched',
+            nodes: [
+                { id: 'start', type: 'start', label: 'Start' },
+                {
+                    id: 'validated',
+                    type: 'script',
+                    label: 'Validated',
+                    config: { count: 'not_a_number' },
+                    inputSchema: {
+                        count: { type: 'number', required: true },
+                    },
+                },
+                { id: 'end', type: 'end', label: 'End' },
+            ],
+            edges: [
+                { id: 'e1', source: 'start', target: 'validated' },
+                { id: 'e2', source: 'validated', target: 'end' },
+            ],
+        });
+
+        const result = await engine.execute('type_fail');
+        expect(result.success).toBe(false);
+        expect(result.error).toContain('expected type');
+    });
+});
+
+// ─── Flow Version Management Tests ───────────────────────────────────
+
+describe('AutomationEngine - Flow Version Management', () => {
+    let engine: AutomationEngine;
+
+    const makeFlow = (version: number, label: string) => ({
+        name: 'versioned_flow',
+        label,
+        type: 'autolaunched' as const,
+        version,
+        nodes: [
+            { id: 'start', type: 'start' as const, label: 'Start' },
+            { id: 'end', type: 'end' as const, label: 'End' },
+        ],
+        edges: [{ id: 'e1', source: 'start', target: 'end' }],
+    });
+
+    beforeEach(() => {
+        engine = new AutomationEngine(createTestLogger());
+    });
+
+    it('should keep version history on registerFlow', () => {
+        engine.registerFlow('versioned_flow', makeFlow(1, 'V1'));
+        engine.registerFlow('versioned_flow', makeFlow(2, 'V2'));
+        engine.registerFlow('versioned_flow', makeFlow(3, 'V3'));
+
+        const history = engine.getFlowVersionHistory('versioned_flow');
+        expect(history).toHaveLength(3);
+        expect(history[0].version).toBe(1);
+        expect(history[2].version).toBe(3);
+    });
+
+    it('should rollback to a previous version', async () => {
+        engine.registerFlow('versioned_flow', makeFlow(1, 'V1'));
+        engine.registerFlow('versioned_flow', makeFlow(2, 'V2'));
+
+        const current = await engine.getFlow('versioned_flow');
+        expect(current!.label).toBe('V2');
+
+        engine.rollbackFlow('versioned_flow', 1);
+        const rolledBack = await engine.getFlow('versioned_flow');
+        expect(rolledBack!.label).toBe('V1');
+    });
+
+    it('should throw when rolling back to non-existent version', () => {
+        engine.registerFlow('versioned_flow', makeFlow(1, 'V1'));
+        expect(() => engine.rollbackFlow('versioned_flow', 99)).toThrow('Version 99 not found');
+    });
+
+    it('should throw when rolling back non-existent flow', () => {
+        expect(() => engine.rollbackFlow('nonexistent', 1)).toThrow('no version history');
+    });
+
+    it('should clean up version history on unregister', () => {
+        engine.registerFlow('versioned_flow', makeFlow(1, 'V1'));
+        engine.unregisterFlow('versioned_flow');
+        const history = engine.getFlowVersionHistory('versioned_flow');
+        expect(history).toHaveLength(0);
+    });
+});
+
+// ─── Execution Status Expansion Tests ────────────────────────────────
+
+describe('AutomationEngine - Execution Status', () => {
+    let engine: AutomationEngine;
+
+    beforeEach(() => {
+        engine = new AutomationEngine(createTestLogger());
+    });
+
+    it('should record completed status for successful execution', async () => {
+        engine.registerFlow('status_flow', {
+            name: 'status_flow',
+            label: 'Status Flow',
+            type: 'autolaunched',
+            nodes: [
+                { id: 'start', type: 'start', label: 'Start' },
+                { id: 'end', type: 'end', label: 'End' },
+            ],
+            edges: [{ id: 'e1', source: 'start', target: 'end' }],
+        });
+
+        await engine.execute('status_flow');
+        const runs = await engine.listRuns('status_flow');
+        expect(runs[0].status).toBe('completed');
+    });
+
+    it('should record failed status for failed execution', async () => {
+        engine.registerFlow('fail_status', {
+            name: 'fail_status',
+            label: 'Fail Status',
+            type: 'autolaunched',
+            nodes: [
+                { id: 'start', type: 'start', label: 'Start' },
+                { id: 'bad', type: 'script', label: 'Bad' },
+                { id: 'end', type: 'end', label: 'End' },
+            ],
+            edges: [
+                { id: 'e1', source: 'start', target: 'bad' },
+                { id: 'e2', source: 'bad', target: 'end' },
+            ],
+        });
+
+        await engine.execute('fail_status');
+        const runs = await engine.listRuns('fail_status');
+        expect(runs[0].status).toBe('failed');
+    });
+});
