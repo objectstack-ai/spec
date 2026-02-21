@@ -13,6 +13,8 @@ import {
   UpdateFlowResponseSchema,
   DeleteFlowRequestSchema,
   DeleteFlowResponseSchema,
+  TriggerFlowRequestSchema,
+  TriggerFlowResponseSchema,
   ToggleFlowRequestSchema,
   ToggleFlowResponseSchema,
   ListRunsRequestSchema,
@@ -260,6 +262,60 @@ describe('DeleteFlowResponseSchema', () => {
 });
 
 // ==========================================
+// Trigger Flow
+// ==========================================
+
+describe('TriggerFlowRequestSchema', () => {
+  it('should accept minimal trigger request', () => {
+    const result = TriggerFlowRequestSchema.parse({ name: 'my_flow' });
+    expect(result.name).toBe('my_flow');
+    expect(result.record).toBeUndefined();
+  });
+
+  it('should accept full trigger request', () => {
+    const result = TriggerFlowRequestSchema.parse({
+      name: 'approval_flow',
+      record: { id: 'rec-1', amount: 50000 },
+      object: 'opportunity',
+      event: 'on_create',
+      userId: 'user_123',
+      params: { priority: 'high' },
+    });
+    expect(result.name).toBe('approval_flow');
+    expect(result.object).toBe('opportunity');
+    expect(result.event).toBe('on_create');
+  });
+});
+
+describe('TriggerFlowResponseSchema', () => {
+  it('should accept a successful trigger response', () => {
+    const result = TriggerFlowResponseSchema.parse({
+      success: true,
+      data: {
+        success: true,
+        output: { status: 'approved' },
+        durationMs: 42,
+      },
+    });
+    expect(result.data.success).toBe(true);
+    expect(result.data.durationMs).toBe(42);
+  });
+
+  it('should accept a failed trigger response', () => {
+    const result = TriggerFlowResponseSchema.parse({
+      success: true,
+      data: {
+        success: false,
+        error: 'Flow step 3 failed: timeout',
+        durationMs: 5000,
+      },
+    });
+    expect(result.data.success).toBe(false);
+    expect(result.data.error).toContain('timeout');
+  });
+});
+
+// ==========================================
 // Toggle Flow
 // ==========================================
 
@@ -436,5 +492,12 @@ describe('AutomationApiContracts', () => {
     expect(AutomationApiContracts.toggleFlow.path).toBe('/api/automation/:name/toggle');
     expect(AutomationApiContracts.listRuns.path).toBe('/api/automation/:name/runs');
     expect(AutomationApiContracts.getRun.path).toBe('/api/automation/:name/runs/:runId');
+  });
+
+  it('should have input and output schemas for all endpoints', () => {
+    for (const [key, contract] of Object.entries(AutomationApiContracts)) {
+      expect(contract.input, `${key} should have input schema`).toBeDefined();
+      expect(contract.output, `${key} should have output schema`).toBeDefined();
+    }
   });
 });

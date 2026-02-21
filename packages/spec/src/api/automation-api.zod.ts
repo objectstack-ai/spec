@@ -178,7 +178,44 @@ export const DeleteFlowResponseSchema = BaseResponseSchema.extend({
 export type DeleteFlowResponse = z.infer<typeof DeleteFlowResponseSchema>;
 
 // ==========================================
-// 7. Toggle Flow (POST /api/automation/:name/toggle)
+// 7. Trigger Flow (POST /api/automation/:name/trigger)
+// ==========================================
+
+/**
+ * Request body for triggering a flow execution.
+ *
+ * @example POST /api/automation/approval_flow/trigger
+ * { record: { id: 'rec-1' }, object: 'account', event: 'on_create' }
+ */
+export const TriggerFlowRequestSchema = AutomationFlowPathParamsSchema.extend({
+  record: z.record(z.string(), z.unknown()).optional()
+    .describe('Record that triggered the automation'),
+  object: z.string().optional()
+    .describe('Object name the record belongs to'),
+  event: z.string().optional()
+    .describe('Trigger event type'),
+  userId: z.string().optional()
+    .describe('User who triggered the automation'),
+  params: z.record(z.string(), z.unknown()).optional()
+    .describe('Additional contextual data'),
+});
+export type TriggerFlowRequest = z.infer<typeof TriggerFlowRequestSchema>;
+
+/**
+ * Response after triggering a flow execution.
+ */
+export const TriggerFlowResponseSchema = BaseResponseSchema.extend({
+  data: z.object({
+    success: z.boolean().describe('Whether the automation completed successfully'),
+    output: z.unknown().optional().describe('Output data from the automation'),
+    error: z.string().optional().describe('Error message if execution failed'),
+    durationMs: z.number().optional().describe('Execution duration in milliseconds'),
+  }),
+});
+export type TriggerFlowResponse = z.infer<typeof TriggerFlowResponseSchema>;
+
+// ==========================================
+// 8. Toggle Flow (POST /api/automation/:name/toggle)
 // ==========================================
 
 /**
@@ -204,7 +241,7 @@ export const ToggleFlowResponseSchema = BaseResponseSchema.extend({
 export type ToggleFlowResponse = z.infer<typeof ToggleFlowResponseSchema>;
 
 // ==========================================
-// 8. List Runs (GET /api/automation/:name/runs)
+// 9. List Runs (GET /api/automation/:name/runs)
 // ==========================================
 
 /**
@@ -236,7 +273,7 @@ export const ListRunsResponseSchema = BaseResponseSchema.extend({
 export type ListRunsResponse = z.infer<typeof ListRunsResponseSchema>;
 
 // ==========================================
-// 9. Get Run (GET /api/automation/:name/runs/:runId)
+// 10. Get Run (GET /api/automation/:name/runs/:runId)
 // ==========================================
 
 /**
@@ -254,7 +291,7 @@ export const GetRunResponseSchema = BaseResponseSchema.extend({
 export type GetRunResponse = z.infer<typeof GetRunResponseSchema>;
 
 // ==========================================
-// 10. Automation API Error Codes
+// 11. Automation API Error Codes
 // ==========================================
 
 /**
@@ -274,7 +311,7 @@ export const AutomationApiErrorCode = z.enum([
 export type AutomationApiErrorCode = z.infer<typeof AutomationApiErrorCode>;
 
 // ==========================================
-// 11. Automation API Contract Registry
+// 12. Automation API Contract Registry
 // ==========================================
 
 /**
@@ -315,6 +352,8 @@ export const AutomationApiContracts = {
   triggerFlow: {
     method: 'POST' as const,
     path: '/api/automation/:name/trigger',
+    input: TriggerFlowRequestSchema,
+    output: TriggerFlowResponseSchema,
   },
   toggleFlow: {
     method: 'POST' as const,

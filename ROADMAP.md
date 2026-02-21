@@ -147,14 +147,14 @@ Multi-stage triggers, action pipelines, execution logs, and cron scheduling stan
 | Action pipeline (webhook, email, CRUD, notification) | ✅ | `automation/flow.zod.ts` (HTTP, CRUD, script nodes) |
 | State machine & approval processes | ✅ | `automation/state-machine.zod.ts`, `automation/workflow.zod.ts` |
 | Retry policies with exponential backoff | ✅ | `automation/webhook.zod.ts` |
-| `IAutomationService` contract | ✅ | `contracts/automation-service.ts` (getFlow, toggleFlow, listRuns, getRun) |
+| `IAutomationService` contract | ✅ | `contracts/automation-service.ts` (typed: `FlowParsed`, `ExecutionLog`) |
 | `service-automation` DAG engine (MVP) | ✅ | `@objectstack/service-automation` (42 tests) |
 | Execution log/history storage protocol | ✅ | `automation/execution.zod.ts` → `ExecutionLogSchema`, `ExecutionStepLogSchema` |
 | Execution error tracking & diagnostics | ✅ | `automation/execution.zod.ts` → `ExecutionErrorSchema`, `ExecutionErrorSeverity` |
 | Conflict resolution for concurrent executions | ✅ | `automation/execution.zod.ts` → `ConcurrencyPolicySchema` |
 | Checkpointing/resume for interrupted flows | ✅ | `automation/execution.zod.ts` → `CheckpointSchema` |
 | Scheduled execution persistence (next-run, pause/resume) | ✅ | `automation/execution.zod.ts` → `ScheduleStateSchema` |
-| Automation API protocol (REST CRUD schemas) | ✅ | `api/automation-api.zod.ts` → 9 endpoints, `AutomationApiContracts` |
+| Automation API protocol (REST CRUD schemas) | ✅ | `api/automation-api.zod.ts` → 9 endpoints, all with `input`/`output` schemas |
 | Automation HTTP route handler (9 routes) | ✅ | `runtime/http-dispatcher.ts` → `handleAutomation()` CRUD + toggle + runs |
 | Client SDK `automation` namespace (10 methods) | ✅ | `client/src/index.ts` → `list`, `get`, `create`, `update`, `delete`, `toggle`, `runs.*` |
 
@@ -717,7 +717,7 @@ Final polish and advanced features.
 | 16 | Search Service | `ISearchService` | ❌ | `@objectstack/service-search` (planned) | Spec only |
 | 17 | Notification Service | `INotificationService` | ❌ | `@objectstack/service-notification` (planned) | Spec only |
 | 18 | AI Service | `IAIService` | ❌ | `@objectstack/service-ai` (planned) | Spec only |
-| 19 | Automation Service | `IAutomationService` | ✅ | `@objectstack/service-automation` | DAG engine + HTTP API CRUD + Client SDK (42 tests) |
+| 19 | Automation Service | `IAutomationService` | ✅ | `@objectstack/service-automation` | DAG engine + HTTP API CRUD + Client SDK + typed returns (42 tests) |
 | 20 | Workflow Service | `IWorkflowService` | ❌ | `@objectstack/service-workflow` (planned) | Spec only |
 | 21 | GraphQL Service | `IGraphQLService` | ❌ | `@objectstack/service-graphql` (planned) | Spec only |
 | 22 | i18n Service | `II18nService` | ✅ | `@objectstack/service-i18n` | File-based locale loading |

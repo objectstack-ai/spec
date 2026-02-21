@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { IAutomationService, AutomationResult } from './automation-service';
+import type { FlowParsed } from '../automation/flow.zod';
+import type { ExecutionLog } from '../automation/execution.zod';
 
 describe('Automation Service Contract', () => {
   it('should allow a minimal IAutomationService implementation with required methods', () => {
@@ -78,5 +80,91 @@ describe('Automation Service Contract', () => {
     const flows = await service.listFlows();
     expect(flows).toHaveLength(3);
     expect(flows).toContain('approval_flow');
+  });
+
+  it('should return typed FlowParsed from getFlow', async () => {
+    const mockFlow: FlowParsed = {
+      name: 'approval_flow',
+      label: 'Approval Flow',
+      type: 'autolaunched',
+      status: 'draft',
+      version: 1,
+      enabled: true,
+      nodes: [
+        { id: 'start', type: 'start', label: 'Start' },
+        { id: 'end', type: 'end', label: 'End' },
+      ],
+      edges: [{ id: 'e1', source: 'start', target: 'end' }],
+    };
+
+    const service: IAutomationService = {
+      execute: async () => ({ success: true }),
+      listFlows: async () => ['approval_flow'],
+      getFlow: async (name) => name === 'approval_flow' ? mockFlow : null,
+    };
+
+    const flow = await service.getFlow!('approval_flow');
+    expect(flow).not.toBeNull();
+    expect(flow!.name).toBe('approval_flow');
+    expect(flow!.nodes).toHaveLength(2);
+
+    const missing = await service.getFlow!('nonexistent');
+    expect(missing).toBeNull();
+  });
+
+  it('should return typed ExecutionLog from listRuns and getRun', async () => {
+    const mockRun: ExecutionLog = {
+      id: 'exec_001',
+      flowName: 'approval_flow',
+      status: 'completed',
+      trigger: { type: 'api' },
+      steps: [{
+        nodeId: 'start',
+        nodeType: 'start',
+        status: 'success',
+        startedAt: '2026-02-01T10:00:00Z',
+        durationMs: 1,
+      }],
+      startedAt: '2026-02-01T10:00:00Z',
+      completedAt: '2026-02-01T10:00:01Z',
+      durationMs: 1000,
+    };
+
+    const service: IAutomationService = {
+      execute: async () => ({ success: true }),
+      listFlows: async () => ['approval_flow'],
+      listRuns: async (_flowName, _options?) => [mockRun],
+      getRun: async (runId) => runId === 'exec_001' ? mockRun : null,
+    };
+
+    const runs = await service.listRuns!('approval_flow');
+    expect(runs).toHaveLength(1);
+    expect(runs[0].id).toBe('exec_001');
+    expect(runs[0].status).toBe('completed');
+    expect(runs[0].steps).toHaveLength(1);
+
+    const run = await service.getRun!('exec_001');
+    expect(run).not.toBeNull();
+    expect(run!.flowName).toBe('approval_flow');
+    expect(run!.durationMs).toBe(1000);
+
+    const missingRun = await service.getRun!('nonexistent');
+    expect(missingRun).toBeNull();
+  });
+
+  it('should support toggleFlow to enable/disable flows', async () => {
+    let flowEnabled = true;
+
+    const service: IAutomationService = {
+      execute: async () => ({ success: true }),
+      listFlows: async () => ['test_flow'],
+      toggleFlow: async (_name, enabled) => { flowEnabled = enabled; },
+    };
+
+    await service.toggleFlow!('test_flow', false);
+    expect(flowEnabled).toBe(false);
+
+    await service.toggleFlow!('test_flow', true);
+    expect(flowEnabled).toBe(true);
   });
 });
