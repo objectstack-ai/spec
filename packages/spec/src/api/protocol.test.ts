@@ -319,3 +319,51 @@ describe('ObjectStack Protocol', () => {
   });
 
 });
+
+// ==========================================
+// GetDiscoveryResponseSchema — capabilities
+// ==========================================
+import { GetDiscoveryResponseSchema } from './protocol.zod';
+
+describe('GetDiscoveryResponseSchema (capabilities)', () => {
+  it('should accept response with well-known capabilities', () => {
+    const result = GetDiscoveryResponseSchema.safeParse({
+      version: 'v1',
+      apiName: 'ObjectStack API',
+      capabilities: {
+        feed: true,
+        comments: true,
+        automation: false,
+        cron: false,
+        search: true,
+        export: false,
+        chunkedUpload: true,
+      },
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.capabilities?.feed).toBe(true);
+      expect(result.data.capabilities?.automation).toBe(false);
+    }
+  });
+
+  it('should accept response without capabilities (optional)', () => {
+    const result = GetDiscoveryResponseSchema.safeParse({
+      version: 'v1',
+      apiName: 'ObjectStack API',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.capabilities).toBeUndefined();
+    }
+  });
+
+  it('should reject capabilities with missing fields', () => {
+    const result = GetDiscoveryResponseSchema.safeParse({
+      version: 'v1',
+      apiName: 'ObjectStack API',
+      capabilities: { feed: true },
+    });
+    expect(result.success).toBe(false);
+  });
+});

@@ -8,7 +8,7 @@ import type {
     UpdateManyDataRequest,
     DeleteManyDataRequest
 } from '@objectstack/spec/api';
-import type { MetadataCacheRequest, MetadataCacheResponse, ServiceInfo, ApiRoutes } from '@objectstack/spec/api';
+import type { MetadataCacheRequest, MetadataCacheResponse, ServiceInfo, ApiRoutes, WellKnownCapabilities } from '@objectstack/spec/api';
 import type { IFeedService } from '@objectstack/spec/contracts';
 
 // We import SchemaRegistry directly since this class lives in the same package
@@ -150,11 +150,23 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
             ...optionalRoutes,
         };
 
+        // Build well-known capabilities from registered services
+        const capabilities: WellKnownCapabilities = {
+            feed: registeredServices.has('feed'),
+            comments: registeredServices.has('feed'),
+            automation: registeredServices.has('automation'),
+            cron: registeredServices.has('job'),
+            search: registeredServices.has('search'),
+            export: registeredServices.has('automation') || registeredServices.has('queue'),
+            chunkedUpload: registeredServices.has('file-storage'),
+        };
+
         return {
             version: '1.0',
             apiName: 'ObjectStack API',
             routes,
             services,
+            capabilities,
         };
     }
 
