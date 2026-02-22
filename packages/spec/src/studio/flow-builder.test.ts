@@ -243,6 +243,7 @@ describe('BUILT_IN_NODE_DESCRIPTORS', () => {
     expect(actions).toContain('loop');
     expect(actions).toContain('subflow');
     expect(actions).toContain('connector_action');
+    expect(BUILT_IN_NODE_DESCRIPTORS).toHaveLength(18);
   });
 
   it('should validate all built-in descriptors against schema', () => {

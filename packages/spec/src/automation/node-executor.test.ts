@@ -242,7 +242,7 @@ describe('Wait Executor — pause/resume scenario', () => {
         comments: 'All checks passed',
       },
       resumedBy: 'webhook_service',
-      resumedAt: new Date().toISOString(),
+      resumedAt: '2026-02-22T14:00:00Z',
       variables: {
         approval_status: 'approved',
       },
