@@ -148,6 +148,14 @@ describe('ObjectStackProtocolImplementation - Dynamic Service Discovery', () => 
     expect(discovery.capabilities).toBeDefined();
     // workflow is registered but doesn't map to a well-known capability directly
     expect(discovery.services.workflow.enabled).toBe(true);
+    // All well-known capabilities should be false since workflow doesn't map to any
+    expect(discovery.capabilities!.feed).toBe(false);
+    expect(discovery.capabilities!.comments).toBe(false);
+    expect(discovery.capabilities!.automation).toBe(false);
+    expect(discovery.capabilities!.cron).toBe(false);
+    expect(discovery.capabilities!.search).toBe(false);
+    expect(discovery.capabilities!.export).toBe(false);
+    expect(discovery.capabilities!.chunkedUpload).toBe(false);
   });
 
   it('should set all capabilities to false when no services are registered', async () => {
