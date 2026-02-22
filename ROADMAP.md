@@ -701,9 +701,14 @@ Final polish and advanced features.
   - [x] CLI: `os plugin build` — protocol schemas for build options & results (`cli-plugin-commands.zod.ts`)
   - [x] CLI: `os plugin validate` — protocol schemas for validation options, findings & results
   - [x] CLI: `os plugin publish` — protocol schemas for publish options & results
+  - [x] CLI: `os plugin build` — command implementation with checksum computation & optional signing (`packages/cli`)
+  - [x] CLI: `os plugin validate` — command implementation with checksum, signature, and platform checks (`packages/cli`)
+  - [x] CLI: `os plugin publish` — command implementation with marketplace REST API upload (`packages/cli`)
   - [x] Runtime: package dependency resolution & platform compatibility enforcement (`IPackageService` contract)
   - [x] Runtime: namespace conflict detection at install time (`IPackageService.checkNamespaces`)
   - [x] Runtime: package upgrade lifecycle — plan, snapshot, execute, validate, rollback (`IPackageService` contract)
+  - [x] Runtime: `NamespaceResolver` — namespace registration, conflict detection, suggestion generation (`@objectstack/core`)
+  - [x] Runtime: `PackageManager` — install, upgrade, rollback, uninstall with dependency & namespace checks (`@objectstack/core`)
   - [x] API: `/api/v1/packages/install` — install with dependency & namespace checks (`package-api.zod.ts`)
   - [x] API: `/api/v1/packages/upgrade` — upgrade with plan, rollback support
   - [x] API: `/api/v1/packages/resolve-dependencies` — topological sort & conflict detection
