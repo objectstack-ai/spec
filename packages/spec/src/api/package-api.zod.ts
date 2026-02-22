@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { BaseResponseSchema } from './contract.zod';
 import { InstalledPackageSchema } from '../kernel/package-registry.zod';
 import { DependencyResolutionResultSchema } from '../kernel/dependency-resolution.zod';
-import { UpgradePlanSchema, UpgradePackageResponseSchema, RollbackPackageResponseSchema } from '../kernel/package-upgrade.zod';
+import { UpgradePlanSchema } from '../kernel/package-upgrade.zod';
 import { PackageArtifactSchema } from '../kernel/package-artifact.zod';
 import { ManifestSchema } from '../kernel/manifest.zod';
 import { ArtifactReferenceSchema } from '../cloud/marketplace.zod';

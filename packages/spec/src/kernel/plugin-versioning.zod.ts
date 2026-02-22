@@ -296,7 +296,7 @@ export const DependencyConflictSchema = z.object({
  * Dependency Resolution Result
  * Result of dependency resolution process
  */
-export const DependencyResolutionResultSchema = z.object({
+export const PluginDependencyResolutionResultSchema = z.object({
   /**
    * Resolution successful
    */
@@ -467,6 +467,6 @@ export type DeprecationNotice = z.infer<typeof DeprecationNoticeSchema>;
 export type CompatibilityMatrixEntry = z.infer<typeof CompatibilityMatrixEntrySchema>;
 export type PluginCompatibilityMatrix = z.infer<typeof PluginCompatibilityMatrixSchema>;
 export type DependencyConflict = z.infer<typeof DependencyConflictSchema>;
-export type DependencyResolutionResult = z.infer<typeof DependencyResolutionResultSchema>;
+export type PluginDependencyResolutionResult = z.infer<typeof PluginDependencyResolutionResultSchema>;
 export type MultiVersionSupport = z.infer<typeof MultiVersionSupportSchema>;
 export type PluginVersionMetadata = z.infer<typeof PluginVersionMetadataSchema>;

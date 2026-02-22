@@ -8,7 +8,7 @@ import {
   CompatibilityMatrixEntrySchema,
   PluginCompatibilityMatrixSchema,
   DependencyConflictSchema,
-  DependencyResolutionResultSchema,
+  PluginDependencyResolutionResultSchema,
   MultiVersionSupportSchema,
   PluginVersionMetadataSchema,
 } from './plugin-versioning.zod';
@@ -271,7 +271,7 @@ describe('Plugin Versioning Schemas', () => {
     });
   });
 
-  describe('DependencyResolutionResultSchema', () => {
+  describe('PluginDependencyResolutionResultSchema', () => {
     it('should validate successful resolution', () => {
       const result = {
         success: true,
@@ -293,7 +293,7 @@ describe('Plugin Versioning Schemas', () => {
           'com.acme.plugin-b': [],
         },
       };
-      const parsed = DependencyResolutionResultSchema.parse(result);
+      const parsed = PluginDependencyResolutionResultSchema.parse(result);
       expect(parsed.success).toBe(true);
       expect(parsed.resolved).toHaveLength(2);
       expect(parsed.installationOrder).toEqual(['com.acme.plugin-b', 'com.acme.plugin-a']);
@@ -315,7 +315,7 @@ describe('Plugin Versioning Schemas', () => {
         ],
         warnings: ['Plugin C is deprecated'],
       };
-      const parsed = DependencyResolutionResultSchema.parse(result);
+      const parsed = PluginDependencyResolutionResultSchema.parse(result);
       expect(parsed.success).toBe(false);
       expect(parsed.conflicts).toHaveLength(1);
     });
@@ -428,7 +428,7 @@ describe('Plugin Versioning Schemas', () => {
     });
 
     it('should handle dependency conflict resolution', () => {
-      const resolution = DependencyResolutionResultSchema.parse({
+      const resolution = PluginDependencyResolutionResultSchema.parse({
         success: false,
         conflicts: [
           {
