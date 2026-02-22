@@ -28,7 +28,7 @@ import type {
   RollbackPackageResponse,
 } from '../kernel/package-upgrade.zod';
 import type { PackageArtifact } from '../kernel/package-artifact.zod';
-import type { Manifest } from '../kernel/manifest.zod';
+import type { ObjectStackManifest } from '../kernel/manifest.zod';
 
 // ==========================================
 // Install Types
@@ -39,7 +39,7 @@ import type { Manifest } from '../kernel/manifest.zod';
  */
 export interface InstallPackageInput {
   /** The package manifest to install */
-  manifest: Manifest;
+  manifest: ObjectStackManifest;
   /** User-provided settings at install time */
   settings?: Record<string, unknown>;
   /** Whether to enable immediately after install (default: true) */
@@ -71,7 +71,7 @@ export interface InstallPackageResult {
  */
 export interface ResolveDependenciesInput {
   /** The package manifest whose dependencies to resolve */
-  manifest: Manifest;
+  manifest: ObjectStackManifest;
   /** Current platform version for compatibility filtering */
   platformVersion?: string;
 }
@@ -113,7 +113,7 @@ export interface PlanUpgradeInput {
   /** Target version to upgrade to */
   targetVersion?: string;
   /** New manifest for the target version */
-  manifest?: Manifest;
+  manifest?: ObjectStackManifest;
 }
 
 /**
@@ -125,7 +125,7 @@ export interface ExecuteUpgradeInput {
   /** Target version */
   targetVersion?: string;
   /** New manifest */
-  manifest?: Manifest;
+  manifest?: ObjectStackManifest;
   /** Whether to create a pre-upgrade snapshot */
   createSnapshot?: boolean;
   /** Merge strategy for customizations */
