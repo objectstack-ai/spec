@@ -1,6 +1,6 @@
 # ObjectStack Protocol — Road Map
 
-> **Last Updated:** 2026-02-21  
+> **Last Updated:** 2026-02-22  
 > **Current Version:** v3.0.6  
 > **Status:** Protocol Specification Complete · Runtime Implementation In Progress
 
@@ -30,8 +30,8 @@
 
 ## Current State Summary
 
-ObjectStack v3.0 has achieved **comprehensive protocol specification** with 175 Zod schemas,
-27 service contracts, and 7,111 `.describe()` annotations providing machine-readable documentation.
+ObjectStack v3.0 has achieved **comprehensive protocol specification** with 193 Zod schemas,
+27 service contracts, and 8,425 `.describe()` annotations providing machine-readable documentation.
 The core kernel, data engine, metadata system, and developer tooling are production-ready.
 The primary focus now shifts to implementing the remaining 19 service contracts and hardening
 the ecosystem for enterprise workloads.
@@ -93,13 +93,13 @@ This strategy ensures rapid iteration while maintaining a clear path to producti
 | Packages (total) | 27 |
 | Apps | 2 (Studio, Docs) |
 | Examples | 4 (Todo, CRM, Host, BI Plugin) |
-| Zod Schema Files | 178 |
+| Zod Schema Files | 193 |
 | Exported Schemas | 1,100+ |
-| `.describe()` Annotations | 7,111+ |
+| `.describe()` Annotations | 8,425+ |
 | Service Contracts | 27 |
 | Contracts Implemented | 13 (52%) |
-| Test Files | 210 |
-| Tests Passing | 5,953 / 5,953 |
+| Test Files | 218 |
+| Tests Passing | 6,202 / 6,202 |
 | `@deprecated` Items | 3 |
 | Protocol Domains | 15 (Data, UI, AI, API, Automation, Cloud, Contracts, Identity, Integration, Kernel, QA, Security, Shared, Studio, System) |
 
@@ -109,7 +109,7 @@ This strategy ensures rapid iteration while maintaining a clear path to producti
 
 > **Goal:** Prioritize APIs and client capabilities needed by [ObjectUI](https://github.com/objectstack-ai/objectui/blob/main/ROADMAP.md) frontend development.  
 > **Target:** v3.1 protocol to fill core platform gaps.  
-> **Updated:** 2026-02-21  
+> **Updated:** 2026-02-22  
 > **Owner:** @hotlong
 
 ### 1. Comments & Collaboration API for ObjectUI
@@ -171,6 +171,12 @@ Multi-stage triggers, action pipelines, execution logs, and cron scheduling stan
 | BPMN boundary events (error/timer/signal) | ✅ | `automation/flow.zod.ts` → `boundary_event` node type + `boundaryConfig` (interrupting/non-interrupting) |
 | BPMN wait event configuration | ✅ | `automation/flow.zod.ts` → `waitEventConfig` (timer/signal/webhook/manual/condition event types) |
 | BPMN checkpoint reasons (parallel join, boundary) | ✅ | `automation/execution.zod.ts` → `parallel_join`, `boundary_event` in `CheckpointSchema.reason` |
+| Wait node executor plugin protocol | ✅ | `automation/node-executor.zod.ts` → `WaitExecutorConfigSchema`, `WaitResumePayloadSchema`, `NodeExecutorDescriptorSchema` (19 tests) |
+| BPMN XML interop protocol (import/export) | ✅ | `automation/bpmn-interop.zod.ts` → `BpmnImportOptionsSchema`, `BpmnExportOptionsSchema`, `BpmnInteropResultSchema`, `BUILT_IN_BPMN_MAPPINGS` (20 tests) |
+| Studio Flow Builder protocol (canvas nodes/edges) | ✅ | `studio/flow-builder.zod.ts` → `FlowBuilderConfigSchema`, `FlowCanvasNodeSchema`, `FlowCanvasEdgeSchema`, `BUILT_IN_NODE_DESCRIPTORS` (23 tests) |
+| Wait node runtime pause/resume executor | 🔴 | Runtime: `NodeExecutor` plugin for `wait` nodes (spec ready, runtime not yet implemented) |
+| Studio Flow Builder canvas UI | 🔴 | Runtime: visual canvas with parallel/join/boundary node controls (spec ready, UI not yet implemented) |
+| BPMN XML import/export plugin | 🔴 | Runtime: plugin-based BPMN 2.0 XML importer/exporter (spec ready, low priority) |
 
 ### 3. File Direct Upload & Resumable Upload Protocol
 
@@ -305,7 +311,7 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 ## Phase 1: Protocol Specification (✅ Complete)
 
 > **Goal:** Define every schema, type, and contract as a Zod-first source of truth.  
-> **Result:** 175 Zod schemas, 27 service contracts, 7,111+ `.describe()` annotations across 15 protocol domains.
+> **Result:** 193 Zod schemas, 27 service contracts, 8,425+ `.describe()` annotations across 15 protocol domains.
 
 <details>
 <summary>Deliverables — All Completed (click to expand)</summary>
@@ -314,7 +320,7 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 - [x] **Driver Specifications** — Memory, PostgreSQL, MongoDB driver schemas + SQL/NoSQL abstractions
 - [x] **UI Protocol** — View (List/Form/Kanban/Calendar/Gantt), App, Dashboard, Report, Action, Page (16 types), Chart, Widget, Theme, Animation, DnD, Touch, Keyboard, Responsive, Offline, Notification, i18n, Content Elements, Enhanced Activity Timeline (`RecordActivityProps` unified timeline, `RecordChatterProps` sidebar/drawer), Unified Navigation Protocol (`NavigationItem` as single source of truth with 7 types: object/dashboard/page/url/report/action/group; `NavigationArea` for business domain partitioning; `order`/`badge`/`requiredPermissions` on all nav items), Airtable Interface Parity (`UserActionsConfig`, `AppearanceConfig`, `ViewTab`, `AddRecordConfig`, `InterfacePageConfig`, `showRecordCount`, `allowPrinting`)
 - [x] **System Protocol** — Manifest, Auth Config, Cache, Logging, Metrics, Tracing, Audit, Encryption, Masking, Migration, Tenant, Translation, Search Engine, HTTP Server, Worker, Job, Object Storage, Notification, Message Queue, Registry Config, Collaboration, Compliance, Change Management, Disaster Recovery, License, Security Context, Core Services, SystemObjectName/SystemFieldName Constants, StorageNameMapping Utilities
-- [x] **Automation Protocol** — Flow (autolaunched/screen/schedule), Workflow, State Machine, Trigger Registry, Approval, ETL, Sync, Webhook
+- [x] **Automation Protocol** — Flow (autolaunched/screen/schedule), Workflow, State Machine, Trigger Registry, Approval, ETL, Sync, Webhook, BPMN Semantics (parallel/join gateways, boundary events, wait events, default sequence flows), Node Executor Plugin Protocol (wait pause/resume, executor descriptors), BPMN XML Interop (import/export options, element mappings, diagnostics)
 - [x] **AI Protocol** — Agent, Agent Action, Conversation, Cost, MCP, Model Registry, NLQ, Orchestration, Predictive, RAG Pipeline, Runtime Ops, Feedback Loop, DevOps Agent, Plugin Development
 - [x] **API Protocol** — Protocol (104 schemas), Endpoint, Contract, Router, Dispatcher, REST Server, GraphQL, OData, WebSocket, Realtime, Batch, Versioning, HTTP Cache, Documentation, Discovery, Registry, Errors, Auth, Auth Endpoints, Metadata, Analytics, Query Adapter, Storage, Plugin REST API, Feed API (Feed CRUD, Reactions, Subscription), Automation API (CRUD + Toggle + Runs)
 - [x] **Security Protocol** — Permission, Policy, RLS, Sharing, Territory
@@ -323,7 +329,7 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 - [x] **Cloud Protocol** — Marketplace, App Store, Developer Portal, Marketplace Admin
 - [x] **Integration Protocol** — Connector (Database, SaaS, File Storage, GitHub, Message Queue, Vercel)
 - [x] **QA Protocol** — Testing framework schemas
-- [x] **Studio Protocol** — Plugin extension schemas
+- [x] **Studio Protocol** — Plugin extension schemas, Object Designer (field editor, relationship mapper, ER diagram), Page Builder (canvas, palette), Flow Builder (canvas nodes, edges, BPMN node descriptors, layout algorithms)
 - [x] **Contracts** — 27 service interfaces with full method signatures
 - [x] **Stack Definition** — `defineStack()`, `defineView()`, `defineApp()`, `defineFlow()`, `defineAgent()` helpers
 - [x] **Stack Composition** — `composeStacks()` for declarative multi-stack merging with conflict resolution (`error`/`override`/`merge`)
@@ -683,7 +689,8 @@ Final polish and advanced features.
 - [ ] Object Manager — unified object list with search, filter, card/table/tree views, quick preview, statistics
 - [ ] View Builder — drag-and-drop list/form/dashboard designers
 - [ ] Page Builder — drag-and-drop page designer with element palette (see [Gap Analysis](docs/design/airtable-interface-gap-analysis.md))
-- [ ] Flow Builder — visual automation flow editor
+- [x] Flow Builder Protocol — canvas node shapes, edge styles, BPMN node descriptors (parallel_gateway, join_gateway, boundary_event, wait), layout algorithms, palette categories (`studio/flow-builder.zod.ts`)
+- [ ] Flow Builder Runtime — visual automation flow editor with drag-and-drop canvas, node palette, property panel, minimap
 - [ ] Security Console — permission matrix, RLS policy editor
 - [ ] AI Playground — agent testing, NLQ sandbox
 - [ ] Code Editor — Monaco-based TypeScript editing with live preview

@@ -10,3 +10,5 @@ export * from './etl.zod';
 export * from './trigger-registry.zod';
 export * from './sync.zod';
 export * from './state-machine.zod';
+export * from './node-executor.zod';
+export * from './bpmn-interop.zod';

@@ -99,3 +99,29 @@ export {
   /** @deprecated Use PageBuilderConfig instead */
   type InterfaceBuilderConfig,
 } from './page-builder.zod';
+
+export {
+  // Flow Builder Schemas
+  FlowNodeShapeSchema,
+  FlowNodeRenderDescriptorSchema,
+  FlowCanvasNodeSchema,
+  FlowCanvasEdgeStyleSchema,
+  FlowCanvasEdgeSchema,
+  FlowLayoutAlgorithmSchema,
+  FlowLayoutDirectionSchema,
+  FlowBuilderConfigSchema,
+  BUILT_IN_NODE_DESCRIPTORS,
+
+  // Flow Builder Types
+  type FlowNodeShape,
+  type FlowNodeRenderDescriptor,
+  type FlowCanvasNode,
+  type FlowCanvasEdgeStyle,
+  type FlowCanvasEdge,
+  type FlowLayoutAlgorithm,
+  type FlowLayoutDirection,
+  type FlowBuilderConfig,
+
+  // Flow Builder Helpers
+  defineFlowBuilderConfig,
+} from './flow-builder.zod';
