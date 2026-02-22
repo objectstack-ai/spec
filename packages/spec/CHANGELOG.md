@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 3.0.9
+
+### Patch Changes
+
+- 15e0df6: chore: unify all package versions to 3.0.8
+
 ## 3.0.8
 
 ### Patch Changes

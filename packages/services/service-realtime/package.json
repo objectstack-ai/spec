@@ -1,6 +1,6 @@
 {
   "name": "@objectstack/service-realtime",
-  "version": "3.0.8",
+  "version": "3.0.9",
   "license": "Apache-2.0",
   "description": "Realtime Service for ObjectStack — implements IRealtimeService with WebSocket and in-memory pub/sub",
   "type": "module",
