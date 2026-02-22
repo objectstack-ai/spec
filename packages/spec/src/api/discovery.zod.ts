@@ -146,6 +146,30 @@ export const DiscoverySchema = z.object({
   metadata: z.record(z.string(), z.unknown()).optional().describe('Custom metadata key-value pairs for extensibility'),
 });
 
+/**
+ * Well-Known Capabilities Schema
+ * Flat boolean flags for quick feature detection by clients (ObjectUI).
+ * Each flag indicates whether the backend supports a specific capability.
+ * Clients can use these to show/hide UI elements without probing individual endpoints.
+ */
+export const WellKnownCapabilitiesSchema = z.object({
+  /** Whether the backend supports Feed / Chatter API */
+  feed: z.boolean().describe('Whether the backend supports Feed / Chatter API'),
+  /** Whether the backend supports comments (a subset of Feed) */
+  comments: z.boolean().describe('Whether the backend supports comments (a subset of Feed)'),
+  /** Whether the backend supports Automation CRUD (flows, triggers) */
+  automation: z.boolean().describe('Whether the backend supports Automation CRUD (flows, triggers)'),
+  /** Whether the backend supports cron scheduling */
+  cron: z.boolean().describe('Whether the backend supports cron scheduling'),
+  /** Whether the backend supports full-text search */
+  search: z.boolean().describe('Whether the backend supports full-text search'),
+  /** Whether the backend supports async export */
+  export: z.boolean().describe('Whether the backend supports async export'),
+  /** Whether the backend supports chunked (multipart) uploads */
+  chunkedUpload: z.boolean().describe('Whether the backend supports chunked (multipart) uploads'),
+}).describe('Well-known capability flags for frontend intelligent adaptation');
+
+export type WellKnownCapabilities = z.infer<typeof WellKnownCapabilitiesSchema>;
 export type DiscoveryResponse = z.infer<typeof DiscoverySchema>;
 export type ApiRoutes = z.infer<typeof ApiRoutesSchema>;
 export type ServiceInfo = z.infer<typeof ServiceInfoSchema>;

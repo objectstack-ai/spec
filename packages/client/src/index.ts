@@ -86,6 +86,7 @@ import {
   GetChangelogResponse,
   SubscribeResponse,
   UnsubscribeResponse,
+  WellKnownCapabilities,
 } from '@objectstack/spec/api';
 import { Logger, createLogger } from '@objectstack/core';
 
@@ -253,6 +254,15 @@ export class ObjectStackClient {
       this.logger.error('Failed to connect to ObjectStack server', e as Error, { baseUrl: this.baseUrl });
       throw e;
     }
+  }
+
+  /**
+   * Well-known capability flags discovered from the server.
+   * Returns undefined if the client has not yet connected or the server
+   * did not include capabilities in its discovery response.
+   */
+  get capabilities(): WellKnownCapabilities | undefined {
+    return this.discoveryInfo?.capabilities;
   }
 
   /**
@@ -1747,4 +1757,5 @@ export type {
   GetChangelogResponse,
   SubscribeResponse,
   UnsubscribeResponse,
+  WellKnownCapabilities,
 } from '@objectstack/spec/api';

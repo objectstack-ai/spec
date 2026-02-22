@@ -786,4 +786,44 @@ describe('ObjectStackClient.automation', () => {
             expect.objectContaining({ method: 'POST' }),
         );
     });
+
+    // ==========================================
+    // capabilities getter
+    // ==========================================
+
+    it('should return undefined capabilities before connect', () => {
+        const client = new ObjectStackClient({ baseUrl: 'http://localhost:3000' });
+        expect(client.capabilities).toBeUndefined();
+    });
+
+    it('should expose capabilities after connect', async () => {
+        const caps = {
+            feed: true,
+            comments: true,
+            automation: false,
+            cron: false,
+            search: true,
+            export: false,
+            chunkedUpload: false,
+        };
+        const fetchMock = vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => ({
+                version: 'v1',
+                apiName: 'ObjectStack API',
+                capabilities: caps,
+            }),
+        });
+
+        const client = new ObjectStackClient({
+            baseUrl: 'http://localhost:3000',
+            fetch: fetchMock,
+        });
+
+        await client.connect();
+        expect(client.capabilities).toBeDefined();
+        expect(client.capabilities!.feed).toBe(true);
+        expect(client.capabilities!.automation).toBe(false);
+        expect(client.capabilities!.search).toBe(true);
+    });
 });

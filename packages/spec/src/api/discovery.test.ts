@@ -3,9 +3,11 @@ import {
   DiscoverySchema,
   ApiRoutesSchema,
   ServiceInfoSchema,
+  WellKnownCapabilitiesSchema,
   type DiscoveryResponse,
   type ApiRoutes,
   type ServiceInfo,
+  type WellKnownCapabilities,
 } from './discovery.zod';
 
 describe('ApiRoutesSchema', () => {
@@ -681,5 +683,66 @@ describe('DiscoverySchema (schemaDiscovery field)', () => {
     });
     expect(discovery.schemaDiscovery?.openapi).toBe('/api/v1/openapi.json');
     expect(discovery.schemaDiscovery?.graphql).toBeUndefined();
+  });
+});
+
+// ==========================================
+// WellKnownCapabilitiesSchema
+// ==========================================
+
+describe('WellKnownCapabilitiesSchema', () => {
+  it('should accept all capabilities enabled', () => {
+    const caps: WellKnownCapabilities = {
+      feed: true,
+      comments: true,
+      automation: true,
+      cron: true,
+      search: true,
+      export: true,
+      chunkedUpload: true,
+    };
+    expect(() => WellKnownCapabilitiesSchema.parse(caps)).not.toThrow();
+  });
+
+  it('should accept all capabilities disabled', () => {
+    const caps = WellKnownCapabilitiesSchema.parse({
+      feed: false,
+      comments: false,
+      automation: false,
+      cron: false,
+      search: false,
+      export: false,
+      chunkedUpload: false,
+    });
+    expect(caps.feed).toBe(false);
+    expect(caps.chunkedUpload).toBe(false);
+  });
+
+  it('should reject missing required fields', () => {
+    expect(() => WellKnownCapabilitiesSchema.parse({ feed: true })).toThrow();
+    expect(() => WellKnownCapabilitiesSchema.parse({})).toThrow();
+  });
+
+  it('should reject non-boolean values', () => {
+    expect(() => WellKnownCapabilitiesSchema.parse({
+      feed: 'yes',
+      comments: true,
+      automation: true,
+      cron: true,
+      search: true,
+      export: true,
+      chunkedUpload: true,
+    })).toThrow();
+  });
+
+  it('should have .describe() annotations on all fields', () => {
+    const shape = WellKnownCapabilitiesSchema.shape;
+    expect(shape.feed.description).toBeDefined();
+    expect(shape.comments.description).toBeDefined();
+    expect(shape.automation.description).toBeDefined();
+    expect(shape.cron.description).toBeDefined();
+    expect(shape.search.description).toBeDefined();
+    expect(shape.export.description).toBeDefined();
+    expect(shape.chunkedUpload.description).toBeDefined();
   });
 });

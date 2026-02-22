@@ -223,6 +223,9 @@ Strengthen discovery capabilities for frontend intelligent adaptation.
 | Localization info (locale, timezone) | ✅ | `api/discovery.zod.ts` |
 | Custom metadata extensions | ✅ | `api/discovery.zod.ts` |
 | Capabilities declaration (comments, automation, search, cron, files, analytics) | ✅ | `api/discovery.zod.ts` → `capabilities` with hierarchical descriptors |
+| Well-known capabilities (feed, comments, automation, cron, search, export, chunkedUpload) | ✅ | `api/discovery.zod.ts` → `WellKnownCapabilitiesSchema`, `protocol.zod.ts` → `GetDiscoveryResponseSchema.capabilities` |
+| Dynamic capabilities population from registered services | ✅ | `objectql/protocol.ts` → `getDiscovery()` builds capabilities from service registry |
+| Client SDK `capabilities` getter | ✅ | `client/index.ts` → `ObjectStackClient.capabilities` |
 | Per-service version info | ✅ | `api/discovery.zod.ts` → `ServiceInfoSchema.version` |
 | Rate limit & quota disclosure | ✅ | `api/discovery.zod.ts` → `ServiceInfoSchema.rateLimit` |
 | OpenAPI/GraphQL schema discovery endpoint | ✅ | `api/discovery.zod.ts` → `DiscoverySchema.schemaDiscovery` |
