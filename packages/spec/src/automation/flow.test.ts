@@ -18,6 +18,7 @@ describe('FlowNodeAction', () => {
       'start', 'end', 'decision', 'assignment', 'loop',
       'create_record', 'update_record', 'delete_record', 'get_record',
       'http_request', 'script', 'wait', 'subflow',
+      'parallel_gateway', 'join_gateway', 'boundary_event',
     ];
     
     actions.forEach(action => {
@@ -120,6 +121,7 @@ describe('FlowNodeSchema', () => {
       'start', 'end', 'decision', 'assignment', 'loop',
       'create_record', 'update_record', 'delete_record', 'get_record',
       'http_request', 'script', 'wait', 'subflow',
+      'parallel_gateway', 'join_gateway', 'boundary_event',
     ] as const;
 
     types.forEach(type => {
@@ -749,5 +751,355 @@ describe('FlowVersionHistorySchema', () => {
   it('should require flowName, version, definition, and createdAt', () => {
     const result = FlowVersionHistorySchema.safeParse({});
     expect(result.success).toBe(false);
+  });
+});
+
+// ============================================================================
+// BPMN Business Semantics Tests
+// ============================================================================
+
+describe('BPMN — Parallel Gateway & Join Gateway', () => {
+  it('should accept parallel_gateway node type', () => {
+    const result = FlowNodeSchema.safeParse({
+      id: 'pg_1',
+      type: 'parallel_gateway',
+      label: 'Fork — parallel approval',
+      position: { x: 200, y: 100 },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('should accept join_gateway node type', () => {
+    const result = FlowNodeSchema.safeParse({
+      id: 'jg_1',
+      type: 'join_gateway',
+      label: 'Join — wait for all branches',
+      position: { x: 200, y: 400 },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('should validate a complete parallel approval flow', () => {
+    const flow: Flow = {
+      name: 'parallel_approval',
+      label: 'Parallel Approval Flow',
+      description: 'Demonstrates AND-split / AND-join for multi-department approval',
+      type: 'record_change',
+      nodes: [
+        { id: 'start', type: 'start', label: 'Start' },
+        { id: 'fork', type: 'parallel_gateway', label: 'Fork — Parallel Approval' },
+        { id: 'finance_review', type: 'connector_action', label: 'Finance Review' },
+        { id: 'legal_review', type: 'connector_action', label: 'Legal Review' },
+        { id: 'join', type: 'join_gateway', label: 'Join — All Approved' },
+        { id: 'final_approve', type: 'update_record', label: 'Final Approve' },
+        { id: 'end', type: 'end', label: 'End' },
+      ],
+      edges: [
+        { id: 'e1', source: 'start', target: 'fork' },
+        { id: 'e2', source: 'fork', target: 'finance_review' },
+        { id: 'e3', source: 'fork', target: 'legal_review' },
+        { id: 'e4', source: 'finance_review', target: 'join' },
+        { id: 'e5', source: 'legal_review', target: 'join' },
+        { id: 'e6', source: 'join', target: 'final_approve' },
+        { id: 'e7', source: 'final_approve', target: 'end' },
+      ],
+      active: true,
+      runAs: 'system',
+    };
+
+    const result = FlowSchema.safeParse(flow);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.nodes).toHaveLength(7);
+      const gatewayTypes = result.data.nodes
+        .filter(n => n.type === 'parallel_gateway' || n.type === 'join_gateway')
+        .map(n => n.type);
+      expect(gatewayTypes).toEqual(['parallel_gateway', 'join_gateway']);
+    }
+  });
+});
+
+describe('BPMN — Default Sequence Flow (isDefault)', () => {
+  it('should default isDefault to false', () => {
+    const result = FlowEdgeSchema.parse({
+      id: 'e1',
+      source: 'a',
+      target: 'b',
+    });
+    expect(result.isDefault).toBe(false);
+  });
+
+  it('should accept isDefault: true on an edge', () => {
+    const result = FlowEdgeSchema.parse({
+      id: 'e_default',
+      source: 'decision_1',
+      target: 'fallback_node',
+      isDefault: true,
+      label: 'Default',
+    });
+    expect(result.isDefault).toBe(true);
+  });
+
+  it('should accept conditional edge type', () => {
+    const result = FlowEdgeSchema.parse({
+      id: 'e_cond',
+      source: 'decision_1',
+      target: 'branch_a',
+      type: 'conditional',
+      condition: '{amount} > 1000',
+      label: 'High Value',
+    });
+    expect(result.type).toBe('conditional');
+    expect(result.isDefault).toBe(false);
+  });
+
+  it('should validate a decision with default and conditional branches', () => {
+    const flow: Flow = {
+      name: 'default_branch_flow',
+      label: 'Default Branch Flow',
+      type: 'autolaunched',
+      nodes: [
+        { id: 'start', type: 'start', label: 'Start' },
+        { id: 'check_priority', type: 'decision', label: 'Check Priority' },
+        { id: 'high_path', type: 'update_record', label: 'High Priority Handler' },
+        { id: 'medium_path', type: 'update_record', label: 'Medium Priority Handler' },
+        { id: 'default_path', type: 'update_record', label: 'Default Handler' },
+        { id: 'end', type: 'end', label: 'End' },
+      ],
+      edges: [
+        { id: 'e1', source: 'start', target: 'check_priority' },
+        { id: 'e2', source: 'check_priority', target: 'high_path', type: 'conditional', condition: '{priority} == "high"' },
+        { id: 'e3', source: 'check_priority', target: 'medium_path', type: 'conditional', condition: '{priority} == "medium"' },
+        { id: 'e4', source: 'check_priority', target: 'default_path', isDefault: true, label: 'Default' },
+        { id: 'e5', source: 'high_path', target: 'end' },
+        { id: 'e6', source: 'medium_path', target: 'end' },
+        { id: 'e7', source: 'default_path', target: 'end' },
+      ],
+    };
+
+    const result = FlowSchema.safeParse(flow);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      const defaultEdge = result.data.edges.find(e => e.isDefault);
+      expect(defaultEdge).toBeDefined();
+      expect(defaultEdge!.target).toBe('default_path');
+    }
+  });
+});
+
+describe('BPMN — Wait Event Configuration', () => {
+  it('should accept wait node with timer event config', () => {
+    const result = FlowNodeSchema.safeParse({
+      id: 'wait_timer',
+      type: 'wait',
+      label: 'Wait 1 Hour',
+      waitEventConfig: {
+        eventType: 'timer',
+        timerDuration: 'PT1H',
+        timeoutMs: 7200000,
+        onTimeout: 'fail',
+      },
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.waitEventConfig?.eventType).toBe('timer');
+      expect(result.data.waitEventConfig?.timerDuration).toBe('PT1H');
+    }
+  });
+
+  it('should accept wait node with webhook event config', () => {
+    const result = FlowNodeSchema.safeParse({
+      id: 'wait_webhook',
+      type: 'wait',
+      label: 'Wait for External Webhook',
+      waitEventConfig: {
+        eventType: 'webhook',
+        signalName: 'payment_received',
+        timeoutMs: 86400000,
+        onTimeout: 'continue',
+      },
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.waitEventConfig?.eventType).toBe('webhook');
+      expect(result.data.waitEventConfig?.signalName).toBe('payment_received');
+      expect(result.data.waitEventConfig?.onTimeout).toBe('continue');
+    }
+  });
+
+  it('should accept wait node with signal event config', () => {
+    const result = FlowNodeSchema.safeParse({
+      id: 'wait_signal',
+      type: 'wait',
+      label: 'Wait for Approval Signal',
+      waitEventConfig: {
+        eventType: 'signal',
+        signalName: 'manager_approved',
+      },
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.waitEventConfig?.onTimeout).toBe('fail'); // default
+    }
+  });
+
+  it('should accept wait node with manual resume', () => {
+    const result = FlowNodeSchema.safeParse({
+      id: 'wait_manual',
+      type: 'wait',
+      label: 'Wait for Manual Resume',
+      waitEventConfig: { eventType: 'manual' },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('should accept wait node without waitEventConfig (backward compatible)', () => {
+    const result = FlowNodeSchema.safeParse({
+      id: 'wait_simple',
+      type: 'wait',
+      label: 'Simple Wait',
+    });
+    expect(result.success).toBe(true);
+    expect(result.data?.waitEventConfig).toBeUndefined();
+  });
+});
+
+describe('BPMN — Boundary Event', () => {
+  it('should accept boundary_event node with error event config', () => {
+    const result = FlowNodeSchema.safeParse({
+      id: 'be_error',
+      type: 'boundary_event',
+      label: 'Catch API Error',
+      boundaryConfig: {
+        attachedToNodeId: 'http_call_1',
+        eventType: 'error',
+        interrupting: true,
+        errorCode: 'HTTP_TIMEOUT',
+      },
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.boundaryConfig?.attachedToNodeId).toBe('http_call_1');
+      expect(result.data.boundaryConfig?.eventType).toBe('error');
+      expect(result.data.boundaryConfig?.interrupting).toBe(true);
+    }
+  });
+
+  it('should accept boundary_event with timer (non-interrupting)', () => {
+    const result = FlowNodeSchema.safeParse({
+      id: 'be_timer',
+      type: 'boundary_event',
+      label: 'Escalation Timer',
+      boundaryConfig: {
+        attachedToNodeId: 'approval_node',
+        eventType: 'timer',
+        interrupting: false,
+        timerDuration: 'P3D',
+      },
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.boundaryConfig?.interrupting).toBe(false);
+      expect(result.data.boundaryConfig?.timerDuration).toBe('P3D');
+    }
+  });
+
+  it('should accept boundary_event with signal', () => {
+    const result = FlowNodeSchema.safeParse({
+      id: 'be_signal',
+      type: 'boundary_event',
+      label: 'Catch Cancel Signal',
+      boundaryConfig: {
+        attachedToNodeId: 'long_task',
+        eventType: 'signal',
+        signalName: 'user_cancelled',
+      },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('should default interrupting to true', () => {
+    const result = FlowNodeSchema.safeParse({
+      id: 'be_default',
+      type: 'boundary_event',
+      label: 'Default Boundary',
+      boundaryConfig: {
+        attachedToNodeId: 'some_node',
+        eventType: 'cancel',
+      },
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.boundaryConfig?.interrupting).toBe(true);
+    }
+  });
+
+  it('should validate a flow with boundary error handling', () => {
+    const flow: Flow = {
+      name: 'boundary_error_flow',
+      label: 'Flow with Boundary Error Handling',
+      type: 'autolaunched',
+      nodes: [
+        { id: 'start', type: 'start', label: 'Start' },
+        { id: 'api_call', type: 'http_request', label: 'Call External API', timeoutMs: 5000 },
+        {
+          id: 'api_error_boundary',
+          type: 'boundary_event',
+          label: 'API Timeout Handler',
+          boundaryConfig: {
+            attachedToNodeId: 'api_call',
+            eventType: 'error',
+            interrupting: true,
+            errorCode: 'TIMEOUT',
+          },
+        },
+        { id: 'handle_error', type: 'update_record', label: 'Log Error' },
+        { id: 'end_success', type: 'end', label: 'End Success' },
+        { id: 'end_error', type: 'end', label: 'End Error' },
+      ],
+      edges: [
+        { id: 'e1', source: 'start', target: 'api_call' },
+        { id: 'e2', source: 'api_call', target: 'end_success' },
+        { id: 'e3', source: 'api_error_boundary', target: 'handle_error', type: 'fault' },
+        { id: 'e4', source: 'handle_error', target: 'end_error' },
+      ],
+    };
+
+    const result = FlowSchema.safeParse(flow);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      const boundaryNode = result.data.nodes.find(n => n.type === 'boundary_event');
+      expect(boundaryNode).toBeDefined();
+      expect(boundaryNode!.boundaryConfig?.attachedToNodeId).toBe('api_call');
+      const faultEdge = result.data.edges.find(e => e.type === 'fault');
+      expect(faultEdge).toBeDefined();
+      expect(faultEdge!.source).toBe('api_error_boundary');
+    }
+  });
+});
+
+describe('BPMN — Fault Edge Enhancement', () => {
+  it('should accept fault edge type', () => {
+    const result = FlowEdgeSchema.parse({
+      id: 'fault_1',
+      source: 'node_a',
+      target: 'error_handler',
+      type: 'fault',
+      label: 'On Error',
+    });
+    expect(result.type).toBe('fault');
+  });
+
+  it('should accept all edge types: default, fault, conditional', () => {
+    const types = ['default', 'fault', 'conditional'] as const;
+    types.forEach(type => {
+      const result = FlowEdgeSchema.safeParse({
+        id: `e_${type}`,
+        source: 'a',
+        target: 'b',
+        type,
+      });
+      expect(result.success).toBe(true);
+    });
   });
 });

@@ -178,7 +178,7 @@ export const CheckpointSchema = z.object({
   expiresAt: z.string().datetime().optional().describe('Checkpoint expiration (auto-cleanup)'),
 
   /** Reason */
-  reason: z.enum(['wait', 'screen_input', 'approval', 'error', 'manual_pause'])
+  reason: z.enum(['wait', 'screen_input', 'approval', 'error', 'manual_pause', 'parallel_join', 'boundary_event'])
     .describe('Why the execution was checkpointed'),
 });
 export type Checkpoint = z.infer<typeof CheckpointSchema>;
