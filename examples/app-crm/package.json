@@ -1,6 +1,6 @@
 {
   "name": "@example/app-crm",
-  "version": "3.0.8",
+  "version": "3.0.9",
   "description": "Example CRM implementation using ObjectStack Protocol",
   "license": "Apache-2.0",
   "private": true,
