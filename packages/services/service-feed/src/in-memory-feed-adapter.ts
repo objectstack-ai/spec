@@ -147,6 +147,8 @@ export class InMemoryFeedAdapter implements IFeedService {
       visibility: input.visibility ?? 'public',
       replyCount: 0,
       isEdited: false,
+      pinned: false,
+      starred: false,
       createdAt: now,
     };
 
