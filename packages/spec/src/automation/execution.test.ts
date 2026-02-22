@@ -259,7 +259,7 @@ describe('CheckpointSchema', () => {
   });
 
   it('should accept all valid checkpoint reasons', () => {
-    const reasons = ['wait', 'screen_input', 'approval', 'error', 'manual_pause'];
+    const reasons = ['wait', 'screen_input', 'approval', 'error', 'manual_pause', 'parallel_join', 'boundary_event'];
     reasons.forEach((r) => {
       const cp = CheckpointSchema.parse({
         id: 'cp_test',

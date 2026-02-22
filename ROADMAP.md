@@ -141,7 +141,7 @@ Multi-stage triggers, action pipelines, execution logs, and cron scheduling stan
 
 | Item | Status | Location |
 |:---|:---:|:---|
-| Flow orchestration (14 node types) | ✅ | `automation/flow.zod.ts` |
+| Flow orchestration (18 node types) | ✅ | `automation/flow.zod.ts` |
 | Trigger registry (record, field, webhook) | ✅ | `automation/trigger-registry.zod.ts` |
 | Cron scheduling expression | ✅ | `automation/etl.zod.ts`, `automation/webhook.zod.ts` |
 | Action pipeline (webhook, email, CRUD, notification) | ✅ | `automation/flow.zod.ts` (HTTP, CRUD, script nodes) |
@@ -166,6 +166,11 @@ Multi-stage triggers, action pipelines, execution logs, and cron scheduling stan
 | Safe expression evaluation (no `new Function`) | ✅ | `@objectstack/service-automation` → operator-based parser, no code execution |
 | Node input/output schema validation | ✅ | `automation/flow.zod.ts` → `inputSchema`/`outputSchema` per node, runtime validation |
 | Flow version history & rollback | ✅ | `automation/flow.zod.ts` → `FlowVersionHistorySchema`, engine version management |
+| BPMN parallel gateway & join gateway | ✅ | `automation/flow.zod.ts` → `parallel_gateway` (AND-split), `join_gateway` (AND-join) node types |
+| BPMN default sequence flow | ✅ | `automation/flow.zod.ts` → `isDefault` field + `conditional` edge type on `FlowEdgeSchema` |
+| BPMN boundary events (error/timer/signal) | ✅ | `automation/flow.zod.ts` → `boundary_event` node type + `boundaryConfig` (interrupting/non-interrupting) |
+| BPMN wait event configuration | ✅ | `automation/flow.zod.ts` → `waitEventConfig` (timer/signal/webhook/manual/condition event types) |
+| BPMN checkpoint reasons (parallel join, boundary) | ✅ | `automation/execution.zod.ts` → `parallel_join`, `boundary_event` in `CheckpointSchema.reason` |
 
 ### 3. File Direct Upload & Resumable Upload Protocol
 

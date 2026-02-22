@@ -6,21 +6,24 @@ import { z } from 'zod';
  * Flow Node Types
  */
 export const FlowNodeAction = z.enum([
-  'start',            // Trigger
-  'end',              // Return/Stop
-  'decision',         // If/Else logic
-  'assignment',       // Set Variable
-  'loop',             // For Each
-  'create_record',    // CRUD: Create
-  'update_record',    // CRUD: Update
-  'delete_record',    // CRUD: Delete
-  'get_record',       // CRUD: Get/Query
-  'http_request',     // Webhook/API Call
-  'script',           // Custom Script (JS/TS)
-  'screen',           // Screen / User-Input Element
-  'wait',             // Delay/Sleep
-  'subflow',          // Call another flow
-  'connector_action', // Zapier-style integration action
+  'start',              // Trigger
+  'end',                // Return/Stop
+  'decision',           // If/Else logic
+  'assignment',         // Set Variable
+  'loop',               // For Each
+  'create_record',      // CRUD: Create
+  'update_record',      // CRUD: Update
+  'delete_record',      // CRUD: Delete
+  'get_record',         // CRUD: Get/Query
+  'http_request',       // Webhook/API Call
+  'script',             // Custom Script (JS/TS)
+  'screen',             // Screen / User-Input Element
+  'wait',               // Delay/Sleep
+  'subflow',            // Call another flow
+  'connector_action',   // Zapier-style integration action
+  'parallel_gateway',   // BPMN Parallel Gateway — AND-split (all outgoing branches execute concurrently)
+  'join_gateway',       // BPMN Join Gateway — AND-join (waits for all incoming branches to complete)
+  'boundary_event',     // BPMN Boundary Event — attached to a host node for timer/error/signal interrupts
 ]);
 
 /**
@@ -88,6 +91,47 @@ export const FlowNodeSchema = z.object({
     type: z.enum(['string', 'number', 'boolean', 'object', 'array']).describe('Output type'),
     description: z.string().optional().describe('Output description'),
   })).optional().describe('Output schema declaration for this node'),
+
+  /**
+   * Wait Event Configuration (for 'wait' nodes)
+   * Defines what external event or condition should resume the paused execution.
+   * Industry alignment: BPMN Intermediate Catch Events, Temporal Signals.
+   */
+  waitEventConfig: z.object({
+    /** Type of event to wait for */
+    eventType: z.enum(['timer', 'signal', 'webhook', 'manual', 'condition'])
+      .describe('What kind of event resumes the execution'),
+    /** Duration to wait (ISO 8601 duration or milliseconds) — for timer events */
+    timerDuration: z.string().optional().describe('ISO 8601 duration (e.g., "PT1H") or wait time for timer events'),
+    /** Signal name to listen for — for signal/webhook events */
+    signalName: z.string().optional().describe('Named signal or webhook event to wait for'),
+    /** Timeout before auto-failing or continuing — optional guard */
+    timeoutMs: z.number().int().min(0).optional().describe('Maximum wait time before timeout (ms)'),
+    /** Action to take on timeout */
+    onTimeout: z.enum(['fail', 'continue']).default('fail').describe('Behavior when the wait times out'),
+  }).optional().describe('Configuration for wait node event resumption'),
+
+  /**
+   * Boundary Event Configuration (for 'boundary_event' nodes)
+   * Attaches an event handler to a host activity node (BPMN Boundary Event pattern).
+   * Industry alignment: BPMN Boundary Error/Timer/Signal Events.
+   */
+  boundaryConfig: z.object({
+    /** ID of the host node this boundary event is attached to */
+    attachedToNodeId: z.string().describe('Host node ID this boundary event monitors'),
+    /** Type of boundary event */
+    eventType: z.enum(['error', 'timer', 'signal', 'cancel'])
+      .describe('Boundary event trigger type'),
+    /** Whether the boundary event interrupts the host activity */
+    interrupting: z.boolean().default(true)
+      .describe('If true, the host activity is cancelled when this event fires'),
+    /** Error code filter — only for error boundary events */
+    errorCode: z.string().optional().describe('Specific error code to catch (empty = catch all errors)'),
+    /** Timer duration — only for timer boundary events */
+    timerDuration: z.string().optional().describe('ISO 8601 duration for timer boundary events'),
+    /** Signal name — only for signal boundary events */
+    signalName: z.string().optional().describe('Named signal to catch'),
+  }).optional().describe('Configuration for boundary events attached to host nodes'),
 });
 
 /**
@@ -102,8 +146,17 @@ export const FlowEdgeSchema = z.object({
   /** Condition for this path (only for decision/branch nodes) */
   condition: z.string().optional().describe('Expression returning boolean used for branching'),
   
-  type: z.enum(['default', 'fault']).default('default').describe('Connection type: Standard (Success) or Fault (Error) path'),
+  type: z.enum(['default', 'fault', 'conditional']).default('default')
+    .describe('Connection type: default (normal flow), fault (error path), or conditional (expression-guarded)'),
   label: z.string().optional().describe('Label on the connector'),
+
+  /**
+   * Default Sequence Flow marker (BPMN Default Flow semantics).
+   * When true, this edge is taken when no sibling conditional edges match.
+   * Only meaningful on outgoing edges of decision/gateway nodes.
+   */
+  isDefault: z.boolean().default(false)
+    .describe('Marks this edge as the default path when no other conditions match'),
 });
 
 /**
