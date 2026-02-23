@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
+import { DataClassificationSchema } from './security-context.zod';
 
 /**
  * Supplier Security Protocol — ISO 27001:2022 (A.5.19–A.5.22)
@@ -160,9 +161,8 @@ export const SupplierSecurityAssessmentSchema = z.object({
   /**
    * Data classifications shared with this supplier
    */
-  dataClassificationsShared: z.array(z.enum([
-    'pii', 'phi', 'pci', 'financial', 'confidential', 'internal', 'public',
-  ])).optional().describe('Data classifications shared with supplier'),
+  dataClassificationsShared: z.array(DataClassificationSchema)
+    .optional().describe('Data classifications shared with supplier'),
 
   /**
    * Services provided by the supplier

@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
+import { DataClassificationSchema } from './security-context.zod';
 
 /**
  * Incident Response Protocol — ISO 27001:2022 (A.5.24–A.5.28)
@@ -270,9 +271,8 @@ export const IncidentSchema = z.object({
   /**
    * Data classifications affected (for data breach assessment)
    */
-  affectedDataClassifications: z.array(z.enum([
-    'pii', 'phi', 'pci', 'financial', 'confidential', 'internal', 'public',
-  ])).optional().describe('Affected data classifications'),
+  affectedDataClassifications: z.array(DataClassificationSchema)
+    .optional().describe('Affected data classifications'),
 
   /**
    * Structured response phases tracking

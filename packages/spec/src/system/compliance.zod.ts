@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
+import { ComplianceFrameworkSchema } from './security-context.zod';
 
 /**
  * Compliance protocol for GDPR, CCPA, HIPAA, SOX, PCI-DSS
@@ -161,7 +162,7 @@ export const AuditFindingSchema = z.object({
   /**
    * Compliance framework
    */
-  framework: z.enum(['gdpr', 'hipaa', 'sox', 'pci_dss', 'ccpa', 'iso27001']).optional()
+  framework: ComplianceFrameworkSchema.optional()
     .describe('Related compliance framework'),
 
   /**
@@ -240,7 +241,7 @@ export const AuditScheduleSchema = z.object({
   /**
    * Target compliance framework
    */
-  framework: z.enum(['gdpr', 'hipaa', 'sox', 'pci_dss', 'ccpa', 'iso27001'])
+  framework: ComplianceFrameworkSchema
     .describe('Target compliance framework'),
 
   /**

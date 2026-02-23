@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { z } from 'zod';
+import { DataClassificationSchema } from './security-context.zod';
 
 /**
  * Change Type Enum
@@ -337,9 +338,8 @@ export const ChangeRequestSchema = z.object({
     /**
      * Data classifications affected by this change
      */
-    affectedDataClassifications: z.array(z.enum([
-      'pii', 'phi', 'pci', 'financial', 'confidential', 'internal', 'public',
-    ])).optional().describe('Affected data classifications'),
+    affectedDataClassifications: z.array(DataClassificationSchema)
+      .optional().describe('Affected data classifications'),
 
     /**
      * Whether the change requires security team approval
