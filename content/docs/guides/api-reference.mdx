@@ -139,11 +139,15 @@ Query records with filtering, sorting, selection, and pagination.
 | Parameter | Location | Description |
 |:----------|:---------|:------------|
 | `object` | path | Object name |
-| `$select` | query | Comma-separated field names |
-| `$filter` | query | Filter expression (OData-style or JSON) |
-| `$orderby` | query | Sort expression (e.g. `-created_at`) |
-| `$top` | query | Limit (default: 20) |
-| `$skip` | query | Offset |
+| `select` | query | Comma-separated field names |
+| `filter` | query | Filter expression (JSON). `filters` also accepted for backward compatibility. |
+| `sort` | query | Sort expression (e.g. `name asc` or `-created_at`) |
+| `top` | query | Limit (default: 20) |
+| `skip` | query | Offset |
+| `expand` | query | Comma-separated list of relations to eager-load |
+| `search` | query | Full-text search query |
+
+> **Note:** OData-style `$`-prefixed parameters (`$filter`, `$select`, `$orderby`, `$top`, `$skip`) are supported via the [OData endpoint](/docs/references/api/odata). The standard REST API uses unprefixed parameter names.
 
 **Response**:
 ```json
@@ -157,7 +161,14 @@ Query records with filtering, sorting, selection, and pagination.
 
 ### `GET /data/:object/:id`
 
-Get a single record by ID.
+Get a single record by ID. Only `select` and `expand` query parameters are allowed; all other parameters are discarded.
+
+| Parameter | Location | Description |
+|:----------|:---------|:------------|
+| `object` | path | Object name |
+| `id` | path | Record ID |
+| `select` | query | Comma-separated field names to include |
+| `expand` | query | Comma-separated list of relations to eager-load |
 
 **Response**: `{ object: "account", id: "1", record: { ... } }`
 
