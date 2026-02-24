@@ -8,10 +8,10 @@ import { ResponsiveConfigSchema, PerformanceConfigSchema } from './responsive.zo
 
 /**
  * HTTP Method Enum & HTTP Request Schema
- * Re-exported from shared/http.zod.ts for backward compatibility.
+ * Migrated to shared/http.zod.ts. Re-exported here for backward compatibility.
  */
-export { HttpMethodSchema, HttpRequestSchema } from '../shared/http.zod';
 import { HttpMethodSchema, HttpRequestSchema } from '../shared/http.zod';
+export { HttpMethodSchema, HttpRequestSchema };
 
 /**
  * View Data Source Configuration
