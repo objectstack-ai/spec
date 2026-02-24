@@ -10,7 +10,7 @@ import type {
 } from '@objectstack/spec/api';
 import type { MetadataCacheRequest, MetadataCacheResponse, ServiceInfo, ApiRoutes, WellKnownCapabilities } from '@objectstack/spec/api';
 import type { IFeedService } from '@objectstack/spec/contracts';
-import { parseFilterAST } from '@objectstack/spec/data';
+import { parseFilterAST, isFilterAST } from '@objectstack/spec/data';
 
 // We import SchemaRegistry directly since this class lives in the same package
 import { SchemaRegistry } from './registry.js';
@@ -304,17 +304,21 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
             delete options.orderBy;
         }
 
+        // Filter: normalize `filter`/`filters` (plural) → `filter` (singular, canonical)
+        // Accept both `filter` and `filters` for backward compatibility.
+        if (options.filters !== undefined && options.filter === undefined) {
+            options.filter = options.filters;
+        }
+        delete options.filters;
+
         // Filter: JSON string → object
         if (typeof options.filter === 'string') {
             try { options.filter = JSON.parse(options.filter); } catch { /* keep as-is */ }
         }
-        if (typeof options.filters === 'string') {
-            try { options.filter = JSON.parse(options.filters); delete options.filters; } catch { /* keep as-is */ }
-        }
 
         // Filter AST array → FilterCondition object
         // Converts ["and", ["field", "=", "val"], ...] to { $and: [{ field: "val" }, ...] }
-        if (Array.isArray(options.filter)) {
+        if (isFilterAST(options.filter)) {
             options.filter = parseFilterAST(options.filter);
         }
 

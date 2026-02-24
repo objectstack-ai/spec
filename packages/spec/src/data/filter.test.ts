@@ -14,6 +14,8 @@ import {
   LOGICAL_OPERATORS,
   ALL_OPERATORS,
   parseFilterAST,
+  isFilterAST,
+  VALID_AST_OPERATORS,
   type Filter,
   type QueryFilter,
   type FieldOperators,
@@ -919,5 +921,98 @@ describe('parseFilterAST', () => {
       ],
     });
     expect(() => FilterConditionSchema.parse(result)).not.toThrow();
+  });
+});
+
+// ============================================================================
+// isFilterAST — structural validation
+// ============================================================================
+
+describe('isFilterAST', () => {
+  it('should return false for null/undefined/empty', () => {
+    expect(isFilterAST(null)).toBe(false);
+    expect(isFilterAST(undefined)).toBe(false);
+    expect(isFilterAST([])).toBe(false);
+  });
+
+  it('should return false for non-array types', () => {
+    expect(isFilterAST('not an array')).toBe(false);
+    expect(isFilterAST(42)).toBe(false);
+    expect(isFilterAST(true)).toBe(false);
+    expect(isFilterAST({ status: 'active' })).toBe(false);
+  });
+
+  it('should detect valid comparison node', () => {
+    expect(isFilterAST(['status', '=', 'active'])).toBe(true);
+    expect(isFilterAST(['age', '>', 18])).toBe(true);
+    expect(isFilterAST(['age', '>=', 18])).toBe(true);
+    expect(isFilterAST(['role', 'in', ['admin', 'editor']])).toBe(true);
+    expect(isFilterAST(['name', 'contains', 'John'])).toBe(true);
+    expect(isFilterAST(['name', 'like', 'John'])).toBe(true);
+    expect(isFilterAST(['created_at', 'between', ['2024-01-01', '2024-12-31']])).toBe(true);
+    expect(isFilterAST(['deleted_at', 'is_null', null])).toBe(true);
+  });
+
+  it('should detect valid logical nodes', () => {
+    expect(isFilterAST(['and', ['status', '=', 'active'], ['priority', '=', 'high']])).toBe(true);
+    expect(isFilterAST(['or', ['role', '=', 'admin'], ['role', '=', 'editor']])).toBe(true);
+    expect(isFilterAST(['AND', ['status', '=', 'active']])).toBe(true);
+    expect(isFilterAST(['OR', ['a', '=', 1], ['b', '=', 2]])).toBe(true);
+  });
+
+  it('should detect legacy flat array format', () => {
+    expect(isFilterAST([['status', '=', 'active'], ['priority', '=', 'high']])).toBe(true);
+  });
+
+  it('should reject invalid arrays that are not filter ASTs', () => {
+    // Arbitrary number arrays
+    expect(isFilterAST([1, 2, 3])).toBe(false);
+    // Array of strings that aren't a valid comparison
+    expect(isFilterAST(['hello', 'world'])).toBe(false);
+    // Array where second element is not a known operator
+    expect(isFilterAST(['field', 'UNKNOWN_OP', 'value'])).toBe(false);
+    // Mixed array types
+    expect(isFilterAST([true, false, null])).toBe(false);
+  });
+
+  it('should reject "and"/"or" with no children', () => {
+    expect(isFilterAST(['and'])).toBe(false);
+    expect(isFilterAST(['or'])).toBe(false);
+  });
+
+  it('should reject "and"/"or" with non-array children', () => {
+    expect(isFilterAST(['and', 'not-an-array'])).toBe(false);
+    expect(isFilterAST(['or', 123])).toBe(false);
+  });
+
+  it('should recursively validate children of logical nodes', () => {
+    // Valid: children are valid AST nodes
+    expect(isFilterAST(['and', ['status', '=', 'active'], ['age', '>', 18]])).toBe(true);
+    // Invalid: children are arrays but not valid AST nodes
+    expect(isFilterAST(['and', [1, 2, 3]])).toBe(false);
+    // Nested valid AST
+    expect(isFilterAST(['and', ['or', ['a', '=', 1], ['b', '=', 2]], ['c', '>', 3]])).toBe(true);
+  });
+
+  it('should recursively validate legacy flat array children', () => {
+    // Valid: all children are valid comparison nodes
+    expect(isFilterAST([['status', '=', 'active'], ['age', '>', 18]])).toBe(true);
+    // Invalid: children are arbitrary arrays
+    expect(isFilterAST([[1, 2], [3, 4]])).toBe(false);
+  });
+});
+
+// ============================================================================
+// VALID_AST_OPERATORS constant
+// ============================================================================
+
+describe('VALID_AST_OPERATORS', () => {
+  it('should contain all standard comparison operators', () => {
+    const expected = ['=', '==', '!=', '<>', '>', '>=', '<', '<=', 'in', 'nin', 'not_in',
+      'contains', 'like', 'startswith', 'starts_with', 'endswith', 'ends_with',
+      'between', 'is_null', 'is_not_null'];
+    for (const op of expected) {
+      expect(VALID_AST_OPERATORS.has(op)).toBe(true);
+    }
   });
 });

@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { QueryAST, SortNode, AggregationNode } from '@objectstack/spec/data';
+import { QueryAST, SortNode, AggregationNode, isFilterAST } from '@objectstack/spec/data';
 import { 
   BatchUpdateRequest, 
   BatchUpdateResponse, 
@@ -115,7 +115,10 @@ export type DiscoveryResult = GetDiscoveryResponse;
 
 export interface QueryOptions {
   select?: string[]; // Simplified Selection
-  filters?: Record<string, any>; // Map or AST
+  /** @canonical Preferred filter parameter (singular). */
+  filter?: Record<string, any> | unknown[]; // Map or AST
+  /** @deprecated Use `filter` (singular). Kept for backward compatibility. */
+  filters?: Record<string, any> | unknown[]; // Map or AST
   sort?: string | string[] | SortNode[]; // 'name' or ['-created_at'] or AST
   top?: number;
   skip?: number;
@@ -1445,14 +1448,19 @@ export class ObjectStackClient {
         }
 
         // 4. Handle Filters (Simple vs AST)
-        if (options.filters) {
+        // Canonical HTTP param name: `filter` (singular). `filters` (plural) is accepted
+        // for backward compatibility but `filter` is the standard going forward.
+        const filterValue = options.filter ?? options.filters;
+        if (filterValue) {
              // Detect AST filter format vs simple key-value map. AST filters use an array structure
-             // with [field, operator, value] or [logicOp, ...nodes] shape (see isFilterAST).
+             // with [field, operator, value] or [logicOp, ...nodes] shape (see isFilterAST from spec).
              // For complex filter expressions, use .query() which builds a proper QueryAST.
-             if (this.isFilterAST(options.filters)) {
-                 queryParams.set('filters', JSON.stringify(options.filters));
-             } else {
-                 Object.entries(options.filters).forEach(([k, v]) => {
+             if (this.isFilterAST(filterValue) || Array.isArray(filterValue)) {
+                 // AST or any array → serialize as JSON in `filter` param
+                 queryParams.set('filter', JSON.stringify(filterValue));
+             } else if (typeof filterValue === 'object' && filterValue !== null) {
+                 // Plain key-value map → append each as individual query params
+                 Object.entries(filterValue as Record<string, unknown>).forEach(([k, v]) => {
                      if (v !== undefined && v !== null) {
                         queryParams.append(k, String(v));
                      }
@@ -1571,10 +1579,9 @@ export class ObjectStackClient {
    */
 
   private isFilterAST(filter: any): boolean {
-    // Basic check: if array, it's [field, op, val] or [logic, node, node]
-    // If object but not basic KV map... harder to tell without schema
-    // For now, assume if it passes Array.isArray it's an AST root
-    return Array.isArray(filter);
+    // Delegate to the spec-exported structural validator instead of naive Array.isArray.
+    // This checks for valid AST shapes: [field, op, val], [logic, ...nodes], or [[cond], ...].
+    return isFilterAST(filter);
   }
 
   /**

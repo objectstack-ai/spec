@@ -240,9 +240,9 @@ export const GetUiViewResponseSchema = ViewSchema;
  * {
  *   "object": "customers",
  *   "query": {
- *     "filters": [["status", "=", "active"], ["revenue", ">", 10000]],
- *     "sort": "name desc",
- *     "top": 10
+ *     "where": { "status": "active", "revenue": { "$gt": 10000 } },
+ *     "orderBy": [{ "field": "name", "order": "desc" }],
+ *     "limit": 10
  *   }
  * }
  */
@@ -264,18 +264,54 @@ export const FindDataResponseSchema = z.object({
 });
 
 /**
+ * HTTP Find Query Parameters
+ * 
+ * Canonical HTTP query parameter names for GET /data/:object list endpoints.
+ * The canonical filter parameter is `filter` (singular). The plural `filters` is
+ * accepted for backward compatibility but `filter` is the standard going forward.
+ * 
+ * This schema defines the allowlisted query parameters for HTTP GET list requests.
+ * Server-side parsers (protocol.ts) should accept both `filter` and `filters` and
+ * normalize to `filter` (singular) internally.
+ * 
+ * @example
+ * GET /api/v1/data/contacts?filter={"status":"active"}&select=name,email&top=10&sort=name
+ */
+export const HttpFindQueryParamsSchema = z.object({
+  /** @canonical Singular form — the standard going forward. JSON string of filter expression or AST. */
+  filter: z.string().optional().describe('JSON-encoded filter expression (canonical, singular).'),
+  /** @deprecated Use `filter` (singular). Accepted for backward compatibility. */
+  filters: z.string().optional().describe('JSON-encoded filter expression (deprecated plural alias).'),
+  select: z.string().optional().describe('Comma-separated list of fields to retrieve.'),
+  sort: z.string().optional().describe('Sort expression (e.g. "name asc,created_at desc" or "-created_at").'),
+  orderBy: z.string().optional().describe('Alias for sort (OData compatibility).'),
+  top: z.coerce.number().optional().describe('Max records to return (limit).'),
+  skip: z.coerce.number().optional().describe('Records to skip (offset).'),
+  expand: z.string().optional().describe('Comma-separated list of relations to eager-load.'),
+  search: z.string().optional().describe('Full-text search query.'),
+  distinct: z.coerce.boolean().optional().describe('SELECT DISTINCT flag.'),
+  count: z.coerce.boolean().optional().describe('Include total count in response.'),
+});
+
+/**
  * Get Data Request
  * Retrieval of a single record by its unique identifier.
+ * Only `select` and `expand` are permitted as additional query parameters.
+ * All other query parameters should be discarded to prevent parameter pollution.
  * 
  * @example
  * {
  *   "object": "contracts",
- *   "id": "cnt_123456"
+ *   "id": "cnt_123456",
+ *   "select": ["name", "status", "amount"],
+ *   "expand": ["owner", "account"]
  * }
  */
 export const GetDataRequestSchema = z.object({
   object: z.string().describe('The object name.'),
   id: z.string().describe('The unique record identifier (primary key).'),
+  select: z.array(z.string()).optional().describe('Fields to include in the response (allowlisted query param).'),
+  expand: z.array(z.string()).optional().describe('Relations to eager-load (allowlisted query param).'),
 });
 
 /**

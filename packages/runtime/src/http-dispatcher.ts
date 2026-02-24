@@ -377,8 +377,14 @@ export class HttpDispatcher {
             // GET /data/:object/:id
             if (parts.length === 2 && m === 'GET') {
                 const id = parts[1];
+                // Spec: Only select/expand are allowlisted query params for GET by ID.
+                // All other query parameters are discarded to prevent parameter pollution.
+                const { select, expand } = query || {};
+                const allowedParams: Record<string, unknown> = {};
+                if (select != null) allowedParams.select = select;
+                if (expand != null) allowedParams.expand = expand;
                 // Spec: broker returns GetDataResponse = { object, id, record }
-                const result = await broker.call('data.get', { object: objectName, id, ...query }, { request: context.request });
+                const result = await broker.call('data.get', { object: objectName, id, ...allowedParams }, { request: context.request });
                 return { handled: true, response: this.success(result) };
             }
 
@@ -942,7 +948,8 @@ export class HttpDispatcher {
                         // Map standard CRUD operations
                         if (operation === 'find') {
                              const result = await broker.call('data.query', { object, query }, { request: context.request });
-                             return { handled: true, response: this.success(result.data, { count: result.count }) };
+                             // Spec: FindDataResponse = { object, records, total?, hasMore? }
+                             return { handled: true, response: this.success(result.records, { total: result.total }) };
                         }
                         if (operation === 'get' && query.id) {
                              const result = await broker.call('data.get', { object, id: query.id }, { request: context.request });
