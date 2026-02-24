@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import { FilterConditionSchema } from '../data/filter.zod';
+import { ViewFilterRuleSchema } from './view.zod';
 import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
 import { FeedItemType, FeedFilterMode } from '../data/feed.zod';
 
@@ -77,7 +78,7 @@ export const RecordRelatedListProps = z.object({
     }))
   ]).optional().describe('Sort order for related records'),
   limit: z.number().int().positive().default(5).describe('Number of records to display initially'),
-  filter: z.array(z.unknown()).optional().describe('Additional filter criteria for related records'),
+  filter: z.array(ViewFilterRuleSchema).optional().describe('Additional filter criteria for related records'),
   title: I18nLabelSchema.optional().describe('Custom title for the related list'),
   showViewAll: z.boolean().default(true).describe('Show "View All" link to see all related records'),
   actions: z.array(z.string()).optional().describe('Action IDs available for related records'),

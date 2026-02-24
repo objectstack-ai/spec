@@ -26,6 +26,7 @@ import {
   UserActionsConfigSchema,
   AppearanceConfigSchema,
   ViewTabSchema,
+  ViewFilterRuleSchema,
   AddRecordConfigSchema,
   type View,
   type ListView,
@@ -2298,5 +2299,73 @@ describe('ListViewSchema — Airtable Interface parity fields', () => {
     expect(listView.addRecord).toBeUndefined();
     expect(listView.showRecordCount).toBeUndefined();
     expect(listView.allowPrinting).toBeUndefined();
+  });
+});
+
+// ============================================================================
+// ViewFilterRuleSchema Tests
+// ============================================================================
+
+describe('ViewFilterRuleSchema', () => {
+  it('should accept a filter rule with field, operator, and value', () => {
+    const rule = ViewFilterRuleSchema.parse({
+      field: 'status',
+      operator: 'equals',
+      value: 'active',
+    });
+    expect(rule.field).toBe('status');
+    expect(rule.operator).toBe('equals');
+    expect(rule.value).toBe('active');
+  });
+
+  it('should accept a unary filter rule without value', () => {
+    const rule = ViewFilterRuleSchema.parse({
+      field: 'close_date',
+      operator: 'this_quarter',
+    });
+    expect(rule.value).toBeUndefined();
+  });
+
+  it('should accept boolean and number filter values', () => {
+    expect(() => ViewFilterRuleSchema.parse({ field: 'archived', operator: 'equals', value: false })).not.toThrow();
+    expect(() => ViewFilterRuleSchema.parse({ field: 'amount', operator: 'gte', value: 1000 })).not.toThrow();
+  });
+
+  it('should accept array filter values (for IN operator)', () => {
+    expect(() => ViewFilterRuleSchema.parse({
+      field: 'status',
+      operator: 'in',
+      value: ['active', 'pending'],
+    })).not.toThrow();
+  });
+
+  it('should reject filter rule without field', () => {
+    expect(() => ViewFilterRuleSchema.parse({ operator: 'equals', value: 'x' })).toThrow();
+  });
+
+  it('should reject filter rule without operator', () => {
+    expect(() => ViewFilterRuleSchema.parse({ field: 'status', value: 'x' })).toThrow();
+  });
+});
+
+describe('ListViewSchema filter field', () => {
+  it('should accept typed filter array', () => {
+    const view = ListViewSchema.parse({
+      type: 'grid',
+      columns: ['name', 'status'],
+      filter: [
+        { field: 'status', operator: 'equals', value: 'active' },
+        { field: 'archived', operator: 'equals', value: false },
+      ],
+    });
+    expect(view.filter).toHaveLength(2);
+  });
+
+  it('should reject filter with non-object entries', () => {
+    expect(() => ListViewSchema.parse({
+      type: 'grid',
+      columns: ['name'],
+      filter: ['invalid_string'],
+    })).toThrow();
   });
 });

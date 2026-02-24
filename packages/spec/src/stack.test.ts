@@ -960,3 +960,176 @@ describe('defineStack - Navigation Cross-Reference Validation', () => {
     expect(() => defineStack(config)).not.toThrow();
   });
 });
+
+// ============================================================================
+// Example-Level Strict Validation — mirrors examples/app-todo & examples/app-crm
+// ============================================================================
+
+describe('defineStack - Example-Level Strict Validation', () => {
+  it('should validate a Todo-style app config (strict mode)', () => {
+    const todoConfig = {
+      manifest: {
+        id: 'com.example.todo',
+        namespace: 'todo',
+        version: '2.0.0',
+        type: 'app' as const,
+        name: 'Todo Manager',
+        description: 'A comprehensive Todo app',
+      },
+      objects: [
+        {
+          name: 'task',
+          label: 'Task',
+          fields: {
+            subject: { type: 'text', label: 'Subject', required: true },
+            status: { type: 'select', label: 'Status', options: [
+              { value: 'not_started', label: 'Not Started' },
+              { value: 'in_progress', label: 'In Progress' },
+              { value: 'completed', label: 'Completed' },
+            ]},
+            priority: { type: 'select', label: 'Priority', options: [
+              { value: 'low', label: 'Low' },
+              { value: 'normal', label: 'Normal' },
+              { value: 'high', label: 'High' },
+            ]},
+            category: { type: 'text', label: 'Category' },
+            due_date: { type: 'date', label: 'Due Date' },
+          },
+        },
+      ],
+      data: [
+        {
+          object: 'task',
+          mode: 'upsert' as const,
+          externalId: 'subject',
+          records: [
+            { subject: 'Learn ObjectStack', status: 'completed', priority: 'high', category: 'Work' },
+            { subject: 'Build a cool app', status: 'in_progress', priority: 'normal', category: 'Work' },
+          ],
+        },
+      ],
+      dashboards: [
+        {
+          name: 'task_overview',
+          label: 'Task Overview',
+          widgets: [
+            { title: 'Total Tasks', type: 'metric', object: 'task', aggregate: 'count', layout: { x: 0, y: 0, w: 3, h: 2 } },
+            { title: 'By Status', type: 'pie', object: 'task', categoryField: 'status', aggregate: 'count', layout: { x: 3, y: 0, w: 6, h: 4 } },
+          ],
+        },
+      ],
+      apps: [
+        {
+          name: 'todo_app',
+          label: 'Todo Manager',
+          navigation: [
+            { id: 'nav_tasks', type: 'object' as const, label: 'Tasks', objectName: 'task' },
+            { id: 'nav_dashboard', type: 'dashboard' as const, label: 'Overview', dashboardName: 'task_overview' },
+          ],
+        },
+      ],
+    };
+    expect(() => defineStack(todoConfig, { strict: true })).not.toThrow();
+  });
+
+  it('should validate a CRM-style app config with seed data and reports (strict mode)', () => {
+    const crmConfig = {
+      manifest: {
+        id: 'com.example.crm',
+        namespace: 'crm',
+        version: '1.0.0',
+        type: 'app' as const,
+        name: 'Sales CRM',
+        description: 'Complete sales management solution',
+      },
+      objects: [
+        {
+          name: 'account',
+          label: 'Account',
+          fields: {
+            name: { type: 'text', label: 'Name', required: true },
+            industry: { type: 'text', label: 'Industry' },
+            annual_revenue: { type: 'number', label: 'Annual Revenue' },
+          },
+        },
+        {
+          name: 'opportunity',
+          label: 'Opportunity',
+          fields: {
+            name: { type: 'text', label: 'Name', required: true },
+            amount: { type: 'currency', label: 'Amount' },
+            stage: { type: 'select', label: 'Stage', options: [
+              { value: 'prospecting', label: 'Prospecting' },
+              { value: 'negotiation', label: 'Negotiation' },
+              { value: 'closed_won', label: 'Closed Won' },
+            ]},
+          },
+        },
+      ],
+      data: [
+        {
+          object: 'account',
+          mode: 'upsert' as const,
+          externalId: 'name',
+          records: [
+            { name: 'Acme Corp', industry: 'technology', annual_revenue: 5000000 },
+          ],
+        },
+      ],
+      reports: [
+        {
+          name: 'pipeline_report',
+          label: 'Pipeline Report',
+          objectName: 'opportunity',
+          type: 'summary' as const,
+          columns: [
+            { field: 'name' },
+            { field: 'amount', aggregate: 'sum' as const },
+          ],
+          groupingsDown: [{ field: 'stage' }],
+        },
+      ],
+      dashboards: [
+        {
+          name: 'sales_overview',
+          label: 'Sales Overview',
+          widgets: [
+            { title: 'Pipeline Value', type: 'metric', object: 'opportunity', valueField: 'amount', aggregate: 'sum', layout: { x: 0, y: 0, w: 4, h: 2 } },
+          ],
+        },
+      ],
+      apps: [
+        {
+          name: 'sales_crm',
+          label: 'Sales CRM',
+          icon: 'briefcase',
+          navigation: [
+            { id: 'nav_accounts', type: 'object' as const, label: 'Accounts', objectName: 'account' },
+            { id: 'nav_opportunities', type: 'object' as const, label: 'Opportunities', objectName: 'opportunity' },
+            { id: 'nav_dashboard', type: 'dashboard' as const, label: 'Sales Overview', dashboardName: 'sales_overview' },
+            { id: 'nav_report', type: 'report' as const, label: 'Pipeline', reportName: 'pipeline_report' },
+          ],
+        },
+      ],
+    };
+    expect(() => defineStack(crmConfig, { strict: true })).not.toThrow();
+  });
+
+  it('should reject CRM config with seed data referencing non-existent object', () => {
+    const badConfig = {
+      manifest: {
+        id: 'com.example.crm',
+        name: 'crm',
+        version: '1.0.0',
+        type: 'app' as const,
+      },
+      objects: [
+        { name: 'account', fields: { name: { type: 'text' } } },
+      ],
+      data: [
+        { object: 'contact', records: [{ name: 'John' }] },
+      ],
+    };
+    expect(() => defineStack(badConfig, { strict: true })).toThrow('contact');
+  });
+});

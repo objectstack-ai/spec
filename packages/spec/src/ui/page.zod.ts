@@ -10,6 +10,7 @@ import {
   UserActionsConfigSchema,
   AppearanceConfigSchema,
   ViewTabSchema,
+  ViewFilterRuleSchema,
   AddRecordConfigSchema,
 } from './view.zod';
 
@@ -213,7 +214,7 @@ export const InterfacePageConfigSchema = z.object({
   /** Data binding */
   source: z.string().optional().describe('Source object name for the page'),
   levels: z.number().int().min(1).optional().describe('Number of hierarchy levels to display'),
-  filterBy: z.array(z.unknown()).optional().describe('Page-level filter criteria'),
+  filterBy: z.array(ViewFilterRuleSchema).optional().describe('Page-level filter criteria'),
 
   /** Appearance */
   appearance: AppearanceConfigSchema.optional().describe('Appearance and visualization configuration'),
