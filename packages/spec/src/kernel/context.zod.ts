@@ -153,7 +153,7 @@ export const TenantRuntimeContextSchema = KernelContextSchema.extend({
   tenantPlan: z.enum(['free', 'pro', 'enterprise']).describe('Tenant subscription plan'),
 
   /** Tenant deployment region */
-  tenantRegion: z.string().min(1).describe('Tenant deployment region'),
+  tenantRegion: z.string().optional().describe('Tenant deployment region'),
 
   /** Tenant database connection URL */
   tenantDbUrl: z.string().min(1).describe('Tenant database connection URL'),

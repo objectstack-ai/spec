@@ -217,7 +217,6 @@ describe('TenantRuntimeContextSchema', () => {
     expect(() => TenantRuntimeContextSchema.parse({
       ...baseContext,
       tenantPlan: 'free',
-      tenantRegion: 'us-east',
       tenantDbUrl: 'libsql://test.turso.io',
     })).toThrow();
   });
@@ -227,7 +226,6 @@ describe('TenantRuntimeContextSchema', () => {
       ...baseContext,
       tenantId: '',
       tenantPlan: 'free',
-      tenantRegion: 'us-east',
       tenantDbUrl: 'libsql://test.turso.io',
     })).toThrow();
   });
@@ -237,7 +235,6 @@ describe('TenantRuntimeContextSchema', () => {
       ...baseContext,
       tenantId: 'tenant_test',
       tenantPlan: 'basic',
-      tenantRegion: 'us-east',
       tenantDbUrl: 'libsql://test.turso.io',
     })).toThrow();
   });
@@ -268,9 +265,9 @@ describe('TenantRuntimeContextSchema', () => {
       ...baseContext,
       tenantId: 'tenant_noquota',
       tenantPlan: 'free',
-      tenantRegion: 'us-east',
       tenantDbUrl: 'libsql://noquota.turso.io',
     });
     expect(parsed.tenantQuotas).toBeUndefined();
+    expect(parsed.tenantRegion).toBeUndefined();
   });
 });

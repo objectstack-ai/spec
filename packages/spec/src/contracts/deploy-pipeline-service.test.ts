@@ -17,6 +17,7 @@ describe('Deploy Pipeline Service Contract', () => {
     views: [],
     flows: [],
     permissions: [],
+    seedData: [],
   };
 
   const samplePlan: MigrationPlan = {
