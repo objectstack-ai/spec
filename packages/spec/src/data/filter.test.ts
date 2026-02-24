@@ -834,6 +834,14 @@ describe('parseFilterAST', () => {
     expect(parseFilterAST(['name', 'ends_with', '.pdf'])).toEqual({ name: { $endsWith: '.pdf' } });
   });
 
+  it('should convert between operator', () => {
+    expect(parseFilterAST(['age', 'between', [18, 65]])).toEqual({ age: { $between: [18, 65] } });
+  });
+
+  it('should convert nin operator (MongoDB alias)', () => {
+    expect(parseFilterAST(['role', 'nin', ['guest']])).toEqual({ role: { $nin: ['guest'] } });
+  });
+
   it('should convert is_null operator', () => {
     expect(parseFilterAST(['deleted_at', 'is_null', null])).toEqual({ deleted_at: { $null: true } });
   });
