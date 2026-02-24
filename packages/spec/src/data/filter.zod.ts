@@ -336,6 +336,69 @@ export const NormalizedFilterSchema: z.ZodType<any> = z.lazy(() =>
 export type NormalizedFilter = z.infer<typeof NormalizedFilterSchema>;
 
 // ============================================================================
+// AST Array Format Detection & Validation
+// ============================================================================
+
+/**
+ * Set of valid AST comparison operators (case-insensitive).
+ * Used by `isFilterAST()` to validate AST structure beyond `Array.isArray`.
+ */
+export const VALID_AST_OPERATORS = new Set([
+  '=', '==', '!=', '<>', '>', '>=', '<', '<=',
+  'in', 'nin', 'not_in',
+  'contains', 'like',
+  'startswith', 'starts_with',
+  'endswith', 'ends_with',
+  'between',
+  'is_null', 'is_not_null',
+]);
+
+/**
+ * Detect whether a value is a valid Filter AST array structure.
+ *
+ * A valid AST is one of:
+ * - Comparison node: `[field: string, operator: string, value: unknown]` where operator is a known operator
+ * - Logical node: `["and" | "or", ...children]` where children are valid AST nodes
+ * - Legacy flat array: `[[cond], [cond], ...]` where all elements are sub-arrays (each a valid AST node)
+ *
+ * This replaces the naïve `Array.isArray(filter)` check, preventing accidental
+ * misidentification of arbitrary arrays as filter ASTs.
+ *
+ * @example
+ * isFilterAST(["status", "=", "active"])              // true
+ * isFilterAST(["and", ["a", "=", 1], ["b", ">", 2]]) // true
+ * isFilterAST([["a", "=", 1], ["b", "=", 2]])         // true (legacy)
+ * isFilterAST([1, 2, 3])                               // false
+ * isFilterAST("not an array")                           // false
+ * isFilterAST({ status: "active" })                     // false
+ */
+export function isFilterAST(filter: unknown): boolean {
+  if (!Array.isArray(filter) || filter.length === 0) return false;
+
+  const first = filter[0];
+
+  // Logical node: ["and", ...] or ["or", ...]
+  if (typeof first === 'string') {
+    const lower = first.toLowerCase();
+    if (lower === 'and' || lower === 'or') {
+      return filter.length >= 2 && filter.slice(1).every((child: unknown) => Array.isArray(child));
+    }
+
+    // Comparison node: [field, operator, value]
+    if (filter.length >= 2 && typeof filter[1] === 'string') {
+      return VALID_AST_OPERATORS.has(filter[1].toLowerCase());
+    }
+  }
+
+  // Legacy flat array: [[cond], [cond], ...]
+  if (filter.every((item: unknown) => Array.isArray(item))) {
+    return filter.length > 0;
+  }
+
+  return false;
+}
+
+// ============================================================================
 // AST Array → FilterCondition Conversion
 // ============================================================================
 

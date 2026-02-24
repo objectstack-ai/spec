@@ -5,6 +5,7 @@ import {
   GetDataResponseSchema,
   FindDataRequestSchema,
   FindDataResponseSchema,
+  HttpFindQueryParamsSchema,
   CreateDataRequestSchema,
   CreateDataResponseSchema,
   UpdateDataRequestSchema,
@@ -365,5 +366,104 @@ describe('GetDiscoveryResponseSchema (capabilities)', () => {
       capabilities: { feed: true },
     });
     expect(result.success).toBe(false);
+  });
+});
+
+// ==========================================
+// GetDataRequestSchema — select/expand params
+// ==========================================
+
+describe('GetDataRequestSchema (select/expand)', () => {
+  it('should accept request with select and expand', () => {
+    const result = GetDataRequestSchema.safeParse({
+      object: 'contact',
+      id: 'c1',
+      select: ['name', 'email'],
+      expand: ['account', 'owner'],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.select).toEqual(['name', 'email']);
+      expect(result.data.expand).toEqual(['account', 'owner']);
+    }
+  });
+
+  it('should accept request without select/expand (optional)', () => {
+    const result = GetDataRequestSchema.safeParse({
+      object: 'contact',
+      id: 'c1',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.select).toBeUndefined();
+      expect(result.data.expand).toBeUndefined();
+    }
+  });
+
+  it('should strip unknown query parameters via strict parsing', () => {
+    const result = GetDataRequestSchema.strict().safeParse({
+      object: 'contact',
+      id: 'c1',
+      select: ['name'],
+      // Unknown params that should be rejected by strict mode
+      unknownParam: 'should-be-stripped',
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+// ==========================================
+// HttpFindQueryParamsSchema — HTTP parameter naming
+// ==========================================
+
+describe('HttpFindQueryParamsSchema', () => {
+  it('should accept canonical filter (singular) parameter', () => {
+    const result = HttpFindQueryParamsSchema.safeParse({
+      filter: '{"status":"active"}',
+      select: 'name,email',
+      top: 10,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.filter).toBe('{"status":"active"}');
+      expect(result.data.top).toBe(10);
+    }
+  });
+
+  it('should accept deprecated filters (plural) parameter for backward compat', () => {
+    const result = HttpFindQueryParamsSchema.safeParse({
+      filters: '{"status":"active"}',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.filters).toBe('{"status":"active"}');
+    }
+  });
+
+  it('should coerce string numbers for top/skip', () => {
+    const result = HttpFindQueryParamsSchema.safeParse({
+      top: '25',
+      skip: '50',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.top).toBe(25);
+      expect(result.data.skip).toBe(50);
+    }
+  });
+
+  it('should accept sort, orderBy, expand, search, distinct, count', () => {
+    const result = HttpFindQueryParamsSchema.safeParse({
+      sort: 'name asc,created_at desc',
+      expand: 'owner,account',
+      search: 'John',
+      distinct: true,
+      count: true,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('should accept empty object (all params optional)', () => {
+    expect(HttpFindQueryParamsSchema.safeParse({}).success).toBe(true);
   });
 });
