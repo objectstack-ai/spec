@@ -98,10 +98,27 @@ This strategy ensures rapid iteration while maintaining a clear path to producti
 | `.describe()` Annotations | 8,425+ |
 | Service Contracts | 27 |
 | Contracts Implemented | 13 (52%) |
-| Test Files | 218 |
-| Tests Passing | 6,202 / 6,202 |
+| Test Files | 229 |
+| Tests Passing | 6,456 / 6,456 |
 | `@deprecated` Items | 3 |
 | Protocol Domains | 15 (Data, UI, AI, API, Automation, Cloud, Contracts, Identity, Integration, Kernel, QA, Security, Shared, Studio, System) |
+
+### Spec Protocol Hardening Status
+
+| Item | Status | Details |
+|:---|:---:|:---|
+| `defineStack()` strict by default | ✅ | `strict: true` default since v3.0.2, validates schemas + cross-references |
+| `z.any()` elimination in UI protocol | ✅ | All `filter` fields → `FilterConditionSchema` or `ViewFilterRuleSchema`, all `value` fields → typed unions |
+| Filter format unification | ✅ | MongoDB-style filters use `FilterConditionSchema`, declarative view/tab filters use `ViewFilterRuleSchema` — `z.array(z.unknown())` eliminated |
+| Seed data → object cross-reference | ✅ | `validateCrossReferences` detects seed data referencing undefined objects |
+| Navigation → object/dashboard/page/report cross-reference | ✅ | App navigation items validated against defined metadata (recursive group support) |
+| Negative validation tests (dashboard, page, report, view) | ✅ | Missing required fields, invalid enums, type violations, cross-reference errors all covered |
+| Example-level strict validation tests | ✅ | Todo-style and CRM-style full app configs validated in strict mode |
+| SSOT: types from Zod (`z.infer`) | ✅ | 135 UI types derived via `z.infer`, zero duplicate interfaces in `.zod.ts` files |
+| `z.any()` in data/filter.zod.ts (8 instances) | ✅ Justified | Runtime comparison operators (`$eq`, `$ne`, `$in`, `$nin`) accept any value type |
+| `z.unknown()` in extensibility fields | ✅ Justified | `properties`, `children`, `context`, `options`, `body` — inherently dynamic extensibility points |
+| DashboardWidget discriminated union by type | 🔴 | Planned — chart/metric/pivot subtypes with type-specific required fields |
+| CI lint rule rejecting new `z.any()` | 🔴 | Planned — eslint or custom lint rule to block `z.any()` additions |
 
 ---
 

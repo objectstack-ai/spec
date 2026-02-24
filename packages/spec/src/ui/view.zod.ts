@@ -45,6 +45,31 @@ export const ViewDataSchema = z.discriminatedUnion('provider', [
 ]);
 
 /**
+ * View Filter Rule Schema
+ * Standardized filter condition used in list views, tabs, and page-level filters.
+ * Uses a declarative array-of-objects format: [{ field, operator, value }].
+ *
+ * @example
+ * ```ts
+ * filter: [
+ *   { field: 'status', operator: 'equals', value: 'active' },
+ *   { field: 'close_date', operator: 'this_quarter' },
+ * ]
+ * ```
+ */
+export const ViewFilterRuleSchema = z.object({
+  /** Field name to filter on */
+  field: z.string().describe('Field name to filter on'),
+  /** Filter operator */
+  operator: z.string().describe('Filter operator (e.g. equals, not_equals, contains, this_quarter)'),
+  /** Filter value (optional for unary operators like is_null, this_quarter) */
+  value: z.union([z.string(), z.number(), z.boolean(), z.null(), z.array(z.union([z.string(), z.number()]))])
+    .optional().describe('Filter value'),
+}).describe('View filter rule');
+
+export type ViewFilterRule = z.infer<typeof ViewFilterRuleSchema>;
+
+/**
  * Column Summary Function Schema
  * Aggregation function for column footer (Airtable-style column summaries)
  */
@@ -231,7 +256,7 @@ export const ViewTabSchema = z.object({
   label: I18nLabelSchema.optional().describe('Display label'),
   icon: z.string().optional().describe('Tab icon name'),
   view: z.string().optional().describe('Referenced list view name from listViews'),
-  filter: z.array(z.unknown()).optional().describe('Tab-specific filter criteria'),
+  filter: z.array(ViewFilterRuleSchema).optional().describe('Tab-specific filter criteria'),
   order: z.number().int().min(0).optional().describe('Tab display order'),
   pinned: z.boolean().default(false).describe('Pin tab (cannot be removed by users)'),
   isDefault: z.boolean().default(false).describe('Set as the default active tab'),
@@ -360,7 +385,7 @@ export const ListViewSchema = z.object({
     z.array(z.string()), // Legacy: simple field names
     z.array(ListColumnSchema), // Enhanced: detailed column config
   ]).describe('Fields to display as columns'),
-  filter: z.array(z.unknown()).optional().describe('Filter criteria (JSON Rules)'),
+  filter: z.array(ViewFilterRuleSchema).optional().describe('Filter criteria (JSON Rules)'),
   sort: z.union([
     z.string(), //Legacy "field desc"
     z.array(z.object({
@@ -378,7 +403,8 @@ export const ListViewSchema = z.object({
     field: z.string().describe('Field name to filter by'),
     label: z.string().optional().describe('Display label for the chip'),
     operator: z.enum(['equals', 'not_equals', 'contains', 'in', 'is_null', 'is_not_null']).default('equals').describe('Filter operator'),
-    value: z.unknown().optional().describe('Preset filter value'),
+    value: z.union([z.string(), z.number(), z.boolean(), z.null(), z.array(z.union([z.string(), z.number()]))])
+      .optional().describe('Preset filter value'),
   })).optional().describe('One-click filter chips for quick record filtering'),
 
   /** Grid Features */
