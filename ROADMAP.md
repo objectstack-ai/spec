@@ -98,10 +98,24 @@ This strategy ensures rapid iteration while maintaining a clear path to producti
 | `.describe()` Annotations | 8,425+ |
 | Service Contracts | 27 |
 | Contracts Implemented | 13 (52%) |
-| Test Files | 218 |
-| Tests Passing | 6,202 / 6,202 |
+| Test Files | 229 |
+| Tests Passing | 6,445 / 6,445 |
 | `@deprecated` Items | 3 |
 | Protocol Domains | 15 (Data, UI, AI, API, Automation, Cloud, Contracts, Identity, Integration, Kernel, QA, Security, Shared, Studio, System) |
+
+### Spec Protocol Hardening Status
+
+| Item | Status | Details |
+|:---|:---:|:---|
+| `defineStack()` strict by default | ✅ | `strict: true` default since v3.0.2, validates schemas + cross-references |
+| `z.any()` elimination in UI protocol | ✅ | All `filter` fields → `FilterConditionSchema`, all `value` fields → typed unions |
+| Seed data → object cross-reference | ✅ | `validateCrossReferences` detects seed data referencing undefined objects |
+| Navigation → object/dashboard/page/report cross-reference | ✅ | App navigation items validated against defined metadata |
+| Negative validation tests (dashboard, page, report) | ✅ | Missing required fields, invalid enums, type violations all covered |
+| `z.any()` in data/filter.zod.ts (8 instances) | ✅ Justified | Runtime comparison operators (`$eq`, `$ne`, `$in`, `$nin`) accept any value type |
+| `z.unknown()` hardening in remaining schemas | 🟡 | `z.unknown()` used for extensible config/metadata fields — stricter composite schemas planned |
+| DashboardWidget discriminated union by type | 🔴 | Planned — chart/metric/pivot subtypes with type-specific required fields |
+| CI lint rule rejecting new `z.any()` | 🔴 | Planned — eslint or custom lint rule to block `z.any()` additions |
 
 ---
 
