@@ -411,7 +411,7 @@ export class MetadataManager implements IMetadataService {
     for (const item of packageItems) {
       const updated = {
         ...item.data,
-        publishedDefinition: JSON.parse(JSON.stringify(item.data.metadata ?? item.data)),
+        publishedDefinition: structuredClone(item.data.metadata ?? item.data),
         publishedAt: now,
         publishedBy: publishedBy ?? item.data.publishedBy,
         version: newVersion,
@@ -458,7 +458,7 @@ export class MetadataManager implements IMetadataService {
       if (item.data.publishedDefinition !== undefined) {
         const reverted = {
           ...item.data,
-          metadata: JSON.parse(JSON.stringify(item.data.publishedDefinition)),
+          metadata: structuredClone(item.data.publishedDefinition),
           state: 'active',
         };
         await this.register(item.type, item.name, reverted);
