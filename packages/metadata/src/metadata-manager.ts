@@ -375,6 +375,8 @@ export class MetadataManager implements IMetadataService {
     // Validation pass
     if (shouldValidate) {
       const validationErrors: Array<{ type: string; name: string; message: string }> = [];
+
+      // Schema validation
       for (const item of packageItems) {
         const result = await this.validate(item.type, item.data);
         if (!result.valid && result.errors) {
@@ -387,6 +389,36 @@ export class MetadataManager implements IMetadataService {
           }
         }
       }
+
+      // Dependency validation: referenced items must be in the same package or already published
+      const packageItemKeys = new Set(packageItems.map(i => `${i.type}:${i.name}`));
+      for (const item of packageItems) {
+        const deps = await this.getDependencies(item.type, item.name);
+        for (const dep of deps) {
+          const depKey = `${dep.targetType}:${dep.targetName}`;
+          // Skip if the dependency is within this package
+          if (packageItemKeys.has(depKey)) continue;
+          // Check if the dependency exists and has been published
+          const depItem = await this.get(dep.targetType, dep.targetName);
+          if (!depItem) {
+            validationErrors.push({
+              type: item.type,
+              name: item.name,
+              message: `Dependency '${dep.targetType}:${dep.targetName}' not found`,
+            });
+          } else {
+            const depMeta = depItem as any;
+            if (depMeta.publishedDefinition === undefined && depMeta.state !== 'active') {
+              validationErrors.push({
+                type: item.type,
+                name: item.name,
+                message: `Dependency '${dep.targetType}:${dep.targetName}' is not published`,
+              });
+            }
+          }
+        }
+      }
+
       if (validationErrors.length > 0) {
         return {
           success: false,

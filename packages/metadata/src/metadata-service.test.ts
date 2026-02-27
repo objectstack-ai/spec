@@ -772,6 +772,78 @@ describe('MetadataManager — IMetadataService Contract', () => {
       expect(result.success).toBe(true);
       expect(result.itemsPublished).toBe(1);
     });
+
+    it('should fail when dependency is not found or not published', async () => {
+      await manager.register('view', 'opp_list', {
+        name: 'opp_list', label: 'Opp List', packageId: 'com.acme.dep',
+        metadata: { columns: ['name'] },
+      });
+
+      // Register a dependency pointing to a non-existent item
+      manager.addDependency({
+        sourceType: 'view',
+        sourceName: 'opp_list',
+        targetType: 'object',
+        targetName: 'opportunity',
+        kind: 'reference',
+      });
+
+      const result = await manager.publishPackage('com.acme.dep', { validate: true });
+      expect(result.success).toBe(false);
+      expect(result.validationErrors).toBeDefined();
+      expect(result.validationErrors!.some(e => e.message.includes('opportunity'))).toBe(true);
+    });
+
+    it('should pass dependency check when target is in the same package', async () => {
+      await manager.register('object', 'project', {
+        name: 'project', label: 'Project', packageId: 'com.acme.same',
+        metadata: { fields: ['name'] },
+      });
+      await manager.register('view', 'project_list', {
+        name: 'project_list', label: 'Project List', packageId: 'com.acme.same',
+        metadata: { columns: ['name'] },
+      });
+
+      // Dependency within the same package
+      manager.addDependency({
+        sourceType: 'view',
+        sourceName: 'project_list',
+        targetType: 'object',
+        targetName: 'project',
+        kind: 'reference',
+      });
+
+      const result = await manager.publishPackage('com.acme.same', { validate: true });
+      expect(result.success).toBe(true);
+      expect(result.itemsPublished).toBe(2);
+    });
+
+    it('should pass dependency check when target is already published', async () => {
+      // Pre-existing published object (different package)
+      await manager.register('object', 'account', {
+        name: 'account', label: 'Account', packageId: 'com.acme.core',
+        publishedDefinition: { fields: ['name'] },
+        state: 'active',
+      });
+
+      // View in a different package references the published object
+      await manager.register('view', 'account_list', {
+        name: 'account_list', label: 'Account List', packageId: 'com.acme.views',
+        metadata: { columns: ['name'] },
+      });
+
+      manager.addDependency({
+        sourceType: 'view',
+        sourceName: 'account_list',
+        targetType: 'object',
+        targetName: 'account',
+        kind: 'reference',
+      });
+
+      const result = await manager.publishPackage('com.acme.views', { validate: true });
+      expect(result.success).toBe(true);
+      expect(result.itemsPublished).toBe(1);
+    });
   });
 
   describe('revertPackage', () => {
