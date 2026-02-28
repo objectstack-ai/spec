@@ -24,10 +24,13 @@ export const ActionType = z.enum(['script', 'url', 'modal', 'flow', 'api']);
 
 /**
  * Action types that require a `target` field.
+ * Derived from ActionType, excluding 'script' which allows inline handlers.
  * These types reference an external resource (URL, flow, modal, or API endpoint)
  * and cannot function without a target binding.
  */
-const TARGET_REQUIRED_TYPES: readonly string[] = ['url', 'flow', 'modal', 'api'];
+const TARGET_REQUIRED_TYPES = new Set(
+  ActionType.options.filter((t): t is Exclude<typeof t, 'script'> => t !== 'script'),
+);
 
 /**
  * Action Schema
@@ -138,7 +141,7 @@ export const ActionSchema = z.object({
   return data;
 }).refine((data) => {
   // Require `target` for types that reference an external resource
-  if (TARGET_REQUIRED_TYPES.includes(data.type) && !data.target) {
+  if (TARGET_REQUIRED_TYPES.has(data.type) && !data.target) {
     return false;
   }
   return true;

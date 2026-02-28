@@ -401,6 +401,9 @@ function validateCrossReferences(config: ObjectStackDefinition): string[] {
   }
 
   // Validate action → flow/target cross-references
+  // Note: When no flows are defined (flowNames.size === 0), flow-type action targets
+  // are not validated because the referenced flow may be provided by a plugin.
+  // This is consistent with dashboard/page/report validation in navigation.
   if (config.actions) {
     const flowNames = new Set<string>();
     if (config.flows) {
