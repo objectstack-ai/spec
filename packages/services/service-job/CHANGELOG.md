@@ -1,5 +1,13 @@
 # @objectstack/service-job
 
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies [0088830]
+  - @objectstack/spec@4.0.0
+  - @objectstack/core@4.0.0
+
 ## 3.0.11
 
 ### Patch Changes

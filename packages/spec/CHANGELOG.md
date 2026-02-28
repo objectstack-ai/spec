@@ -1,5 +1,11 @@
 # @objectstack/spec
 
+## 4.0.0
+
+### Minor Changes
+
+- 0088830: Minor version release
+
 ## 3.0.11
 
 ### Patch Changes
