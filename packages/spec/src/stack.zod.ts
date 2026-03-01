@@ -400,6 +400,28 @@ function validateCrossReferences(config: ObjectStackDefinition): string[] {
     }
   }
 
+  // Validate action → flow/target cross-references
+  // Note: When no flows are defined (flowNames.size === 0), flow-type action targets
+  // are not validated because the referenced flow may be provided by a plugin.
+  // This is consistent with dashboard/page/report validation in navigation.
+  if (config.actions) {
+    const flowNames = new Set<string>();
+    if (config.flows) {
+      for (const flow of config.flows) {
+        flowNames.add(flow.name);
+      }
+    }
+
+    for (const action of config.actions) {
+      // Validate flow-type actions reference a defined flow
+      if (action.type === 'flow' && action.target && flowNames.size > 0 && !flowNames.has(action.target)) {
+        errors.push(
+          `Action '${action.name}' references flow '${action.target}' which is not defined in flows.`,
+        );
+      }
+    }
+  }
+
   return errors;
 }
 
