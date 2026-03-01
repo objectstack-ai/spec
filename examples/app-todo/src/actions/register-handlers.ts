@@ -76,7 +76,7 @@ import {
  * ```
  */
 export function registerTaskActionHandlers(engine: {
-  registerAction(objectName: string, actionName: string, handler: Function): void;
+  registerAction(objectName: string, actionName: string, handler: (...args: unknown[]) => unknown): void;
 }): void {
   // ─── Script-type actions (server-side handlers) ────────────────────
   engine.registerAction('task', 'completeTask', completeTask);

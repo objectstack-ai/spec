@@ -72,7 +72,7 @@ import {
  * ```
  */
 export function registerCrmActionHandlers(engine: {
-  registerAction(objectName: string, actionName: string, handler: Function): void;
+  registerAction(objectName: string, actionName: string, handler: (...args: unknown[]) => unknown): void;
 }): void {
   // ─── Lead Domain ───────────────────────────────────────────────────
   // ConvertLeadAction (type: flow) — also has server-side handler for

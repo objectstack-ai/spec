@@ -89,8 +89,8 @@ export async function deleteCompletedTasks(ctx: ActionContext): Promise<void> {
 export async function deferTask(ctx: ActionContext): Promise<void> {
   const { record, engine, params } = ctx;
   await engine.update('task', record._id as string, {
-    due_date: params?.new_due_date as string,
-    defer_reason: params?.reason as string ?? null,
+    due_date: params?.new_due_date ? String(params.new_due_date) : null,
+    defer_reason: params?.reason ? String(params.reason) : null,
     status: 'waiting',
   });
 }
@@ -99,7 +99,7 @@ export async function deferTask(ctx: ActionContext): Promise<void> {
 export async function setReminder(ctx: ActionContext): Promise<void> {
   const { record, engine, params } = ctx;
   await engine.update('task', record._id as string, {
-    reminder_date: params?.reminder_date as string,
+    reminder_date: params?.reminder_date ? String(params.reminder_date) : null,
     has_reminder: true,
   });
 }

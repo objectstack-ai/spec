@@ -40,9 +40,9 @@ export async function logCall(ctx: ActionContext): Promise<{ activityId: string 
   const { record, engine, user, params } = ctx;
   const activity = await engine.insert('activity', {
     type: 'call',
-    subject: params?.subject as string,
-    duration_minutes: params?.duration as number,
-    notes: params?.notes as string ?? '',
+    subject: params?.subject ? String(params.subject) : 'Untitled Call',
+    duration_minutes: params?.duration ? Number(params.duration) : 0,
+    notes: params?.notes ? String(params.notes) : '',
     related_to_id: record._id as string,
     direction: 'outbound',
     status: 'completed',

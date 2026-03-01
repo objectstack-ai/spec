@@ -43,8 +43,8 @@ export async function sendEmail(ctx: ActionContext): Promise<{ activityId: strin
   const { record, engine, user, params } = ctx;
   const activity = await engine.insert('activity', {
     type: 'email',
-    subject: params?.subject as string ?? `Email to ${record.email}`,
-    body: params?.body as string ?? '',
+    subject: params?.subject ? String(params.subject) : `Email to ${record.email}`,
+    body: params?.body ? String(params.body) : '',
     contact_id: record._id as string,
     account_id: record.account_id as string,
     direction: 'outbound',
