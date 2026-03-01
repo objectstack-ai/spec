@@ -19,6 +19,7 @@ export const LocaleSchema = z.string().describe('BCP-47 Language Tag (e.g. en-US
 export const FieldTranslationSchema = z.object({
   label: z.string().optional().describe('Translated field label'),
   help: z.string().optional().describe('Translated help text'),
+  placeholder: z.string().optional().describe('Translated placeholder text for form inputs'),
   options: z.record(z.string(), z.string()).optional().describe('Option value to translated label map'),
 }).describe('Translation data for a single field');
 
@@ -168,6 +169,21 @@ export type TranslationFileOrganization = z.infer<typeof TranslationFileOrganiza
  * });
  * ```
  */
+/**
+ * Message format standard used for interpolation, pluralization, and
+ * gender-aware translations.
+ *
+ * - `icu` — ICU MessageFormat (recommended for complex plurals, gender, select).
+ *   Strings may contain `{count, plural, one {# item} other {# items}}` patterns.
+ * - `simple` — Simple `{variable}` interpolation only (default).
+ */
+export const MessageFormatSchema = z.enum([
+  'icu',
+  'simple',
+]).describe('Message interpolation format: ICU MessageFormat or simple {variable} replacement');
+
+export type MessageFormat = z.infer<typeof MessageFormatSchema>;
+
 export const TranslationConfigSchema = z.object({
   /** Default locale for the application */
   defaultLocale: LocaleSchema.describe('Default locale (e.g., "en")'),
@@ -178,6 +194,14 @@ export const TranslationConfigSchema = z.object({
   /** How translation files are organized on disk */
   fileOrganization: TranslationFileOrganizationSchema.default('per_locale')
     .describe('File organization strategy'),
+  /**
+   * Message interpolation format.
+   * When set to `'icu'`, messages and validationMessages are expected to use
+   * ICU MessageFormat syntax (plurals, select, number/date skeletons).
+   * @default 'simple'
+   */
+  messageFormat: MessageFormatSchema.default('simple')
+    .describe('Message interpolation format (ICU MessageFormat or simple)'),
   /** Load translations on demand instead of eagerly */
   lazyLoad: z.boolean().default(false).describe('Load translations on demand'),
   /** Cache loaded translations in memory */
@@ -259,6 +283,16 @@ export const ObjectTranslationNodeSchema = z.object({
     label: z.string().optional().describe('Translated action label'),
     confirmMessage: z.string().optional().describe('Translated confirmation message'),
   })).optional().describe('Action translations keyed by action name'),
+
+  /** Notification message translations keyed by notification name */
+  _notifications: z.record(z.string(), z.object({
+    title: z.string().optional().describe('Translated notification title'),
+    body: z.string().optional().describe('Translated notification body (supports ICU MessageFormat when enabled)'),
+  })).optional().describe('Notification translations keyed by notification name'),
+
+  /** Error message translations keyed by error code */
+  _errors: z.record(z.string(), z.string()).optional()
+    .describe('Error message translations keyed by error code'),
 }).describe('Object-first aggregated translation node');
 
 export type ObjectTranslationNode = z.infer<typeof ObjectTranslationNodeSchema>;
@@ -305,6 +339,26 @@ export type ObjectTranslationNode = z.infer<typeof ObjectTranslationNodeSchema>;
  * ```
  */
 export const AppTranslationBundleSchema = z.object({
+  /**
+   * Bundle-level metadata.
+   * Provides locale-aware rendering hints such as text direction (bidi)
+   * and the canonical locale code this bundle represents.
+   */
+  _meta: z.object({
+    /** BCP-47 locale code this bundle represents */
+    locale: z.string().optional().describe('BCP-47 locale code for this bundle'),
+    /** Text direction for the locale */
+    direction: z.enum(['ltr', 'rtl']).optional().describe('Text direction: left-to-right or right-to-left'),
+  }).optional().describe('Bundle-level metadata (locale, bidi direction)'),
+
+  /**
+   * Namespace for plugin/extension isolation.
+   * When multiple plugins contribute translations, each should use a unique
+   * namespace to avoid key collisions (e.g. "crm", "helpdesk", "plugin-xyz").
+   */
+  namespace: z.string().optional()
+    .describe('Namespace for plugin isolation to avoid translation key collisions'),
+
   /** Object-first translations keyed by object name (snake_case) */
   o: z.record(z.string(), ObjectTranslationNodeSchema).optional()
     .describe('Object-first translations keyed by object name'),
@@ -341,13 +395,23 @@ export const AppTranslationBundleSchema = z.object({
     description: z.string().optional().describe('Translated page description'),
   })).optional().describe('Page translations keyed by page name'),
 
-  /** UI message translations */
+  /** UI message translations (supports ICU MessageFormat when enabled) */
   messages: z.record(z.string(), z.string()).optional()
-    .describe('UI message translations keyed by message ID'),
+    .describe('UI message translations keyed by message ID (supports ICU MessageFormat)'),
 
-  /** Validation error message translations */
+  /** Validation error message translations (supports ICU MessageFormat when enabled) */
   validationMessages: z.record(z.string(), z.string()).optional()
-    .describe('Validation error message translations keyed by rule name'),
+    .describe('Validation error message translations keyed by rule name (supports ICU MessageFormat)'),
+
+  /** Global notification translations not bound to a specific object */
+  notifications: z.record(z.string(), z.object({
+    title: z.string().optional().describe('Translated notification title'),
+    body: z.string().optional().describe('Translated notification body (supports ICU MessageFormat when enabled)'),
+  })).optional().describe('Global notification translations keyed by notification name'),
+
+  /** Global error message translations not bound to a specific object */
+  errors: z.record(z.string(), z.string()).optional()
+    .describe('Global error message translations keyed by error code'),
 }).describe('Object-first application translation bundle for a single locale');
 
 export type AppTranslationBundle = z.infer<typeof AppTranslationBundleSchema>;
@@ -394,6 +458,18 @@ export const TranslationDiffItemSchema = z.object({
   objectName: z.string().optional().describe('Associated object name (snake_case)'),
   /** Locale code */
   locale: z.string().describe('BCP-47 locale code'),
+  /**
+   * Hash of the source metadata value at the time the translation was made.
+   * Used by CLI/Workbench to detect stale translations without a full diff.
+   */
+  sourceHash: z.string().optional().describe('Hash of source metadata for precise stale detection'),
+  /**
+   * AI-suggested translation text for missing or stale entries.
+   * Populated by AI translation hooks or TMS integrations.
+   */
+  aiSuggested: z.string().optional().describe('AI-suggested translation for this key'),
+  /** Confidence score (0-1) for the AI suggestion */
+  aiConfidence: z.number().min(0).max(1).optional().describe('AI suggestion confidence score (0–1)'),
 }).describe('A single translation diff item');
 
 export type TranslationDiffItem = z.infer<typeof TranslationDiffItemSchema>;
@@ -418,6 +494,22 @@ export type TranslationDiffItem = z.infer<typeof TranslationDiffItemSchema>;
  * };
  * ```
  */
+/**
+ * Per-group coverage breakdown entry.
+ */
+export const CoverageBreakdownEntrySchema = z.object({
+  /** Group category (e.g. "fields", "views", "actions", "messages") */
+  group: z.string().describe('Translation group category'),
+  /** Total translatable keys in this group */
+  totalKeys: z.number().int().nonnegative().describe('Total keys in this group'),
+  /** Number of translated keys in this group */
+  translatedKeys: z.number().int().nonnegative().describe('Translated keys in this group'),
+  /** Coverage percentage for this group */
+  coveragePercent: z.number().min(0).max(100).describe('Coverage percentage for this group'),
+}).describe('Coverage breakdown for a single translation group');
+
+export type CoverageBreakdownEntry = z.infer<typeof CoverageBreakdownEntrySchema>;
+
 export const TranslationCoverageResultSchema = z.object({
   /** BCP-47 locale code */
   locale: z.string().describe('BCP-47 locale code'),
@@ -437,6 +529,13 @@ export const TranslationCoverageResultSchema = z.object({
   coveragePercent: z.number().min(0).max(100).describe('Translation coverage percentage'),
   /** Individual diff items */
   items: z.array(TranslationDiffItemSchema).describe('Detailed diff items'),
+  /**
+   * Per-group coverage breakdown for translation project management.
+   * Each entry represents a logical group (e.g. "fields", "views", "actions",
+   * "messages") with its own coverage statistics.
+   */
+  breakdown: z.array(CoverageBreakdownEntrySchema).optional()
+    .describe('Per-group coverage breakdown'),
 }).describe('Aggregated translation coverage result');
 
 export type TranslationCoverageResult = z.infer<typeof TranslationCoverageResultSchema>;

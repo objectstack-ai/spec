@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { II18nService } from './i18n-service';
-import type { AppTranslationBundle, TranslationCoverageResult } from '../system/translation.zod';
+import type { AppTranslationBundle, TranslationCoverageResult, TranslationDiffItem } from '../system/translation.zod';
 
 describe('I18n Service Contract', () => {
   it('should allow a minimal II18nService implementation with required methods', () => {
@@ -162,5 +162,30 @@ describe('I18n Service Contract', () => {
     expect(minimalService.getAppBundle).toBeUndefined();
     expect(minimalService.loadAppBundle).toBeUndefined();
     expect(minimalService.getCoverage).toBeUndefined();
+    expect(minimalService.suggestTranslations).toBeUndefined();
+  });
+
+  it('should allow implementation with suggestTranslations', async () => {
+    const service: II18nService = {
+      t: () => '',
+      getTranslations: () => ({}),
+      loadTranslations: () => {},
+      getLocales: () => ['en', 'zh-CN'],
+      suggestTranslations: async (_locale, items) => {
+        return items.map(item => ({
+          ...item,
+          aiSuggested: `AI翻译: ${item.key}`,
+          aiConfidence: 0.85,
+        }));
+      },
+    };
+
+    const items: TranslationDiffItem[] = [
+      { key: 'o.account.fields.website.label', status: 'missing', locale: 'zh-CN' },
+    ];
+    const suggestions = await service.suggestTranslations!('zh-CN', items);
+    expect(suggestions).toHaveLength(1);
+    expect(suggestions[0].aiSuggested).toBe('AI翻译: o.account.fields.website.label');
+    expect(suggestions[0].aiConfidence).toBe(0.85);
   });
 });

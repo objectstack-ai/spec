@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import type { AppTranslationBundle, TranslationCoverageResult } from '../system/translation.zod';
+import type { AppTranslationBundle, TranslationCoverageResult, TranslationDiffItem } from '../system/translation.zod';
 
 /**
  * II18nService - Internationalization Service Contract
@@ -89,4 +89,17 @@ export interface II18nService {
      * @returns Coverage result with per-key diff items
      */
     getCoverage?(locale: string, objectName?: string): TranslationCoverageResult;
+
+    /**
+     * Request AI-powered translation suggestions for missing or stale keys.
+     *
+     * Implementations may call an internal AI agent, external TMS, or
+     * third-party translation API. Each returned diff item should have
+     * `aiSuggested` and `aiConfidence` populated.
+     *
+     * @param locale - Target BCP-47 locale code
+     * @param items - Diff items to generate suggestions for
+     * @returns Diff items enriched with `aiSuggested` and `aiConfidence`
+     */
+    suggestTranslations?(locale: string, items: TranslationDiffItem[]): Promise<TranslationDiffItem[]>;
 }

@@ -7,11 +7,13 @@ import {
   ObjectTranslationDataSchema,
   TranslationFileOrganizationSchema,
   TranslationConfigSchema,
+  MessageFormatSchema,
   ObjectTranslationNodeSchema,
   AppTranslationBundleSchema,
   TranslationDiffStatusSchema,
   TranslationDiffItemSchema,
   TranslationCoverageResultSchema,
+  CoverageBreakdownEntrySchema,
   type TranslationBundle,
   type ObjectTranslationData,
   type TranslationConfig,
@@ -19,6 +21,7 @@ import {
   type AppTranslationBundle,
   type TranslationDiffItem,
   type TranslationCoverageResult,
+  type CoverageBreakdownEntry,
 } from './translation.zod';
 
 describe('LocaleSchema', () => {
@@ -474,6 +477,25 @@ describe('FieldTranslationSchema', () => {
     const result = FieldTranslationSchema.parse({});
     expect(result).toBeDefined();
   });
+
+  it('should accept field with placeholder', () => {
+    const result = FieldTranslationSchema.parse({
+      label: 'Email',
+      placeholder: 'Enter your email address',
+    });
+    expect(result.placeholder).toBe('Enter your email address');
+  });
+
+  it('should accept field with all properties including placeholder', () => {
+    const result = FieldTranslationSchema.parse({
+      label: '邮箱',
+      help: '输入您的电子邮箱地址',
+      placeholder: '例如：user@example.com',
+      options: { work: '工作邮箱', personal: '个人邮箱' },
+    });
+    expect(result.label).toBe('邮箱');
+    expect(result.placeholder).toBe('例如：user@example.com');
+  });
 });
 
 // ============================================================================
@@ -622,6 +644,38 @@ describe('TranslationConfigSchema', () => {
       }),
     ).toThrow();
   });
+
+  it('should default messageFormat to simple', () => {
+    const config = TranslationConfigSchema.parse({
+      defaultLocale: 'en',
+      supportedLocales: ['en'],
+    });
+    expect(config.messageFormat).toBe('simple');
+  });
+
+  it('should accept ICU message format config', () => {
+    const config = TranslationConfigSchema.parse({
+      defaultLocale: 'en',
+      supportedLocales: ['en', 'ar-SA'],
+      messageFormat: 'icu',
+    });
+    expect(config.messageFormat).toBe('icu');
+  });
+});
+
+// ============================================================================
+// MessageFormatSchema
+// ============================================================================
+
+describe('MessageFormatSchema', () => {
+  it('should accept icu and simple', () => {
+    expect(MessageFormatSchema.parse('icu')).toBe('icu');
+    expect(MessageFormatSchema.parse('simple')).toBe('simple');
+  });
+
+  it('should reject invalid format', () => {
+    expect(() => MessageFormatSchema.parse('mf2')).toThrow();
+  });
 });
 
 // ============================================================================
@@ -702,6 +756,25 @@ describe('ObjectTranslationNodeSchema', () => {
     });
     expect(node.fields?.stage.label).toBe('Stage');
     expect(node._views?.pipeline.label).toBe('Pipeline View');
+  });
+
+  it('should accept node with _notifications and _errors', () => {
+    const node: ObjectTranslationNode = ObjectTranslationNodeSchema.parse({
+      label: 'Order',
+      _notifications: {
+        order_shipped: { title: 'Order Shipped', body: 'Your order has been shipped.' },
+        order_cancelled: { title: 'Order Cancelled' },
+      },
+      _errors: {
+        insufficient_stock: 'Not enough stock for this order.',
+        payment_failed: 'Payment could not be processed.',
+      },
+    });
+    expect(node._notifications?.order_shipped.title).toBe('Order Shipped');
+    expect(node._notifications?.order_shipped.body).toBe('Your order has been shipped.');
+    expect(node._notifications?.order_cancelled.title).toBe('Order Cancelled');
+    expect(node._errors?.insufficient_stock).toBe('Not enough stock for this order.');
+    expect(node._errors?.payment_failed).toBe('Payment could not be processed.');
   });
 });
 
@@ -822,6 +895,45 @@ describe('AppTranslationBundleSchema', () => {
     expect(zh.nav?.home).toBe('首页');
     expect(zh.messages?.['common.save']).toBe('保存');
   });
+
+  it('should accept bundle with _meta for RTL locale', () => {
+    const bundle: AppTranslationBundle = AppTranslationBundleSchema.parse({
+      _meta: { locale: 'ar-SA', direction: 'rtl' },
+      messages: { 'common.save': 'حفظ' },
+    });
+    expect(bundle._meta?.locale).toBe('ar-SA');
+    expect(bundle._meta?.direction).toBe('rtl');
+  });
+
+  it('should accept bundle with namespace for plugin isolation', () => {
+    const bundle: AppTranslationBundle = AppTranslationBundleSchema.parse({
+      namespace: 'plugin-helpdesk',
+      o: { ticket: { label: 'Ticket' } },
+    });
+    expect(bundle.namespace).toBe('plugin-helpdesk');
+  });
+
+  it('should accept bundle with global notifications and errors', () => {
+    const bundle: AppTranslationBundle = AppTranslationBundleSchema.parse({
+      notifications: {
+        system_update: { title: 'System Update', body: 'A new version is available.' },
+      },
+      errors: {
+        unauthorized: 'You are not authorized to perform this action.',
+        not_found: 'The requested resource was not found.',
+      },
+    });
+    expect(bundle.notifications?.system_update.title).toBe('System Update');
+    expect(bundle.errors?.unauthorized).toBe('You are not authorized to perform this action.');
+  });
+
+  it('should accept bundle with _meta direction ltr', () => {
+    const bundle = AppTranslationBundleSchema.parse({
+      _meta: { direction: 'ltr' },
+    });
+    expect(bundle._meta?.direction).toBe('ltr');
+    expect(bundle._meta?.locale).toBeUndefined();
+  });
 });
 
 // ============================================================================
@@ -881,6 +993,50 @@ describe('TranslationDiffItemSchema', () => {
   it('should reject diff item without key', () => {
     expect(() =>
       TranslationDiffItemSchema.parse({ status: 'missing', locale: 'en' }),
+    ).toThrow();
+  });
+
+  it('should accept diff item with sourceHash', () => {
+    const item = TranslationDiffItemSchema.parse({
+      key: 'o.account.label',
+      status: 'stale',
+      locale: 'zh-CN',
+      sourceHash: 'sha256:abc123',
+    });
+    expect(item.sourceHash).toBe('sha256:abc123');
+  });
+
+  it('should accept diff item with AI suggestion fields', () => {
+    const item: TranslationDiffItem = TranslationDiffItemSchema.parse({
+      key: 'o.account.fields.website.label',
+      status: 'missing',
+      locale: 'zh-CN',
+      aiSuggested: '网站',
+      aiConfidence: 0.92,
+    });
+    expect(item.aiSuggested).toBe('网站');
+    expect(item.aiConfidence).toBe(0.92);
+  });
+
+  it('should reject AI confidence above 1', () => {
+    expect(() =>
+      TranslationDiffItemSchema.parse({
+        key: 'o.account.label',
+        status: 'missing',
+        locale: 'en',
+        aiConfidence: 1.5,
+      }),
+    ).toThrow();
+  });
+
+  it('should reject AI confidence below 0', () => {
+    expect(() =>
+      TranslationDiffItemSchema.parse({
+        key: 'o.account.label',
+        status: 'missing',
+        locale: 'en',
+        aiConfidence: -0.1,
+      }),
     ).toThrow();
   });
 });
@@ -960,6 +1116,84 @@ describe('TranslationCoverageResultSchema', () => {
         staleKeys: 0,
         coveragePercent: 101,
         items: [],
+      }),
+    ).toThrow();
+  });
+
+  it('should accept result with breakdown', () => {
+    const result: TranslationCoverageResult = TranslationCoverageResultSchema.parse({
+      locale: 'zh-CN',
+      totalKeys: 100,
+      translatedKeys: 80,
+      missingKeys: 20,
+      redundantKeys: 0,
+      staleKeys: 0,
+      coveragePercent: 80,
+      items: [],
+      breakdown: [
+        { group: 'fields', totalKeys: 60, translatedKeys: 50, coveragePercent: 83.3 },
+        { group: 'views', totalKeys: 20, translatedKeys: 15, coveragePercent: 75 },
+        { group: 'actions', totalKeys: 10, translatedKeys: 10, coveragePercent: 100 },
+        { group: 'messages', totalKeys: 10, translatedKeys: 5, coveragePercent: 50 },
+      ],
+    });
+    expect(result.breakdown).toHaveLength(4);
+    expect(result.breakdown![0].group).toBe('fields');
+    expect(result.breakdown![0].coveragePercent).toBe(83.3);
+    expect(result.breakdown![2].coveragePercent).toBe(100);
+  });
+
+  it('should accept result without breakdown (optional)', () => {
+    const result = TranslationCoverageResultSchema.parse({
+      locale: 'en',
+      totalKeys: 10,
+      translatedKeys: 10,
+      missingKeys: 0,
+      redundantKeys: 0,
+      staleKeys: 0,
+      coveragePercent: 100,
+      items: [],
+    });
+    expect(result.breakdown).toBeUndefined();
+  });
+});
+
+// ============================================================================
+// CoverageBreakdownEntrySchema
+// ============================================================================
+
+describe('CoverageBreakdownEntrySchema', () => {
+  it('should accept a valid breakdown entry', () => {
+    const entry: CoverageBreakdownEntry = CoverageBreakdownEntrySchema.parse({
+      group: 'fields',
+      totalKeys: 50,
+      translatedKeys: 45,
+      coveragePercent: 90,
+    });
+    expect(entry.group).toBe('fields');
+    expect(entry.totalKeys).toBe(50);
+    expect(entry.translatedKeys).toBe(45);
+    expect(entry.coveragePercent).toBe(90);
+  });
+
+  it('should reject breakdown entry with negative totalKeys', () => {
+    expect(() =>
+      CoverageBreakdownEntrySchema.parse({
+        group: 'fields',
+        totalKeys: -1,
+        translatedKeys: 0,
+        coveragePercent: 0,
+      }),
+    ).toThrow();
+  });
+
+  it('should reject breakdown entry with coverage above 100', () => {
+    expect(() =>
+      CoverageBreakdownEntrySchema.parse({
+        group: 'fields',
+        totalKeys: 10,
+        translatedKeys: 10,
+        coveragePercent: 101,
       }),
     ).toThrow();
   });
