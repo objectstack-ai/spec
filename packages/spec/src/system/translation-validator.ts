@@ -104,19 +104,19 @@ export function validateTranslationCompleteness(
  * Recursively checks for `__TRANSLATE__` placeholder residue in values.
  */
 function checkPlaceholderResidue(
-  obj: unknown,
+  value: unknown,
   path: string,
   errors: string[],
 ): void {
-  if (typeof obj === 'string') {
-    if (obj.includes(TRANSLATE_PLACEHOLDER)) {
+  if (typeof value === 'string') {
+    if (value.includes(TRANSLATE_PLACEHOLDER)) {
       errors.push(`placeholder residue: ${path}`);
     }
     return;
   }
-  if (obj && typeof obj === 'object') {
-    for (const [key, value] of Object.entries(obj)) {
-      checkPlaceholderResidue(value, path ? `${path}.${key}` : key, errors);
+  if (value && typeof value === 'object') {
+    for (const [key, child] of Object.entries(value)) {
+      checkPlaceholderResidue(child, path ? `${path}.${key}` : key, errors);
     }
   }
 }

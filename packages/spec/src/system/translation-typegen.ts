@@ -40,9 +40,7 @@
 type ExtractOptionValues<F> =
   F extends { options: ReadonlyArray<infer O> }
     ? O extends { value: infer V extends string } ? V : never
-    : F extends { options: Array<infer O> }
-      ? O extends { value: infer V extends string } ? V : never
-      : never;
+    : never;
 
 // ────────────────────────────────────────────────────────────────────────────
 // Per-Field Translation Shape
