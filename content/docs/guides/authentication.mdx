@@ -626,7 +626,7 @@ await kernel.bootstrap();
 
 ### Mock Fallback Endpoints
 
-When no auth service handler or broker is available, `HttpDispatcher.handleAuth()` automatically provides mock responses for:
+When no auth service handler is registered and the legacy broker login is unavailable, `HttpDispatcher.handleAuth()` automatically provides mock responses for:
 
 | Endpoint | Method | Description |
 |:---|:---:|:---|
@@ -639,17 +639,21 @@ When no auth service handler or broker is available, `HttpDispatcher.handleAuth(
 
 This ensures that registration and sign-in flows do not return 404 errors in MSW/browser-only environments.
 
+> **Note:** In server mode with AuthPlugin loaded, the auth service handler takes priority and the mock fallback is never reached. The mock fallback only activates when AuthPlugin is not loaded (e.g. browser-only Studio builds where `better-auth` is unavailable).
+
 ### Studio Kernel Factory
 
-The Studio app's `createKernel()` factory includes AuthPlugin by default:
+The Studio app runs in the browser, where the Node-only `better-auth` library cannot be bundled. Instead of loading `AuthPlugin` directly, Studio relies on `HttpDispatcher`'s built-in mock fallback to handle auth endpoints in MSW mode:
 
 ```typescript
 // apps/studio/src/mocks/createKernel.ts
-// WARNING: This secret is for local development only
-await kernel.use(new AuthPlugin({
-  secret: 'INSECURE_DEV_ONLY_mock_secret_do_not_use_in_production',
-  baseUrl: 'http://localhost:5173',
-}));
+// No AuthPlugin needed — HttpDispatcher provides mock auth endpoints automatically
+const kernel = new ObjectKernel();
+await kernel.use(new ObjectQLPlugin());
+await kernel.use(new DriverPlugin(driver, 'memory'));
+// ...
+await kernel.use(new MSWPlugin({ /* ... */ }));
+await kernel.bootstrap();
 ```
 
 ---

@@ -101,21 +101,22 @@ export class AuthPlugin implements Plugin {
 
     // Register HTTP routes if enabled and HTTP server is available
     if (this.options.registerRoutes) {
+      let httpServer: IHttpServer | null = null;
       try {
-        const httpServer = ctx.getService<IHttpServer>('http-server');
-        if (httpServer) {
-          this.registerAuthRoutes(httpServer, ctx);
-          ctx.logger.info(`Auth routes registered at ${this.options.basePath}`);
-        } else {
-          ctx.logger.warn(
-            'No HTTP server available — auth routes not registered. ' +
-            'Auth service is still available for MSW/mock environments via HttpDispatcher.'
-          );
-        }
-      } catch (error) {
-        // Gracefully handle missing HTTP server (e.g. MSW/mock mode)
-        const err = error instanceof Error ? error : new Error(String(error));
-        ctx.logger.warn('HTTP server not available, skipping auth route registration', { error: err.message });
+        httpServer = ctx.getService<IHttpServer>('http-server');
+      } catch {
+        // Service not found — expected in MSW/mock mode
+      }
+
+      if (httpServer) {
+        // Route registration errors should propagate (server misconfiguration)
+        this.registerAuthRoutes(httpServer, ctx);
+        ctx.logger.info(`Auth routes registered at ${this.options.basePath}`);
+      } else {
+        ctx.logger.warn(
+          'No HTTP server available — auth routes not registered. ' +
+          'Auth service is still available for MSW/mock environments via HttpDispatcher.'
+        );
       }
     }
 

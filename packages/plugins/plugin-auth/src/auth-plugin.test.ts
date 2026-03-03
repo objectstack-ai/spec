@@ -169,8 +169,7 @@ describe('AuthPlugin', () => {
       await authPlugin.start(mockContext);
 
       expect(mockContext.logger.warn).toHaveBeenCalledWith(
-        expect.stringContaining('HTTP server not available'),
-        expect.any(String)
+        expect.stringContaining('No HTTP server available')
       );
       // Should NOT throw
     });
