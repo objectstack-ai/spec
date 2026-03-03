@@ -123,6 +123,7 @@ export class ObjectStackController {
             authService = kernel.getService<AuthService>('auth');
           }
         } catch {
+          // Service not registered — fall through to legacy dispatcher
           authService = null;
         }
 

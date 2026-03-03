@@ -93,6 +93,7 @@ export async function objectStackPlugin(fastify: FastifyInstance, options: Fasti
           authService = options.kernel.getService<AuthService>('auth');
         }
       } catch {
+        // Service not registered — fall through to dispatcher
         authService = null;
       }
 

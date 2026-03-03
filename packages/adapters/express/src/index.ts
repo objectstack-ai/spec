@@ -90,6 +90,7 @@ export function createExpressRouter(options: ExpressAdapterOptions): Router {
           authService = options.kernel.getService<AuthService>('auth');
         }
       } catch {
+        // Service not registered — fall through to dispatcher
         authService = null;
       }
 

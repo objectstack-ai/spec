@@ -857,14 +857,14 @@ export class HttpDispatcher {
             try {
                 return await this.kernel.getServiceAsync(name);
             } catch {
-                // Fall through to sync/map lookup
+                // Service not registered or async resolution failed — fall through to sync/map lookup
             }
         }
         if (typeof this.kernel.getService === 'function') {
             try {
                 return await this.kernel.getService(name);
             } catch {
-                // Fall through to map lookup
+                // Service not registered or sync resolution threw "is async" — fall through to map lookup
             }
         }
         const services = this.getServicesMap();
@@ -881,7 +881,7 @@ export class HttpDispatcher {
             try {
                 const svc = await this.kernel.getServiceAsync('objectql');
                 if (svc?.registry) return svc;
-            } catch { /* ignore */ }
+            } catch { /* service not registered or not yet available */ }
         }
         // 2. Try via kernel.getService (sync fallback)
         if (typeof this.kernel.getService === 'function') {

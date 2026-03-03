@@ -96,6 +96,7 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
           authService = options.kernel.getService<AuthService>('auth');
         }
       } catch {
+        // Service not registered — fall through to dispatcher
         authService = null;
       }
 

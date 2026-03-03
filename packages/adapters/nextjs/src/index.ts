@@ -77,6 +77,7 @@ export function createRouteHandler(options: NextAdapterOptions) {
                authService = options.kernel.getService<AuthService>('auth');
              }
            } catch {
+             // Service not registered — fall through to dispatcher
              authService = null;
            }
 
