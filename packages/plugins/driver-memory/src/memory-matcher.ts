@@ -151,11 +151,19 @@ function checkCondition(value: any, condition: any): boolean {
             case '$contains': 
                 if (typeof value !== 'string' || !value.includes(target)) return false; 
                 break;
+            case '$notContains':
+                if (typeof value !== 'string' || value.includes(target)) return false;
+                break;
             case '$startsWith': 
                 if (typeof value !== 'string' || !value.startsWith(target)) return false; 
                 break;
             case '$endsWith': 
                 if (typeof value !== 'string' || !value.endsWith(target)) return false; 
+                break;
+            case '$null':
+                // $null: true → value must be null/undefined; $null: false → value must not be null/undefined
+                if (target === true && value != null) return false;
+                if (target === false && value == null) return false;
                 break;
             case '$regex':
                 try {

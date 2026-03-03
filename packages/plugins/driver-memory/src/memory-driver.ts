@@ -629,8 +629,9 @@ export class InMemoryDriver implements DriverInterface {
         const op = filters.operator === 'or' ? '$or' : '$and';
         return { [op]: conditions };
       }
-      // MongoDB format passthrough: { field: value } or { field: { $eq: value } }
-      return filters;
+      // MongoDB/FilterCondition format: { field: value } or { field: { $op: value } }
+      // Translate non-standard operators ($contains, $notContains, etc.) to Mingo-compatible format
+      return this.normalizeFilterCondition(filters);
     }
 
     // Legacy array format
@@ -692,7 +693,10 @@ export class InMemoryDriver implements DriverInterface {
         return { [field]: { $in: value } };
       case 'nin': case 'not in':
         return { [field]: { $nin: value } };
-      case 'contains': case 'like':
+      case 'contains': case 'like': case 'notcontains': case 'not_contains':
+        if (operator === 'notcontains' || operator === 'not_contains') {
+          return { [field]: { $not: { $regex: new RegExp(this.escapeRegex(value), 'i') } } };
+        }
         return { [field]: { $regex: new RegExp(this.escapeRegex(value), 'i') } };
       case 'startswith': case 'starts_with':
         return { [field]: { $regex: new RegExp(`^${this.escapeRegex(value)}`, 'i') } };
@@ -706,6 +710,86 @@ export class InMemoryDriver implements DriverInterface {
       default:
         return null;
     }
+  }
+
+  /**
+   * Normalize a FilterCondition object by converting non-standard $-prefixed
+   * operators ($contains, $notContains, $startsWith, $endsWith, $between, $null)
+   * to Mingo-compatible equivalents ($regex, $gte/$lte, null checks).
+   */
+  private normalizeFilterCondition(filter: Record<string, any>): Record<string, any> {
+    const result: Record<string, any> = {};
+    for (const key of Object.keys(filter)) {
+      const value = filter[key];
+      // Recurse into logical operators
+      if (key === '$and' || key === '$or') {
+        result[key] = Array.isArray(value)
+          ? value.map((child: any) => this.normalizeFilterCondition(child))
+          : value;
+        continue;
+      }
+      if (key === '$not') {
+        result[key] = value && typeof value === 'object'
+          ? this.normalizeFilterCondition(value)
+          : value;
+        continue;
+      }
+      // Skip $-prefixed keys that aren't field names (already handled or unknown)
+      if (key.startsWith('$')) {
+        result[key] = value;
+        continue;
+      }
+      // Field-level: value may be primitive (implicit eq) or operator object
+      if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date) && !(value instanceof RegExp)) {
+        result[key] = this.normalizeFieldOperators(value);
+      } else {
+        result[key] = value;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Convert non-standard field operators to Mingo-compatible format.
+   */
+  private normalizeFieldOperators(ops: Record<string, any>): Record<string, any> {
+    const result: Record<string, any> = {};
+    for (const op of Object.keys(ops)) {
+      const val = ops[op];
+      switch (op) {
+        case '$contains':
+          result.$regex = new RegExp(this.escapeRegex(val), 'i');
+          break;
+        case '$notContains':
+          result.$not = { $regex: new RegExp(this.escapeRegex(val), 'i') };
+          break;
+        case '$startsWith':
+          result.$regex = new RegExp(`^${this.escapeRegex(val)}`, 'i');
+          break;
+        case '$endsWith':
+          result.$regex = new RegExp(`${this.escapeRegex(val)}$`, 'i');
+          break;
+        case '$between':
+          if (Array.isArray(val) && val.length === 2) {
+            result.$gte = val[0];
+            result.$lte = val[1];
+          }
+          break;
+        case '$null':
+          // $null: true → field is null, $null: false → field is not null
+          // Use $eq/$ne null for Mingo compatibility
+          if (val === true) {
+            result.$eq = null;
+          } else {
+            result.$ne = null;
+          }
+          break;
+        default:
+          result[op] = val;
+          break;
+      }
+    }
+    return result;
   }
 
   /**
