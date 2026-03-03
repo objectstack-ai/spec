@@ -27,6 +27,13 @@ export interface AuthPluginOptions extends Partial<AuthConfig> {
  * 
  * Provides authentication and identity services for ObjectStack applications.
  * 
+ * **Dual-Mode Operation:**
+ * - **Server mode** (HonoServerPlugin active): Registers HTTP routes at basePath,
+ *   forwarding all auth requests to better-auth's universal handler.
+ * - **MSW/Mock mode** (no HTTP server): Gracefully skips route registration but
+ *   still registers the `auth` service, allowing HttpDispatcher.handleAuth() to
+ *   simulate auth flows (sign-up, sign-in, etc.) for development and testing.
+ * 
  * Features:
  * - Session management
  * - User registration/login
@@ -35,8 +42,8 @@ export interface AuthPluginOptions extends Partial<AuthConfig> {
  * - 2FA, passkeys, magic links
  * 
  * This plugin registers:
- * - `auth` service (auth manager instance)
- * - HTTP routes for authentication endpoints
+ * - `auth` service (auth manager instance) — always
+ * - HTTP routes for authentication endpoints — only when HTTP server is available
  * 
  * Integrates with better-auth library to provide comprehensive
  * authentication capabilities including email/password, OAuth, 2FA,

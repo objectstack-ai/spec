@@ -2,6 +2,7 @@
 
 import { ObjectKernel, getEnv } from '@objectstack/core';
 import { CoreServiceName } from '@objectstack/spec/system';
+import { randomUUID } from 'crypto';
 
 export interface HttpProtocolContext {
     request: any;
@@ -202,17 +203,18 @@ export class HttpDispatcher {
      */
     private mockAuthFallback(path: string, method: string, body: any): HttpDispatcherResult {
         const m = method.toUpperCase();
+        const MOCK_SESSION_EXPIRY_MS = 86_400_000; // 24 hours
 
         // POST sign-up/email
         if ((path === 'sign-up/email' || path === 'register') && m === 'POST') {
-            const id = `mock_${Date.now()}`;
+            const id = `mock_${randomUUID()}`;
             return {
                 handled: true,
                 response: {
                     status: 200,
                     body: {
                         user: { id, name: body?.name || 'Mock User', email: body?.email || 'mock@test.local', emailVerified: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-                        session: { id: `session_${id}`, userId: id, token: `mock_token_${id}`, expiresAt: new Date(Date.now() + 86400000).toISOString() },
+                        session: { id: `session_${id}`, userId: id, token: `mock_token_${id}`, expiresAt: new Date(Date.now() + MOCK_SESSION_EXPIRY_MS).toISOString() },
                     },
                 },
             };
@@ -220,14 +222,14 @@ export class HttpDispatcher {
 
         // POST sign-in/email or login
         if ((path === 'sign-in/email' || path === 'login') && m === 'POST') {
-            const id = `mock_${Date.now()}`;
+            const id = `mock_${randomUUID()}`;
             return {
                 handled: true,
                 response: {
                     status: 200,
                     body: {
                         user: { id, name: 'Mock User', email: body?.email || 'mock@test.local', emailVerified: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-                        session: { id: `session_${id}`, userId: id, token: `mock_token_${id}`, expiresAt: new Date(Date.now() + 86400000).toISOString() },
+                        session: { id: `session_${id}`, userId: id, token: `mock_token_${id}`, expiresAt: new Date(Date.now() + MOCK_SESSION_EXPIRY_MS).toISOString() },
                     },
                 },
             };
