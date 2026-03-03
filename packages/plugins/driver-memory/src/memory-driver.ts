@@ -629,8 +629,9 @@ export class InMemoryDriver implements DriverInterface {
         const op = filters.operator === 'or' ? '$or' : '$and';
         return { [op]: conditions };
       }
-      // MongoDB format passthrough: { field: value } or { field: { $eq: value } }
-      return filters;
+      // MongoDB/FilterCondition format: { field: value } or { field: { $op: value } }
+      // Translate non-standard operators ($contains, $notContains, etc.) to Mingo-compatible format
+      return this.normalizeFilterCondition(filters);
     }
 
     // Legacy array format
@@ -694,6 +695,8 @@ export class InMemoryDriver implements DriverInterface {
         return { [field]: { $nin: value } };
       case 'contains': case 'like':
         return { [field]: { $regex: new RegExp(this.escapeRegex(value), 'i') } };
+      case 'notcontains': case 'not_contains':
+        return { [field]: { $not: { $regex: new RegExp(this.escapeRegex(value), 'i') } } };
       case 'startswith': case 'starts_with':
         return { [field]: { $regex: new RegExp(`^${this.escapeRegex(value)}`, 'i') } };
       case 'endswith': case 'ends_with':
@@ -706,6 +709,128 @@ export class InMemoryDriver implements DriverInterface {
       default:
         return null;
     }
+  }
+
+  /**
+   * Normalize a FilterCondition object by converting non-standard $-prefixed
+   * operators ($contains, $notContains, $startsWith, $endsWith, $between, $null)
+   * to Mingo-compatible equivalents ($regex, $gte/$lte, null checks).
+   */
+  private normalizeFilterCondition(filter: Record<string, any>): Record<string, any> {
+    const result: Record<string, any> = {};
+    const extraAndConditions: Record<string, any>[] = [];
+
+    for (const key of Object.keys(filter)) {
+      const value = filter[key];
+      // Recurse into logical operators
+      if (key === '$and' || key === '$or') {
+        result[key] = Array.isArray(value)
+          ? value.map((child: any) => this.normalizeFilterCondition(child))
+          : value;
+        continue;
+      }
+      if (key === '$not') {
+        result[key] = value && typeof value === 'object'
+          ? this.normalizeFilterCondition(value)
+          : value;
+        continue;
+      }
+      // Skip $-prefixed keys that aren't field names (already handled or unknown)
+      if (key.startsWith('$')) {
+        result[key] = value;
+        continue;
+      }
+      // Field-level: value may be primitive (implicit eq) or operator object
+      if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date) && !(value instanceof RegExp)) {
+        const normalized = this.normalizeFieldOperators(value);
+        // Handle multiple regex conditions on the same field (e.g. $startsWith + $endsWith)
+        if (normalized._multiRegex) {
+          const regexConditions: Record<string, any>[] = normalized._multiRegex;
+          delete normalized._multiRegex;
+          // Each regex becomes its own { field: { $regex: ... } } inside $and
+          for (const rc of regexConditions) {
+            extraAndConditions.push({ [key]: { ...normalized, ...rc } });
+          }
+        } else {
+          result[key] = normalized;
+        }
+      } else {
+        result[key] = value;
+      }
+    }
+
+    // Merge extra $and conditions from multi-regex fields
+    if (extraAndConditions.length > 0) {
+      const existing = result.$and;
+      const andArray = Array.isArray(existing) ? existing : [];
+      // Include the rest of result as a condition too
+      if (Object.keys(result).filter(k => k !== '$and').length > 0) {
+        const rest = { ...result };
+        delete rest.$and;
+        andArray.push(rest);
+      }
+      andArray.push(...extraAndConditions);
+      return { $and: andArray };
+    }
+
+    return result;
+  }
+
+  /**
+   * Convert non-standard field operators to Mingo-compatible format.
+   * When multiple regex-producing operators appear on the same field
+   * (e.g. $startsWith + $endsWith), they are combined via $and.
+   */
+  private normalizeFieldOperators(ops: Record<string, any>): Record<string, any> {
+    const result: Record<string, any> = {};
+    const regexConditions: Record<string, any>[] = [];
+
+    for (const op of Object.keys(ops)) {
+      const val = ops[op];
+      switch (op) {
+        case '$contains':
+          regexConditions.push({ $regex: new RegExp(this.escapeRegex(val), 'i') });
+          break;
+        case '$notContains':
+          result.$not = { $regex: new RegExp(this.escapeRegex(val), 'i') };
+          break;
+        case '$startsWith':
+          regexConditions.push({ $regex: new RegExp(`^${this.escapeRegex(val)}`, 'i') });
+          break;
+        case '$endsWith':
+          regexConditions.push({ $regex: new RegExp(`${this.escapeRegex(val)}$`, 'i') });
+          break;
+        case '$between':
+          if (Array.isArray(val) && val.length === 2) {
+            result.$gte = val[0];
+            result.$lte = val[1];
+          }
+          break;
+        case '$null':
+          // $null: true → field is null, $null: false → field is not null
+          // Use $eq/$ne null for Mingo compatibility
+          if (val === true) {
+            result.$eq = null;
+          } else {
+            result.$ne = null;
+          }
+          break;
+        default:
+          result[op] = val;
+          break;
+      }
+    }
+
+    // Merge regex conditions: single → inline, multiple → wrap with $and
+    if (regexConditions.length === 1) {
+      Object.assign(result, regexConditions[0]);
+    } else if (regexConditions.length > 1) {
+      // Cannot have multiple $regex on one object; promote to top-level $and.
+      // _multiRegex is an internal sentinel consumed by normalizeFilterCondition().
+      result._multiRegex = regexConditions;
+    }
+
+    return result;
   }
 
   /**

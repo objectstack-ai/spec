@@ -589,4 +589,132 @@ describe('InMemoryDriver', () => {
       expect(results).toHaveLength(3);
     });
   });
+
+  describe('FilterCondition Object Format (from parseFilterAST)', () => {
+    beforeEach(async () => {
+      await driver.create(testTable, { id: '1', name: 'Alice Johnson', age: 30, email: 'alice@example.com', bio: null });
+      await driver.create(testTable, { id: '2', name: 'Bob Smith', age: 25, email: 'bob@test.com', bio: 'Developer' });
+      await driver.create(testTable, { id: '3', name: 'Charlie Brown', age: 35, email: 'charlie@example.com', bio: '' });
+      await driver.create(testTable, { id: '4', name: 'Evan Davis', age: 28, email: 'evan@test.com', bio: 'Designer' });
+    });
+
+    it('should filter with $contains operator', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { name: { $contains: 'Evan' } },
+      });
+      expect(results).toHaveLength(1);
+      expect(results[0].name).toBe('Evan Davis');
+    });
+
+    it('should filter with $contains case-insensitively', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { name: { $contains: 'alice' } },
+      });
+      expect(results).toHaveLength(1);
+      expect(results[0].name).toBe('Alice Johnson');
+    });
+
+    it('should filter with $notContains operator', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { email: { $notContains: 'example' } },
+      });
+      expect(results).toHaveLength(2);
+      expect(results.map((r: any) => r.name).sort()).toEqual(['Bob Smith', 'Evan Davis']);
+    });
+
+    it('should filter with $startsWith operator', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { name: { $startsWith: 'Ch' } },
+      });
+      expect(results).toHaveLength(1);
+      expect(results[0].name).toBe('Charlie Brown');
+    });
+
+    it('should filter with $endsWith operator', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { email: { $endsWith: '.com' } },
+      });
+      expect(results).toHaveLength(4);
+    });
+
+    it('should filter with $between operator', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { age: { $between: [26, 32] } },
+      });
+      expect(results).toHaveLength(2);
+      expect(results.map((r: any) => r.name).sort()).toEqual(['Alice Johnson', 'Evan Davis']);
+    });
+
+    it('should filter with $null: true', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { bio: { $null: true } },
+      });
+      expect(results).toHaveLength(1);
+      expect(results[0].name).toBe('Alice Johnson');
+    });
+
+    it('should filter with $null: false', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { bio: { $null: false } },
+      });
+      expect(results).toHaveLength(3);
+    });
+
+    it('should handle $contains inside $and', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { $and: [{ name: { $contains: 'a' } }, { age: { $gte: 30 } }] },
+      });
+      expect(results).toHaveLength(2);
+      expect(results.map((r: any) => r.name).sort()).toEqual(['Alice Johnson', 'Charlie Brown']);
+    });
+
+    it('should handle $startsWith inside $or', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { $or: [{ name: { $startsWith: 'Al' } }, { name: { $startsWith: 'Ev' } }] },
+      });
+      expect(results).toHaveLength(2);
+      expect(results.map((r: any) => r.name).sort()).toEqual(['Alice Johnson', 'Evan Davis']);
+    });
+
+    it('should handle AST-converted notcontains via convertConditionToMongo', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { type: 'comparison', field: 'name', operator: 'notcontains', value: 'Bob' },
+      });
+      expect(results).toHaveLength(3);
+    });
+
+    it('should handle combined $startsWith + $endsWith on same field', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { name: { $startsWith: 'A', $endsWith: 'son' } },
+      });
+      expect(results).toHaveLength(1);
+      expect(results[0].name).toBe('Alice Johnson');
+    });
+
+    it('should filter with $null: true on missing fields', async () => {
+      // bio is null for Alice Johnson — should match
+      // Records without bio field at all should also match $null: true
+      await driver.create(testTable, { id: '5', name: 'Frank', age: 40, email: 'frank@test.com' });
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { bio: { $null: true } },
+      });
+      // Alice (bio: null), Frank (bio: missing)
+      expect(results.length).toBeGreaterThanOrEqual(2);
+      expect(results.map((r: any) => r.name)).toContain('Alice Johnson');
+      expect(results.map((r: any) => r.name)).toContain('Frank');
+    });
+  });
 });
