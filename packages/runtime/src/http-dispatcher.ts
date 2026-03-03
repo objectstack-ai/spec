@@ -3,6 +3,18 @@
 import { ObjectKernel, getEnv } from '@objectstack/core';
 import { CoreServiceName } from '@objectstack/spec/system';
 
+/** Browser-safe UUID generator — prefers Web Crypto, falls back to RFC 4122 v4 */
+function randomUUID(): string {
+    if (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function') {
+        return globalThis.crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+}
+
 export interface HttpProtocolContext {
     request: any;
     response?: any;
@@ -179,12 +191,80 @@ export class HttpDispatcher {
             return { handled: true, result: response };
         }
 
-        // 2. Legacy Login
+        // 2. Legacy Login via broker
         const normalizedPath = path.replace(/^\/+/, '');
         if (normalizedPath === 'login' && method.toUpperCase() === 'POST') {
-             const broker = this.ensureBroker();
-             const data = await broker.call('auth.login', body, { request: context.request });
-             return { handled: true, response: { status: 200, body: data } };
+            try {
+                const broker = this.ensureBroker();
+                const data = await broker.call('auth.login', body, { request: context.request });
+                return { handled: true, response: { status: 200, body: data } };
+            } catch (error: any) {
+                // Only fall through to mock when the broker is truly unavailable
+                // (ensureBroker throws statusCode 500 when kernel.broker is null)
+                const statusCode = error?.statusCode ?? error?.status;
+                if (statusCode !== 500 || !error?.message?.includes('Broker not available')) {
+                    throw error;
+                }
+            }
+        }
+
+        // 3. Mock fallback for MSW/test environments when no auth service is registered
+        return this.mockAuthFallback(normalizedPath, method, body);
+    }
+
+    /**
+     * Provides mock auth responses for core better-auth endpoints when
+     * AuthPlugin is not loaded (e.g. MSW/browser-only environments).
+     * This ensures registration/sign-in flows do not 404 in mock mode.
+     */
+    private mockAuthFallback(path: string, method: string, body: any): HttpDispatcherResult {
+        const m = method.toUpperCase();
+        const MOCK_SESSION_EXPIRY_MS = 86_400_000; // 24 hours
+
+        // POST sign-up/email
+        if ((path === 'sign-up/email' || path === 'register') && m === 'POST') {
+            const id = `mock_${randomUUID()}`;
+            return {
+                handled: true,
+                response: {
+                    status: 200,
+                    body: {
+                        user: { id, name: body?.name || 'Mock User', email: body?.email || 'mock@test.local', emailVerified: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+                        session: { id: `session_${id}`, userId: id, token: `mock_token_${id}`, expiresAt: new Date(Date.now() + MOCK_SESSION_EXPIRY_MS).toISOString() },
+                    },
+                },
+            };
+        }
+
+        // POST sign-in/email or login
+        if ((path === 'sign-in/email' || path === 'login') && m === 'POST') {
+            const id = `mock_${randomUUID()}`;
+            return {
+                handled: true,
+                response: {
+                    status: 200,
+                    body: {
+                        user: { id, name: 'Mock User', email: body?.email || 'mock@test.local', emailVerified: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+                        session: { id: `session_${id}`, userId: id, token: `mock_token_${id}`, expiresAt: new Date(Date.now() + MOCK_SESSION_EXPIRY_MS).toISOString() },
+                    },
+                },
+            };
+        }
+
+        // GET get-session
+        if (path === 'get-session' && m === 'GET') {
+            return {
+                handled: true,
+                response: { status: 200, body: { session: null, user: null } },
+            };
+        }
+
+        // POST sign-out
+        if (path === 'sign-out' && m === 'POST') {
+            return {
+                handled: true,
+                response: { status: 200, body: { success: true } },
+            };
         }
 
         return { handled: false };
@@ -486,7 +566,7 @@ export class HttpDispatcher {
      *   GET /labels/:object/:locale     → getFieldLabels  (both from path)
      *   GET /labels/:object?locale=xx   → getFieldLabels  (locale from query)
      */
-    async handleI18n(path: string, method: string, query: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+    async handleI18n(path: string, method: string, query: any, _context: HttpProtocolContext): Promise<HttpDispatcherResult> {
         const i18nService = await this.getService(CoreServiceName.enum.i18n);
         if (!i18nService) return { handled: true, response: this.error('i18n service not available', 501) };
 
