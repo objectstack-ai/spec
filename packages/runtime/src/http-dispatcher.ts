@@ -202,7 +202,7 @@ export class HttpDispatcher {
         // GET /metadata/types
         if (parts[0] === 'types') {
             // Try protocol service for dynamic types
-            const protocol = this.kernel?.context?.getService ? await this.kernel.context.getService('protocol') : null;
+            const protocol = await this.resolveService('protocol');
             if (protocol && typeof protocol.getMetaTypes === 'function') {
                 const result = await protocol.getMetaTypes({});
                 return { handled: true, response: this.success(result) };
@@ -242,7 +242,7 @@ export class HttpDispatcher {
             // PUT /metadata/:type/:name (Save)
             if (method === 'PUT' && body) {
                 // Try to get the protocol service directly
-                const protocol = this.kernel?.context?.getService ? await this.kernel.context.getService('protocol') : null;
+                const protocol = await this.resolveService('protocol');
                 
                 if (protocol && typeof protocol.saveMetaItem === 'function') {
                     try {
@@ -275,7 +275,7 @@ export class HttpDispatcher {
                 const singularType = type.endsWith('s') ? type.slice(0, -1) : type;
                 
                 // Try Protocol Service First (Preferred)
-                const protocol = this.kernel?.context?.getService ? await this.kernel.context.getService('protocol') : null;
+                const protocol = await this.resolveService('protocol');
                 if (protocol && typeof protocol.getMetaItem === 'function') {
                      try {
                         const data = await protocol.getMetaItem({ type: singularType, name });
@@ -304,7 +304,7 @@ export class HttpDispatcher {
             const packageId = query?.package || undefined;
             
             // Try protocol service first for any type
-            const protocol = this.kernel?.context?.getService ? await this.kernel.context.getService('protocol') : null;
+            const protocol = await this.resolveService('protocol');
             if (protocol && typeof protocol.getMetaItems === 'function') {
                 try {
                     const data = await protocol.getMetaItems({ type: typeOrName, packageId });
@@ -343,7 +343,7 @@ export class HttpDispatcher {
         // GET /metadata — return available metadata types
         if (parts.length === 0) {
             // Try protocol service for dynamic types
-            const protocol = this.kernel?.context?.getService ? await this.kernel.context.getService('protocol') : null;
+            const protocol = await this.resolveService('protocol');
             if (protocol && typeof protocol.getMetaTypes === 'function') {
                 const result = await protocol.getMetaTypes({});
                 return { handled: true, response: this.success(result) };
@@ -708,7 +708,7 @@ export class HttpDispatcher {
             // Support both path param /view/obj/list AND query param /view/obj?type=list
             const type = parts[2] || query?.type || 'list';
 
-            const protocol = this.kernel?.context?.getService ? await this.kernel.context.getService('protocol') : null;
+            const protocol = await this.resolveService('protocol');
             
             if (protocol && typeof protocol.getUiView === 'function') {
                 try {
@@ -852,19 +852,38 @@ export class HttpDispatcher {
     }
 
     private async getService(name: CoreServiceName) {
-        // Prefer async resolution to support factory-based services (e.g. auth, analytics)
+        return this.resolveService(name);
+    }
+
+    /**
+     * Resolve any service by name, supporting async factories.
+     * Fallback chain: getServiceAsync → getService (sync) → context.getService → services map.
+     * Only returns when a non-null service is found; otherwise falls through to the next step.
+     */
+    private async resolveService(name: string) {
+        // Prefer async resolution to support factory-based services (e.g. auth, analytics, protocol)
         if (typeof this.kernel.getServiceAsync === 'function') {
             try {
-                return await this.kernel.getServiceAsync(name);
+                const svc = await this.kernel.getServiceAsync(name);
+                if (svc != null) return svc;
             } catch {
-                // Service not registered or async resolution failed — fall through to sync/map lookup
+                // Service not registered or async resolution failed — fall through
             }
         }
         if (typeof this.kernel.getService === 'function') {
             try {
-                return await this.kernel.getService(name);
+                const svc = await this.kernel.getService(name);
+                if (svc != null) return svc;
             } catch {
-                // Service not registered or sync resolution threw "is async" — fall through to map lookup
+                // Service not registered or sync resolution threw "is async" — fall through
+            }
+        }
+        if (this.kernel?.context?.getService) {
+            try {
+                const svc = await this.kernel.context.getService(name);
+                if (svc != null) return svc;
+            } catch {
+                // Service not registered — fall through
             }
         }
         const services = this.getServicesMap();
@@ -876,30 +895,11 @@ export class HttpDispatcher {
      * Tries multiple access patterns since kernel structure varies.
      */
     private async getObjectQLService(): Promise<any> {
-        // 1. Try via kernel.getServiceAsync (supports factory-based services)
-        if (typeof this.kernel.getServiceAsync === 'function') {
-            try {
-                const svc = await this.kernel.getServiceAsync('objectql');
-                if (svc?.registry) return svc;
-            } catch { /* service not registered or not yet available */ }
-        }
-        // 2. Try via kernel.getService (sync fallback)
-        if (typeof this.kernel.getService === 'function') {
-            try {
-                const svc = await this.kernel.getService('objectql');
-                if (svc?.registry) return svc;
-            } catch { /* ignore */ }
-        }
-        // 3. Try via kernel context
-        if (this.kernel?.context?.getService) {
-            try {
-                const svc = await this.kernel.context.getService('objectql');
-                if (svc?.registry) return svc;
-            } catch { /* ignore */ }
-        }
-        // 4. Try via services map
-        const services = this.getServicesMap();
-        if (services['objectql']?.registry) return services['objectql'];
+        // 1. Try via resolveService (handles async factories, sync, context, and map)
+        try {
+            const svc = await this.resolveService('objectql');
+            if (svc?.registry) return svc;
+        } catch { /* service not available */ }
         return null;
     }
 
