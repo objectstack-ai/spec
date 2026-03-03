@@ -115,7 +115,7 @@ export class AuthPlugin implements Plugin {
       } catch (error) {
         // Gracefully handle missing HTTP server (e.g. MSW/mock mode)
         const err = error instanceof Error ? error : new Error(String(error));
-        ctx.logger.warn('HTTP server not available, skipping auth route registration:', err.message);
+        ctx.logger.warn('HTTP server not available, skipping auth route registration', { error: err.message });
       }
     }
 
