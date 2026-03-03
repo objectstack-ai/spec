@@ -615,12 +615,14 @@ await kernel.use(new DriverPlugin(new InMemoryDriver(), 'memory'));
 
 // AuthPlugin works without HonoServerPlugin — no HTTP server needed
 await kernel.use(new AuthPlugin({
-  secret: 'mock-dev-secret-at-least-32-characters-long',
+  secret: 'INSECURE_DEV_ONLY_mock_secret_do_not_use_in_production',
   baseUrl: 'http://localhost:5173',
 }));
 
 await kernel.bootstrap();
 ```
+
+> ⚠️ **Warning:** The secret above is for **local development only**. In production, always use a strong random secret from an environment variable (`process.env.AUTH_SECRET`).
 
 ### Mock Fallback Endpoints
 
@@ -643,8 +645,9 @@ The Studio app's `createKernel()` factory includes AuthPlugin by default:
 
 ```typescript
 // apps/studio/src/mocks/createKernel.ts
+// WARNING: This secret is for local development only
 await kernel.use(new AuthPlugin({
-  secret: 'mock-dev-secret-at-least-32-characters-long',
+  secret: 'INSECURE_DEV_ONLY_mock_secret_do_not_use_in_production',
   baseUrl: 'http://localhost:5173',
 }));
 ```

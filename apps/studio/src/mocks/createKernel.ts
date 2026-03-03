@@ -44,8 +44,9 @@ export async function createKernel(options: KernelOptions) {
     console.log('[KernelFactory] Protocol service will be registered by ObjectQLPlugin');
 
     // Register AuthPlugin for MSW/mock mode (gracefully skips HTTP route registration)
+    // WARNING: This secret is for local development only — never use in production
     await kernel.use(new AuthPlugin({
-        secret: 'mock-dev-secret-at-least-32-characters-long',
+        secret: 'INSECURE_DEV_ONLY_mock_secret_do_not_use_in_production',
         baseUrl: 'http://localhost:5173',
     }));
 
