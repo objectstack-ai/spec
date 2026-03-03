@@ -677,7 +677,7 @@ describe('InMemoryDriver', () => {
       expect(results.map((r: any) => r.name).sort()).toEqual(['Alice Johnson', 'Charlie Brown']);
     });
 
-    it('should handle $contains inside $or', async () => {
+    it('should handle $startsWith inside $or', async () => {
       const results = await driver.find(testTable, {
         object: testTable,
         where: { $or: [{ name: { $startsWith: 'Al' } }, { name: { $startsWith: 'Ev' } }] },
@@ -692,6 +692,29 @@ describe('InMemoryDriver', () => {
         where: { type: 'comparison', field: 'name', operator: 'notcontains', value: 'Bob' },
       });
       expect(results).toHaveLength(3);
+    });
+
+    it('should handle combined $startsWith + $endsWith on same field', async () => {
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { name: { $startsWith: 'A', $endsWith: 'son' } },
+      });
+      expect(results).toHaveLength(1);
+      expect(results[0].name).toBe('Alice Johnson');
+    });
+
+    it('should filter with $null: true on missing fields', async () => {
+      // bio is null for Alice Johnson — should match
+      // Records without bio field at all should also match $null: true
+      await driver.create(testTable, { id: '5', name: 'Frank', age: 40, email: 'frank@test.com' });
+      const results = await driver.find(testTable, {
+        object: testTable,
+        where: { bio: { $null: true } },
+      });
+      // Alice (bio: null), Frank (bio: missing)
+      expect(results.length).toBeGreaterThanOrEqual(2);
+      expect(results.map((r: any) => r.name)).toContain('Alice Johnson');
+      expect(results.map((r: any) => r.name)).toContain('Frank');
     });
   });
 });

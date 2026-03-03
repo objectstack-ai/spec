@@ -103,7 +103,7 @@ function checkCondition(value: any, condition: any): boolean {
         const target = condition[op];
         
         // Handle undefined values
-        if (value === undefined && op !== '$exists' && op !== '$ne') {
+        if (value === undefined && op !== '$exists' && op !== '$ne' && op !== '$null') {
             return false; 
         }
 

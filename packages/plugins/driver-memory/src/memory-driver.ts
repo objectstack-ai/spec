@@ -718,6 +718,8 @@ export class InMemoryDriver implements DriverInterface {
    */
   private normalizeFilterCondition(filter: Record<string, any>): Record<string, any> {
     const result: Record<string, any> = {};
+    const extraAndConditions: Record<string, any>[] = [];
+
     for (const key of Object.keys(filter)) {
       const value = filter[key];
       // Recurse into logical operators
@@ -740,33 +742,63 @@ export class InMemoryDriver implements DriverInterface {
       }
       // Field-level: value may be primitive (implicit eq) or operator object
       if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date) && !(value instanceof RegExp)) {
-        result[key] = this.normalizeFieldOperators(value);
+        const normalized = this.normalizeFieldOperators(value);
+        // Handle multiple regex conditions on the same field (e.g. $startsWith + $endsWith)
+        if (normalized.__$andRegex) {
+          const regexConditions: Record<string, any>[] = normalized.__$andRegex;
+          delete normalized.__$andRegex;
+          // Each regex becomes its own { field: { $regex: ... } } inside $and
+          for (const rc of regexConditions) {
+            extraAndConditions.push({ [key]: { ...normalized, ...rc } });
+          }
+        } else {
+          result[key] = normalized;
+        }
       } else {
         result[key] = value;
       }
     }
+
+    // Merge extra $and conditions from multi-regex fields
+    if (extraAndConditions.length > 0) {
+      const existing = result.$and;
+      const andArray = Array.isArray(existing) ? existing : [];
+      // Include the rest of result as a condition too
+      if (Object.keys(result).filter(k => k !== '$and').length > 0) {
+        const rest = { ...result };
+        delete rest.$and;
+        andArray.push(rest);
+      }
+      andArray.push(...extraAndConditions);
+      return { $and: andArray };
+    }
+
     return result;
   }
 
   /**
    * Convert non-standard field operators to Mingo-compatible format.
+   * When multiple regex-producing operators appear on the same field
+   * (e.g. $startsWith + $endsWith), they are combined via $and.
    */
   private normalizeFieldOperators(ops: Record<string, any>): Record<string, any> {
     const result: Record<string, any> = {};
+    const regexConditions: Record<string, any>[] = [];
+
     for (const op of Object.keys(ops)) {
       const val = ops[op];
       switch (op) {
         case '$contains':
-          result.$regex = new RegExp(this.escapeRegex(val), 'i');
+          regexConditions.push({ $regex: new RegExp(this.escapeRegex(val), 'i') });
           break;
         case '$notContains':
           result.$not = { $regex: new RegExp(this.escapeRegex(val), 'i') };
           break;
         case '$startsWith':
-          result.$regex = new RegExp(`^${this.escapeRegex(val)}`, 'i');
+          regexConditions.push({ $regex: new RegExp(`^${this.escapeRegex(val)}`, 'i') });
           break;
         case '$endsWith':
-          result.$regex = new RegExp(`${this.escapeRegex(val)}$`, 'i');
+          regexConditions.push({ $regex: new RegExp(`${this.escapeRegex(val)}$`, 'i') });
           break;
         case '$between':
           if (Array.isArray(val) && val.length === 2) {
@@ -788,6 +820,19 @@ export class InMemoryDriver implements DriverInterface {
           break;
       }
     }
+
+    // Merge regex conditions: single → inline, multiple → wrap with $and
+    if (regexConditions.length === 1) {
+      Object.assign(result, regexConditions[0]);
+    } else if (regexConditions.length > 1) {
+      // Cannot have multiple $regex on one object; promote to top-level $and
+      // The caller (normalizeFilterCondition) handles field-level objects,
+      // so we return a sentinel that the caller will need to unwrap.
+      // Simpler approach: just assign the first and use $and for the rest isn't
+      // possible in flat Mingo format. Use __$and sentinel for the caller.
+      result.__$andRegex = regexConditions;
+    }
+
     return result;
   }
 
