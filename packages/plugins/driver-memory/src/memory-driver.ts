@@ -744,9 +744,9 @@ export class InMemoryDriver implements DriverInterface {
       if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date) && !(value instanceof RegExp)) {
         const normalized = this.normalizeFieldOperators(value);
         // Handle multiple regex conditions on the same field (e.g. $startsWith + $endsWith)
-        if (normalized.__$andRegex) {
-          const regexConditions: Record<string, any>[] = normalized.__$andRegex;
-          delete normalized.__$andRegex;
+        if (normalized._multiRegex) {
+          const regexConditions: Record<string, any>[] = normalized._multiRegex;
+          delete normalized._multiRegex;
           // Each regex becomes its own { field: { $regex: ... } } inside $and
           for (const rc of regexConditions) {
             extraAndConditions.push({ [key]: { ...normalized, ...rc } });
@@ -825,12 +825,9 @@ export class InMemoryDriver implements DriverInterface {
     if (regexConditions.length === 1) {
       Object.assign(result, regexConditions[0]);
     } else if (regexConditions.length > 1) {
-      // Cannot have multiple $regex on one object; promote to top-level $and
-      // The caller (normalizeFilterCondition) handles field-level objects,
-      // so we return a sentinel that the caller will need to unwrap.
-      // Simpler approach: just assign the first and use $and for the rest isn't
-      // possible in flat Mingo format. Use __$and sentinel for the caller.
-      result.__$andRegex = regexConditions;
+      // Cannot have multiple $regex on one object; promote to top-level $and.
+      // _multiRegex is an internal sentinel consumed by normalizeFilterCondition().
+      result._multiRegex = regexConditions;
     }
 
     return result;
