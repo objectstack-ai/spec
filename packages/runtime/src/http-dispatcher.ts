@@ -541,7 +541,7 @@ export class HttpDispatcher {
 
         // GET /analytics/meta
         if (subPath === 'meta' && m === 'GET') {
-            const result = await analyticsService.getMetadata({ request: context.request });
+            const result = await analyticsService.getMeta();
              return { handled: true, response: this.success(result) };
         }
 
