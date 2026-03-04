@@ -526,7 +526,7 @@ export class HttpDispatcher {
      * Handles Analytics requests
      * path: sub-path after /analytics/
      */
-    async handleAnalytics(path: string, method: string, body: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+    async handleAnalytics(path: string, method: string, body: any, _context: HttpProtocolContext): Promise<HttpDispatcherResult> {
         const analyticsService = await this.getService(CoreServiceName.enum.analytics);
         if (!analyticsService) return { handled: false }; // 404 handled by caller if unhandled
 
