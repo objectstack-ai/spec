@@ -109,6 +109,10 @@ export class AuthManager {
       return (_options: any) => ({
         id: 'objectql',
         ...adapter,
+        // ObjectQL does not yet expose a separate transaction context,
+        // so we pass the adapter itself.  better-auth patches this
+        // automatically when missing, but providing it avoids a
+        // runtime warning from getBaseAdapter().
         transaction: async <R>(cb: (trx: any) => Promise<R>): Promise<R> => cb(adapter),
       });
     }
