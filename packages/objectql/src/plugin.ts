@@ -116,6 +116,9 @@ export class ObjectQLPlugin implements Plugin {
         }
     }
 
+    // Initialize drivers (calls driver.connect() which sets up persistence)
+    await this.ql?.init();
+
     // Register built-in audit hooks
     this.registerAuditHooks(ctx);
 

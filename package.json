@@ -8,7 +8,7 @@
     "dev": "pnpm --filter @objectstack/cli build && node packages/cli/bin/run.js serve --dev",
     "dev:studio": "pnpm --filter @objectstack/studio dev",
     "studio": "pnpm --filter @objectstack/cli build && node packages/cli/bin/run.js studio",
-    "test": "turbo run test --filter=@objectstack/spec",
+    "test": "turbo run test",
     "clean": "turbo run clean && rm -rf dist",
     "doctor": "pnpm --filter @objectstack/cli build && node packages/cli/bin/run.js doctor",
     "setup": "pnpm install && pnpm --filter @objectstack/spec build",
