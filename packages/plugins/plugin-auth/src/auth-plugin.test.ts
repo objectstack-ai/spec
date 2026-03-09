@@ -8,6 +8,19 @@ describe('AuthPlugin', () => {
   let mockContext: PluginContext;
   let authPlugin: AuthPlugin;
 
+  /** Shared hook capture utilities for tests that need kernel:ready simulation */
+  const createHookCapture = () => {
+    const handlers = new Map<string, Array<(...args: any[]) => Promise<void>>>();
+    const hookFn = vi.fn((name: string, handler: (...args: any[]) => Promise<void>) => {
+      if (!handlers.has(name)) handlers.set(name, []);
+      handlers.get(name)!.push(handler);
+    });
+    const trigger = async (name: string) => {
+      for (const h of handlers.get(name) || []) await h();
+    };
+    return { handlers, hookFn, trigger };
+  };
+
   beforeEach(() => {
     mockContext = {
       registerService: vi.fn(),
@@ -98,28 +111,18 @@ describe('AuthPlugin', () => {
   });
 
   describe('Start Phase', () => {
-    let hookHandlers: Map<string, Array<(...args: any[]) => Promise<void>>>;
+    let hookCapture: ReturnType<typeof createHookCapture>;
 
     beforeEach(async () => {
-      hookHandlers = new Map();
+      hookCapture = createHookCapture();
       authPlugin = new AuthPlugin({
         secret: 'test-secret-at-least-32-chars-long',
         baseUrl: 'http://localhost:3000',
       });
       // Capture hook registrations so we can trigger them in tests
-      mockContext.hook = vi.fn((name: string, handler: (...args: any[]) => Promise<void>) => {
-        if (!hookHandlers.has(name)) hookHandlers.set(name, []);
-        hookHandlers.get(name)!.push(handler);
-      });
+      mockContext.hook = hookCapture.hookFn;
       await authPlugin.init(mockContext);
     });
-
-    /** Helper: invoke all handlers registered for a given hook */
-    const triggerHook = async (name: string) => {
-      for (const handler of hookHandlers.get(name) || []) {
-        await handler();
-      }
-    };
 
     it('should register a kernel:ready hook for route registration', async () => {
       await authPlugin.start(mockContext);
@@ -153,7 +156,7 @@ describe('AuthPlugin', () => {
       expect(mockRawApp.all).not.toHaveBeenCalled();
 
       // Simulate kernel:ready
-      await triggerHook('kernel:ready');
+      await hookCapture.trigger('kernel:ready');
 
       expect(mockContext.getService).toHaveBeenCalledWith('http-server');
       expect(mockHttpServer.getRawApp).toHaveBeenCalled();
@@ -184,7 +187,7 @@ describe('AuthPlugin', () => {
       });
 
       await authPlugin.start(mockContext);
-      await triggerHook('kernel:ready');
+      await hookCapture.trigger('kernel:ready');
 
       // Extract the registered route handler
       const routeHandler = mockRawApp.all.mock.calls[0][1];
@@ -237,7 +240,7 @@ describe('AuthPlugin', () => {
       mockContext.getService = vi.fn(() => null);
 
       await authPlugin.start(mockContext);
-      await triggerHook('kernel:ready');
+      await hookCapture.trigger('kernel:ready');
 
       expect(mockContext.getService).toHaveBeenCalledWith('http-server');
       expect(mockContext.logger.warn).toHaveBeenCalledWith(
@@ -252,7 +255,7 @@ describe('AuthPlugin', () => {
       });
 
       await authPlugin.start(mockContext);
-      await triggerHook('kernel:ready');
+      await hookCapture.trigger('kernel:ready');
 
       expect(mockContext.logger.warn).toHaveBeenCalledWith(
         expect.stringContaining('No HTTP server available')
@@ -289,11 +292,8 @@ describe('AuthPlugin', () => {
 
   describe('Configuration Options', () => {
     it('should use custom base path', async () => {
-      const hookHandlers: Map<string, Array<(...args: any[]) => Promise<void>>> = new Map();
-      mockContext.hook = vi.fn((name: string, handler: (...args: any[]) => Promise<void>) => {
-        if (!hookHandlers.has(name)) hookHandlers.set(name, []);
-        hookHandlers.get(name)!.push(handler);
-      });
+      const { hookFn, trigger } = createHookCapture();
+      mockContext.hook = hookFn;
 
       authPlugin = new AuthPlugin({
         secret: 'test-secret-at-least-32-chars-long',
@@ -322,9 +322,7 @@ describe('AuthPlugin', () => {
       await authPlugin.start(mockContext);
 
       // Trigger kernel:ready to actually register routes
-      for (const handler of hookHandlers.get('kernel:ready') || []) {
-        await handler();
-      }
+      await trigger('kernel:ready');
 
       expect(mockRawApp.all).toHaveBeenCalledWith(
         '/custom/auth/*',
