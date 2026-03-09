@@ -57,8 +57,8 @@
   },
   "devDependencies": {
     "@oclif/plugin-help": "^6.2.37",
-    "@oclif/plugin-plugins": "^5.4.56",
-    "@types/node": "^25.3.3",
+    "@oclif/plugin-plugins": "^5.4.58",
+    "@types/node": "^25.3.5",
     "tsup": "^8.0.2",
     "typescript": "^5.3.3",
     "vitest": "^4.0.18"

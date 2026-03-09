@@ -21,7 +21,7 @@
   "devDependencies": {
     "typescript": "^5.0.0",
     "vitest": "^4.0.18",
-    "@types/node": "^25.3.3"
+    "@types/node": "^25.3.5"
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",
