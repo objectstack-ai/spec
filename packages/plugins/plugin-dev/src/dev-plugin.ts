@@ -216,7 +216,8 @@ function createMetadataStub() {
     register(type: string, nameOrDef: string | Record<string, any>, data?: unknown) {
       if (!store.has(type)) store.set(type, new Map());
       if (typeof nameOrDef === 'object' && nameOrDef !== null) {
-        store.get(type)!.set(nameOrDef.name, nameOrDef);
+        const key = nameOrDef.name ?? nameOrDef.id ?? 'unknown';
+        store.get(type)!.set(key, nameOrDef);
       } else {
         store.get(type)!.set(nameOrDef, data);
       }
