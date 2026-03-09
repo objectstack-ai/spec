@@ -68,6 +68,7 @@ export class AuthManager {
       // Base configuration
       secret: this.config.secret || this.generateSecret(),
       baseURL: this.config.baseUrl || 'http://localhost:3000',
+      basePath: '/',  // ← 关键修复！告诉 better-auth 路径已被剥离
       
       // Database adapter configuration
       // For now, we configure a basic setup that will be enhanced
