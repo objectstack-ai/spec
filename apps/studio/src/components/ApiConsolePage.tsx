@@ -61,6 +61,8 @@ interface RequestHistoryEntry {
 
 // ─── Component ──────────────────────────────────────────────────────
 
+let nextParamId = 1;
+
 export function ApiConsolePage() {
   const client = useClient();
   const { groups, loading: discovering, refresh } = useApiDiscovery();
@@ -125,7 +127,7 @@ export function ApiConsolePage() {
   // ─── Query Param Helpers ────────────────────────────────────────────
 
   const addQueryParam = useCallback((key = '', value = '') => {
-    setQueryParams(prev => [...prev, { id: Date.now(), key, value, enabled: true }]);
+    setQueryParams(prev => [...prev, { id: nextParamId++, key, value, enabled: true }]);
   }, []);
 
   const removeQueryParam = useCallback((id: number) => {
@@ -206,7 +208,7 @@ export function ApiConsolePage() {
       const params = new URLSearchParams(qs);
       const restored: QueryParam[] = [];
       params.forEach((value, key) => {
-        restored.push({ id: Date.now() + Math.random(), key, value, enabled: true });
+        restored.push({ id: nextParamId++, key, value, enabled: true });
       });
       setQueryParams(restored);
     } else {
