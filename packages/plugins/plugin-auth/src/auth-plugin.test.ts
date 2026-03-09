@@ -98,15 +98,36 @@ describe('AuthPlugin', () => {
   });
 
   describe('Start Phase', () => {
+    let hookHandlers: Map<string, Array<(...args: any[]) => Promise<void>>>;
+
     beforeEach(async () => {
+      hookHandlers = new Map();
       authPlugin = new AuthPlugin({
         secret: 'test-secret-at-least-32-chars-long',
         baseUrl: 'http://localhost:3000',
       });
+      // Capture hook registrations so we can trigger them in tests
+      mockContext.hook = vi.fn((name: string, handler: (...args: any[]) => Promise<void>) => {
+        if (!hookHandlers.has(name)) hookHandlers.set(name, []);
+        hookHandlers.get(name)!.push(handler);
+      });
       await authPlugin.init(mockContext);
     });
 
-    it('should register routes with HTTP server when enabled', async () => {
+    /** Helper: invoke all handlers registered for a given hook */
+    const triggerHook = async (name: string) => {
+      for (const handler of hookHandlers.get(name) || []) {
+        await handler();
+      }
+    };
+
+    it('should register a kernel:ready hook for route registration', async () => {
+      await authPlugin.start(mockContext);
+
+      expect(mockContext.hook).toHaveBeenCalledWith('kernel:ready', expect.any(Function));
+    });
+
+    it('should register routes with HTTP server on kernel:ready', async () => {
       const mockRawApp = {
         all: vi.fn(),
       };
@@ -127,6 +148,12 @@ describe('AuthPlugin', () => {
       });
 
       await authPlugin.start(mockContext);
+
+      // Routes should NOT be registered yet (deferred to kernel:ready)
+      expect(mockRawApp.all).not.toHaveBeenCalled();
+
+      // Simulate kernel:ready
+      await triggerHook('kernel:ready');
 
       expect(mockContext.getService).toHaveBeenCalledWith('http-server');
       expect(mockHttpServer.getRawApp).toHaveBeenCalled();
@@ -157,6 +184,7 @@ describe('AuthPlugin', () => {
       });
 
       await authPlugin.start(mockContext);
+      await triggerHook('kernel:ready');
 
       // Extract the registered route handler
       const routeHandler = mockRawApp.all.mock.calls[0][1];
@@ -201,13 +229,15 @@ describe('AuthPlugin', () => {
       await authPlugin.init(mockContext);
       await authPlugin.start(mockContext);
 
-      expect(mockContext.getService).not.toHaveBeenCalledWith('http-server');
+      // Should not register kernel:ready hook for routes
+      expect(mockContext.hook).not.toHaveBeenCalledWith('kernel:ready', expect.any(Function));
     });
 
     it('should gracefully skip routes when http-server is not available', async () => {
       mockContext.getService = vi.fn(() => null);
 
       await authPlugin.start(mockContext);
+      await triggerHook('kernel:ready');
 
       expect(mockContext.getService).toHaveBeenCalledWith('http-server');
       expect(mockContext.logger.warn).toHaveBeenCalledWith(
@@ -222,6 +252,7 @@ describe('AuthPlugin', () => {
       });
 
       await authPlugin.start(mockContext);
+      await triggerHook('kernel:ready');
 
       expect(mockContext.logger.warn).toHaveBeenCalledWith(
         expect.stringContaining('No HTTP server available')
@@ -258,6 +289,12 @@ describe('AuthPlugin', () => {
 
   describe('Configuration Options', () => {
     it('should use custom base path', async () => {
+      const hookHandlers: Map<string, Array<(...args: any[]) => Promise<void>>> = new Map();
+      mockContext.hook = vi.fn((name: string, handler: (...args: any[]) => Promise<void>) => {
+        if (!hookHandlers.has(name)) hookHandlers.set(name, []);
+        hookHandlers.get(name)!.push(handler);
+      });
+
       authPlugin = new AuthPlugin({
         secret: 'test-secret-at-least-32-chars-long',
         baseUrl: 'http://localhost:3000',
@@ -283,6 +320,11 @@ describe('AuthPlugin', () => {
       mockContext.getService = vi.fn(() => mockHttpServer);
 
       await authPlugin.start(mockContext);
+
+      // Trigger kernel:ready to actually register routes
+      for (const handler of hookHandlers.get('kernel:ready') || []) {
+        await handler();
+      }
 
       expect(mockRawApp.all).toHaveBeenCalledWith(
         '/custom/auth/*',
