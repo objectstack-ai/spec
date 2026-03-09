@@ -759,6 +759,7 @@ Final polish and advanced features.
 - [ ] Page Builder — drag-and-drop page designer with element palette (see [Gap Analysis](docs/design/airtable-interface-gap-analysis.md))
 - [x] Flow Builder Protocol — canvas node shapes, edge styles, BPMN node descriptors (parallel_gateway, join_gateway, boundary_event, wait), layout algorithms, palette categories (`studio/flow-builder.zod.ts`)
 - [ ] Flow Builder Runtime — visual automation flow editor with drag-and-drop canvas, node palette, property panel, minimap
+- [x] Global REST API Console — auto-discover all registered REST APIs, grouped endpoint tree with search/filter, request/response panel with history and replay (`ApiConsolePage`, `useApiDiscovery`)
 - [ ] Security Console — permission matrix, RLS policy editor
 - [ ] AI Playground — agent testing, NLQ sandbox
 - [ ] Code Editor — Monaco-based TypeScript editing with live preview

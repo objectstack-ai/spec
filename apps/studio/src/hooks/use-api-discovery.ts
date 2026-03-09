@@ -23,6 +23,9 @@ export interface EndpointGroup {
 
 // ─── Static system endpoints ────────────────────────────────────────
 
+/** Metadata types that should be excluded from the endpoint tree */
+const EXCLUDED_META_TYPES = ['plugin', 'plugins', 'kind', 'package'];
+
 const SYSTEM_ENDPOINTS: EndpointDef[] = [
   { method: 'GET', path: '/api/v1/discovery', desc: 'API Discovery', group: 'System' },
   { method: 'GET', path: '/api/v1/meta/types', desc: 'List metadata types', group: 'Metadata' },
@@ -91,7 +94,7 @@ export function useApiDiscovery() {
 
       // 4. Build metadata endpoints for each type
       const metaEndpoints: EndpointDef[] = metaTypes
-        .filter(t => !['plugin', 'plugins', 'kind', 'package'].includes(t))
+        .filter(t => !EXCLUDED_META_TYPES.includes(t))
         .map(type => ({
           method: 'GET' as HttpMethod,
           path: `/api/v1/meta/${type}`,
@@ -124,12 +127,12 @@ export function useApiDiscovery() {
         groupMap.set(ep.group, existing);
       }
 
-      // Sort groups: System, Auth, Metadata, then Data groups alphabetically
-      const ORDER = ['System', 'Auth', 'Metadata'];
+      // Sort groups: System, Auth, Metadata first, then Data groups alphabetically
+      const GROUP_SORT_ORDER = ['System', 'Auth', 'Metadata'];
       const grouped = Array.from(groupMap.entries())
         .sort(([a], [b]) => {
-          const aIdx = ORDER.indexOf(a);
-          const bIdx = ORDER.indexOf(b);
+          const aIdx = GROUP_SORT_ORDER.indexOf(a);
+          const bIdx = GROUP_SORT_ORDER.indexOf(b);
           if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
           if (aIdx !== -1) return -1;
           if (bIdx !== -1) return 1;
