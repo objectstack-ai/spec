@@ -11,6 +11,20 @@ vi.mock('better-auth', () => ({
   })),
 }));
 
+// Mock plugin imports — we only need to verify they are called with the
+// correct schema options; the actual plugin logic is tested by better-auth.
+vi.mock('better-auth/plugins/organization', () => ({
+  organization: vi.fn((opts: any) => ({ id: 'organization', _opts: opts })),
+}));
+
+vi.mock('better-auth/plugins/two-factor', () => ({
+  twoFactor: vi.fn((opts: any) => ({ id: 'two-factor', _opts: opts })),
+}));
+
+vi.mock('better-auth/plugins/magic-link', () => ({
+  magicLink: vi.fn((_opts?: any) => ({ id: 'magic-link' })),
+}));
+
 import { betterAuth } from 'better-auth';
 
 describe('AuthManager', () => {
@@ -242,6 +256,119 @@ describe('AuthManager', () => {
 
       expect(capturedConfig.database).toBeUndefined();
       warnSpy.mockRestore();
+    });
+  });
+
+  describe('plugin registration', () => {
+    it('should not include any plugins when no plugin config is provided', () => {
+      let capturedConfig: any;
+      (betterAuth as any).mockImplementation((config: any) => {
+        capturedConfig = config;
+        return { handler: vi.fn(), api: {} };
+      });
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const manager = new AuthManager({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+      });
+      manager.getAuthInstance();
+      warnSpy.mockRestore();
+
+      expect(capturedConfig.plugins).toEqual([]);
+    });
+
+    it('should register organization plugin with schema mapping when enabled', () => {
+      let capturedConfig: any;
+      (betterAuth as any).mockImplementation((config: any) => {
+        capturedConfig = config;
+        return { handler: vi.fn(), api: {} };
+      });
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const manager = new AuthManager({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+        plugins: { organization: true },
+      });
+      manager.getAuthInstance();
+      warnSpy.mockRestore();
+
+      const orgPlugin = capturedConfig.plugins.find((p: any) => p.id === 'organization');
+      expect(orgPlugin).toBeDefined();
+      // Verify schema was passed to organization() call
+      expect(orgPlugin._opts.schema.organization.modelName).toBe('sys_organization');
+      expect(orgPlugin._opts.schema.member.modelName).toBe('sys_member');
+      expect(orgPlugin._opts.schema.invitation.modelName).toBe('sys_invitation');
+      expect(orgPlugin._opts.schema.team.modelName).toBe('sys_team');
+      expect(orgPlugin._opts.schema.teamMember.modelName).toBe('sys_team_member');
+      expect(orgPlugin._opts.schema.session.fields.activeOrganizationId).toBe('active_organization_id');
+    });
+
+    it('should register twoFactor plugin with schema mapping when enabled', () => {
+      let capturedConfig: any;
+      (betterAuth as any).mockImplementation((config: any) => {
+        capturedConfig = config;
+        return { handler: vi.fn(), api: {} };
+      });
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const manager = new AuthManager({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+        plugins: { twoFactor: true },
+      });
+      manager.getAuthInstance();
+      warnSpy.mockRestore();
+
+      const tfPlugin = capturedConfig.plugins.find((p: any) => p.id === 'two-factor');
+      expect(tfPlugin).toBeDefined();
+      expect(tfPlugin._opts.schema.twoFactor.modelName).toBe('sys_two_factor');
+      expect(tfPlugin._opts.schema.twoFactor.fields.backupCodes).toBe('backup_codes');
+      expect(tfPlugin._opts.schema.twoFactor.fields.userId).toBe('user_id');
+      expect(tfPlugin._opts.schema.user.fields.twoFactorEnabled).toBe('two_factor_enabled');
+    });
+
+    it('should register magicLink plugin when enabled', () => {
+      let capturedConfig: any;
+      (betterAuth as any).mockImplementation((config: any) => {
+        capturedConfig = config;
+        return { handler: vi.fn(), api: {} };
+      });
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const manager = new AuthManager({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+        plugins: { magicLink: true },
+      });
+      manager.getAuthInstance();
+      warnSpy.mockRestore();
+
+      const mlPlugin = capturedConfig.plugins.find((p: any) => p.id === 'magic-link');
+      expect(mlPlugin).toBeDefined();
+    });
+
+    it('should register multiple plugins when multiple flags are enabled', () => {
+      let capturedConfig: any;
+      (betterAuth as any).mockImplementation((config: any) => {
+        capturedConfig = config;
+        return { handler: vi.fn(), api: {} };
+      });
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const manager = new AuthManager({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+        plugins: { organization: true, twoFactor: true, magicLink: true },
+      });
+      manager.getAuthInstance();
+      warnSpy.mockRestore();
+
+      expect(capturedConfig.plugins).toHaveLength(3);
+      expect(capturedConfig.plugins.map((p: any) => p.id).sort()).toEqual(
+        ['magic-link', 'organization', 'two-factor'],
+      );
     });
   });
 });

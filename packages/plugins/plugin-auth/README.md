@@ -215,10 +215,22 @@ export const AuthUser = ObjectSchema.create({
 **Database Objects:**
 Uses ObjectStack `sys_` prefixed protocol names with snake_case field naming.
 The adapter automatically maps better-auth model names to protocol names:
+
+*Core models:*
 - `sys_user` (← better-auth `user`) - User accounts (id, email, name, email_verified, created_at, etc.)
 - `sys_session` (← better-auth `session`) - Active sessions (id, token, user_id, expires_at, ip_address, etc.)
 - `sys_account` (← better-auth `account`) - OAuth provider accounts (id, provider_id, account_id, user_id, tokens, etc.)
 - `sys_verification` (← better-auth `verification`) - Verification tokens (id, value, identifier, expires_at, etc.)
+
+*Organization plugin (when `plugins.organization: true`):*
+- `sys_organization` (← `organization`) - Organizations (id, name, slug, logo, created_at, etc.)
+- `sys_member` (← `member`) - Organization members (id, organization_id, user_id, role, created_at)
+- `sys_invitation` (← `invitation`) - Invitations (id, organization_id, inviter_id, email, role, expires_at, etc.)
+- `sys_team` (← `team`) - Teams (id, name, organization_id, created_at, etc.)
+- `sys_team_member` (← `teamMember`) - Team members (id, team_id, user_id, created_at)
+
+*Two-Factor plugin (when `plugins.twoFactor: true`):*
+- `sys_two_factor` (← `twoFactor`) - 2FA secrets (id, secret, backup_codes, user_id)
 
 **Schema Mapping (modelName + fields):**
 
@@ -237,6 +249,8 @@ import {
   AUTH_SESSION_CONFIG,
   AUTH_ACCOUNT_CONFIG,
   AUTH_VERIFICATION_CONFIG,
+  buildOrganizationPluginSchema,
+  buildTwoFactorPluginSchema,
 } from '@objectstack/plugin-auth';
 
 // Applied to the betterAuth() config:
@@ -246,7 +260,10 @@ const auth = betterAuth({
   session:      { ...AUTH_SESSION_CONFIG, expiresIn: 604800 },
   account:      { ...AUTH_ACCOUNT_CONFIG },
   verification: { ...AUTH_VERIFICATION_CONFIG },
-  // ...
+  plugins: [
+    organization({ schema: buildOrganizationPluginSchema() }),
+    twoFactor({ schema: buildTwoFactorPluginSchema() }),
+  ],
 });
 ```
 

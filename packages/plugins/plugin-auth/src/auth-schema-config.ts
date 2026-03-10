@@ -133,3 +133,207 @@ export const AUTH_VERIFICATION_CONFIG = {
     updatedAt: 'updated_at',
   },
 } as const;
+
+// ===========================================================================
+// Plugin Table Mappings
+// ===========================================================================
+//
+// better-auth plugins (organization, two-factor, etc.) introduce additional
+// tables with their own camelCase field names.  The mappings below are passed
+// to the plugin's `schema` option so that `createAdapterFactory` transforms
+// them to snake_case automatically, just like the core models above.
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// Organization plugin – organization table
+// ---------------------------------------------------------------------------
+
+/**
+ * better-auth Organization plugin `organization` model mapping.
+ *
+ * | camelCase (better-auth) | snake_case (ObjectStack) |
+ * |:------------------------|:-------------------------|
+ * | createdAt               | created_at               |
+ * | updatedAt               | updated_at               |
+ */
+export const AUTH_ORGANIZATION_SCHEMA = {
+  modelName: 'sys_organization',
+  fields: {
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  },
+} as const;
+
+// ---------------------------------------------------------------------------
+// Organization plugin – member table
+// ---------------------------------------------------------------------------
+
+/**
+ * better-auth Organization plugin `member` model mapping.
+ *
+ * | camelCase (better-auth) | snake_case (ObjectStack) |
+ * |:------------------------|:-------------------------|
+ * | organizationId          | organization_id          |
+ * | userId                  | user_id                  |
+ * | createdAt               | created_at               |
+ */
+export const AUTH_MEMBER_SCHEMA = {
+  modelName: 'sys_member',
+  fields: {
+    organizationId: 'organization_id',
+    userId: 'user_id',
+    createdAt: 'created_at',
+  },
+} as const;
+
+// ---------------------------------------------------------------------------
+// Organization plugin – invitation table
+// ---------------------------------------------------------------------------
+
+/**
+ * better-auth Organization plugin `invitation` model mapping.
+ *
+ * | camelCase (better-auth) | snake_case (ObjectStack) |
+ * |:------------------------|:-------------------------|
+ * | organizationId          | organization_id          |
+ * | inviterId               | inviter_id               |
+ * | expiresAt               | expires_at               |
+ * | createdAt               | created_at               |
+ * | teamId                  | team_id                  |
+ */
+export const AUTH_INVITATION_SCHEMA = {
+  modelName: 'sys_invitation',
+  fields: {
+    organizationId: 'organization_id',
+    inviterId: 'inviter_id',
+    expiresAt: 'expires_at',
+    createdAt: 'created_at',
+    teamId: 'team_id',
+  },
+} as const;
+
+// ---------------------------------------------------------------------------
+// Organization plugin – session additional fields
+// ---------------------------------------------------------------------------
+
+/**
+ * Organization plugin adds `activeOrganizationId` (and optionally
+ * `activeTeamId`) to the session model. These field mappings are
+ * injected via the organization plugin's `schema.session.fields`.
+ */
+export const AUTH_ORG_SESSION_FIELDS = {
+  activeOrganizationId: 'active_organization_id',
+  activeTeamId: 'active_team_id',
+} as const;
+
+// ---------------------------------------------------------------------------
+// Organization plugin – team table (optional, when teams enabled)
+// ---------------------------------------------------------------------------
+
+/**
+ * better-auth Organization plugin `team` model mapping.
+ *
+ * | camelCase (better-auth) | snake_case (ObjectStack) |
+ * |:------------------------|:-------------------------|
+ * | organizationId          | organization_id          |
+ * | createdAt               | created_at               |
+ * | updatedAt               | updated_at               |
+ */
+export const AUTH_TEAM_SCHEMA = {
+  modelName: 'sys_team',
+  fields: {
+    organizationId: 'organization_id',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  },
+} as const;
+
+// ---------------------------------------------------------------------------
+// Organization plugin – teamMember table (optional, when teams enabled)
+// ---------------------------------------------------------------------------
+
+/**
+ * better-auth Organization plugin `teamMember` model mapping.
+ *
+ * | camelCase (better-auth) | snake_case (ObjectStack) |
+ * |:------------------------|:-------------------------|
+ * | teamId                  | team_id                  |
+ * | userId                  | user_id                  |
+ * | createdAt               | created_at               |
+ */
+export const AUTH_TEAM_MEMBER_SCHEMA = {
+  modelName: 'sys_team_member',
+  fields: {
+    teamId: 'team_id',
+    userId: 'user_id',
+    createdAt: 'created_at',
+  },
+} as const;
+
+// ---------------------------------------------------------------------------
+// Two-Factor plugin – twoFactor table
+// ---------------------------------------------------------------------------
+
+/**
+ * better-auth Two-Factor plugin `twoFactor` model mapping.
+ *
+ * | camelCase (better-auth) | snake_case (ObjectStack) |
+ * |:------------------------|:-------------------------|
+ * | backupCodes             | backup_codes             |
+ * | userId                  | user_id                  |
+ */
+export const AUTH_TWO_FACTOR_SCHEMA = {
+  modelName: 'sys_two_factor',
+  fields: {
+    backupCodes: 'backup_codes',
+    userId: 'user_id',
+  },
+} as const;
+
+/**
+ * Two-Factor plugin adds a `twoFactorEnabled` field to the user model.
+ */
+export const AUTH_TWO_FACTOR_USER_FIELDS = {
+  twoFactorEnabled: 'two_factor_enabled',
+} as const;
+
+/**
+ * Builds the `schema` option for better-auth's `twoFactor()` plugin.
+ *
+ * @returns An object suitable for `twoFactor({ schema: … })`
+ */
+export function buildTwoFactorPluginSchema() {
+  return {
+    twoFactor: AUTH_TWO_FACTOR_SCHEMA,
+    user: {
+      fields: AUTH_TWO_FACTOR_USER_FIELDS,
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Helper: build organization plugin schema option
+// ---------------------------------------------------------------------------
+
+/**
+ * Builds the `schema` option for better-auth's `organization()` plugin.
+ *
+ * The organization plugin accepts a `schema` sub-option that allows
+ * customising model names and field names for each table it manages.
+ * This helper assembles the correct snake_case mappings from the
+ * individual `AUTH_*_SCHEMA` constants above.
+ *
+ * @returns An object suitable for `organization({ schema: … })`
+ */
+export function buildOrganizationPluginSchema() {
+  return {
+    organization: AUTH_ORGANIZATION_SCHEMA,
+    member: AUTH_MEMBER_SCHEMA,
+    invitation: AUTH_INVITATION_SCHEMA,
+    team: AUTH_TEAM_SCHEMA,
+    teamMember: AUTH_TEAM_MEMBER_SCHEMA,
+    session: {
+      fields: AUTH_ORG_SESSION_FIELDS,
+    },
+  };
+}

@@ -12,6 +12,15 @@ import {
   AUTH_SESSION_CONFIG,
   AUTH_ACCOUNT_CONFIG,
   AUTH_VERIFICATION_CONFIG,
+  AUTH_ORGANIZATION_SCHEMA,
+  AUTH_MEMBER_SCHEMA,
+  AUTH_INVITATION_SCHEMA,
+  AUTH_TEAM_SCHEMA,
+  AUTH_TEAM_MEMBER_SCHEMA,
+  AUTH_TWO_FACTOR_SCHEMA,
+  AUTH_ORG_SESSION_FIELDS,
+  buildOrganizationPluginSchema,
+  buildTwoFactorPluginSchema,
 } from './auth-schema-config';
 import { SystemObjectName } from '@objectstack/spec/system';
 import type { IDataEngine } from '@objectstack/core';
@@ -93,6 +102,91 @@ describe('AUTH_*_CONFIG schema mappings', () => {
       expiresAt: 'expires_at',
       createdAt: 'created_at',
       updatedAt: 'updated_at',
+    });
+  });
+});
+
+describe('AUTH_*_SCHEMA plugin table mappings', () => {
+  it('should define organization model mapping', () => {
+    expect(AUTH_ORGANIZATION_SCHEMA.modelName).toBe('sys_organization');
+    expect(AUTH_ORGANIZATION_SCHEMA.fields).toEqual({
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+    });
+  });
+
+  it('should define member model mapping', () => {
+    expect(AUTH_MEMBER_SCHEMA.modelName).toBe('sys_member');
+    expect(AUTH_MEMBER_SCHEMA.fields).toEqual({
+      organizationId: 'organization_id',
+      userId: 'user_id',
+      createdAt: 'created_at',
+    });
+  });
+
+  it('should define invitation model mapping', () => {
+    expect(AUTH_INVITATION_SCHEMA.modelName).toBe('sys_invitation');
+    expect(AUTH_INVITATION_SCHEMA.fields).toEqual({
+      organizationId: 'organization_id',
+      inviterId: 'inviter_id',
+      expiresAt: 'expires_at',
+      createdAt: 'created_at',
+      teamId: 'team_id',
+    });
+  });
+
+  it('should define team model mapping', () => {
+    expect(AUTH_TEAM_SCHEMA.modelName).toBe('sys_team');
+    expect(AUTH_TEAM_SCHEMA.fields).toEqual({
+      organizationId: 'organization_id',
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+    });
+  });
+
+  it('should define team member model mapping', () => {
+    expect(AUTH_TEAM_MEMBER_SCHEMA.modelName).toBe('sys_team_member');
+    expect(AUTH_TEAM_MEMBER_SCHEMA.fields).toEqual({
+      teamId: 'team_id',
+      userId: 'user_id',
+      createdAt: 'created_at',
+    });
+  });
+
+  it('should define two-factor model mapping', () => {
+    expect(AUTH_TWO_FACTOR_SCHEMA.modelName).toBe('sys_two_factor');
+    expect(AUTH_TWO_FACTOR_SCHEMA.fields).toEqual({
+      backupCodes: 'backup_codes',
+      userId: 'user_id',
+    });
+  });
+
+  it('should define org session additional fields', () => {
+    expect(AUTH_ORG_SESSION_FIELDS).toEqual({
+      activeOrganizationId: 'active_organization_id',
+      activeTeamId: 'active_team_id',
+    });
+  });
+});
+
+describe('buildOrganizationPluginSchema', () => {
+  it('should compose all org plugin table schemas', () => {
+    const schema = buildOrganizationPluginSchema();
+    expect(schema.organization).toBe(AUTH_ORGANIZATION_SCHEMA);
+    expect(schema.member).toBe(AUTH_MEMBER_SCHEMA);
+    expect(schema.invitation).toBe(AUTH_INVITATION_SCHEMA);
+    expect(schema.team).toBe(AUTH_TEAM_SCHEMA);
+    expect(schema.teamMember).toBe(AUTH_TEAM_MEMBER_SCHEMA);
+    expect(schema.session.fields).toBe(AUTH_ORG_SESSION_FIELDS);
+  });
+});
+
+describe('buildTwoFactorPluginSchema', () => {
+  it('should compose two-factor model + user field schema', () => {
+    const schema = buildTwoFactorPluginSchema();
+    expect(schema.twoFactor).toBe(AUTH_TWO_FACTOR_SCHEMA);
+    expect(schema.user.fields).toEqual({
+      twoFactorEnabled: 'two_factor_enabled',
     });
   });
 });

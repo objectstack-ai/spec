@@ -2,6 +2,9 @@
 
 import { betterAuth } from 'better-auth';
 import type { Auth, BetterAuthOptions } from 'better-auth';
+import { organization } from 'better-auth/plugins/organization';
+import { twoFactor } from 'better-auth/plugins/two-factor';
+import { magicLink } from 'better-auth/plugins/magic-link';
 import type { AuthConfig } from '@objectstack/spec/system';
 import type { IDataEngine } from '@objectstack/core';
 import { createObjectQLAdapterFactory } from './objectql-adapter.js';
@@ -10,6 +13,8 @@ import {
   AUTH_SESSION_CONFIG,
   AUTH_ACCOUNT_CONFIG,
   AUTH_VERIFICATION_CONFIG,
+  buildOrganizationPluginSchema,
+  buildTwoFactorPluginSchema,
 } from './auth-schema-config.js';
 
 /**
@@ -104,9 +109,52 @@ export class AuthManager {
         expiresIn: this.config.session?.expiresIn || 60 * 60 * 24 * 7, // 7 days default
         updateAge: this.config.session?.updateAge || 60 * 60 * 24, // 1 day default
       },
+      
+      // better-auth plugins — registered based on AuthPluginConfig flags
+      plugins: this.buildPluginList(),
     };
 
     return betterAuth(betterAuthConfig);
+  }
+
+  /**
+   * Build the list of better-auth plugins based on AuthPluginConfig flags.
+   *
+   * Each plugin that introduces its own database tables is configured with
+   * a `schema` option containing the appropriate snake_case field mappings,
+   * so that `createAdapterFactory` transforms them automatically.
+   */
+  private buildPluginList(): any[] {
+    const pluginConfig = this.config.plugins;
+    const plugins: any[] = [];
+    
+    if (pluginConfig?.organization) {
+      plugins.push(organization({
+        schema: buildOrganizationPluginSchema(),
+      }));
+    }
+    
+    if (pluginConfig?.twoFactor) {
+      plugins.push(twoFactor({
+        schema: buildTwoFactorPluginSchema(),
+      }));
+    }
+
+    if (pluginConfig?.magicLink) {
+      // magic-link reuses the `verification` table — no extra schema mapping needed.
+      // The sendMagicLink callback must be provided by the application at a higher level.
+      // Here we provide a no-op default that logs a warning; real applications should
+      // override this via AuthManagerOptions or a config extension point.
+      plugins.push(magicLink({
+        sendMagicLink: async ({ email, url }) => {
+          console.warn(
+            `[AuthManager] Magic-link requested for ${email} but no sendMagicLink handler configured. URL: ${url}`,
+          );
+        },
+      }));
+    }
+    
+    return plugins;
   }
 
   /**
