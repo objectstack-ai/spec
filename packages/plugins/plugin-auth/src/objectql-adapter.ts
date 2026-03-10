@@ -95,25 +95,24 @@ export function createObjectQLAdapterFactory(dataEngine: IDataEngine) {
     },
     adapter: () => ({
       create: async <T extends Record<string, any>>(
-        { model, data }: { model: string; data: T; select?: string[] },
+        { model, data, select: _select }: { model: string; data: T; select?: string[] },
       ): Promise<T> => {
         const result = await dataEngine.insert(model, data);
         return result as T;
       },
 
       findOne: async <T>(
-        { model, where, select }: { model: string; where: CleanedWhere[]; select?: string[]; join?: any },
+        { model, where, select, join: _join }: { model: string; where: CleanedWhere[]; select?: string[]; join?: any },
       ): Promise<T | null> => {
         const filter = convertWhere(where);
 
-        // Note: join is not currently supported by ObjectQL's findOne operation
         const result = await dataEngine.findOne(model, { filter, select });
 
         return result ? (result as T) : null;
       },
 
       findMany: async <T>(
-        { model, where, limit, offset, sortBy }: {
+        { model, where, limit, offset, sortBy, join: _join }: {
           model: string; where?: CleanedWhere[]; limit: number;
           offset?: number; sortBy?: { field: string; direction: 'asc' | 'desc' }; join?: any;
         },
