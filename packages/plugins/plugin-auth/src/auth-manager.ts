@@ -32,6 +32,14 @@ export interface AuthManagerOptions extends Partial<AuthConfig> {
    * Required for database operations using ObjectQL instead of third-party ORMs
    */
   dataEngine?: IDataEngine;
+
+  /**
+   * Base path for auth routes
+   * Forwarded to better-auth's basePath option so it can match incoming
+   * request URLs without manual path rewriting.
+   * @default '/api/v1/auth'
+   */
+  basePath?: string;
 }
 
 /**
@@ -79,7 +87,7 @@ export class AuthManager {
       // Base configuration
       secret: this.config.secret || this.generateSecret(),
       baseURL: this.config.baseUrl || 'http://localhost:3000',
-      basePath: '/',  // ← 关键修复！告诉 better-auth 路径已被剥离
+      basePath: this.config.basePath || '/api/v1/auth',
 
       // Database adapter configuration
       database: this.createDatabaseConfig(),

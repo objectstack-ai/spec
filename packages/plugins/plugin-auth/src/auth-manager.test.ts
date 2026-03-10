@@ -259,6 +259,45 @@ describe('AuthManager', () => {
     });
   });
 
+  describe('basePath configuration', () => {
+    it('should default basePath to /api/v1/auth when not specified', () => {
+      let capturedConfig: any;
+      (betterAuth as any).mockImplementation((config: any) => {
+        capturedConfig = config;
+        return { handler: vi.fn(), api: {} };
+      });
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const manager = new AuthManager({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+      });
+      manager.getAuthInstance();
+      warnSpy.mockRestore();
+
+      expect(capturedConfig.basePath).toBe('/api/v1/auth');
+    });
+
+    it('should use custom basePath when provided', () => {
+      let capturedConfig: any;
+      (betterAuth as any).mockImplementation((config: any) => {
+        capturedConfig = config;
+        return { handler: vi.fn(), api: {} };
+      });
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const manager = new AuthManager({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+        basePath: '/custom/auth',
+      });
+      manager.getAuthInstance();
+      warnSpy.mockRestore();
+
+      expect(capturedConfig.basePath).toBe('/custom/auth');
+    });
+  });
+
   describe('plugin registration', () => {
     it('should not include any plugins when no plugin config is provided', () => {
       let capturedConfig: any;

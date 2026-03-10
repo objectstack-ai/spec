@@ -181,30 +181,13 @@ export class AuthPlugin implements Plugin {
 
     const rawApp = (httpServer as any).getRawApp();
 
-    // Register wildcard route to forward all auth requests to better-auth
-    // Better-auth expects requests at its baseURL, so we need to preserve the full path
+    // Register wildcard route to forward all auth requests to better-auth.
+    // better-auth is configured with basePath matching our route prefix, so we
+    // forward the original request directly — no path rewriting needed.
     rawApp.all(`${basePath}/*`, async (c: any) => {
       try {
-        // Get the Web standard Request from Hono context
-        const request = c.req.raw as Request;
-        
-        // Create a new Request with the path rewritten to match better-auth's expectations
-        // Better-auth expects paths like /sign-in/email, /sign-up/email, etc.
-        // We need to strip our basePath prefix
-        const url = new URL(request.url);
-        const authPath = url.pathname.replace(basePath, '');
-        const rewrittenUrl = new URL(authPath || '/', url.origin);
-        rewrittenUrl.search = url.search; // Preserve query params
-        
-        const rewrittenRequest = new Request(rewrittenUrl, {
-          method: request.method,
-          headers: request.headers,
-          body: request.body,
-          duplex: 'half' as any, // Required for Request with body
-        });
-
-        // Forward to better-auth handler
-        const response = await this.authManager!.handleRequest(rewrittenRequest);
+        // Forward the original request to better-auth handler
+        const response = await this.authManager!.handleRequest(c.req.raw);
 
         // better-auth catches internal errors and returns error Responses
         // without throwing, so the catch block below would never trigger.
