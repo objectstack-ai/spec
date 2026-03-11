@@ -307,24 +307,48 @@ The following renames are planned for packages that implement core service contr
 ### System Object Naming Convention (`sys_` Prefix)
 
 > **Adopted:** 2026-02-19  
+> **Updated:** 2026-03-11 — Namespace-based architecture with auto-derivation  
 > **Scope:** All system kernel objects in `SystemObjectName` constants.
 
-All system kernel objects use the `sys_` prefix to clearly distinguish platform-internal objects from
+All system kernel objects use the `sys` namespace to clearly distinguish platform-internal objects from
 business/custom objects, aligning with industry best practices (e.g., ServiceNow `sys_user`, `sys_audit`).
 
-| Constant Key | Protocol Name | Description |
-|:---|:---|:---|
-| `SystemObjectName.USER` | `sys_user` | Authentication: user identity |
-| `SystemObjectName.SESSION` | `sys_session` | Authentication: active session |
-| `SystemObjectName.ACCOUNT` | `sys_account` | Authentication: OAuth / credential account |
-| `SystemObjectName.VERIFICATION` | `sys_verification` | Authentication: email / phone verification |
-| `SystemObjectName.METADATA` | `sys_metadata` | System metadata storage |
+Objects now declare `namespace: 'sys'` and a short `name` (e.g., `name: 'user'`). The physical table name
+`sys_user` is auto-derived as `{namespace}_{name}` by `ObjectSchema.create()`.
+
+| Constant Key | Protocol Name | Plugin | Description |
+|:---|:---|:---|:---|
+| `SystemObjectName.USER` | `sys_user` | plugin-auth | Authentication: user identity |
+| `SystemObjectName.SESSION` | `sys_session` | plugin-auth | Authentication: active session |
+| `SystemObjectName.ACCOUNT` | `sys_account` | plugin-auth | Authentication: OAuth / credential account |
+| `SystemObjectName.VERIFICATION` | `sys_verification` | plugin-auth | Authentication: email / phone verification |
+| `SystemObjectName.ORGANIZATION` | `sys_organization` | plugin-auth | Authentication: organization (multi-org) |
+| `SystemObjectName.MEMBER` | `sys_member` | plugin-auth | Authentication: organization member |
+| `SystemObjectName.INVITATION` | `sys_invitation` | plugin-auth | Authentication: organization invitation |
+| `SystemObjectName.API_KEY` | `sys_api_key` | plugin-auth | Authentication: API key for programmatic access |
+| `SystemObjectName.TWO_FACTOR` | `sys_two_factor` | plugin-auth | Authentication: two-factor credentials |
+| `SystemObjectName.ROLE` | `sys_role` | plugin-security | Security: RBAC role definition |
+| `SystemObjectName.PERMISSION_SET` | `sys_permission_set` | plugin-security | Security: permission set grouping |
+| `SystemObjectName.AUDIT_LOG` | `sys_audit_log` | plugin-audit | Audit: immutable audit trail |
+| `SystemObjectName.METADATA` | `sys_metadata` | metadata | System metadata storage |
+
+**Object Definition Convention:**
+- File naming: `sys-{name}.object.ts` (e.g., `sys-user.object.ts`, `sys-role.object.ts`)
+- Export naming: `Sys{PascalCase}` (e.g., `SysUser`, `SysRole`, `SysAuditLog`)
+- Object schema: `namespace: 'sys'`, `name: '{short_name}'` (no `sys_` prefix in name)
+- Table derivation: `tableName` auto-derived as `sys_{name}` unless explicitly overridden
 
 **Rationale:**
 - Prevents naming collisions between system objects and business objects (e.g., a CRM `account` vs. `sys_account`)
 - Aligns with ServiceNow and similar platforms that use `sys_` as a reserved namespace
 - ObjectStack already uses namespace + FQN for business object isolation; the `sys_` prefix completes the picture for kernel-level objects
 - Physical storage table names can differ via `ObjectSchema.tableName` + `StorageNameMapping.resolveTableName()` for backward compatibility
+- Namespace-based auto-derivation eliminates manual `tableName` boilerplate and ensures consistency
+
+**Plugin Architecture:**
+- Each plugin (plugin-auth, plugin-security, plugin-audit) owns and registers its own `sys` namespace objects
+- Plugins remain decoupled and optional — consumers aggregate all `sys` objects at runtime
+- Object definitions follow the ObjectSchema protocol with `isSystem: true`
 
 **Migration (v3.x → v4.0):**
 - v3.x: The `SystemObjectName` constants now emit `sys_`-prefixed names. Implementations using `StorageNameMapping.resolveTableName()` can set `tableName` to preserve legacy physical table names during the transition.
@@ -333,7 +357,7 @@ business/custom objects, aligning with industry best practices (e.g., ServiceNow
 - v3.x: **Bug fix** — `AuthManager.createDatabaseConfig()` now wraps the ObjectQL adapter as a `DBAdapterInstance` factory function (`(options) => DBAdapter`). Previously the raw adapter object was passed, which fell through to the Kysely adapter path and failed silently. `AuthManager.handleRequest()` and `AuthPlugin.registerAuthRoutes()` now inspect `response.status >= 500` and log the error body, since better-auth catches internal errors and returns 500 Responses without throwing.
 - v3.x: **Bug fix** — `AuthPlugin` now defers HTTP route registration to a `kernel:ready` hook instead of doing it synchronously in `start()`. This makes the plugin resilient to plugin loading order — the `http-server` service is guaranteed to be available after all plugins complete their init/start phases. The CLI `serve` command also registers `HonoServerPlugin` before config plugins (with duplicate detection) for the same reason.
 - v3.x: **Bug fix** — Studio `useApiDiscovery` hook no longer hardcodes auth endpoints as `/api/auth/...`. The `discover()` callback now fetches `/api/v1/discovery` and reads `routes.auth` to dynamically construct auth endpoint paths (falling back to `/api/v1/auth`). The session endpoint is corrected from `/session` to `/get-session` to align with better-auth's `AuthEndpointPaths.getSession`.
-- v4.0: Legacy un-prefixed aliases will be fully removed.
+- v4.0: Legacy un-prefixed aliases and `Auth*` export names will be fully removed.
 
 ---
 
