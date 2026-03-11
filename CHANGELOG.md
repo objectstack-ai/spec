@@ -13,11 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ObjectSchema.create()` unless an explicit `tableName` is provided. This decouples the logical object name
   from the physical table name and enables unified routing, permissions, and discovery by domain.
 - **SystemObjectName constants** — Extended with all system objects: `ORGANIZATION`, `MEMBER`, `INVITATION`,
-  `API_KEY`, `TWO_FACTOR`, `ROLE`, `PERMISSION_SET`, `AUDIT_LOG` (in addition to existing `USER`, `SESSION`,
-  `ACCOUNT`, `VERIFICATION`, `METADATA`).
-- **plugin-auth system objects** — Added `SysOrganization`, `SysMember`, `SysInvitation`, `SysApiKey`,
-  `SysTwoFactor` object definitions with `namespace: 'sys'`. Existing objects (`SysUser`, `SysSession`,
-  `SysAccount`, `SysVerification`) migrated to use namespace convention.
+  `TEAM`, `TEAM_MEMBER`, `API_KEY`, `TWO_FACTOR`, `ROLE`, `PERMISSION_SET`, `AUDIT_LOG` (in addition to
+  existing `USER`, `SESSION`, `ACCOUNT`, `VERIFICATION`, `METADATA`).
+- **plugin-auth system objects** — Added `SysOrganization`, `SysMember`, `SysInvitation`, `SysTeam`,
+  `SysTeamMember`, `SysApiKey`, `SysTwoFactor` object definitions with `namespace: 'sys'`. Existing objects
+  (`SysUser`, `SysSession`, `SysAccount`, `SysVerification`) migrated to use namespace convention.
 - **plugin-security system objects** — Added `SysRole` and `SysPermissionSet` object definitions.
 - **plugin-audit** — New plugin package with `SysAuditLog` immutable audit trail object definition.
 - **StorageNameMapping.resolveTableName()** — Now supports namespace-aware auto-derivation

@@ -21,6 +21,8 @@ export { SysVerification } from './sys-verification.object.js';
 export { SysOrganization } from './sys-organization.object.js';
 export { SysMember } from './sys-member.object.js';
 export { SysInvitation } from './sys-invitation.object.js';
+export { SysTeam } from './sys-team.object.js';
+export { SysTeamMember } from './sys-team-member.object.js';
 
 // ── Additional Auth Objects ────────────────────────────────────────────────
 export { SysApiKey } from './sys-api-key.object.js';

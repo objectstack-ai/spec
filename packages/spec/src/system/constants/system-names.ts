@@ -34,6 +34,10 @@ export const SystemObjectName = {
   MEMBER: 'sys_member',
   /** Authentication: organization invitation */
   INVITATION: 'sys_invitation',
+  /** Authentication: team within an organization */
+  TEAM: 'sys_team',
+  /** Authentication: team membership */
+  TEAM_MEMBER: 'sys_team_member',
   /** Authentication: API key for programmatic access */
   API_KEY: 'sys_api_key',
   /** Authentication: two-factor authentication credentials */

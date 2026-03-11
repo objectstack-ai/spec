@@ -325,6 +325,8 @@ Objects now declare `namespace: 'sys'` and a short `name` (e.g., `name: 'user'`)
 | `SystemObjectName.ORGANIZATION` | `sys_organization` | plugin-auth | Authentication: organization (multi-org) |
 | `SystemObjectName.MEMBER` | `sys_member` | plugin-auth | Authentication: organization member |
 | `SystemObjectName.INVITATION` | `sys_invitation` | plugin-auth | Authentication: organization invitation |
+| `SystemObjectName.TEAM` | `sys_team` | plugin-auth | Authentication: team within an organization |
+| `SystemObjectName.TEAM_MEMBER` | `sys_team_member` | plugin-auth | Authentication: team membership |
 | `SystemObjectName.API_KEY` | `sys_api_key` | plugin-auth | Authentication: API key for programmatic access |
 | `SystemObjectName.TWO_FACTOR` | `sys_two_factor` | plugin-auth | Authentication: two-factor credentials |
 | `SystemObjectName.ROLE` | `sys_role` | plugin-security | Security: RBAC role definition |

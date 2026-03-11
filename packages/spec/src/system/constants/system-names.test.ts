@@ -18,6 +18,8 @@ describe('SystemObjectName', () => {
     expect(SystemObjectName.ORGANIZATION).toBe('sys_organization');
     expect(SystemObjectName.MEMBER).toBe('sys_member');
     expect(SystemObjectName.INVITATION).toBe('sys_invitation');
+    expect(SystemObjectName.TEAM).toBe('sys_team');
+    expect(SystemObjectName.TEAM_MEMBER).toBe('sys_team_member');
     expect(SystemObjectName.API_KEY).toBe('sys_api_key');
     expect(SystemObjectName.TWO_FACTOR).toBe('sys_two_factor');
     expect(SystemObjectName.ROLE).toBe('sys_role');
@@ -31,6 +33,8 @@ describe('SystemObjectName', () => {
     expect(names).toContain('sys_user');
     expect(names).toContain('sys_session');
     expect(names).toContain('sys_organization');
+    expect(names).toContain('sys_team');
+    expect(names).toContain('sys_team_member');
     expect(names).toContain('sys_role');
     expect(names).toContain('sys_audit_log');
   });
@@ -44,6 +48,8 @@ describe('SystemObjectName', () => {
     expect(keys).toContain('ORGANIZATION');
     expect(keys).toContain('MEMBER');
     expect(keys).toContain('INVITATION');
+    expect(keys).toContain('TEAM');
+    expect(keys).toContain('TEAM_MEMBER');
     expect(keys).toContain('API_KEY');
     expect(keys).toContain('TWO_FACTOR');
     expect(keys).toContain('ROLE');
