@@ -58,7 +58,7 @@ The ObjectStack protocol defines **17 kernel services** registered via the `Core
 | 8 | **realtime** | `optional` | 6 | ❌ Plugin Required | TBD plugin |
 | 9 | **notification** | `optional` | 7 | ❌ Plugin Required | TBD plugin |
 | 10 | **ai** | `optional` | 4 | ❌ Plugin Required | TBD plugin |
-| 11 | **i18n** | `optional` | 3 | ❌ Plugin Required | TBD plugin |
+| 11 | **i18n** | `core` | 3 | ✅ Built-in (in-memory fallback) | `@objectstack/service-i18n` |
 | 12 | **file-storage** | `optional` | — | ❌ Plugin Required | TBD plugin |
 | 13 | **search** | `optional` | — | ❌ Plugin Required | TBD plugin |
 | 14 | **cache** | `core` | — | ❌ Plugin Required | TBD plugin |
@@ -246,27 +246,32 @@ Trigger engine, event triggers from ObjectQL hooks, flow executor, scheduled tri
 ### 11. i18n — 3 methods
 `getLocales`, `getTranslations`, `getFieldLabels`
 
-**Service Name**: `i18n` · **Criticality**: `optional`  
-**Implementations**: `@objectstack/service-i18n` (production — file-based) · Dev Plugin (in-memory stub)  
+**Service Name**: `i18n` · **Criticality**: `core`  
+**Implementations**: `@objectstack/service-i18n` (production — file-based) · Built-in in-memory fallback · Dev Plugin (in-memory stub)  
 **Route Mount**: `/api/v1/i18n`  
 **Contract**: `II18nService` in `@objectstack/spec/contracts`
 
 #### Service Registration
 
-The i18n service is registered by a **plugin** during the `init` phase:
+The i18n service is a **core built-in service** with automatic in-memory fallback. If no plugin registers the service, the kernel automatically injects an in-memory implementation during startup:
 
 | Environment | Provider | Registration |
 |:------------|:---------|:-------------|
 | **Production** | `I18nServicePlugin` | File-based `FileI18nAdapter` loads JSON locale files from disk |
+| **Built-in Fallback** | Kernel | In-memory Map-backed stub, auto-injected when no plugin provides `i18n` |
 | **Development** | `DevPlugin` | In-memory Map-backed stub, supports `loadTranslations()` |
 | **Mock / MSW** | `MswPlugin` | Routes via `HttpDispatcher.dispatch()` catch-all — requires one of the above |
 
 ```typescript
-// Production
+// Production (overrides built-in fallback)
 kernel.use(new I18nServicePlugin({ defaultLocale: 'en', localesDir: './i18n' }));
 
 // Development (automatic — DevPlugin registers i18n stub for all 17 core services)
 kernel.use(new DevPlugin());
+
+// No plugin required — kernel auto-injects in-memory fallback if none registered
+const kernel = new ObjectKernel();
+await kernel.bootstrap(); // i18n service available via built-in fallback
 ```
 
 #### Discovery & Handler Consistency

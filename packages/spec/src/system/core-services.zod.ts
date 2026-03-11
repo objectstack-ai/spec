@@ -64,10 +64,11 @@ export const ServiceRequirementDef = {
   // Core: Highly recommended, defaults to in-memory / no-op if missing
   auth: 'core',
 
-  // Core: Highly recommended, defaults to in-memory if missing
+  // Core: Highly recommended, defaults to in-memory / no-op if missing
   cache: 'core',
   queue: 'core',
   job: 'core',
+  i18n: 'core',
 
   // Optional: Add-on capabilities
   'file-storage': 'optional',
@@ -78,7 +79,6 @@ export const ServiceRequirementDef = {
   realtime: 'optional',
   notification: 'optional',
   ai: 'optional',
-  i18n: 'optional',
   ui: 'optional',
   workflow: 'optional',
 } as const;
