@@ -82,8 +82,8 @@ export function createH3Router(options: NuxtAdapterOptions): Router {
   // --- Discovery ---
   router.get(
     `${prefix}`,
-    defineEventHandler(() => {
-      return { data: dispatcher.getDiscoveryInfo(prefix) };
+    defineEventHandler(async () => {
+      return { data: await dispatcher.getDiscoveryInfo(prefix) };
     }),
   );
 

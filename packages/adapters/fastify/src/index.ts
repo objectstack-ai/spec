@@ -70,7 +70,7 @@ export async function objectStackPlugin(fastify: FastifyInstance, options: Fasti
 
   // --- Discovery ---
   fastify.get(`${prefix}`, async (_request: FastifyRequest, reply: FastifyReply) => {
-    return reply.send({ data: dispatcher.getDiscoveryInfo(prefix) });
+    return reply.send({ data: await dispatcher.getDiscoveryInfo(prefix) });
   });
 
   // --- .well-known ---

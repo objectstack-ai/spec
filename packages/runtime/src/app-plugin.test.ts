@@ -99,4 +99,137 @@ describe('AppPlugin', () => {
             expect.any(Object)
         );
     });
+
+    // ═══════════════════════════════════════════════════════════════
+    // i18n translation auto-loading
+    // ═══════════════════════════════════════════════════════════════
+
+    describe('i18n translation loading', () => {
+        let mockI18n: any;
+        let mockQL: any;
+
+        beforeEach(() => {
+            mockI18n = {
+                loadTranslations: vi.fn(),
+                setDefaultLocale: vi.fn(),
+                getLocales: vi.fn().mockReturnValue([]),
+                getDefaultLocale: vi.fn().mockReturnValue('en'),
+            };
+            mockQL = { registry: {} };
+
+            vi.mocked(mockContext.getService).mockImplementation((name: string) => {
+                if (name === 'objectql') return mockQL;
+                if (name === 'i18n') return mockI18n;
+                return undefined;
+            });
+        });
+
+        it('should auto-load translations from bundle into i18n service', async () => {
+            const bundle = {
+                id: 'com.test.i18n',
+                translations: [
+                    {
+                        en: { objects: { task: { label: 'Task' } } },
+                        'zh-CN': { objects: { task: { label: '任务' } } },
+                    },
+                ],
+            };
+            const plugin = new AppPlugin(bundle);
+            await plugin.start!(mockContext);
+
+            expect(mockI18n.loadTranslations).toHaveBeenCalledWith('en', { objects: { task: { label: 'Task' } } });
+            expect(mockI18n.loadTranslations).toHaveBeenCalledWith('zh-CN', { objects: { task: { label: '任务' } } });
+        });
+
+        it('should set default locale from i18n config', async () => {
+            const bundle = {
+                id: 'com.test.locale',
+                i18n: { defaultLocale: 'zh-CN', supportedLocales: ['en', 'zh-CN'] },
+                translations: [{ en: { messages: { hello: 'Hello' } } }],
+            };
+            const plugin = new AppPlugin(bundle);
+            await plugin.start!(mockContext);
+
+            expect(mockI18n.setDefaultLocale).toHaveBeenCalledWith('zh-CN');
+        });
+
+        it('should skip translation loading when i18n service is not registered', async () => {
+            vi.mocked(mockContext.getService).mockImplementation((name: string) => {
+                if (name === 'objectql') return mockQL;
+                return undefined; // No i18n service
+            });
+
+            const bundle = {
+                id: 'com.test.noi18n',
+                translations: [{ en: { messages: { hello: 'Hello' } } }],
+            };
+            const plugin = new AppPlugin(bundle);
+            await plugin.start!(mockContext);
+
+            // Should log debug but not throw
+            expect(mockContext.logger.debug).toHaveBeenCalledWith(
+                expect.stringContaining('No i18n service registered'),
+                expect.any(Object)
+            );
+        });
+
+        it('should handle bundle with no translations gracefully', async () => {
+            const bundle = { id: 'com.test.notrans' };
+            const plugin = new AppPlugin(bundle);
+            await plugin.start!(mockContext);
+
+            expect(mockI18n.loadTranslations).not.toHaveBeenCalled();
+        });
+
+        it('should load translations from nested manifest.translations', async () => {
+            const bundle = {
+                manifest: {
+                    id: 'com.test.nested',
+                    translations: [
+                        { en: { messages: { save: 'Save' } } },
+                    ],
+                },
+            };
+            const plugin = new AppPlugin(bundle);
+            await plugin.start!(mockContext);
+
+            expect(mockI18n.loadTranslations).toHaveBeenCalledWith('en', { messages: { save: 'Save' } });
+        });
+
+        it('should load multiple translation bundles', async () => {
+            const bundle = {
+                id: 'com.test.multi',
+                translations: [
+                    { en: { objects: { task: { label: 'Task' } } } },
+                    { en: { objects: { contact: { label: 'Contact' } } }, 'ja-JP': { objects: { contact: { label: '連絡先' } } } },
+                ],
+            };
+            const plugin = new AppPlugin(bundle);
+            await plugin.start!(mockContext);
+
+            expect(mockI18n.loadTranslations).toHaveBeenCalledTimes(3);
+        });
+
+        it('should handle errors in loadTranslations gracefully', async () => {
+            mockI18n.loadTranslations.mockImplementation((locale: string) => {
+                if (locale === 'zh-CN') throw new Error('Disk read failed');
+            });
+
+            const bundle = {
+                id: 'com.test.error',
+                translations: [
+                    { en: { messages: { save: 'Save' } }, 'zh-CN': { messages: { save: '保存' } } },
+                ],
+            };
+            const plugin = new AppPlugin(bundle);
+            await plugin.start!(mockContext);
+
+            // en should still be loaded despite zh-CN failure
+            expect(mockI18n.loadTranslations).toHaveBeenCalledWith('en', { messages: { save: 'Save' } });
+            expect(mockContext.logger.warn).toHaveBeenCalledWith(
+                expect.stringContaining('Failed to load translations'),
+                expect.objectContaining({ locale: 'zh-CN' })
+            );
+        });
+    });
 });

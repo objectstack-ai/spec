@@ -88,12 +88,12 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
 
             // ── Discovery (.well-known) ─────────────────────────────────
             server.get('/.well-known/objectstack', async (_req: any, res: any) => {
-                res.json({ data: dispatcher.getDiscoveryInfo(prefix) });
+                res.json({ data: await dispatcher.getDiscoveryInfo(prefix) });
             });
 
             // ── Discovery (versioned API path) ──────────────────────────
             server.get(`${prefix}/discovery`, async (_req: any, res: any) => {
-                res.json({ data: dispatcher.getDiscoveryInfo(prefix) });
+                res.json({ data: await dispatcher.getDiscoveryInfo(prefix) });
             });
 
             // ── Auth ────────────────────────────────────────────────────

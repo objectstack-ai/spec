@@ -97,7 +97,7 @@ export function createRequestHandler(options: SvelteKitAdapterOptions) {
 
     // --- Discovery ---
     if (segments.length === 0 && method === 'GET') {
-      return new Response(JSON.stringify({ data: dispatcher.getDiscoveryInfo(prefix) }), {
+      return new Response(JSON.stringify({ data: await dispatcher.getDiscoveryInfo(prefix) }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       });

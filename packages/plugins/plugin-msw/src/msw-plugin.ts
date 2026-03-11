@@ -204,10 +204,10 @@ export class MSWPlugin implements Plugin {
 
         // Discovery Endpoint
         this.handlers.push(
-            http.get('*/.well-known/objectstack', () => {
+            http.get('*/.well-known/objectstack', async () => {
                 if (this.dispatcher) {
                     return HttpResponse.json({
-                        data: this.dispatcher.getDiscoveryInfo(baseUrl)
+                        data: await this.dispatcher.getDiscoveryInfo(baseUrl)
                     });
                 }
                 return HttpResponse.json({
