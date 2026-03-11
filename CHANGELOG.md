@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `I18nServicePlugin` now accepts `registerRoutes` and `basePath` options for HTTP route control.
 - i18n endpoints now work independently of `RestServer`, enabling MSW/mock test environments
   to serve i18n routes without any REST API gateway dependency.
+- **Dispatcher i18n bridge routes** — `createDispatcherPlugin()` now registers i18n HTTP route
+  bridges (`GET /i18n/locales`, `GET /i18n/translations/:locale`, `GET /i18n/labels/:object/:locale`)
+  via `HttpDispatcher.handleI18n()`, ensuring i18n endpoints work even when only the kernel's
+  memory fallback i18n is active (no explicit `I18nServicePlugin` loaded). This is consistent with
+  how auth, analytics, packages, storage, and automation services are bridged.
 
 ### Added
 - **i18n as core built-in service** — The i18n service is now a `core` criticality service with
