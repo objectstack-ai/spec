@@ -2,11 +2,12 @@ import { describe, it, expect } from 'vitest';
 import { createMemoryCache } from './memory-cache';
 import { createMemoryQueue } from './memory-queue';
 import { createMemoryJob } from './memory-job';
+import { createMemoryI18n } from './memory-i18n';
 import { CORE_FALLBACK_FACTORIES } from './index';
 
 describe('CORE_FALLBACK_FACTORIES', () => {
-    it('should have exactly 3 entries: cache, queue, job', () => {
-        expect(Object.keys(CORE_FALLBACK_FACTORIES)).toEqual(['cache', 'queue', 'job']);
+    it('should have exactly 4 entries: cache, queue, job, i18n', () => {
+        expect(Object.keys(CORE_FALLBACK_FACTORIES)).toEqual(['cache', 'queue', 'job', 'i18n']);
     });
 
     it('should map to factory functions', () => {
@@ -154,5 +155,70 @@ describe('createMemoryJob', () => {
     it('should return empty executions', async () => {
         const job = createMemoryJob();
         expect(await job.getExecutions()).toEqual([]);
+    });
+});
+
+describe('createMemoryI18n', () => {
+    it('should return an object with _fallback: true', () => {
+        const i18n = createMemoryI18n();
+        expect(i18n._fallback).toBe(true);
+        expect(i18n._serviceName).toBe('i18n');
+    });
+
+    it('should return the key when no translations are loaded', () => {
+        const i18n = createMemoryI18n();
+        expect(i18n.t('objects.account.label', 'en')).toBe('objects.account.label');
+    });
+
+    it('should translate after loading translations', () => {
+        const i18n = createMemoryI18n();
+        i18n.loadTranslations('en', { objects: { account: { label: 'Account' } } });
+        expect(i18n.t('objects.account.label', 'en')).toBe('Account');
+    });
+
+    it('should interpolate parameters', () => {
+        const i18n = createMemoryI18n();
+        i18n.loadTranslations('en', { greeting: 'Hello, {{name}}!' });
+        expect(i18n.t('greeting', 'en', { name: 'World' })).toBe('Hello, World!');
+    });
+
+    it('should fall back to default locale', () => {
+        const i18n = createMemoryI18n();
+        i18n.loadTranslations('en', { hello: 'Hello' });
+        // 'fr' has no translations, should fall back to default 'en'
+        expect(i18n.t('hello', 'fr')).toBe('Hello');
+    });
+
+    it('should get and set default locale', () => {
+        const i18n = createMemoryI18n();
+        expect(i18n.getDefaultLocale()).toBe('en');
+        i18n.setDefaultLocale('zh-CN');
+        expect(i18n.getDefaultLocale()).toBe('zh-CN');
+    });
+
+    it('should list loaded locales', () => {
+        const i18n = createMemoryI18n();
+        expect(i18n.getLocales()).toEqual([]);
+        i18n.loadTranslations('en', { hello: 'Hello' });
+        i18n.loadTranslations('zh-CN', { hello: '你好' });
+        expect(i18n.getLocales()).toEqual(['en', 'zh-CN']);
+    });
+
+    it('should get all translations for a locale', () => {
+        const i18n = createMemoryI18n();
+        i18n.loadTranslations('en', { hello: 'Hello', bye: 'Goodbye' });
+        expect(i18n.getTranslations('en')).toEqual({ hello: 'Hello', bye: 'Goodbye' });
+    });
+
+    it('should return empty object for unknown locale', () => {
+        const i18n = createMemoryI18n();
+        expect(i18n.getTranslations('unknown')).toEqual({});
+    });
+
+    it('should merge translations on subsequent loads', () => {
+        const i18n = createMemoryI18n();
+        i18n.loadTranslations('en', { hello: 'Hello' });
+        i18n.loadTranslations('en', { bye: 'Goodbye' });
+        expect(i18n.getTranslations('en')).toEqual({ hello: 'Hello', bye: 'Goodbye' });
     });
 });

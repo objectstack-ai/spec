@@ -3,10 +3,12 @@
 import { createMemoryCache } from './memory-cache.js';
 import { createMemoryQueue } from './memory-queue.js';
 import { createMemoryJob } from './memory-job.js';
+import { createMemoryI18n } from './memory-i18n.js';
 
 export { createMemoryCache } from './memory-cache.js';
 export { createMemoryQueue } from './memory-queue.js';
 export { createMemoryJob } from './memory-job.js';
+export { createMemoryI18n } from './memory-i18n.js';
 
 /**
  * Map of core-criticality service names to their in-memory fallback factories.
@@ -17,4 +19,5 @@ export const CORE_FALLBACK_FACTORIES: Record<string, () => Record<string, any>> 
   cache: createMemoryCache,
   queue: createMemoryQueue,
   job:   createMemoryJob,
+  i18n:  createMemoryI18n,
 };

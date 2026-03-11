@@ -55,6 +55,7 @@ describe('ServiceRequirementDef', () => {
     expect(ServiceRequirementDef.cache).toBe('core');
     expect(ServiceRequirementDef.queue).toBe('core');
     expect(ServiceRequirementDef.job).toBe('core');
+    expect(ServiceRequirementDef.i18n).toBe('core');
   });
 
   it('should define optional services', () => {
@@ -66,7 +67,6 @@ describe('ServiceRequirementDef', () => {
     expect(ServiceRequirementDef.realtime).toBe('optional');
     expect(ServiceRequirementDef.notification).toBe('optional');
     expect(ServiceRequirementDef.ai).toBe('optional');
-    expect(ServiceRequirementDef.i18n).toBe('optional');
     expect(ServiceRequirementDef.ui).toBe('optional');
     expect(ServiceRequirementDef.workflow).toBe('optional');
   });

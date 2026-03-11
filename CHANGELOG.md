@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **i18n as core built-in service** — The i18n service is now a `core` criticality service with
+  automatic in-memory fallback. When no plugin (e.g. `I18nServicePlugin`) registers an i18n service,
+  the kernel auto-injects `createMemoryI18n` (in-memory Map-backed II18nService implementation)
+  during `validateSystemRequirements()`. This ensures `/api/v1/i18n/*` routes and discovery always
+  report i18n as available, even without `plugin-i18n` installed.
+- **REST i18n route auto-registration** — `RestServer.registerRoutes()` now automatically registers
+  `/api/v1/i18n/locales` and `/api/v1/i18n/translations/:locale` endpoints, controlled by the new
+  `enableI18n` config flag (default: `true`).
+- `createMemoryI18n` fallback factory in `@objectstack/core` (packages/core/src/fallbacks/memory-i18n.ts)
+  implementing `II18nService` contract with translation loading, dot-notation key resolution, parameter
+  interpolation, and locale management.
+- `enableI18n` flag in `RestApiConfig` schema (`rest-server.zod.ts`) for toggling i18n API endpoints.
+
+### Changed
+- `ServiceRequirementDef.i18n` upgraded from `'optional'` to `'core'` — kernel now warns (instead
+  of silently ignoring) when no i18n service is registered, and auto-injects in-memory fallback.
+- `SERVICE_CONFIG['i18n'].plugin` in `protocol.ts` corrected from `'plugin-i18n'` to `'service-i18n'`
+  to match the actual `@objectstack/service-i18n` package name.
+- Updated kernel-services.mdx documentation to reflect i18n as core/built-in capability.
+
 ### Fixed
 - **AppPlugin getService crash on missing services** — `AppPlugin.start()` and
   `loadTranslations()` now wrap `ctx.getService()` in try/catch, since the kernel's
