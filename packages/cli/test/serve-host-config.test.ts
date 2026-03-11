@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { isHostConfig } from '../src/utils/plugin-detection';
 
 /**
  * Tests for the host config detection logic used in serve.ts
@@ -9,13 +10,6 @@ import { describe, it, expect } from 'vitest';
  * and a `plugin.app.<id> failed to start` error.
  */
 describe('Host config detection', () => {
-  // Mirrors the detection logic in serve.ts L196-197
-  function isHostConfig(config: any): boolean {
-    return (
-      Array.isArray(config.plugins) &&
-      config.plugins.some((p: any) => typeof p?.init === 'function')
-    );
-  }
 
   it('should detect host config with instantiated plugins', () => {
     const config = {

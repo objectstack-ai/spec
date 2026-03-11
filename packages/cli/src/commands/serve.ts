@@ -7,6 +7,7 @@ import net from 'net';
 import chalk from 'chalk';
 import { bundleRequire } from 'bundle-require';
 import { loadConfig } from '../utils/config.js';
+import { isHostConfig } from '../utils/plugin-detection.js';
 import {
   printHeader,
   printKV,
@@ -193,10 +194,7 @@ export default class Serve extends Command {
       // Skip if config is a host/aggregator config that already contains
       // instantiated plugins — wrapping it would cause duplicate registration
       // and startup failures (e.g. plugin.app.dev-workspace).
-      const isHostConfig = Array.isArray(config.plugins) &&
-        config.plugins.some((p: any) => typeof p?.init === 'function');
-
-      if (!isHostConfig && (config.objects || config.manifest || config.apps)) {
+      if (!isHostConfig(config) && (config.objects || config.manifest || config.apps)) {
         try {
            const { AppPlugin } = await import('@objectstack/runtime');
            await kernel.use(new AppPlugin(config));
