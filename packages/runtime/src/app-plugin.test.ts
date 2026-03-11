@@ -209,5 +209,27 @@ describe('AppPlugin', () => {
 
             expect(mockI18n.loadTranslations).toHaveBeenCalledTimes(3);
         });
+
+        it('should handle errors in loadTranslations gracefully', async () => {
+            mockI18n.loadTranslations.mockImplementation((locale: string) => {
+                if (locale === 'zh-CN') throw new Error('Disk read failed');
+            });
+
+            const bundle = {
+                id: 'com.test.error',
+                translations: [
+                    { en: { messages: { save: 'Save' } }, 'zh-CN': { messages: { save: '保存' } } },
+                ],
+            };
+            const plugin = new AppPlugin(bundle);
+            await plugin.start!(mockContext);
+
+            // en should still be loaded despite zh-CN failure
+            expect(mockI18n.loadTranslations).toHaveBeenCalledWith('en', { messages: { save: 'Save' } });
+            expect(mockContext.logger.warn).toHaveBeenCalledWith(
+                expect.stringContaining('Failed to load translations'),
+                expect.objectContaining({ locale: 'zh-CN' })
+            );
+        });
     });
 });

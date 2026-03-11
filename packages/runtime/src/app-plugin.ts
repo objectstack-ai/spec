@@ -233,8 +233,12 @@ export class AppPlugin implements Plugin {
             // Each bundle is a TranslationBundle: Record<locale, TranslationData>
             for (const [locale, data] of Object.entries(bundle)) {
                 if (data && typeof data === 'object') {
-                    i18nService.loadTranslations(locale, data as Record<string, unknown>);
-                    loadedLocales++;
+                    try {
+                        i18nService.loadTranslations(locale, data as Record<string, unknown>);
+                        loadedLocales++;
+                    } catch (err: any) {
+                        ctx.logger.warn('[i18n] Failed to load translations', { appId, locale, error: err.message });
+                    }
                 }
             }
         }
