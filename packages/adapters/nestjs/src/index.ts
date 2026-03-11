@@ -95,8 +95,8 @@ export class ObjectStackController {
 
   // --- Discovery Endpoint ---
   @Get()
-  discovery() {
-    return { data: this.service.dispatcher.getDiscoveryInfo('/api') };
+  async discovery() {
+    return { data: await this.service.dispatcher.getDiscoveryInfo('/api') };
   }
 
   @Post('graphql')

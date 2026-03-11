@@ -136,8 +136,8 @@ describe('ObjectStackController', () => {
   });
 
   describe('discovery()', () => {
-    it('returns discovery info from the dispatcher', () => {
-      const result = controller.discovery();
+    it('returns discovery info from the dispatcher', async () => {
+      const result = await controller.discovery();
       expect(result).toEqual({ data: { version: '1.0' } });
       expect(service.dispatcher.getDiscoveryInfo).toHaveBeenCalledWith('/api');
     });

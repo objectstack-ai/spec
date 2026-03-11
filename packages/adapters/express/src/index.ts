@@ -71,8 +71,8 @@ export function createExpressRouter(options: ExpressAdapterOptions): Router {
   };
 
   // --- Discovery ---
-  router.get('/', (_req: Request, res: Response) => {
-    res.json({ data: dispatcher.getDiscoveryInfo(prefix) });
+  router.get('/', async (_req: Request, res: Response) => {
+    res.json({ data: await dispatcher.getDiscoveryInfo(prefix) });
   });
 
   // --- Auth ---

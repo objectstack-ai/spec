@@ -954,4 +954,112 @@ describe('HttpDispatcher', () => {
             expect(result.response?.body?.data?.locales).toEqual(['en', 'zh-CN', 'ja']);
         });
     });
+
+    // ═══════════════════════════════════════════════════════════════
+    // Discovery ↔ Handler i18n consistency
+    // ═══════════════════════════════════════════════════════════════
+
+    describe('discovery-handler i18n consistency', () => {
+        it('should report i18n as available in discovery when service is registered', async () => {
+            const mockI18nService = {
+                getLocales: vi.fn().mockReturnValue(['en', 'zh-CN', 'ja']),
+                getTranslations: vi.fn().mockReturnValue({}),
+                getDefaultLocale: vi.fn().mockReturnValue('en'),
+            };
+
+            (kernel as any).getService = vi.fn().mockImplementation((name: string) => {
+                if (name === 'i18n') return mockI18nService;
+                return null;
+            });
+
+            const info = await dispatcher.getDiscoveryInfo('/api/v1');
+            expect(info.services.i18n.enabled).toBe(true);
+            expect(info.services.i18n.status).toBe('available');
+            expect(info.routes.i18n).toBe('/api/v1/i18n');
+            expect(info.features.i18n).toBe(true);
+        });
+
+        it('should report i18n as unavailable in discovery when service is not registered', async () => {
+            (kernel as any).getService = vi.fn().mockResolvedValue(null);
+            (kernel as any).services = new Map();
+
+            const info = await dispatcher.getDiscoveryInfo('/api/v1');
+            expect(info.services.i18n.enabled).toBe(false);
+            expect(info.services.i18n.status).toBe('unavailable');
+            expect(info.routes.i18n).toBeUndefined();
+            expect(info.features.i18n).toBe(false);
+        });
+
+        it('should detect i18n via getServiceAsync (async factory) in discovery', async () => {
+            const mockI18nService = {
+                getLocales: vi.fn().mockReturnValue(['en', 'fr']),
+                getTranslations: vi.fn().mockReturnValue({}),
+                getDefaultLocale: vi.fn().mockReturnValue('fr'),
+            };
+
+            // Service NOT in sync map, only accessible via async factory
+            (kernel as any).services = new Map();
+            (kernel as any).getServiceAsync = vi.fn().mockImplementation(async (name: string) => {
+                if (name === 'i18n') return mockI18nService;
+                return null;
+            });
+
+            const info = await dispatcher.getDiscoveryInfo('/api/v1');
+            expect(info.services.i18n.enabled).toBe(true);
+            expect(info.services.i18n.status).toBe('available');
+
+            // Handler should also find it
+            const result = await dispatcher.handleI18n('/locales', 'GET', {}, { request: {} });
+            expect(result.handled).toBe(true);
+            expect(result.response?.status).toBe(200);
+            expect(result.response?.body?.data?.locales).toEqual(['en', 'fr']);
+        });
+
+        it('should populate locale from actual i18n service', async () => {
+            const mockI18nService = {
+                getLocales: vi.fn().mockReturnValue(['en', 'zh-CN', 'ja']),
+                getTranslations: vi.fn().mockReturnValue({}),
+                getDefaultLocale: vi.fn().mockReturnValue('zh-CN'),
+            };
+
+            (kernel as any).getService = vi.fn().mockImplementation((name: string) => {
+                if (name === 'i18n') return mockI18nService;
+                return null;
+            });
+
+            const info = await dispatcher.getDiscoveryInfo('/api/v1');
+            expect(info.locale.default).toBe('zh-CN');
+            expect(info.locale.supported).toEqual(['en', 'zh-CN', 'ja']);
+        });
+
+        it('should use default locale when i18n service is not available', async () => {
+            (kernel as any).getService = vi.fn().mockResolvedValue(null);
+            (kernel as any).services = new Map();
+
+            const info = await dispatcher.getDiscoveryInfo('/api/v1');
+            expect(info.locale.default).toBe('en');
+            expect(info.locale.supported).toEqual(['en']);
+            expect(info.locale.timezone).toBe('UTC');
+        });
+
+        it('should ensure discovery and dispatch are consistent for root path', async () => {
+            const mockI18nService = {
+                getLocales: vi.fn().mockReturnValue(['en']),
+                getTranslations: vi.fn().mockReturnValue({}),
+                getDefaultLocale: vi.fn().mockReturnValue('en'),
+            };
+
+            (kernel as any).getService = vi.fn().mockImplementation((name: string) => {
+                if (name === 'i18n') return mockI18nService;
+                return null;
+            });
+
+            // Dispatch to root should return the same discovery data
+            const result = await dispatcher.dispatch('GET', '', undefined, {}, { request: {} });
+            expect(result.handled).toBe(true);
+            const data = result.response?.body?.data;
+            expect(data.services.i18n.enabled).toBe(true);
+            expect(data.locale.default).toBe('en');
+        });
+    });
 });

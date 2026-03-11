@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **i18n service registration & state inconsistency** — Discovery API (`getDiscoveryInfo`) now uses
+  the same async `resolveService()` fallback chain that request handlers (`handleI18n`) use, ensuring
+  the reported service status is always consistent with actual runtime availability.
+- Discovery `locale` field is now populated from the actual i18n service (`getDefaultLocale`,
+  `getLocales`) instead of being hardcoded, so clients get accurate locale information.
+- Updated all framework adapters (Hono, Express, Fastify, Next.js, NestJS, Nuxt, SvelteKit),
+  the dispatcher plugin, and the MSW plugin to `await` the now-async `getDiscoveryInfo()`.
+
 ### Changed
 - Updated ROADMAP.md for v3.0 release preparation with full codebase scan results
 - Audited all @deprecated items: 14 in spec, 9 in runtime packages (23 total)

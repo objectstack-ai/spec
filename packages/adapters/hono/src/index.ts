@@ -72,8 +72,8 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
   };
 
   // --- Discovery ---
-  app.get(`${prefix}`, (c) => {
-    return c.json({ data: dispatcher.getDiscoveryInfo(prefix) });
+  app.get(`${prefix}`, async (c) => {
+    return c.json({ data: await dispatcher.getDiscoveryInfo(prefix) });
   });
 
   // --- .well-known ---

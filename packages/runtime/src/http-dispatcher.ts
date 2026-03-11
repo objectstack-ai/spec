@@ -67,27 +67,52 @@ export class HttpDispatcher {
     }
 
     /**
-     * Generates the discovery JSON response for the API root
+     * Generates the discovery JSON response for the API root.
+     *
+     * Uses the same async `resolveService()` fallback chain that request
+     * handlers use, so the reported service status is always consistent
+     * with the actual runtime availability.
      */
-    getDiscoveryInfo(prefix: string) {
-        const services = this.getServicesMap();
-        
-        // All services are plugin-provided — check if a plugin has registered them
-        const hasAuth         = !!services[CoreServiceName.enum.auth];
-        const hasGraphQL      = !!(services[CoreServiceName.enum.graphql] || this.kernel.graphql);
-        const hasSearch       = !!services[CoreServiceName.enum.search];
-        const hasWebSockets   = !!services[CoreServiceName.enum.realtime];
-        const hasFiles        = !!(services[CoreServiceName.enum['file-storage']] || services['storage']?.supportsFiles);
-        const hasAnalytics    = !!services[CoreServiceName.enum.analytics];
-        const hasWorkflow     = !!services[CoreServiceName.enum.workflow];
-        const hasAi           = !!services[CoreServiceName.enum.ai];
-        const hasNotification = !!services[CoreServiceName.enum.notification];
-        const hasI18n         = !!services[CoreServiceName.enum.i18n];
-        const hasUi           = !!services[CoreServiceName.enum.ui];
-        const hasAutomation   = !!services[CoreServiceName.enum.automation];
-        const hasCache        = !!services[CoreServiceName.enum.cache];
-        const hasQueue        = !!services[CoreServiceName.enum.queue];
-        const hasJob          = !!services[CoreServiceName.enum.job];
+    async getDiscoveryInfo(prefix: string) {
+        // Resolve all services through the same async fallback chain
+        // that request handlers (handleI18n, handleAuth, …) use.
+        const [
+            authSvc, graphqlSvc, searchSvc, realtimeSvc, filesSvc,
+            analyticsSvc, workflowSvc, aiSvc, notificationSvc, i18nSvc,
+            uiSvc, automationSvc, cacheSvc, queueSvc, jobSvc,
+        ] = await Promise.all([
+            this.resolveService(CoreServiceName.enum.auth),
+            this.resolveService(CoreServiceName.enum.graphql),
+            this.resolveService(CoreServiceName.enum.search),
+            this.resolveService(CoreServiceName.enum.realtime),
+            this.resolveService(CoreServiceName.enum['file-storage']),
+            this.resolveService(CoreServiceName.enum.analytics),
+            this.resolveService(CoreServiceName.enum.workflow),
+            this.resolveService(CoreServiceName.enum.ai),
+            this.resolveService(CoreServiceName.enum.notification),
+            this.resolveService(CoreServiceName.enum.i18n),
+            this.resolveService(CoreServiceName.enum.ui),
+            this.resolveService(CoreServiceName.enum.automation),
+            this.resolveService(CoreServiceName.enum.cache),
+            this.resolveService(CoreServiceName.enum.queue),
+            this.resolveService(CoreServiceName.enum.job),
+        ]);
+
+        const hasAuth         = !!authSvc;
+        const hasGraphQL      = !!(graphqlSvc || this.kernel.graphql);
+        const hasSearch       = !!searchSvc;
+        const hasWebSockets   = !!realtimeSvc;
+        const hasFiles        = !!filesSvc;
+        const hasAnalytics    = !!analyticsSvc;
+        const hasWorkflow     = !!workflowSvc;
+        const hasAi           = !!aiSvc;
+        const hasNotification = !!notificationSvc;
+        const hasI18n         = !!i18nSvc;
+        const hasUi           = !!uiSvc;
+        const hasAutomation   = !!automationSvc;
+        const hasCache        = !!cacheSvc;
+        const hasQueue        = !!queueSvc;
+        const hasJob          = !!jobSvc;
 
         // Routes are only exposed when a plugin provides the service
         const routes = {
@@ -115,6 +140,20 @@ export class HttpDispatcher {
             enabled: false, status: 'unavailable' as const,
             message: `Install a ${name} plugin to enable`,
         });
+
+        // Derive locale info from actual i18n service when available
+        let locale = { default: 'en', supported: ['en'], timezone: 'UTC' };
+        if (hasI18n && i18nSvc) {
+            const defaultLocale = typeof i18nSvc.getDefaultLocale === 'function'
+                ? i18nSvc.getDefaultLocale() : 'en';
+            const locales = typeof i18nSvc.getLocales === 'function'
+                ? i18nSvc.getLocales() : [];
+            locale = {
+                default: defaultLocale,
+                supported: locales.length > 0 ? locales : [defaultLocale],
+                timezone: 'UTC',
+            };
+        }
 
         return {
             name: 'ObjectOS',
@@ -154,11 +193,7 @@ export class HttpDispatcher {
                 'file-storage': hasFiles ? svcAvailable(routes.storage) : svcUnavailable('file-storage'),
                 search:         hasSearch ? svcAvailable() : svcUnavailable('search'),
             },
-            locale: {
-                default: 'en',
-                supported: ['en', 'zh-CN'],
-                timezone: 'UTC'
-            }
+            locale,
         };
     }
 
@@ -1056,7 +1091,7 @@ export class HttpDispatcher {
         // Handles request to base URL (e.g. /api/v1) which MSW strips to empty string
         if (cleanPath === '' && method === 'GET') {
              // We use '' as prefix since we are internal dispatcher
-             const info = this.getDiscoveryInfo('');
+             const info = await this.getDiscoveryInfo('');
              return { 
                  handled: true, 
                  response: this.success(info) 
