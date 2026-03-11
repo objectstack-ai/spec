@@ -81,7 +81,7 @@ export class I18nServicePlugin implements Plugin {
     this.i18n = new FileI18nAdapter(adapterOptions);
     ctx.registerService('i18n', this.i18n);
     ctx.logger.info(
-      `I18nServicePlugin: registered file-based i18n adapter (default: ${this.i18n.getDefaultLocale!()})`,
+      `I18nServicePlugin: registered file-based i18n adapter (default: ${this.i18n.getDefaultLocale?.() ?? 'en'})`,
     );
   }
 
@@ -105,7 +105,7 @@ export class I18nServicePlugin implements Plugin {
         } else {
           ctx.logger.warn(
             'No HTTP server available — i18n routes not registered. ' +
-            'i18n service is still available for MSW/mock environments via HttpDispatcher.'
+            'i18n service is still available programmatically via kernel.getService("i18n").'
           );
         }
       });
@@ -169,8 +169,12 @@ export class I18nServicePlugin implements Plugin {
           res.status(400).json({ error: 'Missing object or locale parameter' });
           return;
         }
-        if (typeof (i18n as any).getFieldLabels === 'function') {
-          const labels = (i18n as any).getFieldLabels(objectName, locale);
+        // Some implementations may provide a dedicated getFieldLabels method
+        const hasGetFieldLabels = 'getFieldLabels' in i18n
+          && typeof (i18n as Record<string, unknown>)['getFieldLabels'] === 'function';
+        if (hasGetFieldLabels) {
+          const labels = (i18n as II18nService & { getFieldLabels(obj: string, loc: string): Record<string, string> })
+            .getFieldLabels(objectName, locale);
           res.json({ data: { object: objectName, locale, labels } });
         } else {
           // Fallback: derive field labels from full translation bundle
