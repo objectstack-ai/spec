@@ -512,7 +512,7 @@ export function AppSidebar({
                                   onClick={() => onSelectObject(itemName)}
                                 >
                                   <span className="truncate">
-                                    {(itemName.startsWith(SYSTEM_FQN_PREFIX) || itemName.startsWith(SYSTEM_LEGACY_PREFIX)) && (
+                                    {isSystemObject(item) && (
                                       <span className="text-muted-foreground font-mono text-xs">{SYSTEM_NAMESPACE}:</span>
                                     )}
                                     {itemLabel}
