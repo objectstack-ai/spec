@@ -399,13 +399,20 @@ export type SystemRoutePath = typeof SystemRoutePath[keyof typeof SystemRoutePat
  * SystemRef.isSystemPermission('sys::manage_users'); // → true
  * ```
  */
+/** @internal Pattern for valid snake_case segments used in permission / event identifiers. */
+const SNAKE_CASE_RE = /^[a-z][a-z0-9_]*$/;
+
 export const SystemRef = {
   /**
    * Build a system permission identifier.
    * @param name - Permission capability name (snake_case, without prefix).
    * @returns Fully qualified permission string `sys::{name}`.
+   * @throws {Error} If `name` is not a valid snake_case identifier.
    */
   permission(name: string): string {
+    if (!SNAKE_CASE_RE.test(name)) {
+      throw new Error(`Invalid permission name "${name}": must be snake_case (e.g. "manage_users").`);
+    }
     return `sys::${name}`;
   },
 
@@ -414,8 +421,15 @@ export const SystemRef = {
    * @param object - Object short name (snake_case, without prefix).
    * @param action - Lifecycle action (e.g. `created`, `updated`, `deleted`).
    * @returns Fully qualified event string `sys::{object}.{action}`.
+   * @throws {Error} If `object` or `action` is not a valid snake_case identifier.
    */
   event(object: string, action: string): string {
+    if (!SNAKE_CASE_RE.test(object)) {
+      throw new Error(`Invalid event object "${object}": must be snake_case (e.g. "user").`);
+    }
+    if (!SNAKE_CASE_RE.test(action)) {
+      throw new Error(`Invalid event action "${action}": must be snake_case (e.g. "created").`);
+    }
     return `sys::${object}.${action}`;
   },
 

@@ -381,6 +381,13 @@ describe('SystemRef', () => {
       expect(SystemRef.permission('manage_users')).toBe(SystemPermissionName.MANAGE_USERS);
       expect(SystemRef.permission('view_all_data')).toBe(SystemPermissionName.VIEW_ALL_DATA);
     });
+
+    it('should reject invalid (non-snake_case) permission names', () => {
+      expect(() => SystemRef.permission('ManageUsers')).toThrow('must be snake_case');
+      expect(() => SystemRef.permission('manage users')).toThrow('must be snake_case');
+      expect(() => SystemRef.permission('')).toThrow('must be snake_case');
+      expect(() => SystemRef.permission('123bad')).toThrow('must be snake_case');
+    });
   });
 
   describe('event()', () => {
@@ -392,6 +399,13 @@ describe('SystemRef', () => {
       expect(SystemRef.event('user', 'created')).toBe(SystemEventName.USER_CREATED);
       expect(SystemRef.event('session', 'expired')).toBe(SystemEventName.SESSION_EXPIRED);
       expect(SystemRef.event('audit_log', 'created')).toBe(SystemEventName.AUDIT_LOG_CREATED);
+    });
+
+    it('should reject invalid (non-snake_case) event object or action', () => {
+      expect(() => SystemRef.event('User', 'created')).toThrow('must be snake_case');
+      expect(() => SystemRef.event('user', 'Created')).toThrow('must be snake_case');
+      expect(() => SystemRef.event('', 'created')).toThrow('must be snake_case');
+      expect(() => SystemRef.event('user', '')).toThrow('must be snake_case');
     });
   });
 
