@@ -157,7 +157,7 @@ export const AUTH_VERIFICATION_CONFIG = {
  * | updatedAt               | updated_at               |
  */
 export const AUTH_ORGANIZATION_SCHEMA = {
-  modelName: 'sys_organization',
+  modelName: SystemObjectName.ORGANIZATION, // 'sys_organization'
   fields: {
     createdAt: 'created_at',
     updatedAt: 'updated_at',
@@ -178,7 +178,7 @@ export const AUTH_ORGANIZATION_SCHEMA = {
  * | createdAt               | created_at               |
  */
 export const AUTH_MEMBER_SCHEMA = {
-  modelName: 'sys_member',
+  modelName: SystemObjectName.MEMBER, // 'sys_member'
   fields: {
     organizationId: 'organization_id',
     userId: 'user_id',
@@ -202,7 +202,7 @@ export const AUTH_MEMBER_SCHEMA = {
  * | teamId                  | team_id                  |
  */
 export const AUTH_INVITATION_SCHEMA = {
-  modelName: 'sys_invitation',
+  modelName: SystemObjectName.INVITATION, // 'sys_invitation'
   fields: {
     organizationId: 'organization_id',
     inviterId: 'inviter_id',
@@ -240,7 +240,7 @@ export const AUTH_ORG_SESSION_FIELDS = {
  * | updatedAt               | updated_at               |
  */
 export const AUTH_TEAM_SCHEMA = {
-  modelName: 'sys_team',
+  modelName: SystemObjectName.TEAM, // 'sys_team'
   fields: {
     organizationId: 'organization_id',
     createdAt: 'created_at',
@@ -262,7 +262,7 @@ export const AUTH_TEAM_SCHEMA = {
  * | createdAt               | created_at               |
  */
 export const AUTH_TEAM_MEMBER_SCHEMA = {
-  modelName: 'sys_team_member',
+  modelName: SystemObjectName.TEAM_MEMBER, // 'sys_team_member'
   fields: {
     teamId: 'team_id',
     userId: 'user_id',
@@ -283,7 +283,7 @@ export const AUTH_TEAM_MEMBER_SCHEMA = {
  * | userId                  | user_id                  |
  */
 export const AUTH_TWO_FACTOR_SCHEMA = {
-  modelName: 'sys_two_factor',
+  modelName: SystemObjectName.TWO_FACTOR, // 'sys_two_factor'
   fields: {
     backupCodes: 'backup_codes',
     userId: 'user_id',

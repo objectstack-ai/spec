@@ -8,6 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **ObjectSchema `namespace` property** — New optional `namespace` field on `ObjectSchema` for logical domain
+  classification (e.g., `'sys'`, `'crm'`). When set, `tableName` is auto-derived as `{namespace}_{name}` by
+  `ObjectSchema.create()` unless an explicit `tableName` is provided. This decouples the logical object name
+  from the physical table name and enables unified routing, permissions, and discovery by domain.
+- **SystemObjectName constants** — Extended with all system objects: `ORGANIZATION`, `MEMBER`, `INVITATION`,
+  `TEAM`, `TEAM_MEMBER`, `API_KEY`, `TWO_FACTOR`, `ROLE`, `PERMISSION_SET`, `AUDIT_LOG` (in addition to
+  existing `USER`, `SESSION`, `ACCOUNT`, `VERIFICATION`, `METADATA`).
+- **plugin-auth system objects** — Added `SysOrganization`, `SysMember`, `SysInvitation`, `SysTeam`,
+  `SysTeamMember`, `SysApiKey`, `SysTwoFactor` object definitions with `namespace: 'sys'`. Existing objects
+  (`SysUser`, `SysSession`, `SysAccount`, `SysVerification`) migrated to use namespace convention.
+- **plugin-security system objects** — Added `SysRole` and `SysPermissionSet` object definitions.
+- **plugin-audit** — New plugin package with `SysAuditLog` immutable audit trail object definition.
+- **StorageNameMapping.resolveTableName()** — Now supports namespace-aware auto-derivation
+  (`{namespace}_{name}` fallback when no explicit `tableName` is set).
+
+### Changed
+- **System object naming convention** — All system objects now use `namespace: 'sys'` with short `name`
+  (e.g., `name: 'user'` instead of `name: 'sys_user'`). The `sys_` prefix is auto-derived via
+  `tableName` = `{namespace}_{name}`. File naming follows `sys-{name}.object.ts` pattern.
+- **plugin-auth object exports** — New canonical exports use `Sys*` prefix (e.g., `SysUser`, `SysSession`).
+  Legacy `Auth*` exports are preserved as deprecated re-exports for backward compatibility.
+- **sys_metadata object** — Migrated to `namespace: 'sys'`, `name: 'metadata'` convention (tableName
+  auto-derived as `sys_metadata`).
 - **Locale code fallback** — New `resolveLocale()` helper in `@objectstack/core` that resolves
   locale codes through a 4-step fallback chain: exact match → case-insensitive match
   (`zh-cn` → `zh-CN`) → base language match (`zh-CN` → `zh`) → variant expansion

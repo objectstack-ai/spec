@@ -245,6 +245,23 @@ const ObjectSchemaBase = z.object({
   icon: z.string().optional().describe('Icon name (Lucide/Material) for UI representation'),
   
   /**
+   * Namespace & Domain Classification
+   * 
+   * Groups objects into logical domains for routing, permissions, and discovery.
+   * System objects use `'sys'`; business packages use their own namespace.
+   * 
+   * When set, `tableName` is auto-derived as `{namespace}_{name}` by
+   * `ObjectSchema.create()` unless an explicit `tableName` is provided.
+   * 
+   * Namespace must be a single lowercase word (no underscores or hyphens)
+   * to ensure clean auto-derivation of `{namespace}_{name}` table names.
+   * 
+   * @example namespace: 'sys'   → tableName defaults to 'sys_user'
+   * @example namespace: 'crm'   → tableName defaults to 'crm_account'
+   */
+  namespace: z.string().regex(/^[a-z][a-z0-9]*$/).optional().describe('Logical domain namespace — single lowercase word (e.g. "sys", "crm"). Used for routing, permissions, and auto-deriving tableName as {namespace}_{name}.'),
+
+  /**
    * Taxonomy & Organization
    */
   tags: z.array(z.string()).optional().describe('Categorization tags (e.g. "sales", "system", "reference")'),
@@ -256,7 +273,7 @@ const ObjectSchemaBase = z.object({
    * Storage & Virtualization 
    */
   datasource: z.string().optional().default('default').describe('Target Datasource ID. "default" is the primary DB.'),
-  tableName: z.string().optional().describe('Physical table/collection name in the target datasource'),
+  tableName: z.string().optional().describe('Physical table/collection name in the target datasource. Auto-derived as {namespace}_{name} when namespace is set.'),
   
   /** 
    * Data Model 
@@ -382,6 +399,8 @@ export const ObjectSchema = Object.assign(ObjectSchemaBase, {
     const withDefaults = {
       ...config,
       label: config.label ?? snakeCaseToLabel(config.name),
+      // Auto-derive tableName as {namespace}_{name} when namespace is set
+      tableName: config.tableName ?? (config.namespace ? `${config.namespace}_${config.name}` : undefined),
     };
     return ObjectSchemaBase.parse(withDefaults) as Omit<ServiceObject, 'fields'> & Pick<T, 'fields'>;
   },
