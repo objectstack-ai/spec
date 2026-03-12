@@ -497,7 +497,9 @@ export function AppSidebar({
                                   onClick={() => onSelectObject(itemName)}
                                 >
                                   <span className="truncate">
-                                    <span className="text-muted-foreground font-mono text-xs">sys_</span>
+                                    {itemName.startsWith(SYSTEM_OBJECT_PREFIX) && (
+                                      <span className="text-muted-foreground font-mono text-xs">{SYSTEM_OBJECT_PREFIX}</span>
+                                    )}
                                     {itemLabel}
                                   </span>
                                 </SidebarMenuSubButton>
