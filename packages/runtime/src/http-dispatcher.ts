@@ -400,7 +400,7 @@ export class HttpDispatcher {
                     const qlService = await this.getObjectQLService();
                     if (qlService?.registry) {
                         const data = qlService.registry.getObject(name);
-                        return { handled: true, response: this.success(data) };
+                        if (data) return { handled: true, response: this.success(data) };
                     }
                     return { handled: true, response: this.error('Not found', 404) };
                 }

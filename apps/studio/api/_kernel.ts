@@ -73,6 +73,7 @@ async function bootKernel(): Promise<ObjectKernel> {
         } catch (err) {
             // Clear the lock so the next request can retry
             _bootPromise = null;
+            console.error('[Vercel] Kernel boot failed:', (err as any)?.message || err);
             throw err;
         }
     })();
