@@ -54,7 +54,7 @@
     "@tailwindcss/postcss": "^4.2.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
+    "@vitejs/plugin-react": "^5.2.0",
     "autoprefixer": "^10.4.27",
     "happy-dom": "^20.8.4",
     "hono": "^4.12.8",
