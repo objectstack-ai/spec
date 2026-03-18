@@ -283,7 +283,7 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
   app.all(`${prefix}/i18n`, i18nHandler);
 
   // --- UI ---
-  app.all(`${prefix}/ui/*`, async (c) => {
+  const uiHandler = async (c: any) => {
     try {
       const subPath = c.req.path.substring(`${prefix}/ui`.length);
 
@@ -296,7 +296,9 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
     } catch (err: any) {
       return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);
     }
-  });
+  };
+  app.all(`${prefix}/ui/*`, uiHandler);
+  app.all(`${prefix}/ui`, uiHandler);
 
   return app;
 }

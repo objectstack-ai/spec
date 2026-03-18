@@ -562,6 +562,16 @@ describe('createHonoApp', () => {
       );
     });
 
+    it('GET /api/ui calls handleUi with empty sub-path', async () => {
+      const res = await app.request('/api/ui');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handleUi).toHaveBeenCalledWith(
+        '',
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
     it('GET /api/ui/view/account?type=list forwards query params', async () => {
       const res = await app.request('/api/ui/view/account?type=list');
       expect(res.status).toBe(200);

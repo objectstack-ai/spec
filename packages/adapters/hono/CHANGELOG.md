@@ -1,5 +1,13 @@
 # @objectstack/hono
 
+## 3.2.8
+
+### Patch Changes
+
+- fix: register all standard API routes in `createHonoApp()` — resolves 404 errors for `/api/v1/packages`, `/api/v1/analytics`, `/api/v1/automation`, `/api/v1/i18n`, and `/api/v1/ui` routes after Vercel deployment
+- fix: forward query parameters to `handleMetadata()` so package filtering and locale queries work correctly
+- Added comprehensive tests for all newly registered route handlers
+
 ## 3.2.7
 
 ### Patch Changes
