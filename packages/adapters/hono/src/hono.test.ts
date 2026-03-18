@@ -8,9 +8,8 @@ const mockDispatcher = {
   getDiscoveryInfo: vi.fn().mockReturnValue({ version: '1.0', endpoints: [] }),
   handleAuth: vi.fn().mockResolvedValue({ handled: true, response: { body: { ok: true }, status: 200 } }),
   handleGraphQL: vi.fn().mockResolvedValue({ data: {} }),
-  handleMetadata: vi.fn().mockResolvedValue({ handled: true, response: { body: { objects: [] }, status: 200 } }),
-  handleData: vi.fn().mockResolvedValue({ handled: true, response: { body: { records: [] }, status: 200 } }),
   handleStorage: vi.fn().mockResolvedValue({ handled: true, response: { body: {}, status: 200 } }),
+  dispatch: vi.fn().mockResolvedValue({ handled: true, response: { body: { success: true }, status: 200 } }),
 };
 
 vi.mock('@objectstack/runtime', () => {
@@ -268,21 +267,20 @@ describe('createHonoApp', () => {
     });
   });
 
-  describe('Metadata Endpoint', () => {
-    it('GET /api/meta/objects calls handleMetadata', async () => {
+  describe('Catch-all Dispatch', () => {
+    it('GET /api/meta/objects delegates to dispatch()', async () => {
       const res = await app.request('/api/meta/objects');
       expect(res.status).toBe(200);
-      const json = await res.json();
-      expect(json.objects).toBeDefined();
-      expect(mockDispatcher.handleMetadata).toHaveBeenCalledWith(
-        '/objects',
-        expect.objectContaining({ request: expect.anything() }),
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
         'GET',
+        '/meta/objects',
         undefined,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
       );
     });
 
-    it('PUT /api/meta/objects parses JSON body', async () => {
+    it('PUT /api/meta/objects parses JSON body via dispatch()', async () => {
       const body = { name: 'test_object' };
       const res = await app.request('/api/meta/objects', {
         method: 'PUT',
@@ -290,36 +288,46 @@ describe('createHonoApp', () => {
         body: JSON.stringify(body),
       });
       expect(res.status).toBe(200);
-      expect(mockDispatcher.handleMetadata).toHaveBeenCalledWith(
-        '/objects',
-        expect.objectContaining({ request: expect.anything() }),
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
         'PUT',
+        '/meta/objects',
         body,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
       );
     });
 
     it('GET /api/meta with no trailing path', async () => {
       const res = await app.request('/api/meta');
       expect(res.status).toBe(200);
-      expect(mockDispatcher.handleMetadata).toHaveBeenCalledWith(
-        '',
-        expect.objectContaining({ request: expect.anything() }),
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
         'GET',
+        '/meta',
         undefined,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
       );
     });
-  });
 
-  describe('Data Endpoint', () => {
-    it('GET /api/data/account calls handleData', async () => {
+    it('forwards query parameters through dispatch()', async () => {
+      const res = await app.request('/api/meta/objects?package=com.acme.crm');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'GET',
+        '/meta/objects',
+        undefined,
+        expect.objectContaining({ package: 'com.acme.crm' }),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('GET /api/data/account delegates to dispatch()', async () => {
       const res = await app.request('/api/data/account');
       expect(res.status).toBe(200);
-      const json = await res.json();
-      expect(json.records).toBeDefined();
-      expect(mockDispatcher.handleData).toHaveBeenCalledWith(
-        '/account',
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
         'GET',
-        {},
+        '/data/account',
+        undefined,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
       );
@@ -333,9 +341,9 @@ describe('createHonoApp', () => {
         body: JSON.stringify(body),
       });
       expect(res.status).toBe(200);
-      expect(mockDispatcher.handleData).toHaveBeenCalledWith(
-        '/account',
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
         'POST',
+        '/data/account',
         body,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
@@ -350,32 +358,129 @@ describe('createHonoApp', () => {
         body: JSON.stringify(body),
       });
       expect(res.status).toBe(200);
-      expect(mockDispatcher.handleData).toHaveBeenCalledWith(
-        '/account',
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
         'PATCH',
+        '/data/account',
         body,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
       );
     });
 
-    it('returns 404 when result is not handled', async () => {
-      mockDispatcher.handleData.mockResolvedValueOnce({ handled: false });
+    it('returns 404 when dispatch result is not handled', async () => {
+      mockDispatcher.dispatch.mockResolvedValueOnce({ handled: false });
       const res = await app.request('/api/data/missing');
       expect(res.status).toBe(404);
       const json = await res.json();
       expect(json.success).toBe(false);
     });
-  });
 
-  describe('Storage Endpoint', () => {
-    it('GET /api/storage/files calls handleStorage', async () => {
-      const res = await app.request('/api/storage/files');
+    it('GET /api/packages delegates to dispatch()', async () => {
+      const res = await app.request('/api/packages');
       expect(res.status).toBe(200);
-      expect(mockDispatcher.handleStorage).toHaveBeenCalledWith(
-        '/files',
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
         'GET',
+        '/packages',
         undefined,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('GET /api/packages/:id delegates to dispatch()', async () => {
+      const res = await app.request('/api/packages/com.acme.crm');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'GET',
+        '/packages/com.acme.crm',
+        undefined,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('POST /api/packages parses JSON body', async () => {
+      const body = { manifest: { name: 'test-pkg' } };
+      const res = await app.request('/api/packages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'POST',
+        '/packages',
+        body,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('GET /api/packages?status=active forwards query params', async () => {
+      const res = await app.request('/api/packages?status=active');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'GET',
+        '/packages',
+        undefined,
+        expect.objectContaining({ status: 'active' }),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('returns error on dispatch exception', async () => {
+      mockDispatcher.dispatch.mockRejectedValueOnce(new Error('Service unavailable'));
+      const res = await app.request('/api/packages');
+      expect(res.status).toBe(500);
+      const json = await res.json();
+      expect(json.success).toBe(false);
+      expect(json.error.message).toBe('Service unavailable');
+    });
+
+    it('GET /api/analytics delegates to dispatch()', async () => {
+      const res = await app.request('/api/analytics');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'GET',
+        '/analytics',
+        undefined,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('GET /api/automation delegates to dispatch()', async () => {
+      const res = await app.request('/api/automation');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'GET',
+        '/automation',
+        undefined,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('GET /api/i18n delegates to dispatch()', async () => {
+      const res = await app.request('/api/i18n');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'GET',
+        '/i18n',
+        undefined,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('GET /api/ui/view/account delegates to dispatch()', async () => {
+      const res = await app.request('/api/ui/view/account');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'GET',
+        '/ui/view/account',
+        undefined,
+        expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
       );
     });
@@ -383,7 +488,7 @@ describe('createHonoApp', () => {
 
   describe('Error Handling', () => {
     it('returns 500 with default message on generic error', async () => {
-      mockDispatcher.handleData.mockRejectedValueOnce(new Error());
+      mockDispatcher.dispatch.mockRejectedValueOnce(new Error());
       const res = await app.request('/api/data/account');
       expect(res.status).toBe(500);
       const json = await res.json();
@@ -391,7 +496,7 @@ describe('createHonoApp', () => {
     });
 
     it('uses custom statusCode from error', async () => {
-      mockDispatcher.handleData.mockRejectedValueOnce(
+      mockDispatcher.dispatch.mockRejectedValueOnce(
         Object.assign(new Error('Forbidden'), { statusCode: 403 }),
       );
       const res = await app.request('/api/data/account');
@@ -403,7 +508,7 @@ describe('createHonoApp', () => {
 
   describe('toResponse', () => {
     it('handles redirect result', async () => {
-      mockDispatcher.handleData.mockResolvedValueOnce({
+      mockDispatcher.dispatch.mockResolvedValueOnce({
         handled: true,
         result: { type: 'redirect', url: 'https://example.com' },
       });
@@ -413,7 +518,7 @@ describe('createHonoApp', () => {
     });
 
     it('handles generic result objects with 200 status', async () => {
-      mockDispatcher.handleData.mockResolvedValueOnce({
+      mockDispatcher.dispatch.mockResolvedValueOnce({
         handled: true,
         result: { foo: 'bar' },
       });
@@ -424,7 +529,7 @@ describe('createHonoApp', () => {
     });
 
     it('sets custom headers from response', async () => {
-      mockDispatcher.handleData.mockResolvedValueOnce({
+      mockDispatcher.dispatch.mockResolvedValueOnce({
         handled: true,
         response: { status: 201, body: { id: 1 }, headers: { 'X-Custom': 'yes' } },
       });

@@ -27,8 +27,15 @@ export function objectStackMiddleware(kernel: ObjectKernel) {
 
 /**
  * Creates a full-featured Hono app with all ObjectStack route dispatchers.
- * Provides Auth, GraphQL, Metadata, Data, and Storage routes matching
- * Next.js/NestJS adapter completeness.
+ *
+ * Only routes that need framework-specific handling (auth service, storage
+ * formData, GraphQL raw result, discovery wrapper) are registered explicitly.
+ * All other routes (meta, data, packages, analytics, automation, i18n, ui,
+ * openapi, custom endpoints, and any future routes) are handled by a
+ * catch-all that delegates to `HttpDispatcher.dispatch()`.
+ *
+ * This means new routes added to `HttpDispatcher` automatically work in
+ * every adapter without any adapter-side code changes.
  *
  * @example
  * ```ts
@@ -71,6 +78,8 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
     return errorJson(c, 'Not Found', 404);
   };
 
+  // ─── Explicit routes (framework-specific handling required) ────────────────
+
   // --- Discovery ---
   app.get(`${prefix}`, async (c) => {
     return c.json({ data: await dispatcher.getDiscoveryInfo(prefix) });
@@ -81,7 +90,7 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
     return c.redirect(prefix);
   });
 
-  // --- Auth ---
+  // --- Auth (needs auth service integration) ---
   app.all(`${prefix}/auth/*`, async (c) => {
     try {
       const path = c.req.path.substring(`${prefix}/auth/`.length);
@@ -119,7 +128,7 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
     }
   });
 
-  // --- GraphQL ---
+  // --- GraphQL (returns raw result, not HttpDispatcherResult) ---
   app.post(`${prefix}/graphql`, async (c) => {
     try {
       const body = await c.req.json();
@@ -130,62 +139,7 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
     }
   });
 
-  // --- Metadata ---
-  app.all(`${prefix}/meta/*`, async (c) => {
-    try {
-      const subPath = c.req.path.substring(`${prefix}/meta`.length);
-      const method = c.req.method;
-
-      let body: any = undefined;
-      if (method === 'PUT' || method === 'POST') {
-        body = await c.req.json().catch(() => ({}));
-      }
-
-      const result = await dispatcher.handleMetadata(subPath, { request: c.req.raw }, method, body);
-      return toResponse(c, result);
-    } catch (err: any) {
-      return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);
-    }
-  });
-
-  // Also handle /meta with no trailing path
-  app.all(`${prefix}/meta`, async (c) => {
-    try {
-      const method = c.req.method;
-      let body: any = undefined;
-      if (method === 'PUT' || method === 'POST') {
-        body = await c.req.json().catch(() => ({}));
-      }
-      const result = await dispatcher.handleMetadata('', { request: c.req.raw }, method, body);
-      return toResponse(c, result);
-    } catch (err: any) {
-      return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);
-    }
-  });
-
-  // --- Data ---
-  app.all(`${prefix}/data/*`, async (c) => {
-    try {
-      const subPath = c.req.path.substring(`${prefix}/data`.length);
-      const method = c.req.method;
-
-      let body: any = {};
-      if (method === 'POST' || method === 'PATCH') {
-        body = await c.req.json().catch(() => ({}));
-      }
-
-      const queryParams: Record<string, any> = {};
-      const url = new URL(c.req.url);
-      url.searchParams.forEach((val, key) => { queryParams[key] = val; });
-
-      const result = await dispatcher.handleData(subPath, method, body, queryParams, { request: c.req.raw });
-      return toResponse(c, result);
-    } catch (err: any) {
-      return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);
-    }
-  });
-
-  // --- Storage ---
+  // --- Storage (needs formData parsing) ---
   app.all(`${prefix}/storage/*`, async (c) => {
     try {
       const subPath = c.req.path.substring(`${prefix}/storage`.length);
@@ -198,6 +152,30 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
       }
 
       const result = await dispatcher.handleStorage(subPath, method, file, { request: c.req.raw });
+      return toResponse(c, result);
+    } catch (err: any) {
+      return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);
+    }
+  });
+
+  // ─── Catch-all: delegate to dispatcher.dispatch() ─────────────────────────
+  // Handles meta, data, packages, analytics, automation, i18n, ui, openapi,
+  // custom API endpoints, and any future routes added to HttpDispatcher.
+  app.all(`${prefix}/*`, async (c) => {
+    try {
+      const subPath = c.req.path.substring(prefix.length);
+      const method = c.req.method;
+
+      let body: any = undefined;
+      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+        body = await c.req.json().catch(() => ({}));
+      }
+
+      const queryParams: Record<string, any> = {};
+      const url = new URL(c.req.url);
+      url.searchParams.forEach((val, key) => { queryParams[key] = val; });
+
+      const result = await dispatcher.dispatch(method, subPath, body, queryParams, { request: c.req.raw });
       return toResponse(c, result);
     } catch (err: any) {
       return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);
