@@ -11,6 +11,11 @@ const mockDispatcher = {
   handleMetadata: vi.fn().mockResolvedValue({ handled: true, response: { body: { objects: [] }, status: 200 } }),
   handleData: vi.fn().mockResolvedValue({ handled: true, response: { body: { records: [] }, status: 200 } }),
   handleStorage: vi.fn().mockResolvedValue({ handled: true, response: { body: {}, status: 200 } }),
+  handlePackages: vi.fn().mockResolvedValue({ handled: true, response: { body: { packages: [], total: 0 }, status: 200 } }),
+  handleAnalytics: vi.fn().mockResolvedValue({ handled: true, response: { body: {}, status: 200 } }),
+  handleAutomation: vi.fn().mockResolvedValue({ handled: true, response: { body: { flows: [] }, status: 200 } }),
+  handleI18n: vi.fn().mockResolvedValue({ handled: true, response: { body: {}, status: 200 } }),
+  handleUi: vi.fn().mockResolvedValue({ handled: true, response: { body: {}, status: 200 } }),
 };
 
 vi.mock('@objectstack/runtime', () => {
@@ -279,6 +284,7 @@ describe('createHonoApp', () => {
         expect.objectContaining({ request: expect.anything() }),
         'GET',
         undefined,
+        expect.any(Object),
       );
     });
 
@@ -295,6 +301,7 @@ describe('createHonoApp', () => {
         expect.objectContaining({ request: expect.anything() }),
         'PUT',
         body,
+        expect.any(Object),
       );
     });
 
@@ -306,6 +313,19 @@ describe('createHonoApp', () => {
         expect.objectContaining({ request: expect.anything() }),
         'GET',
         undefined,
+        expect.any(Object),
+      );
+    });
+
+    it('forwards query parameters to handleMetadata', async () => {
+      const res = await app.request('/api/meta/objects?package=com.acme.crm');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handleMetadata).toHaveBeenCalledWith(
+        '/objects',
+        expect.objectContaining({ request: expect.anything() }),
+        'GET',
+        undefined,
+        expect.objectContaining({ package: 'com.acme.crm' }),
       );
     });
   });
@@ -376,6 +396,178 @@ describe('createHonoApp', () => {
         '/files',
         'GET',
         undefined,
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+  });
+
+  describe('Packages Endpoint', () => {
+    it('GET /api/packages calls handlePackages', async () => {
+      const res = await app.request('/api/packages');
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.packages).toBeDefined();
+      expect(mockDispatcher.handlePackages).toHaveBeenCalledWith(
+        '',
+        'GET',
+        {},
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('GET /api/packages/:id calls handlePackages with sub-path', async () => {
+      const res = await app.request('/api/packages/com.acme.crm');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handlePackages).toHaveBeenCalledWith(
+        '/com.acme.crm',
+        'GET',
+        {},
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('POST /api/packages parses JSON body', async () => {
+      const body = { manifest: { name: 'test-pkg' } };
+      const res = await app.request('/api/packages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handlePackages).toHaveBeenCalledWith(
+        '',
+        'POST',
+        body,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('forwards query parameters to handlePackages', async () => {
+      const res = await app.request('/api/packages?status=active');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handlePackages).toHaveBeenCalledWith(
+        '',
+        'GET',
+        {},
+        expect.objectContaining({ status: 'active' }),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('returns error on handlePackages exception', async () => {
+      mockDispatcher.handlePackages.mockRejectedValueOnce(new Error('Service unavailable'));
+      const res = await app.request('/api/packages');
+      expect(res.status).toBe(500);
+      const json = await res.json();
+      expect(json.success).toBe(false);
+      expect(json.error.message).toBe('Service unavailable');
+    });
+  });
+
+  describe('Analytics Endpoint', () => {
+    it('GET /api/analytics calls handleAnalytics', async () => {
+      const res = await app.request('/api/analytics');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handleAnalytics).toHaveBeenCalledWith(
+        '',
+        'GET',
+        undefined,
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('POST /api/analytics/query parses JSON body', async () => {
+      const body = { metric: 'page_views' };
+      const res = await app.request('/api/analytics/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handleAnalytics).toHaveBeenCalledWith(
+        '/query',
+        'POST',
+        body,
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+  });
+
+  describe('Automation Endpoint', () => {
+    it('GET /api/automation calls handleAutomation', async () => {
+      const res = await app.request('/api/automation');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handleAutomation).toHaveBeenCalledWith(
+        '',
+        'GET',
+        undefined,
+        expect.objectContaining({ request: expect.anything() }),
+        expect.any(Object),
+      );
+    });
+
+    it('POST /api/automation parses JSON body', async () => {
+      const body = { name: 'test_flow', type: 'autolaunched' };
+      const res = await app.request('/api/automation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handleAutomation).toHaveBeenCalledWith(
+        '',
+        'POST',
+        body,
+        expect.objectContaining({ request: expect.anything() }),
+        expect.any(Object),
+      );
+    });
+  });
+
+  describe('i18n Endpoint', () => {
+    it('GET /api/i18n calls handleI18n', async () => {
+      const res = await app.request('/api/i18n');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handleI18n).toHaveBeenCalledWith(
+        '',
+        'GET',
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('GET /api/i18n/labels/account forwards query params', async () => {
+      const res = await app.request('/api/i18n/labels/account?locale=zh-CN');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handleI18n).toHaveBeenCalledWith(
+        '/labels/account',
+        'GET',
+        expect.objectContaining({ locale: 'zh-CN' }),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+  });
+
+  describe('UI Endpoint', () => {
+    it('GET /api/ui/view/account calls handleUi', async () => {
+      const res = await app.request('/api/ui/view/account');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handleUi).toHaveBeenCalledWith(
+        '/view/account',
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+      );
+    });
+
+    it('GET /api/ui/view/account?type=list forwards query params', async () => {
+      const res = await app.request('/api/ui/view/account?type=list');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.handleUi).toHaveBeenCalledWith(
+        '/view/account',
+        expect.objectContaining({ type: 'list' }),
         expect.objectContaining({ request: expect.anything() }),
       );
     });

@@ -131,7 +131,7 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
   });
 
   // --- Metadata ---
-  app.all(`${prefix}/meta/*`, async (c) => {
+  const metaHandler = async (c: any) => {
     try {
       const subPath = c.req.path.substring(`${prefix}/meta`.length);
       const method = c.req.method;
@@ -141,27 +141,18 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
         body = await c.req.json().catch(() => ({}));
       }
 
-      const result = await dispatcher.handleMetadata(subPath, { request: c.req.raw }, method, body);
-      return toResponse(c, result);
-    } catch (err: any) {
-      return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);
-    }
-  });
+      const queryParams: Record<string, any> = {};
+      const url = new URL(c.req.url);
+      url.searchParams.forEach((val, key) => { queryParams[key] = val; });
 
-  // Also handle /meta with no trailing path
-  app.all(`${prefix}/meta`, async (c) => {
-    try {
-      const method = c.req.method;
-      let body: any = undefined;
-      if (method === 'PUT' || method === 'POST') {
-        body = await c.req.json().catch(() => ({}));
-      }
-      const result = await dispatcher.handleMetadata('', { request: c.req.raw }, method, body);
+      const result = await dispatcher.handleMetadata(subPath, { request: c.req.raw }, method, body, queryParams);
       return toResponse(c, result);
     } catch (err: any) {
       return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);
     }
-  });
+  };
+  app.all(`${prefix}/meta/*`, metaHandler);
+  app.all(`${prefix}/meta`, metaHandler);
 
   // --- Data ---
   app.all(`${prefix}/data/*`, async (c) => {
@@ -198,6 +189,109 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
       }
 
       const result = await dispatcher.handleStorage(subPath, method, file, { request: c.req.raw });
+      return toResponse(c, result);
+    } catch (err: any) {
+      return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);
+    }
+  });
+
+  // --- Packages ---
+  const packagesHandler = async (c: any) => {
+    try {
+      const subPath = c.req.path.substring(`${prefix}/packages`.length);
+      const method = c.req.method;
+
+      let body: any = {};
+      if (method === 'POST' || method === 'PATCH') {
+        body = await c.req.json().catch(() => ({}));
+      }
+
+      const queryParams: Record<string, any> = {};
+      const url = new URL(c.req.url);
+      url.searchParams.forEach((val, key) => { queryParams[key] = val; });
+
+      const result = await dispatcher.handlePackages(subPath, method, body, queryParams, { request: c.req.raw });
+      return toResponse(c, result);
+    } catch (err: any) {
+      return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);
+    }
+  };
+  app.all(`${prefix}/packages/*`, packagesHandler);
+  app.all(`${prefix}/packages`, packagesHandler);
+
+  // --- Analytics ---
+  const analyticsHandler = async (c: any) => {
+    try {
+      const subPath = c.req.path.substring(`${prefix}/analytics`.length);
+      const method = c.req.method;
+
+      let body: any = undefined;
+      if (method === 'POST') {
+        body = await c.req.json().catch(() => ({}));
+      }
+
+      const result = await dispatcher.handleAnalytics(subPath, method, body, { request: c.req.raw });
+      return toResponse(c, result);
+    } catch (err: any) {
+      return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);
+    }
+  };
+  app.all(`${prefix}/analytics/*`, analyticsHandler);
+  app.all(`${prefix}/analytics`, analyticsHandler);
+
+  // --- Automation ---
+  const automationHandler = async (c: any) => {
+    try {
+      const subPath = c.req.path.substring(`${prefix}/automation`.length);
+      const method = c.req.method;
+
+      let body: any = undefined;
+      if (method === 'POST' || method === 'PUT') {
+        body = await c.req.json().catch(() => ({}));
+      }
+
+      const queryParams: Record<string, any> = {};
+      const url = new URL(c.req.url);
+      url.searchParams.forEach((val, key) => { queryParams[key] = val; });
+
+      const result = await dispatcher.handleAutomation(subPath, method, body, { request: c.req.raw }, queryParams);
+      return toResponse(c, result);
+    } catch (err: any) {
+      return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);
+    }
+  };
+  app.all(`${prefix}/automation/*`, automationHandler);
+  app.all(`${prefix}/automation`, automationHandler);
+
+  // --- i18n ---
+  const i18nHandler = async (c: any) => {
+    try {
+      const subPath = c.req.path.substring(`${prefix}/i18n`.length);
+      const method = c.req.method;
+
+      const queryParams: Record<string, any> = {};
+      const url = new URL(c.req.url);
+      url.searchParams.forEach((val, key) => { queryParams[key] = val; });
+
+      const result = await dispatcher.handleI18n(subPath, method, queryParams, { request: c.req.raw });
+      return toResponse(c, result);
+    } catch (err: any) {
+      return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);
+    }
+  };
+  app.all(`${prefix}/i18n/*`, i18nHandler);
+  app.all(`${prefix}/i18n`, i18nHandler);
+
+  // --- UI ---
+  app.all(`${prefix}/ui/*`, async (c) => {
+    try {
+      const subPath = c.req.path.substring(`${prefix}/ui`.length);
+
+      const queryParams: Record<string, any> = {};
+      const url = new URL(c.req.url);
+      url.searchParams.forEach((val, key) => { queryParams[key] = val; });
+
+      const result = await dispatcher.handleUi(subPath, queryParams, { request: c.req.raw });
       return toResponse(c, result);
     } catch (err: any) {
       return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);
