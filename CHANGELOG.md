@@ -7,11 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Migrate API layer to Hono + Vercel Node adapter** — Replaced the vestigial Next.js-style
+  `api/[...path].ts` catch-all with a proper `api/index.ts` Hono entrypoint using `handle(app)`
+  from `hono/vercel`. Vercel routes now use a rewrite rule (`/api/*` → `/api`) for native Hono
+  routing, eliminating path-normalisation hacks and catch-all bundling pitfalls. Kernel boot
+  remains lazy (cold-start only) via `ensureApp()` / `ensureKernel()` in `_kernel.ts`.
+
 ### Fixed
-- **Vercel serverless 404 fix** — `api/[...path].ts` now normalises request paths and includes
-  robust error handling, preventing silent 404s when the Vercel runtime strips or alters the
-  `/api/` prefix. Cold-start errors are now caught and returned as structured 500 responses
-  instead of being swallowed.
+- **Vercel serverless 404 fix** — The previous `api/[...path].ts` path-normalisation fix is now
+  superseded by the Hono adapter migration above. The new `api/index.ts` entrypoint combined with
+  Vercel rewrites (`/api/*` → `/api`) eliminates the routing ambiguity that caused 404s.
 - **Kernel cold-start race condition** — `api/_kernel.ts` uses a shared boot promise so that
   concurrent cold-start requests wait for the same initialisation rather than launching
   duplicate boot sequences. Seed-data failures are treated as non-fatal, and the broker shim
