@@ -12,10 +12,13 @@
  *
  * We use `getRequestListener()` from `@hono/node-server` which properly
  * converts `IncomingMessage → Request`, calls our fetch callback, then writes
- * the `Response` back to `ServerResponse`.  The fetch callback is called
- * directly (no outer Hono app relay) so POST body streams are consumed by
- * exactly one Hono instance — avoiding the body-lock hang that occurs when
- * an intermediate Hono app reads `c.req.raw` before forwarding.
+ * the `Response` back to `ServerResponse`.
+ *
+ * For POST/PUT/PATCH requests, Vercel pre-buffers the body on the
+ * IncomingMessage as `rawBody` (Buffer) or `body` (parsed).  We extract it
+ * directly and build a clean `Request` so the inner Hono app receives a
+ * body it can `.json()` without depending on Node stream-to-ReadableStream
+ * conversion (which can hang when the stream has already been consumed).
  *
  * All kernel/service initialisation is co-located here so there are no
  * extensionless relative module imports — which would break Node's ESM
@@ -156,6 +159,43 @@ async function ensureApp(): Promise<Hono> {
 }
 
 // ---------------------------------------------------------------------------
+// Body extraction helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Extract the request body from the Vercel IncomingMessage.
+ *
+ * Vercel's Node.js runtime pre-buffers the full request body and attaches it
+ * to the IncomingMessage as `rawBody` (Buffer) and/or `body` (parsed).
+ * Reading from these properties is synchronous and avoids the fragile
+ * IncomingMessage → ReadableStream conversion that can hang when the
+ * underlying Node stream has already been consumed.
+ *
+ * Returns `null` for GET/HEAD/OPTIONS or when no body is available.
+ */
+function extractBody(incoming: any, method: string, contentType: string | undefined): BodyInit | null {
+    if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
+        return null;
+    }
+
+    // 1. rawBody (Buffer or string) — most reliable, set by Vercel runtime
+    if (incoming?.rawBody != null) {
+        if (typeof incoming.rawBody === 'string') return incoming.rawBody;
+        if (typeof incoming.rawBody.toString === 'function') return incoming.rawBody;
+        return String(incoming.rawBody);
+    }
+
+    // 2. body (parsed by Vercel) — re-serialize based on content-type
+    if (incoming?.body != null) {
+        if (typeof incoming.body === 'string') return incoming.body;
+        if (contentType?.includes('application/json')) return JSON.stringify(incoming.body);
+        return String(incoming.body);
+    }
+
+    return null;
+}
+
+// ---------------------------------------------------------------------------
 // Vercel handler
 // ---------------------------------------------------------------------------
 
@@ -164,14 +204,38 @@ async function ensureApp(): Promise<Hono> {
  * `IncomingMessage → Request`, calls our fetch callback, then writes the
  * `Response` back to `ServerResponse` (including `res.end()`).
  *
- * By calling `ensureApp()` inside the fetch callback we get lazy kernel
- * boot AND the Request (with its body stream) is handed directly to the
- * ObjectStack Hono app — no intermediate Hono relay that would lock the
- * body stream before the real handler can read it.
+ * For requests with a body, we extract it from the IncomingMessage directly
+ * (bypassing the Node stream → ReadableStream conversion) and create a new
+ * Request that the inner Hono app can safely `.json()`.
  */
-export default getRequestListener(async (request) => {
+export default getRequestListener(async (request, env) => {
+    const method = request.method;
+    const url = request.url;
+
+    console.log(`[Vercel] ${method} ${url}`);
+
     try {
         const app = await ensureApp();
+        const incoming = (env as any)?.incoming;
+
+        // For body methods, extract body from IncomingMessage and build a clean Request
+        if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS' && incoming) {
+            const contentType = incoming.headers?.['content-type'];
+            const body = extractBody(incoming, method, contentType);
+
+            if (body != null) {
+                console.log(`[Vercel] Body extracted from IncomingMessage (${typeof body === 'string' ? body.length + ' chars' : 'Buffer'})`);
+                const newReq = new Request(url, {
+                    method,
+                    headers: request.headers,
+                    body,
+                });
+                return await app.fetch(newReq);
+            }
+
+            console.log('[Vercel] No rawBody/body on IncomingMessage — using proxy request');
+        }
+
         return await app.fetch(request);
     } catch (err: any) {
         console.error('[Vercel] Handler error:', err?.message || err);
@@ -184,4 +248,3 @@ export default getRequestListener(async (request) => {
         );
     }
 });
-
