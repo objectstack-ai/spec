@@ -113,18 +113,42 @@ export class HonoHttpServer implements IHttpServer {
 
 
     async listen(port: number) {
-        return new Promise<void>((resolve) => {
-            if (this.staticRoot) {
-                this.app.get('/*', serveStatic({ root: this.staticRoot }));
+        if (this.staticRoot) {
+            this.app.get('/*', serveStatic({ root: this.staticRoot }));
+        }
+
+        const targetPort = port || this.port;
+        const maxRetries = 20;
+
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+            const tryPort = targetPort + attempt;
+            try {
+                await this.tryListen(tryPort);
+                return;
+            } catch (err: any) {
+                if (err.code === 'EADDRINUSE' && attempt < maxRetries - 1) {
+                    if (this.server && typeof this.server.close === 'function') {
+                        this.server.close();
+                    }
+                    continue;
+                }
+                throw err;
             }
-            
-            const targetPort = port || this.port;
-            this.server = serve({
+        }
+    }
+
+    private tryListen(port: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            const server = serve({
                 fetch: this.app.fetch,
-                port: targetPort
+                port
             }, (info) => {
                 this.listeningPort = info.port;
                 resolve();
+            });
+            this.server = server;
+            server.on('error', (err: any) => {
+                reject(err);
             });
         });
     }

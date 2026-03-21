@@ -234,11 +234,14 @@ export class HonoServerPlugin implements Plugin {
             ctx.logger.debug('Starting HTTP server', { port });
             
             await this.server.listen(port);
-            
+
             const actualPort = this.server.getPort();
-            ctx.logger.info('HTTP server started successfully', { 
-                port: actualPort, 
-                url: `http://localhost:${actualPort}` 
+            if (actualPort !== port) {
+                ctx.logger.warn(`Port ${port} is in use, using port ${actualPort} instead`);
+            }
+            ctx.logger.info('HTTP server started successfully', {
+                port: actualPort,
+                url: `http://localhost:${actualPort}`
             });
         });
     }
