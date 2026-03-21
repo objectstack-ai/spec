@@ -1165,6 +1165,24 @@ export class ObjectQL implements IDataEngine {
   }
 
   /**
+   * Get the driver responsible for the given object.
+   *
+   * Resolves datasource binding from the object's schema definition,
+   * falling back to the default driver. This is a public version of
+   * the internal getDriver() used by CRUD operations.
+   *
+   * @param objectName - FQN or short name of the registered object.
+   * @returns The resolved DriverInterface, or undefined if no driver is available.
+   */
+  getDriverForObject(objectName: string): DriverInterface | undefined {
+    try {
+      return this.getDriver(objectName);
+    } catch {
+      return undefined;
+    }
+  }
+
+  /**
    * Get a registered driver by datasource name.
    * Alias matching @objectql/core datasource() API.
    * 

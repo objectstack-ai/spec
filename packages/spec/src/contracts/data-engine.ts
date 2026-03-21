@@ -72,4 +72,12 @@ export interface DriverInterface {
    * Raw Execution
    */
   execute?(command: any, params?: any, options?: DriverOptions): Promise<any>;
+
+  /**
+   * Synchronize the database schema with the Object definition.
+   * Idempotent: creates tables if missing, adds columns, updates indexes.
+   *
+   * @see IDataDriver.syncSchema in data-driver.ts for the full contract.
+   */
+  syncSchema?(object: string, schema: unknown, options?: DriverOptions): Promise<void>;
 }

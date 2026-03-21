@@ -3,12 +3,14 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ObjectKernel } from '@objectstack/core';
 import { ObjectQLPlugin } from '../src/plugin';
+import { SchemaRegistry } from '../src/registry';
 import { ObjectSchema } from '@objectstack/spec/data';
 
 describe('ObjectQLPlugin - Metadata Service Integration', () => {
   let kernel: ObjectKernel;
 
   beforeEach(() => {
+    SchemaRegistry.reset();
     kernel = new ObjectKernel({ logLevel: 'silent' });
   });
 
@@ -235,6 +237,236 @@ describe('ObjectQLPlugin - Metadata Service Integration', () => {
       
       // Note: The actual sync happens in start phase
       // We can verify by checking if ObjectQL detected external service
+    });
+  });
+
+  describe('Schema Sync on Start', () => {
+    it('should call syncSchema for each registered object after init', async () => {
+      // Arrange - driver that tracks syncSchema calls
+      const synced: Array<{ object: string; schema: any }> = [];
+      const mockDriver = {
+        name: 'sync-driver',
+        version: '1.0.0',
+        connect: async () => {},
+        disconnect: async () => {},
+        find: async () => [],
+        findOne: async () => null,
+        create: async (_o: string, d: any) => d,
+        update: async (_o: string, _i: any, d: any) => d,
+        delete: async () => true,
+        syncSchema: async (object: string, schema: any) => {
+          synced.push({ object, schema });
+        },
+      };
+
+      // Plugin that registers objects and a driver
+      await kernel.use({
+        name: 'mock-driver-plugin',
+        type: 'driver',
+        version: '1.0.0',
+        init: async (ctx) => {
+          ctx.registerService('driver.sync', mockDriver);
+        },
+      });
+
+      const appManifest = {
+        id: 'com.test.auth',
+        name: 'auth',
+        namespace: 'sys',
+        version: '1.0.0',
+        objects: [
+          {
+            name: 'user',
+            label: 'User',
+            fields: {
+              name: { name: 'name', label: 'Name', type: 'text' },
+            },
+          },
+          {
+            name: 'role',
+            label: 'Role',
+            fields: {
+              title: { name: 'title', label: 'Title', type: 'text' },
+            },
+          },
+        ],
+      };
+
+      await kernel.use({
+        name: 'mock-app-plugin',
+        type: 'app',
+        version: '1.0.0',
+        init: async (ctx) => {
+          ctx.registerService('app.auth', appManifest);
+        },
+      });
+
+      const plugin = new ObjectQLPlugin();
+      await kernel.use(plugin);
+
+      // Act
+      await kernel.bootstrap();
+
+      // Assert - syncSchema should have been called for each object
+      const syncedObjects = synced.map((s) => s.object).sort();
+      expect(syncedObjects).toContain('sys__user');
+      expect(syncedObjects).toContain('sys__role');
+      expect(synced.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('should tolerate drivers without syncSchema', async () => {
+      // Arrange - driver without syncSchema
+      const mockDriver = {
+        name: 'no-sync-driver',
+        version: '1.0.0',
+        connect: async () => {},
+        disconnect: async () => {},
+        find: async () => [],
+        findOne: async () => null,
+        create: async (_o: string, d: any) => d,
+        update: async (_o: string, _i: any, d: any) => d,
+        delete: async () => true,
+        // No syncSchema method
+      };
+
+      await kernel.use({
+        name: 'mock-driver-plugin',
+        type: 'driver',
+        version: '1.0.0',
+        init: async (ctx) => {
+          ctx.registerService('driver.nosync', mockDriver);
+        },
+      });
+
+      const appManifest = {
+        id: 'com.test.simple',
+        name: 'simple',
+        namespace: 'test',
+        version: '1.0.0',
+        objects: [
+          {
+            name: 'item',
+            label: 'Item',
+            fields: {
+              title: { name: 'title', label: 'Title', type: 'text' },
+            },
+          },
+        ],
+      };
+
+      await kernel.use({
+        name: 'mock-app-plugin',
+        type: 'app',
+        version: '1.0.0',
+        init: async (ctx) => {
+          ctx.registerService('app.simple', appManifest);
+        },
+      });
+
+      const plugin = new ObjectQLPlugin();
+      await kernel.use(plugin);
+
+      // Act & Assert - should not throw
+      await expect(kernel.bootstrap()).resolves.not.toThrow();
+    });
+
+    it('should tolerate syncSchema failures per object without aborting', async () => {
+      // Arrange - driver where syncSchema fails for one object
+      const synced: string[] = [];
+      const mockDriver = {
+        name: 'fail-driver',
+        version: '1.0.0',
+        connect: async () => {},
+        disconnect: async () => {},
+        find: async () => [],
+        findOne: async () => null,
+        create: async (_o: string, d: any) => d,
+        update: async (_o: string, _i: any, d: any) => d,
+        delete: async () => true,
+        syncSchema: async (object: string) => {
+          if (object.includes('bad')) {
+            throw new Error('sync failed for bad object');
+          }
+          synced.push(object);
+        },
+      };
+
+      await kernel.use({
+        name: 'mock-driver-plugin',
+        type: 'driver',
+        version: '1.0.0',
+        init: async (ctx) => {
+          ctx.registerService('driver.fail', mockDriver);
+        },
+      });
+
+      const appManifest = {
+        id: 'com.test.mixed',
+        name: 'mixed',
+        namespace: 'mix',
+        version: '1.0.0',
+        objects: [
+          {
+            name: 'good',
+            label: 'Good',
+            fields: { a: { name: 'a', label: 'A', type: 'text' } },
+          },
+          {
+            name: 'bad',
+            label: 'Bad',
+            fields: { b: { name: 'b', label: 'B', type: 'text' } },
+          },
+        ],
+      };
+
+      await kernel.use({
+        name: 'mock-app-plugin',
+        type: 'app',
+        version: '1.0.0',
+        init: async (ctx) => {
+          ctx.registerService('app.mixed', appManifest);
+        },
+      });
+
+      const plugin = new ObjectQLPlugin();
+      await kernel.use(plugin);
+
+      // Act - should not throw despite one object failing
+      await expect(kernel.bootstrap()).resolves.not.toThrow();
+
+      // Assert - the good object should still have been synced
+      expect(synced).toContain('mix__good');
+    });
+
+    it('should work without any registered objects', async () => {
+      // Arrange - no objects, just a driver
+      const mockDriver = {
+        name: 'empty-driver',
+        version: '1.0.0',
+        connect: async () => {},
+        disconnect: async () => {},
+        find: async () => [],
+        findOne: async () => null,
+        create: async (_o: string, d: any) => d,
+        update: async (_o: string, _i: any, d: any) => d,
+        delete: async () => true,
+        syncSchema: async () => {},
+      };
+
+      await kernel.use({
+        name: 'mock-driver-plugin',
+        type: 'driver',
+        version: '1.0.0',
+        init: async (ctx) => {
+          ctx.registerService('driver.empty', mockDriver);
+        },
+      });
+
+      const plugin = new ObjectQLPlugin();
+      await kernel.use(plugin);
+
+      // Act & Assert - should not throw
+      await expect(kernel.bootstrap()).resolves.not.toThrow();
     });
   });
 });
