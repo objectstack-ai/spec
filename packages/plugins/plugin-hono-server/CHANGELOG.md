@@ -1,5 +1,13 @@
 # @objectstack/plugin-hono-server
 
+## 3.2.9
+
+### Patch Changes
+
+- 0bc7b0c: fix port confict
+  - @objectstack/spec@3.2.9
+  - @objectstack/core@3.2.9
+
 ## 3.2.8
 
 ### Patch Changes

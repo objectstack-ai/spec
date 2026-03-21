@@ -1,5 +1,14 @@
 # @objectstack/objectql
 
+## 3.2.9
+
+### Patch Changes
+
+- c3065dd: fix turso 2
+  - @objectstack/spec@3.2.9
+  - @objectstack/core@3.2.9
+  - @objectstack/types@3.2.9
+
 ## 3.2.8
 
 ### Patch Changes
