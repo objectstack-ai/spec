@@ -1,5 +1,24 @@
 # @objectstack/studio
 
+## 3.2.9
+
+### Patch Changes
+
+- Updated dependencies [c3065dd]
+  - @objectstack/objectql@3.2.9
+  - @objectstack/client@3.2.9
+  - @objectstack/plugin-msw@3.2.9
+  - @objectstack/plugin-auth@3.2.9
+  - @objectstack/spec@3.2.9
+  - @objectstack/client-react@3.2.9
+  - @objectstack/metadata@3.2.9
+  - @objectstack/runtime@3.2.9
+  - @objectstack/driver-memory@3.2.9
+  - @objectstack/plugin-security@3.2.9
+  - @objectstack/hono@3.2.9
+  - @objectstack/service-feed@3.2.9
+  - @objectstack/plugin-audit@3.2.9
+
 ## 3.2.8
 
 ### Patch Changes

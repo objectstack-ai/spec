@@ -1,5 +1,11 @@
 # @objectstack/types
 
+## 3.2.9
+
+### Patch Changes
+
+- @objectstack/spec@3.2.9
+
 ## 3.2.8
 
 ### Patch Changes
