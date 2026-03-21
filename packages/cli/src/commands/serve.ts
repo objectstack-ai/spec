@@ -23,6 +23,7 @@ import {
   hasStudioDist,
   createStudioStaticPlugin,
 } from '../utils/studio.js';
+import dotenvFlow from 'dotenv-flow';
 
 // Helper to find available port
 const getAvailablePort = async (startPort: number): Promise<number> => {
@@ -75,6 +76,12 @@ export default class Serve extends Command {
     } catch (e) {
       // Ignore error and try with original port
     }
+
+    // Load .env files following Vite/Next.js convention
+    const mode = flags.dev ? 'development'
+      : (process.env.NODE_ENV === 'test' ? 'test'
+        : (process.env.NODE_ENV || 'production'));
+    dotenvFlow.config({ node_env: mode, silent: true });
 
     const isDev = flags.dev || process.env.NODE_ENV === 'development';
 

@@ -87,3 +87,7 @@ next-env.d.ts
 apps/*/. source/
 apps/*/.next/docs/
 .turbo
+
+# Local env overrides (may contain secrets)
+.env.local
+.env.*.local
