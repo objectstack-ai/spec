@@ -4,6 +4,9 @@
 
 ### Patch Changes
 
+- Auto-sync all registered object schemas to database on startup: `ObjectQLPlugin.start()` now iterates every object in `SchemaRegistry` and calls `driver.syncSchema()` after driver connections are established. This ensures tables for plugin-registered objects (e.g. `sys_user` from plugin-auth) are created or updated automatically.
+- Added `getDriverForObject(objectName)` public method to `ObjectQL` engine for resolving the responsible driver for a given object.
+- Added optional `syncSchema` method to `DriverInterface` contract, aligning it with the full `IDataDriver` protocol.
 - @objectstack/spec@3.2.8
 - @objectstack/core@3.2.8
 - @objectstack/types@3.2.8

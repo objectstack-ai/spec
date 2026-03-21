@@ -119,6 +119,11 @@ export class ObjectQLPlugin implements Plugin {
     // Initialize drivers (calls driver.connect() which sets up persistence)
     await this.ql?.init();
 
+    // Sync all registered object schemas to database
+    // This ensures tables/collections are created or updated for every
+    // object registered by plugins (e.g., sys_user from plugin-auth).
+    await this.syncRegisteredSchemas(ctx);
+
     // Register built-in audit hooks
     this.registerAuditHooks(ctx);
 
@@ -229,6 +234,61 @@ export class ObjectQLPlugin implements Plugin {
     });
 
     ctx.logger.debug('Tenant isolation middleware registered');
+  }
+
+  /**
+   * Synchronize all registered object schemas to the database.
+   *
+   * Iterates every object in the SchemaRegistry and calls the
+   * responsible driver's `syncSchema()` for each one.  This is
+   * idempotent — drivers must tolerate repeated calls without
+   * duplicating tables or erroring out.
+   *
+   * Drivers that do not implement `syncSchema` are silently skipped.
+   */
+  private async syncRegisteredSchemas(ctx: PluginContext) {
+    if (!this.ql) return;
+
+    const allObjects = this.ql.registry?.getAllObjects?.() ?? [];
+    if (allObjects.length === 0) return;
+
+    let synced = 0;
+    let skipped = 0;
+
+    for (const obj of allObjects) {
+      const driver = this.ql.getDriverForObject(obj.name);
+      if (!driver) {
+        ctx.logger.debug('No driver available for object, skipping schema sync', {
+          object: obj.name,
+        });
+        skipped++;
+        continue;
+      }
+
+      if (typeof driver.syncSchema !== 'function') {
+        ctx.logger.debug('Driver does not support syncSchema, skipping', {
+          object: obj.name,
+          driver: driver.name,
+        });
+        skipped++;
+        continue;
+      }
+
+      try {
+        await driver.syncSchema(obj.name, obj);
+        synced++;
+      } catch (e: unknown) {
+        ctx.logger.warn('Failed to sync schema for object', {
+          object: obj.name,
+          driver: driver.name,
+          error: e instanceof Error ? e.message : String(e),
+        });
+      }
+    }
+
+    if (synced > 0 || skipped > 0) {
+      ctx.logger.info('Schema sync complete', { synced, skipped, total: allObjects.length });
+    }
   }
 
   /**
