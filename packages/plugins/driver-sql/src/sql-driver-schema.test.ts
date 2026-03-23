@@ -243,4 +243,23 @@ describe('SqlDriver Schema Sync (SQLite)', () => {
     expect(row.email).toBe('test@example.com');
     expect(row.office_loc).toEqual({ lat: 10, lng: 20 });
   });
+
+  it('should skip ensureDatabaseExists for SQLite (no-op)', async () => {
+    // SQLite auto-creates database files, so ensureDatabaseExists should be a no-op
+    // This test verifies that initObjects works normally for SQLite without errors
+    const objects = [
+      {
+        name: 'db_check_test',
+        fields: {
+          value: { type: 'string' },
+        },
+      },
+    ];
+
+    // Should not throw — SQLite skips ensureDatabaseExists
+    await driver.initObjects(objects);
+
+    const exists = await knexInstance.schema.hasTable('db_check_test');
+    expect(exists).toBe(true);
+  });
 });

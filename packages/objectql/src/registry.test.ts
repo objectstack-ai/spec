@@ -187,6 +187,31 @@ describe('SchemaRegistry', () => {
             expect(SchemaRegistry.getObject('task')).toBeDefined();
         });
 
+        it('should resolve by tableName (protocol name fallback)', () => {
+            // Simulates ObjectSchema.create() which auto-derives tableName
+            // as {namespace}_{name} (single underscore)
+            const obj = { name: 'user', tableName: 'sys_user', namespace: 'sys', fields: {} };
+            SchemaRegistry.registerObject(obj as any, 'com.objectstack.system', 'sys', 'own');
+            
+            // FQN is 'sys__user' (double underscore)
+            expect(SchemaRegistry.getObject('sys__user')).toBeDefined();
+            
+            // Protocol name 'sys_user' (single underscore) should also resolve
+            const resolved = SchemaRegistry.getObject('sys_user');
+            expect(resolved).toBeDefined();
+            expect(resolved?.name).toBe('sys__user');
+            expect((resolved as any).tableName).toBe('sys_user');
+        });
+
+        it('should resolve by tableName for any namespace', () => {
+            const obj = { name: 'account', tableName: 'crm_account', namespace: 'crm', fields: {} };
+            SchemaRegistry.registerObject(obj as any, 'com.crm', 'crm', 'own');
+            
+            // FQN: 'crm__account', tableName: 'crm_account'
+            expect(SchemaRegistry.getObject('crm__account')).toBeDefined();
+            expect(SchemaRegistry.getObject('crm_account')).toBeDefined();
+        });
+
         it('should cache merged objects', () => {
             const obj = { name: 'cached', fields: {} };
             SchemaRegistry.registerObject(obj as any, 'com.test', 'test', 'own');

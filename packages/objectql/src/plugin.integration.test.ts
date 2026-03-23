@@ -468,5 +468,84 @@ describe('ObjectQLPlugin - Metadata Service Integration', () => {
       // Act & Assert - should not throw
       await expect(kernel.bootstrap()).resolves.not.toThrow();
     });
+
+    it('should use tableName for syncSchema when objects have auto-derived tableName', async () => {
+      // Arrange - driver that tracks syncSchema calls
+      const synced: Array<{ object: string; schema: any }> = [];
+      const mockDriver = {
+        name: 'table-name-driver',
+        version: '1.0.0',
+        connect: async () => {},
+        disconnect: async () => {},
+        find: async () => [],
+        findOne: async () => null,
+        create: async (_o: string, d: any) => d,
+        update: async (_o: string, _i: any, d: any) => d,
+        delete: async () => true,
+        syncSchema: async (object: string, schema: any) => {
+          synced.push({ object, schema });
+        },
+      };
+
+      await kernel.use({
+        name: 'mock-driver-plugin',
+        type: 'driver',
+        version: '1.0.0',
+        init: async (ctx) => {
+          ctx.registerService('driver.table-name', mockDriver);
+        },
+      });
+
+      // Objects with tableName (simulating ObjectSchema.create() output)
+      const appManifest = {
+        id: 'com.test.system',
+        name: 'system',
+        namespace: 'sys',
+        version: '1.0.0',
+        objects: [
+          {
+            name: 'user',
+            label: 'User',
+            namespace: 'sys',
+            tableName: 'sys_user',
+            fields: {
+              email: { name: 'email', label: 'Email', type: 'text' },
+            },
+          },
+          {
+            name: 'session',
+            label: 'Session',
+            namespace: 'sys',
+            tableName: 'sys_session',
+            fields: {
+              token: { name: 'token', label: 'Token', type: 'text' },
+            },
+          },
+        ],
+      };
+
+      await kernel.use({
+        name: 'mock-app-plugin',
+        type: 'app',
+        version: '1.0.0',
+        init: async (ctx) => {
+          ctx.registerService('app.system', appManifest);
+        },
+      });
+
+      const plugin = new ObjectQLPlugin();
+      await kernel.use(plugin);
+
+      // Act
+      await kernel.bootstrap();
+
+      // Assert - syncSchema should use tableName (single underscore) not FQN (double underscore)
+      const syncedNames = synced.map((s) => s.object).sort();
+      expect(syncedNames).toContain('sys_user');
+      expect(syncedNames).toContain('sys_session');
+      // Should NOT contain double-underscore FQN
+      expect(syncedNames).not.toContain('sys__user');
+      expect(syncedNames).not.toContain('sys__session');
+    });
   });
 });

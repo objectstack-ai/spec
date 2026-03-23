@@ -314,8 +314,14 @@ export class SchemaRegistry {
   }
 
   /**
-   * Get object by name (FQN or short name with fallback scan).
-   * For compatibility, tries exact match first, then scans for suffix match.
+   * Get object by name (FQN, short name, or physical table name).
+   *
+   * Resolution order:
+   * 1. Exact FQN match (e.g., 'crm__account')
+   * 2. Short name fallback (e.g., 'account' → 'crm__account')
+   * 3. Physical table name match (e.g., 'sys_user' → 'sys__user')
+   *    ObjectSchema.create() auto-derives tableName as {namespace}_{name},
+   *    which uses a single underscore — different from the FQN double underscore.
    */
   static getObject(name: string): ServiceObject | undefined {
     // Direct FQN lookup
@@ -328,6 +334,15 @@ export class SchemaRegistry {
       const { shortName } = parseFQN(fqn);
       if (shortName === name) {
         return this.resolveObject(fqn);
+      }
+    }
+
+    // Fallback: match by physical table name (e.g., 'sys_user' → FQN 'sys__user')
+    // This bridges the gap between protocol names (SystemObjectName) and FQN.
+    for (const fqn of this.objectContributors.keys()) {
+      const resolved = this.resolveObject(fqn);
+      if (resolved && (resolved as any).tableName === name) {
+        return resolved;
       }
     }
 
