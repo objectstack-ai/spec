@@ -144,7 +144,7 @@ export function createMultiTenantRouter(config: MultiTenantConfig): MultiTenantR
   /**
    * Replace `{tenant}` placeholders in a string value.
    */
-  function interpolate(template: string, tenantId: string): string {
+  function interpolateTenant(template: string, tenantId: string): string {
     return template.replace(/\{tenant\}/g, tenantId);
   }
 
@@ -175,14 +175,14 @@ export function createMultiTenantRouter(config: MultiTenantConfig): MultiTenantR
     }
 
     // Build config with {tenant} interpolated in all string fields
-    const url = interpolate(config.urlTemplate, tenantId);
+    const url = interpolateTenant(config.urlTemplate, tenantId);
     const overrides = config.driverConfigOverrides ?? {};
     const driverConfig: TursoDriverConfig = {
       ...overrides,
       url,
       authToken: config.groupAuthToken ?? overrides.authToken,
       // Interpolate {tenant} in syncUrl if present
-      syncUrl: overrides.syncUrl ? interpolate(overrides.syncUrl, tenantId) : undefined,
+      syncUrl: overrides.syncUrl ? interpolateTenant(overrides.syncUrl, tenantId) : undefined,
     };
 
     const driver = new TursoDriver(driverConfig);

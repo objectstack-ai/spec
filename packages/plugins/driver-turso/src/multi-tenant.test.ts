@@ -8,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 /** Build a unique temp path template for test isolation. */
-function tmpTemplate(label: string): string {
+function buildTenantUrlTemplate(label: string): string {
   const rand = Math.random().toString(36).slice(2, 8);
   return `file:${join(tmpdir(), `test-turso-${label}-${rand}-{tenant}.db`)}`;
 }
@@ -37,7 +37,7 @@ describe('Multi-Tenant Router', () => {
 
   it('should create a TursoDriver for a tenant', async () => {
     router = createMultiTenantRouter({
-      urlTemplate: tmpTemplate('mt'),
+      urlTemplate: buildTenantUrlTemplate('mt'),
     });
 
     const driver = await router.getDriverForTenant('acme');
@@ -48,7 +48,7 @@ describe('Multi-Tenant Router', () => {
 
   it('should cache drivers and return same instance', async () => {
     router = createMultiTenantRouter({
-      urlTemplate: tmpTemplate('cache'),
+      urlTemplate: buildTenantUrlTemplate('cache'),
     });
 
     const driver1 = await router.getDriverForTenant('acme');
@@ -58,7 +58,7 @@ describe('Multi-Tenant Router', () => {
 
   it('should create separate drivers per tenant', async () => {
     router = createMultiTenantRouter({
-      urlTemplate: tmpTemplate('sep'),
+      urlTemplate: buildTenantUrlTemplate('sep'),
     });
 
     const driver1 = await router.getDriverForTenant('tenant-a');
@@ -71,7 +71,7 @@ describe('Multi-Tenant Router', () => {
 
   it('should reject empty tenantId', async () => {
     router = createMultiTenantRouter({
-      urlTemplate: tmpTemplate('val'),
+      urlTemplate: buildTenantUrlTemplate('val'),
     });
 
     await expect(router.getDriverForTenant('')).rejects.toThrow();
@@ -79,7 +79,7 @@ describe('Multi-Tenant Router', () => {
 
   it('should reject invalid tenantId with special characters', async () => {
     router = createMultiTenantRouter({
-      urlTemplate: tmpTemplate('val2'),
+      urlTemplate: buildTenantUrlTemplate('val2'),
     });
 
     await expect(router.getDriverForTenant('a')).rejects.toThrow();
@@ -88,7 +88,7 @@ describe('Multi-Tenant Router', () => {
 
   it('should accept valid tenantId', async () => {
     router = createMultiTenantRouter({
-      urlTemplate: tmpTemplate('accept'),
+      urlTemplate: buildTenantUrlTemplate('accept'),
     });
 
     const driver = await router.getDriverForTenant('valid-tenant');
@@ -99,7 +99,7 @@ describe('Multi-Tenant Router', () => {
 
   it('should report cache size', async () => {
     router = createMultiTenantRouter({
-      urlTemplate: tmpTemplate('size'),
+      urlTemplate: buildTenantUrlTemplate('size'),
     });
 
     expect(router.getCacheSize()).toBe(0);
@@ -111,7 +111,7 @@ describe('Multi-Tenant Router', () => {
 
   it('should invalidate cache for a tenant', async () => {
     router = createMultiTenantRouter({
-      urlTemplate: tmpTemplate('inv'),
+      urlTemplate: buildTenantUrlTemplate('inv'),
     });
 
     await router.getDriverForTenant('to-invalidate');
@@ -123,7 +123,7 @@ describe('Multi-Tenant Router', () => {
 
   it('should destroy all cached drivers', async () => {
     router = createMultiTenantRouter({
-      urlTemplate: tmpTemplate('destroy'),
+      urlTemplate: buildTenantUrlTemplate('destroy'),
     });
 
     await router.getDriverForTenant('destroy-a');
@@ -140,7 +140,7 @@ describe('Multi-Tenant Router', () => {
     const created: string[] = [];
 
     router = createMultiTenantRouter({
-      urlTemplate: tmpTemplate('cb'),
+      urlTemplate: buildTenantUrlTemplate('cb'),
       onTenantCreate: async (tenantId) => {
         created.push(tenantId);
       },
@@ -158,7 +158,7 @@ describe('Multi-Tenant Router', () => {
     const evicted: string[] = [];
 
     router = createMultiTenantRouter({
-      urlTemplate: tmpTemplate('evict'),
+      urlTemplate: buildTenantUrlTemplate('evict'),
       onTenantEvict: async (tenantId) => {
         evicted.push(tenantId);
       },
@@ -177,7 +177,7 @@ describe('Multi-Tenant Router', () => {
     let createCount = 0;
 
     router = createMultiTenantRouter({
-      urlTemplate: tmpTemplate('conc'),
+      urlTemplate: buildTenantUrlTemplate('conc'),
       onTenantCreate: async () => {
         createCount++;
       },
@@ -203,7 +203,7 @@ describe('Multi-Tenant Router', () => {
 
   it('should perform CRUD operations through a tenant driver', async () => {
     router = createMultiTenantRouter({
-      urlTemplate: tmpTemplate('crud'),
+      urlTemplate: buildTenantUrlTemplate('crud'),
     });
 
     const driver = await router.getDriverForTenant('crud-test');
