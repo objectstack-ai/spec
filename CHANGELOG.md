@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Login API error — database tables not created** — Fixed a critical naming mismatch between
+  the FQN (Fully Qualified Name) used by SchemaRegistry (e.g., `sys__user` with double underscore)
+  and the physical table name derived by `ObjectSchema.create()` (e.g., `sys_user` with single
+  underscore). `syncRegisteredSchemas()` now uses the `tableName` property from object definitions
+  for DDL operations, ensuring tables are created with the correct physical name that matches
+  what the auth adapter and `SystemObjectName` constants expect.
+- **`SchemaRegistry.getObject()` — protocol name resolution** — Added a third fallback that
+  matches objects by their `tableName` property (e.g., `getObject('sys_user')` now correctly
+  finds the object registered as FQN `sys__user`). This bridges protocol-layer names
+  (`SystemObjectName.USER = 'sys_user'`) with the registry's FQN naming convention.
+- **`ObjectQL.resolveObjectName()` — physical table name** — Now returns `schema.tableName`
+  (the physical table/collection name) instead of `schema.name` (the FQN) when available,
+  ensuring driver SQL queries target the correct table.
+- **`SqlDriver.ensureDatabaseExists()` — multi-driver support** — Extended database
+  auto-creation to support MySQL (error code `ER_BAD_DB_ERROR` / errno 1049) alongside
+  PostgreSQL (error code `3D000`). SQLite is explicitly skipped (auto-creates files).
+- **`SqlDriver.createDatabase()` — MySQL support** — Added MySQL-specific logic that
+  connects without a database specified and uses `CREATE DATABASE IF NOT EXISTS`.
+
 ### Added
 - **`@objectstack/driver-turso` plugin** — Migrated and standardized the Turso/libSQL driver from
   `@objectql/driver-turso` into `packages/plugins/driver-turso/`. The driver **extends** `SqlDriver`

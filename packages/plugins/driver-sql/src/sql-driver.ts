@@ -1044,7 +1044,8 @@ export class SqlDriver implements IDataDriver {
         adminConfig.connection = url.toString();
       } else {
         dbName = connection.database;
-        adminConfig.connection = { ...connection, database: undefined };
+        const { database: _db, ...rest } = connection;
+        adminConfig.connection = rest;
       }
     } else {
       return; // Unsupported dialect for auto-creation

@@ -277,10 +277,10 @@ export class ObjectQLPlugin implements Plugin {
       // Use the physical table name (e.g., 'sys_user') for DDL operations
       // instead of the FQN (e.g., 'sys__user'). ObjectSchema.create()
       // auto-derives tableName as {namespace}_{name}.
-      const tableName = (obj as any).tableName || obj.name;
+      const tableName = obj.tableName || obj.name;
 
       try {
-        await driver.syncSchema(tableName, { ...obj, name: tableName });
+        await driver.syncSchema(tableName, obj);
         synced++;
       } catch (e: unknown) {
         ctx.logger.warn('Failed to sync schema for object', {

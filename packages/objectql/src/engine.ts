@@ -548,7 +548,7 @@ export class ObjectQL implements IDataEngine {
       // Prefer the physical table name (e.g., 'sys_user') over the FQN
       // (e.g., 'sys__user'). ObjectSchema.create() auto-derives tableName
       // as {namespace}_{name} which matches the storage convention.
-      return (schema as any).tableName || schema.name;
+      return schema.tableName || schema.name;
     }
     return name; // Ad-hoc object, keep as-is
   }

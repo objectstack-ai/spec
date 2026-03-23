@@ -341,7 +341,7 @@ export class SchemaRegistry {
     // This bridges the gap between protocol names (SystemObjectName) and FQN.
     for (const fqn of this.objectContributors.keys()) {
       const resolved = this.resolveObject(fqn);
-      if (resolved && (resolved as any).tableName === name) {
+      if (resolved?.tableName === name) {
         return resolved;
       }
     }
