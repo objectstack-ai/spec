@@ -578,9 +578,10 @@ Objects now declare `namespace: 'sys'` and a short `name` (e.g., `name: 'user'`)
 - [ ] `driver-mongodb` — MongoDB driver with aggregation pipeline
 - [ ] `driver-turso` — Turso/libSQL edge database driver (see [Design Document](docs/design/driver-turso.md))
   - [x] **Phase 0: Protocol Schema** — `TursoConfigSchema`, `TursoSyncConfigSchema`, `TursoDriverSpec` defined in `packages/spec/src/data/driver/turso.zod.ts`
-  - [ ] **Phase A: Core Driver** (v3.1) — `IDataDriver` + `ISchemaDriver` implementation, QueryAST→SQL compiler, plugin wrapper
+  - [x] **Phase A: Core Driver** (v3.1) — `IDataDriver` implementation, QueryAST→SQL compiler, plugin wrapper, local/memory/file modes
+  - [x] **Phase A+: Dual Transport** (v3.2) — Remote-only mode via `@libsql/client` (libsql://, https://), auto-detection of transport mode, pre-configured client injection, full CRUD/schema/bulk/transaction support in remote mode
   - [ ] **Phase B: Edge & Sync** (v3.2) — Embedded replica sync, WASM build for Cloudflare/Deno, offline write queue
-  - [ ] **Phase C: Multi-Tenancy** (v3.3) — Database-per-tenant router, Turso Platform API integration
+  - [x] **Phase C: Multi-Tenancy** (v3.3) — Database-per-tenant router with TTL cache, concurrency dedup, lifecycle callbacks
   - [ ] **Phase D: Advanced** (v4.0) — Vector search + `IAIService`, FTS5 + `ISearchService`, ~~better-auth adapter~~ (✅ done in plugin-auth)
 - [ ] Driver benchmark suite comparing performance across all drivers
 

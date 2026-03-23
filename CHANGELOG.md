@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`@objectstack/driver-turso` — dual transport architecture** — TursoDriver now supports three
+  transport modes: `local`, `replica`, and `remote`. Remote mode (`url: 'libsql://...'`) enables
+  pure cloud-only queries via `@libsql/client` SDK (HTTP/WebSocket) without requiring a local
+  SQLite database or Knex. Transport mode is auto-detected from the URL or can be forced via
+  `config.mode`. The driver exposes `transportMode` and `isRemote` properties for runtime
+  introspection. All IDataDriver methods (CRUD, bulk, transactions, schema sync) work identically
+  across all modes. Added `RemoteTransport` class, `TursoTransportMode` type, and support for
+  injecting a pre-configured `@libsql/client` instance via `config.client`.
+
 ### Fixed
 - **`@objectstack/driver-sql` DTS build failure — knex type resolution** — Fixed a TypeScript
   declaration build failure caused by knex v3.2.3 declaring a non-existent `.d.mts` types file

@@ -11,10 +11,11 @@
  * Only Turso-specific features (connection modes, sync, multi-tenant)
  * are implemented here — zero duplicated query/schema code.
  *
- * Supports three connection modes:
+ * Supports four connection modes:
  * 1. Local (Embedded): `url: 'file:./data/local.db'`
  * 2. In-Memory (Testing): `url: ':memory:'`
  * 3. Embedded Replica (Hybrid): `url` + `syncUrl`
+ * 4. Remote (Cloud): `url: 'libsql://my-db.turso.io'`
  *
  * @example
  * ```typescript
@@ -29,7 +30,8 @@
 
 import { TursoDriver } from './turso-driver.js';
 
-export { TursoDriver, type TursoDriverConfig } from './turso-driver.js';
+export { TursoDriver, type TursoDriverConfig, type TursoTransportMode } from './turso-driver.js';
+export { RemoteTransport } from './remote-transport.js';
 
 export {
   createMultiTenantRouter,
