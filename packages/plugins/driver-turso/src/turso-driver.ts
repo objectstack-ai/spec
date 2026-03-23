@@ -256,9 +256,9 @@ export class TursoDriver extends SqlDriver {
 
     // Remote URL (libsql://, https://, wss://)
     if (url.startsWith('libsql://') || url.startsWith('https://') || url.startsWith('wss://')) {
-      // If syncUrl is provided, it's embedded replica mode with a remote primary
-      // and the URL is the local endpoint — but since the URL is remote,
-      // treat it as replica mode (synced to a local memory backend)
+      // When both url and syncUrl are remote, @libsql/client operates in
+      // embedded replica mode with an in-memory local cache. The remote URL
+      // serves as the primary database and syncUrl configures the sync target.
       if (config.syncUrl) return 'replica';
       return 'remote';
     }
@@ -273,8 +273,10 @@ export class TursoDriver extends SqlDriver {
    * In remote mode, uses a dummy :memory: config (Knex is not used).
    */
   private static toKnexConfig(config: TursoDriverConfig, mode: TursoTransportMode): SqlDriverConfig {
-    // Remote mode: Knex is not used for queries, but SqlDriver constructor
-    // requires a valid config. Use a minimal :memory: config.
+    // Remote mode: All CRUD/schema operations delegate to RemoteTransport
+    // (via @libsql/client). Knex is never used for queries, but the SqlDriver
+    // base class constructor requires a valid config. We provide a minimal
+    // :memory: config that initializes Knex without side effects.
     if (mode === 'remote') {
       return {
         client: 'better-sqlite3',

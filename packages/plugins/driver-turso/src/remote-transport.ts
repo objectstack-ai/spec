@@ -21,6 +21,11 @@ import { nanoid } from 'nanoid';
 const DEFAULT_ID_LENGTH = 16;
 
 /**
+ * Columns created unconditionally by syncSchema — skip when iterating fields.
+ */
+const BUILTIN_COLUMNS = new Set(['id', 'created_at', 'updated_at']);
+
+/**
  * Remote transport that executes all queries via @libsql/client.
  *
  * Handles SQL generation, filter compilation, and result mapping for
@@ -240,8 +245,10 @@ export class RemoteTransport {
 
     const result = await this.client!.execute({ sql, args });
     if (result.rows.length > 0) {
+      // Use result.columns to find the count column dynamically
       const row = result.rows[0] as any;
-      return Number(row.count ?? row['COUNT(*)'] ?? row['count(*)'] ?? 0);
+      const countCol = result.columns.find((c) => c.toLowerCase().includes('count'));
+      return Number(countCol ? row[countCol] : row.count ?? 0);
     }
     return 0;
   }
@@ -339,16 +346,15 @@ export class RemoteTransport {
     });
     const exists = checkResult.rows.length > 0;
 
-    // Columns created unconditionally — skip when iterating fields
-    const builtinColumns = new Set(['id', 'created_at', 'updated_at']);
-
     if (!exists) {
       // Build CREATE TABLE
       let sql = `CREATE TABLE "${tableName}" ("id" TEXT PRIMARY KEY, "created_at" TEXT DEFAULT (datetime('now')), "updated_at" TEXT DEFAULT (datetime('now'))`;
 
       if (objectDef.fields) {
         for (const [name, field] of Object.entries(objectDef.fields)) {
-          if (builtinColumns.has(name)) continue;
+          if (BUILTIN_COLUMNS.has(name)) continue;
+          const type = (field as any).type || 'string';
+          if (type === 'formula') continue; // Virtual — no column
           const colType = this.mapFieldTypeToSQL(field);
           sql += `, "${name}" ${colType}`;
         }
@@ -367,6 +373,8 @@ export class RemoteTransport {
 
         for (const [name, field] of Object.entries(objectDef.fields)) {
           if (!existingColumns.has(name)) {
+            const type = (field as any).type || 'string';
+            if (type === 'formula') continue; // Virtual — no column
             const colType = this.mapFieldTypeToSQL(field);
             await this.client!.execute(`ALTER TABLE "${tableName}" ADD COLUMN "${name}" ${colType}`);
           }
@@ -384,10 +392,11 @@ export class RemoteTransport {
   // Internal Helpers
   // ===================================
 
-  private ensureClient(): asserts this is { client: Client } {
+  private ensureClient(): Client {
     if (!this.client) {
       throw new Error('RemoteTransport: @libsql/client is not initialized. Call connect() first.');
     }
+    return this.client;
   }
 
   /**
