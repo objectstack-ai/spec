@@ -611,6 +611,11 @@ export class SqlDriver implements IDataDriver {
         }
       }
 
+      // Columns created unconditionally by initObjects — skip them when
+      // iterating obj.fields to avoid duplicate-column errors (e.g. SQLite
+      // rejects CREATE TABLE with two columns of the same name).
+      const builtinColumns = new Set(['id', 'created_at', 'updated_at']);
+
       if (!exists) {
         await this.knex.schema.createTable(tableName, (table) => {
           table.string('id').primary();
@@ -618,6 +623,7 @@ export class SqlDriver implements IDataDriver {
           table.timestamp('updated_at').defaultTo(this.knex.fn.now());
           if (obj.fields) {
             for (const [name, field] of Object.entries(obj.fields)) {
+              if (builtinColumns.has(name)) continue;
               this.createColumn(table, name, field);
             }
           }
