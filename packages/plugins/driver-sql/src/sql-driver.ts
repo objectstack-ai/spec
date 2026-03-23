@@ -995,12 +995,22 @@ export class SqlDriver implements IDataDriver {
   // ── Database helpers ────────────────────────────────────────────────────────
 
   protected async ensureDatabaseExists() {
-    if (!this.isPostgres) return;
+    // SQLite auto-creates database files — no need to check
+    if (this.isSqlite) return;
+
+    // Only PostgreSQL and MySQL support programmatic database creation
+    if (!this.isPostgres && !this.isMysql) return;
 
     try {
       await this.knex.raw('SELECT 1');
     } catch (e: any) {
-      if (e.code === '3D000') {
+      // PostgreSQL: '3D000' = database does not exist
+      // MySQL:      'ER_BAD_DB_ERROR' (errno 1049) = unknown database
+      if (
+        e.code === '3D000' ||
+        e.code === 'ER_BAD_DB_ERROR' ||
+        e.errno === 1049
+      ) {
         await this.createDatabase();
       } else {
         throw e;
@@ -1014,19 +1024,40 @@ export class SqlDriver implements IDataDriver {
     let dbName = '';
     const adminConfig = { ...config };
 
-    if (typeof connection === 'string') {
-      const url = new URL(connection);
-      dbName = url.pathname.slice(1);
-      url.pathname = '/postgres';
-      adminConfig.connection = url.toString();
+    if (this.isPostgres) {
+      // PostgreSQL: connect to the 'postgres' maintenance database
+      if (typeof connection === 'string') {
+        const url = new URL(connection);
+        dbName = url.pathname.slice(1);
+        url.pathname = '/postgres';
+        adminConfig.connection = url.toString();
+      } else {
+        dbName = connection.database;
+        adminConfig.connection = { ...connection, database: 'postgres' };
+      }
+    } else if (this.isMysql) {
+      // MySQL: connect without specifying a database
+      if (typeof connection === 'string') {
+        const url = new URL(connection);
+        dbName = url.pathname.slice(1);
+        url.pathname = '/';
+        adminConfig.connection = url.toString();
+      } else {
+        dbName = connection.database;
+        const { database: _db, ...rest } = connection;
+        adminConfig.connection = rest;
+      }
     } else {
-      dbName = connection.database;
-      adminConfig.connection = { ...connection, database: 'postgres' };
+      return; // Unsupported dialect for auto-creation
     }
 
     const adminKnex = knex(adminConfig);
     try {
-      await adminKnex.raw(`CREATE DATABASE "${dbName}"`);
+      if (this.isPostgres) {
+        await adminKnex.raw(`CREATE DATABASE "${dbName}"`);
+      } else if (this.isMysql) {
+        await adminKnex.raw(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
+      }
     } finally {
       await adminKnex.destroy();
     }

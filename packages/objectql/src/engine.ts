@@ -545,7 +545,10 @@ export class ObjectQL implements IDataEngine {
   private resolveObjectName(name: string): string {
     const schema = SchemaRegistry.getObject(name);
     if (schema) {
-      return schema.name; // FQN from registry (e.g., 'todo__task')
+      // Prefer the physical table name (e.g., 'sys_user') over the FQN
+      // (e.g., 'sys__user'). ObjectSchema.create() auto-derives tableName
+      // as {namespace}_{name} which matches the storage convention.
+      return schema.tableName || schema.name;
     }
     return name; // Ad-hoc object, keep as-is
   }
