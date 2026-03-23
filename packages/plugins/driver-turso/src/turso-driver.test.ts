@@ -343,11 +343,13 @@ describe('TursoDriver URL Parsing', () => {
     expect(driver.getTursoConfig().url).toBe(':memory:');
   });
 
-  it('should throw for remote-only URL without syncUrl', () => {
-    expect(() => new TursoDriver({
+  it('should auto-detect remote mode for remote-only URL', () => {
+    const driver = new TursoDriver({
       url: 'libsql://test-db.turso.io',
       authToken: 'test-token',
-    })).toThrow('not supported without "syncUrl"');
+    });
+    expect(driver.transportMode).toBe('remote');
+    expect(driver.isRemote).toBe(true);
   });
 
   it('should accept remote URL when syncUrl is provided', () => {
@@ -396,5 +398,414 @@ describe('TursoDriver Capabilities', () => {
 
     // Schema
     expect(caps.schemaSync).toBe(true);
+  });
+});
+
+// ── Transport Mode Detection ─────────────────────────────────────────────────
+
+describe('TursoDriver Transport Mode Detection', () => {
+  it('should detect local mode for :memory: URL', () => {
+    const driver = new TursoDriver({ url: ':memory:' });
+    expect(driver.transportMode).toBe('local');
+    expect(driver.isRemote).toBe(false);
+  });
+
+  it('should detect local mode for file: URL', () => {
+    const driver = new TursoDriver({ url: 'file:./data/test.db' });
+    expect(driver.transportMode).toBe('local');
+    expect(driver.isRemote).toBe(false);
+  });
+
+  it('should detect replica mode for file: URL with syncUrl', () => {
+    const driver = new TursoDriver({
+      url: 'file:./data/replica.db',
+      syncUrl: 'libsql://test.turso.io',
+      authToken: 'test-token',
+    });
+    expect(driver.transportMode).toBe('replica');
+    expect(driver.isRemote).toBe(false);
+  });
+
+  it('should detect replica mode for :memory: with syncUrl', () => {
+    const driver = new TursoDriver({
+      url: ':memory:',
+      syncUrl: 'libsql://test.turso.io',
+      authToken: 'test-token',
+    });
+    expect(driver.transportMode).toBe('replica');
+    expect(driver.isRemote).toBe(false);
+  });
+
+  it('should detect remote mode for libsql:// URL', () => {
+    const driver = new TursoDriver({
+      url: 'libsql://test-db.turso.io',
+      authToken: 'test-token',
+    });
+    expect(driver.transportMode).toBe('remote');
+    expect(driver.isRemote).toBe(true);
+  });
+
+  it('should detect remote mode for https:// URL', () => {
+    const driver = new TursoDriver({
+      url: 'https://test-db.turso.io',
+      authToken: 'test-token',
+    });
+    expect(driver.transportMode).toBe('remote');
+    expect(driver.isRemote).toBe(true);
+  });
+
+  it('should detect remote mode for wss:// URL', () => {
+    const driver = new TursoDriver({
+      url: 'wss://test-db.turso.io',
+      authToken: 'test-token',
+    });
+    expect(driver.transportMode).toBe('remote');
+    expect(driver.isRemote).toBe(true);
+  });
+
+  it('should respect explicit mode override', () => {
+    // Force remote mode even with a file: URL
+    const driver = new TursoDriver({
+      url: 'file:./data/test.db',
+      mode: 'remote',
+    });
+    expect(driver.transportMode).toBe('remote');
+    expect(driver.isRemote).toBe(true);
+  });
+
+  it('should expose remote transport in remote mode', () => {
+    const driver = new TursoDriver({
+      url: 'libsql://test-db.turso.io',
+      authToken: 'test-token',
+    });
+    expect(driver.getRemoteTransport()).not.toBeNull();
+  });
+
+  it('should not expose remote transport in local mode', () => {
+    const driver = new TursoDriver({ url: ':memory:' });
+    expect(driver.getRemoteTransport()).toBeNull();
+  });
+
+  it('should detect replica mode for libsql:// URL with syncUrl', () => {
+    const driver = new TursoDriver({
+      url: 'libsql://test-db.turso.io',
+      syncUrl: 'libsql://test-db.turso.io',
+      authToken: 'test-token',
+    });
+    expect(driver.transportMode).toBe('replica');
+    expect(driver.isRemote).toBe(false);
+  });
+});
+
+// ── Remote Mode with @libsql/client ──────────────────────────────────────────
+
+describe('TursoDriver Remote Mode (via @libsql/client)', () => {
+  let driver: TursoDriver;
+
+  beforeEach(async () => {
+    // Use @libsql/client in local mode (file::memory:) to test remote transport
+    // without actually connecting to a real Turso cloud instance.
+    // We create a libsql client in memory, then pass it to TursoDriver as a
+    // pre-configured client to exercise the RemoteTransport code path.
+    const { createClient } = await import('@libsql/client');
+    const memClient = createClient({ url: 'file::memory:' });
+
+    // Pre-create the test table
+    await memClient.execute(`
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        age INTEGER
+      )
+    `);
+    await memClient.execute({ sql: `INSERT INTO users (id, name, age) VALUES (?, ?, ?)`, args: ['1', 'Alice', 25] });
+    await memClient.execute({ sql: `INSERT INTO users (id, name, age) VALUES (?, ?, ?)`, args: ['2', 'Bob', 17] });
+    await memClient.execute({ sql: `INSERT INTO users (id, name, age) VALUES (?, ?, ?)`, args: ['3', 'Charlie', 30] });
+    await memClient.execute({ sql: `INSERT INTO users (id, name, age) VALUES (?, ?, ?)`, args: ['4', 'Dave', 17] });
+
+    driver = new TursoDriver({
+      url: 'libsql://test.turso.io',  // Trigger remote mode
+      authToken: 'test-token',
+      client: memClient,               // Inject pre-configured client
+    });
+    await driver.connect();
+  });
+
+  afterEach(async () => {
+    await driver.disconnect();
+  });
+
+  // ── Instantiation & Metadata ─────────────────────────────────────────────
+
+  it('should be in remote mode', () => {
+    expect(driver.transportMode).toBe('remote');
+    expect(driver.isRemote).toBe(true);
+  });
+
+  it('should still be a TursoDriver instance', () => {
+    expect(driver).toBeInstanceOf(TursoDriver);
+    expect(driver).toBeInstanceOf(SqlDriver);
+  });
+
+  it('should have the same name and version', () => {
+    expect(driver.name).toBe('com.objectstack.driver.turso');
+    expect(driver.version).toBe('1.0.0');
+  });
+
+  it('should expose the injected libsql client', () => {
+    expect(driver.getLibsqlClient()).not.toBeNull();
+  });
+
+  // ── Health Check ─────────────────────────────────────────────────────────
+
+  it('should report healthy connection', async () => {
+    const healthy = await driver.checkHealth();
+    expect(healthy).toBe(true);
+  });
+
+  // ── CRUD Operations ──────────────────────────────────────────────────────
+
+  it('should find all records', async () => {
+    const results = await driver.find('users', {});
+    expect(results.length).toBe(4);
+  });
+
+  it('should find records with equality filter', async () => {
+    const results = await driver.find('users', {
+      where: { age: 17 },
+    });
+    expect(results.length).toBe(2);
+    const names = results.map((r: any) => r.name).sort();
+    expect(names).toEqual(['Bob', 'Dave']);
+  });
+
+  it('should find records with $gt filter', async () => {
+    const results = await driver.find('users', {
+      where: { age: { $gt: 18 } },
+      orderBy: [{ field: 'name', order: 'asc' }],
+    });
+    expect(results.length).toBe(2);
+    expect(results.map((r: any) => r.name)).toEqual(['Alice', 'Charlie']);
+  });
+
+  it('should find records with $or filter', async () => {
+    const results = await driver.find('users', {
+      where: {
+        $or: [{ age: 17 }, { age: { $gt: 29 } }],
+      },
+    });
+    const names = results.map((r: any) => r.name).sort();
+    expect(names).toEqual(['Bob', 'Charlie', 'Dave']);
+  });
+
+  it('should find records with field selection', async () => {
+    const results = await driver.find('users', {
+      fields: ['name'],
+      where: { id: '1' },
+    });
+    expect(results.length).toBe(1);
+    expect(results[0].name).toBe('Alice');
+  });
+
+  it('should support limit and offset', async () => {
+    const results = await driver.find('users', {
+      orderBy: [{ field: 'name', order: 'asc' }],
+      limit: 2,
+      offset: 1,
+    });
+    expect(results.length).toBe(2);
+    expect(results[0].name).toBe('Bob');
+    expect(results[1].name).toBe('Charlie');
+  });
+
+  it('should findOne by id', async () => {
+    const result = await driver.findOne('users', '1');
+    expect(result).not.toBeNull();
+    expect(result!.name).toBe('Alice');
+  });
+
+  it('should findOne by query', async () => {
+    const result = await driver.findOne('users', { where: { name: 'Bob' } });
+    expect(result).not.toBeNull();
+    expect(result!.age).toBe(17);
+  });
+
+  it('should return null for findOne with no match', async () => {
+    const result = await driver.findOne('users', { where: { name: 'NonExistent' } });
+    expect(result).toBeNull();
+  });
+
+  it('should create a record', async () => {
+    const created = await driver.create('users', { name: 'Eve', age: 22 });
+    expect(created.id).toBeDefined();
+    expect(created.name).toBe('Eve');
+    expect(created.age).toBe(22);
+  });
+
+  it('should auto-generate id on create', async () => {
+    const created = await driver.create('users', { name: 'Frank', age: 35 });
+    expect(created.id).toBeDefined();
+    expect(typeof created.id).toBe('string');
+    expect((created.id as string).length).toBeGreaterThan(0);
+  });
+
+  it('should update a record', async () => {
+    await driver.update('users', '2', { age: 18 });
+    const updated = await driver.findOne('users', '2');
+    expect(updated!.age).toBe(18);
+  });
+
+  it('should delete a record', async () => {
+    const result = await driver.delete('users', '3');
+    expect(result).toBe(true);
+
+    const deleted = await driver.findOne('users', '3');
+    expect(deleted).toBeNull();
+  });
+
+  it('should return false when deleting non-existent record', async () => {
+    const result = await driver.delete('users', 'non-existent-id');
+    expect(result).toBe(false);
+  });
+
+  it('should count all records', async () => {
+    const count = await driver.count('users');
+    expect(count).toBe(4);
+  });
+
+  it('should count records with filter', async () => {
+    const count = await driver.count('users', { where: { age: 17 } } as any);
+    expect(count).toBe(2);
+  });
+
+  it('should return empty array for no matches', async () => {
+    const results = await driver.find('users', { where: { age: 999 } });
+    expect(results).toEqual([]);
+  });
+
+  // ── Upsert ───────────────────────────────────────────────────────────────
+
+  it('should upsert (insert) a new record', async () => {
+    const result = await driver.upsert('users', { id: 'new-1', name: 'Grace', age: 28 });
+    expect(result.name).toBe('Grace');
+
+    const count = await driver.count('users');
+    expect(count).toBe(5);
+  });
+
+  it('should upsert (update) an existing record', async () => {
+    await driver.upsert('users', { id: '1', name: 'Alice Updated', age: 26 });
+
+    const updated = await driver.findOne('users', '1');
+    expect(updated!.name).toBe('Alice Updated');
+    expect(updated!.age).toBe(26);
+  });
+
+  // ── Bulk Operations ──────────────────────────────────────────────────────
+
+  it('should bulk create records', async () => {
+    const data = [
+      { id: 'b1', name: 'Bulk1', age: 10 },
+      { id: 'b2', name: 'Bulk2', age: 20 },
+    ];
+    const result = await driver.bulkCreate('users', data);
+    expect(result.length).toBe(2);
+  });
+
+  it('should bulk update records', async () => {
+    const updates = [
+      { id: '1', data: { age: 99 } },
+      { id: '2', data: { age: 88 } },
+    ];
+    const result = await driver.bulkUpdate('users', updates);
+    expect(result.length).toBe(2);
+    expect(result[0].age).toBe(99);
+    expect(result[1].age).toBe(88);
+  });
+
+  it('should bulk delete records', async () => {
+    await driver.bulkDelete('users', ['1', '2']);
+    const count = await driver.count('users');
+    expect(count).toBe(2);
+  });
+
+  // ── updateMany / deleteMany ──────────────────────────────────────────────
+
+  it('should updateMany records matching a query', async () => {
+    const count = await driver.updateMany!('users', { where: { age: 17 } }, { age: 18 });
+    expect(count).toBe(2);
+
+    const updated = await driver.find('users', { where: { age: 18 } });
+    expect(updated.length).toBe(2);
+  });
+
+  it('should deleteMany records matching a query', async () => {
+    const count = await driver.deleteMany!('users', { where: { age: 17 } });
+    expect(count).toBe(2);
+
+    const remaining = await driver.count('users');
+    expect(remaining).toBe(2);
+  });
+
+  // ── Raw Execution ────────────────────────────────────────────────────────
+
+  it('should execute raw SQL', async () => {
+    const result = await driver.execute('SELECT COUNT(*) as count FROM users');
+    expect(result).toBeDefined();
+  });
+
+  // ── Schema Sync ──────────────────────────────────────────────────────────
+
+  it('should sync schema and create tables', async () => {
+    await driver.syncSchema('products', {
+      name: 'products',
+      fields: {
+        title: { type: 'string' },
+        price: { type: 'float' },
+        active: { type: 'boolean' },
+      },
+    });
+
+    const created = await driver.create('products', {
+      title: 'Widget',
+      price: 9.99,
+      active: 1,  // SQLite stores boolean as integer
+    });
+
+    expect(created.title).toBe('Widget');
+    expect(created.price).toBe(9.99);
+  });
+
+  it('should drop a table', async () => {
+    await driver.syncSchema('temp_table', {
+      name: 'temp_table',
+      fields: { value: { type: 'string' } },
+    });
+
+    await driver.create('temp_table', { value: 'test' });
+    await driver.dropTable('temp_table');
+
+    // After drop, creating a record should fail
+    await expect(driver.create('temp_table', { value: 'test' })).rejects.toThrow();
+  });
+
+  // ── findStream ───────────────────────────────────────────────────────────
+
+  it('should stream records via findStream', async () => {
+    const records: any[] = [];
+    for await (const record of driver.findStream('users', {})) {
+      records.push(record);
+    }
+    expect(records.length).toBe(4);
+  });
+
+  // ── Sorting ──────────────────────────────────────────────────────────────
+
+  it('should sort results', async () => {
+    const results = await driver.find('users', {
+      orderBy: [{ field: 'age', order: 'desc' }],
+    });
+    expect(results[0].name).toBe('Charlie');
+    expect(results[results.length - 1].age).toBe(17);
   });
 });

@@ -1,24 +1,35 @@
 # @objectstack/driver-turso
 
-Turso/libSQL driver for ObjectStack — edge-first SQLite with embedded replicas and database-per-tenant multi-tenancy.
+Turso/libSQL driver for ObjectStack — edge-first SQLite with embedded replicas, cloud-only remote mode, and database-per-tenant multi-tenancy.
 
 ## Architecture
 
-`TursoDriver` **extends** `SqlDriver` from `@objectstack/driver-sql`. All CRUD operations, schema management, filtering, aggregation, window functions, introspection, and transactions are **inherited** — zero duplicated query/schema code.
+`TursoDriver` implements a **dual-transport architecture**:
+
+- **Local/Replica modes:** Extends `SqlDriver` from `@objectstack/driver-sql`. All CRUD, schema, filtering, aggregation, window functions, introspection, and transactions are **inherited** via Knex + better-sqlite3.
+- **Remote mode:** Delegates all operations to `RemoteTransport` which uses `@libsql/client` SDK directly (HTTP/WebSocket). No local SQLite or Knex dependency needed.
 
 ```
-TursoDriver extends SqlDriver (via Knex + better-sqlite3)
-├── Inherited: find, findOne, create, update, delete, count, upsert
-├── Inherited: bulkCreate, bulkUpdate, bulkDelete, updateMany, deleteMany
-├── Inherited: syncSchema, dropTable, introspectSchema
-├── Inherited: aggregate, distinct, findWithWindowFunctions
-├── Inherited: beginTransaction, commit, rollback
-├── Inherited: applyFilters (MongoDB-style + array-style)
+TursoDriver extends SqlDriver (dual transport)
+├── Transport: local/replica (via Knex + better-sqlite3)
+│   ├── Inherited: find, findOne, create, update, delete, count, upsert
+│   ├── Inherited: bulkCreate, bulkUpdate, bulkDelete, updateMany, deleteMany
+│   ├── Inherited: syncSchema, dropTable, introspectSchema
+│   ├── Inherited: aggregate, distinct, findWithWindowFunctions
+│   ├── Inherited: beginTransaction, commit, rollback
+│   └── Inherited: applyFilters (MongoDB-style + array-style)
+├── Transport: remote (via @libsql/client)
+│   ├── RemoteTransport: find, findOne, create, update, delete, count, upsert
+│   ├── RemoteTransport: bulkCreate, bulkUpdate, bulkDelete, updateMany, deleteMany
+│   ├── RemoteTransport: syncSchema, dropTable
+│   ├── RemoteTransport: beginTransaction, commit, rollback
+│   └── RemoteTransport: execute (raw SQL)
 ├── Override:  name, version, supports (Turso-specific capabilities)
-├── Override:  connect / disconnect (libSQL client lifecycle)
+├── Override:  connect / disconnect (transport-aware lifecycle)
+├── Added:     transportMode ('local' | 'replica' | 'remote')
 ├── Added:     sync() — Embedded replica sync via @libsql/client
 ├── Added:     Multi-tenant router with TTL cache
-└── Added:     TursoDriverConfig (url, authToken, syncUrl, encryptionKey)
+└── Added:     TursoDriverConfig (url, authToken, syncUrl, mode, client)
 ```
 
 ## Installation
@@ -69,9 +80,63 @@ await driver.connect();
 await driver.sync();
 ```
 
-> **Note:** Remote-only URLs (`url: 'libsql://...'`) without `syncUrl` are
-> not supported and will throw. Always use a local `file:` or `:memory:` URL
-> as the primary store. For remote persistence, use embedded replica mode with `syncUrl`.
+### Remote (Cloud-Only)
+
+Pure remote queries via `@libsql/client` — no local SQLite needed.
+Ideal for Vercel, Cloudflare Workers, and other serverless/edge runtimes:
+
+```typescript
+const driver = new TursoDriver({
+  url: 'libsql://my-db-orgname.turso.io',
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
+await driver.connect();
+
+// All CRUD operations work the same as local mode
+const users = await driver.find('users', { where: { active: true } });
+```
+
+### Auto-Detection
+
+Transport mode is automatically detected from the URL:
+
+| URL Pattern | Mode | Engine |
+|:---|:---|:---|
+| `file:./data/app.db` | `local` | Knex + better-sqlite3 |
+| `:memory:` | `local` | Knex + better-sqlite3 |
+| `file:...` + `syncUrl` | `replica` | Knex + @libsql/client sync |
+| `libsql://...` | `remote` | @libsql/client only |
+| `https://...` | `remote` | @libsql/client only |
+
+You can also force a specific mode:
+
+```typescript
+const driver = new TursoDriver({
+  url: 'libsql://my-db.turso.io',
+  authToken: process.env.TURSO_AUTH_TOKEN,
+  mode: 'remote', // Force remote mode
+});
+```
+
+### Custom Client
+
+Pass a pre-configured `@libsql/client` instance for advanced use cases
+(custom caching, connection pooling, testing):
+
+```typescript
+import { createClient } from '@libsql/client';
+
+const client = createClient({
+  url: 'libsql://my-db.turso.io',
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
+
+const driver = new TursoDriver({
+  url: 'libsql://my-db.turso.io',
+  client, // Inject pre-configured client
+});
+await driver.connect();
+```
 
 ## Multi-Tenant Routing
 
@@ -119,21 +184,27 @@ Concurrent `getDriverForTenant()` calls for the same tenant are deduplicated —
 
 ```typescript
 interface TursoDriverConfig {
-  /** Database URL for the local store (file: or :memory:) */
+  /**
+   * Database URL.
+   * - file:./data/local.db → local mode
+   * - :memory: → local mode (ephemeral)
+   * - libsql://my-db.turso.io → remote mode
+   * - https://my-db.turso.io → remote mode
+   */
   url: string;
 
-  /** JWT auth token for the remote Turso database (used with syncUrl) */
+  /** JWT auth token for the remote Turso database */
   authToken?: string;
 
   /**
    * AES-256 encryption key for local database file.
-   * Only effective in embedded replica mode (requires syncUrl).
+   * Only effective in local/replica modes.
    */
   encryptionKey?: string;
 
   /**
    * Maximum concurrent requests to the remote database.
-   * Only effective in embedded replica mode (requires syncUrl).
+   * Effective in replica and remote modes.
    * Default: 20
    */
   concurrency?: number;
@@ -149,9 +220,21 @@ interface TursoDriverConfig {
 
   /**
    * Operation timeout in milliseconds for remote operations.
-   * Only effective in embedded replica mode (requires syncUrl).
+   * Effective in replica and remote modes.
    */
   timeout?: number;
+
+  /**
+   * Force a specific transport mode.
+   * If not set, mode is auto-detected from the URL.
+   */
+  mode?: 'local' | 'replica' | 'remote';
+
+  /**
+   * Pre-configured @libsql/client instance.
+   * Useful for custom caching, connection pooling, or testing.
+   */
+  client?: Client;
 }
 ```
 
@@ -159,16 +242,17 @@ interface TursoDriverConfig {
 
 TursoDriver declares enhanced capabilities beyond the base SqlDriver:
 
-| Capability | SqlDriver | TursoDriver |
-|:---|:---:|:---:|
-| FTS5 Full-Text Search | ❌ | ✅ |
-| JSON1 Query | ❌ | ✅ |
-| Common Table Expressions | ❌ | ✅ |
-| Savepoints | ❌ | ✅ |
-| Indexes | ❌ | ✅ |
-| Connection Pooling | ✅ | ❌ (concurrency limits) |
-| Embedded Replica Sync | — | ✅ |
-| Multi-Tenant Routing | — | ✅ |
+| Capability | SqlDriver | TursoDriver (local) | TursoDriver (remote) |
+|:---|:---:|:---:|:---:|
+| FTS5 Full-Text Search | ❌ | ✅ | ✅ |
+| JSON1 Query | ❌ | ✅ | ✅ |
+| Common Table Expressions | ❌ | ✅ | ✅ |
+| Savepoints | ❌ | ✅ | ✅ |
+| Indexes | ❌ | ✅ | ✅ |
+| Connection Pooling | ✅ | ❌ (concurrency limits) | ❌ |
+| Embedded Replica Sync | — | ✅ | — |
+| Multi-Tenant Routing | — | ✅ | ✅ |
+| Serverless/Edge | — | — | ✅ |
 
 ## Plugin Registration
 
