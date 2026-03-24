@@ -227,6 +227,37 @@ describe('TursoDriver (SQLite Integration)', () => {
     expect(created.price).toBe(9.99);
   });
 
+  it('should batch-sync multiple schemas in local mode (sequential fallback)', async () => {
+    await driver.syncSchemasBatch([
+      {
+        object: 'local_orders',
+        schema: {
+          name: 'local_orders',
+          fields: {
+            product: { type: 'string' },
+            quantity: { type: 'integer' },
+          },
+        },
+      },
+      {
+        object: 'local_invoices',
+        schema: {
+          name: 'local_invoices',
+          fields: {
+            amount: { type: 'float' },
+          },
+        },
+      },
+    ]);
+
+    // Verify tables were created
+    const order = await driver.create('local_orders', { product: 'Gadget', quantity: 3 });
+    expect(order.product).toBe('Gadget');
+
+    const invoice = await driver.create('local_invoices', { amount: 42.0 });
+    expect(invoice.amount).toBe(42.0);
+  });
+
   // ── Raw Execution ────────────────────────────────────────────────────────
 
   it('should execute raw SQL', async () => {
@@ -807,5 +838,76 @@ describe('TursoDriver Remote Mode (via @libsql/client)', () => {
     });
     expect(results[0].name).toBe('Charlie');
     expect(results[results.length - 1].age).toBe(17);
+  });
+
+  // ── Batch Schema Sync ──────────────────────────────────────────────────
+
+  it('should advertise batchSchemaSync capability', () => {
+    expect(driver.supports.batchSchemaSync).toBe(true);
+  });
+
+  it('should batch-sync multiple schemas in one call', async () => {
+    await driver.syncSchemasBatch([
+      {
+        object: 'orders',
+        schema: {
+          name: 'orders',
+          fields: {
+            product: { type: 'string' },
+            quantity: { type: 'integer' },
+          },
+        },
+      },
+      {
+        object: 'invoices',
+        schema: {
+          name: 'invoices',
+          fields: {
+            amount: { type: 'float' },
+            paid: { type: 'boolean' },
+          },
+        },
+      },
+    ]);
+
+    // Verify tables were created
+    const order = await driver.create('orders', { product: 'Widget', quantity: 5 });
+    expect(order.product).toBe('Widget');
+
+    const invoice = await driver.create('invoices', { amount: 99.99, paid: 1 });
+    expect(invoice.amount).toBe(99.99);
+  });
+
+  it('should batch-sync add columns to existing tables', async () => {
+    // First create a table
+    await driver.syncSchema('items', {
+      name: 'items',
+      fields: {
+        title: { type: 'string' },
+      },
+    });
+
+    // Now batch-sync with a new column
+    await driver.syncSchemasBatch([
+      {
+        object: 'items',
+        schema: {
+          name: 'items',
+          fields: {
+            title: { type: 'string' },
+            description: { type: 'text' },
+          },
+        },
+      },
+    ]);
+
+    // Verify the new column works
+    const item = await driver.create('items', { title: 'Test', description: 'A description' });
+    expect(item.title).toBe('Test');
+    expect(item.description).toBe('A description');
+  });
+
+  it('should handle empty batch gracefully', async () => {
+    await expect(driver.syncSchemasBatch([])).resolves.not.toThrow();
   });
 });

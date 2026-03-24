@@ -213,6 +213,14 @@ export const DriverCapabilitiesSchema = z.object({
    * Whether the driver supports automatic schema synchronization.
    */
   schemaSync: z.boolean().default(false).describe('Supports automatic schema synchronization'),
+
+  /**
+   * Whether the driver supports batching multiple schema sync operations
+   * into a single (or fewer) round-trips for the DDL phase. When true,
+   * the engine may call `syncSchemasBatch()` instead of calling
+   * `syncSchema()` per object, reducing network round-trips for remote drivers.
+   */
+  batchSchemaSync: z.boolean().default(false).describe('Supports batched schema sync to reduce schema DDL round-trips'),
   
   /**
    * Whether the driver supports database migrations.
@@ -575,6 +583,25 @@ export const DriverInterfaceSchema = z.object({
     .input(z.tuple([z.string(), z.unknown(), DriverOptionsSchema.optional()]))
     .output(z.promise(z.void()))
     .describe('Sync object schema to DB'),
+
+  /**
+   * Batch-synchronize multiple object schemas with fewer round-trips.
+   *
+   * Drivers that advertise `supports.batchSchemaSync = true` MUST implement
+   * this method.  The engine will call it once with every
+   * `{ object, schema }` pair instead of calling `syncSchema()` N times.
+   *
+   * @param schemas - Array of `{ object: string; schema: unknown }` pairs.
+   * @param options - Driver options.
+   */
+  syncSchemasBatch: z.function()
+    .input(z.tuple([
+      z.array(z.object({ object: z.string(), schema: z.unknown() })),
+      DriverOptionsSchema.optional(),
+    ]))
+    .output(z.promise(z.void()))
+    .optional()
+    .describe('Batch sync multiple schemas in one round-trip'),
   
   /**
    * Drop the underlying table or collection for an object.

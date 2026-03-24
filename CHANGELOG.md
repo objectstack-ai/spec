@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   invocations on Vercel. The browser MSW mock kernel remains unchanged (InMemoryDriver).
 
 ### Added
+- **Batch schema sync for remote DDL in kernel bootstrap** — `ObjectQLPlugin.syncRegisteredSchemas()`
+  now groups objects by driver and uses `syncSchemasBatch()` when the driver advertises
+  `supports.batchSchemaSync = true`. This reduces the number of remote DDL round-trips from
+  roughly N×(2–3) individual calls (introspection + optional PRAGMA + DDL write per object)
+  to a small constant number of batched `client.batch()` calls, cutting cold-start times from
+  58+ seconds to under 10 seconds for 100+ objects on remote drivers (e.g. Turso cloud).
+  Falls back to sequential `syncSchema()` per object for drivers without batch support or if the
+  batched calls fail at runtime. Added `batchSchemaSync` capability flag to `DriverCapabilitiesSchema`,
+  optional `syncSchemasBatch()` to `IDataDriver`, and `RemoteTransport.syncSchemasBatch()` using
+  `@libsql/client`'s `batch()` API.
 - **`@objectstack/driver-turso` — dual transport architecture** — TursoDriver now supports three
   transport modes: `local`, `replica`, and `remote`. Remote mode (`url: 'libsql://...'`) enables
   pure cloud-only queries via `@libsql/client` SDK (HTTP/WebSocket) without requiring a local
