@@ -127,6 +127,42 @@ describe('FileI18nAdapter', () => {
     expect(i18n.t('missing.key', 'zh-CN')).toBe('missing.key');
   });
 
+  it('should deep-merge nested objects from multiple plugins', () => {
+    const i18n = new FileI18nAdapter();
+
+    // Plugin 1: CRM objects
+    i18n.loadTranslations('en', {
+      objects: {
+        account: { label: 'Account', fields: { name: { label: 'Account Name' } } },
+        contact: { label: 'Contact' },
+      },
+      apps: { crm: { label: 'CRM' } },
+    });
+
+    // Plugin 2: HR objects
+    i18n.loadTranslations('en', {
+      objects: {
+        department: { label: 'Department', fields: { name: { label: 'Department Name' } } },
+        employee: { label: 'Employee' },
+      },
+      apps: { hr: { label: 'HR' } },
+    });
+
+    const data = i18n.getTranslations('en');
+
+    // Both plugins' objects must be preserved (not overwritten)
+    expect(i18n.t('objects.account.label', 'en')).toBe('Account');
+    expect(i18n.t('objects.contact.label', 'en')).toBe('Contact');
+    expect(i18n.t('objects.department.label', 'en')).toBe('Department');
+    expect(i18n.t('objects.employee.label', 'en')).toBe('Employee');
+    expect(i18n.t('objects.account.fields.name.label', 'en')).toBe('Account Name');
+    expect(i18n.t('objects.department.fields.name.label', 'en')).toBe('Department Name');
+
+    // Both plugins' apps must be preserved
+    expect((data as any).apps.crm.label).toBe('CRM');
+    expect((data as any).apps.hr.label).toBe('HR');
+  });
+
   describe('file-based loading', () => {
     let tmpDir: string;
 

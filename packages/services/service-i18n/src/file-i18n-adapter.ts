@@ -34,6 +34,34 @@ function resolveKey(data: Record<string, unknown>, key: string): string | undefi
 }
 
 /**
+ * Deep-merge two plain objects recursively.
+ * Arrays and non-plain-object values from `source` overwrite those in `target`.
+ */
+function deepMerge(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>,
+): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...target };
+  for (const key of Object.keys(source)) {
+    const tVal = target[key];
+    const sVal = source[key];
+    if (
+      tVal && sVal
+      && typeof tVal === 'object' && !Array.isArray(tVal)
+      && typeof sVal === 'object' && !Array.isArray(sVal)
+    ) {
+      result[key] = deepMerge(
+        tVal as Record<string, unknown>,
+        sVal as Record<string, unknown>,
+      );
+    } else {
+      result[key] = sVal;
+    }
+  }
+  return result;
+}
+
+/**
  * Interpolate parameters into a translated string.
  * Replaces `{{paramName}}` with the corresponding value from params.
  *
@@ -115,8 +143,9 @@ export class FileI18nAdapter implements II18nService {
   loadTranslations(locale: string, translations: Record<string, unknown>): void {
     const existing = this.translations.get(locale);
     if (existing) {
-      // Merge into existing translations
-      this.translations.set(locale, { ...existing, ...translations });
+      // Deep-merge so multiple plugins can contribute to the same nested keys
+      // (e.g. each plugin adds its own objects under `objects.*`)
+      this.translations.set(locale, deepMerge(existing, translations));
     } else {
       this.translations.set(locale, { ...translations });
     }
