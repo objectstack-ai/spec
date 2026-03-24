@@ -216,11 +216,11 @@ export const DriverCapabilitiesSchema = z.object({
 
   /**
    * Whether the driver supports batching multiple schema sync operations
-   * into a single round-trip. When true, the engine may call
-   * `syncSchemasBatch()` instead of calling `syncSchema()` per object,
-   * drastically reducing network round-trips for remote drivers.
+   * into a single (or fewer) round-trips for the DDL phase. When true,
+   * the engine may call `syncSchemasBatch()` instead of calling
+   * `syncSchema()` per object, reducing network round-trips for remote drivers.
    */
-  batchSchemaSync: z.boolean().default(false).describe('Supports batched schema sync (single round-trip DDL)'),
+  batchSchemaSync: z.boolean().default(false).describe('Supports batched schema sync to reduce schema DDL round-trips'),
   
   /**
    * Whether the driver supports database migrations.
@@ -585,7 +585,7 @@ export const DriverInterfaceSchema = z.object({
     .describe('Sync object schema to DB'),
 
   /**
-   * Batch-synchronize multiple object schemas in a single round-trip.
+   * Batch-synchronize multiple object schemas with fewer round-trips.
    *
    * Drivers that advertise `supports.batchSchemaSync = true` MUST implement
    * this method.  The engine will call it once with every

@@ -378,15 +378,17 @@ export class RemoteTransport {
   }
 
   /**
-   * Batch-synchronize multiple object schemas in a single round-trip.
+   * Batch-synchronize multiple object schemas using batched libsql calls.
    *
    * Collects all DDL statements (CREATE TABLE / ALTER TABLE ADD COLUMN)
-   * for every schema and submits them via `client.batch()` in a single
-   * network call.  This reduces N × (2–3) HTTP round-trips to exactly 2:
-   * one batch to introspect existing tables, and one batch to apply DDL.
+   * for every schema and uses `client.batch()` to minimize network
+   * round-trips. The process may perform up to three batch calls:
+   * one to introspect existing tables, one to introspect columns for
+   * existing tables, and one to apply DDL statements.
    *
-   * Falls back to sequential `syncSchema()` if the batch call fails
-   * (e.g. unsupported by the libsql endpoint).
+   * This method does not implement an internal fallback to sequential
+   * `syncSchema()`. Any fallback behavior is expected to be handled
+   * by the caller if a batch operation is not supported or fails.
    */
   async syncSchemasBatch(schemas: Array<{ object: string; schema: any }>): Promise<void> {
     this.ensureClient();
