@@ -106,7 +106,7 @@ export function createObjectQLAdapterFactory(dataEngine: IDataEngine) {
       ): Promise<T | null> => {
         const filter = convertWhere(where);
 
-        const result = await dataEngine.findOne(model, { filter, select });
+        const result = await dataEngine.findOne(model, { where: filter, fields: select });
 
         return result ? (result as T) : null;
       },
@@ -119,15 +119,15 @@ export function createObjectQLAdapterFactory(dataEngine: IDataEngine) {
       ): Promise<T[]> => {
         const filter = where ? convertWhere(where) : {};
 
-        const sort = sortBy
+        const orderBy = sortBy
           ? [{ field: sortBy.field, order: sortBy.direction as 'asc' | 'desc' }]
           : undefined;
 
         const results = await dataEngine.find(model, {
-          filter,
+          where: filter,
           limit: limit || 100,
-          skip: offset,
-          sort,
+          offset,
+          orderBy,
         });
 
         return results as T[];
@@ -137,7 +137,7 @@ export function createObjectQLAdapterFactory(dataEngine: IDataEngine) {
         { model, where }: { model: string; where?: CleanedWhere[] },
       ): Promise<number> => {
         const filter = where ? convertWhere(where) : {};
-        return await dataEngine.count(model, { filter });
+        return await dataEngine.count(model, { where: filter });
       },
 
       update: async <T>(
@@ -146,7 +146,7 @@ export function createObjectQLAdapterFactory(dataEngine: IDataEngine) {
         const filter = convertWhere(where);
 
         // ObjectQL requires an ID for updates – find the record first
-        const record = await dataEngine.findOne(model, { filter });
+        const record = await dataEngine.findOne(model, { where: filter });
         if (!record) return null;
 
         const result = await dataEngine.update(model, { ...(update as any), id: record.id });
@@ -159,7 +159,7 @@ export function createObjectQLAdapterFactory(dataEngine: IDataEngine) {
         const filter = convertWhere(where);
 
         // Sequential updates: ObjectQL requires an ID per update
-        const records = await dataEngine.find(model, { filter });
+        const records = await dataEngine.find(model, { where: filter });
         for (const record of records) {
           await dataEngine.update(model, { ...update, id: record.id });
         }
@@ -171,10 +171,10 @@ export function createObjectQLAdapterFactory(dataEngine: IDataEngine) {
       ): Promise<void> => {
         const filter = convertWhere(where);
 
-        const record = await dataEngine.findOne(model, { filter });
+        const record = await dataEngine.findOne(model, { where: filter });
         if (!record) return;
 
-        await dataEngine.delete(model, { filter: { id: record.id } });
+        await dataEngine.delete(model, { where: { id: record.id } });
       },
 
       deleteMany: async (
@@ -182,9 +182,9 @@ export function createObjectQLAdapterFactory(dataEngine: IDataEngine) {
       ): Promise<number> => {
         const filter = convertWhere(where);
 
-        const records = await dataEngine.find(model, { filter });
+        const records = await dataEngine.find(model, { where: filter });
         for (const record of records) {
-          await dataEngine.delete(model, { filter: { id: record.id } });
+          await dataEngine.delete(model, { where: { id: record.id } });
         }
         return records.length;
       },
@@ -221,28 +221,28 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
     findOne: async <T>({ model, where, select, join: _join }: { model: string; where: CleanedWhere[]; select?: string[]; join?: any }): Promise<T | null> => {
       const objectName = resolveProtocolName(model);
       const filter = convertWhere(where);
-      const result = await dataEngine.findOne(objectName, { filter, select });
+      const result = await dataEngine.findOne(objectName, { where: filter, fields: select });
       return result ? result as T : null;
     },
 
     findMany: async <T>({ model, where, limit, offset, sortBy, join: _join }: { model: string; where?: CleanedWhere[]; limit: number; offset?: number; sortBy?: { field: string; direction: 'asc' | 'desc' }; join?: any }): Promise<T[]> => {
       const objectName = resolveProtocolName(model);
       const filter = where ? convertWhere(where) : {};
-      const sort = sortBy ? [{ field: sortBy.field, order: sortBy.direction as 'asc' | 'desc' }] : undefined;
-      const results = await dataEngine.find(objectName, { filter, limit: limit || 100, skip: offset, sort });
+      const orderBy = sortBy ? [{ field: sortBy.field, order: sortBy.direction as 'asc' | 'desc' }] : undefined;
+      const results = await dataEngine.find(objectName, { where: filter, limit: limit || 100, offset, orderBy });
       return results as T[];
     },
 
     count: async ({ model, where }: { model: string; where?: CleanedWhere[] }): Promise<number> => {
       const objectName = resolveProtocolName(model);
       const filter = where ? convertWhere(where) : {};
-      return await dataEngine.count(objectName, { filter });
+      return await dataEngine.count(objectName, { where: filter });
     },
 
     update: async <T>({ model, where, update }: { model: string; where: CleanedWhere[]; update: Record<string, any> }): Promise<T | null> => {
       const objectName = resolveProtocolName(model);
       const filter = convertWhere(where);
-      const record = await dataEngine.findOne(objectName, { filter });
+      const record = await dataEngine.findOne(objectName, { where: filter });
       if (!record) return null;
       const result = await dataEngine.update(objectName, { ...update, id: record.id });
       return result ? result as T : null;
@@ -251,7 +251,7 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
     updateMany: async ({ model, where, update }: { model: string; where: CleanedWhere[]; update: Record<string, any> }): Promise<number> => {
       const objectName = resolveProtocolName(model);
       const filter = convertWhere(where);
-      const records = await dataEngine.find(objectName, { filter });
+      const records = await dataEngine.find(objectName, { where: filter });
       for (const record of records) {
         await dataEngine.update(objectName, { ...update, id: record.id });
       }
@@ -261,17 +261,17 @@ export function createObjectQLAdapter(dataEngine: IDataEngine) {
     delete: async ({ model, where }: { model: string; where: CleanedWhere[] }): Promise<void> => {
       const objectName = resolveProtocolName(model);
       const filter = convertWhere(where);
-      const record = await dataEngine.findOne(objectName, { filter });
+      const record = await dataEngine.findOne(objectName, { where: filter });
       if (!record) return;
-      await dataEngine.delete(objectName, { filter: { id: record.id } });
+      await dataEngine.delete(objectName, { where: { id: record.id } });
     },
 
     deleteMany: async ({ model, where }: { model: string; where: CleanedWhere[] }): Promise<number> => {
       const objectName = resolveProtocolName(model);
       const filter = convertWhere(where);
-      const records = await dataEngine.find(objectName, { filter });
+      const records = await dataEngine.find(objectName, { where: filter });
       for (const record of records) {
-        await dataEngine.delete(objectName, { filter: { id: record.id } });
+        await dataEngine.delete(objectName, { where: { id: record.id } });
       }
       return records.length;
     },
