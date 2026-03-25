@@ -752,6 +752,11 @@ export class ObjectQL implements IDataEngine {
     const ast: QueryAST = { object, ...query };
     // Remove context from the AST — it's not a driver concern
     delete (ast as any).context;
+    // Normalize OData `top` alias → standard `limit`
+    if ((ast as any).top != null && ast.limit == null) {
+      ast.limit = (ast as any).top;
+    }
+    delete (ast as any).top;
 
     const opCtx: OperationContext = {
       object,
@@ -799,8 +804,9 @@ export class ObjectQL implements IDataEngine {
     this.logger.debug('FindOne operation', { objectName });
     const driver = this.getDriver(objectName);
     const ast: QueryAST = { object: objectName, ...query, limit: 1 };
-    // Remove context from the AST — it's not a driver concern
+    // Remove context and top alias from the AST
     delete (ast as any).context;
+    delete (ast as any).top;
 
     const opCtx: OperationContext = {
       object: objectName,

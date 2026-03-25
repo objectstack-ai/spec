@@ -283,10 +283,15 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         // Normalize legacy params → QueryAST standard (where/fields/orderBy/offset/expand)
         // ====================================================================
 
-        // Numeric fields
-        if (options.top != null) options.top = Number(options.top);
-        if (options.skip != null) options.offset = Number(options.skip);
-        delete options.skip;
+        // Numeric fields — normalize top → limit, skip → offset
+        if (options.top != null) {
+            options.limit = Number(options.top);
+            delete options.top;
+        }
+        if (options.skip != null) {
+            options.offset = Number(options.skip);
+            delete options.skip;
+        }
         if (options.limit != null) options.limit = Number(options.limit);
         if (options.offset != null) options.offset = Number(options.offset);
 

@@ -118,7 +118,7 @@ describe('ObjectStackProtocolImplementation - Data Operations', () => {
             expect(mockEngine.find).toHaveBeenCalledWith(
                 'task',
                 expect.objectContaining({
-                    top: 10,
+                    limit: 10,
                     offset: 20,
                 }),
             );
