@@ -21,7 +21,7 @@
     "@objectstack/spec": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "@objectstack/cli": "workspace:*"
+    "@objectstack/cli": "workspace:*",
+    "typescript": "^5.9.3"
   }
 }

@@ -13,21 +13,21 @@
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
-    "@objectstack/driver-memory": "workspace:*",
     "@example/app-crm": "workspace:*",
     "@example/app-todo": "workspace:*",
+    "@example/plugin-bi": "workspace:*",
+    "@objectstack/driver-memory": "workspace:*",
     "@objectstack/metadata": "workspace:*",
     "@objectstack/objectql": "workspace:*",
-    "@example/plugin-bi": "workspace:*",
     "@objectstack/plugin-auth": "workspace:*",
     "@objectstack/plugin-hono-server": "workspace:*",
     "@objectstack/runtime": "workspace:*",
     "@objectstack/spec": "workspace:*"
   },
   "devDependencies": {
-    "ts-node": "^10.9.1",
+    "@objectstack/cli": "workspace:*",
+    "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.0.0",
-    "@objectstack/cli": "workspace:*"
+    "typescript": "^5.9.3"
   }
 }

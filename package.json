@@ -30,10 +30,10 @@
   "devDependencies": {
     "@changesets/cli": "^2.30.0",
     "@types/node": "^25.5.0",
-    "tsup": "^8.0.2",
+    "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "turbo": "^2.8.20",
-    "typescript": "^5.3.0"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "@objectstack/driver-memory": "workspace:*",

@@ -23,11 +23,11 @@
   "peerDependencies": {
     "@objectstack/driver-memory": "workspace:^",
     "@objectstack/objectql": "workspace:^",
-    "@objectstack/runtime": "workspace:^",
     "@objectstack/plugin-auth": "workspace:^",
     "@objectstack/plugin-hono-server": "workspace:^",
     "@objectstack/plugin-security": "workspace:^",
     "@objectstack/rest": "workspace:^",
+    "@objectstack/runtime": "workspace:^",
     "@objectstack/service-i18n": "workspace:^"
   },
   "peerDependenciesMeta": {
@@ -59,14 +59,14 @@
   "devDependencies": {
     "@objectstack/driver-memory": "workspace:*",
     "@objectstack/objectql": "workspace:*",
-    "@objectstack/runtime": "workspace:*",
     "@objectstack/plugin-auth": "workspace:*",
     "@objectstack/plugin-hono-server": "workspace:*",
     "@objectstack/plugin-security": "workspace:*",
     "@objectstack/rest": "workspace:*",
+    "@objectstack/runtime": "workspace:*",
     "@objectstack/service-i18n": "workspace:*",
     "@types/node": "^25.5.0",
-    "typescript": "^5.0.0",
-    "vitest": "^4.1.0"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.2"
   }
 }

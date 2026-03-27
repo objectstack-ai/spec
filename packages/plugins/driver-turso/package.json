@@ -29,16 +29,16 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.2",
     "@objectstack/core": "workspace:*",
     "@objectstack/driver-sql": "workspace:*",
     "@objectstack/spec": "workspace:*",
-    "@libsql/client": "^0.17.2",
     "better-sqlite3": "^12.8.0",
     "nanoid": "^5.1.7"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
-    "typescript": "^5.0.0",
-    "vitest": "^4.1.0"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.2"
   }
 }

@@ -17,6 +17,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@hono/node-server": "^1.19.11",
     "@objectstack/client": "workspace:*",
     "@objectstack/client-react": "workspace:*",
     "@objectstack/driver-memory": "workspace:*",
@@ -24,15 +25,13 @@
     "@objectstack/hono": "workspace:*",
     "@objectstack/metadata": "workspace:*",
     "@objectstack/objectql": "workspace:*",
-    "@objectstack/plugin-auth": "workspace:*",
     "@objectstack/plugin-audit": "workspace:*",
+    "@objectstack/plugin-auth": "workspace:*",
     "@objectstack/plugin-msw": "workspace:*",
     "@objectstack/plugin-security": "workspace:*",
     "@objectstack/runtime": "workspace:*",
     "@objectstack/service-feed": "workspace:*",
     "@objectstack/spec": "workspace:*",
-    "hono": "^4.12.8",
-    "@hono/node-server": "^1.19.11",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-checkbox": "^1.3.3",
     "@radix-ui/react-collapsible": "^1.1.12",
@@ -50,10 +49,11 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "hono": "^4.12.9",
     "lucide-react": "^0.577.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "react-resizable-panels": "^4.7.5",
+    "react-resizable-panels": "^4.7.6",
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
@@ -63,14 +63,14 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.4.27",
-    "happy-dom": "^20.8.4",
+    "esbuild": "^0.25.12",
+    "happy-dom": "^20.8.9",
     "msw": "^2.12.14",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.2",
-    "typescript": "^5.0.0",
-    "vite": "^8.0.1",
-    "vitest": "^4.1.0",
-    "esbuild": "^0.25.0"
+    "typescript": "^5.9.3",
+    "vite": "^8.0.3",
+    "vitest": "^4.1.2"
   },
   "msw": {
     "workerDirectory": [

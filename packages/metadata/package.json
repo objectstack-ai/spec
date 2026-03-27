@@ -41,15 +41,15 @@
     "@objectstack/core": "workspace:*",
     "@objectstack/spec": "workspace:*",
     "@objectstack/types": "workspace:*",
-    "glob": "^13.0.6",
-    "js-yaml": "^4.1.0",
     "chokidar": "^5.0.0",
+    "glob": "^13.0.6",
+    "js-yaml": "^4.1.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.5.0",
-    "typescript": "^5.0.0",
-    "vitest": "^4.1.0"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.2"
   }
 }
