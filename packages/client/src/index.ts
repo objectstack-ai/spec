@@ -1686,13 +1686,15 @@ export class ObjectStackClient {
    * ObjectStack uses standard conventions: /api/v1/data, /api/v1/meta, /api/v1/ui
    */
   private getRoute(type: ApiRouteType): string {
-    // 1. Use discovered routes if available
+    // 1. Use discovered routes if available (only for ApiRoutes keys, not client-specific keys)
     const routes = this.discoveryInfo?.routes;
-    if (routes && type in routes) {
-        return routes[type as keyof ApiRoutes] as string;
+    if (routes) {
+        const key = type as keyof ApiRoutes;
+        const discovered = routes[key];
+        if (discovered) return discovered;
     }
 
-    // 2. Fallback to conventions
+    // 2. Fallback to conventions (covers all ApiRoutes keys + client-specific virtual routes)
     const routeMap: Record<ApiRouteType, string> = {
       data: '/api/v1/data',
       metadata: '/api/v1/meta',
