@@ -87,8 +87,16 @@ import {
   SubscribeResponse,
   UnsubscribeResponse,
   WellKnownCapabilities,
+  ApiRoutes,
 } from '@objectstack/spec/api';
 import { Logger, createLogger } from '@objectstack/core';
+
+/**
+ * Route types that the client can resolve.
+ * Covers all keys from `ApiRoutes` (the discovery schema) plus
+ * client-specific virtual routes (`views`, `permissions`).
+ */
+export type ApiRouteType = keyof ApiRoutes | 'views' | 'permissions';
 
 export interface ClientConfig {
   baseUrl: string;
@@ -238,10 +246,10 @@ export class ObjectStackClient {
         this.logger.debug('Standard discovery probe failed', { error: (e as Error).message });
       }
 
-      // 2. Fallback to Legacy/Direct Path /api/v1
+      // 2. Fallback to Protocol-standard Discovery Path /api/v1/discovery
       if (!data) {
-        const fallbackUrl = `${this.baseUrl}/api/v1`;
-        this.logger.debug('Falling back to legacy discovery', { url: fallbackUrl });
+        const fallbackUrl = `${this.baseUrl}/api/v1/discovery`;
+        this.logger.debug('Falling back to standard discovery endpoint', { url: fallbackUrl });
         const res = await this.fetchImpl(fallbackUrl);
         if (!res.ok) {
            throw new Error(`Failed to connect to ${fallbackUrl}: ${res.statusText}`);
@@ -1677,16 +1685,20 @@ export class ObjectStackClient {
    * Get the conventional route path for a given API endpoint type
    * ObjectStack uses standard conventions: /api/v1/data, /api/v1/meta, /api/v1/ui
    */
-  private getRoute(type: 'data' | 'metadata' | 'ui' | 'auth' | 'analytics' | 'storage' | 'automation' | 'packages' | 'permissions' | 'realtime' | 'workflow' | 'views' | 'notifications' | 'ai' | 'i18n' | 'feed'): string {
-    // 1. Use discovered routes if available
-    if (this.discoveryInfo?.routes && (this.discoveryInfo.routes as any)[type]) {
-        return (this.discoveryInfo.routes as any)[type];
+  private getRoute(type: ApiRouteType): string {
+    // 1. Use discovered routes if available (only for ApiRoutes keys, not client-specific keys)
+    const routes = this.discoveryInfo?.routes;
+    if (routes) {
+        const key = type as keyof ApiRoutes;
+        const discovered = routes[key];
+        if (discovered) return discovered;
     }
 
-    // 2. Fallback to conventions
-    const routeMap: Record<string, string> = {
+    // 2. Fallback to conventions (covers all ApiRoutes keys + client-specific virtual routes)
+    const routeMap: Record<ApiRouteType, string> = {
       data: '/api/v1/data',
       metadata: '/api/v1/meta',
+      discovery: '/api/v1/discovery',
       ui: '/api/v1/ui',
       auth: '/api/v1/auth',
       analytics: '/api/v1/analytics',
@@ -1700,7 +1712,8 @@ export class ObjectStackClient {
       notifications: '/api/v1/notifications',
       ai: '/api/v1/ai',
       i18n: '/api/v1/i18n',
-      feed: '/api/v1/data',
+      feed: '/api/v1/feed',
+      graphql: '/graphql',
     };
     
     return routeMap[type] || `/api/v1/${type}`;
