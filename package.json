@@ -32,7 +32,7 @@
     "@types/node": "^25.5.0",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
-    "turbo": "^2.8.20",
+    "turbo": "^2.8.21",
     "typescript": "^5.9.3"
   },
   "dependencies": {
