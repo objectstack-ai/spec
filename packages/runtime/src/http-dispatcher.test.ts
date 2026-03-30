@@ -645,9 +645,10 @@ describe('HttpDispatcher', () => {
             );
 
             expect(result.handled).toBe(true);
+            // top → limit and skip → offset are normalized by the dispatcher
             expect(mockBroker.call).toHaveBeenCalledWith(
                 'data.query',
-                { object: 'task', query },
+                { object: 'task', query: { populate: 'assignee,project', limit: '10', offset: '0' } },
                 { request: {} }
             );
         });

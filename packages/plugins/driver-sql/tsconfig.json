@@ -12,6 +12,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "forceConsistentCasingInFileNames": true,
+    "types": ["node"],
     "paths": {
       "knex": ["./node_modules/knex/types/index.d.ts"]
     }
