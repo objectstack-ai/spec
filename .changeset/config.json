@@ -16,6 +16,8 @@
       "@objectstack/rest",
       "@objectstack/studio",
       "@objectstack/driver-memory",
+      "@objectstack/driver-sql",
+      "@objectstack/driver-turso",
       "@objectstack/plugin-audit",
       "@objectstack/plugin-auth",
       "@objectstack/plugin-hono-server",
