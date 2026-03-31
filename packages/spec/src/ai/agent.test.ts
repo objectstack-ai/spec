@@ -285,6 +285,32 @@ describe('AgentSchema', () => {
       const result = AgentSchema.parse(agent);
       expect(result.permissions).toEqual(['agent.basic', 'data.read']);
     });
+
+    it('should enforce snake_case for skill name references', () => {
+      expect(() => AgentSchema.parse({
+        name: 'test_agent',
+        label: 'Test',
+        role: 'Test',
+        instructions: 'Test',
+        skills: ['valid_skill', 'another_skill'],
+      })).not.toThrow();
+
+      expect(() => AgentSchema.parse({
+        name: 'test_agent',
+        label: 'Test',
+        role: 'Test',
+        instructions: 'Test',
+        skills: ['InvalidSkill'],
+      })).toThrow();
+
+      expect(() => AgentSchema.parse({
+        name: 'test_agent',
+        label: 'Test',
+        role: 'Test',
+        instructions: 'Test',
+        skills: ['valid_skill', 'Invalid-Skill'],
+      })).toThrow();
+    });
   });
 
   describe('Access Control', () => {

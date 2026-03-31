@@ -137,7 +137,7 @@ export const AgentSchema = z.object({
   lifecycle: StateMachineSchema.optional().describe('State machine defining the agent conversation follow and constraints'),
 
   /** Capabilities — Skill-based (primary) */
-  skills: z.array(z.string()).optional().describe('Skill names to attach (Agent→Skill→Tool architecture)'),
+  skills: z.array(z.string().regex(/^[a-z_][a-z0-9_]*$/)).optional().describe('Skill names to attach (Agent→Skill→Tool architecture)'),
 
   /** Capabilities — Direct tool references (fallback / legacy) */
   tools: z.array(AIToolSchema).optional().describe('Direct tool references (legacy fallback)'),

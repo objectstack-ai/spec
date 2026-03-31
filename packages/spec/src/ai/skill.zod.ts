@@ -71,7 +71,7 @@ export const SkillSchema = z.object({
    * References to tool names that belong to this skill.
    * Tools must be registered as first-class metadata (type: 'tool').
    */
-  tools: z.array(z.string()).describe('Tool names belonging to this skill'),
+  tools: z.array(z.string().regex(/^[a-z_][a-z0-9_]*$/)).describe('Tool names belonging to this skill'),
 
   /**
    * Natural language phrases that trigger skill activation.

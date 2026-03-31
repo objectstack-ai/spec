@@ -114,6 +114,26 @@ describe('SkillSchema', () => {
     });
     expect(result.instructions).toContain('knowledge base');
   });
+
+  it('should enforce snake_case for tool name references', () => {
+    expect(() => SkillSchema.parse({
+      name: 'valid_skill',
+      label: 'Test',
+      tools: ['valid_tool', 'another_tool'],
+    })).not.toThrow();
+
+    expect(() => SkillSchema.parse({
+      name: 'valid_skill',
+      label: 'Test',
+      tools: ['InvalidTool'],
+    })).toThrow();
+
+    expect(() => SkillSchema.parse({
+      name: 'valid_skill',
+      label: 'Test',
+      tools: ['valid_tool', 'Invalid-Tool'],
+    })).toThrow();
+  });
 });
 
 describe('defineSkill', () => {
