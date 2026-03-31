@@ -1,5 +1,16 @@
 # @objectstack/service-ai
 
+## 4.1.0
+
+### Minor Changes
+
+- **Route auth/permissions metadata**: Every route definition (`RouteDefinition`) now declares `auth` and `permissions` fields, enabling HTTP server adapters to enforce authentication and authorization automatically.
+- **User context on RouteRequest**: `RouteRequest` now carries an optional `user: RouteUserContext` object populated by the auth middleware, providing `userId`, `displayName`, `roles`, and `permissions`.
+- **Conversation ownership enforcement**: Conversation routes (create, list, add message, delete) are scoped to the authenticated user — users can only access their own conversations.
+- **Enhanced tool-call loop error handling**: `chatWithTools` now tracks tool execution errors across iterations and supports an `onToolError` callback (`'continue'` | `'abort'`) for fine-grained error control.
+- **`streamChatWithTools`**: New streaming tool-call loop that yields SSE events while automatically resolving intermediate tool calls.
+- **New `RouteUserContext` type**: Exported from the package for use by HTTP adapters and middleware.
+
 ## 4.0.0
 
 ### Major Changes

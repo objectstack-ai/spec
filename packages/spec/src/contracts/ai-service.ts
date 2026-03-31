@@ -210,6 +210,14 @@ export interface IAIService {
 export interface ChatWithToolsOptions extends AIRequestOptions {
     /** Maximum number of tool call loop iterations (default: 10) */
     maxIterations?: number;
+    /**
+     * Optional callback invoked when a tool execution fails.
+     *
+     * Receives the tool call that failed and the error message.
+     * Return `'continue'` (default) to feed the error back to the model,
+     * or `'abort'` to immediately stop the tool call loop.
+     */
+    onToolError?: (toolCall: AIToolCall, error: string) => 'continue' | 'abort';
 }
 
 // ---------------------------------------------------------------------------

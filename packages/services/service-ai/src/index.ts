@@ -37,4 +37,4 @@ export { AiConversationObject, AiMessageObject } from './objects/index.js';
 // Routes
 export { buildAIRoutes } from './routes/ai-routes.js';
 export { buildAgentRoutes } from './routes/agent-routes.js';
-export type { RouteDefinition, RouteRequest, RouteResponse } from './routes/ai-routes.js';
+export type { RouteDefinition, RouteRequest, RouteResponse, RouteUserContext } from './routes/ai-routes.js';
