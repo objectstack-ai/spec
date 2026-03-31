@@ -1,0 +1,61 @@
+---
+title: Skill
+description: Skill protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+Skill Trigger Condition Schema
+
+Defines programmatic conditions under which a skill becomes active.
+
+Allows context-aware activation based on object type, user role, etc.
+
+<Callout type="info">
+**Source:** `packages/spec/src/ai/skill.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { Skill, SkillTriggerCondition } from '@objectstack/spec/ai';
+import type { Skill, SkillTriggerCondition } from '@objectstack/spec/ai';
+
+// Validate data
+const result = Skill.parse(data);
+```
+
+---
+
+## Skill
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **name** | `string` | ✅ | Skill unique identifier (snake_case) |
+| **label** | `string` | ✅ | Skill display name |
+| **description** | `string` | optional | Skill description |
+| **instructions** | `string` | optional | LLM instructions when skill is active |
+| **tools** | `string[]` | ✅ | Tool names belonging to this skill |
+| **triggerPhrases** | `string[]` | optional | Phrases that activate this skill |
+| **triggerConditions** | `Object[]` | optional | Programmatic activation conditions |
+| **permissions** | `string[]` | optional | Required permissions or roles |
+| **active** | `boolean` | ✅ | Whether the skill is enabled |
+
+
+---
+
+## SkillTriggerCondition
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **field** | `string` | ✅ | Context field to evaluate |
+| **operator** | `Enum<'eq' \| 'neq' \| 'in' \| 'not_in' \| 'contains'>` | ✅ | Comparison operator |
+| **value** | `string \| string[]` | ✅ | Expected value or values |
+
+
+---
+

@@ -193,10 +193,12 @@ Code generation target
 | **instructions** | `string` | ✅ | System Prompt / Prime Directives |
 | **model** | `Object` | optional |  |
 | **lifecycle** | `Object` | optional | State machine defining the agent conversation follow and constraints |
-| **tools** | `Object[]` | optional | Available tools |
+| **skills** | `string[]` | optional | Skill names to attach (Agent→Skill→Tool architecture) |
+| **tools** | `Object[]` | optional | Direct tool references (legacy fallback) |
 | **knowledge** | `Object` | optional | RAG access |
 | **active** | `boolean` | ✅ |  |
 | **access** | `string[]` | optional | Who can chat with this agent |
+| **permissions** | `string[]` | optional | Required permissions or roles |
 | **tenantId** | `string` | optional | Tenant/Organization ID |
 | **visibility** | `Enum<'global' \| 'organization' \| 'private'>` | ✅ |  |
 | **planning** | `Object` | optional | Autonomous reasoning and planning configuration |

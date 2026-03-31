@@ -641,6 +641,11 @@ export const Field = {
     ...config 
   } as const),
   
+  json: (config: FieldInput = {}) => ({ 
+    type: 'json', 
+    ...config 
+  } as const),
+  
   vector: (dimensions: number, config: FieldInput = {}) => ({ 
     type: 'vector', 
     vectorConfig: {
