@@ -50,6 +50,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `service-ai` re-exports the interface for backward compatibility.
 
 ### Fixed
+- **Changeset fixed versioning — add driver-sql and driver-turso** — Added `@objectstack/driver-sql`
+  and `@objectstack/driver-turso` to the changeset `fixed` versioning group in `.changeset/config.json`.
+  These packages were missing from the group, causing them to be published as `3.3.2` instead of `4.0.0`
+  during the v4.0.0 release. All future releases will now keep these driver packages in sync with the
+  rest of the ecosystem.
 - **ObjectQL build failure** — Fixed TypeScript TS2345 errors in `packages/objectql/src/protocol.ts`
   where `SchemaRegistry.registerItem()` calls failed type checking for the `keyField` parameter.
   Applied `'name' as any` cast consistent with the established codebase pattern.
