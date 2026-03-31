@@ -1,5 +1,16 @@
 # @objectstack/studio
 
+## Unreleased
+
+### Enhancements
+
+- **API Console: Complete service endpoint discovery from `/api/v1/discovery`**
+  - The API console now uses the discovery endpoint's `services` and `routes` maps to dynamically populate endpoints for all enabled services (AI, Workflow, Realtime, Notifications, Analytics, Automation, i18n, UI, Feed, Storage)
+  - Previously, only System, Auth, Metadata, and Data CRUD endpoints were shown; AI and other service endpoints were missing
+  - Added `SERVICE_ENDPOINT_CATALOG` — a well-known endpoint catalog aligned with `plugin-rest-api.zod.ts` route definitions
+  - Added `buildServiceEndpoints()` helper for generating endpoint definitions from a service name and route prefix
+  - Updated group sort order to include service groups between Auth and Metadata
+
 ## 3.3.1
 
 ### Patch Changes
