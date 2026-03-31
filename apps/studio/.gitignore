@@ -5,6 +5,7 @@ pnpm-lock.yaml
 # Build outputs
 dist
 build
+api
 *.tsbuildinfo
 
 # Development
