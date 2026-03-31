@@ -96,9 +96,10 @@ export const SysPresence = ObjectSchema.create({
       maxLength: 255,
     }),
 
-    metadata: Field.textarea({
+    metadata: Field.json({
       label: 'Metadata',
       required: false,
+      description: 'Arbitrary JSON metadata associated with the presence state (matches PresenceStateSchema.metadata).',
     }),
   },
 
