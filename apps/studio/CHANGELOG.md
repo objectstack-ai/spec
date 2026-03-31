@@ -11,6 +11,11 @@
   - Added `buildServiceEndpoints()` helper for generating endpoint definitions from a service name and route prefix
   - Updated group sort order to include service groups between Auth and Metadata
 
+### Fixes
+
+- **Vercel deployment: Fix `@vercel/node@3` runtime error**
+  - Changed `vercel.json` functions runtime from deprecated `@vercel/node@3` to `nodejs20.x` to fix Vercel CLI 50.x build error: "Function Runtimes must have a valid version"
+
 ## 3.3.1
 
 ### Patch Changes
