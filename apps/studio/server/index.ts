@@ -10,15 +10,14 @@
  * legacy `(IncomingMessage, ServerResponse)` signature — NOT the Web standard
  * `(Request) → Response` format.
  *
- * We use `getRequestListener()` from `@hono/node-server` which properly
- * converts `IncomingMessage → Request`, calls our fetch callback, then writes
- * the `Response` back to `ServerResponse`.
+ * We use `handle()` from `@hono/node-server/vercel` which is the standard
+ * Vercel adapter for Hono.  It internally uses `getRequestListener()` to
+ * convert `IncomingMessage → Request` (including Vercel's pre-buffered
+ * `rawBody`) and writes the `Response` back to `ServerResponse`.
  *
- * For POST/PUT/PATCH requests, Vercel pre-buffers the body on the
- * IncomingMessage as `rawBody` (Buffer) or `body` (parsed).  We extract it
- * directly and build a clean `Request` so the inner Hono app receives a
- * body it can `.json()` without depending on Node stream-to-ReadableStream
- * conversion (which can hang when the stream has already been consumed).
+ * The outer Hono app delegates all requests to the inner ObjectStack Hono
+ * app via `inner.fetch(c.req.raw)`, matching the pattern documented in
+ * the ObjectStack deployment guide and validated by the hono adapter tests.
  *
  * All kernel/service initialisation is co-located here so there are no
  * extensionless relative module imports — which would break Node's ESM
@@ -34,8 +33,8 @@ import { SecurityPlugin } from '@objectstack/plugin-security';
 import { AuditPlugin } from '@objectstack/plugin-audit';
 import { FeedServicePlugin } from '@objectstack/service-feed';
 import { MetadataPlugin } from '@objectstack/metadata';
-import { getRequestListener } from '@hono/node-server';
-import type { Hono } from 'hono';
+import { handle } from '@hono/node-server/vercel';
+import { Hono } from 'hono';
 import { createBrokerShim } from '../src/lib/create-broker-shim.js';
 import studioConfig from '../objectstack.config.js';
 
@@ -199,92 +198,40 @@ async function ensureApp(): Promise<Hono> {
 }
 
 // ---------------------------------------------------------------------------
-// Body extraction helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Extract the request body from the Vercel IncomingMessage.
- *
- * Vercel's Node.js runtime pre-buffers the full request body and attaches it
- * to the IncomingMessage as `rawBody` (Buffer) and/or `body` (parsed).
- * Reading from these properties is synchronous and avoids the fragile
- * IncomingMessage → ReadableStream conversion that can hang when the
- * underlying Node stream has already been consumed.
- *
- * Returns `null` for GET/HEAD/OPTIONS or when no body is available.
- */
-function extractBody(incoming: any, method: string, contentType: string | undefined): BodyInit | null {
-    if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
-        return null;
-    }
-
-    // 1. rawBody (Buffer or string) — most reliable, set by Vercel runtime
-    if (incoming?.rawBody != null) {
-        if (typeof incoming.rawBody === 'string') return incoming.rawBody;
-        if (typeof incoming.rawBody.toString === 'function') return incoming.rawBody;
-        return String(incoming.rawBody);
-    }
-
-    // 2. body (parsed by Vercel) — re-serialize based on content-type
-    if (incoming?.body != null) {
-        if (typeof incoming.body === 'string') return incoming.body;
-        if (contentType?.includes('application/json')) return JSON.stringify(incoming.body);
-        return String(incoming.body);
-    }
-
-    return null;
-}
-
-// ---------------------------------------------------------------------------
 // Vercel handler
 // ---------------------------------------------------------------------------
 
 /**
- * `getRequestListener` from `@hono/node-server` converts
- * `IncomingMessage → Request`, calls our fetch callback, then writes the
- * `Response` back to `ServerResponse` (including `res.end()`).
+ * Outer Hono app — delegates all requests to the inner ObjectStack app.
  *
- * For requests with a body, we extract it from the IncomingMessage directly
- * (bypassing the Node stream → ReadableStream conversion) and create a new
- * Request that the inner Hono app can safely `.json()`.
+ * `handle()` from `@hono/node-server/vercel` wraps any Hono app and returns
+ * the `(IncomingMessage, ServerResponse) => Promise<void>` signature that
+ * Vercel's Node.js runtime expects for serverless functions.  Internally it
+ * uses `getRequestListener()`, which already handles Vercel's pre-buffered
+ * `rawBody` (Buffer) on the IncomingMessage for POST/PUT/PATCH requests.
+ *
+ * The outer→inner delegation pattern (`inner.fetch(c.req.raw)`) is the
+ * standard ObjectStack Vercel deployment pattern documented in the deployment
+ * guide and covered by the @objectstack/hono adapter test suite.
  */
-export default getRequestListener(async (request, env) => {
-    const method = request.method;
-    const url = request.url;
+const app = new Hono();
 
-    console.log(`[Vercel] ${method} ${url}`);
+app.all('*', async (c) => {
+    console.log(`[Vercel] ${c.req.method} ${c.req.url}`);
 
     try {
-        const app = await ensureApp();
-        const incoming = (env as any)?.incoming;
-
-        // For body methods, extract body from IncomingMessage and build a clean Request
-        if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS' && incoming) {
-            const contentType = incoming.headers?.['content-type'];
-            const body = extractBody(incoming, method, contentType);
-
-            if (body != null) {
-                console.log(`[Vercel] Body extracted from IncomingMessage (${typeof body === 'string' ? body.length + ' chars' : 'Buffer'})`);
-                const newReq = new Request(url, {
-                    method,
-                    headers: request.headers,
-                    body,
-                });
-                return await app.fetch(newReq);
-            }
-
-            console.log('[Vercel] No rawBody/body on IncomingMessage — using proxy request');
-        }
-
-        return await app.fetch(request);
+        const inner = await ensureApp();
+        return await inner.fetch(c.req.raw);
     } catch (err: any) {
         console.error('[Vercel] Handler error:', err?.message || err);
-        return new Response(
-            JSON.stringify({
+        return c.json(
+            {
                 success: false,
                 error: { message: err?.message || 'Internal Server Error', code: 500 },
-            }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } },
+            },
+            500,
         );
     }
 });
+
+export default handle(app);
