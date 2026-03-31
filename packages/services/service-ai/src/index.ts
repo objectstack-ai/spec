@@ -14,10 +14,14 @@ export type { LLMAdapter } from '@objectstack/spec/contracts';
 
 // Conversation
 export { InMemoryConversationService } from './conversation/in-memory-conversation-service.js';
+export { ObjectQLConversationService } from './conversation/objectql-conversation-service.js';
 
 // Tool registry
 export { ToolRegistry } from './tools/tool-registry.js';
 export type { ToolHandler } from './tools/tool-registry.js';
+
+// Object definitions
+export { AiConversationObject, AiMessageObject } from './objects/index.js';
 
 // Routes
 export { buildAIRoutes } from './routes/ai-routes.js';

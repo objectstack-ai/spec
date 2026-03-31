@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`@objectstack/service-ai` — ObjectQL-backed persistent ConversationService** — New
+  `ObjectQLConversationService` implements `IAIConversationService` using `IDataEngine`
+  for durable conversation and message storage across service restarts:
+  - `ai_conversations` and `ai_messages` system object definitions (namespace `ai`)
+  - Full CRUD: `create`, `get`, `list` (with userId/agentId/limit/cursor filters),
+    `addMessage` (with toolCalls/toolCallId support), and `delete` (cascade)
+  - `AIServicePlugin` auto-detects `IDataEngine` in the kernel service registry and
+    uses `ObjectQLConversationService` when available, falling back to
+    `InMemoryConversationService` for dev/test environments
+  - `AIServicePluginOptions.conversationService` allows explicit override
+  - Plugin registers AI system objects via `app.com.objectstack.service-ai` service
+  - 16 new test cases covering all five interface methods plus edge cases
 - **Promoted `LLMAdapter` interface to `@objectstack/spec/contracts`** — Moved the `LLMAdapter`
   adapter contract from `@objectstack/service-ai` internal types to the canonical protocol layer
   (`packages/spec/src/contracts/llm-adapter.ts`). Third-party adapter implementations (OpenAI,
