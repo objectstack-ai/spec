@@ -1,5 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
+import { randomUUID } from 'node:crypto';
 import type {
   AIConversation,
   AIMessage,
@@ -33,6 +34,18 @@ interface DbMessageRow {
   created_at: string;
 }
 
+/** Deterministic ordering for conversations (total order). */
+const CONVERSATION_ORDER = [
+  { field: 'created_at', order: 'asc' as const },
+  { field: 'id', order: 'asc' as const },
+];
+
+/** Deterministic ordering for messages within a conversation. */
+const MESSAGE_ORDER = [
+  { field: 'created_at', order: 'asc' as const },
+  { field: 'id', order: 'asc' as const },
+];
+
 /**
  * ObjectQLConversationService — Persistent implementation of IAIConversationService.
  *
@@ -57,7 +70,7 @@ export class ObjectQLConversationService implements IAIConversationService {
     metadata?: Record<string, unknown>;
   } = {}): Promise<AIConversation> {
     const now = new Date().toISOString();
-    const id = `conv_${crypto.randomUUID()}`;
+    const id = `conv_${randomUUID()}`;
 
     const record = {
       id,
@@ -92,7 +105,7 @@ export class ObjectQLConversationService implements IAIConversationService {
 
     const messages: DbMessageRow[] = await this.engine.find(MESSAGES_OBJECT, {
       where: { conversation_id: conversationId },
-      orderBy: [{ field: 'created_at', order: 'asc' }],
+      orderBy: MESSAGE_ORDER,
     });
 
     return this.toConversation(row, messages);
@@ -108,34 +121,38 @@ export class ObjectQLConversationService implements IAIConversationService {
     if (options.userId) where.user_id = options.userId;
     if (options.agentId) where.agent_id = options.agentId;
 
-    // Cursor-based pagination: cursor is a conversation ID.
-    // Fetch the cursor conversation's created_at to page from there.
+    // Stable cursor-based pagination using composite (created_at, id) order.
+    // This avoids skips/duplicates when multiple conversations share a timestamp.
     if (options.cursor) {
       const cursorRow = await this.engine.findOne(CONVERSATIONS_OBJECT, {
         where: { id: options.cursor },
-        fields: ['created_at'],
+        fields: ['created_at', 'id'],
       });
       if (cursorRow) {
-        where.created_at = { $gt: cursorRow.created_at };
+        where.$or = [
+          { created_at: { $gt: cursorRow.created_at } },
+          { created_at: cursorRow.created_at, id: { $gt: cursorRow.id } },
+        ];
       }
     }
 
     const rows: DbConversationRow[] = await this.engine.find(CONVERSATIONS_OBJECT, {
       where: Object.keys(where).length > 0 ? where : undefined,
-      orderBy: [{ field: 'created_at', order: 'asc' }],
+      orderBy: CONVERSATION_ORDER,
       limit: options.limit && options.limit > 0 ? options.limit : undefined,
     });
 
-    // Load messages per conversation.
+    // Load messages per conversation in parallel.
     // N+1 is bounded by the pagination limit; driver-agnostic $in is not guaranteed.
-    const conversations: AIConversation[] = [];
-    for (const row of rows) {
-      const messages: DbMessageRow[] = await this.engine.find(MESSAGES_OBJECT, {
-        where: { conversation_id: row.id },
-        orderBy: [{ field: 'created_at', order: 'asc' }],
-      });
-      conversations.push(this.toConversation(row, messages));
-    }
+    const conversations: AIConversation[] = await Promise.all(
+      rows.map(async (row) => {
+        const messages: DbMessageRow[] = await this.engine.find(MESSAGES_OBJECT, {
+          where: { conversation_id: row.id },
+          orderBy: MESSAGE_ORDER,
+        });
+        return this.toConversation(row, messages);
+      }),
+    );
 
     return conversations;
   }
@@ -150,7 +167,7 @@ export class ObjectQLConversationService implements IAIConversationService {
     }
 
     const now = new Date().toISOString();
-    const msgId = `msg_${crypto.randomUUID()}`;
+    const msgId = `msg_${randomUUID()}`;
 
     // Insert the message
     await this.engine.insert(MESSAGES_OBJECT, {
@@ -188,6 +205,18 @@ export class ObjectQLConversationService implements IAIConversationService {
   // ── Private helpers ──────────────────────────────────────────────
 
   /**
+   * Safely parse a JSON string, returning `undefined` on failure.
+   */
+  private safeParse<T>(value: string | null, fallback?: T): T | undefined {
+    if (!value) return undefined;
+    try {
+      return JSON.parse(value) as T;
+    } catch {
+      return fallback;
+    }
+  }
+
+  /**
    * Map a database row + message rows to an AIConversation.
    */
   private toConversation(row: DbConversationRow, messageRows: DbMessageRow[]): AIConversation {
@@ -199,7 +228,7 @@ export class ObjectQLConversationService implements IAIConversationService {
       messages: messageRows.map(m => this.toMessage(m)),
       createdAt: row.created_at,
       updatedAt: row.updated_at,
-      metadata: row.metadata ? JSON.parse(row.metadata) : undefined,
+      metadata: this.safeParse<Record<string, unknown>>(row.metadata),
     };
   }
 
@@ -211,8 +240,9 @@ export class ObjectQLConversationService implements IAIConversationService {
       role: row.role,
       content: row.content,
     };
-    if (row.tool_calls) {
-      msg.toolCalls = JSON.parse(row.tool_calls);
+    const toolCalls = this.safeParse<any[]>(row.tool_calls);
+    if (toolCalls) {
+      msg.toolCalls = toolCalls;
     }
     if (row.tool_call_id) {
       msg.toolCallId = row.tool_call_id;

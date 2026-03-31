@@ -65,6 +65,7 @@ export const AiConversationObject = ObjectSchema.create({
       label: 'Updated At',
       required: true,
       defaultValue: 'NOW()',
+      readonly: true,
     }),
   },
 
