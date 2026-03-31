@@ -131,20 +131,22 @@ export class AIService implements IAIService {
     messages: AIMessage[],
     options?: ChatWithToolsOptions,
   ): Promise<AIResult> {
-    const maxIterations = options?.maxIterations ?? AIService.DEFAULT_MAX_ITERATIONS;
+    // Destructure maxIterations out so it is never forwarded to the adapter
+    const { maxIterations: maxIter, ...restOptions } = options ?? {};
+    const maxIterations = maxIter ?? AIService.DEFAULT_MAX_ITERATIONS;
     const registeredTools = this.toolRegistry.getAll();
 
     // Merge registered tools with any explicitly provided tools
     const mergedTools = [
       ...registeredTools,
-      ...(options?.tools ?? []),
+      ...(restOptions.tools ?? []),
     ];
 
     // Build the options that will be sent to every LLM call in the loop
     const chatOptions: AIRequestOptions = {
-      ...options,
+      ...restOptions,
       tools: mergedTools.length > 0 ? mergedTools : undefined,
-      toolChoice: mergedTools.length > 0 ? (options?.toolChoice ?? 'auto') : undefined,
+      toolChoice: mergedTools.length > 0 ? (restOptions.toolChoice ?? 'auto') : undefined,
     };
 
     // Working copy of the conversation

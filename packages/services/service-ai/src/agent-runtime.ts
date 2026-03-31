@@ -7,6 +7,7 @@ import type {
   IMetadataService,
 } from '@objectstack/spec/contracts';
 import type { Agent } from '@objectstack/spec';
+import { AgentSchema } from '@objectstack/spec/ai';
 
 /**
  * Context passed alongside a user message when chatting with an agent.
@@ -40,12 +41,22 @@ export class AgentRuntime {
   // ── Public API ────────────────────────────────────────────────
 
   /**
-   * Load an agent definition by name.
-   * @returns The agent definition, or `undefined` if not found.
+   * Load and validate an agent definition by name.
+   *
+   * The raw metadata is validated through {@link AgentSchema} to ensure
+   * required fields (`instructions`, `name`, `role`, etc.) are present
+   * and well-typed.  Returns `undefined` when the agent does not exist
+   * or validation fails.
    */
   async loadAgent(agentName: string): Promise<Agent | undefined> {
     const raw = await this.metadataService.get('agent', agentName);
-    return raw as Agent | undefined;
+    if (!raw) return undefined;
+
+    const result = AgentSchema.safeParse(raw);
+    if (!result.success) {
+      return undefined;
+    }
+    return result.data;
   }
 
   /**

@@ -274,14 +274,23 @@ function createQueryRecordsHandler(ctx: DataToolContext): ToolHandler {
       offset?: number;
     };
 
-    const safeLimit = Math.min(limit ?? DEFAULT_QUERY_LIMIT, MAX_QUERY_LIMIT);
+    // Validate and clamp limit to [1, MAX_QUERY_LIMIT]
+    const rawLimit = limit ?? DEFAULT_QUERY_LIMIT;
+    const safeLimit = Number.isFinite(rawLimit) && rawLimit > 0
+      ? Math.min(Math.floor(rawLimit), MAX_QUERY_LIMIT)
+      : DEFAULT_QUERY_LIMIT;
+
+    // Validate offset: must be a non-negative finite integer
+    const safeOffset = (Number.isFinite(offset) && (offset as number) >= 0)
+      ? Math.floor(offset as number)
+      : undefined;
 
     const records = await ctx.dataEngine.find(objectName, {
       where,
       fields,
       orderBy,
       limit: safeLimit,
-      offset,
+      offset: safeOffset,
     });
 
     return JSON.stringify({ count: records.length, records });
@@ -312,6 +321,11 @@ function createGetRecordHandler(ctx: DataToolContext): ToolHandler {
 /** Aggregation function names supported by the data engine. */
 type AggFn = 'count' | 'sum' | 'avg' | 'min' | 'max' | 'count_distinct';
 
+/** Set of valid aggregation function names for runtime validation. */
+const VALID_AGG_FUNCTIONS = new Set<string>([
+  'count', 'sum', 'avg', 'min', 'max', 'count_distinct',
+]);
+
 function createAggregateDataHandler(ctx: DataToolContext): ToolHandler {
   return async (args) => {
     const { objectName, aggregations, groupBy, where } = args as {
@@ -320,6 +334,16 @@ function createAggregateDataHandler(ctx: DataToolContext): ToolHandler {
       groupBy?: string[];
       where?: Record<string, unknown>;
     };
+
+    // Validate aggregation functions at runtime
+    for (const a of aggregations) {
+      if (!VALID_AGG_FUNCTIONS.has(a.function)) {
+        return JSON.stringify({
+          error: `Invalid aggregation function "${a.function}". ` +
+            `Allowed: ${[...VALID_AGG_FUNCTIONS].join(', ')}`,
+        });
+      }
+    }
 
     const result = await ctx.dataEngine.aggregate(objectName, {
       where,

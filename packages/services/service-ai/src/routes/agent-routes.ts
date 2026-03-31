@@ -6,16 +6,24 @@ import type { AIService } from '../ai-service.js';
 import type { AgentRuntime, AgentChatContext } from '../agent-runtime.js';
 import type { RouteDefinition } from './ai-routes.js';
 
-/** Valid message roles accepted by the agent routes. */
-const VALID_ROLES = new Set<string>(['system', 'user', 'assistant', 'tool']);
+/**
+ * Allowed message roles for the agent chat endpoint.
+ *
+ * Only `user` and `assistant` are accepted from clients.
+ * `system` messages are injected server-side from agent instructions,
+ * and `tool` messages are produced by the tool-call loop — accepting
+ * either from the client would allow callers to override agent
+ * guardrails or inject fabricated tool results.
+ */
+const ALLOWED_AGENT_ROLES = new Set<string>(['user', 'assistant']);
 
-function validateMessage(raw: unknown): string | null {
+function validateAgentMessage(raw: unknown): string | null {
   if (typeof raw !== 'object' || raw === null) {
     return 'each message must be an object';
   }
   const msg = raw as Record<string, unknown>;
-  if (typeof msg.role !== 'string' || !VALID_ROLES.has(msg.role)) {
-    return `message.role must be one of ${[...VALID_ROLES].map(r => `"${r}"`).join(', ')}`;
+  if (typeof msg.role !== 'string' || !ALLOWED_AGENT_ROLES.has(msg.role)) {
+    return `message.role must be one of ${[...ALLOWED_AGENT_ROLES].map(r => `"${r}"`).join(', ')} for agent chat`;
   }
   if (typeof msg.content !== 'string') {
     return 'message.content must be a string';
@@ -62,7 +70,7 @@ export function buildAgentRoutes(
         }
 
         for (const msg of rawMessages) {
-          const err = validateMessage(msg);
+          const err = validateAgentMessage(msg);
           if (err) return { status: 400, body: { error: err } };
         }
 
@@ -85,8 +93,18 @@ export function buildAgentRoutes(
             aiService.toolRegistry.getAll(),
           );
 
-          // Merge agent options with any caller overrides
-          const mergedOptions = { ...agentOptions, ...extraOptions };
+          // Whitelist only safe caller overrides — block tools/toolChoice/model
+          // to prevent tool-definition injection or DoS via unregistered tools.
+          const safeOverrides: Record<string, unknown> = {};
+          if (extraOptions) {
+            const ALLOWED_KEYS = new Set(['temperature', 'maxTokens', 'stop']);
+            for (const key of Object.keys(extraOptions)) {
+              if (ALLOWED_KEYS.has(key)) {
+                safeOverrides[key] = extraOptions[key];
+              }
+            }
+          }
+          const mergedOptions = { ...agentOptions, ...safeOverrides };
 
           // Prepend system messages then user conversation
           const fullMessages: AIMessage[] = [

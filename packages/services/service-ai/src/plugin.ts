@@ -132,9 +132,18 @@ export class AIServicePlugin implements Plugin {
         registerDataTools(this.service.toolRegistry, { dataEngine, metadataService });
         ctx.logger.info('[AI] Built-in data tools registered');
 
-        // Register the built-in data_chat agent
-        await metadataService.register('agent', DATA_CHAT_AGENT.name, DATA_CHAT_AGENT);
-        ctx.logger.info('[AI] data_chat agent registered');
+        // Register the built-in data_chat agent only if it does not already exist
+        const agentExists =
+          typeof metadataService.exists === 'function'
+            ? await metadataService.exists('agent', DATA_CHAT_AGENT.name)
+            : false;
+
+        if (!agentExists) {
+          await metadataService.register('agent', DATA_CHAT_AGENT.name, DATA_CHAT_AGENT);
+          ctx.logger.info('[AI] data_chat agent registered');
+        } else {
+          ctx.logger.debug('[AI] data_chat agent already exists, skipping auto-registration');
+        }
       }
     } catch {
       // Data engine or metadata service not available — skip data tools
