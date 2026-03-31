@@ -1,5 +1,11 @@
 # @objectstack/nuxt
 
+## 5.0.0
+
+### Patch Changes
+
+- @objectstack/runtime@5.0.0
+
 ## 4.0.0
 
 ### Patch Changes

@@ -1,5 +1,21 @@
 # @objectstack/plugin-dev
 
+## 5.0.0
+
+### Patch Changes
+
+- @objectstack/spec@5.0.0
+- @objectstack/core@5.0.0
+- @objectstack/objectql@5.0.0
+- @objectstack/runtime@5.0.0
+- @objectstack/rest@5.0.0
+- @objectstack/driver-memory@5.0.0
+- @objectstack/plugin-auth@5.0.0
+- @objectstack/plugin-hono-server@5.0.0
+- @objectstack/plugin-security@5.0.0
+- @objectstack/plugin-setup@5.0.0
+- @objectstack/service-i18n@5.0.0
+
 ## 4.0.0
 
 ### Patch Changes

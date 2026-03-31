@@ -1,5 +1,14 @@
 # @objectstack/runtime
 
+## 5.0.0
+
+### Patch Changes
+
+- @objectstack/spec@5.0.0
+- @objectstack/core@5.0.0
+- @objectstack/types@5.0.0
+- @objectstack/rest@5.0.0
+
 ## 4.0.0
 
 ### Patch Changes

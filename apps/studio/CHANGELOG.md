@@ -1,5 +1,25 @@
 # @objectstack/studio
 
+## 5.0.0
+
+### Patch Changes
+
+- Updated dependencies [22d75a2]
+  - @objectstack/driver-turso@5.0.0
+  - @objectstack/spec@5.0.0
+  - @objectstack/client@5.0.0
+  - @objectstack/client-react@5.0.0
+  - @objectstack/metadata@5.0.0
+  - @objectstack/objectql@5.0.0
+  - @objectstack/runtime@5.0.0
+  - @objectstack/driver-memory@5.0.0
+  - @objectstack/plugin-audit@5.0.0
+  - @objectstack/plugin-auth@5.0.0
+  - @objectstack/plugin-msw@5.0.0
+  - @objectstack/plugin-security@5.0.0
+  - @objectstack/hono@5.0.0
+  - @objectstack/service-feed@5.0.0
+
 ## 4.0.0
 
 ### Patch Changes

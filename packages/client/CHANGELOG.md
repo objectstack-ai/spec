@@ -1,5 +1,12 @@
 # @objectstack/client
 
+## 5.0.0
+
+### Patch Changes
+
+- @objectstack/spec@5.0.0
+- @objectstack/core@5.0.0
+
 ## 4.0.0
 
 ### Minor Changes

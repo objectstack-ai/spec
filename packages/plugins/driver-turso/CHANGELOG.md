@@ -1,5 +1,21 @@
 # @objectstack/driver-turso
 
+## 5.0.0
+
+### Major Changes
+
+- 22d75a2: Align driver-sql and driver-turso version to 4.0.0 for ecosystem version consistency.
+
+  These packages were missing from the changeset `fixed` versioning group, causing them
+  to remain at 3.3.2 while all other packages bumped to 4.0.0.
+
+### Patch Changes
+
+- Updated dependencies [22d75a2]
+  - @objectstack/driver-sql@5.0.0
+  - @objectstack/spec@5.0.0
+  - @objectstack/core@5.0.0
+
 ## 3.3.2
 
 ### Patch Changes
