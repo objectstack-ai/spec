@@ -131,8 +131,8 @@ export class AIService implements IAIService {
     messages: AIMessage[],
     options?: ChatWithToolsOptions,
   ): Promise<AIResult> {
-    // Destructure maxIterations out so it is never forwarded to the adapter
-    const { maxIterations: maxIter, ...restOptions } = options ?? {};
+    // Destructure loop-specific options so they are never forwarded to the adapter
+    const { maxIterations: maxIter, onToolError, ...restOptions } = options ?? {};
     const maxIterations = maxIter ?? AIService.DEFAULT_MAX_ITERATIONS;
     const registeredTools = this.toolRegistry.getAll();
 
@@ -152,11 +152,16 @@ export class AIService implements IAIService {
     // Working copy of the conversation
     const conversation = [...messages];
 
+    // Track errors across iterations for diagnostics
+    const toolErrors: Array<{ iteration: number; toolName: string; error: string }> = [];
+
     this.logger.debug('[AI] chatWithTools start', {
       messageCount: conversation.length,
       toolCount: mergedTools.length,
       maxIterations,
     });
+
+    let abortedByCallback = false;
 
     for (let iteration = 0; iteration < maxIterations; iteration++) {
       const result = await this.adapter.chat(conversation, chatOptions);
@@ -182,24 +187,139 @@ export class AIService implements IAIService {
       // Execute all tool calls in parallel
       const toolResults = await this.toolRegistry.executeAll(result.toolCalls);
 
-      // Append each tool result as a `role: 'tool'` message
+      // Process results: track errors and honour onToolError callback
       for (const tr of toolResults) {
+        if (tr.isError) {
+          // Match tool call by toolCallId for robust attribution
+          const matchedCall = result.toolCalls!.find(tc => tc.id === tr.toolCallId);
+          const toolName = matchedCall?.name ?? 'unknown';
+          const errorEntry = { iteration, toolName, error: tr.content };
+          toolErrors.push(errorEntry);
+          this.logger.warn('[AI] chatWithTools tool error', errorEntry);
+
+          if (onToolError && matchedCall) {
+            const action = onToolError(matchedCall, tr.content);
+            if (action === 'abort') {
+              abortedByCallback = true;
+            }
+          }
+        }
+
+        // Append each tool result as a `role: 'tool'` message
         conversation.push({
           role: 'tool',
           content: tr.content,
           toolCallId: tr.toolCallId,
         });
       }
+
+      if (abortedByCallback) {
+        break;
+      }
     }
 
-    // If we exhausted the loop without a final response, make one last
-    // call *without* tools so the model is forced to produce text.
-    this.logger.warn('[AI] chatWithTools max iterations reached, forcing final response');
+    // Distinguish user-driven abort from max-iterations exhaustion in logs
+    if (abortedByCallback) {
+      this.logger.warn('[AI] chatWithTools aborted by onToolError callback', { toolErrors });
+    } else {
+      this.logger.warn('[AI] chatWithTools max iterations reached, forcing final response', {
+        toolErrors: toolErrors.length > 0 ? toolErrors : undefined,
+      });
+    }
+
+    // Make one last call *without* tools so the model is forced to produce text.
     const finalResult = await this.adapter.chat(conversation, {
       ...chatOptions,
       tools: undefined,
       toolChoice: undefined,
     });
     return finalResult;
+  }
+
+  /**
+   * Stream chat with automatic tool call resolution.
+   *
+   * Works like {@link chatWithTools} but yields SSE events.  When the model
+   * requests tool calls during streaming, they are executed and the results
+   * fed back until a final text stream is produced.
+   */
+  async *streamChatWithTools(
+    messages: AIMessage[],
+    options?: ChatWithToolsOptions,
+  ): AsyncIterable<AIStreamEvent> {
+    const { maxIterations: maxIter, onToolError, ...restOptions } = options ?? {};
+    const maxIterations = maxIter ?? AIService.DEFAULT_MAX_ITERATIONS;
+    const registeredTools = this.toolRegistry.getAll();
+
+    const mergedTools = [
+      ...registeredTools,
+      ...(restOptions.tools ?? []),
+    ];
+
+    const chatOptions: AIRequestOptions = {
+      ...restOptions,
+      tools: mergedTools.length > 0 ? mergedTools : undefined,
+      toolChoice: mergedTools.length > 0 ? (restOptions.toolChoice ?? 'auto') : undefined,
+    };
+
+    const conversation = [...messages];
+    let abortedByCallback = false;
+
+    for (let iteration = 0; iteration < maxIterations; iteration++) {
+      // Use non-streaming chat for intermediate tool-call rounds
+      const result = await this.adapter.chat(conversation, chatOptions);
+
+      if (!result.toolCalls || result.toolCalls.length === 0) {
+        // Final round — return the probed result without an extra model call
+        yield { type: 'text-delta', textDelta: result.content };
+        yield { type: 'finish', result };
+        return;
+      }
+
+      // Emit tool-call events so the client can see tool execution progress
+      for (const tc of result.toolCalls) {
+        yield { type: 'tool-call', toolCall: tc };
+      }
+
+      conversation.push({
+        role: 'assistant',
+        content: result.content ?? '',
+        toolCalls: result.toolCalls,
+      });
+
+      const toolResults = await this.toolRegistry.executeAll(result.toolCalls);
+
+      for (const tr of toolResults) {
+        if (tr.isError && onToolError) {
+          const matchedCall = result.toolCalls!.find(tc => tc.id === tr.toolCallId);
+          if (matchedCall) {
+            const action = onToolError(matchedCall, tr.content);
+            if (action === 'abort') {
+              abortedByCallback = true;
+            }
+          }
+        }
+        conversation.push({
+          role: 'tool',
+          content: tr.content,
+          toolCallId: tr.toolCallId,
+        });
+      }
+
+      if (abortedByCallback) {
+        break;
+      }
+    }
+
+    // Forced final response (no tools) — either aborted or max iterations
+    if (abortedByCallback) {
+      this.logger.warn('[AI] streamChatWithTools aborted by onToolError callback');
+    } else {
+      this.logger.warn('[AI] streamChatWithTools max iterations reached');
+    }
+    const finalOptions = { ...chatOptions, tools: undefined, toolChoice: undefined };
+    const result = await this.adapter.chat(conversation, finalOptions);
+    yield { type: 'text-delta', textDelta: result.content };
+    yield { type: 'finish', result };
   }
 }

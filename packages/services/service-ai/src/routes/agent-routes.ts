@@ -48,6 +48,8 @@ export function buildAgentRoutes(
       method: 'POST',
       path: '/api/v1/ai/agents/:agentName/chat',
       description: 'Chat with a specific AI agent',
+      auth: true,
+      permissions: ['ai:chat', 'ai:agents'],
       handler: async (req) => {
         const agentName = req.params?.agentName;
         if (!agentName) {
