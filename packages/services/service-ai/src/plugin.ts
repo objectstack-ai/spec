@@ -1,11 +1,13 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import type { Plugin, PluginContext } from '@objectstack/core';
-import type { IAIService } from '@objectstack/spec/contracts';
+import type { IAIService, IAIConversationService, IDataEngine } from '@objectstack/spec/contracts';
 import { AIService } from './ai-service.js';
 import type { AIServiceConfig } from './ai-service.js';
 import type { LLMAdapter } from './adapters/types.js';
 import { buildAIRoutes } from './routes/ai-routes.js';
+import { ObjectQLConversationService } from './conversation/objectql-conversation-service.js';
+import { AiConversationObject, AiMessageObject } from './objects/index.js';
 
 /**
  * Configuration options for the AIServicePlugin.
@@ -15,6 +17,8 @@ export interface AIServicePluginOptions {
   adapter?: LLMAdapter;
   /** Enable debug logging. */
   debug?: boolean;
+  /** Explicit conversation service override. When set, auto-detection is skipped. */
+  conversationService?: IAIConversationService;
 }
 
 /**
@@ -66,9 +70,24 @@ export class AIServicePlugin implements Plugin {
       // No existing service — that's fine
     }
 
+    // Determine conversation service: explicit > auto-detect IDataEngine > InMemory fallback
+    let conversationService: IAIConversationService | undefined = this.options.conversationService;
+    if (!conversationService) {
+      try {
+        const engine = ctx.getService<IDataEngine>('data');
+        if (engine && typeof engine.find === 'function') {
+          conversationService = new ObjectQLConversationService(engine);
+          ctx.logger.info('[AI] Using ObjectQLConversationService (IDataEngine detected)');
+        }
+      } catch {
+        // No data engine — fall back to InMemory
+      }
+    }
+
     const config: AIServiceConfig = {
       adapter: this.options.adapter,
       logger: ctx.logger,
+      conversationService,
     };
 
     this.service = new AIService(config);
@@ -79,6 +98,16 @@ export class AIServicePlugin implements Plugin {
     } else {
       ctx.registerService('ai', this.service);
     }
+
+    // Register AI system objects so ObjectQLPlugin auto-discovers them
+    ctx.registerService('app.com.objectstack.service-ai', {
+      id: 'com.objectstack.service-ai',
+      name: 'AI Service',
+      version: '1.0.0',
+      type: 'plugin',
+      namespace: 'ai',
+      objects: [AiConversationObject, AiMessageObject],
+    });
 
     if (this.options.debug) {
       ctx.hook('ai:beforeChat', async (messages: unknown) => {
