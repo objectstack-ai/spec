@@ -110,7 +110,7 @@ export const SERVICE_ENDPOINT_CATALOG: Record<string, { group: string; defaultRo
     group: 'Notifications',
     defaultRoute: '/api/v1/notifications',
     endpoints: [
-      { method: 'GET', path: '', desc: 'List notifications' },
+      { method: 'GET', path: '', desc: 'List notifications' }, // empty path → hits the base route prefix
       { method: 'POST', path: '/devices', desc: 'Register device for push', bodyTemplate: { token: '', platform: 'web' } },
       { method: 'DELETE', path: '/devices/:deviceId', desc: 'Unregister device' },
       { method: 'GET', path: '/preferences', desc: 'Get notification preferences' },
@@ -166,7 +166,7 @@ export const SERVICE_ENDPOINT_CATALOG: Record<string, { group: string; defaultRo
     group: 'Storage',
     defaultRoute: '/api/v1/storage',
     endpoints: [
-      { method: 'POST', path: '/upload', desc: 'Upload file', bodyTemplate: {} },
+      { method: 'POST', path: '/upload', desc: 'Upload file (multipart/form-data)' },
       { method: 'GET', path: '/:fileId', desc: 'Download file' },
       { method: 'DELETE', path: '/:fileId', desc: 'Delete file' },
     ],
