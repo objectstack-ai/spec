@@ -14,7 +14,7 @@
 ### Fixes
 
 - **Vercel deployment: Fix `@vercel/node@3` runtime error**
-  - Changed `vercel.json` functions runtime from deprecated `@vercel/node@3` to `nodejs20.x` to fix Vercel CLI 50.x build error: "Function Runtimes must have a valid version"
+  - Removed the `functions.runtime` config from `vercel.json` — the `runtime` field is only for custom/community runtimes, not Node.js. Vercel auto-detects the pre-bundled `api/index.js` as a Node.js serverless function.
 
 ## 3.3.1
 
