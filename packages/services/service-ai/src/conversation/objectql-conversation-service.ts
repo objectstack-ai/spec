@@ -11,6 +11,28 @@ import type {
 const CONVERSATIONS_OBJECT = 'ai_conversations';
 const MESSAGES_OBJECT = 'ai_messages';
 
+/** Database row shape for ai_conversations. */
+interface DbConversationRow {
+  id: string;
+  title: string | null;
+  agent_id: string | null;
+  user_id: string | null;
+  metadata: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Database row shape for ai_messages. */
+interface DbMessageRow {
+  id: string;
+  conversation_id: string;
+  role: 'system' | 'user' | 'assistant' | 'tool';
+  content: string;
+  tool_calls: string | null;
+  tool_call_id: string | null;
+  created_at: string;
+}
+
 /**
  * ObjectQLConversationService — Persistent implementation of IAIConversationService.
  *
@@ -62,13 +84,13 @@ export class ObjectQLConversationService implements IAIConversationService {
   }
 
   async get(conversationId: string): Promise<AIConversation | null> {
-    const row = await this.engine.findOne(CONVERSATIONS_OBJECT, {
+    const row: DbConversationRow | null = await this.engine.findOne(CONVERSATIONS_OBJECT, {
       where: { id: conversationId },
     });
 
     if (!row) return null;
 
-    const messages = await this.engine.find(MESSAGES_OBJECT, {
+    const messages: DbMessageRow[] = await this.engine.find(MESSAGES_OBJECT, {
       where: { conversation_id: conversationId },
       orderBy: [{ field: 'created_at', order: 'asc' }],
     });
@@ -98,16 +120,17 @@ export class ObjectQLConversationService implements IAIConversationService {
       }
     }
 
-    const rows = await this.engine.find(CONVERSATIONS_OBJECT, {
+    const rows: DbConversationRow[] = await this.engine.find(CONVERSATIONS_OBJECT, {
       where: Object.keys(where).length > 0 ? where : undefined,
       orderBy: [{ field: 'created_at', order: 'asc' }],
       limit: options.limit && options.limit > 0 ? options.limit : undefined,
     });
 
-    // Batch-load messages for all conversations
+    // Load messages per conversation.
+    // N+1 is bounded by the pagination limit; driver-agnostic $in is not guaranteed.
     const conversations: AIConversation[] = [];
     for (const row of rows) {
-      const messages = await this.engine.find(MESSAGES_OBJECT, {
+      const messages: DbMessageRow[] = await this.engine.find(MESSAGES_OBJECT, {
         where: { conversation_id: row.id },
         orderBy: [{ field: 'created_at', order: 'asc' }],
       });
@@ -119,7 +142,7 @@ export class ObjectQLConversationService implements IAIConversationService {
 
   async addMessage(conversationId: string, message: AIMessage): Promise<AIConversation> {
     // Verify conversation exists
-    const row = await this.engine.findOne(CONVERSATIONS_OBJECT, {
+    const row: DbConversationRow | null = await this.engine.findOne(CONVERSATIONS_OBJECT, {
       where: { id: conversationId },
     });
     if (!row) {
@@ -167,7 +190,7 @@ export class ObjectQLConversationService implements IAIConversationService {
   /**
    * Map a database row + message rows to an AIConversation.
    */
-  private toConversation(row: any, messageRows: any[]): AIConversation {
+  private toConversation(row: DbConversationRow, messageRows: DbMessageRow[]): AIConversation {
     return {
       id: row.id,
       title: row.title ?? undefined,
@@ -183,7 +206,7 @@ export class ObjectQLConversationService implements IAIConversationService {
   /**
    * Map a database row to an AIMessage.
    */
-  private toMessage(row: any): AIMessage {
+  private toMessage(row: DbMessageRow): AIMessage {
     const msg: AIMessage = {
       role: row.role,
       content: row.content,
