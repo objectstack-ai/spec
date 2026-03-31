@@ -75,9 +75,15 @@ export class AgentRuntime {
   /**
    * Derive {@link AIRequestOptions} from an agent definition.
    *
-   * Tool references declared in `agent.tools` are resolved against
-   * `availableTools` (i.e. the full ToolRegistry definitions).
-   * Any unresolved references are silently ignored.
+   * Tool references declared in `agent.tools` are resolved by name against
+   * `availableTools` (i.e. the full set of ToolRegistry definitions).
+   * Any unresolved references (tools the agent declares but that are not
+   * registered) are silently skipped — this is intentional so that agents
+   * can be defined before all tools are available.
+   *
+   * @param agent          - The agent definition to derive options from
+   * @param availableTools - All tool definitions currently registered in the ToolRegistry
+   * @returns Request options with model config and resolved tool definitions
    */
   buildRequestOptions(
     agent: Agent,

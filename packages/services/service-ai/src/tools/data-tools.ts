@@ -5,6 +5,27 @@ import type { ToolHandler } from './tool-registry.js';
 import type { ToolRegistry } from './tool-registry.js';
 
 // ---------------------------------------------------------------------------
+// Internal type aliases for metadata payloads (returned as `unknown` from
+// IMetadataService — we cast to these lightweight shapes for field access).
+// ---------------------------------------------------------------------------
+
+/** Minimal shape of an object definition as returned by IMetadataService. */
+interface ObjectDef {
+  name: string;
+  label?: string;
+  fields?: Record<string, FieldDef>;
+}
+
+/** Minimal shape of a field definition inside an object. */
+interface FieldDef {
+  type?: string;
+  label?: string;
+  required?: boolean;
+  reference?: string;
+  options?: unknown;
+}
+
+// ---------------------------------------------------------------------------
 // Data context — injected once at registration time
 // ---------------------------------------------------------------------------
 
@@ -198,7 +219,7 @@ export const DATA_TOOL_DEFINITIONS: AIToolDefinition[] = [
 function createListObjectsHandler(ctx: DataToolContext): ToolHandler {
   return async () => {
     const objects = await ctx.metadataService.listObjects();
-    const summary = objects.map((o: any) => ({
+    const summary = (objects as ObjectDef[]).map(o => ({
       name: o.name,
       label: o.label ?? o.name,
     }));
@@ -214,11 +235,10 @@ function createDescribeObjectHandler(ctx: DataToolContext): ToolHandler {
       return JSON.stringify({ error: `Object "${objectName}" not found` });
     }
 
-    const def = objectDef as any;
+    const def = objectDef as ObjectDef;
     const fields = def.fields ?? {};
-    const fieldSummary: Record<string, any> = {};
-    for (const [key, fd] of Object.entries(fields)) {
-      const f = fd as any;
+    const fieldSummary: Record<string, Record<string, unknown>> = {};
+    for (const [key, f] of Object.entries(fields)) {
       fieldSummary[key] = {
         type: f.type,
         label: f.label ?? key,
@@ -289,6 +309,9 @@ function createGetRecordHandler(ctx: DataToolContext): ToolHandler {
   };
 }
 
+/** Aggregation function names supported by the data engine. */
+type AggFn = 'count' | 'sum' | 'avg' | 'min' | 'max' | 'count_distinct';
+
 function createAggregateDataHandler(ctx: DataToolContext): ToolHandler {
   return async (args) => {
     const { objectName, aggregations, groupBy, where } = args as {
@@ -302,7 +325,7 @@ function createAggregateDataHandler(ctx: DataToolContext): ToolHandler {
       where,
       groupBy,
       aggregations: aggregations.map(a => ({
-        function: a.function as any,
+        function: a.function as AggFn,
         field: a.field,
         alias: a.alias,
       })),

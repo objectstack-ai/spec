@@ -97,9 +97,7 @@ export function buildAgentRoutes(
           // Use chatWithTools for automatic tool resolution
           const result = await aiService.chatWithTools(fullMessages, {
             ...mergedOptions,
-            maxIterations: agent.guardrails?.maxTokensPerInvocation
-              ? undefined  // let default apply
-              : undefined,
+            maxIterations: agent.planning?.maxIterations,
           });
 
           return { status: 200, body: result };
