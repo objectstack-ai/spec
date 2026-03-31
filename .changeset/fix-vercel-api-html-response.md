@@ -4,15 +4,14 @@
 
 Fix Vercel deployment API endpoints returning HTML instead of JSON.
 
-Replace the custom `getRequestListener` export in `server/index.ts` with the
-standard `handle()` adapter from `@hono/node-server/vercel` and the
-outer→inner Hono delegation pattern (`inner.fetch(c.req.raw)`).
+The `bundle-api.mjs` script was emitting the serverless function to `api/index.js`
+at the project root, but `vercel.json` sets `outputDirectory: "dist"` — causing
+Vercel to never find the function entrypoint and fall back to the SPA HTML route
+for all `/api/*` requests.
 
-- The `handle()` adapter correctly wraps the Hono app with the
-  `(IncomingMessage, ServerResponse) => Promise<void>` signature that
-  Vercel's Node.js runtime expects for serverless functions in `api/`.
-- `@hono/node-server/vercel`'s `getRequestListener()` already handles
-  Vercel's pre-buffered `rawBody` natively, removing the need for the
-  custom body-extraction helper.
-- The outer→inner delegation pattern matches the documented ObjectStack
-  Vercel deployment guide and the `@objectstack/hono` adapter test suite.
+- Change esbuild `outfile` from `api/index.js` to `dist/api/index.js` so the
+  bundled serverless function lands inside the Vercel output directory.
+- Add explicit `functions` config in `vercel.json` pointing to `api/index.js`
+  (relative to `outputDirectory`) with `@vercel/node@3` runtime.
+- Remove obsolete `.gitignore` entries for `api/index.js` and `api/index.js.map`
+  (now emitted under `dist/` which is already git-ignored).

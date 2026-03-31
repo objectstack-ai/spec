@@ -54,6 +54,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to `:memory:` (ephemeral SQLite). This ensures data persistence across serverless function
   invocations on Vercel. The browser MSW mock kernel remains unchanged (InMemoryDriver).
 
+### Fixed
+- **Vercel API always returns HTML — serverless function entrypoint not found** — The `bundle-api.mjs`
+  script was emitting `api/index.js` at the project root, but `vercel.json` sets `outputDirectory: "dist"`,
+  so Vercel could not discover the serverless function and fell back to the SPA HTML route for all
+  `/api/*` requests. Changed esbuild `outfile` to `dist/api/index.js` and added explicit `functions`
+  config in `vercel.json` with `@vercel/node@3` runtime.
+
 ### Added
 - **Batch schema sync for remote DDL in kernel bootstrap** — `ObjectQLPlugin.syncRegisteredSchemas()`
   now groups objects by driver and uses `syncSchemasBatch()` when the driver advertises
