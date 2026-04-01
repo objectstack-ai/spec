@@ -250,13 +250,25 @@ export function buildAIRoutes(
         const wantStream = body.stream !== false;
 
         if (wantStream) {
-          // Vercel Data Stream Protocol (SSE)
+          // UI Message Stream Protocol (SSE with JSON payloads)
           try {
             if (!aiService.streamChat) {
               return { status: 501, body: { error: 'Streaming is not supported by the configured AI service' } };
             }
             const events = aiService.streamChat(finalMessages, resolvedOptions as any);
-            return { status: 200, stream: true, vercelDataStream: true, events: encodeVercelDataStream(events) };
+            return {
+              status: 200,
+              stream: true,
+              vercelDataStream: true,
+              contentType: 'text/event-stream',
+              headers: {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+                'x-vercel-ai-ui-message-stream': 'v1',
+              },
+              events: encodeVercelDataStream(events),
+            };
           } catch (err) {
             logger.error('[AI Route] /chat stream error', err instanceof Error ? err : undefined);
             return { status: 500, body: { error: 'Internal AI service error' } };

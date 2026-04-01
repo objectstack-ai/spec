@@ -414,24 +414,22 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
                             if (result.stream && result.events) {
                                 // SSE streaming response
                                 res.status(result.status);
-                                res.header('Content-Type', result.vercelDataStream
-                                    ? 'text/plain; charset=utf-8'
-                                    : 'text/event-stream');
-                                res.header('Cache-Control', 'no-cache');
-                                res.header('Connection', 'keep-alive');
 
-                                // Write the stream — IHttpServer implementations
-                                // may or may not support raw write.  Fall back to
-                                // collecting and sending JSON if write is unavailable.
+                                // Apply headers from the route result if available
+                                if (result.headers) {
+                                    for (const [k, v] of Object.entries(result.headers)) {
+                                        res.header(k, v);
+                                    }
+                                } else {
+                                    res.header('Content-Type', 'text/event-stream');
+                                    res.header('Cache-Control', 'no-cache');
+                                    res.header('Connection', 'keep-alive');
+                                }
+
+                                // Write the stream — events are pre-encoded SSE strings
                                 if (typeof res.write === 'function' && typeof res.end === 'function') {
                                     for await (const event of result.events) {
-                                        if (result.vercelDataStream) {
-                                            // Events are already TextStreamPart — need encoding
-                                            // Import is dynamic to avoid hard dep on service-ai
-                                            res.write(typeof event === 'string' ? event : JSON.stringify(event) + '\n');
-                                        } else {
-                                            res.write(`data: ${JSON.stringify(event)}\n\n`);
-                                        }
+                                        res.write(typeof event === 'string' ? event : `data: ${JSON.stringify(event)}\n\n`);
                                     }
                                     res.end();
                                 } else {
