@@ -91,11 +91,27 @@ function validateMessage(raw: unknown): string | null {
   if (typeof msg.role !== 'string' || !VALID_ROLES.has(msg.role)) {
     return `message.role must be one of ${[...VALID_ROLES].map(r => `"${r}"`).join(', ')}`;
   }
-  // Accept string content (legacy) or array content (Vercel multi-part)
-  if (typeof msg.content !== 'string' && !Array.isArray(msg.content)) {
-    return 'message.content must be a string or an array';
+  const content = msg.content;
+  if (typeof content === 'string') {
+    return null;
   }
-  return null;
+  if (Array.isArray(content)) {
+    const parts = content as unknown[];
+    for (const part of parts) {
+      if (typeof part !== 'object' || part === null) {
+        return 'message.content array elements must be non-null objects';
+      }
+      const partObj = part as Record<string, unknown>;
+      if (typeof partObj.type !== 'string') {
+        return 'each message.content array element must have a string "type" property';
+      }
+      if (partObj.type === 'text' && typeof partObj.text !== 'string') {
+        return 'message.content elements with type "text" must have a string "text" property';
+      }
+    }
+    return null;
+  }
+  return 'message.content must be a string or an array';
 }
 
 /**
@@ -167,7 +183,11 @@ export function buildAIRoutes(
         // ── Prepend system prompt ────────────────────────────
         // Vercel useChat sends `system` (or the deprecated `systemPrompt`)
         // as a top-level field.  We prepend it as a system message.
-        const systemPrompt = (body.system ?? body.systemPrompt) as string | undefined;
+        const rawSystemPrompt = body.system ?? body.systemPrompt;
+        if (rawSystemPrompt != null && typeof rawSystemPrompt !== 'string') {
+          return { status: 400, body: { error: 'system/systemPrompt must be a string' } };
+        }
+        const systemPrompt = rawSystemPrompt as string | undefined;
         const finalMessages: ModelMessage[] = [
           ...(systemPrompt
             ? [{ role: 'system' as const, content: systemPrompt }]

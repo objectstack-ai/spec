@@ -8,8 +8,42 @@ import type {
   ToolSet,
 } from '@objectstack/spec/contracts';
 import type { LLMAdapter } from '@objectstack/spec/contracts';
+import type { AIToolDefinition } from '@objectstack/spec/contracts';
 import type { LanguageModelV3 } from '@ai-sdk/provider';
-import { generateText, streamText } from 'ai';
+import { generateText, streamText, tool as vercelTool, jsonSchema } from 'ai';
+
+/**
+ * Convert ObjectStack `AIRequestOptions` into the subset of Vercel AI SDK
+ * options supported by `generateText` / `streamText`.
+ *
+ * Forwards: temperature, maxTokens, stop (→ stopSequences), tools, toolChoice.
+ */
+function buildVercelOptions(options?: AIRequestOptions): Record<string, unknown> {
+  if (!options) return {};
+
+  const opts: Record<string, unknown> = {};
+
+  if (options.temperature != null) opts.temperature = options.temperature;
+  if (options.maxTokens != null) opts.maxTokens = options.maxTokens;
+  if (options.stop?.length) opts.stopSequences = options.stop;
+
+  if (options.tools?.length) {
+    const tools: Record<string, unknown> = {};
+    for (const t of options.tools as AIToolDefinition[]) {
+      tools[t.name] = vercelTool({
+        description: t.description,
+        inputSchema: jsonSchema(t.parameters as any),
+      });
+    }
+    opts.tools = tools;
+  }
+
+  if (options.toolChoice != null) {
+    opts.toolChoice = options.toolChoice;
+  }
+
+  return opts;
+}
 
 /**
  * VercelLLMAdapter — Production LLM adapter powered by the Vercel AI SDK.
@@ -39,8 +73,7 @@ export class VercelLLMAdapter implements LLMAdapter {
     const result = await generateText({
       model: this.model,
       messages,
-      temperature: options?.temperature,
-      maxTokens: options?.maxTokens,
+      ...buildVercelOptions(options),
     });
 
     return {
@@ -59,8 +92,7 @@ export class VercelLLMAdapter implements LLMAdapter {
     const result = await generateText({
       model: this.model,
       prompt,
-      temperature: options?.temperature,
-      maxTokens: options?.maxTokens,
+      ...buildVercelOptions(options),
     });
 
     return {
@@ -81,8 +113,7 @@ export class VercelLLMAdapter implements LLMAdapter {
     const result = streamText({
       model: this.model,
       messages,
-      temperature: options?.temperature,
-      maxTokens: options?.maxTokens,
+      ...buildVercelOptions(options),
     });
 
     for await (const part of result.fullStream) {
