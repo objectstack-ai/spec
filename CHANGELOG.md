@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Only `records` is returned, matching the `FindDataResponseSchema` spec. All
   downstream consumers (Studio, app-host example, tests) updated to use `records`
   exclusively. OData-specific responses (`ODataResponseSchema`) retain `value` per
-  the OData v4 standard — protocol adaptation should be handled in the HTTP
+  the OData v4 standard — protocol-to-OData adaptation is handled in the HTTP
   dispatch layer.
 
 ### Changed

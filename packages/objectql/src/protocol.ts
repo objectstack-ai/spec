@@ -481,6 +481,8 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         }
         
         const records = await this.engine.find(request.object, options);
+        // Spec: FindDataResponseSchema — only `records` is returned.
+        // OData `value` adaptation (if needed) is handled in the HTTP dispatch layer.
         return {
             object: request.object,
             records,
