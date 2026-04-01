@@ -35,13 +35,13 @@ await build({
   entryPoints: ['server/index.ts'],
   bundle: true,
   platform: 'node',
-  format: 'esm',
+  format: 'cjs',
   target: 'es2020',
-  outfile: 'dist/api/index.js',
+  outfile: 'api/index.js',
   sourcemap: true,
   external: EXTERNAL,
   // Silence warnings about optional/unused require() calls in knex drivers
   logOverride: { 'require-resolve-not-external': 'silent' },
 });
 
-console.log('[bundle-api] Bundled server/index.ts → dist/api/index.js');
+console.log('[bundle-api] Bundled server/index.ts → api/index.js');

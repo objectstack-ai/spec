@@ -2,14 +2,28 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "cd ../.. && pnpm install",
-  "buildCommand": "cd ../.. && pnpm turbo run build --filter=@objectstack/studio && cd apps/studio && node scripts/bundle-api.mjs",
-  "outputDirectory": "dist",
+  "buildCommand": "bash scripts/build-vercel.sh",
   "build": {
     "env": {
       "VITE_RUNTIME_MODE": "server",
       "VITE_SERVER_URL": "https://play.objectstack.ai"
     }
   },
+  "functions": {
+    "api/index.js": {
+      "memory": 1024,
+      "maxDuration": 60,
+      "includeFiles": "node_modules/{@libsql,better-sqlite3}/**"
+    }
+  },
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
