@@ -783,12 +783,12 @@ describe('ServiceStatus', () => {
 // ==========================================
 
 describe('ServiceInfoSchema (handlerReady field)', () => {
-  it('should default handlerReady to false', () => {
+  it('should default handlerReady to undefined when omitted', () => {
     const info = ServiceInfoSchema.parse({
       enabled: true,
       status: 'available',
     });
-    expect(info.handlerReady).toBe(false);
+    expect(info.handlerReady).toBeUndefined();
   });
 
   it('should accept explicit handlerReady: true', () => {

@@ -44,9 +44,9 @@ export const ServiceInfoSchema = z.object({
    * Clients SHOULD check this flag before displaying a service endpoint in the UI.
    * @default false
    */
-  handlerReady: z.boolean().default(false).describe(
+  handlerReady: z.boolean().optional().describe(
     'Whether the HTTP handler is confirmed to be mounted. '
-    + 'false means the route is declared but may return 501.'
+    + 'Omitted or false means the route is declared but may return 501.'
   ),
   /** Route path (only present if enabled) */
   route: z.string().optional().describe('e.g. /api/v1/analytics'),
