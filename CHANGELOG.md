@@ -84,6 +84,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `@ai-sdk/react/useChat` directly
 - AI `/chat` endpoint from `DEFAULT_AI_ROUTES` plugin REST API definition
 
+### Added
+- `ai` v6 as a dependency of `@objectstack/spec` for type re-exports
+- **Vercel AI Data Stream Protocol support on `/api/v1/ai/chat`** — The chat
+  endpoint now supports dual-mode responses:
+  - **Streaming (default)**: When `stream` is not `false`, returns Vercel Data
+    Stream Protocol frames (`0:` text, `9:` tool-call, `d:` finish, etc.),
+    directly consumable by `@ai-sdk/react/useChat`
+  - **JSON (legacy)**: When `stream: false`, returns the original JSON response
+  - Accepts Vercel useChat flat body format (`system`, `model`, `temperature`,
+    `maxTokens` as top-level fields) alongside the legacy `{ messages, options }`
+  - `systemPrompt` / `system` field is prepended as a system message
+  - Message validation now accepts Vercel multi-part array content
+  - `RouteResponse.vercelDataStream` flag signals HTTP server layer to encode
+    events using the Vercel Data Stream frame format
+- **`VercelLLMAdapter`** — Production adapter wrapping Vercel AI SDK's
+  `generateText` / `streamText` for any compatible model provider (OpenAI,
+  Anthropic, Google, Ollama, etc.)
+- **`vercel-stream-encoder.ts`** — Utilities (`encodeStreamPart`,
+  `encodeVercelDataStream`) to convert `TextStreamPart<ToolSet>` events into
+  Vercel Data Stream wire-format frames
+- 176 service-ai tests passing (18 new tests for stream encoder, route
+  dual-mode, systemPrompt, flat options, array content)
+
 ## [4.0.1] — 2026-03-31
 
 ### Fixed

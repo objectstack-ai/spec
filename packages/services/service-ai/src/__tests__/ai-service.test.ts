@@ -382,7 +382,19 @@ describe('AI Routes', () => {
     expect(paths).toContain('DELETE /api/v1/ai/conversations/:id');
   });
 
-  it('POST /api/v1/ai/chat should return chat result', async () => {
+  it('POST /api/v1/ai/chat should return JSON result when stream=false', async () => {
+    const routes = buildAIRoutes(service, service.conversationService, silentLogger);
+    const chatRoute = routes.find(r => r.path === '/api/v1/ai/chat')!;
+
+    const response = await chatRoute.handler({
+      body: { messages: [{ role: 'user', content: 'Hi' }], stream: false },
+    });
+
+    expect(response.status).toBe(200);
+    expect((response.body as any).content).toBe('[memory] Hi');
+  });
+
+  it('POST /api/v1/ai/chat should default to Vercel Data Stream mode', async () => {
     const routes = buildAIRoutes(service, service.conversationService, silentLogger);
     const chatRoute = routes.find(r => r.path === '/api/v1/ai/chat')!;
 
@@ -391,7 +403,83 @@ describe('AI Routes', () => {
     });
 
     expect(response.status).toBe(200);
+    expect(response.stream).toBe(true);
+    expect(response.vercelDataStream).toBe(true);
+    expect(response.events).toBeDefined();
+
+    // Consume the Vercel Data Stream events
+    const events: unknown[] = [];
+    for await (const event of response.events!) {
+      events.push(event);
+    }
+    expect(events.length).toBeGreaterThan(0);
+  });
+
+  it('POST /api/v1/ai/chat should prepend systemPrompt as system message', async () => {
+    const routes = buildAIRoutes(service, service.conversationService, silentLogger);
+    const chatRoute = routes.find(r => r.path === '/api/v1/ai/chat')!;
+
+    const response = await chatRoute.handler({
+      body: {
+        messages: [{ role: 'user', content: 'Hello' }],
+        system: 'You are a helpful assistant',
+        stream: false,
+      },
+    });
+
+    expect(response.status).toBe(200);
+    // MemoryLLMAdapter echoes the last user message
+    expect((response.body as any).content).toBe('[memory] Hello');
+  });
+
+  it('POST /api/v1/ai/chat should accept deprecated systemPrompt field', async () => {
+    const routes = buildAIRoutes(service, service.conversationService, silentLogger);
+    const chatRoute = routes.find(r => r.path === '/api/v1/ai/chat')!;
+
+    const response = await chatRoute.handler({
+      body: {
+        messages: [{ role: 'user', content: 'Hi' }],
+        systemPrompt: 'Be concise',
+        stream: false,
+      },
+    });
+
+    expect(response.status).toBe(200);
     expect((response.body as any).content).toBe('[memory] Hi');
+  });
+
+  it('POST /api/v1/ai/chat should accept flat Vercel-style fields (model, temperature)', async () => {
+    const routes = buildAIRoutes(service, service.conversationService, silentLogger);
+    const chatRoute = routes.find(r => r.path === '/api/v1/ai/chat')!;
+
+    const response = await chatRoute.handler({
+      body: {
+        messages: [{ role: 'user', content: 'Hi' }],
+        model: 'gpt-4o',
+        temperature: 0.5,
+        stream: false,
+      },
+    });
+
+    expect(response.status).toBe(200);
+    // MemoryLLMAdapter uses the model from options when provided
+    expect((response.body as any).model).toBe('gpt-4o');
+  });
+
+  it('POST /api/v1/ai/chat should accept array content (Vercel multi-part)', async () => {
+    const routes = buildAIRoutes(service, service.conversationService, silentLogger);
+    const chatRoute = routes.find(r => r.path === '/api/v1/ai/chat')!;
+
+    const response = await chatRoute.handler({
+      body: {
+        messages: [{ role: 'user', content: [{ type: 'text', text: 'Hi' }] }],
+        stream: false,
+      },
+    });
+
+    // MemoryLLMAdapter falls back to "(complex content)" for non-string
+    expect(response.status).toBe(200);
+    expect((response.body as any).content).toBe('[memory] (complex content)');
   });
 
   it('POST /api/v1/ai/chat should return 400 without messages', async () => {
@@ -531,16 +619,30 @@ describe('AI Routes', () => {
     expect((response.body as any).error).toContain('message.role');
   });
 
-  it('POST /api/v1/ai/chat should return 400 for messages with non-string content', async () => {
+  it('POST /api/v1/ai/chat should return 400 for messages with non-string/non-array content', async () => {
     const routes = buildAIRoutes(service, service.conversationService, silentLogger);
     const chatRoute = routes.find(r => r.path === '/api/v1/ai/chat')!;
 
+    // Numeric content should be rejected
     const response = await chatRoute.handler({
       body: { messages: [{ role: 'user', content: 123 }] },
     });
-
     expect(response.status).toBe(400);
     expect((response.body as any).error).toContain('content');
+
+    // Object content (not an array) should be rejected
+    const response2 = await chatRoute.handler({
+      body: { messages: [{ role: 'user', content: { nested: true } }] },
+    });
+    expect(response2.status).toBe(400);
+    expect((response2.body as any).error).toContain('content');
+
+    // Boolean content should be rejected
+    const response3 = await chatRoute.handler({
+      body: { messages: [{ role: 'user', content: true }] },
+    });
+    expect(response3.status).toBe(400);
+    expect((response3.body as any).error).toContain('content');
   });
 
   it('POST /api/v1/ai/conversations/:id/messages should return 400 for invalid role', async () => {
@@ -620,6 +722,7 @@ describe('AI Routes', () => {
           { role: 'assistant', content: '' },
           { role: 'tool', content: '{"temp": 22}', toolCallId: 'call_1' },
         ],
+        stream: false,
       },
     });
 
