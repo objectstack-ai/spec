@@ -77,11 +77,44 @@ export interface RouteResponse {
 const VALID_ROLES = new Set<string>(['system', 'user', 'assistant', 'tool']);
 
 /**
+ * Normalize a Vercel AI SDK v6 message (which may use `parts` instead of
+ * `content`) into a plain `{ role, content }` ModelMessage.
+ */
+function normalizeMessage(raw: Record<string, unknown>): ModelMessage {
+  const role = raw.role as string;
+
+  // If content is already a string, use it directly
+  if (typeof raw.content === 'string') {
+    return { role, content: raw.content } as unknown as ModelMessage;
+  }
+
+  // If content is an array (multi-part), pass through
+  if (Array.isArray(raw.content)) {
+    return { role, content: raw.content } as unknown as ModelMessage;
+  }
+
+  // Vercel AI SDK v6: extract text from `parts` array
+  if (Array.isArray(raw.parts)) {
+    const textParts = (raw.parts as Array<Record<string, unknown>>)
+      .filter(p => p.type === 'text' && typeof p.text === 'string')
+      .map(p => p.text as string);
+    if (textParts.length > 0) {
+      return { role, content: textParts.join('') } as unknown as ModelMessage;
+    }
+  }
+
+  // Fallback: empty content (e.g. tool-only assistant messages)
+  return { role, content: '' } as unknown as ModelMessage;
+}
+
+/**
  * Validate that `raw` is a well-formed message.
  * Returns null on success, or an error string on failure.
  *
- * Accepts both simple string content (legacy) and Vercel AI SDK array content
- * (e.g. `[{ type: 'text', text: '...' }]`).
+ * Accepts:
+ *  - Simple string `content` (legacy)
+ *  - Array `content` (e.g. `[{ type: 'text', text: '...' }]`)
+ *  - Vercel AI SDK v6 `parts` format (content may be absent/null)
  */
 function validateMessage(raw: unknown): string | null {
   if (typeof raw !== 'object' || raw === null) {
@@ -92,12 +125,21 @@ function validateMessage(raw: unknown): string | null {
     return `message.role must be one of ${[...VALID_ROLES].map(r => `"${r}"`).join(', ')}`;
   }
   const content = msg.content;
+
+  // Vercel AI SDK v6 sends `parts` instead of (or alongside) `content`.
+  // Accept any message that carries a `parts` array, even when `content` is absent.
+  if (Array.isArray(msg.parts)) {
+    return null;
+  }
+
+  // content is a plain string — OK
   if (typeof content === 'string') {
     return null;
   }
+
+  // content is an array of typed parts (legacy multi-part format)
   if (Array.isArray(content)) {
-    const parts = content as unknown[];
-    for (const part of parts) {
+    for (const part of content as unknown[]) {
       if (typeof part !== 'object' || part === null) {
         return 'message.content array elements must be non-null objects';
       }
@@ -111,7 +153,15 @@ function validateMessage(raw: unknown): string | null {
     }
     return null;
   }
-  return 'message.content must be a string or an array';
+
+  // Assistant / tool messages may legitimately have null or missing content
+  if (content === null || content === undefined) {
+    if (msg.role === 'assistant' || msg.role === 'tool') {
+      return null;
+    }
+  }
+
+  return 'message.content must be a string, an array, or include parts';
 }
 
 /**
@@ -192,7 +242,7 @@ export function buildAIRoutes(
           ...(systemPrompt
             ? [{ role: 'system' as const, content: systemPrompt }]
             : []),
-          ...(messages as ModelMessage[]),
+          ...messages.map(m => normalizeMessage(m as Record<string, unknown>)),
         ];
 
         // ── Choose response mode ─────────────────────────────
@@ -249,7 +299,7 @@ export function buildAIRoutes(
           if (!aiService.streamChat) {
             return { status: 501, body: { error: 'Streaming is not supported by the configured AI service' } };
           }
-          const events = aiService.streamChat(messages as ModelMessage[], options as any);
+          const events = aiService.streamChat(messages.map(m => normalizeMessage(m as Record<string, unknown>)), options as any);
           return { status: 200, stream: true, events };
         } catch (err) {
           logger.error('[AI Route] /chat/stream error', err instanceof Error ? err : undefined);
