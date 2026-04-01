@@ -69,7 +69,7 @@ export interface RouteResponse {
 const VALID_ROLES = new Set<string>(['system', 'user', 'assistant', 'tool']);
 
 /**
- * Validate that `raw` is a well-formed AIMessage.
+ * Validate that `raw` is a well-formed message.
  * Returns null on success, or an error string on failure.
  */
 function validateMessage(raw: unknown): string | null {
