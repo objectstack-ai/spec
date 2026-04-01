@@ -45,6 +45,7 @@
     "@objectstack/plugin-hono-server": "workspace:*",
     "@objectstack/rest": "workspace:*",
     "@objectstack/runtime": "workspace:^",
+    "@objectstack/service-ai": "workspace:*",
     "@objectstack/spec": "workspace:*",
     "@oclif/core": "^4.10.3",
     "bundle-require": "^5.1.0",

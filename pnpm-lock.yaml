@@ -522,6 +522,9 @@ importers:
       '@objectstack/runtime':
         specifier: workspace:^
         version: link:../runtime
+      '@objectstack/service-ai':
+        specifier: workspace:*
+        version: link:../services/service-ai
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../spec
