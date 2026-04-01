@@ -10,8 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Discovery Schema — `ServiceStatus` enum & `handlerReady` field** — Added `'registered'`
   status to `ServiceInfoSchema` to distinguish routes that are declared in the dispatcher
-  table but whose HTTP handler has not been verified. Added `handlerReady` boolean field
-  (default `false`) so clients can filter handler-ready services before displaying endpoints.
+  table but whose HTTP handler has not been verified. Added optional `handlerReady` boolean
+  field (omitted = unverified/unknown) so clients can filter handler-ready services before
+  displaying endpoints when the value is explicitly `true`.
 - **Discovery Schema — `RouteHealthReportSchema`** — New schema for automated route/handler
   coverage reporting at startup. Includes per-route health entries (`pass`, `fail`, `missing`,
   `skip`) and summary counters.
@@ -54,8 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **Runtime Dispatcher — semantic error differentiation** — `HttpDispatcher.dispatch()` now
   returns typed 404 (`ROUTE_NOT_FOUND`) with diagnostic info instead of bare `{ handled: false }`.
-  Added `notImplemented()` (501), `serviceUnavailable()` (503), and `routeNotFound()` (404)
-  helper methods.
+  Added `routeNotFound()` (404) helper method.
 - **Runtime Dispatcher — `/health` handler** — Added health endpoint returning `status`,
   `timestamp`, `version`, and `uptime`.
 - **Runtime Dispatcher — `handlerReady` in discovery** — `getDiscoveryInfo()` now emits
