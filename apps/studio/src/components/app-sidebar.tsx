@@ -120,7 +120,7 @@ interface ProtocolGroup {
 
 const PROTOCOL_GROUPS: ProtocolGroup[] = [
   { key: 'data',       label: 'Data',       icon: Database,  types: ['object', 'objects', 'hooks', 'mappings', 'analyticsCubes', 'data'] },
-  { key: 'ui',         label: 'UI',         icon: AppWindow,  types: ['actions', 'views', 'pages', 'dashboards', 'reports', 'themes'] },
+  { key: 'ui',         label: 'UI',         icon: AppWindow,  types: ['app', 'apps', 'actions', 'views', 'pages', 'dashboards', 'reports', 'themes'] },
   { key: 'automation', label: 'Automation', icon: Workflow,   types: ['flows', 'workflows', 'approvals', 'webhooks'] },
   { key: 'security',   label: 'Security',   icon: Shield,     types: ['roles', 'permissions', 'profiles', 'sharingRules', 'policies'] },
   { key: 'ai',         label: 'AI',         icon: Bot,        types: ['agents', 'ragPipelines'] },
