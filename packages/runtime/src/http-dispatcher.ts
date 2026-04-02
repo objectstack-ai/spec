@@ -1317,15 +1317,14 @@ export class HttpDispatcher {
      * Main Dispatcher Entry Point
      * Routes the request to the appropriate handler based on path and precedence
      */
-    async dispatch(method: string, path: string, body: any, query: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
+    async dispatch(method: string, path: string, body: any, query: any, context: HttpProtocolContext, prefix?: string): Promise<HttpDispatcherResult> {
         const cleanPath = path.replace(/\/$/, ''); // Remove trailing slash if present, but strict on clean paths
 
         // 0. Discovery Endpoint (GET /discovery or GET /)
         // Standard route: /discovery (protocol-compliant)
         // Legacy route: / (empty path, for backward compatibility — MSW strips base URL)
         if ((cleanPath === '/discovery' || cleanPath === '') && method === 'GET') {
-             // We use '' as prefix since we are internal dispatcher
-             const info = await this.getDiscoveryInfo('');
+             const info = await this.getDiscoveryInfo(prefix ?? '');
              return { 
                  handled: true, 
                  response: this.success(info) 

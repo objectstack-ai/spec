@@ -167,7 +167,7 @@ export function createExpressRouter(options: ExpressAdapterOptions): Router {
       const subPath = '/' + (req.params as any).path;
       const method = req.method;
       const body = (method === 'POST' || method === 'PUT' || method === 'PATCH') ? req.body : undefined;
-      const result = await dispatcher.dispatch(method, subPath, body, req.query, { request: req, response: res });
+      const result = await dispatcher.dispatch(method, subPath, body, req.query, { request: req, response: res }, prefix);
       return sendResult(result, res);
     } catch (err: any) {
       return errorResponse(err, res);

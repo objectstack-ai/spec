@@ -66,6 +66,10 @@ export function createRouteHandler(options: NextAdapterOptions) {
       return NextResponse.json({ data: await dispatcher.getDiscoveryInfo(options.prefix || '/api') });
     }
 
+    if (segments.length === 1 && segments[0] === 'discovery' && method === 'GET') {
+      return NextResponse.json({ data: await dispatcher.getDiscoveryInfo(options.prefix || '/api') });
+    }
+
     try {
         const rawRequest = req;
 
@@ -135,7 +139,7 @@ export function createRouteHandler(options: NextAdapterOptions) {
         const queryParams: Record<string, any> = {};
         url.searchParams.forEach((val, key) => queryParams[key] = val);
 
-        const result = await dispatcher.dispatch(method, path, body, queryParams, { request: rawRequest });
+        const result = await dispatcher.dispatch(method, path, body, queryParams, { request: rawRequest }, options.prefix || '/api');
         return toResponse(result);
 
     } catch (err: any) {

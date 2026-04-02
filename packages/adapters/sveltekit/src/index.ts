@@ -106,6 +106,13 @@ export function createRequestHandler(options: SvelteKitAdapterOptions) {
       });
     }
 
+    if (segments.length === 1 && segments[0] === 'discovery' && method === 'GET') {
+      return new Response(JSON.stringify({ data: await dispatcher.getDiscoveryInfo(prefix) }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     try {
       // --- Auth (needs auth service integration) ---
       if (segments[0] === 'auth') {
@@ -176,7 +183,7 @@ export function createRequestHandler(options: SvelteKitAdapterOptions) {
       const queryParams: Record<string, any> = {};
       url.searchParams.forEach((val, key) => { queryParams[key] = val; });
 
-      const result = await dispatcher.dispatch(method, subPath, body, queryParams, { request });
+      const result = await dispatcher.dispatch(method, subPath, body, queryParams, { request }, prefix);
       return toResponse(result);
     } catch (err: any) {
       return errorJson(err.message || 'Internal Server Error', err.statusCode || 500);
