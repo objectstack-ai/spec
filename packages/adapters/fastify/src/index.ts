@@ -80,6 +80,10 @@ export async function objectStackPlugin(fastify: FastifyInstance, options: Fasti
     return reply.send({ data: await dispatcher.getDiscoveryInfo(prefix) });
   });
 
+  fastify.get(`${prefix}/discovery`, async (_request: FastifyRequest, reply: FastifyReply) => {
+    return reply.send({ data: await dispatcher.getDiscoveryInfo(prefix) });
+  });
+
   // --- .well-known ---
   fastify.get('/.well-known/objectstack', async (_request: FastifyRequest, reply: FastifyReply) => {
     return reply.redirect(prefix);
@@ -172,7 +176,7 @@ export async function objectStackPlugin(fastify: FastifyInstance, options: Fasti
       const subPath = urlPath.substring(prefix.length);
       const method = request.method;
       const body = (method === 'POST' || method === 'PUT' || method === 'PATCH') ? request.body : undefined;
-      const result = await dispatcher.dispatch(method, subPath, body, request.query, { request: request.raw });
+      const result = await dispatcher.dispatch(method, subPath, body, request.query, { request: request.raw }, prefix);
       return sendResult(result, reply);
     } catch (err: any) {
       return errorResponse(err, reply);

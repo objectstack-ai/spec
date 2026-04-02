@@ -112,6 +112,10 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
     return c.json({ data: await dispatcher.getDiscoveryInfo(prefix) });
   });
 
+  app.get(`${prefix}/discovery`, async (c) => {
+    return c.json({ data: await dispatcher.getDiscoveryInfo(prefix) });
+  });
+
   // --- .well-known ---
   app.get('/.well-known/objectstack', (c) => {
     return c.redirect(prefix);
@@ -202,7 +206,7 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
       const url = new URL(c.req.url);
       url.searchParams.forEach((val, key) => { queryParams[key] = val; });
 
-      const result = await dispatcher.dispatch(method, subPath, body, queryParams, { request: c.req.raw });
+      const result = await dispatcher.dispatch(method, subPath, body, queryParams, { request: c.req.raw }, prefix);
       return toResponse(c, result);
     } catch (err: any) {
       return errorJson(c, err.message || 'Internal Server Error', err.statusCode || 500);

@@ -228,6 +228,23 @@ export class MSWPlugin implements Plugin {
             })
         );
 
+        // Explicit /discovery endpoint — must be registered before catch-all
+        // so dispatch() is not called with an empty prefix.
+        this.handlers.push(
+            http.get(`*${baseUrl}`, async () => {
+                if (this.dispatcher) {
+                    return HttpResponse.json({ data: await this.dispatcher.getDiscoveryInfo(baseUrl) });
+                }
+                return HttpResponse.json({ data: { version: 'v1', url: baseUrl } });
+            }),
+            http.get(`*${baseUrl}/discovery`, async () => {
+                if (this.dispatcher) {
+                    return HttpResponse.json({ data: await this.dispatcher.getDiscoveryInfo(baseUrl) });
+                }
+                return HttpResponse.json({ data: { version: 'v1', url: baseUrl } });
+            })
+        );
+
         if (this.dispatcher) {
             const dispatcher = this.dispatcher;
             
@@ -271,7 +288,8 @@ export class MSWPlugin implements Plugin {
                     path, 
                     body, 
                     query, 
-                    { request }
+                    { request },
+                    baseUrl
                 );
 
                 if (result.handled) {

@@ -95,6 +95,13 @@ export function createH3Router(options: NuxtAdapterOptions): Router {
     }),
   );
 
+  router.get(
+    `${prefix}/discovery`,
+    defineEventHandler(async () => {
+      return { data: await dispatcher.getDiscoveryInfo(prefix) };
+    }),
+  );
+
   // --- .well-known ---
   router.get(
     '/.well-known/objectstack',
@@ -210,7 +217,7 @@ export function createH3Router(options: NuxtAdapterOptions): Router {
           ? await readBody(event)
           : undefined;
         const query = getQuery(event);
-        const result = await dispatcher.dispatch(method, subPath, body, query, { request: event.node.req });
+        const result = await dispatcher.dispatch(method, subPath, body, query, { request: event.node.req }, prefix);
         return toResponse(event, result);
       } catch (err: any) {
         return errorJson(event, err.message || 'Internal Server Error', err.statusCode || 500);

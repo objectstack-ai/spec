@@ -31,23 +31,23 @@ function simpleHash(str: string): string {
 
 /**
  * Service Configuration for Discovery
- * Maps service names to their relative paths (without prefix) and plugin providers
+ * Maps service names to their routes and plugin providers
  */
-const SERVICE_CONFIG: Record<string, { path: string; plugin: string }> = {
-    auth:         { path: '/auth', plugin: 'plugin-auth' },
-    automation:   { path: '/automation', plugin: 'plugin-automation' },
-    cache:        { path: '/cache', plugin: 'plugin-redis' },
-    queue:        { path: '/queue', plugin: 'plugin-bullmq' },
-    job:          { path: '/jobs', plugin: 'job-scheduler' },
-    ui:           { path: '/ui', plugin: 'ui-plugin' },
-    workflow:     { path: '/workflow', plugin: 'plugin-workflow' },
-    realtime:     { path: '/realtime', plugin: 'plugin-realtime' },
-    notification: { path: '/notifications', plugin: 'plugin-notifications' },
-    ai:           { path: '/ai', plugin: 'plugin-ai' },
-    i18n:         { path: '/i18n', plugin: 'service-i18n' },
-    graphql:      { path: '/graphql', plugin: 'plugin-graphql' },  // GraphQL uses /graphql by convention (not versioned REST)
-    'file-storage': { path: '/storage', plugin: 'plugin-storage' },
-    search:       { path: '/search', plugin: 'plugin-search' },
+const SERVICE_CONFIG: Record<string, { route: string; plugin: string }> = {
+    auth:         { route: '/api/v1/auth', plugin: 'plugin-auth' },
+    automation:   { route: '/api/v1/automation', plugin: 'plugin-automation' },
+    cache:        { route: '/api/v1/cache', plugin: 'plugin-redis' },
+    queue:        { route: '/api/v1/queue', plugin: 'plugin-bullmq' },
+    job:          { route: '/api/v1/jobs', plugin: 'job-scheduler' },
+    ui:           { route: '/api/v1/ui', plugin: 'ui-plugin' },
+    workflow:     { route: '/api/v1/workflow', plugin: 'plugin-workflow' },
+    realtime:     { route: '/api/v1/realtime', plugin: 'plugin-realtime' },
+    notification: { route: '/api/v1/notifications', plugin: 'plugin-notifications' },
+    ai:           { route: '/api/v1/ai', plugin: 'plugin-ai' },
+    i18n:         { route: '/api/v1/i18n', plugin: 'service-i18n' },
+    graphql:      { route: '/graphql', plugin: 'plugin-graphql' },  // GraphQL uses /graphql by convention (not versioned REST)
+    'file-storage': { route: '/api/v1/storage', plugin: 'plugin-storage' },
+    search:       { route: '/api/v1/search', plugin: 'plugin-search' },
 };
 
 export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
@@ -69,29 +69,26 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         return svc;
     }
 
-    async getDiscovery(options?: { prefix?: string }) {
-        const prefix = options?.prefix || '/api/v1';
-
+    async getDiscovery() {
         // Get registered services from kernel if available
         const registeredServices = this.getServicesRegistry ? this.getServicesRegistry() : new Map();
-
+        
         // Build dynamic service info with proper typing
         const services: Record<string, ServiceInfo> = {
             // --- Kernel-provided (objectql is an example kernel implementation) ---
-            metadata:  { enabled: true, status: 'available' as const, route: `${prefix}/meta`, provider: 'objectql' },
-            data:      { enabled: true, status: 'available' as const, route: `${prefix}/data`, provider: 'objectql' },
-            analytics: { enabled: true, status: 'available' as const, route: `${prefix}/analytics`, provider: 'objectql' },
+            metadata:  { enabled: true, status: 'available' as const, route: '/api/v1/meta', provider: 'objectql' },
+            data:      { enabled: true, status: 'available' as const, route: '/api/v1/data', provider: 'objectql' },
+            analytics: { enabled: true, status: 'available' as const, route: '/api/v1/analytics', provider: 'objectql' },
         };
 
         // Check which services are actually registered
         for (const [serviceName, config] of Object.entries(SERVICE_CONFIG)) {
             if (registeredServices.has(serviceName)) {
                 // Service is registered and available
-                const route = config.path === '/graphql' ? '/graphql' : `${prefix}${config.path}`;
                 services[serviceName] = {
                     enabled: true,
                     status: 'available' as const,
-                    route,
+                    route: config.route,
                     provider: config.plugin,
                 };
             } else {
@@ -119,7 +116,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         };
 
         const optionalRoutes: Partial<ApiRoutes> = {
-            analytics: `${prefix}/analytics`,
+            analytics: '/api/v1/analytics',
         };
 
         // Add routes for available plugin services
@@ -127,8 +124,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
             if (registeredServices.has(serviceName)) {
                 const routeKey = serviceToRouteKey[serviceName];
                 if (routeKey) {
-                    const route = config.path === '/graphql' ? '/graphql' : `${prefix}${config.path}`;
-                    optionalRoutes[routeKey] = route;
+                    optionalRoutes[routeKey] = config.route;
                 }
             }
         }
@@ -138,7 +134,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
             services['feed'] = {
                 enabled: true,
                 status: 'available' as const,
-                route: `${prefix}/data`,
+                route: '/api/v1/data',
                 provider: 'service-feed',
             };
         } else {
@@ -150,8 +146,8 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         }
 
         const routes: ApiRoutes = {
-            data: `${prefix}/data`,
-            metadata: `${prefix}/meta`,
+            data: '/api/v1/data',
+            metadata: '/api/v1/meta',
             ...optionalRoutes,
         };
 

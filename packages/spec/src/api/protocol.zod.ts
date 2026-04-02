@@ -112,12 +112,9 @@ export const AutomationTriggerResponseSchema = z.object({
 
 /**
  * Get API Discovery Request
- * Optional prefix parameter to override the default API path prefix
+ * No parameters needed
  */
-export const GetDiscoveryRequestSchema = z.object({
-  /** Optional API path prefix (e.g., '/api/v1'). Defaults to '/api/v1' if not provided. */
-  prefix: z.string().optional(),
-}).optional();
+export const GetDiscoveryRequestSchema = z.object({});
 
 /**
  * Get API Discovery Response

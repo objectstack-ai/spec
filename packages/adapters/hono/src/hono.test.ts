@@ -97,9 +97,26 @@ describe('createHonoApp', () => {
       expect(mockDispatcher.getDiscoveryInfo).toHaveBeenCalledWith('/api');
     });
 
+    it('GET /api/discovery returns discovery info with correct prefix', async () => {
+      const res = await app.request('/api/discovery');
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.data).toBeDefined();
+      expect(mockDispatcher.getDiscoveryInfo).toHaveBeenCalledWith('/api');
+    });
+
     it('uses custom prefix for discovery', async () => {
       const customApp = createHonoApp({ kernel: mockKernel, prefix: '/v2' });
       const res = await customApp.request('/v2');
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.data).toBeDefined();
+      expect(mockDispatcher.getDiscoveryInfo).toHaveBeenCalledWith('/v2');
+    });
+
+    it('uses custom prefix for /discovery route', async () => {
+      const customApp = createHonoApp({ kernel: mockKernel, prefix: '/v2' });
+      const res = await customApp.request('/v2/discovery');
       expect(res.status).toBe(200);
       const json = await res.json();
       expect(json.data).toBeDefined();
@@ -277,6 +294,7 @@ describe('createHonoApp', () => {
         undefined,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
 
@@ -294,6 +312,7 @@ describe('createHonoApp', () => {
         body,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
 
@@ -306,6 +325,7 @@ describe('createHonoApp', () => {
         undefined,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
 
@@ -318,6 +338,7 @@ describe('createHonoApp', () => {
         undefined,
         expect.objectContaining({ package: 'com.acme.crm' }),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
 
@@ -330,6 +351,7 @@ describe('createHonoApp', () => {
         undefined,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
 
@@ -347,6 +369,7 @@ describe('createHonoApp', () => {
         body,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
 
@@ -364,6 +387,7 @@ describe('createHonoApp', () => {
         body,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
 
@@ -384,6 +408,7 @@ describe('createHonoApp', () => {
         undefined,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
 
@@ -396,6 +421,7 @@ describe('createHonoApp', () => {
         undefined,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
 
@@ -413,6 +439,7 @@ describe('createHonoApp', () => {
         body,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
 
@@ -425,6 +452,7 @@ describe('createHonoApp', () => {
         undefined,
         expect.objectContaining({ status: 'active' }),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
 
@@ -446,6 +474,7 @@ describe('createHonoApp', () => {
         undefined,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
 
@@ -458,6 +487,7 @@ describe('createHonoApp', () => {
         undefined,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
 
@@ -470,6 +500,7 @@ describe('createHonoApp', () => {
         undefined,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
 
@@ -482,6 +513,7 @@ describe('createHonoApp', () => {
         undefined,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api',
       );
     });
   });
@@ -571,6 +603,7 @@ describe('createHonoApp', () => {
         undefined,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api/v1',
       );
     });
 
@@ -585,6 +618,7 @@ describe('createHonoApp', () => {
         undefined,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api/v1',
       );
     });
 
@@ -592,6 +626,16 @@ describe('createHonoApp', () => {
       const outerApp = createVercelApp();
 
       const res = await outerApp.request('/api/v1');
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.data).toBeDefined();
+      expect(mockDispatcher.getDiscoveryInfo).toHaveBeenCalledWith('/api/v1');
+    });
+
+    it('routes /api/v1/discovery through outer→inner delegation with correct prefix', async () => {
+      const outerApp = createVercelApp();
+
+      const res = await outerApp.request('/api/v1/discovery');
       expect(res.status).toBe(200);
       const json = await res.json();
       expect(json.data).toBeDefined();
@@ -609,6 +653,7 @@ describe('createHonoApp', () => {
         undefined,
         expect.any(Object),
         expect.objectContaining({ request: expect.anything() }),
+        '/api/v1',
       );
     });
 
