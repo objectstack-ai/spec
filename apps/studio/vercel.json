@@ -6,7 +6,14 @@
   "build": {
     "env": {
       "VITE_RUNTIME_MODE": "server",
-      "VITE_SERVER_URL": "https://play.objectstack.ai"
+      "VITE_SERVER_URL": ""
+    }
+  },
+  "functions": {
+    "api/**/*.js": {
+      "memory": 1024,
+      "maxDuration": 60,
+      "includeFiles": "{node_modules/@libsql,node_modules/better-sqlite3}/**"
     }
   },
   "headers": [
@@ -18,7 +25,7 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/api/:path*", "destination": "/api/[[...route]]" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }

@@ -37,6 +37,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   match the current monorepo layout.
 
 ### Fixed
+- **Studio Vercel API routes returning HTML instead of JSON** — Adopted the
+  same Vercel deployment pattern used by `hotcrm`: committed
+  `api/[[...route]].js` catch-all route so Vercel detects it pre-build,
+  switched esbuild output from CJS to ESM (fixes `"type": "module"` conflict),
+  and changed the bundle output to `api/_handler.js` (a separate file that
+  the committed wrapper re-exports).  This avoids both Vercel's TS
+  compilation overwriting the bundle (`ERR_MODULE_NOT_FOUND`) and the
+  "File not found" error from deleting source files during build.
+  Added `createRequire` banner to the esbuild config so that CJS
+  dependencies (knex/tarn) can `require()` Node.js built-in modules like
+  `events` without the "Dynamic require is not supported" error.
+  Added `functions.includeFiles` in `vercel.json` to include native addons
+  (`better-sqlite3`, `@libsql/client`) that esbuild cannot bundle.
+  Added a build step to copy native external modules from the monorepo root
+  `node_modules/` into the studio's local `node_modules/`, since pnpm's strict
+  mode (unlike hotcrm's `shamefully-hoist`) doesn't symlink transitive native
+  dependencies into app-level `node_modules/`.
+  Updated rewrites to match: `/api/:path*` → `/api/[[...route]]`.
+- **Studio CORS error on Vercel temporary/preview domains** — Changed
+  `VITE_SERVER_URL` from hardcoded `https://play.objectstack.ai` to `""`
+  (empty string / same-origin) in `vercel.json` so each deployment — including
+  previews — calls its own serverless function instead of the production API
+  cross-origin.  Also added Hono CORS middleware to `apps/studio/server/index.ts`
+  as a safety net for any remaining cross-origin scenarios; dynamically allows
+  all `*.vercel.app` subdomains, explicitly listed Vercel deployment URLs, and
+  localhost.  Extracted `getVercelOrigins()` helper to keep CORS and
+  better-auth `trustedOrigins` allowlists in sync.
 - **Client test aligned with removed `ai.chat` method** — Updated
   `@objectstack/client` test suite to match the current API surface where
   `ai.chat()` was removed in favour of the Vercel AI SDK `useChat()` hook.

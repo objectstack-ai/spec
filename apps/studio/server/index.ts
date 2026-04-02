@@ -36,8 +36,36 @@ import { MetadataPlugin } from '@objectstack/metadata';
 import { AIServicePlugin } from '@objectstack/service-ai';
 import { handle } from '@hono/node-server/vercel';
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { createBrokerShim } from '../src/lib/create-broker-shim.js';
 import studioConfig from '../objectstack.config.js';
+
+// ---------------------------------------------------------------------------
+// Vercel origin helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Collect all Vercel deployment origins from environment variables.
+ *
+ * Reused for both:
+ * - better-auth `trustedOrigins` (CSRF)
+ * - Hono CORS middleware `origin` allowlist
+ *
+ * Centralised to avoid drift between the two allowlists.
+ */
+function getVercelOrigins(): string[] {
+    const origins: string[] = [];
+    if (process.env.VERCEL_URL) {
+        origins.push(`https://${process.env.VERCEL_URL}`);
+    }
+    if (process.env.VERCEL_BRANCH_URL) {
+        origins.push(`https://${process.env.VERCEL_BRANCH_URL}`);
+    }
+    if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+        origins.push(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
+    }
+    return origins;
+}
 
 // ---------------------------------------------------------------------------
 // Singleton state — persists across warm Vercel invocations
@@ -85,17 +113,8 @@ async function ensureKernel(): Promise<ObjectKernel> {
                     ? `https://${process.env.VERCEL_URL}`
                     : 'http://localhost:3000';
 
-            // Collect all Vercel URL variants so better-auth trusts each one
-            const trustedOrigins: string[] = [];
-            if (process.env.VERCEL_URL) {
-                trustedOrigins.push(`https://${process.env.VERCEL_URL}`);
-            }
-            if (process.env.VERCEL_BRANCH_URL) {
-                trustedOrigins.push(`https://${process.env.VERCEL_BRANCH_URL}`);
-            }
-            if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-                trustedOrigins.push(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
-            }
+            // Reuse the shared helper so CORS and CSRF allowlists stay in sync
+            const trustedOrigins = getVercelOrigins();
 
             await kernel.use(new AuthPlugin({
                 secret: process.env.AUTH_SECRET || 'dev-secret-please-change-in-production-min-32-chars',
@@ -218,6 +237,41 @@ async function ensureApp(): Promise<Hono> {
  */
 const app = new Hono();
 
+// ---------------------------------------------------------------------------
+// CORS middleware
+// ---------------------------------------------------------------------------
+// Placed on the outer app so preflight (OPTIONS) requests are answered
+// immediately, without waiting for the kernel cold-start.  This is essential
+// when the SPA is loaded from a Vercel temporary/preview domain but the
+// API base URL points to a different deployment (cross-origin).
+//
+// Allowed origins:
+//   1. All Vercel deployment URLs exposed via env vars (current deployment)
+//   2. Any *.vercel.app subdomain (covers all preview/branch deployments)
+//   3. localhost (local development)
+// ---------------------------------------------------------------------------
+
+const vercelOrigins = getVercelOrigins();
+
+app.use('*', cors({
+    origin: (origin) => {
+        // Same-origin or non-browser requests (no Origin header)
+        if (!origin) return origin;
+        // Explicitly listed Vercel deployment origins
+        if (vercelOrigins.includes(origin)) return origin;
+        // Any *.vercel.app subdomain (preview / temp deployments)
+        if (origin.endsWith('.vercel.app') && origin.startsWith('https://')) return origin;
+        // Localhost for development
+        if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) return origin;
+        // Deny — return empty string so no Access-Control-Allow-Origin is set
+        return '';
+    },
+    credentials: true,
+    allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    maxAge: 86400,
+}));
+
 app.all('*', async (c) => {
     console.log(`[Vercel] ${c.req.method} ${c.req.url}`);
 
@@ -241,7 +295,7 @@ export default handle(app);
 /**
  * Vercel per-function configuration.
  *
- * Picked up by the @vercel/node runtime from the deployed api/index.js bundle.
+ * Picked up by the @vercel/node runtime from the deployed api/[[...route]].js bundle.
  * Replaces the top-level "functions" key in vercel.json so there is no
  * pre-build file-pattern validation against a not-yet-bundled artifact.
  */

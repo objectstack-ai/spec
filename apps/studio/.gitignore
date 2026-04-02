@@ -5,7 +5,8 @@ pnpm-lock.yaml
 # Build outputs
 dist
 build
-api
+api/_handler.js
+api/_handler.js.map
 *.tsbuildinfo
 
 # Development
