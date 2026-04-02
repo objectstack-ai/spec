@@ -3,6 +3,7 @@
 import { Args, Command, Flags } from '@oclif/core';
 import { printError, printSuccess } from '../../utils/format.js';
 import { createApiClient, requireAuth } from '../../utils/api-client.js';
+import { formatOutput } from '../../utils/output-formatter.js';
 
 export default class MetaDelete extends Command {
   static override description = 'Delete a metadata item';
@@ -10,6 +11,7 @@ export default class MetaDelete extends Command {
   static override examples = [
     '$ os meta delete object my_custom_object',
     '$ os meta delete plugin my-plugin',
+    '$ os meta delete object my_custom_object --format json',
   ];
 
   static override args = {
@@ -37,7 +39,7 @@ export default class MetaDelete extends Command {
     format: Flags.string({
       char: 'f',
       description: 'Output format',
-      options: ['json', 'table'],
+      options: ['json', 'table', 'yaml'],
       default: 'table',
     }),
   };
@@ -46,37 +48,19 @@ export default class MetaDelete extends Command {
     const { args, flags } = await this.parse(MetaDelete);
 
     try {
-      const client = await createApiClient({
+      const { client, token } = await createApiClient({
         url: flags.url,
         token: flags.token,
       });
 
-      requireAuth((client as any).token);
+      requireAuth(token);
 
-      // Note: The current client doesn't have a direct delete method for metadata
-      // We'll need to use fetch directly with the proper endpoint
-      const baseUrl = (client as any).baseUrl;
-      const token = (client as any).token;
-
-      const response = await fetch(`${baseUrl}/api/v1/meta/${encodeURIComponent(args.type)}/${encodeURIComponent(args.name)}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.text().catch(() => 'Unknown error');
-        throw new Error(`Delete failed (${response.status}): ${errorBody}`);
-      }
+      const result = await client.meta.deleteItem(args.type, args.name);
 
       if (flags.format === 'json') {
-        console.log(JSON.stringify({
-          success: true,
-          type: args.type,
-          name: args.name,
-        }, null, 2));
+        formatOutput({ success: true, type: args.type, name: args.name, deleted: result.deleted }, 'json');
+      } else if (flags.format === 'yaml') {
+        formatOutput({ success: true, type: args.type, name: args.name, deleted: result.deleted }, 'yaml');
       } else {
         printSuccess(`Metadata deleted: ${args.type}/${args.name}`);
       }

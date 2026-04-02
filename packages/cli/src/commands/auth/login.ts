@@ -7,6 +7,62 @@ import { ObjectStackClient } from '@objectstack/client';
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 
+/**
+ * Prompt for a password with masked input (shows * per character).
+ * Falls back to plain readline.question() in non-TTY environments.
+ */
+async function promptPassword(promptText: string): Promise<string> {
+  if (!process.stdin.isTTY) {
+    const rl = readline.createInterface({ input, output });
+    const answer = await rl.question(promptText);
+    rl.close();
+    return answer;
+  }
+
+  return new Promise((resolve) => {
+    const chars: string[] = [];
+    process.stdout.write(promptText);
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    process.stdin.setEncoding('utf8');
+
+    const cleanup = () => {
+      process.stdin.setRawMode(false);
+      process.stdin.pause();
+      process.stdin.removeListener('data', handler);
+      process.stdout.write('\n');
+    };
+
+    const handler = (char: string) => {
+      switch (char) {
+        case '\u0003': // Ctrl+C
+          cleanup();
+          process.exit(1);
+          break;
+        case '\r':
+        case '\n': // Enter
+          cleanup();
+          resolve(chars.join(''));
+          break;
+        case '\u007f': // Backspace
+          if (chars.length > 0) {
+            chars.pop();
+            process.stdout.clearLine(0);
+            process.stdout.cursorTo(0);
+            process.stdout.write(promptText + '*'.repeat(chars.length));
+          }
+          break;
+        default:
+          chars.push(char);
+          process.stdout.write('*');
+          break;
+      }
+    };
+
+    process.stdin.on('data', handler);
+  });
+}
+
 export default class AuthLogin extends Command {
   static override description = 'Authenticate and store session credentials';
 
@@ -57,13 +113,11 @@ export default class AuthLogin extends Command {
           email = await rl.question('Email: ');
         }
 
-        if (!password) {
-          // Note: This doesn't hide the password input in the terminal
-          // For production use, consider using a library like 'inquirer' or 'prompts'
-          password = await rl.question('Password: ');
-        }
-
         rl.close();
+
+        if (!password) {
+          password = await promptPassword('Password: ');
+        }
       }
 
       if (!email || !password) {

@@ -64,12 +64,12 @@ export default class DataQuery extends Command {
     const { args, flags } = await this.parse(DataQuery);
 
     try {
-      const client = await createApiClient({
+      const { client, token } = await createApiClient({
         url: flags.url,
         token: flags.token,
       });
 
-      requireAuth((client as any).token);
+      requireAuth(token);
 
       // Build query options
       const queryOptions: any = {

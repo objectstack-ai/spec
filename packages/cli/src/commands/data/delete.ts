@@ -37,7 +37,7 @@ export default class DataDelete extends Command {
     format: Flags.string({
       char: 'f',
       description: 'Output format',
-      options: ['json', 'table'],
+      options: ['json', 'table', 'yaml'],
       default: 'table',
     }),
   };
@@ -46,12 +46,12 @@ export default class DataDelete extends Command {
     const { args, flags } = await this.parse(DataDelete);
 
     try {
-      const client = await createApiClient({
+      const { client, token } = await createApiClient({
         url: flags.url,
         token: flags.token,
       });
 
-      requireAuth((client as any).token);
+      requireAuth(token);
 
       // Delete the record
       const result = await client.data.delete(args.object, args.id);
@@ -63,6 +63,9 @@ export default class DataDelete extends Command {
           id: result.id,
           deleted: result.deleted,
         }, null, 2));
+      } else if (flags.format === 'yaml') {
+        const { formatOutput } = await import('../../utils/output-formatter.js');
+        formatOutput({ success: true, object: result.object, id: result.id, deleted: result.deleted }, 'yaml');
       } else {
         printSuccess(`Record deleted: ${result.id}`);
       }

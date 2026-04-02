@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Data API**: `os data query`, `os data get`, `os data create`, `os data update`, `os data delete`
   - **Metadata API**: `os meta list`, `os meta get`, `os meta register`, `os meta delete`
   - All commands support `--url` and `--token` flags, or use stored credentials from `~/.objectstack/credentials.json`
-  - Multiple output formats: `--format json|table|yaml`
+  - Multiple output formats: `--format json|table|yaml` (yaml available on all commands)
   - Environment variable support: `OBJECTSTACK_URL`, `OBJECTSTACK_TOKEN`
   - See [REMOTE_API_COMMANDS.md](./REMOTE_API_COMMANDS.md) for full documentation
 

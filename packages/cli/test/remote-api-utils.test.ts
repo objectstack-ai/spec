@@ -10,18 +10,18 @@ vi.mock('node:fs/promises');
 describe('API Client Utilities', () => {
   describe('createApiClient', () => {
     it('should use provided URL and token', async () => {
-      const client = await createApiClient({
+      const { client, token } = await createApiClient({
         url: 'https://test.example.com',
         token: 'test-token',
       });
 
       expect(client).toBeDefined();
       expect((client as any).baseUrl).toBe('https://test.example.com');
-      expect((client as any).token).toBe('test-token');
+      expect(token).toBe('test-token');
     });
 
     it('should default to localhost when no URL provided', async () => {
-      const client = await createApiClient({});
+      const { client } = await createApiClient({});
 
       expect(client).toBeDefined();
       expect((client as any).baseUrl).toBe('http://localhost:3000');
@@ -34,10 +34,10 @@ describe('API Client Utilities', () => {
       process.env.OBJECTSTACK_URL = 'https://env.example.com';
       process.env.OBJECTSTACK_TOKEN = 'env-token';
 
-      const client = await createApiClient({});
+      const { client, token } = await createApiClient({});
 
       expect((client as any).baseUrl).toBe('https://env.example.com');
-      expect((client as any).token).toBe('env-token');
+      expect(token).toBe('env-token');
 
       // Restore
       process.env.OBJECTSTACK_URL = originalUrl;
@@ -127,23 +127,23 @@ describe('Auth Config Utilities', () => {
 
   describe('deleteAuthConfig', () => {
     it('should delete credentials file', async () => {
-      const mockUnlink = vi.fn().mockResolvedValue(undefined);
-      vi.doMock('node:fs/promises', () => ({
-        unlink: mockUnlink,
-      }));
+      const mockUnlink = vi.mocked(fs.unlink);
+      mockUnlink.mockResolvedValue(undefined as any);
 
       await deleteAuthConfig();
 
-      // Should not throw
+      expect(mockUnlink).toHaveBeenCalled();
+      expect(mockUnlink).toHaveBeenCalledWith(
+        expect.stringContaining('credentials.json')
+      );
     });
 
     it('should not throw if file does not exist', async () => {
-      const mockUnlink = vi.fn().mockRejectedValue({ code: 'ENOENT' });
-      vi.doMock('node:fs/promises', () => ({
-        unlink: mockUnlink,
-      }));
+      const mockUnlink = vi.mocked(fs.unlink);
+      mockUnlink.mockRejectedValue({ code: 'ENOENT' } as any);
 
       await expect(deleteAuthConfig()).resolves.not.toThrow();
+      expect(mockUnlink).toHaveBeenCalled();
     });
   });
 });

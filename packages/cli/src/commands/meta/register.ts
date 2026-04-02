@@ -39,7 +39,7 @@ export default class MetaRegister extends Command {
     format: Flags.string({
       char: 'f',
       description: 'Output format',
-      options: ['json', 'table'],
+      options: ['json', 'table', 'yaml'],
       default: 'table',
     }),
   };
@@ -48,12 +48,12 @@ export default class MetaRegister extends Command {
     const { args, flags } = await this.parse(MetaRegister);
 
     try {
-      const client = await createApiClient({
+      const { client, token } = await createApiClient({
         url: flags.url,
         token: flags.token,
       });
 
-      requireAuth((client as any).token);
+      requireAuth(token);
 
       // Read metadata from file
       const { readFile } = await import('node:fs/promises');
@@ -77,6 +77,8 @@ export default class MetaRegister extends Command {
 
       if (flags.format === 'json') {
         formatOutput(result, 'json');
+      } else if (flags.format === 'yaml') {
+        formatOutput(result, 'yaml');
       } else {
         printSuccess(`Metadata registered: ${args.type}/${name}`);
       }

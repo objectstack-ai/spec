@@ -2,7 +2,7 @@
 
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, chmod } from 'node:fs/promises';
 
 /**
  * Authentication configuration stored in ~/.objectstack/credentials.json
@@ -69,6 +69,13 @@ export async function writeAuthConfig(config: AuthConfig): Promise<void> {
 
   // Write credentials file
   await writeFile(path, JSON.stringify(config, null, 2), { mode: 0o600 });
+
+  // Explicitly enforce permissions in case the file already existed with broader perms
+  try {
+    await chmod(path, 0o600);
+  } catch {
+    // Best-effort — platforms that don't support chmod will silently continue
+  }
 }
 
 /**

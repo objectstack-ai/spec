@@ -51,12 +51,12 @@ export default class DataCreate extends Command {
     const { args, flags } = await this.parse(DataCreate);
 
     try {
-      const client = await createApiClient({
+      const { client, token } = await createApiClient({
         url: flags.url,
         token: flags.token,
       });
 
-      requireAuth((client as any).token);
+      requireAuth(token);
 
       // Parse record data
       let recordData: any;

@@ -55,12 +55,12 @@ export default class DataUpdate extends Command {
     const { args, flags } = await this.parse(DataUpdate);
 
     try {
-      const client = await createApiClient({
+      const { client, token } = await createApiClient({
         url: flags.url,
         token: flags.token,
       });
 
-      requireAuth((client as any).token);
+      requireAuth(token);
 
       // Parse update data
       let updateData: any;

@@ -47,12 +47,12 @@ export default class DataGet extends Command {
     const { args, flags } = await this.parse(DataGet);
 
     try {
-      const client = await createApiClient({
+      const { client, token } = await createApiClient({
         url: flags.url,
         token: flags.token,
       });
 
-      requireAuth((client as any).token);
+      requireAuth(token);
 
       // Get the record
       const result = await client.data.get(args.object, args.id);

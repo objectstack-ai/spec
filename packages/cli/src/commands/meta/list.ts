@@ -43,12 +43,12 @@ export default class MetaList extends Command {
     const { args, flags } = await this.parse(MetaList);
 
     try {
-      const client = await createApiClient({
+      const { client, token } = await createApiClient({
         url: flags.url,
         token: flags.token,
       });
 
-      requireAuth((client as any).token);
+      requireAuth(token);
 
       if (!args.type) {
         // List all metadata types

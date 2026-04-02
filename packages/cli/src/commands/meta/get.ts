@@ -47,12 +47,12 @@ export default class MetaGet extends Command {
     const { args, flags } = await this.parse(MetaGet);
 
     try {
-      const client = await createApiClient({
+      const { client, token } = await createApiClient({
         url: flags.url,
         token: flags.token,
       });
 
-      requireAuth((client as any).token);
+      requireAuth(token);
 
       // Get the metadata item
       const item = await client.meta.getItem(args.type, args.name);

@@ -10,7 +10,7 @@ export default class AuthWhoami extends Command {
 
   static override examples = [
     '$ os auth whoami',
-    '$ os auth whoami --json',
+    '$ os auth whoami --format json',
     '$ os auth whoami --url https://api.example.com --token <token>',
   ];
 
@@ -37,14 +37,14 @@ export default class AuthWhoami extends Command {
     const { flags } = await this.parse(AuthWhoami);
 
     try {
-      const client = await createApiClient({
+      const { client, token } = await createApiClient({
         url: flags.url,
         token: flags.token,
       });
 
-      // Check if we have a token
-      requireAuth((client as any).token);
+      requireAuth(token);
 
+      // Check if we have a token
       // Get current session info
       const response = await client.auth.me();
 

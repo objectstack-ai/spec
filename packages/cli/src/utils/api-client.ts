@@ -22,6 +22,15 @@ export interface ApiClientOptions {
 }
 
 /**
+ * Result returned by createApiClient — exposes the resolved token so commands
+ * can call requireAuth() without accessing private client fields.
+ */
+export interface ApiClientResult {
+  client: ObjectStackClient;
+  token?: string;
+}
+
+/**
  * Create an authenticated ObjectStack API client for CLI commands.
  *
  * Resolves configuration in this priority order:
@@ -30,31 +39,40 @@ export interface ApiClientOptions {
  * 3. Stored credentials from `os auth login`
  * 4. Defaults (http://localhost:3000)
  */
-export async function createApiClient(options: ApiClientOptions = {}): Promise<ObjectStackClient> {
-  // Resolve server URL
-  const baseUrl = options.url ||
-    process.env.OBJECTSTACK_URL ||
-    'http://localhost:3000';
+export async function createApiClient(options: ApiClientOptions = {}): Promise<ApiClientResult> {
+  // Resolve server URL (without applying defaults yet)
+  let baseUrl = options.url || process.env.OBJECTSTACK_URL;
 
   // Resolve authentication token
   let token = options.token || process.env.OBJECTSTACK_TOKEN;
 
-  // If no token provided via options or env, try to load from stored credentials
-  if (!token) {
+  // If URL or token is missing, try to load from stored credentials
+  if (!baseUrl || !token) {
     try {
       const authConfig = await readAuthConfig();
-      token = authConfig.token;
+      if (!token && authConfig.token) {
+        token = authConfig.token;
+      }
+      if (!baseUrl && authConfig.url) {
+        baseUrl = authConfig.url;
+      }
     } catch {
       // No stored credentials - commands will fail if auth is required
     }
   }
 
-  // Create and return the client
-  return new ObjectStackClient({
+  // Apply final default for baseUrl if still not resolved
+  if (!baseUrl) {
+    baseUrl = 'http://localhost:3000';
+  }
+
+  const client = new ObjectStackClient({
     baseUrl,
     token,
     debug: options.debug || false,
   });
+
+  return { client, token };
 }
 
 /**
