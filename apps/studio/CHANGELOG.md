@@ -4,6 +4,22 @@
 
 ### Patch Changes
 
+- **Vercel deployment: Fix POST/PUT/PATCH API requests timing out**
+
+  The outer→inner Hono app delegation pattern (`inner.fetch(c.req.raw)`)
+  passed the `@hono/node-server` pseudo-Request directly to the inner
+  ObjectStack Hono app. The pseudo-Request lazily materialises its body
+  from the Node.js `IncomingMessage` via `Readable.toWeb()` the first
+  time `.json()` / `.text()` is called. On Vercel's serverless runtime
+  the `IncomingMessage` stream can be in a half-consumed state by the
+  time the inner app reads it, causing body reads to hang and the
+  function to time out — while GET requests (no body) worked fine.
+
+  Fix: for POST/PUT/PATCH/DELETE the outer handler now eagerly buffers
+  the request body with `arrayBuffer()` while the `IncomingMessage` is
+  still in a known-good state, then creates a plain `Request` for the
+  inner app. GET/HEAD requests continue to use the direct pass-through.
+
 - Remove `functions` block from `vercel.json` to fix deployment error:
   "The pattern 'api/index.js' defined in `functions` doesn't match any
   Serverless Functions inside the `api` directory."

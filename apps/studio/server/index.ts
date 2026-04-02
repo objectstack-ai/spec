@@ -283,7 +283,35 @@ app.all('*', async (c) => {
 
     try {
         const inner = await ensureApp();
-        return await inner.fetch(c.req.raw);
+
+        // ── Body-safe delegation ────────────────────────────────────────
+        // `c.req.raw` is the *pseudo-Request* created by @hono/node-server.
+        // Its body is lazily materialised from the Node.js IncomingMessage
+        // via `Readable.toWeb()` the first time `.json()`, `.text()`, etc.
+        // are called.  On Vercel's serverless runtime the IncomingMessage
+        // stream can already be in a half-consumed state by the time the
+        // inner Hono app reads it, causing `.json()` to hang indefinitely
+        // and the function to time out.
+        //
+        // For GET/HEAD (no body) we can forward the pseudo-Request as-is.
+        // For every other method we eagerly buffer the body while the
+        // IncomingMessage is still in a known-good state, then construct a
+        // plain `Request` that the inner app can consume without issues.
+        // ────────────────────────────────────────────────────────────────
+        const method = c.req.method;
+
+        if (method === 'GET' || method === 'HEAD') {
+            return await inner.fetch(c.req.raw);
+        }
+
+        const rawReq = c.req.raw;
+        const body = await rawReq.arrayBuffer();
+        const forwarded = new Request(rawReq.url, {
+            method,
+            headers: rawReq.headers,
+            body,
+        });
+        return await inner.fetch(forwarded);
     } catch (err: any) {
         console.error('[Vercel] Handler error:', err?.message || err);
         return c.json(
