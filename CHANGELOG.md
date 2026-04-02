@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Metadata Versioning & History** — Comprehensive version history tracking and rollback capabilities
+  for metadata items. Key features include:
+  - `MetadataHistoryRecordSchema` defining structure for historical snapshots
+  - `sys_metadata_history` system table for version storage
+  - Automatic history tracking in `DatabaseLoader` with SHA-256 checksum deduplication
+  - `getHistory()`, `rollback()`, and `diff()` methods in `IMetadataService`
+  - REST API endpoints: `GET /history`, `POST /rollback`, `GET /diff`
+  - `HistoryCleanupManager` with configurable retention policies (age-based and count-based)
+  - Comprehensive test suite covering all history operations
+
+  This aligns ObjectStack with enterprise platforms like Salesforce Setup Audit Trail and
+  ServiceNow Update Sets. See `docs/METADATA_HISTORY.md` for detailed usage.
 
 - **CLI: Remote API Commands** - Added 12 new CLI commands for interacting with remote ObjectStack servers:
   - **Authentication**: `os auth login`, `os auth logout`, `os auth whoami`

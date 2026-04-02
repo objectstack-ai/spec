@@ -16,6 +16,9 @@ import type {
   MetadataWatchEvent,
   MetadataFormat,
   PackagePublishResult,
+  MetadataHistoryQueryOptions,
+  MetadataHistoryQueryResult,
+  MetadataDiffResult,
 } from '@objectstack/spec/system';
 import type {
   IMetadataService,
@@ -43,6 +46,7 @@ import type { MetadataSerializer } from './serializers/serializer-interface.js';
 import type { IDataDriver } from '@objectstack/spec/contracts';
 import type { MetadataLoader } from './loaders/loader-interface.js';
 import { DatabaseLoader } from './loaders/database-loader.js';
+import { generateSimpleDiff, generateDiffSummary } from './utils/metadata-history-utils.js';
 
 /**
  * Watch callback function (legacy)
@@ -1152,7 +1156,7 @@ export class MetadataManager implements IMetadataService {
   protected notifyWatchers(type: string, event: MetadataWatchEvent) {
     const callbacks = this.watchCallbacks.get(type);
     if (!callbacks) return;
-    
+
     for (const callback of callbacks) {
       try {
         void callback(event);
@@ -1163,6 +1167,232 @@ export class MetadataManager implements IMetadataService {
         });
       }
     }
+  }
+
+  // ==========================================
+  // Version History & Rollback
+  // ==========================================
+
+  /**
+   * Get the database loader for history operations.
+   * Returns undefined if no database loader is configured.
+   */
+  private getDatabaseLoader(): DatabaseLoader | undefined {
+    const dbLoader = this.loaders.get('database');
+    if (dbLoader && dbLoader instanceof DatabaseLoader) {
+      return dbLoader;
+    }
+    return undefined;
+  }
+
+  /**
+   * Get version history for a metadata item.
+   * Returns a timeline of all changes made to the item.
+   */
+  async getHistory(
+    type: string,
+    name: string,
+    options?: MetadataHistoryQueryOptions
+  ): Promise<MetadataHistoryQueryResult> {
+    const dbLoader = this.getDatabaseLoader();
+    if (!dbLoader) {
+      throw new Error('History tracking requires a database loader to be configured');
+    }
+
+    // Get the metadata record to find its ID
+    const driver = (dbLoader as any).driver as IDataDriver;
+    const tableName = (dbLoader as any).tableName as string;
+    const historyTableName = (dbLoader as any).historyTableName as string;
+    const tenantId = (dbLoader as any).tenantId as string | undefined;
+
+    // Find the metadata record
+    const filter: Record<string, unknown> = { type, name };
+    if (tenantId) {
+      filter.tenant_id = tenantId;
+    }
+
+    const metadataRecord = await driver.findOne(tableName, {
+      object: tableName,
+      where: filter,
+    });
+
+    if (!metadataRecord) {
+      return {
+        records: [],
+        total: 0,
+        hasMore: false,
+      };
+    }
+
+    // Build history query
+    const historyFilter: Record<string, unknown> = {
+      metadata_id: metadataRecord.id,
+    };
+
+    if (tenantId) {
+      historyFilter.tenant_id = tenantId;
+    }
+
+    if (options?.operationType) {
+      historyFilter.operation_type = options.operationType;
+    }
+
+    if (options?.since) {
+      historyFilter.recorded_at = { $gte: options.since };
+    }
+
+    if (options?.until) {
+      if (historyFilter.recorded_at) {
+        (historyFilter.recorded_at as Record<string, unknown>).$lte = options.until;
+      } else {
+        historyFilter.recorded_at = { $lte: options.until };
+      }
+    }
+
+    // Query history records with pagination
+    const limit = options?.limit ?? 50;
+    const offset = options?.offset ?? 0;
+
+    const historyRecords = await driver.find(historyTableName, {
+      object: historyTableName,
+      where: historyFilter,
+      orderBy: [{ field: 'recorded_at', order: 'desc' as const }],
+      limit: limit + 1, // Fetch one extra to determine hasMore
+      offset,
+    });
+
+    const hasMore = historyRecords.length > limit;
+    const records = historyRecords.slice(0, limit);
+
+    // Get total count
+    const total = await driver.count(historyTableName, {
+      object: historyTableName,
+      where: historyFilter,
+    });
+
+    // Convert rows to MetadataHistoryRecord format
+    const includeMetadata = options?.includeMetadata !== false;
+    const historyResult = records.map((row: Record<string, unknown>) => {
+      const parsedMetadata =
+        typeof row.metadata === 'string'
+          ? JSON.parse(row.metadata as string)
+          : (row.metadata as Record<string, unknown> | null | undefined);
+
+      return {
+        id: row.id as string,
+        metadataId: row.metadata_id as string,
+        name: row.name as string,
+        type: row.type as string,
+        version: row.version as number,
+        operationType: row.operation_type as 'create' | 'update' | 'publish' | 'revert' | 'delete',
+        metadata: includeMetadata ? parsedMetadata : null,
+        checksum: row.checksum as string,
+        previousChecksum: row.previous_checksum as string | undefined,
+        changeNote: row.change_note as string | undefined,
+        tenantId: row.tenant_id as string | undefined,
+        recordedBy: row.recorded_by as string | undefined,
+        recordedAt: row.recorded_at as string,
+      };
+    });
+
+    return {
+      records: historyResult,
+      total,
+      hasMore,
+    };
+  }
+
+  /**
+   * Rollback a metadata item to a specific version.
+   * Restores the metadata definition from the history snapshot.
+   */
+  async rollback(
+    type: string,
+    name: string,
+    version: number,
+    options?: {
+      changeNote?: string;
+      recordedBy?: string;
+    }
+  ): Promise<unknown> {
+    const dbLoader = this.getDatabaseLoader();
+    if (!dbLoader) {
+      throw new Error('Rollback requires a database loader to be configured');
+    }
+
+    // Fetch the target version snapshot directly from the history table
+    const targetVersion = await dbLoader.getHistoryRecord(type, name, version);
+
+    if (!targetVersion) {
+      throw new Error(`Version ${version} not found in history for ${type}/${name}`);
+    }
+
+    if (!targetVersion.metadata) {
+      throw new Error(`Version ${version} metadata snapshot not available`);
+    }
+
+    // Restore the metadata using the dedicated rollback path so that a single
+    // 'revert' history entry is written (instead of a conflicting 'update' entry)
+    const restoredMetadata = targetVersion.metadata;
+    await dbLoader.registerRollback(
+      type,
+      name,
+      restoredMetadata,
+      version,
+      options?.changeNote,
+      options?.recordedBy
+    );
+
+    return restoredMetadata;
+  }
+
+  /**
+   * Compare two versions of a metadata item.
+   * Returns a diff showing what changed between versions.
+   */
+  async diff(
+    type: string,
+    name: string,
+    version1: number,
+    version2: number
+  ): Promise<MetadataDiffResult> {
+    const dbLoader = this.getDatabaseLoader();
+    if (!dbLoader) {
+      throw new Error('Diff requires a database loader to be configured');
+    }
+
+    // Fetch the two version snapshots directly from the history table
+    const v1 = await dbLoader.getHistoryRecord(type, name, version1);
+    const v2 = await dbLoader.getHistoryRecord(type, name, version2);
+
+    if (!v1) {
+      throw new Error(`Version ${version1} not found in history for ${type}/${name}`);
+    }
+
+    if (!v2) {
+      throw new Error(`Version ${version2} not found in history for ${type}/${name}`);
+    }
+
+    if (!v1.metadata || !v2.metadata) {
+      throw new Error('Version metadata snapshots not available');
+    }
+
+    // Generate diff
+    const patch = generateSimpleDiff(v1.metadata, v2.metadata);
+    const identical = patch.length === 0;
+    const summary = generateDiffSummary(patch);
+
+    return {
+      type,
+      name,
+      version1,
+      version2,
+      checksum1: v1.checksum,
+      checksum2: v2.checksum,
+      identical,
+      patch,
+      summary,
+    };
   }
 }
 

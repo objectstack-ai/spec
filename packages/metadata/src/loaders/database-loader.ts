@@ -17,10 +17,13 @@ import type {
   MetadataSaveOptions,
   MetadataSaveResult,
   MetadataRecord,
+  MetadataHistoryRecord,
 } from '@objectstack/spec/system';
 import { SysMetadataObject } from '../objects/sys-metadata.object.js';
+import { SysMetadataHistoryObject } from '../objects/sys-metadata-history.object.js';
 import type { IDataDriver } from '@objectstack/spec/contracts';
 import type { MetadataLoader } from './loader-interface.js';
+import { calculateChecksum } from '../utils/metadata-history-utils.js';
 
 /**
  * Configuration for the DatabaseLoader.
@@ -32,8 +35,14 @@ export interface DatabaseLoaderOptions {
   /** The table name to store metadata records (default: 'sys_metadata') */
   tableName?: string;
 
+  /** The table name to store history records (default: 'sys_metadata_history') */
+  historyTableName?: string;
+
   /** Tenant ID for multi-tenant isolation */
   tenantId?: string;
+
+  /** Enable history tracking (default: true) */
+  trackHistory?: boolean;
 }
 
 /**
@@ -57,13 +66,18 @@ export class DatabaseLoader implements MetadataLoader {
 
   private driver: IDataDriver;
   private tableName: string;
+  private historyTableName: string;
   private tenantId?: string;
+  private trackHistory: boolean;
   private schemaReady = false;
+  private historySchemaReady = false;
 
   constructor(options: DatabaseLoaderOptions) {
     this.driver = options.driver;
     this.tableName = options.tableName ?? 'sys_metadata';
+    this.historyTableName = options.historyTableName ?? 'sys_metadata_history';
     this.tenantId = options.tenantId;
+    this.trackHistory = options.trackHistory !== false; // Default to true
   }
 
   /**
@@ -87,6 +101,26 @@ export class DatabaseLoader implements MetadataLoader {
   }
 
   /**
+   * Ensure the history table exists.
+   * Uses IDataDriver.syncSchema with the SysMetadataHistoryObject definition.
+   */
+  private async ensureHistorySchema(): Promise<void> {
+    if (!this.trackHistory || this.historySchemaReady) return;
+
+    try {
+      await this.driver.syncSchema(this.historyTableName, {
+        ...SysMetadataHistoryObject,
+        name: this.historyTableName,
+      });
+      this.historySchemaReady = true;
+    } catch (error) {
+      // Log the error; historySchemaReady remains false so the next operation retries.
+      // If the error is a benign "already exists" the next attempt will also succeed.
+      console.error('Failed to ensure history schema, will retry on next operation:', error);
+    }
+  }
+
+  /**
    * Build base filter conditions for queries.
    * Always includes tenantId when configured.
    */
@@ -99,6 +133,83 @@ export class DatabaseLoader implements MetadataLoader {
       filter.tenant_id = this.tenantId;
     }
     return filter;
+  }
+
+  /**
+   * Create a history record for a metadata change.
+   *
+   * @param metadataId - The metadata record ID
+   * @param type - Metadata type
+   * @param name - Metadata name
+   * @param version - Version number
+   * @param metadata - The metadata payload
+   * @param operationType - Type of operation
+   * @param previousChecksum - Checksum of previous version (if any)
+   * @param changeNote - Optional change description
+   * @param recordedBy - Optional user who made the change
+   */
+  private async createHistoryRecord(
+    metadataId: string,
+    type: string,
+    name: string,
+    version: number,
+    metadata: unknown,
+    operationType: 'create' | 'update' | 'publish' | 'revert' | 'delete',
+    previousChecksum?: string,
+    changeNote?: string,
+    recordedBy?: string
+  ): Promise<void> {
+    if (!this.trackHistory) return;
+
+    await this.ensureHistorySchema();
+
+    const now = new Date().toISOString();
+    const checksum = await calculateChecksum(metadata);
+
+    // Skip if checksum matches previous version (no actual change)
+    if (previousChecksum && checksum === previousChecksum && operationType === 'update') {
+      return;
+    }
+
+    const historyId = generateId();
+    const metadataJson = JSON.stringify(metadata);
+
+    const historyRecord: Partial<MetadataHistoryRecord> = {
+      id: historyId,
+      metadataId,
+      name,
+      type,
+      version,
+      operationType,
+      metadata: metadataJson as any,
+      checksum,
+      previousChecksum,
+      changeNote,
+      recordedBy,
+      recordedAt: now,
+      ...(this.tenantId ? { tenantId: this.tenantId } : {}),
+    };
+
+    try {
+      await this.driver.create(this.historyTableName, {
+        id: historyRecord.id,
+        metadata_id: historyRecord.metadataId,
+        name: historyRecord.name,
+        type: historyRecord.type,
+        version: historyRecord.version,
+        operation_type: historyRecord.operationType,
+        metadata: historyRecord.metadata,
+        checksum: historyRecord.checksum,
+        previous_checksum: historyRecord.previousChecksum,
+        change_note: historyRecord.changeNote,
+        recorded_by: historyRecord.recordedBy,
+        recorded_at: historyRecord.recordedAt,
+        ...(this.tenantId ? { tenant_id: this.tenantId } : {}),
+      });
+    } catch (error) {
+      // Log error but don't fail the main operation
+      console.error(`Failed to create history record for ${type}/${name}:`, error);
+    }
   }
 
   /**
@@ -268,6 +379,112 @@ export class DatabaseLoader implements MetadataLoader {
     }
   }
 
+  /**
+   * Fetch a single history snapshot by (type, name, version).
+   * Returns null when the record does not exist.
+   */
+  async getHistoryRecord(
+    type: string,
+    name: string,
+    version: number
+  ): Promise<MetadataHistoryRecord | null> {
+    if (!this.trackHistory) return null;
+
+    await this.ensureHistorySchema();
+
+    // Resolve the parent metadata record ID
+    const metadataRow = await this.driver.findOne(this.tableName, {
+      object: this.tableName,
+      where: this.baseFilter(type, name),
+    });
+    if (!metadataRow) return null;
+
+    const filter: Record<string, unknown> = {
+      metadata_id: metadataRow.id,
+      version,
+    };
+    if (this.tenantId) {
+      filter.tenant_id = this.tenantId;
+    }
+
+    const row = await this.driver.findOne(this.historyTableName, {
+      object: this.historyTableName,
+      where: filter,
+    });
+    if (!row) return null;
+
+    return {
+      id: row.id as string,
+      metadataId: row.metadata_id as string,
+      name: row.name as string,
+      type: row.type as string,
+      version: row.version as number,
+      operationType: row.operation_type as MetadataHistoryRecord['operationType'],
+      metadata: typeof row.metadata === 'string' ? JSON.parse(row.metadata as string) : row.metadata,
+      checksum: row.checksum as string,
+      previousChecksum: row.previous_checksum as string | undefined,
+      changeNote: row.change_note as string | undefined,
+      tenantId: row.tenant_id as string | undefined,
+      recordedBy: row.recorded_by as string | undefined,
+      recordedAt: row.recorded_at as string,
+    };
+  }
+
+  /**
+   * Perform a rollback: persist `restoredData` as the new current state and record a
+   * single 'revert' history entry (instead of the usual 'update' entry that `save()`
+   * would produce). This avoids the duplicate-version problem that arises when
+   * `register()` → `save()` writes an 'update' entry followed by an additional
+   * 'revert' entry for the same version number.
+   */
+  async registerRollback(
+    type: string,
+    name: string,
+    restoredData: unknown,
+    targetVersion: number,
+    changeNote?: string,
+    recordedBy?: string
+  ): Promise<void> {
+    await this.ensureSchema();
+
+    const now = new Date().toISOString();
+    const metadataJson = JSON.stringify(restoredData);
+    const newChecksum = await calculateChecksum(restoredData);
+
+    const existing = await this.driver.findOne(this.tableName, {
+      object: this.tableName,
+      where: this.baseFilter(type, name),
+    });
+
+    if (!existing) {
+      throw new Error(`Metadata ${type}/${name} not found for rollback`);
+    }
+
+    const previousChecksum = existing.checksum as string | undefined;
+    const newVersion = ((existing.version as number) ?? 0) + 1;
+
+    await this.driver.update(this.tableName, existing.id as string, {
+      metadata: metadataJson,
+      version: newVersion,
+      checksum: newChecksum,
+      updated_at: now,
+      state: 'active',
+    });
+
+    // Write exactly one 'revert' history entry (not an 'update' entry)
+    await this.createHistoryRecord(
+      existing.id as string,
+      type,
+      name,
+      newVersion,
+      restoredData,
+      'revert',
+      previousChecksum,
+      changeNote ?? `Rolled back to version ${targetVersion}`,
+      recordedBy
+    );
+  }
+
   async save(
     type: string,
     name: string,
@@ -280,6 +497,7 @@ export class DatabaseLoader implements MetadataLoader {
 
     const now = new Date().toISOString();
     const metadataJson = JSON.stringify(data);
+    const newChecksum = await calculateChecksum(data);
 
     try {
       const existing = await this.driver.findOne(this.tableName, {
@@ -288,14 +506,38 @@ export class DatabaseLoader implements MetadataLoader {
       });
 
       if (existing) {
+        // Skip update if the content is identical (prevents phantom version bumps)
+        const previousChecksum = existing.checksum as string | undefined;
+        if (newChecksum === previousChecksum) {
+          return {
+            success: true,
+            path: `datasource://${this.tableName}/${type}/${name}`,
+            size: metadataJson.length,
+            saveTime: Date.now() - startTime,
+          };
+        }
+
         // Update existing record
         const version = ((existing.version as number) ?? 0) + 1;
+
         await this.driver.update(this.tableName, existing.id as string, {
           metadata: metadataJson,
           version,
+          checksum: newChecksum,
           updated_at: now,
           state: 'active',
         });
+
+        // Create history record for update
+        await this.createHistoryRecord(
+          existing.id as string,
+          type,
+          name,
+          version,
+          data,
+          'update',
+          previousChecksum
+        );
 
         return {
           success: true,
@@ -313,6 +555,7 @@ export class DatabaseLoader implements MetadataLoader {
           namespace: 'default',
           scope: (data as any)?.scope ?? 'platform',
           metadata: metadataJson,
+          checksum: newChecksum,
           strategy: 'merge',
           state: 'active',
           version: 1,
@@ -321,6 +564,16 @@ export class DatabaseLoader implements MetadataLoader {
           created_at: now,
           updated_at: now,
         });
+
+        // Create history record for creation
+        await this.createHistoryRecord(
+          id,
+          type,
+          name,
+          1,
+          data,
+          'create'
+        );
 
         return {
           success: true,
