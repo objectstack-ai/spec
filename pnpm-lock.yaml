@@ -166,12 +166,21 @@ importers:
       '@objectstack/plugin-security':
         specifier: workspace:*
         version: link:../../packages/plugins/plugin-security
+      '@objectstack/plugin-setup':
+        specifier: workspace:*
+        version: link:../../packages/plugins/plugin-setup
       '@objectstack/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
       '@objectstack/service-ai':
         specifier: workspace:*
         version: link:../../packages/services/service-ai
+      '@objectstack/service-analytics':
+        specifier: workspace:*
+        version: link:../../packages/services/service-analytics
+      '@objectstack/service-automation':
+        specifier: workspace:*
+        version: link:../../packages/services/service-automation
       '@objectstack/service-feed':
         specifier: workspace:*
         version: link:../../packages/services/service-feed

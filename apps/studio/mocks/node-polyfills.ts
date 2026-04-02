@@ -98,4 +98,6 @@ export const watch = () => new EventEmitter();
 export const readFile = async () => '';
 export const writeFile = async () => {};
 export const rename = async () => {};
+export const renameSync = () => {};
 export const createHash = () => ({ update: () => ({ digest: () => '' }) });
+export const randomUUID = () => '00000000-0000-0000-0000-000000000000';
