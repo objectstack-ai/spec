@@ -28,6 +28,7 @@ export { registerMetadataHistoryRoutes } from './routes/history-routes.js';
 
 // Utils
 export { calculateChecksum, generateSimpleDiff, generateDiffSummary } from './utils/metadata-history-utils.js';
+export { HistoryCleanupManager } from './utils/history-cleanup.js';
 
 // Serializers
 export { type MetadataSerializer, type SerializeOptions } from './serializers/serializer-interface.js';
