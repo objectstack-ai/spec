@@ -130,6 +130,7 @@ export default class AuthLogin extends Command {
       });
 
       const response = await client.auth.login({
+        type: 'email',
         email,
         password,
       });
