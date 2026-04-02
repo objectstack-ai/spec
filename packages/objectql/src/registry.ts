@@ -550,7 +550,7 @@ export class SchemaRegistry {
     if (type === 'object' || type === 'objects') {
       return this.getAllObjects(packageId) as unknown as T[];
     }
-    
+
     const items = Array.from(this.metadata.get(type)?.values() || []) as T[];
     if (packageId) {
       return items.filter((item: any) => item._packageId === packageId);

@@ -522,6 +522,9 @@ importers:
       '@objectstack/plugin-hono-server':
         specifier: workspace:*
         version: link:../plugins/plugin-hono-server
+      '@objectstack/plugin-setup':
+        specifier: workspace:*
+        version: link:../plugins/plugin-setup
       '@objectstack/rest':
         specifier: workspace:*
         version: link:../rest

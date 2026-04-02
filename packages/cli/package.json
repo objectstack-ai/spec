@@ -44,6 +44,7 @@
     "@objectstack/driver-memory": "workspace:^",
     "@objectstack/objectql": "workspace:^",
     "@objectstack/plugin-hono-server": "workspace:*",
+    "@objectstack/plugin-setup": "workspace:*",
     "@objectstack/rest": "workspace:*",
     "@objectstack/runtime": "workspace:^",
     "@objectstack/service-ai": "workspace:*",
