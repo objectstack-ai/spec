@@ -218,17 +218,20 @@ export class RestServer {
     private registerDiscoveryEndpoints(basePath: string): void {
         const discoveryHandler = async (_req: any, res: any) => {
                 try {
-                    const discovery = await this.protocol.getDiscovery();
-                    
+                    const discovery = await this.protocol.getDiscovery({ prefix: basePath });
+
                     // Override discovery information with actual server configuration
                     discovery.version = this.config.api.version;
-                    
+
+                    // The protocol now returns routes with the correct prefix,
+                    // but we still override them here to ensure consistency with
+                    // the RestServer configuration (in case of custom prefix overrides)
                     if (discovery.routes) {
                         // Ensure routes match the actual mounted paths
                         if (this.config.api.enableCrud) {
                             discovery.routes.data = `${basePath}${this.config.crud.dataPrefix}`;
                         }
-                        
+
                         if (this.config.api.enableMetadata) {
                             discovery.routes.metadata = `${basePath}${this.config.metadata.prefix}`;
                         }
