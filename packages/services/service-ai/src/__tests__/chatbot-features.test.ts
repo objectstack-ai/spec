@@ -19,6 +19,7 @@ import { AgentRuntime } from '../agent-runtime.js';
 import type { AgentChatContext } from '../agent-runtime.js';
 import { buildAgentRoutes } from '../routes/agent-routes.js';
 import { DATA_CHAT_AGENT } from '../agents/data-chat-agent.js';
+import { METADATA_ASSISTANT_AGENT } from '../agents/metadata-assistant-agent.js';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -841,5 +842,62 @@ describe('DATA_CHAT_AGENT', () => {
   it('should have model config', () => {
     expect(DATA_CHAT_AGENT.model).toBeDefined();
     expect(DATA_CHAT_AGENT.model!.temperature).toBeLessThanOrEqual(0.5); // low temp for data queries
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// Metadata Assistant Agent Spec
+// ═══════════════════════════════════════════════════════════════════
+
+describe('METADATA_ASSISTANT_AGENT', () => {
+  it('should be a valid agent definition', () => {
+    expect(METADATA_ASSISTANT_AGENT.name).toBe('metadata_assistant');
+    expect(METADATA_ASSISTANT_AGENT.label).toBe('Metadata Assistant');
+    expect(METADATA_ASSISTANT_AGENT.role).toBe('Schema Architect');
+    expect(METADATA_ASSISTANT_AGENT.active).toBe(true);
+    expect(METADATA_ASSISTANT_AGENT.visibility).toBe('global');
+  });
+
+  it('should reference all 6 metadata tools', () => {
+    expect(METADATA_ASSISTANT_AGENT.tools).toHaveLength(6);
+    const toolNames = METADATA_ASSISTANT_AGENT.tools!.map(t => t.name);
+    expect(toolNames).toContain('create_object');
+    expect(toolNames).toContain('add_field');
+    expect(toolNames).toContain('modify_field');
+    expect(toolNames).toContain('delete_field');
+    expect(toolNames).toContain('list_metadata_objects');
+    expect(toolNames).toContain('describe_metadata_object');
+  });
+
+  it('should use action type for mutation tools and query type for read tools', () => {
+    const tools = METADATA_ASSISTANT_AGENT.tools!;
+    const actionTools = tools.filter(t => t.type === 'action');
+    const queryTools = tools.filter(t => t.type === 'query');
+    expect(actionTools).toHaveLength(4); // create, add, modify, delete
+    expect(queryTools).toHaveLength(2); // list, describe
+  });
+
+  it('should have guardrails configured', () => {
+    expect(METADATA_ASSISTANT_AGENT.guardrails).toBeDefined();
+    expect(METADATA_ASSISTANT_AGENT.guardrails!.maxTokensPerInvocation).toBeGreaterThan(0);
+    expect(METADATA_ASSISTANT_AGENT.guardrails!.blockedTopics).toBeDefined();
+  });
+
+  it('should have model config with low temperature for schema ops', () => {
+    expect(METADATA_ASSISTANT_AGENT.model).toBeDefined();
+    expect(METADATA_ASSISTANT_AGENT.model!.temperature).toBeLessThanOrEqual(0.5);
+  });
+
+  it('should allow higher maxIterations for multi-step schema changes', () => {
+    expect(METADATA_ASSISTANT_AGENT.planning).toBeDefined();
+    expect(METADATA_ASSISTANT_AGENT.planning!.maxIterations).toBeGreaterThanOrEqual(10);
+    expect(METADATA_ASSISTANT_AGENT.planning!.allowReplan).toBe(true);
+  });
+
+  it('should have instructions mentioning metadata management capabilities', () => {
+    const instructions = METADATA_ASSISTANT_AGENT.instructions;
+    expect(instructions).toContain('snake_case');
+    expect(instructions).toContain('list_metadata_objects');
+    expect(instructions).toContain('describe_metadata_object');
   });
 });

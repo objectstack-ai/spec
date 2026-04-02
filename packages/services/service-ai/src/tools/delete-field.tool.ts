@@ -16,6 +16,7 @@ export const deleteFieldTool = defineTool({
     'Use this when the user explicitly wants to remove an attribute or column from a table.',
   category: 'data',
   builtIn: true,
+  requiresConfirmation: true,
   parameters: {
     type: 'object',
     properties: {

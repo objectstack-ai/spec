@@ -16,6 +16,39 @@ function makeMsg(overrides: { id: string; role: 'user' | 'assistant'; content: s
   };
 }
 
+/**
+ * Create a UIMessage that includes tool invocation parts for testing.
+ */
+function makeMsgWithToolParts(overrides: {
+  id: string;
+  role: 'user' | 'assistant';
+  text?: string;
+  toolParts?: Array<{ toolName: string; toolCallId: string; state: string; input?: unknown; output?: unknown; errorText?: string }>;
+}): UIMessage {
+  const parts: UIMessage['parts'] = [];
+  if (overrides.text) {
+    parts.push({ type: 'text' as const, text: overrides.text });
+  }
+  if (overrides.toolParts) {
+    for (const tp of overrides.toolParts) {
+      parts.push({
+        type: 'dynamic-tool',
+        toolName: tp.toolName,
+        toolCallId: tp.toolCallId,
+        state: tp.state,
+        input: tp.input,
+        output: tp.output,
+        errorText: tp.errorText,
+      } as unknown as UIMessage['parts'][number]);
+    }
+  }
+  return {
+    id: overrides.id,
+    role: overrides.role,
+    parts,
+  };
+}
+
 describe('use-ai-chat-panel', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -92,5 +125,77 @@ describe('AiChatPanel constants', () => {
     const msgs = [makeMsg({ id: '1', role: 'user', content: 'test' })];
     saveMessages(msgs);
     expect(localStorage.getItem('objectstack:ai-chat-messages')).toBeTruthy();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// Tool Invocation Message Parts
+// ═══════════════════════════════════════════════════════════════════
+
+describe('Messages with tool invocation parts', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('should persist and restore messages containing tool invocation parts', () => {
+    const msg = makeMsgWithToolParts({
+      id: 'a1',
+      role: 'assistant',
+      text: 'Creating object...',
+      toolParts: [
+        {
+          toolName: 'create_object',
+          toolCallId: 'tc_1',
+          state: 'output-available',
+          input: { name: 'project', label: 'Project' },
+          output: { name: 'project', label: 'Project', fieldCount: 0 },
+        },
+      ],
+    });
+    saveMessages([msg]);
+    const restored = loadMessages();
+    expect(restored).toHaveLength(1);
+    expect(restored[0].parts).toHaveLength(2); // text + tool part
+  });
+
+  it('should handle messages with only tool parts (no text)', () => {
+    const msg = makeMsgWithToolParts({
+      id: 'a2',
+      role: 'assistant',
+      toolParts: [
+        {
+          toolName: 'list_metadata_objects',
+          toolCallId: 'tc_2',
+          state: 'output-available',
+          input: {},
+          output: { objects: [], totalCount: 0 },
+        },
+      ],
+    });
+    saveMessages([msg]);
+    const restored = loadMessages();
+    expect(restored).toHaveLength(1);
+    expect(restored[0].parts).toHaveLength(1); // only tool part
+  });
+
+  it('should persist tool error parts', () => {
+    const msg = makeMsgWithToolParts({
+      id: 'a3',
+      role: 'assistant',
+      toolParts: [
+        {
+          toolName: 'create_object',
+          toolCallId: 'tc_3',
+          state: 'output-error',
+          input: { name: 'Bad Name' },
+          errorText: 'Invalid object name "Bad Name". Must be snake_case.',
+        },
+      ],
+    });
+    saveMessages([msg]);
+    const restored = loadMessages();
+    expect(restored).toHaveLength(1);
+    const toolPart = restored[0].parts.find((p: { type: string }) => p.type === 'dynamic-tool');
+    expect(toolPart).toBeDefined();
   });
 });

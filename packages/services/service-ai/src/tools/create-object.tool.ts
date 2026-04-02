@@ -17,6 +17,7 @@ export const createObjectTool = defineTool({
     'Use this when the user wants to create a new entity, table, or data model.',
   category: 'data',
   builtIn: true,
+  requiresConfirmation: true,
   parameters: {
     type: 'object',
     properties: {

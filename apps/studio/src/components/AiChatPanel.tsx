@@ -4,7 +4,10 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import type { UIMessage } from 'ai';
-import { Bot, X, Send, Trash2, Sparkles } from 'lucide-react';
+import {
+  Bot, X, Send, Trash2, Sparkles,
+  Wrench, CheckCircle2, XCircle, Loader2, ShieldAlert,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -25,6 +28,168 @@ function getMessageText(msg: UIMessage): string {
     .join('');
 }
 
+/**
+ * Convert a snake_case tool name to a human-readable label.
+ */
+function formatToolName(name: string): string {
+  return name
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+/**
+ * Render a concise summary of tool input arguments.
+ */
+function formatToolArgs(input: unknown): string {
+  if (!input || typeof input !== 'object') return '';
+  const entries = Object.entries(input as Record<string, unknown>);
+  if (entries.length === 0) return '';
+  return entries
+    .slice(0, 4)
+    .map(([k, v]) => {
+      const val = typeof v === 'string' ? v : JSON.stringify(v);
+      const display = typeof val === 'string' && val.length > 30 ? val.slice(0, 30) + '…' : val;
+      return `${k}: ${display}`;
+    })
+    .join(', ');
+}
+
+/**
+ * Type guard to check if a message part is a tool invocation (dynamic-tool).
+ */
+function isToolPart(part: UIMessage['parts'][number]): part is Extract<UIMessage['parts'][number], { type: 'dynamic-tool' }> {
+  return part.type === 'dynamic-tool';
+}
+
+// ── Tool Invocation State Labels ────────────────────────────────────
+
+interface ToolInvocationDisplayProps {
+  part: Extract<UIMessage['parts'][number], { type: 'dynamic-tool' }>;
+  onApprove?: (approvalId: string) => void;
+  onDeny?: (approvalId: string) => void;
+}
+
+/**
+ * Renders a single tool invocation part with appropriate status indicator.
+ */
+function ToolInvocationDisplay({ part, onApprove, onDeny }: ToolInvocationDisplayProps) {
+  const toolLabel = formatToolName(part.toolName);
+  const argsText = formatToolArgs(part.input);
+
+  switch (part.state) {
+    case 'input-streaming':
+    case 'input-available':
+      return (
+        <div
+          data-testid="tool-invocation-calling"
+          className="flex items-start gap-2 rounded-md border border-border/50 bg-muted/50 px-2.5 py-2 text-xs"
+        >
+          <Loader2 className="mt-0.5 h-3.5 w-3.5 shrink-0 animate-spin text-primary" />
+          <div className="min-w-0">
+            <span className="font-medium">Calling {toolLabel}</span>
+            {argsText && (
+              <p className="mt-0.5 truncate text-muted-foreground">{argsText}</p>
+            )}
+          </div>
+        </div>
+      );
+
+    case 'approval-requested':
+      return (
+        <div
+          data-testid="tool-invocation-confirm"
+          className="flex flex-col gap-2 rounded-md border border-yellow-500/40 bg-yellow-500/10 px-2.5 py-2 text-xs"
+        >
+          <div className="flex items-start gap-2">
+            <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-yellow-600 dark:text-yellow-400" />
+            <div className="min-w-0">
+              <span className="font-medium">Confirm: {toolLabel}</span>
+              {argsText && (
+                <p className="mt-0.5 text-muted-foreground">{argsText}</p>
+              )}
+            </div>
+          </div>
+          {part.approval && onApprove && onDeny && (
+            <div className="flex gap-2 pl-5">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-6 px-2 text-xs"
+                onClick={() => onApprove(part.approval!.id)}
+              >
+                <CheckCircle2 className="mr-1 h-3 w-3" />
+                Approve
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 px-2 text-xs text-destructive hover:text-destructive"
+                onClick={() => onDeny(part.approval!.id)}
+              >
+                <XCircle className="mr-1 h-3 w-3" />
+                Deny
+              </Button>
+            </div>
+          )}
+        </div>
+      );
+
+    case 'output-available':
+      return (
+        <div
+          data-testid="tool-invocation-result"
+          className="flex items-start gap-2 rounded-md border border-green-500/30 bg-green-500/10 px-2.5 py-2 text-xs"
+        >
+          <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600 dark:text-green-400" />
+          <div className="min-w-0">
+            <span className="font-medium">{toolLabel}</span>
+            <p className="mt-0.5 text-muted-foreground truncate">
+              {typeof part.output === 'string'
+                ? part.output.length > 80 ? part.output.slice(0, 80) + '…' : part.output
+                : JSON.stringify(part.output).slice(0, 80)}
+            </p>
+          </div>
+        </div>
+      );
+
+    case 'output-error':
+      return (
+        <div
+          data-testid="tool-invocation-error"
+          className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-2.5 py-2 text-xs"
+        >
+          <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
+          <div className="min-w-0">
+            <span className="font-medium">{toolLabel} failed</span>
+            <p className="mt-0.5 text-destructive/80">{part.errorText}</p>
+          </div>
+        </div>
+      );
+
+    case 'output-denied':
+      return (
+        <div
+          data-testid="tool-invocation-denied"
+          className="flex items-start gap-2 rounded-md border border-border/50 bg-muted/50 px-2.5 py-2 text-xs"
+        >
+          <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <span className="font-medium text-muted-foreground">{toolLabel} — denied</span>
+        </div>
+      );
+
+    default:
+      return (
+        <div
+          data-testid="tool-invocation-unknown"
+          className="flex items-start gap-2 rounded-md border border-border/50 bg-muted/50 px-2.5 py-2 text-xs"
+        >
+          <Wrench className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <span className="font-medium">{toolLabel}</span>
+        </div>
+      );
+  }
+}
+
 export function AiChatPanel() {
   const { isOpen, setOpen, toggle } = useAiChatPanel();
   const [input, setInput] = useState('');
@@ -39,7 +204,7 @@ export function AiChatPanel() {
     [baseUrl],
   );
 
-  const { messages, sendMessage, setMessages, status, error } = useChat({
+  const { messages, sendMessage, setMessages, status, error, addToolApprovalResponse } = useChat({
     transport,
     messages: initialMessages,
   });
@@ -167,12 +332,14 @@ export function AiChatPanel() {
           )}
           {messages.map((msg) => {
             const text = getMessageText(msg);
-            if (!text && msg.role !== 'user') return null;
+            const toolParts = (msg.parts ?? []).filter(isToolPart);
+            const hasContent = !!text || toolParts.length > 0;
+            if (!hasContent && msg.role !== 'user') return null;
             return (
               <div
                 key={msg.id}
                 className={cn(
-                  'flex flex-col gap-1 rounded-lg px-3 py-2 text-sm',
+                  'flex flex-col gap-1.5 rounded-lg px-3 py-2 text-sm',
                   msg.role === 'user'
                     ? 'ml-8 bg-primary text-primary-foreground'
                     : 'mr-8 bg-muted text-foreground',
@@ -181,7 +348,23 @@ export function AiChatPanel() {
                 <span className="text-[10px] font-medium opacity-60 uppercase">
                   {msg.role === 'user' ? 'You' : 'Assistant'}
                 </span>
-                <div className="whitespace-pre-wrap break-words">{text}</div>
+                {text && <div className="whitespace-pre-wrap break-words">{text}</div>}
+                {toolParts.map((toolPart) => (
+                  <ToolInvocationDisplay
+                    key={toolPart.toolCallId}
+                    part={toolPart}
+                    onApprove={(approvalId) =>
+                      addToolApprovalResponse({ id: approvalId, approved: true })
+                    }
+                    onDeny={(approvalId) =>
+                      addToolApprovalResponse({
+                        id: approvalId,
+                        approved: false,
+                        reason: 'User denied the operation',
+                      })
+                    }
+                  />
+                ))}
               </div>
             );
           })}
