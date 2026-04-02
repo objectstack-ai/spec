@@ -48,7 +48,7 @@ function formatToolArgs(input: unknown): string {
     .slice(0, 4)
     .map(([k, v]) => {
       const val = typeof v === 'string' ? v : JSON.stringify(v);
-      const display = typeof val === 'string' && val.length > 30 ? val.slice(0, 30) + '…' : val;
+      const display = val.length > 30 ? val.slice(0, 30) + '…' : val;
       return `${k}: ${display}`;
     })
     .join(', ');
@@ -59,6 +59,14 @@ function formatToolArgs(input: unknown): string {
  */
 function isToolPart(part: UIMessage['parts'][number]): part is Extract<UIMessage['parts'][number], { type: 'dynamic-tool' }> {
   return part.type === 'dynamic-tool';
+}
+
+/**
+ * Format tool output for display, truncating to a max length.
+ */
+function formatToolOutput(output: unknown, maxLen = 80): string {
+  const raw = typeof output === 'string' ? output : JSON.stringify(output);
+  return raw.length > maxLen ? raw.slice(0, maxLen) + '…' : raw;
 }
 
 // ── Tool Invocation State Labels ────────────────────────────────────
@@ -144,9 +152,7 @@ function ToolInvocationDisplay({ part, onApprove, onDeny }: ToolInvocationDispla
           <div className="min-w-0">
             <span className="font-medium">{toolLabel}</span>
             <p className="mt-0.5 text-muted-foreground truncate">
-              {typeof part.output === 'string'
-                ? part.output.length > 80 ? part.output.slice(0, 80) + '…' : part.output
-                : JSON.stringify(part.output).slice(0, 80)}
+              {formatToolOutput(part.output)}
             </p>
           </div>
         </div>
