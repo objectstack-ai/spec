@@ -657,6 +657,83 @@ describe('createHonoApp', () => {
       );
     });
 
+    it('POST /api/v1/data/account parses JSON body through outer→inner delegation', async () => {
+      const outerApp = createVercelApp();
+      const body = { name: 'Acme' };
+
+      const res = await outerApp.request('/api/v1/data/account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'POST',
+        '/data/account',
+        body,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+        '/api/v1',
+      );
+    });
+
+    it('PUT /api/v1/data/account parses JSON body through outer→inner delegation', async () => {
+      const outerApp = createVercelApp();
+      const body = { name: 'Updated' };
+
+      const res = await outerApp.request('/api/v1/data/account', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'PUT',
+        '/data/account',
+        body,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+        '/api/v1',
+      );
+    });
+
+    it('PATCH /api/v1/data/account parses JSON body through outer→inner delegation', async () => {
+      const outerApp = createVercelApp();
+      const body = { name: 'Patched' };
+
+      const res = await outerApp.request('/api/v1/data/account', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'PATCH',
+        '/data/account',
+        body,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+        '/api/v1',
+      );
+    });
+
+    it('DELETE /api/v1/data/account routes through outer→inner delegation', async () => {
+      const outerApp = createVercelApp();
+
+      const res = await outerApp.request('/api/v1/data/account', {
+        method: 'DELETE',
+      });
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'DELETE',
+        '/data/account',
+        undefined,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+        '/api/v1',
+      );
+    });
+
     it('returns 500 with error details when inner app throws', async () => {
       const outerApp = new Hono();
 
@@ -677,6 +754,153 @@ describe('createHonoApp', () => {
       const json = await res.json();
       expect(json.success).toBe(false);
       expect(json.error.message).toBe('Kernel boot failed');
+    });
+  });
+
+  describe('Body-safe Vercel delegation (buffered body forwarding)', () => {
+    /**
+     * Validates the body-safe delegation pattern used in
+     * `apps/studio/server/index.ts` where the outer handler buffers
+     * POST/PUT/PATCH bodies and creates a fresh `Request` for the inner app.
+     * This avoids @hono/node-server's lazy body materialisation which can
+     * hang on Vercel when the IncomingMessage stream state has changed.
+     */
+    function createBodySafeVercelApp() {
+      const innerApp = createHonoApp({ kernel: mockKernel, prefix: '/api/v1' });
+      const outerApp = new Hono();
+
+      outerApp.all('*', async (c) => {
+        const method = c.req.method;
+
+        // GET/HEAD have no body — pass through directly
+        if (method === 'GET' || method === 'HEAD') {
+          return innerApp.fetch(c.req.raw);
+        }
+
+        // Buffer body and create a fresh Request
+        const rawReq = c.req.raw;
+        const body = await rawReq.arrayBuffer();
+        const forwarded = new Request(rawReq.url, {
+          method,
+          headers: rawReq.headers,
+          body,
+        });
+        return innerApp.fetch(forwarded);
+      });
+
+      return outerApp;
+    }
+
+    it('GET requests work without body buffering', async () => {
+      const outerApp = createBodySafeVercelApp();
+
+      const res = await outerApp.request('/api/v1/data/account');
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'GET',
+        '/data/account',
+        undefined,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+        '/api/v1',
+      );
+    });
+
+    it('POST body is forwarded correctly via buffered delegation', async () => {
+      const outerApp = createBodySafeVercelApp();
+      const body = { name: 'Acme Corp' };
+
+      const res = await outerApp.request('/api/v1/data/account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'POST',
+        '/data/account',
+        body,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+        '/api/v1',
+      );
+    });
+
+    it('PUT body is forwarded correctly via buffered delegation', async () => {
+      const outerApp = createBodySafeVercelApp();
+      const body = { name: 'Updated Corp' };
+
+      const res = await outerApp.request('/api/v1/data/account', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'PUT',
+        '/data/account',
+        body,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+        '/api/v1',
+      );
+    });
+
+    it('PATCH body is forwarded correctly via buffered delegation', async () => {
+      const outerApp = createBodySafeVercelApp();
+      const body = { status: 'active' };
+
+      const res = await outerApp.request('/api/v1/data/account', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'PATCH',
+        '/data/account',
+        body,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+        '/api/v1',
+      );
+    });
+
+    it('DELETE without body works via buffered delegation', async () => {
+      const outerApp = createBodySafeVercelApp();
+
+      const res = await outerApp.request('/api/v1/data/account', {
+        method: 'DELETE',
+      });
+      expect(res.status).toBe(200);
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'DELETE',
+        '/data/account',
+        undefined,
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+        '/api/v1',
+      );
+    });
+
+    it('POST with empty body defaults to {} via buffered delegation', async () => {
+      const outerApp = createBodySafeVercelApp();
+
+      const res = await outerApp.request('/api/v1/data/account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '',
+      });
+      expect(res.status).toBe(200);
+      // Empty body falls back to {} via .catch(() => ({})) in the adapter
+      expect(mockDispatcher.dispatch).toHaveBeenCalledWith(
+        'POST',
+        '/data/account',
+        {},
+        expect.any(Object),
+        expect.objectContaining({ request: expect.anything() }),
+        '/api/v1',
+      );
     });
   });
 

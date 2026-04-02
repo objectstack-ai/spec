@@ -4,6 +4,25 @@
 
 ### Patch Changes
 
+- **Vercel deployment: Fix POST/PUT/PATCH API requests timing out**
+
+  Replaced the `handle()` + outer Hono app delegation pattern with
+  `getRequestListener()` from `@hono/node-server`, matching the proven
+  pattern from the hotcrm reference deployment.
+
+  The previous approach used `handle()` from `@hono/node-server/vercel`
+  wrapped in an outer Hono app that delegated to the inner ObjectStack
+  app via `inner.fetch(c.req.raw)`.  On Vercel, the `IncomingMessage`
+  stream is already drained by the time the inner app's route handler
+  calls `.json()`, causing POST/PUT/PATCH requests to hang indefinitely.
+
+  The new approach uses `getRequestListener()` directly, which exposes
+  the raw `IncomingMessage` via `env.incoming`.  For POST/PUT/PATCH
+  requests, the body is extracted from Vercel's pre-buffered `rawBody` /
+  `body` properties and a fresh standard `Request` is constructed for
+  the inner Hono app.  This also adds `x-forwarded-proto` URL correction
+  for proper HTTPS detection behind Vercel's reverse proxy.
+
 - Remove `functions` block from `vercel.json` to fix deployment error:
   "The pattern 'api/index.js' defined in `functions` doesn't match any
   Serverless Functions inside the `api` directory."
