@@ -139,6 +139,14 @@ const SYSTEM_FQN_PREFIX = `${SYSTEM_NAMESPACE}__`;
 /** Legacy system object name prefix (namespace + single underscore) */
 const SYSTEM_LEGACY_PREFIX = `${SYSTEM_NAMESPACE}_`;
 
+/** Resolve a label value that may be a plain string or an i18n object {key, defaultValue} */
+function resolveLabel(val: unknown): string {
+  if (typeof val === 'string') return val;
+  if (val && typeof val === 'object' && 'defaultValue' in val) return String((val as any).defaultValue);
+  if (val && typeof val === 'object' && 'key' in val) return String((val as any).key);
+  return '';
+}
+
 /** Check if an object item is a system object */
 function isSystemObject(item: any): boolean {
   if (item.isSystem === true) return true;
@@ -399,7 +407,7 @@ export function AppSidebar({
                     const isExpanded = expandedTypes.has(type) || !!searchQuery;
 
                     const filtered = items.filter((item: any) =>
-                      matchesSearch(item.label || item.name || '', item.name || '')
+                      matchesSearch(resolveLabel(item.label) || item.name || '', item.name || '')
                     );
                     if (filtered.length === 0 && searchQuery) return null;
 
@@ -418,7 +426,7 @@ export function AppSidebar({
                             <SidebarMenuSub>
                               {filtered.map((item: any) => {
                                 const itemName = item.name || item.id || 'unknown';
-                                const itemLabel = item.label || item.name || 'Untitled';
+                                const itemLabel = resolveLabel(item.label) || item.name || 'Untitled';
                                 const fqnParts = itemName.includes('__') ? itemName.split('__') : [null, itemName];
                                 const namespace = fqnParts.length === 2 && fqnParts[0] ? fqnParts[0] : null;
 
@@ -500,10 +508,10 @@ export function AppSidebar({
                     <CollapsibleContent>
                       <SidebarMenuSub>
                         {systemObjects
-                          .filter((item: any) => matchesSearch(item.label || item.name || '', item.name || ''))
+                          .filter((item: any) => matchesSearch(resolveLabel(item.label) || item.name || '', item.name || ''))
                           .map((item: any) => {
                             const itemName = item.name || item.id || 'unknown';
-                            const itemLabel = item.label || item.name || 'Untitled';
+                            const itemLabel = resolveLabel(item.label) || item.name || 'Untitled';
 
                             return (
                               <SidebarMenuSubItem key={itemName}>

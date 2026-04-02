@@ -15,6 +15,14 @@ import {
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
+/** Resolve a label value that may be a plain string or an i18n object {key, defaultValue} */
+function resolveLabel(val: unknown): string {
+  if (typeof val === 'string') return val;
+  if (val && typeof val === 'object' && 'defaultValue' in val) return String((val as any).defaultValue);
+  if (val && typeof val === 'object' && 'key' in val) return String((val as any).key);
+  return '';
+}
+
 interface MetadataInspectorProps {
   metaType: string;
   metaName: string;
@@ -232,9 +240,9 @@ export function MetadataInspector({ metaType, metaName, packageId }: MetadataIns
   }
 
   // Extract common meta fields
-  const label = item.label || item.name || metaName;
+  const label = resolveLabel(item.label) || item.name || metaName;
   const name = item.name || metaName;
-  const description = item.description;
+  const description = resolveLabel(item.description);
   const hasFQN = name.includes('__');
   const [namespace] = hasFQN ? name.split('__') : [null];
 
