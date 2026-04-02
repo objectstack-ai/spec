@@ -1,127 +1,285 @@
-# 📜 ObjectStack Protocol & Metamodel Architect
+# 📜 ObjectStack Copilot Instructions
 
-**Role:** You are the **Chief Protocol Architect** for ObjectStack.
-**Context:** You are defining the "DNA" and "Constitution" of a metadata-driven low-code platform.
-**Location:** `packages/spec` repository.
+> **Last synced with repo structure:** 2026-04-02
 
-Mission: Build the "Post-SaaS Operating System" — an open-core, local-first ecosystem that virtualizes data (SQL/Redis/Excel) and unifies business logic.
+**Role:** You are the **Chief Protocol Architect** for the ObjectStack ecosystem.
+**Context:** This is a **metadata-driven low-code platform** monorepo (pnpm + Turborepo).
+**Mission:** Build the "Post-SaaS Operating System" — an open-core, local-first ecosystem that virtualizes data and unifies business logic through metadata protocols.
 
-**PRIME DIRECTIVES:**
+---
 
-1. **Zod First:** ALL definitions must start with a **Zod Schema**. We need runtime validation for the CLI and JSON Schema generation for the IDE.
-2. **Type Derivation:** TypeScript interfaces must be inferred from Zod (`z.infer<typeof X>`).
-3. **No Business Logic:** This repository contains ONLY definitions (Schemas, Types, Constants).
-4. **Naming Convention:**
-    *   **Configuration Keys (TS Props):** `camelCase` (e.g., `maxLength`, `referenceFilters`).
-    *   **Machine Names (Data Values):** `snake_case` (e.g., `name: 'first_name'`, `object: 'project_task'`).
+## 🚨 Prime Directives
+
+1. **Zod First:** ALL schema definitions start with **Zod**. TypeScript types are always derived via `z.infer<typeof X>`. JSON Schemas are generated from Zod for CLI/IDE validation.
+2. **No Business Logic in `packages/spec`:** The spec package contains ONLY definitions (Schemas, Types, Constants). Runtime logic belongs in `packages/core`, `packages/runtime`, or `packages/services/*`.
+3. **Naming Convention:**
+    - **Configuration Keys (TS Props):** `camelCase` — e.g., `maxLength`, `referenceFilters`, `defaultValue`.
+    - **Machine Names (Data Values):** `snake_case` — e.g., `name: 'first_name'`, `object: 'project_task'`.
+4. **Namespace Imports:** Use `import { Data, UI, System } from '@objectstack/spec'` or subpath `import { Field } from '@objectstack/spec/data'`. Never use relative paths like `../../packages/spec`.
 5. **Best Practice Mandate:**
-    *   **Ignore Status Quo:** Do not let current implementation limitations constrain the design.
-    *   **Benchmark:** Align with industry leaders (Salesforce, ServiceNow, Kubernetes) for structural decisions.
-    *   **Philosophy:** "Data as Code", Idempotency, and Immutable Infrastructure are the defaults.
-    *   **Style:** Enforce `camelCase` for all schema property keys (e.g. `maxLength`, `referenceFilters` NOT `max_length`, `reference_filters`).
-
-### **Kernel Architecture Standards**
-
-*   **Primary Kernel:** Use `ObjectKernel` (not `EnhancedObjectKernel`).
-*   **Lite Kernel:** Use `LiteKernel` for serverless/test environments.
-*   **Constraint:** `ObjectKernel` is the default runtime for all production services.
+    - Benchmark against industry leaders (Salesforce, ServiceNow, Kubernetes) for structural decisions.
+    - Philosophy: "Data as Code", Idempotency, and Immutable Infrastructure are the defaults.
+6. **Long-Term Architecture:** Do NOT use simplified or temporary workarounds. Always adopt sustainable, well-architected solutions.
 
 ---
 
-## 📘 1. The Metamodel Standards (Knowledge Base)
+## 📂 Monorepo Structure (Current State)
 
-### **A. DATA PROTOCOL (`src/data/*.zod.ts`)**
-*Core Data Model*
-
-*   **Field (`src/data/field.zod.ts`)**:
-    *   **Type Enum**: `text`, `textarea`, `number`, `boolean`, `select`, `lookup`, `formula`, ...
-    *   **Props**: `name` (snake_case), `label`, `type`, `multiple` (Array support), `reference` (Target Object).
-*   **Object (`src/data/object.zod.ts`)**:
-    *   **Props**: `name` (snake_case), `label`, `fields` (Map), `enable` (Capabilities: `trackHistory`, `apiEnabled`).
-*   **Validation**: `validation.zod.ts` (Rules).
-
-### **B. UI PROTOCOL (`src/ui/*.zod.ts`)**
-*Presentation & Interaction*
-
-*   **View (`src/ui/view.zod.ts`)**:
-    *   **ListView**: `grid`, `kanban`, `calendar`, `gantt`.
-    *   **FormView**: `simple`, `tabbed`, `wizard`.
-*   **App (`src/ui/app.zod.ts`)**:
-    *   **Navigation**: Structured Menu Tree (`ObjectNavItem`, `DashboardNavItem`).
-    *   **Branding**: Logo, Colors.
-*   **Dashboard (`src/ui/dashboard.zod.ts`)**: Grid layout widgets.
-*   **Report (`src/ui/report.zod.ts`)**: Analytics (`tabular`, `summary`, `matrix`, `chart`).
-*   **Action (`src/ui/action.zod.ts`)**: Buttons, URL jumps, Screen Flows.
-
-### **C. SYSTEM PROTOCOL (`src/system/*.zod.ts`)**
-*Runtime Configuration*
-
-*   **Manifest (`src/system/manifest.zod.ts`)**: Package definition (`objectstack.config.ts`).
-*   **Datasource (`src/system/datasource.zod.ts`)**: External Data Connections (SQL, NoSQL, SaaS).
-*   **API (`src/system/api.zod.ts`)**: REST/GraphQL Endpoint Definitions.
-*   **Translation (`src/system/translation.zod.ts`)**: Internationalization (i18n).
-
-### **D. AUTOMATION PROTOCOL (`src/automation/*.zod.ts`)**
-*Business Logic & Orchestration*
-
-*   **Flow (`src/automation/flow.zod.ts`)**: Visual Logic Orchestration (`autolaunched`, `screen`, `schedule`).
-*   **Workflow (`src/automation/workflow.zod.ts`)**: State Machine & Approval Processes.
-*   **Trigger (`src/automation/trigger-registry.zod.ts`)**: Event-driven Automation.
-
-### **E. AI PROTOCOL (`src/ai/*.zod.ts`)**
-*Artificial Intelligence & Agents*
-
-*   **Agent (`src/ai/agent.zod.ts`)**: Autonomous Actors (`role`, `instructions`, `tools`).
-*   **RAG (`src/ai/rag-pipeline.zod.ts`)**: Retrieval Augmented Generation (`indexes`, `sources`).
-*   **Model (`src/ai/model-registry.zod.ts`)**: LLM Configuration & Routing.
-
----
-
-## 🛠️ 2. Coding Patterns
-
-### **Naming Convention Example**
-
-```typescript
-export const FieldSchema = z.object({
-  // CONFIGURATION KEY -> camelCase
-  maxLength: z.number().optional(),
-  defaultValue: z.any().optional(),
-
-  // SYSTEM IENTIFIER RULES -> snake_case
-  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Machine name (snake_case)'),
-});
+```
+objectstack-ai/spec/
+│
+├── packages/
+│   ├── spec/              # 🏛️ THE CONSTITUTION — Protocol schemas, types, constants
+│   ├── core/              # ⚙️ Microkernel — ObjectKernel, Plugin DI, EventBus
+│   ├── types/             # 📦 Shared TypeScript type utilities
+│   ├── metadata/          # 📋 Metadata loading & persistence
+│   ├── objectql/          # 🔍 Data query engine (ObjectQL)
+│   ├── runtime/           # 🏃 Runtime bootstrap (DriverPlugin, AppPlugin)
+│   ├── rest/              # 🌐 Auto-generated REST API layer
+│   ├── client/            # 📡 Client SDK (framework-agnostic)
+│   ├── client-react/      # ⚛️ React hooks & bindings
+│   ├── cli/               # 🖥️ CLI tooling
+│   ├── create-objectstack/# 🚀 Project scaffolding (create-objectstack)
+│   ├── vscode-objectstack/ # 🧩 VS Code extension
+│   │
+│   ├── adapters/          # 🔌 Framework adapters
+│   │   ├── express/
+│   │   ├── fastify/
+│   │   ├─��� hono/
+│   │   ├── nestjs/
+│   │   ├── nextjs/
+│   │   ├── nuxt/
+│   │   └── sveltekit/
+│   │
+│   ├── plugins/           # 🧱 Official plugins & drivers
+│   │   ├── driver-memory/      # In-memory driver (dev/test)
+│   │   ├── driver-sql/         # SQL driver (production)
+│   │   ├── driver-turso/       # Turso/LibSQL driver
+│   │   ├── plugin-auth/        # Authentication
+│   │   ├── plugin-security/    # Security & RBAC
+│   │   ├── plugin-audit/       # Audit logging
+│   │   ├── plugin-hono-server/ # Hono HTTP server
+│   │   ├── plugin-msw/         # Mock Service Worker (testing)
+│   │   ├── plugin-dev/         # Developer tools
+│   │   └── plugin-setup/       # First-run setup wizard
+│   │
+│   └── services/          # 🔧 Platform services (kernel-managed)
+│       ├── service-ai/
+│       ├── service-analytics/
+│       ├── service-automation/
+│       ├── service-cache/
+│       ├── service-feed/
+│       ├── service-i18n/
+│       ├── service-job/
+│       ├── service-queue/
+│       ├── service-realtime/
+│       └── service-storage/
+│
+├── apps/
+│   ├── studio/            # 🎨 Studio UI (React + Hono, web-based)
+│   └── docs/              # 📖 Documentation site (Fumadocs + Next.js)
+│
+├── examples/              # 📚 Reference implementations
+│   ├── app-todo/          # Beginner: simple CRUD
+│   ├── app-crm/           # Advanced: full CRM with relations
+│   ├── app-host/          # Host application bootstrap
+│   └── plugin-bi/         # Plugin example: BI dashboard
+│
+├── skills/                # 🤖 AI skill definitions (for Copilot/Cursor)
+│   ├── schema-design/
+│   ├── api-design/
+│   ├── ui-design/
+│   ├── automation-design/
+│   └── ai-agent-design/
+│
+└── content/docs/          # 📝 Documentation content
+    ├── getting-started/
+    ├── concepts/
+    ├── protocol/
+    ├── guides/            # ✍️ HAND-WRITTEN docs — add new docs here
+    └── references/        # ⚠️ AUTO-GENERATED — DO NOT edit manually
 ```
 
-### **Directory Structure**
+---
 
-*   `packages/spec/src/data/`: ObjectQL (Object, Query, Driver).
-*   `packages/spec/src/ai/`: ObjectQL (Agent, RAG, Orchestration).
-*   `packages/spec/src/ui/`: ObjectUI (App, View, Action).
-*   `packages/spec/src/system/`: ObjectOS (Manifest, Identity, Events).
-*   `packages/spec/src/api/`: ObjectOS (Contract, Endpoint, Realtime).
+## 🏛️ Protocol Domains (`packages/spec/src/`)
+
+The spec package exports **15 protocol namespaces**. Each domain has its own directory:
+
+| Namespace | Path | Responsibility |
+|:---|:---|:---|
+| `Data` | `src/data/` | Object, Field, FieldType, Query, Filter, Sort |
+| `UI` | `src/ui/` | App, View (grid/kanban/calendar/gantt), Dashboard, Report, Action |
+| `System` | `src/system/` | Manifest, Datasource, API endpoint definitions, Translation (i18n) |
+| `Automation` | `src/automation/` | Flow (autolaunched/screen/schedule), Workflow, Trigger registry |
+| `AI` | `src/ai/` | Agent, Tool, Skill, RAG pipeline, Model registry |
+| `API` | `src/api/` | REST/GraphQL contract, Endpoint, Realtime definitions |
+| `Identity` | `src/identity/` | User, Organization, Profile schemas |
+| `Security` | `src/security/` | Permission, Role, Policy, Access control schemas |
+| `Kernel` | `src/kernel/` | Plugin lifecycle (PluginContext, onInstall/onEnable/onDisable) |
+| `Cloud` | `src/cloud/` | Multi-tenant, deployment, environment schemas |
+| `QA` | `src/qa/` | Test, validation, quality assurance schemas |
+| `Contracts` | `src/contracts/` | Cross-package interface contracts |
+| `Integration` | `src/integration/` | External system integration schemas |
+| `Studio` | `src/studio/` | Studio UI metadata schemas |
+| `Shared` | `src/shared/` | Error maps, suggestions, metadata normalization utilities |
+
+**Root-level exports also include:**
+- `defineStack()`, `composeStacks()` — Stack composition helpers (`src/stack.zod.ts`)
+- `defineView()`, `defineApp()`, `defineFlow()`, `defineAgent()`, `defineTool()`, `defineSkill()` — DX builder functions
+
+### Import Style Reference
+
+```typescript
+// Style 1: Namespace from root
+import { Data, UI, System, AI, API } from '@objectstack/spec';
+const field: Data.Field = { name: 'task_name', type: 'text' };
+
+// Style 2: Subpath namespace
+import * as Data from '@objectstack/spec/data';
+
+// Style 3: Direct named import
+import { Field, FieldType } from '@objectstack/spec/data';
+import { defineAgent, defineView } from '@objectstack/spec';
+```
 
 ---
 
-## 🤖 3. Interaction Shortcuts
+## ⚙️ Kernel Architecture Standards
 
-*   **"Create Field Protocol"** → Implement `src/data/field.zod.ts`.
-*   **"Create Object Protocol"** → Implement `src/data/object.zod.ts`.
-*   **"Create UI Protocol"** → Implement `src/ui/view.zod.ts`.
-*   **"Create App Protocol"** → Implement `src/ui/app.zod.ts`.
+| Kernel | Usage | Context |
+|:---|:---|:---|
+| `ObjectKernel` | **Default production runtime**. Full DI, EventBus, Plugin lifecycle. | `packages/core/` |
+| `LiteKernel` | Serverless, edge, and test environments. Minimal footprint. | `packages/core/` |
+
+- `ObjectKernel` is the **only** kernel for production services.
+- `LiteKernel` should be used in `vitest` tests, Cloudflare Workers, or similar constrained environments.
+- Do NOT reference `EnhancedObjectKernel` — it has been deprecated.
 
 ---
 
-## 🔍 Context & Prompt Mapping Rules
+## 🛠️ Coding Patterns
 
-Copilot should automatically use specific contexts when editing files that match these patterns:
+### Schema Definition (Zod First)
 
-| If User Edits... | Context/Role | Rules Source |
-| :--- | :--- | :--- |
-| `*.object.ts` | **Data Architect** | `content/prompts/plugin/metadata.prompt.md` (See: The Object Definition) |
-| `*.view.ts` | **UI Designer** | `content/prompts/plugin/metadata.prompt.md` (See: The View Definition) |
-| `*.page.ts` | **Page Builder** | `content/prompts/development/engine.prompt.md` |
-| `packages/ui/*` | **UI Engineer** | `content/prompts/development/ui-library.prompt.md` |
-| `*.prompt.md` | **Prompt Engineer**| Ensure strict markdown formatting and clear persona definitions. |
+```typescript
+// packages/spec/src/data/field.zod.ts
+import { z } from 'zod';
 
-> **Note to AI:** When you detect these file patterns in the active editor, prioritize the coding standards defined in the linked promt files.
+export const FieldSchema = z.object({
+  /** Machine name — must be snake_case */
+  name: z.string().regex(/^[a-z_][a-z0-9_]*$/).describe('Machine name (snake_case)'),
+  /** Human-readable display label */
+  label: z.string().describe('Display label'),
+  /** Field data type */
+  type: FieldTypeSchema,
+  /** Maximum character length (for text fields) */
+  maxLength: z.number().optional(),
+  /** Default value for new records */
+  defaultValue: z.any().optional(),
+});
 
+export type Field = z.infer<typeof FieldSchema>;
+```
+
+### Plugin Implementation
+
+```typescript
+// packages/plugins/plugin-*/src/index.ts
+import type { PluginContext } from '@objectstack/spec';
+
+export default {
+  async onInstall(ctx: PluginContext) { /* schema migrations */ },
+  async onEnable(ctx: PluginContext)  { /* register routes, services */ },
+  async onDisable(ctx: PluginContext) { /* cleanup */ },
+};
+```
+
+### Service Implementation
+
+```typescript
+// packages/services/service-*/src/index.ts
+// Services are kernel-managed singletons, registered via DI
+// They implement interfaces defined in packages/spec/src/contracts/
+```
+
+---
+
+## ⚠️ Documentation Guardrails
+
+| Directory | Type | Rule |
+|:---|:---|:---|
+| `content/docs/references/` | AUTO-GENERATED | ❌ **DO NOT** place hand-written content here. Generated by `packages/spec/scripts/build-docs.ts`. Files WILL be overwritten. |
+| `content/docs/guides/` | HAND-WRITTEN | ✅ Add curated docs here. Update `content/docs/guides/meta.json` when adding pages. |
+| `content/docs/concepts/` | HAND-WRITTEN | ✅ Core concept explanations. |
+| `content/docs/getting-started/` | HAND-WRITTEN | ✅ Onboarding tutorials. |
+| `content/docs/protocol/` | HAND-WRITTEN | ✅ Protocol specification documents. |
+
+---
+
+## 🤖 AI Skills Integration
+
+The `skills/` directory contains domain-specific AI skill definitions. When working on tasks in these areas, consult the corresponding `SKILL.md`:
+
+| Skill | Path | Use When |
+|:---|:---|:---|
+| Schema Design | `skills/schema-design/SKILL.md` | Designing Objects, Fields, Relations |
+| API Design | `skills/api-design/SKILL.md` | Designing REST/GraphQL endpoints |
+| UI Design | `skills/ui-design/SKILL.md` | Designing Views, Dashboards, Apps |
+| Automation Design | `skills/automation-design/SKILL.md` | Designing Flows, Workflows, Triggers |
+| AI Agent Design | `skills/ai-agent-design/SKILL.md` | Designing Agents, Tools, RAG pipelines |
+
+---
+
+## 🔍 Context Routing Rules
+
+When editing files matching these patterns, apply the corresponding architectural role:
+
+| File Pattern | Role | Key Constraints |
+|:---|:---|:---|
+| `packages/spec/src/data/**` | **Data Architect** | Zod-first, snake_case names, TSDoc on every property |
+| `packages/spec/src/ui/**` | **UI Protocol Designer** | View types, SDUI patterns, navigation structures |
+| `packages/spec/src/automation/**` | **Automation Architect** | Flow/Workflow state machines, trigger patterns |
+| `packages/spec/src/ai/**` | **AI Protocol Designer** | Agent/Tool/Skill schemas, RAG pipeline structures |
+| `packages/spec/src/system/**` | **System Architect** | Manifest, datasource, i18n schemas |
+| `packages/spec/src/kernel/**` | **Kernel Engineer** | Plugin lifecycle, PluginContext interface |
+| `packages/spec/src/security/**` | **Security Architect** | RBAC, permissions, policy schemas |
+| `packages/core/**` | **Kernel Engineer** | ObjectKernel, DI, EventBus — runtime logic OK |
+| `packages/runtime/**` | **Runtime Engineer** | Bootstrap, driver/app plugin registration |
+| `packages/rest/**` | **API Engineer** | Route generation, middleware, response formats |
+| `packages/plugins/**` | **Plugin Developer** | Implements spec contracts, lifecycle hooks |
+| `packages/services/**` | **Service Engineer** | Kernel-managed services, DI integration |
+| `packages/adapters/**` | **Integration Engineer** | Framework-specific bindings, zero business logic |
+| `packages/client*/**` | **SDK Engineer** | Public API surface, type safety, DX |
+| `apps/studio/**` | **UI Engineer** | React + Shadcn UI + Tailwind, dark mode default |
+| `apps/docs/**` | **Documentation Engineer** | Fumadocs + Next.js, MDX content |
+| `examples/**` | **Example Author** | Minimal, runnable, follows `defineStack()` pattern |
+| `content/docs/**` | **Technical Writer** | Respect auto-gen vs hand-written boundaries |
+
+---
+
+## 🤝 Interaction Shortcuts
+
+| Command | Action |
+|:---|:---|
+| "Define a field" | Create/modify `packages/spec/src/data/field.zod.ts` |
+| "Define an object" | Create/modify `packages/spec/src/data/object.zod.ts` |
+| "Define a view" | Create/modify `packages/spec/src/ui/view.zod.ts` |
+| "Define an app" | Create/modify `packages/spec/src/ui/app.zod.ts` |
+| "Define a flow" | Create/modify `packages/spec/src/automation/flow.zod.ts` |
+| "Define an agent" | Create/modify `packages/spec/src/ai/agent.zod.ts` |
+| "Define a tool" | Create/modify `packages/spec/src/ai/tool.zod.ts` |
+| "Create a plugin" | Scaffold under `packages/plugins/plugin-{name}/` |
+| "Create a driver" | Scaffold under `packages/plugins/driver-{name}/` |
+| "Create a service" | Scaffold under `packages/services/service-{name}/` |
+| "Create an adapter" | Scaffold under `packages/adapters/{framework}/` |
+| "Create an example" | Scaffold under `examples/app-{name}/` or `examples/plugin-{name}/` |
+
+---
+
+## ✅ Post-Task Checklist
+
+After completing any task:
+
+1. **Run tests:** `pnpm test` — ensure nothing is broken.
+3. **Update CHANGELOG.md / ROADMAP.md** if the change is user-facing or architectural.
