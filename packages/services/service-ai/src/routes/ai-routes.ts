@@ -252,10 +252,10 @@ export function buildAIRoutes(
         if (wantStream) {
           // UI Message Stream Protocol (SSE with JSON payloads)
           try {
-            if (!aiService.streamChat) {
+            if (!(aiService as any).streamChatWithTools) {
               return { status: 501, body: { error: 'Streaming is not supported by the configured AI service' } };
             }
-            const events = aiService.streamChat(finalMessages, resolvedOptions as any);
+            const events = (aiService as any).streamChatWithTools(finalMessages, resolvedOptions as any);
             return {
               status: 200,
               stream: true,
@@ -277,7 +277,7 @@ export function buildAIRoutes(
 
         // JSON response (non-streaming)
         try {
-          const result = await aiService.chat(finalMessages, resolvedOptions as any);
+          const result = await (aiService as any).chatWithTools(finalMessages, resolvedOptions as any);
           return { status: 200, body: result };
         } catch (err) {
           logger.error('[AI Route] /chat error', err instanceof Error ? err : undefined);
