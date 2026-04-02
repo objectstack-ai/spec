@@ -37,7 +37,7 @@ async function promptPassword(promptText: string): Promise<string> {
       switch (char) {
         case '\u0003': // Ctrl+C
           cleanup();
-          process.exit(1);
+          process.kill(process.pid, 'SIGINT');
           break;
         case '\r':
         case '\n': // Enter

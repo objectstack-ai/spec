@@ -3,6 +3,7 @@
 import { Args, Command, Flags } from '@oclif/core';
 import { printError, printSuccess } from '../../utils/format.js';
 import { createApiClient, requireAuth } from '../../utils/api-client.js';
+import { formatOutput } from '../../utils/output-formatter.js';
 
 export default class DataDelete extends Command {
   static override description = 'Delete a record';
@@ -64,7 +65,6 @@ export default class DataDelete extends Command {
           deleted: result.deleted,
         }, null, 2));
       } else if (flags.format === 'yaml') {
-        const { formatOutput } = await import('../../utils/output-formatter.js');
         formatOutput({ success: true, object: result.object, id: result.id, deleted: result.deleted }, 'yaml');
       } else {
         printSuccess(`Record deleted: ${result.id}`);
