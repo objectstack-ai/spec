@@ -33,6 +33,16 @@ export type { DataToolContext } from './tools/data-tools.js';
 export { registerMetadataTools, METADATA_TOOL_DEFINITIONS } from './tools/metadata-tools.js';
 export type { MetadataToolContext } from './tools/metadata-tools.js';
 
+// Individual tool metadata (first-class Tool definitions via defineTool)
+export {
+  createObjectTool,
+  addFieldTool,
+  modifyFieldTool,
+  deleteFieldTool,
+  listMetadataObjectsTool,
+  describeMetadataObjectTool,
+} from './tools/metadata-tools.js';
+
 // Agent runtime
 export { AgentRuntime } from './agent-runtime.js';
 export type { AgentChatContext } from './agent-runtime.js';

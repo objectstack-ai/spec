@@ -12,6 +12,14 @@ import {
 } from '../tools/data-tools.js';
 import type { MetadataToolContext } from '../tools/metadata-tools.js';
 
+// Individual tool metadata imports
+import { createObjectTool } from '../tools/create-object.tool.js';
+import { addFieldTool } from '../tools/add-field.tool.js';
+import { modifyFieldTool } from '../tools/modify-field.tool.js';
+import { deleteFieldTool } from '../tools/delete-field.tool.js';
+import { listMetadataObjectsTool } from '../tools/list-metadata-objects.tool.js';
+import { describeMetadataObjectTool } from '../tools/describe-metadata-object.tool.js';
+
 // ── Helpers ────────────────────────────────────────────────────────
 
 /** Build a mock IMetadataService with optionally pre-loaded objects. */
@@ -66,6 +74,54 @@ describe('Metadata Tool Definitions', () => {
       expect(def.parameters).toBeDefined();
     }
   });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// Individual Tool Metadata Files (.tool.ts)
+// ═══════════════════════════════════════════════════════════════════
+
+describe('Individual Tool Metadata (.tool.ts)', () => {
+  const tools = [
+    { tool: createObjectTool, expectedName: 'create_object', expectedLabel: 'Create Object' },
+    { tool: addFieldTool, expectedName: 'add_field', expectedLabel: 'Add Field' },
+    { tool: modifyFieldTool, expectedName: 'modify_field', expectedLabel: 'Modify Field' },
+    { tool: deleteFieldTool, expectedName: 'delete_field', expectedLabel: 'Delete Field' },
+    { tool: listMetadataObjectsTool, expectedName: 'list_metadata_objects', expectedLabel: 'List Metadata Objects' },
+    { tool: describeMetadataObjectTool, expectedName: 'describe_metadata_object', expectedLabel: 'Describe Metadata Object' },
+  ];
+
+  for (const { tool, expectedName, expectedLabel } of tools) {
+    describe(expectedName, () => {
+      it('should have correct name', () => {
+        expect(tool.name).toBe(expectedName);
+      });
+
+      it('should have a label', () => {
+        expect(tool.label).toBe(expectedLabel);
+      });
+
+      it('should be categorized as data', () => {
+        expect(tool.category).toBe('data');
+      });
+
+      it('should be marked as built-in', () => {
+        expect(tool.builtIn).toBe(true);
+      });
+
+      it('should have a description', () => {
+        expect(tool.description).toBeTruthy();
+      });
+
+      it('should have parameters schema', () => {
+        expect(tool.parameters).toBeDefined();
+        expect(tool.parameters.type).toBe('object');
+      });
+
+      it('should be included in METADATA_TOOL_DEFINITIONS', () => {
+        expect(METADATA_TOOL_DEFINITIONS).toContain(tool);
+      });
+    });
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════

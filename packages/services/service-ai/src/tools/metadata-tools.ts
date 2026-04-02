@@ -1,8 +1,37 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import type { AIToolDefinition, IMetadataService } from '@objectstack/spec/contracts';
+import type { IMetadataService } from '@objectstack/spec/contracts';
+import type { Tool } from '@objectstack/spec/ai';
 import type { ToolHandler } from './tool-registry.js';
 import type { ToolRegistry } from './tool-registry.js';
+
+// ---------------------------------------------------------------------------
+// Tool Metadata — individual .tool.ts files (single source of truth)
+// ---------------------------------------------------------------------------
+
+export { createObjectTool } from './create-object.tool.js';
+export { addFieldTool } from './add-field.tool.js';
+export { modifyFieldTool } from './modify-field.tool.js';
+export { deleteFieldTool } from './delete-field.tool.js';
+export { listMetadataObjectsTool } from './list-metadata-objects.tool.js';
+export { describeMetadataObjectTool } from './describe-metadata-object.tool.js';
+
+import { createObjectTool } from './create-object.tool.js';
+import { addFieldTool } from './add-field.tool.js';
+import { modifyFieldTool } from './modify-field.tool.js';
+import { deleteFieldTool } from './delete-field.tool.js';
+import { listMetadataObjectsTool } from './list-metadata-objects.tool.js';
+import { describeMetadataObjectTool } from './describe-metadata-object.tool.js';
+
+/** All built-in metadata management tool definitions (Tool metadata). */
+export const METADATA_TOOL_DEFINITIONS: Tool[] = [
+  createObjectTool,
+  addFieldTool,
+  modifyFieldTool,
+  deleteFieldTool,
+  listMetadataObjectsTool,
+  describeMetadataObjectTool,
+];
 
 // ---------------------------------------------------------------------------
 // Internal type aliases for metadata payloads (returned as `unknown` from
@@ -54,218 +83,6 @@ export interface MetadataToolContext {
   /** Metadata service for schema CRUD operations. */
   metadataService: IMetadataService;
 }
-
-// ---------------------------------------------------------------------------
-// Tool Definitions (AIToolDefinition for ToolRegistry.register)
-// ---------------------------------------------------------------------------
-
-export const CREATE_OBJECT_TOOL: AIToolDefinition = {
-  name: 'create_object',
-  description:
-    'Creates a new data object (table) with the specified name, label, and optional field definitions. ' +
-    'Use this when the user wants to create a new entity, table, or data model.',
-  parameters: {
-    type: 'object',
-    properties: {
-      name: {
-        type: 'string',
-        description: 'Machine name for the object (snake_case, e.g. project_task)',
-      },
-      label: {
-        type: 'string',
-        description: 'Human-readable display name (e.g. Project Task)',
-      },
-      fields: {
-        type: 'array',
-        description: 'Initial fields to create with the object',
-        items: {
-          type: 'object',
-          properties: {
-            name: { type: 'string', description: 'Field machine name (snake_case)' },
-            label: { type: 'string', description: 'Field display name' },
-            type: {
-              type: 'string',
-              description: 'Field data type',
-              enum: ['text', 'textarea', 'number', 'boolean', 'date', 'datetime', 'select', 'lookup', 'formula', 'autonumber'],
-            },
-            required: { type: 'boolean', description: 'Whether the field is required' },
-          },
-          required: ['name', 'type'],
-        },
-      },
-      enableFeatures: {
-        type: 'object',
-        description: 'Object capability flags',
-        properties: {
-          trackHistory: { type: 'boolean' },
-          apiEnabled: { type: 'boolean' },
-        },
-      },
-    },
-    required: ['name', 'label'],
-    additionalProperties: false,
-  },
-};
-
-export const ADD_FIELD_TOOL: AIToolDefinition = {
-  name: 'add_field',
-  description:
-    'Adds a new field (column) to an existing data object. ' +
-    'Use this when the user wants to add a property, column, or attribute to a table.',
-  parameters: {
-    type: 'object',
-    properties: {
-      objectName: {
-        type: 'string',
-        description: 'Target object machine name (snake_case)',
-      },
-      name: {
-        type: 'string',
-        description: 'Field machine name (snake_case, e.g. due_date)',
-      },
-      label: {
-        type: 'string',
-        description: 'Human-readable field label (e.g. Due Date)',
-      },
-      type: {
-        type: 'string',
-        description: 'Field data type',
-        enum: ['text', 'textarea', 'number', 'boolean', 'date', 'datetime', 'select', 'lookup', 'formula', 'autonumber'],
-      },
-      required: {
-        type: 'boolean',
-        description: 'Whether the field is required',
-      },
-      defaultValue: {
-        description: 'Default value for the field',
-      },
-      options: {
-        type: 'array',
-        description: 'Options for select/picklist fields',
-        items: {
-          type: 'object',
-          properties: {
-            label: { type: 'string' },
-            value: {
-              type: 'string',
-              description: 'Option machine identifier (lowercase snake_case, e.g. high_priority)',
-              pattern: '^[a-z_][a-z0-9_]*$',
-            },
-          },
-        },
-      },
-      reference: {
-        type: 'string',
-        description: 'Referenced object name for lookup fields (snake_case, e.g. account)',
-      },
-    },
-    required: ['objectName', 'name', 'type'],
-    additionalProperties: false,
-  },
-};
-
-export const MODIFY_FIELD_TOOL: AIToolDefinition = {
-  name: 'modify_field',
-  description:
-    'Modifies an existing field definition (label, type, required, default value, etc.) on a data object. ' +
-    'Use this when the user wants to change or reconfigure an existing column or attribute (not rename it).',
-  parameters: {
-    type: 'object',
-    properties: {
-      objectName: {
-        type: 'string',
-        description: 'Target object machine name (snake_case)',
-      },
-      fieldName: {
-        type: 'string',
-        description: 'Existing field machine name to modify (snake_case)',
-      },
-      changes: {
-        type: 'object',
-        description: 'Field properties to update (partial patch)',
-        properties: {
-          label: { type: 'string', description: 'New display label' },
-          type: { type: 'string', description: 'New field type' },
-          required: { type: 'boolean', description: 'Update required constraint' },
-          defaultValue: { description: 'New default value' },
-        },
-      },
-    },
-    required: ['objectName', 'fieldName', 'changes'],
-    additionalProperties: false,
-  },
-};
-
-export const DELETE_FIELD_TOOL: AIToolDefinition = {
-  name: 'delete_field',
-  description:
-    'Removes a field (column) from an existing data object. This is a destructive operation. ' +
-    'Use this when the user explicitly wants to remove an attribute or column from a table.',
-  parameters: {
-    type: 'object',
-    properties: {
-      objectName: {
-        type: 'string',
-        description: 'Target object machine name (snake_case)',
-      },
-      fieldName: {
-        type: 'string',
-        description: 'Field machine name to delete (snake_case)',
-      },
-    },
-    required: ['objectName', 'fieldName'],
-    additionalProperties: false,
-  },
-};
-
-export const LIST_METADATA_OBJECTS_TOOL: AIToolDefinition = {
-  name: 'list_metadata_objects',
-  description:
-    'Lists all registered metadata objects (tables) in the current environment. ' +
-    'Use this when the user wants to see what tables, entities, or data models are defined in metadata.',
-  parameters: {
-    type: 'object',
-    properties: {
-      filter: {
-        type: 'string',
-        description: 'Optional name or label substring to filter objects',
-      },
-      includeFields: {
-        type: 'boolean',
-        description: 'Whether to include field summaries for each object (default: false)',
-      },
-    },
-    additionalProperties: false,
-  },
-};
-
-export const DESCRIBE_METADATA_OBJECT_TOOL: AIToolDefinition = {
-  name: 'describe_metadata_object',
-  description:
-    'Returns the full metadata schema details of a data object, including all fields, types, relationships, and configuration. ' +
-    'Use this when the user wants to inspect or understand the metadata structure of a specific table or entity.',
-  parameters: {
-    type: 'object',
-    properties: {
-      objectName: {
-        type: 'string',
-        description: 'Object machine name to describe (snake_case)',
-      },
-    },
-    required: ['objectName'],
-    additionalProperties: false,
-  },
-};
-
-/** All built-in metadata management tool definitions. */
-export const METADATA_TOOL_DEFINITIONS: AIToolDefinition[] = [
-  CREATE_OBJECT_TOOL,
-  ADD_FIELD_TOOL,
-  MODIFY_FIELD_TOOL,
-  DELETE_FIELD_TOOL,
-  LIST_METADATA_OBJECTS_TOOL,
-  DESCRIBE_METADATA_OBJECT_TOOL,
-];
 
 // ---------------------------------------------------------------------------
 // Handler Factories
@@ -604,10 +421,10 @@ export function registerMetadataTools(
   registry: ToolRegistry,
   context: MetadataToolContext,
 ): void {
-  registry.register(CREATE_OBJECT_TOOL, createCreateObjectHandler(context));
-  registry.register(ADD_FIELD_TOOL, createAddFieldHandler(context));
-  registry.register(MODIFY_FIELD_TOOL, createModifyFieldHandler(context));
-  registry.register(DELETE_FIELD_TOOL, createDeleteFieldHandler(context));
-  registry.register(LIST_METADATA_OBJECTS_TOOL, createListObjectsHandler(context));
-  registry.register(DESCRIBE_METADATA_OBJECT_TOOL, createDescribeObjectHandler(context));
+  registry.register(createObjectTool, createCreateObjectHandler(context));
+  registry.register(addFieldTool, createAddFieldHandler(context));
+  registry.register(modifyFieldTool, createModifyFieldHandler(context));
+  registry.register(deleteFieldTool, createDeleteFieldHandler(context));
+  registry.register(listMetadataObjectsTool, createListObjectsHandler(context));
+  registry.register(describeMetadataObjectTool, createDescribeObjectHandler(context));
 }
