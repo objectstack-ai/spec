@@ -60,7 +60,7 @@ export class AuthPlugin implements Plugin {
   name = 'com.objectstack.auth';
   type = 'standard';
   version = '1.0.0';
-  dependencies: string[] = []; // HTTP server is optional; routes are registered only when available
+  dependencies: string[] = ['com.objectstack.engine.objectql']; // manifest service required
   
   private options: AuthPluginOptions;
   private authManager: AuthManager | null = null;
@@ -96,9 +96,8 @@ export class AuthPlugin implements Plugin {
     // Register auth service
     ctx.registerService('auth', this.authManager);
 
-    // Register system objects as an app service so ObjectQLPlugin
-    // auto-discovers them via the `app.*` convention.
-    ctx.registerService('app.com.objectstack.system', {
+    // Register system objects via the manifest service.
+    ctx.getService<{ register(m: any): void }>('manifest').register({
       id: 'com.objectstack.system',
       name: 'System',
       version: '1.0.0',

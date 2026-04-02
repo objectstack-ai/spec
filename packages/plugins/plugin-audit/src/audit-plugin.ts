@@ -13,10 +13,11 @@ export class AuditPlugin implements Plugin {
   name = 'com.objectstack.audit';
   type = 'standard';
   version = '1.0.0';
+  dependencies = ['com.objectstack.engine.objectql'];
 
   async init(ctx: PluginContext): Promise<void> {
-    // Register audit system objects so ObjectQLPlugin auto-discovers them
-    ctx.registerService('app.com.objectstack.audit', {
+    // Register audit system objects via the manifest service.
+    ctx.getService<{ register(m: any): void }>('manifest').register({
       id: 'com.objectstack.audit',
       name: 'Audit',
       version: '1.0.0',

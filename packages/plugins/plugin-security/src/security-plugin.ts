@@ -38,8 +38,8 @@ export class SecurityPlugin implements Plugin {
     ctx.registerService('security.rls', this.rlsCompiler);
     ctx.registerService('security.fieldMasker', this.fieldMasker);
 
-    // Register security system objects so ObjectQLPlugin auto-discovers them
-    ctx.registerService('app.com.objectstack.security', {
+    // Register security system objects via the manifest service.
+    ctx.getService<{ register(m: any): void }>('manifest').register({
       id: 'com.objectstack.security',
       name: 'Security',
       version: '1.0.0',

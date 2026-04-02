@@ -65,7 +65,7 @@ describe('ObjectQLPlugin - Metadata Service Integration', () => {
   });
 
   describe('Service Registration', () => {
-    it('should register objectql, data, and protocol services', async () => {
+    it('should register manifest service', async () => {
       // Arrange
       const plugin = new ObjectQLPlugin();
       await kernel.use(plugin);
@@ -77,6 +77,7 @@ describe('ObjectQLPlugin - Metadata Service Integration', () => {
       expect(kernel.getService('objectql')).toBeDefined();
       expect(kernel.getService('data')).toBeDefined();
       expect(kernel.getService('protocol')).toBeDefined();
+      expect(kernel.getService('manifest')).toBeDefined();
     });
 
     it('should respect existing metadata service', async () => {
@@ -146,8 +147,71 @@ describe('ObjectQLPlugin - Metadata Service Integration', () => {
       expect(objectql.drivers?.has('mock-driver')).toBe(true);
     });
 
-    it('should discover and register apps from kernel services', async () => {
+    it('should register apps via manifest service', async () => {
       // Arrange
+      const plugin = new ObjectQLPlugin();
+      await kernel.use(plugin);
+
+      // Plugin that uses the manifest service directly
+      await kernel.use({
+        name: 'mock-app-plugin',
+        type: 'app',
+        version: '1.0.0',
+        dependencies: ['com.objectstack.engine.objectql'],
+        init: async (ctx) => {
+          ctx.getService<{ register(m: any): void }>('manifest').register({
+            id: 'test-app',
+            name: 'test_app',
+            version: '1.0.0',
+            type: 'app',
+            apps: [{ name: 'Test App' }],
+          });
+        }
+      });
+
+      // Act
+      await kernel.bootstrap();
+
+      // Assert
+      const objectql = kernel.getService('objectql') as any;
+      expect(objectql.registry).toBeDefined();
+      const apps = objectql.registry.getAllApps();
+      expect(apps.some((a: any) => a.name === 'Test App')).toBe(true);
+    });
+
+    it('should register manifests from start() phase via manifest service', async () => {
+      // Arrange — simulates SetupPlugin's pattern (registers in start, not init)
+      const plugin = new ObjectQLPlugin();
+      await kernel.use(plugin);
+
+      await kernel.use({
+        name: 'late-registerer',
+        type: 'standard',
+        version: '1.0.0',
+        dependencies: ['com.objectstack.engine.objectql'],
+        init: async () => {},
+        start: async (ctx) => {
+          ctx.getService<{ register(m: any): void }>('manifest').register({
+            id: 'late-app',
+            name: 'late_app',
+            version: '1.0.0',
+            type: 'plugin',
+            apps: [{ name: 'Late App' }],
+          });
+        }
+      });
+
+      // Act
+      await kernel.bootstrap();
+
+      // Assert
+      const objectql = kernel.getService('objectql') as any;
+      const apps = objectql.registry.getAllApps();
+      expect(apps.some((a: any) => a.name === 'Late App')).toBe(true);
+    });
+
+    it('should still discover apps registered via legacy app.* convention', async () => {
+      // Arrange — legacy pattern for backward compatibility
       const mockApp = {
         manifest: {
           id: 'test-app',
@@ -172,9 +236,8 @@ describe('ObjectQLPlugin - Metadata Service Integration', () => {
       // Act
       await kernel.bootstrap();
 
-      // Assert
+      // Assert — legacy pattern still works
       const objectql = kernel.getService('objectql') as any;
-      // App should be registered (check via registry or apps list)
       expect(objectql.registry).toBeDefined();
     });
   });

@@ -68,9 +68,22 @@ export class ObjectQLPlugin implements Plugin {
     }
     
     ctx.registerService('data', this.ql); // ObjectQL implements IDataEngine
-    
-    ctx.logger.info('ObjectQL engine registered', { 
-        services: ['objectql', 'data'],
+
+    // Register manifest service for direct app/package registration.
+    // Plugins call ctx.getService('manifest').register(manifestData)
+    // instead of the legacy ctx.registerService('app.<id>', manifestData) convention.
+    const ql = this.ql;
+    ctx.registerService('manifest', {
+      register: (manifest: any) => {
+        ql.registerApp(manifest);
+        ctx.logger.debug('Manifest registered via manifest service', {
+          id: manifest.id || manifest.name
+        });
+      }
+    });
+
+    ctx.logger.info('ObjectQL engine registered', {
+        services: ['objectql', 'data', 'manifest'],
         metadataProvider: metadataProvider
     });
 
@@ -109,9 +122,13 @@ export class ObjectQLPlugin implements Plugin {
                  ctx.logger.debug('Discovered and registered driver service', { serviceName: name });
             }
             if (name.startsWith('app.')) {
-                // Register App
+                // Legacy fallback: discover app.* services (DEPRECATED)
+                ctx.logger.warn(
+                    `[DEPRECATED] Service "${name}" uses legacy app.* convention. ` +
+                    `Migrate to ctx.getService('manifest').register(data).`
+                );
                 this.ql.registerApp(service); // service is Manifest
-                ctx.logger.debug('Discovered and registered app service', { serviceName: name });
+                ctx.logger.debug('Discovered and registered app service (legacy)', { serviceName: name });
             }
         }
     }

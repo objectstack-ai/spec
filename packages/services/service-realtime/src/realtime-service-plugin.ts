@@ -40,6 +40,7 @@ export class RealtimeServicePlugin implements Plugin {
   name = 'com.objectstack.service.realtime';
   version = '1.0.0';
   type = 'standard';
+  dependencies = ['com.objectstack.engine.objectql'];
 
   private readonly options: RealtimeServicePluginOptions;
 
@@ -51,8 +52,8 @@ export class RealtimeServicePlugin implements Plugin {
     const realtime = new InMemoryRealtimeAdapter(this.options.memory);
     ctx.registerService('realtime', realtime);
 
-    // Register realtime system objects so ObjectQLPlugin auto-discovers them
-    ctx.registerService('app.com.objectstack.service.realtime', {
+    // Register realtime system objects via the manifest service.
+    ctx.getService<{ register(m: any): void }>('manifest').register({
       id: 'com.objectstack.service.realtime',
       name: 'Realtime Service',
       version: '1.0.0',

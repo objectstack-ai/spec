@@ -51,7 +51,7 @@ export class AIServicePlugin implements Plugin {
   name = 'com.objectstack.service-ai';
   version = '1.0.0';
   type = 'standard' as const;
-  dependencies: string[] = [];
+  dependencies: string[] = ['com.objectstack.engine.objectql']; // manifest service required
 
   private service?: AIService;
   private readonly options: AIServicePluginOptions;
@@ -102,8 +102,8 @@ export class AIServicePlugin implements Plugin {
       ctx.registerService('ai', this.service);
     }
 
-    // Register AI system objects so ObjectQLPlugin auto-discovers them
-    ctx.registerService('app.com.objectstack.service-ai', {
+    // Register AI system objects via the manifest service.
+    ctx.getService<{ register(m: any): void }>('manifest').register({
       id: 'com.objectstack.service-ai',
       name: 'AI Service',
       version: '1.0.0',

@@ -48,15 +48,20 @@ export class MetadataPlugin implements Plugin {
         // This takes precedence over ObjectQL's fallback metadata service
         ctx.registerService('metadata', this.manager);
 
-        // Register metadata system objects so ObjectQLPlugin auto-discovers them
-        ctx.registerService('app.com.objectstack.metadata', {
-            id: 'com.objectstack.metadata',
-            name: 'Metadata',
-            version: '1.0.0',
-            type: 'plugin',
-            namespace: 'sys',
-            objects: [SysMetadataObject],
-        });
+        // Register metadata system objects via the manifest service (if available).
+        // MetadataPlugin may init before ObjectQLPlugin, so wrap in try/catch.
+        try {
+            ctx.getService<{ register(m: any): void }>('manifest').register({
+                id: 'com.objectstack.metadata',
+                name: 'Metadata',
+                version: '1.0.0',
+                type: 'plugin',
+                namespace: 'sys',
+                objects: [SysMetadataObject],
+            });
+        } catch {
+            // ObjectQL not loaded yet — objects will be discovered via legacy fallback
+        }
 
         ctx.logger.info('MetadataPlugin providing metadata service (primary mode)', {
             mode: 'file-system',

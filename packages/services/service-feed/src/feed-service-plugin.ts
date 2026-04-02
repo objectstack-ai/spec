@@ -44,6 +44,7 @@ export class FeedServicePlugin implements Plugin {
   name = 'com.objectstack.service.feed';
   version = '1.0.0';
   type = 'standard';
+  dependencies = ['com.objectstack.engine.objectql'];
 
   private readonly options: FeedServicePluginOptions;
 
@@ -55,8 +56,8 @@ export class FeedServicePlugin implements Plugin {
     const feed = new InMemoryFeedAdapter(this.options.memory);
     ctx.registerService('feed', feed);
 
-    // Register feed system objects so ObjectQLPlugin auto-discovers them
-    ctx.registerService('app.com.objectstack.service.feed', {
+    // Register feed system objects via the manifest service.
+    ctx.getService<{ register(m: any): void }>('manifest').register({
       id: 'com.objectstack.service.feed',
       name: 'Feed Service',
       version: '1.0.0',

@@ -40,6 +40,7 @@ export class SetupPlugin implements Plugin {
   name = 'com.objectstack.setup';
   type = 'standard';
   version = '1.0.0';
+  dependencies = ['com.objectstack.engine.objectql'];
 
   /** Accumulated contributions from other plugins. */
   private contributions: SetupNavContribution[] = [];
@@ -75,9 +76,8 @@ export class SetupPlugin implements Plugin {
       areas: areas.length > 0 ? areas : undefined,
     };
 
-    // Register the finalized Setup App as an internal platform app
-    // following the `app.<id>` service convention used by ObjectQLPlugin.
-    ctx.registerService('app.com.objectstack.setup', {
+    // Register the finalized Setup App via the manifest service.
+    ctx.getService<{ register(m: any): void }>('manifest').register({
       id: 'com.objectstack.setup',
       name: 'Setup',
       version: '1.0.0',

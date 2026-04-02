@@ -53,17 +53,28 @@ describe('SchemaRegistry', () => {
             }).not.toThrow();
         });
 
-        it('should throw on namespace conflict', () => {
-            SchemaRegistry.registerNamespace('crm', 'com.example.crm');
-            expect(() => {
-                SchemaRegistry.registerNamespace('crm', 'com.other.crm');
-            }).toThrow(/already registered/);
+        it('should allow multiple packages to share a namespace', () => {
+            SchemaRegistry.registerNamespace('sys', 'com.objectstack.auth');
+            SchemaRegistry.registerNamespace('sys', 'com.objectstack.security');
+            // First registered package returned for backwards compat
+            expect(SchemaRegistry.getNamespaceOwner('sys')).toBe('com.objectstack.auth');
+            expect(SchemaRegistry.getNamespaceOwners('sys')).toEqual([
+                'com.objectstack.auth',
+                'com.objectstack.security',
+            ]);
         });
 
         it('should unregister namespace', () => {
             SchemaRegistry.registerNamespace('crm', 'com.example.crm');
             SchemaRegistry.unregisterNamespace('crm', 'com.example.crm');
             expect(SchemaRegistry.getNamespaceOwner('crm')).toBeUndefined();
+        });
+
+        it('should keep namespace when one of multiple packages unregisters', () => {
+            SchemaRegistry.registerNamespace('sys', 'com.objectstack.auth');
+            SchemaRegistry.registerNamespace('sys', 'com.objectstack.setup');
+            SchemaRegistry.unregisterNamespace('sys', 'com.objectstack.setup');
+            expect(SchemaRegistry.getNamespaceOwner('sys')).toBe('com.objectstack.auth');
         });
     });
 
