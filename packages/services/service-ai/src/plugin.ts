@@ -147,7 +147,7 @@ export class AIServicePlugin implements Plugin {
     try {
       metadataService = ctx.getService<IMetadataService>('metadata');
     } catch {
-      // Metadata service not available — skip
+      ctx.logger.debug('[AI] Metadata service not available');
     }
 
     // Data tools require both data engine and metadata service
