@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { ObjectStackClient } from '@objectstack/client';
-import { readAuthConfig, AuthConfig } from './auth-config.js';
+import { readAuthConfig } from './auth-config.js';
 
 /**
  * API client configuration options for CLI commands

@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { Args, Command, Flags } from '@oclif/core';
+import { Command, Flags } from '@oclif/core';
 import { printHeader, printSuccess, printError, printKV } from '../../utils/format.js';
 import { writeAuthConfig } from '../../utils/auth-config.js';
 import { ObjectStackClient } from '@objectstack/client';

@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { Args, Command, Flags } from '@oclif/core';
-import { printHeader, printError, printSuccess } from '../../utils/format.js';
+import { printError, printSuccess } from '../../utils/format.js';
 import { createApiClient, requireAuth } from '../../utils/api-client.js';
 
 export default class MetaDelete extends Command {
@@ -58,7 +58,7 @@ export default class MetaDelete extends Command {
       const baseUrl = (client as any).baseUrl;
       const token = (client as any).token;
 
-      const response = await fetch(`${baseUrl}/api/v1/meta/${args.type}/${args.name}`, {
+      const response = await fetch(`${baseUrl}/api/v1/meta/${encodeURIComponent(args.type)}/${encodeURIComponent(args.name)}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
