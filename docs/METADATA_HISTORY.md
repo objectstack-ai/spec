@@ -202,7 +202,7 @@ The diff result includes:
 
 ## Performance Considerations
 
-- History records are written asynchronously and failures don't block main operations
+- History records are written synchronously as part of each save operation, ensuring consistency between metadata state and the history timeline
 - Checksum deduplication prevents storing identical versions
 - Indexes optimize common query patterns
 - Automatic cleanup prevents unbounded growth

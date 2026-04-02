@@ -113,9 +113,10 @@ export class DatabaseLoader implements MetadataLoader {
         name: this.historyTableName,
       });
       this.historySchemaReady = true;
-    } catch {
-      // If syncSchema fails (e.g. table already exists), mark ready and continue
-      this.historySchemaReady = true;
+    } catch (error) {
+      // Log the error; historySchemaReady remains false so the next operation retries.
+      // If the error is a benign "already exists" the next attempt will also succeed.
+      console.error('Failed to ensure history schema, will retry on next operation:', error);
     }
   }
 
@@ -378,6 +379,112 @@ export class DatabaseLoader implements MetadataLoader {
     }
   }
 
+  /**
+   * Fetch a single history snapshot by (type, name, version).
+   * Returns null when the record does not exist.
+   */
+  async getHistoryRecord(
+    type: string,
+    name: string,
+    version: number
+  ): Promise<MetadataHistoryRecord | null> {
+    if (!this.trackHistory) return null;
+
+    await this.ensureHistorySchema();
+
+    // Resolve the parent metadata record ID
+    const metadataRow = await this.driver.findOne(this.tableName, {
+      object: this.tableName,
+      where: this.baseFilter(type, name),
+    });
+    if (!metadataRow) return null;
+
+    const filter: Record<string, unknown> = {
+      metadata_id: metadataRow.id,
+      version,
+    };
+    if (this.tenantId) {
+      filter.tenant_id = this.tenantId;
+    }
+
+    const row = await this.driver.findOne(this.historyTableName, {
+      object: this.historyTableName,
+      where: filter,
+    });
+    if (!row) return null;
+
+    return {
+      id: row.id as string,
+      metadataId: row.metadata_id as string,
+      name: row.name as string,
+      type: row.type as string,
+      version: row.version as number,
+      operationType: row.operation_type as MetadataHistoryRecord['operationType'],
+      metadata: typeof row.metadata === 'string' ? JSON.parse(row.metadata as string) : row.metadata,
+      checksum: row.checksum as string,
+      previousChecksum: row.previous_checksum as string | undefined,
+      changeNote: row.change_note as string | undefined,
+      tenantId: row.tenant_id as string | undefined,
+      recordedBy: row.recorded_by as string | undefined,
+      recordedAt: row.recorded_at as string,
+    };
+  }
+
+  /**
+   * Perform a rollback: persist `restoredData` as the new current state and record a
+   * single 'revert' history entry (instead of the usual 'update' entry that `save()`
+   * would produce). This avoids the duplicate-version problem that arises when
+   * `register()` → `save()` writes an 'update' entry followed by an additional
+   * 'revert' entry for the same version number.
+   */
+  async registerRollback(
+    type: string,
+    name: string,
+    restoredData: unknown,
+    targetVersion: number,
+    changeNote?: string,
+    recordedBy?: string
+  ): Promise<void> {
+    await this.ensureSchema();
+
+    const now = new Date().toISOString();
+    const metadataJson = JSON.stringify(restoredData);
+    const newChecksum = await calculateChecksum(restoredData);
+
+    const existing = await this.driver.findOne(this.tableName, {
+      object: this.tableName,
+      where: this.baseFilter(type, name),
+    });
+
+    if (!existing) {
+      throw new Error(`Metadata ${type}/${name} not found for rollback`);
+    }
+
+    const previousChecksum = existing.checksum as string | undefined;
+    const newVersion = ((existing.version as number) ?? 0) + 1;
+
+    await this.driver.update(this.tableName, existing.id as string, {
+      metadata: metadataJson,
+      version: newVersion,
+      checksum: newChecksum,
+      updated_at: now,
+      state: 'active',
+    });
+
+    // Write exactly one 'revert' history entry (not an 'update' entry)
+    await this.createHistoryRecord(
+      existing.id as string,
+      type,
+      name,
+      newVersion,
+      restoredData,
+      'revert',
+      previousChecksum,
+      changeNote ?? `Rolled back to version ${targetVersion}`,
+      recordedBy
+    );
+  }
+
   async save(
     type: string,
     name: string,
@@ -399,9 +506,19 @@ export class DatabaseLoader implements MetadataLoader {
       });
 
       if (existing) {
+        // Skip update if the content is identical (prevents phantom version bumps)
+        const previousChecksum = existing.checksum as string | undefined;
+        if (newChecksum === previousChecksum) {
+          return {
+            success: true,
+            path: `datasource://${this.tableName}/${type}/${name}`,
+            size: metadataJson.length,
+            saveTime: Date.now() - startTime,
+          };
+        }
+
         // Update existing record
         const version = ((existing.version as number) ?? 0) + 1;
-        const previousChecksum = existing.checksum as string | undefined;
 
         await this.driver.update(this.tableName, existing.id as string, {
           metadata: metadataJson,

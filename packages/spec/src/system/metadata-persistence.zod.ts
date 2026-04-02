@@ -422,8 +422,14 @@ export const MetadataHistoryRecordSchema = z.object({
   /**
    * Historical Metadata Snapshot
    * Full JSON payload of the metadata definition at this version.
+   * May be stored as a raw JSON string in the history table, or as a parsed object
+   * in higher-level APIs. When `includeMetadata` is false, this field is null.
    */
-  metadata: z.record(z.string(), z.unknown()).describe('Snapshot of metadata definition at this version'),
+  metadata: z
+    .union([z.string(), z.record(z.string(), z.unknown())])
+    .nullable()
+    .optional()
+    .describe('Snapshot of metadata definition at this version (raw JSON string or parsed object)'),
 
   /**
    * Content Checksum

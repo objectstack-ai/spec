@@ -47,8 +47,20 @@ export function registerMetadataHistoryRoutes(
     try {
       const options: any = {};
 
-      if (query.limit) options.limit = parseInt(query.limit, 10);
-      if (query.offset) options.offset = parseInt(query.offset, 10);
+      if (query.limit !== undefined) {
+        const limit = parseInt(query.limit, 10);
+        if (!Number.isFinite(limit) || limit < 1) {
+          return c.json({ success: false, error: 'limit must be a positive integer' }, 400);
+        }
+        options.limit = limit;
+      }
+      if (query.offset !== undefined) {
+        const offset = parseInt(query.offset, 10);
+        if (!Number.isFinite(offset) || offset < 0) {
+          return c.json({ success: false, error: 'offset must be a non-negative integer' }, 400);
+        }
+        options.offset = offset;
+      }
       if (query.since) options.since = query.since;
       if (query.until) options.until = query.until;
       if (query.operationType) options.operationType = query.operationType;

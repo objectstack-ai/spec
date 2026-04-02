@@ -1272,23 +1272,28 @@ export class MetadataManager implements IMetadataService {
 
     // Convert rows to MetadataHistoryRecord format
     const includeMetadata = options?.includeMetadata !== false;
-    const historyResult = records.map((row: Record<string, unknown>) => ({
-      id: row.id as string,
-      metadataId: row.metadata_id as string,
-      name: row.name as string,
-      type: row.type as string,
-      version: row.version as number,
-      operationType: row.operation_type as 'create' | 'update' | 'publish' | 'revert' | 'delete',
-      metadata: includeMetadata
-        ? (typeof row.metadata === 'string' ? JSON.parse(row.metadata as string) : row.metadata)
-        : undefined,
-      checksum: row.checksum as string,
-      previousChecksum: row.previous_checksum as string | undefined,
-      changeNote: row.change_note as string | undefined,
-      tenantId: row.tenant_id as string | undefined,
-      recordedBy: row.recorded_by as string | undefined,
-      recordedAt: row.recorded_at as string,
-    }));
+    const historyResult = records.map((row: Record<string, unknown>) => {
+      const parsedMetadata =
+        typeof row.metadata === 'string'
+          ? JSON.parse(row.metadata as string)
+          : (row.metadata as Record<string, unknown> | null | undefined);
+
+      return {
+        id: row.id as string,
+        metadataId: row.metadata_id as string,
+        name: row.name as string,
+        type: row.type as string,
+        version: row.version as number,
+        operationType: row.operation_type as 'create' | 'update' | 'publish' | 'revert' | 'delete',
+        metadata: includeMetadata ? parsedMetadata : null,
+        checksum: row.checksum as string,
+        previousChecksum: row.previous_checksum as string | undefined,
+        changeNote: row.change_note as string | undefined,
+        tenantId: row.tenant_id as string | undefined,
+        recordedBy: row.recorded_by as string | undefined,
+        recordedAt: row.recorded_at as string,
+      };
+    });
 
     return {
       records: historyResult,
@@ -1315,9 +1320,8 @@ export class MetadataManager implements IMetadataService {
       throw new Error('Rollback requires a database loader to be configured');
     }
 
-    // Get the target version from history
-    const history = await this.getHistory(type, name, { limit: 1000, includeMetadata: true });
-    const targetVersion = history.records.find(r => r.version === version);
+    // Fetch the target version snapshot directly from the history table
+    const targetVersion = await dbLoader.getHistoryRecord(type, name, version);
 
     if (!targetVersion) {
       throw new Error(`Version ${version} not found in history for ${type}/${name}`);
@@ -1327,41 +1331,17 @@ export class MetadataManager implements IMetadataService {
       throw new Error(`Version ${version} metadata snapshot not available`);
     }
 
-    // Restore the metadata
+    // Restore the metadata using the dedicated rollback path so that a single
+    // 'revert' history entry is written (instead of a conflicting 'update' entry)
     const restoredMetadata = targetVersion.metadata;
-
-    // Register the restored version
-    await this.register(type, name, restoredMetadata);
-
-    // Create a history record for the rollback operation
-    const driver = (dbLoader as any).driver as IDataDriver;
-    const tableName = (dbLoader as any).tableName as string;
-    const tenantId = (dbLoader as any).tenantId as string | undefined;
-
-    const filter: Record<string, unknown> = { type, name };
-    if (tenantId) {
-      filter.tenant_id = tenantId;
-    }
-
-    const metadataRecord = await driver.findOne(tableName, {
-      object: tableName,
-      where: filter,
-    });
-
-    if (metadataRecord) {
-      const currentVersion = (metadataRecord.version as number) ?? 1;
-      await (dbLoader as any).createHistoryRecord(
-        metadataRecord.id as string,
-        type,
-        name,
-        currentVersion,
-        restoredMetadata,
-        'revert',
-        metadataRecord.checksum as string | undefined,
-        options?.changeNote ?? `Rolled back to version ${version}`,
-        options?.recordedBy
-      );
-    }
+    await dbLoader.registerRollback(
+      type,
+      name,
+      restoredMetadata,
+      version,
+      options?.changeNote,
+      options?.recordedBy
+    );
 
     return restoredMetadata;
   }
@@ -1381,10 +1361,9 @@ export class MetadataManager implements IMetadataService {
       throw new Error('Diff requires a database loader to be configured');
     }
 
-    // Get both versions from history
-    const history = await this.getHistory(type, name, { limit: 1000, includeMetadata: true });
-    const v1 = history.records.find(r => r.version === version1);
-    const v2 = history.records.find(r => r.version === version2);
+    // Fetch the two version snapshots directly from the history table
+    const v1 = await dbLoader.getHistoryRecord(type, name, version1);
+    const v2 = await dbLoader.getHistoryRecord(type, name, version2);
 
     if (!v1) {
       throw new Error(`Version ${version1} not found in history for ${type}/${name}`);

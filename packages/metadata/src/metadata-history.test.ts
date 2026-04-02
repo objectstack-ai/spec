@@ -1,8 +1,8 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { MetadataManager } from '../metadata-manager.js';
-import { DatabaseLoader } from '../loaders/database-loader.js';
+import { MetadataManager } from './metadata-manager';
+import { DatabaseLoader } from './loaders/database-loader';
 import { MemoryDriver } from '@objectstack/driver-memory';
 
 describe('Metadata History', () => {

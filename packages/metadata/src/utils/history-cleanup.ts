@@ -84,20 +84,9 @@ export class HistoryCleanupManager {
         }
 
         try {
-          const oldRecords = await driver.find(historyTableName, {
-            object: historyTableName,
-            where: filter,
-            fields: ['id'],
-          });
-
-          for (const record of oldRecords) {
-            try {
-              await driver.delete(historyTableName, record.id as string);
-              deleted++;
-            } catch {
-              errors++;
-            }
-          }
+          const result = await this.bulkDeleteByFilter(driver, historyTableName, filter);
+          deleted += result.deleted;
+          errors += result.errors;
         } catch {
           errors++;
         }
@@ -128,24 +117,20 @@ export class HistoryCleanupManager {
             }
 
             try {
-              // Get all history records for this metadata item, ordered by version desc
+              // Fetch only the IDs of records beyond the retention limit (oldest first)
               const historyRecords = await driver.find(historyTableName, {
                 object: historyTableName,
                 where: filter,
                 orderBy: [{ field: 'version', order: 'desc' as const }],
+                fields: ['id'],
               });
 
-              // If we have more records than the limit, delete the excess
               if (historyRecords.length > this.policy.maxVersions) {
                 const toDelete = historyRecords.slice(this.policy.maxVersions);
-                for (const record of toDelete) {
-                  try {
-                    await driver.delete(historyTableName, record.id as string);
-                    deleted++;
-                  } catch {
-                    errors++;
-                  }
-                }
+                const ids = toDelete.map(r => r.id as string).filter(Boolean);
+                const result = await this.bulkDeleteByIds(driver, historyTableName, ids);
+                deleted += result.deleted;
+                errors += result.errors;
               }
             } catch {
               errors++;
@@ -160,6 +145,59 @@ export class HistoryCleanupManager {
       errors++;
     }
 
+    return { deleted, errors };
+  }
+
+  /**
+   * Delete records matching a filter using the most efficient method available on the driver.
+   */
+  private async bulkDeleteByFilter(
+    driver: IDataDriver,
+    table: string,
+    filter: Record<string, unknown>
+  ): Promise<{ deleted: number; errors: number }> {
+    const driverAny = driver as any;
+    if (typeof driverAny.deleteMany === 'function') {
+      const count = await driverAny.deleteMany(table, filter);
+      return { deleted: typeof count === 'number' ? count : 0, errors: 0 };
+    }
+
+    // Fallback: fetch IDs then delete
+    const records = await driver.find(table, { object: table, where: filter, fields: ['id'] });
+    const ids = records.map((r: Record<string, unknown>) => r.id as string).filter(Boolean);
+    return this.bulkDeleteByIds(driver, table, ids);
+  }
+
+  /**
+   * Delete records by IDs using bulkDelete when available, otherwise one-by-one.
+   */
+  private async bulkDeleteByIds(
+    driver: IDataDriver,
+    table: string,
+    ids: string[]
+  ): Promise<{ deleted: number; errors: number }> {
+    if (ids.length === 0) return { deleted: 0, errors: 0 };
+
+    const driverAny = driver as any;
+    if (typeof driverAny.bulkDelete === 'function') {
+      const result = await driverAny.bulkDelete(table, ids);
+      return {
+        deleted: typeof result === 'number' ? result : ids.length,
+        errors: 0,
+      };
+    }
+
+    // Fallback: sequential deletes
+    let deleted = 0;
+    let errors = 0;
+    for (const id of ids) {
+      try {
+        await driver.delete(table, id);
+        deleted++;
+      } catch {
+        errors++;
+      }
+    }
     return { deleted, errors };
   }
 
@@ -235,12 +273,13 @@ export class HistoryCleanupManager {
       console.error('Failed to get cleanup stats:', error);
     }
 
-    // Note: There may be overlap between age-based and count-based cleanup
-    // so the total is not simply the sum
+    // Return separate counts. The total is an upper-bound estimate: it may overcount
+    // records that qualify under both policies (age and count). Use recordsByAge and
+    // recordsByCount individually for precise breakdowns.
     return {
       recordsByAge,
       recordsByCount,
-      total: Math.max(recordsByAge, recordsByCount),
+      total: recordsByAge + recordsByCount,
     };
   }
 }
