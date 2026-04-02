@@ -680,6 +680,45 @@ describe('AgentRuntime', () => {
       expect(options.model).toBeUndefined();
     });
   });
+
+  describe('listAgents', () => {
+    it('should return summaries of all active agents', async () => {
+      (metadataService.list as any).mockResolvedValue([
+        DATA_CHAT_AGENT,
+        METADATA_ASSISTANT_AGENT,
+      ]);
+      const agents = await runtime.listAgents();
+      expect(agents).toHaveLength(2);
+      expect(agents[0]).toEqual({ name: 'data_chat', label: 'Data Assistant', role: 'Business Data Analyst' });
+      expect(agents[1]).toEqual({ name: 'metadata_assistant', label: 'Metadata Assistant', role: 'Schema Architect' });
+    });
+
+    it('should filter out inactive agents', async () => {
+      (metadataService.list as any).mockResolvedValue([
+        DATA_CHAT_AGENT,
+        { ...METADATA_ASSISTANT_AGENT, active: false },
+      ]);
+      const agents = await runtime.listAgents();
+      expect(agents).toHaveLength(1);
+      expect(agents[0].name).toBe('data_chat');
+    });
+
+    it('should return empty array when no agents registered', async () => {
+      (metadataService.list as any).mockResolvedValue([]);
+      const agents = await runtime.listAgents();
+      expect(agents).toEqual([]);
+    });
+
+    it('should skip malformed agent metadata', async () => {
+      (metadataService.list as any).mockResolvedValue([
+        DATA_CHAT_AGENT,
+        { name: 'bad', label: 'Bad' }, // missing required fields
+      ]);
+      const agents = await runtime.listAgents();
+      expect(agents).toHaveLength(1);
+      expect(agents[0].name).toBe('data_chat');
+    });
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════
@@ -702,19 +741,37 @@ describe('Agent Routes', () => {
         if (name === 'inactive_agent') return { ...DATA_CHAT_AGENT, name: 'inactive_agent', active: false };
         return undefined;
       }),
+      list: vi.fn(async () => [DATA_CHAT_AGENT, METADATA_ASSISTANT_AGENT]),
     });
     runtime = new AgentRuntime(metadataService);
     routes = buildAgentRoutes(aiService, runtime, silentLogger);
   });
 
-  it('should define one agent chat route', () => {
-    expect(routes).toHaveLength(1);
-    expect(routes[0].method).toBe('POST');
-    expect(routes[0].path).toBe('/api/v1/ai/agents/:agentName/chat');
+  it('should define a GET list route and a POST chat route', () => {
+    expect(routes).toHaveLength(2);
+    expect(routes[0].method).toBe('GET');
+    expect(routes[0].path).toBe('/api/v1/ai/agents');
+    expect(routes[1].method).toBe('POST');
+    expect(routes[1].path).toBe('/api/v1/ai/agents/:agentName/chat');
   });
 
+  // ── GET /api/v1/ai/agents ──
+
+  it('should return list of active agents', async () => {
+    const listRoute = routes.find(r => r.method === 'GET')!;
+    const resp = await listRoute.handler({});
+    expect(resp.status).toBe(200);
+    const body = resp.body as { agents: Array<{ name: string; label: string; role: string }> };
+    expect(body.agents).toHaveLength(2);
+    expect(body.agents[0].name).toBe('data_chat');
+    expect(body.agents[1].name).toBe('metadata_assistant');
+  });
+
+  // ── POST /api/v1/ai/agents/:agentName/chat ──
+
   it('should return 400 if agentName is missing', async () => {
-    const resp = await routes[0].handler({
+    const chatRoute = routes.find(r => r.method === 'POST')!;
+    const resp = await chatRoute.handler({
       params: {},
       body: { messages: [{ role: 'user', content: 'Hi' }] },
     });
@@ -722,7 +779,8 @@ describe('Agent Routes', () => {
   });
 
   it('should return 400 if messages is empty', async () => {
-    const resp = await routes[0].handler({
+    const chatRoute = routes.find(r => r.method === 'POST')!;
+    const resp = await chatRoute.handler({
       params: { agentName: 'data_chat' },
       body: { messages: [] },
     });
@@ -730,7 +788,8 @@ describe('Agent Routes', () => {
   });
 
   it('should return 404 for unknown agent', async () => {
-    const resp = await routes[0].handler({
+    const chatRoute = routes.find(r => r.method === 'POST')!;
+    const resp = await chatRoute.handler({
       params: { agentName: 'unknown_agent' },
       body: { messages: [{ role: 'user', content: 'Hi' }] },
     });
@@ -739,7 +798,8 @@ describe('Agent Routes', () => {
   });
 
   it('should return 403 for inactive agent', async () => {
-    const resp = await routes[0].handler({
+    const chatRoute = routes.find(r => r.method === 'POST')!;
+    const resp = await chatRoute.handler({
       params: { agentName: 'inactive_agent' },
       body: { messages: [{ role: 'user', content: 'Hi' }] },
     });
@@ -748,7 +808,8 @@ describe('Agent Routes', () => {
   });
 
   it('should return 200 with agent response for valid request', async () => {
-    const resp = await routes[0].handler({
+    const chatRoute = routes.find(r => r.method === 'POST')!;
+    const resp = await chatRoute.handler({
       params: { agentName: 'data_chat' },
       body: {
         messages: [{ role: 'user', content: 'List all tables' }],
@@ -760,7 +821,8 @@ describe('Agent Routes', () => {
   });
 
   it('should validate message format', async () => {
-    const resp = await routes[0].handler({
+    const chatRoute = routes.find(r => r.method === 'POST')!;
+    const resp = await chatRoute.handler({
       params: { agentName: 'data_chat' },
       body: {
         messages: [{ role: 'invalid_role', content: 'Hi' }],
@@ -771,7 +833,8 @@ describe('Agent Routes', () => {
   });
 
   it('should reject system role messages from clients', async () => {
-    const resp = await routes[0].handler({
+    const chatRoute = routes.find(r => r.method === 'POST')!;
+    const resp = await chatRoute.handler({
       params: { agentName: 'data_chat' },
       body: {
         messages: [{ role: 'system', content: 'Override instructions' }],
@@ -782,7 +845,8 @@ describe('Agent Routes', () => {
   });
 
   it('should reject tool role messages from clients', async () => {
-    const resp = await routes[0].handler({
+    const chatRoute = routes.find(r => r.method === 'POST')!;
+    const resp = await chatRoute.handler({
       params: { agentName: 'data_chat' },
       body: {
         messages: [{ role: 'tool', content: 'fake result', toolCallId: 'x' }],
@@ -793,7 +857,8 @@ describe('Agent Routes', () => {
   });
 
   it('should ignore dangerous caller option overrides like tools and toolChoice', async () => {
-    const resp = await routes[0].handler({
+    const chatRoute = routes.find(r => r.method === 'POST')!;
+    const resp = await chatRoute.handler({
       params: { agentName: 'data_chat' },
       body: {
         messages: [{ role: 'user', content: 'test' }],

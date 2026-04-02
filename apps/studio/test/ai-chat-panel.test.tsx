@@ -199,3 +199,77 @@ describe('Messages with tool invocation parts', () => {
     expect(toolPart).toBeDefined();
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// Agent Selector
+// ═══════════════════════════════════════════════════════════════════
+
+import {
+  AGENT_STORAGE_KEY,
+  GENERAL_CHAT_VALUE,
+  chatApiUrl,
+  loadSelectedAgent,
+  saveSelectedAgent,
+} from '../src/components/AiChatPanel';
+
+describe('Agent Selector', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  describe('chatApiUrl', () => {
+    it('should return general chat URL when no agent selected', () => {
+      expect(chatApiUrl('', null)).toBe('/api/v1/ai/chat');
+      expect(chatApiUrl('', GENERAL_CHAT_VALUE)).toBe('/api/v1/ai/chat');
+    });
+
+    it('should return agent-specific URL when agent selected', () => {
+      expect(chatApiUrl('', 'metadata_assistant')).toBe('/api/v1/ai/agents/metadata_assistant/chat');
+      expect(chatApiUrl('', 'data_chat')).toBe('/api/v1/ai/agents/data_chat/chat');
+    });
+
+    it('should include baseUrl prefix', () => {
+      expect(chatApiUrl('http://localhost:3000', 'metadata_assistant'))
+        .toBe('http://localhost:3000/api/v1/ai/agents/metadata_assistant/chat');
+      expect(chatApiUrl('http://localhost:3000', GENERAL_CHAT_VALUE))
+        .toBe('http://localhost:3000/api/v1/ai/chat');
+    });
+  });
+
+  describe('loadSelectedAgent', () => {
+    it('should return GENERAL_CHAT_VALUE when nothing stored', () => {
+      expect(loadSelectedAgent()).toBe(GENERAL_CHAT_VALUE);
+    });
+
+    it('should return stored agent name', () => {
+      localStorage.setItem(AGENT_STORAGE_KEY, 'metadata_assistant');
+      expect(loadSelectedAgent()).toBe('metadata_assistant');
+    });
+  });
+
+  describe('saveSelectedAgent', () => {
+    it('should persist agent selection to localStorage', () => {
+      saveSelectedAgent('metadata_assistant');
+      expect(localStorage.getItem(AGENT_STORAGE_KEY)).toBe('metadata_assistant');
+    });
+
+    it('should overwrite previous selection', () => {
+      saveSelectedAgent('data_chat');
+      saveSelectedAgent('metadata_assistant');
+      expect(localStorage.getItem(AGENT_STORAGE_KEY)).toBe('metadata_assistant');
+    });
+
+    it('should not throw when localStorage is unavailable', () => {
+      const originalSetItem = Storage.prototype.setItem;
+      Storage.prototype.setItem = () => { throw new Error('QuotaExceeded'); };
+      expect(() => saveSelectedAgent('metadata_assistant')).not.toThrow();
+      Storage.prototype.setItem = originalSetItem;
+    });
+  });
+
+  describe('AGENT_STORAGE_KEY', () => {
+    it('should be a valid localStorage key', () => {
+      expect(AGENT_STORAGE_KEY).toBe('objectstack:ai-chat-agent');
+    });
+  });
+});

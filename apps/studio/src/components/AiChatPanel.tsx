@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import type { UIMessage } from 'ai';
@@ -10,6 +10,9 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useAiChatPanel, loadMessages, saveMessages } from '@/hooks/use-ai-chat-panel';
@@ -17,6 +20,18 @@ import { getApiBaseUrl } from '@/lib/config';
 
 const PANEL_WIDTH = 380;
 const COLLAPSED_WIDTH = 48;
+
+/** @internal — exported for testing */
+export const AGENT_STORAGE_KEY = 'objectstack:ai-chat-agent';
+/** @internal — exported for testing */
+export const GENERAL_CHAT_VALUE = '__general__';
+
+/** Summary returned by GET /api/v1/ai/agents */
+interface AgentSummary {
+  name: string;
+  label: string;
+  role: string;
+}
 
 /**
  * Extract the text content from a UIMessage's parts array.
@@ -67,6 +82,70 @@ function isToolPart(part: UIMessage['parts'][number]): part is Extract<UIMessage
 function formatToolOutput(output: unknown, maxLen = 80): string {
   const raw = typeof output === 'string' ? output : JSON.stringify(output);
   return raw.length > maxLen ? raw.slice(0, maxLen) + '…' : raw;
+}
+
+/**
+ * Build the chat API URL for the given agent selection.
+ * @internal — exported for testing
+ */
+export function chatApiUrl(baseUrl: string, agentName: string | null): string {
+  if (!agentName || agentName === GENERAL_CHAT_VALUE) {
+    return `${baseUrl}/api/v1/ai/chat`;
+  }
+  return `${baseUrl}/api/v1/ai/agents/${agentName}/chat`;
+}
+
+/**
+ * Load persisted agent selection from localStorage.
+ * @internal — exported for testing
+ */
+export function loadSelectedAgent(): string {
+  try {
+    return localStorage.getItem(AGENT_STORAGE_KEY) ?? GENERAL_CHAT_VALUE;
+  } catch {
+    return GENERAL_CHAT_VALUE;
+  }
+}
+
+/**
+ * Persist agent selection to localStorage.
+ * @internal — exported for testing
+ */
+export function saveSelectedAgent(agent: string): void {
+  try {
+    localStorage.setItem(AGENT_STORAGE_KEY, agent);
+  } catch {
+    // silently ignore
+  }
+}
+
+/**
+ * Hook to fetch the list of available agents from the server.
+ */
+function useAgentList(baseUrl: string) {
+  const [agents, setAgents] = useState<AgentSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+
+    fetch(`${baseUrl}/api/v1/ai/agents`, { credentials: 'include' })
+      .then((res) => (res.ok ? res.json() : { agents: [] }))
+      .then((data: { agents?: AgentSummary[] }) => {
+        if (!cancelled) setAgents(data.agents ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setAgents([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [baseUrl]);
+
+  return { agents, loading };
 }
 
 // ── Tool Invocation State Labels ────────────────────────────────────
@@ -199,15 +278,17 @@ function ToolInvocationDisplay({ part, onApprove, onDeny }: ToolInvocationDispla
 export function AiChatPanel() {
   const { isOpen, setOpen, toggle } = useAiChatPanel();
   const [input, setInput] = useState('');
+  const [selectedAgent, setSelectedAgent] = useState<string>(loadSelectedAgent);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const baseUrl = getApiBaseUrl();
+  const { agents, loading: agentsLoading } = useAgentList(baseUrl);
 
   const initialMessages = useMemo(() => loadMessages() as UIMessage[], []);
 
   const transport = useMemo(
-    () => new DefaultChatTransport({ api: `${baseUrl}/api/v1/ai/chat` }),
-    [baseUrl],
+    () => new DefaultChatTransport({ api: chatApiUrl(baseUrl, selectedAgent) }),
+    [baseUrl, selectedAgent],
   );
 
   const { messages, sendMessage, setMessages, status, error, addToolApprovalResponse } = useChat({
@@ -242,6 +323,14 @@ export function AiChatPanel() {
     setMessages([]);
     saveMessages([]);
   };
+
+  const handleAgentChange = useCallback((value: string) => {
+    setSelectedAgent(value);
+    saveSelectedAgent(value);
+    // Clear conversation when switching agents to avoid context confusion
+    setMessages([]);
+    saveMessages([]);
+  }, [setMessages]);
 
   const handleSend = () => {
     const text = input.trim();
@@ -300,27 +389,54 @@ export function AiChatPanel() {
       style={{ width: PANEL_WIDTH }}
     >
       {/* ── Header ── */}
-      <div className="flex h-12 shrink-0 items-center justify-between border-b px-3">
-        <div className="flex items-center gap-2 text-sm font-semibold">
-          <Bot className="h-4 w-4 text-primary" />
-          AI Chat
+      <div className="shrink-0 border-b">
+        <div className="flex h-12 items-center justify-between px-3">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <Bot className="h-4 w-4 text-primary" />
+            AI Chat
+          </div>
+          <div className="flex items-center gap-1">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={clearHistory}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span className="sr-only">Clear chat</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>Clear history</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setOpen(false)}>
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={clearHistory}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Clear chat</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent><p>Clear history</p></TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setOpen(false)}>
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </Button>
+        {/* ── Agent Selector ── */}
+        <div className="px-3 pb-2">
+          <Select
+            value={selectedAgent}
+            onValueChange={handleAgentChange}
+            disabled={agentsLoading || isStreaming}
+          >
+            <SelectTrigger
+              data-testid="agent-selector"
+              className="h-8 text-xs"
+            >
+              <SelectValue placeholder="Select agent…" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={GENERAL_CHAT_VALUE}>
+                General Chat
+              </SelectItem>
+              {agents.map((a) => (
+                <SelectItem key={a.name} value={a.name}>
+                  {a.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
