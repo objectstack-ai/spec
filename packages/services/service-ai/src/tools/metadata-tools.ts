@@ -221,7 +221,7 @@ export const DELETE_FIELD_TOOL: AIToolDefinition = {
 export const LIST_METADATA_OBJECTS_TOOL: AIToolDefinition = {
   name: 'list_metadata_objects',
   description:
-    'Lists all registered metadata data objects (tables) in the current environment. ' +
+    'Lists all registered metadata objects (tables) in the current environment. ' +
     'Use this when the user wants to see what tables, entities, or data models are defined in metadata.',
   parameters: {
     type: 'object',
