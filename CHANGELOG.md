@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   switched esbuild output from CJS to ESM (fixes `"type": "module"` conflict),
   and changed the output path from `api/index.js` to `api/[[...route]].js`.
   Updated rewrites to match: `/api/:path*` → `/api/[[...route]]`.
+  Added post-bundle cleanup to remove the `.ts` stub so Vercel's
+  `@vercel/node` builder uses the self-contained esbuild bundle instead of
+  compiling the stub (which would fail with `ERR_MODULE_NOT_FOUND`).
 - **Studio CORS error on Vercel temporary/preview domains** — Changed
   `VITE_SERVER_URL` from hardcoded `https://play.objectstack.ai` to `""`
   (empty string / same-origin) in `vercel.json` so each deployment — including

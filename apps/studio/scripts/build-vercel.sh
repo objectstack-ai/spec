@@ -26,6 +26,11 @@ cd apps/studio
 
 # 2. Bundle API serverless function
 node scripts/bundle-api.mjs
+# Remove the TS source file so Vercel's @vercel/node builder uses the
+# pre-bundled JS directly.  Without this, Vercel compiles the TS stub
+# itself, producing a thin re-export that references ../server/index —
+# a file that doesn't exist at runtime (ERR_MODULE_NOT_FOUND).
+rm -f "api/[[...route]].ts"
 
 # 3. Copy Vite build output to public/ for static file serving
 rm -rf public
