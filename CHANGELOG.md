@@ -11,9 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Studio Vercel API routes returning HTML instead of JSON** — Updated
   `apps/studio/vercel.json` to correctly configure Vercel serverless functions.
   Added `outputDirectory: "public"` so Vercel serves static files from the
-  correct directory, declared `api/index.js` in the `functions` block so Vercel
-  recognises it as a serverless function, and changed the API rewrite destination
-  from `/api` to `/api/index.js` to route requests to the bundled handler.
+  correct directory and the `api/` directory is auto-detected for serverless
+  functions.  Removed the `functions` block (the in-code `export const config`
+  in `server/index.ts` already configures memory/maxDuration without pre-build
+  file-pattern validation errors).
 - **Studio CORS error on Vercel temporary/preview domains** — Added Hono CORS
   middleware to `apps/studio/server/index.ts` so the serverless function returns
   correct `Access-Control-Allow-Origin` headers for cross-origin requests.
