@@ -17,13 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Metadata Management Tools (`service-ai`)** — Added 6 built-in AI tools for metadata
   CRUD operations in `packages/services/service-ai/src/tools/metadata-tools.ts`:
-  `create_object`, `add_field`, `modify_field`, `delete_field`, `list_objects`,
-  `describe_object`. Tool definitions (`AIToolDefinition`) and `ToolHandler` implementations
+  `create_object`, `add_field`, `modify_field`, `delete_field`, `list_metadata_objects`,
+  `describe_metadata_object`. Tool definitions (`AIToolDefinition`) and `ToolHandler` implementations
   live together in a single file (matching the `data-tools.ts` pattern). Handlers call
   `IMetadataService` CRUD methods (`register`, `getObject`, `listObjects`).
   Registered via `registerMetadataTools(registry, { metadataService })`.
-  29 unit tests covering handler execution, input validation, error handling, and a full
-  create→add→modify→delete→describe lifecycle.
+  37 unit tests covering handler execution, input validation, error handling, dual registration
+  with data tools (no name collisions), and a full create→add→modify→delete→describe lifecycle.
 - **Agent Skills — `skills/` directory (agentskills.io)** — Created `skills/` folder at
   repository root following the [agentskills.io specification](https://agentskills.io/specification).
   Five expert-knowledge skills with hand-written `SKILL.md` files and `references/` quick-lookup

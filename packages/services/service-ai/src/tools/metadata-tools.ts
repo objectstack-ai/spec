@@ -29,6 +29,18 @@ interface FieldDef {
 }
 
 // ---------------------------------------------------------------------------
+// Shared validation helpers
+// ---------------------------------------------------------------------------
+
+/** snake_case identifier pattern (e.g. `project_task`, `due_date`). */
+const SNAKE_CASE_RE = /^[a-z_][a-z0-9_]*$/;
+
+/** Validate that a value matches snake_case. */
+function isSnakeCase(value: string): boolean {
+  return SNAKE_CASE_RE.test(value);
+}
+
+// ---------------------------------------------------------------------------
 // Context — injected once at registration time
 // ---------------------------------------------------------------------------
 
@@ -134,17 +146,17 @@ export const ADD_FIELD_TOOL: AIToolDefinition = {
           type: 'object',
           properties: {
             label: { type: 'string' },
-            value: { type: 'string' },
+            value: {
+              type: 'string',
+              description: 'Option machine identifier (lowercase snake_case, e.g. high_priority)',
+              pattern: '^[a-z_][a-z0-9_]*$',
+            },
           },
         },
       },
       reference: {
-        type: 'object',
-        description: 'Lookup/relationship configuration',
-        properties: {
-          object: { type: 'string', description: 'Referenced object name (snake_case)' },
-          labelField: { type: 'string', description: 'Field to display as label' },
-        },
+        type: 'string',
+        description: 'Referenced object name for lookup fields (snake_case, e.g. account)',
       },
     },
     required: ['objectName', 'name', 'type'],
@@ -156,7 +168,7 @@ export const MODIFY_FIELD_TOOL: AIToolDefinition = {
   name: 'modify_field',
   description:
     'Modifies an existing field definition (label, type, required, default value, etc.) on a data object. ' +
-    'Use this when the user wants to change, rename, or reconfigure a column or attribute.',
+    'Use this when the user wants to change or reconfigure an existing column or attribute (not rename it).',
   parameters: {
     type: 'object',
     properties: {
@@ -206,11 +218,11 @@ export const DELETE_FIELD_TOOL: AIToolDefinition = {
   },
 };
 
-export const LIST_OBJECTS_TOOL: AIToolDefinition = {
-  name: 'list_objects',
+export const LIST_METADATA_OBJECTS_TOOL: AIToolDefinition = {
+  name: 'list_metadata_objects',
   description:
-    'Lists all registered data objects (tables) in the current environment. ' +
-    'Use this when the user wants to see what tables, entities, or data models exist.',
+    'Lists all registered metadata data objects (tables) in the current environment. ' +
+    'Use this when the user wants to see what tables, entities, or data models are defined in metadata.',
   parameters: {
     type: 'object',
     properties: {
@@ -227,11 +239,11 @@ export const LIST_OBJECTS_TOOL: AIToolDefinition = {
   },
 };
 
-export const DESCRIBE_OBJECT_TOOL: AIToolDefinition = {
-  name: 'describe_object',
+export const DESCRIBE_METADATA_OBJECT_TOOL: AIToolDefinition = {
+  name: 'describe_metadata_object',
   description:
-    'Returns the full schema details of a data object, including all fields, types, relationships, and configuration. ' +
-    'Use this when the user wants to inspect or understand the structure of a specific table or entity.',
+    'Returns the full metadata schema details of a data object, including all fields, types, relationships, and configuration. ' +
+    'Use this when the user wants to inspect or understand the metadata structure of a specific table or entity.',
   parameters: {
     type: 'object',
     properties: {
@@ -251,8 +263,8 @@ export const METADATA_TOOL_DEFINITIONS: AIToolDefinition[] = [
   ADD_FIELD_TOOL,
   MODIFY_FIELD_TOOL,
   DELETE_FIELD_TOOL,
-  LIST_OBJECTS_TOOL,
-  DESCRIBE_OBJECT_TOOL,
+  LIST_METADATA_OBJECTS_TOOL,
+  DESCRIBE_METADATA_OBJECT_TOOL,
 ];
 
 // ---------------------------------------------------------------------------
@@ -273,7 +285,7 @@ function createCreateObjectHandler(ctx: MetadataToolContext): ToolHandler {
     }
 
     // Validate snake_case name
-    if (!/^[a-z_][a-z0-9_]*$/.test(name)) {
+    if (!isSnakeCase(name)) {
       return JSON.stringify({ error: `Invalid object name "${name}". Must be snake_case.` });
     }
 
@@ -283,10 +295,21 @@ function createCreateObjectHandler(ctx: MetadataToolContext): ToolHandler {
       return JSON.stringify({ error: `Object "${name}" already exists` });
     }
 
-    // Build field map from array input
+    // Build field map from array input with per-field validation
     const fieldMap: Record<string, Record<string, unknown>> = {};
     if (fields && Array.isArray(fields)) {
+      const seenNames = new Set<string>();
       for (const f of fields) {
+        if (!f.name) {
+          return JSON.stringify({ error: 'Each field must have a "name" property' });
+        }
+        if (!isSnakeCase(f.name)) {
+          return JSON.stringify({ error: `Invalid field name "${f.name}". Must be snake_case.` });
+        }
+        if (seenNames.has(f.name)) {
+          return JSON.stringify({ error: `Duplicate field name "${f.name}" in initial fields` });
+        }
+        seenNames.add(f.name);
         fieldMap[f.name] = {
           type: f.type,
           ...(f.label ? { label: f.label } : {}),
@@ -322,7 +345,7 @@ function createAddFieldHandler(ctx: MetadataToolContext): ToolHandler {
       required?: boolean;
       defaultValue?: unknown;
       options?: Array<{ label: string; value: string }>;
-      reference?: { object: string; labelField?: string };
+      reference?: string;
     };
 
     if (!objectName || !name || !type) {
@@ -330,8 +353,25 @@ function createAddFieldHandler(ctx: MetadataToolContext): ToolHandler {
     }
 
     // Validate snake_case names
-    if (!/^[a-z_][a-z0-9_]*$/.test(name)) {
+    if (!isSnakeCase(objectName)) {
+      return JSON.stringify({ error: `Invalid object name "${objectName}". Must be snake_case.` });
+    }
+    if (!isSnakeCase(name)) {
       return JSON.stringify({ error: `Invalid field name "${name}". Must be snake_case.` });
+    }
+
+    // Validate reference as snake_case if provided
+    if (reference && !isSnakeCase(reference)) {
+      return JSON.stringify({ error: `Invalid reference "${reference}". Must be a snake_case object name.` });
+    }
+
+    // Validate select option values as snake_case if provided
+    if (options && Array.isArray(options)) {
+      for (const opt of options) {
+        if (opt.value && !isSnakeCase(opt.value)) {
+          return JSON.stringify({ error: `Invalid option value "${opt.value}". Must be lowercase snake_case.` });
+        }
+      }
     }
 
     // Verify the target object exists
@@ -383,6 +423,14 @@ function createModifyFieldHandler(ctx: MetadataToolContext): ToolHandler {
       return JSON.stringify({ error: '"objectName", "fieldName", and "changes" are required' });
     }
 
+    // Validate snake_case names
+    if (!isSnakeCase(objectName)) {
+      return JSON.stringify({ error: `Invalid object name "${objectName}". Must be snake_case.` });
+    }
+    if (!isSnakeCase(fieldName)) {
+      return JSON.stringify({ error: `Invalid field name "${fieldName}". Must be snake_case.` });
+    }
+
     // Verify the target object exists
     const objectDef = await ctx.metadataService.getObject(objectName);
     if (!objectDef) {
@@ -421,6 +469,14 @@ function createDeleteFieldHandler(ctx: MetadataToolContext): ToolHandler {
 
     if (!objectName || !fieldName) {
       return JSON.stringify({ error: '"objectName" and "fieldName" are required' });
+    }
+
+    // Validate snake_case names
+    if (!isSnakeCase(objectName)) {
+      return JSON.stringify({ error: `Invalid object name "${objectName}". Must be snake_case.` });
+    }
+    if (!isSnakeCase(fieldName)) {
+      return JSON.stringify({ error: `Invalid field name "${fieldName}". Must be snake_case.` });
     }
 
     // Verify the target object exists
@@ -492,6 +548,16 @@ function createListObjectsHandler(ctx: MetadataToolContext): ToolHandler {
 function createDescribeObjectHandler(ctx: MetadataToolContext): ToolHandler {
   return async (args) => {
     const { objectName } = args as { objectName: string };
+
+    if (!objectName) {
+      return JSON.stringify({ error: '"objectName" is required' });
+    }
+
+    // Validate snake_case name
+    if (!isSnakeCase(objectName)) {
+      return JSON.stringify({ error: `Invalid object name "${objectName}". Must be snake_case.` });
+    }
+
     const objectDef = await ctx.metadataService.getObject(objectName);
     if (!objectDef) {
       return JSON.stringify({ error: `Object "${objectName}" not found` });
@@ -542,6 +608,6 @@ export function registerMetadataTools(
   registry.register(ADD_FIELD_TOOL, createAddFieldHandler(context));
   registry.register(MODIFY_FIELD_TOOL, createModifyFieldHandler(context));
   registry.register(DELETE_FIELD_TOOL, createDeleteFieldHandler(context));
-  registry.register(LIST_OBJECTS_TOOL, createListObjectsHandler(context));
-  registry.register(DESCRIBE_OBJECT_TOOL, createDescribeObjectHandler(context));
+  registry.register(LIST_METADATA_OBJECTS_TOOL, createListObjectsHandler(context));
+  registry.register(DESCRIBE_METADATA_OBJECT_TOOL, createDescribeObjectHandler(context));
 }
