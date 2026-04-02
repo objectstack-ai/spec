@@ -306,7 +306,8 @@ export class RestServer {
                 path: `${metaPath}/:type`,
                 handler: async (req: any, res: any) => {
                     try {
-                        const items = await this.protocol.getMetaItems({ type: req.params.type });
+                        const packageId = req.query?.package || undefined;
+                        const items = await this.protocol.getMetaItems({ type: req.params.type, packageId });
                         res.json(items);
                     } catch (error: any) {
                         res.status(404).json({ error: error.message });
@@ -365,7 +366,8 @@ export class RestServer {
                             res.json(result.data);
                         } else {
                             // Non-cached version
-                            const item = await this.protocol.getMetaItem({ type: req.params.type, name: req.params.name });
+                            const packageId = req.query?.package || undefined;
+                            const item = await this.protocol.getMetaItem({ type: req.params.type, name: req.params.name, packageId });
                             res.json(item);
                         }
                     } catch (error: any) {

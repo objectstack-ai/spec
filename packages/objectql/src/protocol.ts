@@ -185,19 +185,22 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         };
     }
 
-    async getMetaItems(request: { type: string }) {
-        let items = SchemaRegistry.listItems(request.type);
+    async getMetaItems(request: { type: string; packageId?: string }) {
+        const { packageId } = request;
+        let items = SchemaRegistry.listItems(request.type, packageId);
         // Normalize singular/plural: REST uses singular ('app') but registry may store as plural ('apps')
         if (items.length === 0) {
             const alt = request.type.endsWith('s') ? request.type.slice(0, -1) : request.type + 's';
-            items = SchemaRegistry.listItems(alt);
+            items = SchemaRegistry.listItems(alt, packageId);
         }
 
         // Fallback to database if registry is empty for this type
         if (items.length === 0) {
             try {
+                const whereClause: any = { type: request.type, state: 'active' };
+                if (packageId) whereClause._packageId = packageId;
                 const allRecords = await this.engine.find('sys_metadata', {
-                    where: { type: request.type, state: 'active' }
+                    where: whereClause
                 });
                 if (allRecords && allRecords.length > 0) {
                     items = allRecords.map((record: any) => {
@@ -235,7 +238,7 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         };
     }
 
-    async getMetaItem(request: { type: string, name: string }) {
+    async getMetaItem(request: { type: string, name: string, packageId?: string }) {
         let item = SchemaRegistry.getItem(request.type, request.name);
         // Normalize singular/plural
         if (item === undefined) {

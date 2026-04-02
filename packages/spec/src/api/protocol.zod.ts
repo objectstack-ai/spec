@@ -155,6 +155,7 @@ export const GetMetaTypesResponseSchema = z.object({
  */
 export const GetMetaItemsRequestSchema = z.object({
   type: z.string().describe('Metadata type name (e.g., "object", "plugin")'),
+  packageId: z.string().optional().describe('Optional package ID to filter items by'),
 });
 
 /**
@@ -172,6 +173,7 @@ export const GetMetaItemsResponseSchema = z.object({
 export const GetMetaItemRequestSchema = z.object({
   type: z.string().describe('Metadata type name'),
   name: z.string().describe('Item name (snake_case identifier)'),
+  packageId: z.string().optional().describe('Optional package ID to filter items by'),
 });
 
 /**
