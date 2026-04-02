@@ -144,8 +144,8 @@ export class SchemaRegistry {
   /** FQN → Merged ServiceObject (cached, invalidated on changes) */
   private static mergedObjectCache = new Map<string, ServiceObject>();
   
-  /** Namespace → PackageId (ensures namespace uniqueness) */
-  private static namespaceRegistry = new Map<string, string>();
+  /** Namespace → Set<PackageId> (multiple packages can share a namespace) */
+  private static namespaceRegistry = new Map<string, Set<string>>();
 
   // ==========================================
   // Generic metadata storage (non-object types)
@@ -160,22 +160,17 @@ export class SchemaRegistry {
 
   /**
    * Register a namespace for a package.
-   * Enforces namespace uniqueness within the instance.
-   * 
-   * @throws Error if namespace is already registered to a different package
+   * Multiple packages can share the same namespace (e.g. 'sys').
    */
   static registerNamespace(namespace: string, packageId: string): void {
     if (!namespace) return;
-    
-    const existing = this.namespaceRegistry.get(namespace);
-    if (existing && existing !== packageId) {
-      throw new Error(
-        `Namespace "${namespace}" is already registered to package "${existing}". ` +
-        `Package "${packageId}" cannot use the same namespace.`
-      );
+
+    let owners = this.namespaceRegistry.get(namespace);
+    if (!owners) {
+      owners = new Set();
+      this.namespaceRegistry.set(namespace, owners);
     }
-    
-    this.namespaceRegistry.set(namespace, packageId);
+    owners.add(packageId);
     this.log(`[Registry] Registered namespace: ${namespace} → ${packageId}`);
   }
 
@@ -183,18 +178,32 @@ export class SchemaRegistry {
    * Unregister a namespace when a package is uninstalled.
    */
   static unregisterNamespace(namespace: string, packageId: string): void {
-    const existing = this.namespaceRegistry.get(namespace);
-    if (existing === packageId) {
-      this.namespaceRegistry.delete(namespace);
-      this.log(`[Registry] Unregistered namespace: ${namespace}`);
+    const owners = this.namespaceRegistry.get(namespace);
+    if (owners) {
+      owners.delete(packageId);
+      if (owners.size === 0) {
+        this.namespaceRegistry.delete(namespace);
+      }
+      this.log(`[Registry] Unregistered namespace: ${namespace} ← ${packageId}`);
     }
   }
 
   /**
-   * Get the package that owns a namespace.
+   * Get the packages that use a namespace.
    */
   static getNamespaceOwner(namespace: string): string | undefined {
-    return this.namespaceRegistry.get(namespace);
+    const owners = this.namespaceRegistry.get(namespace);
+    if (!owners || owners.size === 0) return undefined;
+    // Return the first registered package for backwards compatibility
+    return owners.values().next().value;
+  }
+
+  /**
+   * Get all packages that share a namespace.
+   */
+  static getNamespaceOwners(namespace: string): string[] {
+    const owners = this.namespaceRegistry.get(namespace);
+    return owners ? Array.from(owners) : [];
   }
 
   // ==========================================
