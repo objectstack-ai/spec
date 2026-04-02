@@ -15,18 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   absent, fixing the CI `@objectstack/client#test` failure.
 
 ### Added
-- **Metadata Management Tools & Skill (Tool→Skill→Agent)** — Added 6 platform built-in AI
-  tools for metadata operations (`create_object`, `add_field`, `modify_field`, `delete_field`,
-  `list_objects`, `describe_object`):
-  - **Protocol definitions** in `packages/spec/src/ai/metadata-tools.zod.ts` and
-    `metadata-skill.zod.ts` — Zod-validated tool schemas with JSON Schema parameters,
-    output schemas, permission controls, and `metadata_management` skill aggregation.
-  - **Runtime implementation** in `packages/services/service-ai/src/tools/metadata-tools.ts` —
-    Actual `ToolHandler` functions that call `IMetadataService` CRUD methods (`register`,
-    `getObject`, `listObjects`) to create objects, add/modify/delete fields, and inspect
-    schemas. Registered via `registerMetadataTools(registry, { metadataService })`.
-  - 55 unit tests across spec (26) and service-ai (29) covering schema validation, handler
-    execution, error handling, full create→add→modify→delete lifecycle, and edge cases.
+- **Metadata Management Tools (`service-ai`)** — Added 6 built-in AI tools for metadata
+  CRUD operations in `packages/services/service-ai/src/tools/metadata-tools.ts`:
+  `create_object`, `add_field`, `modify_field`, `delete_field`, `list_objects`,
+  `describe_object`. Tool definitions (`AIToolDefinition`) and `ToolHandler` implementations
+  live together in a single file (matching the `data-tools.ts` pattern). Handlers call
+  `IMetadataService` CRUD methods (`register`, `getObject`, `listObjects`).
+  Registered via `registerMetadataTools(registry, { metadataService })`.
+  29 unit tests covering handler execution, input validation, error handling, and a full
+  create→add→modify→delete→describe lifecycle.
 - **Agent Skills — `skills/` directory (agentskills.io)** — Created `skills/` folder at
   repository root following the [agentskills.io specification](https://agentskills.io/specification).
   Five expert-knowledge skills with hand-written `SKILL.md` files and `references/` quick-lookup
