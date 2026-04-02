@@ -128,7 +128,7 @@ const PROTOCOL_GROUPS: ProtocolGroup[] = [
 ];
 
 /** Types that are internal / should be hidden from the sidebar */
-const HIDDEN_TYPES = new Set(['plugin', 'plugins', 'kind', 'package']);
+const HIDDEN_TYPES = new Set(['plugin', 'plugins', 'kind']);
 
 /** System namespace used for FQN-based names (e.g., sys__user) */
 const SYSTEM_NAMESPACE = 'sys';
