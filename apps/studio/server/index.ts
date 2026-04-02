@@ -41,6 +41,33 @@ import { createBrokerShim } from '../src/lib/create-broker-shim.js';
 import studioConfig from '../objectstack.config.js';
 
 // ---------------------------------------------------------------------------
+// Vercel origin helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Collect all Vercel deployment origins from environment variables.
+ *
+ * Reused for both:
+ * - better-auth `trustedOrigins` (CSRF)
+ * - Hono CORS middleware `origin` allowlist
+ *
+ * Centralised to avoid drift between the two allowlists.
+ */
+function getVercelOrigins(): string[] {
+    const origins: string[] = [];
+    if (process.env.VERCEL_URL) {
+        origins.push(`https://${process.env.VERCEL_URL}`);
+    }
+    if (process.env.VERCEL_BRANCH_URL) {
+        origins.push(`https://${process.env.VERCEL_BRANCH_URL}`);
+    }
+    if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+        origins.push(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
+    }
+    return origins;
+}
+
+// ---------------------------------------------------------------------------
 // Singleton state — persists across warm Vercel invocations
 // ---------------------------------------------------------------------------
 
@@ -86,17 +113,8 @@ async function ensureKernel(): Promise<ObjectKernel> {
                     ? `https://${process.env.VERCEL_URL}`
                     : 'http://localhost:3000';
 
-            // Collect all Vercel URL variants so better-auth trusts each one
-            const trustedOrigins: string[] = [];
-            if (process.env.VERCEL_URL) {
-                trustedOrigins.push(`https://${process.env.VERCEL_URL}`);
-            }
-            if (process.env.VERCEL_BRANCH_URL) {
-                trustedOrigins.push(`https://${process.env.VERCEL_BRANCH_URL}`);
-            }
-            if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-                trustedOrigins.push(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
-            }
+            // Reuse the shared helper so CORS and CSRF allowlists stay in sync
+            const trustedOrigins = getVercelOrigins();
 
             await kernel.use(new AuthPlugin({
                 secret: process.env.AUTH_SECRET || 'dev-secret-please-change-in-production-min-32-chars',
@@ -233,16 +251,7 @@ const app = new Hono();
 //   3. localhost (local development)
 // ---------------------------------------------------------------------------
 
-const vercelOrigins: string[] = [];
-if (process.env.VERCEL_URL) {
-    vercelOrigins.push(`https://${process.env.VERCEL_URL}`);
-}
-if (process.env.VERCEL_BRANCH_URL) {
-    vercelOrigins.push(`https://${process.env.VERCEL_BRANCH_URL}`);
-}
-if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    vercelOrigins.push(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
-}
+const vercelOrigins = getVercelOrigins();
 
 app.use('*', cors({
     origin: (origin) => {

@@ -15,13 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   functions.  Removed the `functions` block (the in-code `export const config`
   in `server/index.ts` already configures memory/maxDuration without pre-build
   file-pattern validation errors).
-- **Studio CORS error on Vercel temporary/preview domains** — Added Hono CORS
-  middleware to `apps/studio/server/index.ts` so the serverless function returns
-  correct `Access-Control-Allow-Origin` headers for cross-origin requests.
-  Dynamically allows all `*.vercel.app` subdomains, explicitly listed Vercel
-  deployment URLs (`VERCEL_URL`, `VERCEL_BRANCH_URL`,
-  `VERCEL_PROJECT_PRODUCTION_URL`), and localhost for development.  Preflight
-  (OPTIONS) requests are answered immediately without waiting for kernel boot.
+- **Studio CORS error on Vercel temporary/preview domains** — Changed
+  `VITE_SERVER_URL` from hardcoded `https://play.objectstack.ai` to `""`
+  (empty string / same-origin) in `vercel.json` so each deployment — including
+  previews — calls its own serverless function instead of the production API
+  cross-origin.  Also added Hono CORS middleware to `apps/studio/server/index.ts`
+  as a safety net for any remaining cross-origin scenarios; dynamically allows
+  all `*.vercel.app` subdomains, explicitly listed Vercel deployment URLs, and
+  localhost.  Extracted `getVercelOrigins()` helper to keep CORS and
+  better-auth `trustedOrigins` allowlists in sync.
 - **Client test aligned with removed `ai.chat` method** — Updated
   `@objectstack/client` test suite to match the current API surface where
   `ai.chat()` was removed in favour of the Vercel AI SDK `useChat()` hook.
