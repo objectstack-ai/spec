@@ -164,12 +164,7 @@ export class MetadataManager implements IMetadataService {
     // Persist to writable loaders (e.g., DatabaseLoader for history tracking)
     for (const loader of this.loaders.values()) {
       if (loader.save) {
-        try {
-          await loader.save(type, name, data);
-        } catch (error) {
-          // Log but don't fail registration if persistence fails
-          console.error(`Failed to persist metadata ${type}/${name} to loader:`, error);
-        }
+        await loader.save(type, name, data);
       }
     }
   }
