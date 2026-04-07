@@ -214,6 +214,28 @@ export class ObjectKernel {
     }
 
     /**
+     * Pre-inject in-memory fallbacks for 'core' services that were not registered
+     * by plugins during Phase 1. Called before Phase 2 so that all core services
+     * (e.g. 'metadata', 'cache', 'queue') are resolvable via ctx.getService()
+     * when plugin start() methods execute.
+     */
+    private preInjectCoreFallbacks() {
+        if (this.config.skipSystemValidation) return;
+        for (const [serviceName, criticality] of Object.entries(ServiceRequirementDef)) {
+            if (criticality !== 'core') continue;
+            const hasService = this.services.has(serviceName) || this.pluginLoader.hasService(serviceName);
+            if (!hasService) {
+                const factory = CORE_FALLBACK_FACTORIES[serviceName];
+                if (factory) {
+                    const fallback = factory();
+                    this.registerService(serviceName, fallback);
+                    this.logger.debug(`[Kernel] Pre-injected in-memory fallback for '${serviceName}' before Phase 2`);
+                }
+            }
+        }
+    }
+
+    /**
      * Validate Critical System Requirements
      */
     private validateSystemRequirements() {
@@ -290,6 +312,12 @@ export class ObjectKernel {
             for (const plugin of orderedPlugins) {
                 await this.initPluginWithTimeout(plugin);
             }
+
+            // Pre-inject in-memory fallbacks for 'core' services that were not
+            // registered by any plugin during Phase 1. This ensures services like
+            // 'metadata', 'cache', 'queue', etc. are always available when plugins
+            // call ctx.getService() during their start() methods.
+            this.preInjectCoreFallbacks();
 
             // Phase 2: Start - Plugins execute business logic
             this.logger.info('Phase 2: Start plugins');
