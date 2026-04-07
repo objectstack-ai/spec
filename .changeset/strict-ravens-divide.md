@@ -9,7 +9,6 @@
 "@objectstack/spec": patch
 "@objectstack/cli": patch
 "@objectstack/studio": patch
-"@objectstack/docs": patch
 ---
 
 fix ai
