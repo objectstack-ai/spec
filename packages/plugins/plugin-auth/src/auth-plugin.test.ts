@@ -24,7 +24,11 @@ describe('AuthPlugin', () => {
   beforeEach(() => {
     mockContext = {
       registerService: vi.fn(),
-      getService: vi.fn(),
+      getService: vi.fn((name: string) => {
+        if (name === 'manifest') return { register: vi.fn() };
+        if (name === 'data') return undefined;
+        return undefined;
+      }),
       getServices: vi.fn(() => new Map()),
       hook: vi.fn(),
       trigger: vi.fn(),
@@ -47,7 +51,7 @@ describe('AuthPlugin', () => {
       expect(authPlugin.name).toBe('com.objectstack.auth');
       expect(authPlugin.type).toBe('standard');
       expect(authPlugin.version).toBe('1.0.0');
-      expect(authPlugin.dependencies).toEqual([]);
+      expect(authPlugin.dependencies).toEqual(['com.objectstack.engine.objectql']);
     });
   });
 
