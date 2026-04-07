@@ -12,6 +12,8 @@ import { registerDataTools } from './tools/data-tools.js';
 import { registerMetadataTools } from './tools/metadata-tools.js';
 import { AgentRuntime } from './agent-runtime.js';
 import { DATA_CHAT_AGENT, METADATA_ASSISTANT_AGENT } from './agents/index.js';
+import { VercelLLMAdapter } from './adapters/vercel-adapter.js';
+import { MemoryLLMAdapter } from './adapters/memory-adapter.js';
 
 /**
  * Configuration options for the AIServicePlugin.
@@ -61,6 +63,90 @@ export class AIServicePlugin implements Plugin {
     this.options = options;
   }
 
+  /**
+   * Auto-detect LLM provider from environment variables.
+   *
+   * Priority order:
+   * 1. AI_GATEWAY_MODEL → Vercel AI Gateway
+   * 2. OPENAI_API_KEY → OpenAI
+   * 3. ANTHROPIC_API_KEY → Anthropic
+   * 4. GOOGLE_GENERATIVE_AI_API_KEY → Google
+   * 5. Fallback → MemoryLLMAdapter
+   *
+   * Returns the adapter and a description for logging.
+   */
+  private async detectAdapter(ctx: PluginContext): Promise<{ adapter: LLMAdapter; description: string }> {
+    // 1. Vercel AI Gateway — works with any provider via gateway('provider/model')
+    const gatewayModel = process.env.AI_GATEWAY_MODEL;
+    if (gatewayModel) {
+      try {
+        const gatewayPkg = '@ai-sdk/gateway';
+        const { gateway } = await import(/* webpackIgnore: true */ gatewayPkg);
+        const adapter = new VercelLLMAdapter({ model: gateway(gatewayModel) });
+        return { adapter, description: `Vercel AI Gateway (model: ${gatewayModel})` };
+      } catch (err) {
+        ctx.logger.warn(
+          `[AI] Failed to load @ai-sdk/gateway for AI_GATEWAY_MODEL=${gatewayModel}, trying next provider`,
+          err instanceof Error ? { error: err.message } : undefined
+        );
+      }
+    }
+
+    // 2. Direct provider SDKs
+    const providerConfigs: Array<{
+      envKey: string;
+      pkg: string;
+      factory: string;
+      defaultModel: string;
+      displayName: string;
+    }> = [
+      {
+        envKey: 'OPENAI_API_KEY',
+        pkg: '@ai-sdk/openai',
+        factory: 'openai',
+        defaultModel: 'gpt-4o',
+        displayName: 'OpenAI'
+      },
+      {
+        envKey: 'ANTHROPIC_API_KEY',
+        pkg: '@ai-sdk/anthropic',
+        factory: 'anthropic',
+        defaultModel: 'claude-sonnet-4-20250514',
+        displayName: 'Anthropic'
+      },
+      {
+        envKey: 'GOOGLE_GENERATIVE_AI_API_KEY',
+        pkg: '@ai-sdk/google',
+        factory: 'google',
+        defaultModel: 'gemini-2.0-flash',
+        displayName: 'Google'
+      },
+    ];
+
+    for (const { envKey, pkg, factory, defaultModel, displayName } of providerConfigs) {
+      if (process.env[envKey]) {
+        try {
+          const mod = await import(/* webpackIgnore: true */ pkg);
+          const createModel = mod[factory] ?? mod.default;
+          if (typeof createModel === 'function') {
+            const modelId = process.env.AI_MODEL ?? defaultModel;
+            const adapter = new VercelLLMAdapter({ model: createModel(modelId) });
+            return { adapter, description: `${displayName} (model: ${modelId})` };
+          }
+        } catch (err) {
+          ctx.logger.warn(
+            `[AI] Failed to load ${pkg} for ${envKey}, trying next provider`,
+            err instanceof Error ? { error: err.message } : undefined
+          );
+        }
+      }
+    }
+
+    // 3. Fallback to MemoryLLMAdapter
+    ctx.logger.warn('[AI] No LLM provider configured via environment variables. Falling back to MemoryLLMAdapter (echo mode). Set AI_GATEWAY_MODEL, OPENAI_API_KEY, ANTHROPIC_API_KEY, or GOOGLE_GENERATIVE_AI_API_KEY to use a real LLM.');
+    return { adapter: new MemoryLLMAdapter(), description: 'MemoryLLMAdapter (echo mode - for testing only)' };
+  }
+
   async init(ctx: PluginContext): Promise<void> {
     // Check if there is an existing AI service (e.g. from dev-plugin)
     let hasExisting = false;
@@ -88,8 +174,26 @@ export class AIServicePlugin implements Plugin {
       }
     }
 
+    // Determine LLM adapter: explicit > auto-detect from env > MemoryLLMAdapter fallback
+    let adapter: LLMAdapter;
+    let adapterDescription: string;
+
+    if (this.options.adapter) {
+      // User provided an explicit adapter
+      adapter = this.options.adapter;
+      adapterDescription = `${adapter.name} (explicitly configured)`;
+    } else {
+      // Auto-detect from environment variables
+      const detected = await this.detectAdapter(ctx);
+      adapter = detected.adapter;
+      adapterDescription = detected.description;
+    }
+
+    // Log the selected adapter
+    ctx.logger.info(`[AI] Using LLM adapter: ${adapterDescription}`);
+
     const config: AIServiceConfig = {
-      adapter: this.options.adapter,
+      adapter,
       logger: ctx.logger,
       conversationService,
     };

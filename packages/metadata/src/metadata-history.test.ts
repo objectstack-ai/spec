@@ -3,15 +3,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { MetadataManager } from './metadata-manager';
 import { DatabaseLoader } from './loaders/database-loader';
-import { MemoryDriver } from '@objectstack/driver-memory';
+import { InMemoryDriver } from '@objectstack/driver-memory';
 
 describe('Metadata History', () => {
   let manager: MetadataManager;
-  let driver: MemoryDriver;
+  let driver: InMemoryDriver;
 
   beforeEach(async () => {
     // Create a fresh in-memory driver and database loader
-    driver = new MemoryDriver({});
+    driver = new InMemoryDriver({});
 
     const dbLoader = new DatabaseLoader({
       driver,

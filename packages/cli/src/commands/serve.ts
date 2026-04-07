@@ -344,51 +344,12 @@ export default class Serve extends Command {
       if (!hasAIPlugin) {
         try {
           const aiPkg = '@objectstack/service-ai';
-          const { AIServicePlugin, VercelLLMAdapter } = await import(/* webpackIgnore: true */ aiPkg);
+          const { AIServicePlugin } = await import(/* webpackIgnore: true */ aiPkg);
 
-          // Auto-detect LLM provider from environment variables.
-          // Priority: 1) Vercel AI Gateway  2) Direct provider SDKs  3) MemoryLLMAdapter (echo)
-          let adapter: any = undefined;
-
-          // 1. Vercel AI Gateway — works with any provider via gateway('provider/model')
-          //    Uses OIDC on Vercel, VERCEL_API_KEY locally.
-          const gatewayModel = process.env.AI_GATEWAY_MODEL; // e.g. 'anthropic/claude-sonnet-4.6'
-          if (gatewayModel) {
-            try {
-              const gatewayPkg = '@ai-sdk/gateway';
-              const { gateway } = await import(/* webpackIgnore: true */ gatewayPkg);
-              adapter = new VercelLLMAdapter({ model: gateway(gatewayModel) });
-            } catch {
-              // @ai-sdk/gateway not installed
-            }
-          }
-
-          // 2. Direct provider SDKs
-          if (!adapter) {
-            const providerConfigs: Array<{ envKey: string; pkg: string; factory: string; defaultModel: string }> = [
-              { envKey: 'OPENAI_API_KEY', pkg: '@ai-sdk/openai', factory: 'openai', defaultModel: 'gpt-4o' },
-              { envKey: 'ANTHROPIC_API_KEY', pkg: '@ai-sdk/anthropic', factory: 'anthropic', defaultModel: 'claude-sonnet-4-20250514' },
-              { envKey: 'GOOGLE_GENERATIVE_AI_API_KEY', pkg: '@ai-sdk/google', factory: 'google', defaultModel: 'gemini-2.0-flash' },
-            ];
-
-            for (const { envKey, pkg, factory, defaultModel } of providerConfigs) {
-              if (process.env[envKey]) {
-                try {
-                  const mod = await import(/* webpackIgnore: true */ pkg);
-                  const createModel = mod[factory] ?? mod.default;
-                  if (typeof createModel === 'function') {
-                    const modelId = process.env.AI_MODEL ?? defaultModel;
-                    adapter = new VercelLLMAdapter({ model: createModel(modelId) });
-                    break;
-                  }
-                } catch {
-                  // Provider SDK not installed — skip
-                }
-              }
-            }
-          }
-
-          await kernel.use(new AIServicePlugin(adapter ? { adapter } : undefined));
+          // AIServicePlugin will auto-detect LLM provider from environment variables
+          // (AI_GATEWAY_MODEL, OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_GENERATIVE_AI_API_KEY)
+          // No need to manually construct the adapter here.
+          await kernel.use(new AIServicePlugin());
           trackPlugin('AIService');
         } catch {
           // @objectstack/service-ai not installed — AI features unavailable

@@ -153,12 +153,20 @@ export class MetadataManager implements IMetadataService {
 
   /**
    * Register/save a metadata item by type
+   * Stores in-memory registry and persists to writable loaders (if configured)
    */
   async register(type: string, name: string, data: unknown): Promise<void> {
     if (!this.registry.has(type)) {
       this.registry.set(type, new Map());
     }
     this.registry.get(type)!.set(name, data);
+
+    // Persist to writable loaders (e.g., DatabaseLoader for history tracking)
+    for (const loader of this.loaders.values()) {
+      if (loader.save) {
+        await loader.save(type, name, data);
+      }
+    }
   }
 
   /**
@@ -213,11 +221,24 @@ export class MetadataManager implements IMetadataService {
    * Unregister/remove a metadata item by type and name
    */
   async unregister(type: string, name: string): Promise<void> {
+    // Remove from in-memory registry
     const typeStore = this.registry.get(type);
     if (typeStore) {
       typeStore.delete(name);
       if (typeStore.size === 0) {
         this.registry.delete(type);
+      }
+    }
+
+    // Also delete from all loaders that support deletion
+    for (const loader of this.loaders.values()) {
+      // Check if the loader has a delete method
+      if (typeof (loader as any).delete === 'function') {
+        try {
+          await (loader as any).delete(type, name);
+        } catch (error) {
+          this.logger.warn(`Failed to delete ${type}/${name} from loader ${loader.contract.name}`, { error });
+        }
       }
     }
   }
@@ -321,20 +342,21 @@ export class MetadataManager implements IMetadataService {
    * Unregister all metadata items from a specific package
    */
   async unregisterPackage(packageName: string): Promise<void> {
+    // Collect all items to delete (type and name pairs)
+    const itemsToDelete: Array<{ type: string; name: string }> = [];
+
     for (const [type, typeStore] of this.registry) {
-      const toDelete: string[] = [];
       for (const [name, data] of typeStore) {
         const meta = data as any;
         if (meta?.packageId === packageName || meta?.package === packageName) {
-          toDelete.push(name);
+          itemsToDelete.push({ type, name });
         }
       }
-      for (const name of toDelete) {
-        typeStore.delete(name);
-      }
-      if (typeStore.size === 0) {
-        this.registry.delete(type);
-      }
+    }
+
+    // Delete each item using unregister() to ensure deletion from both registry and loaders
+    for (const { type, name } of itemsToDelete) {
+      await this.unregister(type, name);
     }
   }
 
@@ -1342,6 +1364,12 @@ export class MetadataManager implements IMetadataService {
       options?.changeNote,
       options?.recordedBy
     );
+
+    // Update in-memory registry with the restored metadata
+    if (!this.registry.has(type)) {
+      this.registry.set(type, new Map());
+    }
+    this.registry.get(type)!.set(name, restoredMetadata);
 
     return restoredMetadata;
   }

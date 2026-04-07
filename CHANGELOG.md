@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **AIServicePlugin Auto-Detection** — AIServicePlugin now automatically detects and initializes
+  LLM providers based on environment variables, eliminating the need for manual adapter configuration
+  in each deployment:
+  - Auto-detection priority: `AI_GATEWAY_MODEL` → `OPENAI_API_KEY` → `ANTHROPIC_API_KEY` → `GOOGLE_GENERATIVE_AI_API_KEY`
+  - Graceful fallback to MemoryLLMAdapter when no provider is configured
+  - Comprehensive logging of selected provider and warnings for missing SDKs
+  - Supports custom model selection via `AI_MODEL` environment variable
+  - Consistent behavior across CLI, Vercel, Docker, and custom deployments
+  - Dynamic import failures are handled as soft errors with automatic fallback
+  ([#1067](https://github.com/objectstack-ai/framework/issues/1067))
+
 - **Metadata Versioning & History** — Comprehensive version history tracking and rollback capabilities
   for metadata items. Key features include:
   - `MetadataHistoryRecordSchema` defining structure for historical snapshots
