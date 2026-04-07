@@ -308,14 +308,12 @@ export class AIServicePlugin implements Plugin {
     const routes = buildAIRoutes(this.service, this.service.conversationService, ctx.logger);
 
     // Build agent routes if metadata service is available
-    try {
-      const metadataService = ctx.getService<IMetadataService>('metadata');
-      if (metadataService) {
-        const agentRuntime = new AgentRuntime(metadataService);
-        const agentRoutes = buildAgentRoutes(this.service, agentRuntime, ctx.logger);
-        routes.push(...agentRoutes);
-      }
-    } catch {
+    if (metadataService) {
+      const agentRuntime = new AgentRuntime(metadataService);
+      const agentRoutes = buildAgentRoutes(this.service, agentRuntime, ctx.logger);
+      routes.push(...agentRoutes);
+      ctx.logger.info(`[AI] Agent routes registered (${agentRoutes.length} routes)`);
+    } else {
       ctx.logger.debug('[AI] Metadata service not available, skipping agent routes');
     }
 

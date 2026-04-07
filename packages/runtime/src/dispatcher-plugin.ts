@@ -464,6 +464,80 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
                 }
                 ctx.logger.info(`[Dispatcher] Registered ${routes.length} AI routes`);
             });
+
+            // ── Fallback: recover routes cached before hook was registered ──
+            // If AIServicePlugin.start() ran before DispatcherPlugin.start()
+            // (possible when plugin start order differs from registration order),
+            // the 'ai:routes' trigger fires with no listener. The AIServicePlugin
+            // caches the routes on the kernel as __aiRoutes so we can recover here.
+            const cachedRoutes = (kernel as any).__aiRoutes as RouteDefinition[] | undefined;
+            if (cachedRoutes && Array.isArray(cachedRoutes) && cachedRoutes.length > 0) {
+                let registered = 0;
+                for (const route of cachedRoutes) {
+                    const routePath = route.path.startsWith('/api/v1')
+                        ? route.path
+                        : `${prefix}${route.path}`;
+
+                    const handler = async (req: any, res: any) => {
+                        try {
+                            const result = await route.handler({
+                                body: req.body,
+                                params: req.params,
+                                query: req.query,
+                            });
+
+                            if (result.stream && result.events) {
+                                res.status(result.status);
+                                if (result.headers) {
+                                    for (const [k, v] of Object.entries(result.headers)) {
+                                        res.header(k, v as string);
+                                    }
+                                } else {
+                                    res.header('Content-Type', 'text/event-stream');
+                                    res.header('Cache-Control', 'no-cache');
+                                    res.header('Connection', 'keep-alive');
+                                }
+                                if (typeof res.write === 'function' && typeof res.end === 'function') {
+                                    for await (const event of result.events) {
+                                        res.write(typeof event === 'string' ? event : `data: ${JSON.stringify(event)}\n\n`);
+                                    }
+                                    res.end();
+                                } else {
+                                    const events = [];
+                                    for await (const event of result.events) {
+                                        events.push(event);
+                                    }
+                                    res.json({ events });
+                                }
+                            } else {
+                                res.status(result.status);
+                                if (result.body !== undefined) {
+                                    res.json(result.body);
+                                } else {
+                                    res.end();
+                                }
+                            }
+                        } catch (err: any) {
+                            errorResponse(err, res);
+                        }
+                    };
+
+                    const m = route.method.toLowerCase();
+                    if (m === 'get' && typeof server.get === 'function') {
+                        server.get(routePath, handler);
+                        registered++;
+                    } else if (m === 'post' && typeof server.post === 'function') {
+                        server.post(routePath, handler);
+                        registered++;
+                    } else if (m === 'delete' && typeof server.delete === 'function') {
+                        server.delete(routePath, handler);
+                        registered++;
+                    }
+                }
+                if (registered > 0) {
+                    ctx.logger.info(`[Dispatcher] Recovered ${registered} cached AI routes (hook timing fallback)`);
+                }
+            }
         },
     };
 }

@@ -71,6 +71,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   match the current monorepo layout.
 
 ### Fixed
+- **AI Chat agent selector missing `data_chat` and `metadata_assistant`** — Fixed `GET /api/v1/ai/agents`
+  returning 404, which caused the Studio AI Chat panel to show only "General Chat". Root cause was a
+  redundant second `ctx.getService('metadata')` call inside `AIServicePlugin.start()` that shadowed
+  the outer resolved variable and failed silently, preventing `buildAgentRoutes()` from being called.
+  Fix: reuse the already-resolved `metadataService` variable instead of re-fetching it. Additionally,
+  added a fallback in `DispatcherPlugin.start()` that recovers AI routes from the `kernel.__aiRoutes`
+  cache in case the `ai:routes` hook fires before the listener is registered (timing edge case).
 - **ObjectQLPlugin: cold-start metadata restoration** — `ObjectQLPlugin.start()` now calls
   `protocol.loadMetaFromDb()` after driver initialization and before schema sync, restoring
   all persisted metadata (objects, views, apps, etc.) from the `sys_metadata` table into the
