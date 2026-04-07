@@ -23,6 +23,75 @@ interface RouteDefinition {
 }
 
 /**
+ * Register a single RouteDefinition on the HTTP server.
+ * Returns true if the route was successfully registered.
+ */
+function mountRouteOnServer(route: RouteDefinition, server: IHttpServer, routePath: string): boolean {
+    const handler = async (req: any, res: any) => {
+        try {
+            const result = await route.handler({
+                body: req.body,
+                params: req.params,
+                query: req.query,
+            });
+
+            if (result.stream && result.events) {
+                // SSE streaming response
+                res.status(result.status);
+
+                // Apply headers from the route result if available
+                if (result.headers) {
+                    for (const [k, v] of Object.entries(result.headers)) {
+                        res.header(k, v as string);
+                    }
+                } else {
+                    res.header('Content-Type', 'text/event-stream');
+                    res.header('Cache-Control', 'no-cache');
+                    res.header('Connection', 'keep-alive');
+                }
+
+                // Write the stream — events are pre-encoded SSE strings
+                if (typeof res.write === 'function' && typeof res.end === 'function') {
+                    for await (const event of result.events) {
+                        res.write(typeof event === 'string' ? event : `data: ${JSON.stringify(event)}\n\n`);
+                    }
+                    res.end();
+                } else {
+                    // Fallback: collect events into array
+                    const events = [];
+                    for await (const event of result.events) {
+                        events.push(event);
+                    }
+                    res.json({ events });
+                }
+            } else {
+                res.status(result.status);
+                if (result.body !== undefined) {
+                    res.json(result.body);
+                } else {
+                    res.end();
+                }
+            }
+        } catch (err: any) {
+            errorResponse(err, res);
+        }
+    };
+
+    const m = route.method.toLowerCase();
+    if (m === 'get' && typeof server.get === 'function') {
+        server.get(routePath, handler);
+        return true;
+    } else if (m === 'post' && typeof server.post === 'function') {
+        server.post(routePath, handler);
+        return true;
+    } else if (m === 'delete' && typeof server.delete === 'function') {
+        server.delete(routePath, handler);
+        return true;
+    }
+    return false;
+}
+
+/**
  * Send an HttpDispatcherResult through IHttpResponse.
  * Differentiates between handled, unhandled (404), and special results.
  */
@@ -402,65 +471,7 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
                     const routePath = route.path.startsWith('/api/v1')
                         ? route.path
                         : `${prefix}${route.path}`;
-
-                    const handler = async (req: any, res: any) => {
-                        try {
-                            const result = await route.handler({
-                                body: req.body,
-                                params: req.params,
-                                query: req.query,
-                            });
-
-                            if (result.stream && result.events) {
-                                // SSE streaming response
-                                res.status(result.status);
-
-                                // Apply headers from the route result if available
-                                if (result.headers) {
-                                    for (const [k, v] of Object.entries(result.headers)) {
-                                        res.header(k, v);
-                                    }
-                                } else {
-                                    res.header('Content-Type', 'text/event-stream');
-                                    res.header('Cache-Control', 'no-cache');
-                                    res.header('Connection', 'keep-alive');
-                                }
-
-                                // Write the stream — events are pre-encoded SSE strings
-                                if (typeof res.write === 'function' && typeof res.end === 'function') {
-                                    for await (const event of result.events) {
-                                        res.write(typeof event === 'string' ? event : `data: ${JSON.stringify(event)}\n\n`);
-                                    }
-                                    res.end();
-                                } else {
-                                    // Fallback: collect events into array
-                                    const events = [];
-                                    for await (const event of result.events) {
-                                        events.push(event);
-                                    }
-                                    res.json({ events });
-                                }
-                            } else {
-                                res.status(result.status);
-                                if (result.body !== undefined) {
-                                    res.json(result.body);
-                                } else {
-                                    res.end();
-                                }
-                            }
-                        } catch (err: any) {
-                            errorResponse(err, res);
-                        }
-                    };
-
-                    const m = route.method.toLowerCase();
-                    if (m === 'get' && typeof server.get === 'function') {
-                        server.get(routePath, handler);
-                    } else if (m === 'post' && typeof server.post === 'function') {
-                        server.post(routePath, handler);
-                    } else if (m === 'delete' && typeof server.delete === 'function') {
-                        server.delete(routePath, handler);
-                    }
+                    mountRouteOnServer(route, server, routePath);
                 }
                 ctx.logger.info(`[Dispatcher] Registered ${routes.length} AI routes`);
             });
@@ -477,60 +488,7 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
                     const routePath = route.path.startsWith('/api/v1')
                         ? route.path
                         : `${prefix}${route.path}`;
-
-                    const handler = async (req: any, res: any) => {
-                        try {
-                            const result = await route.handler({
-                                body: req.body,
-                                params: req.params,
-                                query: req.query,
-                            });
-
-                            if (result.stream && result.events) {
-                                res.status(result.status);
-                                if (result.headers) {
-                                    for (const [k, v] of Object.entries(result.headers)) {
-                                        res.header(k, v as string);
-                                    }
-                                } else {
-                                    res.header('Content-Type', 'text/event-stream');
-                                    res.header('Cache-Control', 'no-cache');
-                                    res.header('Connection', 'keep-alive');
-                                }
-                                if (typeof res.write === 'function' && typeof res.end === 'function') {
-                                    for await (const event of result.events) {
-                                        res.write(typeof event === 'string' ? event : `data: ${JSON.stringify(event)}\n\n`);
-                                    }
-                                    res.end();
-                                } else {
-                                    const events = [];
-                                    for await (const event of result.events) {
-                                        events.push(event);
-                                    }
-                                    res.json({ events });
-                                }
-                            } else {
-                                res.status(result.status);
-                                if (result.body !== undefined) {
-                                    res.json(result.body);
-                                } else {
-                                    res.end();
-                                }
-                            }
-                        } catch (err: any) {
-                            errorResponse(err, res);
-                        }
-                    };
-
-                    const m = route.method.toLowerCase();
-                    if (m === 'get' && typeof server.get === 'function') {
-                        server.get(routePath, handler);
-                        registered++;
-                    } else if (m === 'post' && typeof server.post === 'function') {
-                        server.post(routePath, handler);
-                        registered++;
-                    } else if (m === 'delete' && typeof server.delete === 'function') {
-                        server.delete(routePath, handler);
+                    if (mountRouteOnServer(route, server, routePath)) {
                         registered++;
                     }
                 }
