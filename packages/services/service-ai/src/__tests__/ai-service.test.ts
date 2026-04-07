@@ -868,7 +868,16 @@ describe('AIServicePlugin', () => {
   });
 
   it('should fallback to MemoryLLMAdapter when provider SDK is not installed', async () => {
-    const plugin = new AIServicePlugin();
+    // Mock all provider SDKs to simulate them not being installed.
+    // In the workspace @ai-sdk/openai may be resolvable as a transitive
+    // dependency, so we must explicitly make the dynamic import fail.
+    vi.doMock('@ai-sdk/openai', () => { throw new Error('Cannot find module \'@ai-sdk/openai\''); });
+    vi.doMock('@ai-sdk/anthropic', () => { throw new Error('Cannot find module \'@ai-sdk/anthropic\''); });
+    vi.doMock('@ai-sdk/google', () => { throw new Error('Cannot find module \'@ai-sdk/google\''); });
+
+    // Re-import the plugin module so it picks up the mocked imports
+    const { AIServicePlugin: FreshPlugin } = await import('../plugin.js');
+    const plugin = new FreshPlugin();
     const ctx = createMockContext();
 
     const oldEnv = { ...process.env };
@@ -897,6 +906,9 @@ describe('AIServicePlugin', () => {
       );
     } finally {
       process.env = oldEnv;
+      vi.doUnmock('@ai-sdk/openai');
+      vi.doUnmock('@ai-sdk/anthropic');
+      vi.doUnmock('@ai-sdk/google');
     }
   });
 

@@ -106,6 +106,7 @@ describe('createH3Router', () => {
       undefined,
       expect.any(Object),
       expect.objectContaining({ request: expect.anything() }),
+      '/api',
     );
   });
 
@@ -119,6 +120,7 @@ describe('createH3Router', () => {
       undefined,
       expect.any(Object),
       expect.objectContaining({ request: expect.anything() }),
+      '/api',
     );
   });
 
