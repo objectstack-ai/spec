@@ -590,6 +590,27 @@ export class DatabaseLoader implements MetadataLoader {
       );
     }
   }
+
+  /**
+   * Delete a metadata item from the database
+   */
+  async delete(type: string, name: string): Promise<void> {
+    await this.ensureSchema();
+
+    // Find the existing record to get its ID
+    const existing = await this.driver.findOne(this.tableName, {
+      object: this.tableName,
+      where: this.baseFilter(type, name),
+    });
+
+    if (!existing) {
+      // Item doesn't exist, nothing to delete
+      return;
+    }
+
+    // Delete from the main metadata table using the record's ID
+    await this.driver.delete(this.tableName, existing.id as string);
+  }
 }
 
 /**

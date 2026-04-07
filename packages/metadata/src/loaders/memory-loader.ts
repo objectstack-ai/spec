@@ -91,7 +91,7 @@ export class MemoryLoader implements MetadataLoader {
     if (!this.storage.has(type)) {
       this.storage.set(type, new Map());
     }
-    
+
     this.storage.get(type)!.set(name, data);
 
     return {
@@ -99,5 +99,18 @@ export class MemoryLoader implements MetadataLoader {
       path: `memory://${type}/${name}`,
       saveTime: 0,
     };
+  }
+
+  /**
+   * Delete a metadata item from memory storage
+   */
+  async delete(type: string, name: string): Promise<void> {
+    const typeStore = this.storage.get(type);
+    if (typeStore) {
+      typeStore.delete(name);
+      if (typeStore.size === 0) {
+        this.storage.delete(type);
+      }
+    }
   }
 }

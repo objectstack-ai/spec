@@ -837,4 +837,116 @@ describe('AIServicePlugin', () => {
 
     expect(ctx.hook).toHaveBeenCalledWith('ai:beforeChat', expect.any(Function));
   });
+
+  // ── LLM Provider Auto-Detection ─────────────────────────────────
+
+  it('should use MemoryLLMAdapter when no env vars are set', async () => {
+    const plugin = new AIServicePlugin();
+    const ctx = createMockContext();
+
+    // Ensure no LLM provider env vars are set
+    const oldEnv = { ...process.env };
+    delete process.env.AI_GATEWAY_MODEL;
+    delete process.env.OPENAI_API_KEY;
+    delete process.env.ANTHROPIC_API_KEY;
+    delete process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+
+    try {
+      await plugin.init(ctx);
+
+      const service = ctx.getService<AIService>('ai');
+      expect(service.adapterName).toBe('memory');
+
+      // Verify warning was logged
+      expect(silentLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('No LLM provider configured')
+      );
+    } finally {
+      // Restore environment
+      process.env = oldEnv;
+    }
+  });
+
+  it('should fallback to MemoryLLMAdapter when provider SDK is not installed', async () => {
+    const plugin = new AIServicePlugin();
+    const ctx = createMockContext();
+
+    const oldEnv = { ...process.env };
+    // Set env var, but the SDK won't be available in test environment
+    process.env.OPENAI_API_KEY = 'fake-openai-key';
+    delete process.env.AI_GATEWAY_MODEL;
+    delete process.env.ANTHROPIC_API_KEY;
+    delete process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+
+    try {
+      await plugin.init(ctx);
+
+      const service = ctx.getService<AIService>('ai');
+      // Should fall back to memory because @ai-sdk/openai is not installed
+      expect(service.adapterName).toBe('memory');
+
+      // Verify warning was logged about SDK load failure
+      expect(silentLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to load @ai-sdk/openai'),
+        expect.objectContaining({ error: expect.any(String) })
+      );
+
+      // Verify warning was logged about final fallback
+      expect(silentLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('No LLM provider configured')
+      );
+    } finally {
+      process.env = oldEnv;
+    }
+  });
+
+  it('should prefer explicit adapter over auto-detection', async () => {
+    const customAdapter: LLMAdapter = {
+      name: 'custom-explicit',
+      chat: async () => ({ content: 'explicit' }),
+      complete: async () => ({ content: '' }),
+    };
+
+    const plugin = new AIServicePlugin({ adapter: customAdapter });
+    const ctx = createMockContext();
+
+    const oldEnv = { ...process.env };
+    process.env.OPENAI_API_KEY = 'fake-openai-key';
+
+    try {
+      await plugin.init(ctx);
+
+      const service = ctx.getService<AIService>('ai');
+      expect(service.adapterName).toBe('custom-explicit');
+
+      // Verify it logged as explicitly configured
+      expect(silentLogger.info).toHaveBeenCalledWith(
+        expect.stringContaining('explicitly configured')
+      );
+    } finally {
+      process.env = oldEnv;
+    }
+  });
+
+  it('should log adapter selection', async () => {
+    const plugin = new AIServicePlugin();
+    const ctx = createMockContext();
+
+    const oldEnv = { ...process.env };
+    delete process.env.AI_GATEWAY_MODEL;
+    delete process.env.OPENAI_API_KEY;
+    delete process.env.ANTHROPIC_API_KEY;
+    delete process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+
+    try {
+      await plugin.init(ctx);
+
+      // Verify adapter selection was logged
+      expect(silentLogger.info).toHaveBeenCalledWith(
+        expect.stringContaining('Using LLM adapter')
+      );
+    } finally {
+      process.env = oldEnv;
+    }
+  });
 });

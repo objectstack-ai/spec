@@ -18,13 +18,33 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ai-sdk/provider": "^2.0.0",
+    "@ai-sdk/provider": "^3.0.8",
     "@objectstack/core": "workspace:*",
     "@objectstack/spec": "workspace:*",
     "ai": "^6.0.146"
   },
+  "peerDependencies": {
+    "@ai-sdk/anthropic": "^3.0.0",
+    "@ai-sdk/gateway": "^3.0.0",
+    "@ai-sdk/google": "^3.0.0",
+    "@ai-sdk/openai": "^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@ai-sdk/anthropic": {
+      "optional": true
+    },
+    "@ai-sdk/gateway": {
+      "optional": true
+    },
+    "@ai-sdk/google": {
+      "optional": true
+    },
+    "@ai-sdk/openai": {
+      "optional": true
+    }
+  },
   "devDependencies": {
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.5.2",
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
   }
