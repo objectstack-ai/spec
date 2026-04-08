@@ -10,7 +10,6 @@ dist/
 **/.objectstack/data/
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
