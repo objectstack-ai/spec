@@ -258,7 +258,7 @@ export class AIServicePlugin implements Plugin {
     try {
       const dataEngine = ctx.getService<IDataEngine>('data');
       if (dataEngine && metadataService) {
-        registerDataTools(this.service.toolRegistry, { dataEngine, metadataService });
+        registerDataTools(this.service.toolRegistry, { dataEngine });
         ctx.logger.info('[AI] Built-in data tools registered');
 
         // Register the built-in data_chat agent only if it does not already exist
