@@ -576,6 +576,8 @@ describe('streamChatWithTools', () => {
     // Verify order: tool-call comes before tool-result
     const toolCallIdx = events.findIndex(e => e.type === 'tool-call');
     const toolResultIdx = events.findIndex(e => e.type === 'tool-result');
+    expect(toolCallIdx).toBeGreaterThanOrEqual(0);
+    expect(toolResultIdx).toBeGreaterThanOrEqual(0);
     expect(toolCallIdx).toBeLessThan(toolResultIdx);
   });
 
