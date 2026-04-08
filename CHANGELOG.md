@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **Agent Chat: Vercel SSE Data Stream support** — The agent chat endpoint
+  (`/api/v1/ai/agents/:agentName/chat`) now returns Vercel AI SDK v6 UI Message Stream Protocol
+  (SSE) by default, matching the general chat endpoint behaviour. Previously, the agent chat route
+  only returned plain JSON, causing `DefaultChatTransport` (used by `@ai-sdk/react` `useChat`) to
+  fail silently — the API responded correctly but the Studio AI Chat Panel rendered no content.
+  The endpoint now uses `streamChatWithTools` + `encodeVercelDataStream` for `stream !== false`
+  requests (the default), and falls back to JSON only when `stream: false` is explicitly set.
+  Studio's error UI is also enhanced to surface SSE parse failures clearly instead of silent failure.
 - **Agent Chat: Vercel AI SDK v6 `parts` format support** — The agent chat endpoint
   (`/api/v1/ai/agents/:agentName/chat`) now accepts Vercel AI SDK v6 `parts`-based message
   format in addition to the legacy `content` string format. Previously, sending messages
