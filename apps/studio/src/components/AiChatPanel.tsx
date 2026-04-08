@@ -519,8 +519,20 @@ export function AiChatPanel() {
             </div>
           )}
           {error && (
-            <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              Error: {error.message || 'Something went wrong'}
+            <div className="flex items-start gap-2 rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
+              <div>
+                <p className="font-medium">Chat Error</p>
+                <p className="mt-0.5 text-xs opacity-80">
+                  {error.message || 'Something went wrong'}
+                </p>
+                {error.message && /unexpected|json|parse|stream/i.test(error.message) && (
+                  <p className="mt-1 text-xs opacity-70">
+                    The server may not be returning the expected Vercel AI Data Stream format.
+                    Ensure the backend endpoint supports SSE streaming.
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </div>

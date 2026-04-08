@@ -807,13 +807,14 @@ describe('Agent Routes', () => {
     expect((resp.body as any).error).toContain('not active');
   });
 
-  it('should return 200 with agent response for valid request', async () => {
+  it('should return 200 with agent response for valid request (stream=false)', async () => {
     const chatRoute = routes.find(r => r.method === 'POST')!;
     const resp = await chatRoute.handler({
       params: { agentName: 'data_chat' },
       body: {
         messages: [{ role: 'user', content: 'List all tables' }],
         context: { objectName: 'account' },
+        stream: false,
       },
     });
     expect(resp.status).toBe(200);
@@ -862,6 +863,7 @@ describe('Agent Routes', () => {
       params: { agentName: 'data_chat' },
       body: {
         messages: [{ role: 'user', content: 'test' }],
+        stream: false,
         options: {
           tools: [{ name: 'injected_tool', description: 'Evil', parameters: {} }],
           toolChoice: 'injected_tool',
@@ -882,6 +884,7 @@ describe('Agent Routes', () => {
     const resp = await chatRoute.handler({
       params: { agentName: 'data_chat' },
       body: {
+        stream: false,
         messages: [
           {
             role: 'user',
@@ -899,6 +902,7 @@ describe('Agent Routes', () => {
     const resp = await chatRoute.handler({
       params: { agentName: 'data_chat' },
       body: {
+        stream: false,
         messages: [
           { role: 'user', content: 'Hello' },
           {
@@ -920,6 +924,7 @@ describe('Agent Routes', () => {
     const resp = await chatRoute.handler({
       params: { agentName: 'data_chat' },
       body: {
+        stream: false,
         messages: [
           {
             role: 'assistant',
@@ -945,6 +950,66 @@ describe('Agent Routes', () => {
     });
     expect(resp.status).toBe(400);
     expect((resp.body as any).error).toContain('content');
+  });
+
+  // ── Vercel Data Stream Protocol (SSE) ──
+
+  it('should default to Vercel Data Stream mode when stream is not specified', async () => {
+    const chatRoute = routes.find(r => r.method === 'POST')!;
+    const resp = await chatRoute.handler({
+      params: { agentName: 'data_chat' },
+      body: {
+        messages: [{ role: 'user', content: 'List all tables' }],
+      },
+    });
+    expect(resp.status).toBe(200);
+    expect(resp.stream).toBe(true);
+    expect(resp.vercelDataStream).toBe(true);
+    expect(resp.events).toBeDefined();
+
+    // Consume the Vercel Data Stream events
+    const events: unknown[] = [];
+    for await (const event of resp.events!) {
+      events.push(event);
+    }
+    expect(events.length).toBeGreaterThan(0);
+    // Must contain standard SSE lifecycle events
+    const eventsStr = events.join('');
+    expect(eventsStr).toContain('"type":"start"');
+    expect(eventsStr).toContain('"type":"text-delta"');
+    expect(eventsStr).toContain('"type":"finish"');
+    expect(eventsStr).toContain('data: [DONE]');
+  });
+
+  it('should return Vercel Data Stream when stream=true explicitly', async () => {
+    const chatRoute = routes.find(r => r.method === 'POST')!;
+    const resp = await chatRoute.handler({
+      params: { agentName: 'data_chat' },
+      body: {
+        messages: [{ role: 'user', content: 'Hello agent' }],
+        stream: true,
+      },
+    });
+    expect(resp.status).toBe(200);
+    expect(resp.stream).toBe(true);
+    expect(resp.vercelDataStream).toBe(true);
+    expect(resp.events).toBeDefined();
+  });
+
+  it('should return JSON when stream=false', async () => {
+    const chatRoute = routes.find(r => r.method === 'POST')!;
+    const resp = await chatRoute.handler({
+      params: { agentName: 'data_chat' },
+      body: {
+        messages: [{ role: 'user', content: 'Hello agent' }],
+        stream: false,
+      },
+    });
+    expect(resp.status).toBe(200);
+    expect(resp.stream).toBeUndefined();
+    expect(resp.vercelDataStream).toBeUndefined();
+    expect(resp.body).toBeDefined();
+    expect((resp.body as any).content).toBeDefined();
   });
 });
 

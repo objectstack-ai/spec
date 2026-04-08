@@ -6,6 +6,7 @@ import type { AIService } from '../ai-service.js';
 import type { AgentRuntime, AgentChatContext } from '../agent-runtime.js';
 import type { RouteDefinition } from './ai-routes.js';
 import { normalizeMessage, validateMessageContent } from './message-utils.js';
+import { encodeVercelDataStream } from '../stream/vercel-stream-encoder.js';
 
 /**
  * Allowed message roles for the agent chat endpoint.
@@ -68,10 +69,15 @@ export function buildAgentRoutes(
     },
 
     // ── Chat with a specific agent ──────────────────────────────
+    //
+    // Dual-mode endpoint matching the general chat route behaviour:
+    //   • `stream !== false` → Vercel Data Stream Protocol (SSE)
+    //   • `stream === false`  → JSON response (legacy)
+    //
     {
       method: 'POST',
       path: '/api/v1/ai/agents/:agentName/chat',
-      description: 'Chat with a specific AI agent',
+      description: 'Chat with a specific AI agent (supports Vercel AI Data Stream Protocol)',
       auth: true,
       permissions: ['ai:chat', 'ai:agents'],
       handler: async (req) => {
@@ -81,11 +87,12 @@ export function buildAgentRoutes(
         }
 
         // Parse request body
+        const body = (req.body ?? {}) as Record<string, unknown>;
         const {
           messages: rawMessages,
           context: chatContext,
           options: extraOptions,
-        } = (req.body ?? {}) as {
+        } = body as {
           messages?: unknown[];
           context?: AgentChatContext;
           options?: Record<string, unknown>;
@@ -138,12 +145,37 @@ export function buildAgentRoutes(
             ...rawMessages.map(m => normalizeMessage(m as Record<string, unknown>)),
           ];
 
-          // Use chatWithTools for automatic tool resolution
-          const result = await aiService.chatWithTools(fullMessages, {
+          const chatWithToolsOptions = {
             ...mergedOptions,
             maxIterations: agent.planning?.maxIterations,
-          });
+          };
 
+          // ── Choose response mode ─────────────────────────────
+          const wantStream = body.stream !== false;
+
+          if (wantStream) {
+            // Vercel Data Stream Protocol (SSE) — matches general chat behaviour
+            if (!aiService.streamChatWithTools) {
+              return { status: 501, body: { error: 'Streaming is not supported by the configured AI service' } };
+            }
+            const events = aiService.streamChatWithTools(fullMessages, chatWithToolsOptions);
+            return {
+              status: 200,
+              stream: true,
+              vercelDataStream: true,
+              contentType: 'text/event-stream',
+              headers: {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+                'x-vercel-ai-ui-message-stream': 'v1',
+              },
+              events: encodeVercelDataStream(events),
+            };
+          }
+
+          // JSON response (non-streaming / legacy)
+          const result = await aiService.chatWithTools(fullMessages, chatWithToolsOptions);
           return { status: 200, body: result };
         } catch (err) {
           logger.error(
