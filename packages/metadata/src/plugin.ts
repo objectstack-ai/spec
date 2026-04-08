@@ -69,6 +69,26 @@ export class MetadataPlugin implements Plugin {
     }
 
     start = async (ctx: PluginContext) => {
+        // Bridge database driver from kernel service registry to MetadataManager.
+        // DriverPlugin registers drivers as 'driver.{name}' services during init().
+        // We look them up here (start phase) to enable DatabaseLoader persistence.
+        try {
+            const services = ctx.getServices();
+            for (const [serviceName, service] of services) {
+                if (serviceName.startsWith('driver.') && service) {
+                    ctx.logger.info('[MetadataPlugin] Bridging driver to MetadataManager for database-backed persistence', {
+                        driverService: serviceName,
+                    });
+                    this.manager.setDatabaseDriver(service);
+                    break; // Use the first available driver
+                }
+            }
+        } catch (e: any) {
+            ctx.logger.debug('[MetadataPlugin] No driver service found — database metadata persistence not available', {
+                error: e.message,
+            });
+        }
+
         ctx.logger.info('Loading metadata from file system...');
         
         // Use the type registry to discover metadata types (sorted by loadOrder)
