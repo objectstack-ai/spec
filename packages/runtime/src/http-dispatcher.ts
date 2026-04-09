@@ -347,6 +347,17 @@ export class HttpDispatcher {
                 const result = await protocol.getMetaTypes({});
                 return { handled: true, response: this.success(result) };
             }
+            // Try MetadataService directly (includes runtime-registered types like agents/tools)
+            const metadataService = await this.getService(CoreServiceName.enum.metadata);
+            if (metadataService && typeof (metadataService as any).getRegisteredTypes === 'function') {
+                try {
+                    const types = await (metadataService as any).getRegisteredTypes();
+                    return { handled: true, response: this.success({ types }) };
+                } catch (e: any) {
+                    // Log error but continue to fallbacks
+                    console.debug('[HttpDispatcher] MetadataService.getRegisteredTypes() failed:', e.message);
+                }
+            }
             // Fallback: ask broker for registered types
             if (broker) {
                 try {
@@ -464,7 +475,7 @@ export class HttpDispatcher {
             const typeOrName = parts[0];
             // Extract optional package filter from query string
             const packageId = query?.package || undefined;
-            
+
             // Try protocol service first for any type
             const protocol = await this.resolveService('protocol');
             if (protocol && typeof protocol.getMetaItems === 'function') {
@@ -476,6 +487,20 @@ export class HttpDispatcher {
                     }
                 } catch {
                     // Protocol doesn't know this type, fall through
+                }
+            }
+
+            // Try MetadataService directly for runtime-registered metadata (agents, tools, etc.)
+            const metadataService = await this.getService(CoreServiceName.enum.metadata);
+            if (metadataService && typeof (metadataService as any).list === 'function') {
+                try {
+                    const items = await (metadataService as any).list(typeOrName);
+                    if (items && items.length > 0) {
+                        return { handled: true, response: this.success({ type: typeOrName, items }) };
+                    }
+                } catch (e: any) {
+                    // MetadataService doesn't know this type or failed, continue to other fallbacks
+                    console.debug(`[HttpDispatcher] MetadataService.list('${typeOrName}') failed:`, e.message);
                 }
             }
 
