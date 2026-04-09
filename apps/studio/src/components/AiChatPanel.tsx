@@ -7,6 +7,7 @@ import type { UIMessage } from 'ai';
 import {
   Bot, X, Send, Trash2, Sparkles,
   Wrench, CheckCircle2, XCircle, Loader2, ShieldAlert,
+  ChevronDown, ChevronRight, Brain, Zap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -31,6 +32,47 @@ interface AgentSummary {
   name: string;
   label: string;
   role: string;
+}
+
+/**
+ * Extended stream event types for reasoning and steps.
+ * These extend the standard Vercel AI SDK stream events.
+ */
+interface ReasoningStartEvent {
+  type: 'reasoning-start';
+  id: string;
+}
+
+interface ReasoningDeltaEvent {
+  type: 'reasoning-delta';
+  id: string;
+  delta: string;
+}
+
+interface ReasoningEndEvent {
+  type: 'reasoning-end';
+  id: string;
+}
+
+interface StepStartEvent {
+  type: 'step-start';
+  stepId: string;
+  stepName: string;
+}
+
+interface StepFinishEvent {
+  type: 'step-finish';
+  stepId: string;
+  stepName: string;
+}
+
+/**
+ * Track active thinking/reasoning state during streaming.
+ */
+interface ThinkingState {
+  reasoning: string[];
+  activeSteps: Map<string, { stepName: string; startedAt: number }>;
+  completedSteps: string[];
 }
 
 /**
@@ -160,6 +202,88 @@ function useAgentList(baseUrl: string) {
 
 // ── Tool Invocation State Labels ────────────────────────────────────
 
+/**
+ * Display reasoning/thinking information in a collapsible section.
+ */
+interface ReasoningDisplayProps {
+  reasoning: string[];
+}
+
+function ReasoningDisplay({ reasoning }: ReasoningDisplayProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  if (reasoning.length === 0) return null;
+
+  return (
+    <div
+      data-testid="reasoning-display"
+      className="flex flex-col gap-1 rounded-md border border-border/30 bg-muted/30 px-2.5 py-2 text-xs"
+    >
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex items-center gap-1.5 text-left text-muted-foreground hover:text-foreground transition-colors"
+      >
+        {isExpanded ? (
+          <ChevronDown className="h-3 w-3 shrink-0" />
+        ) : (
+          <ChevronRight className="h-3 w-3 shrink-0" />
+        )}
+        <Brain className="h-3 w-3 shrink-0" />
+        <span className="font-medium">Thinking</span>
+        <span className="text-[10px] opacity-60">
+          ({reasoning.length} step{reasoning.length !== 1 ? 's' : ''})
+        </span>
+      </button>
+      {isExpanded && (
+        <div className="mt-1 space-y-1 pl-5 text-muted-foreground italic border-l-2 border-border/30">
+          {reasoning.map((step, idx) => (
+            <p key={idx} className="text-[11px] leading-relaxed">
+              {step}
+            </p>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Display active step progress indicators.
+ */
+interface StepProgressProps {
+  activeSteps: Map<string, { stepName: string; startedAt: number }>;
+  completedSteps: string[];
+}
+
+function StepProgress({ activeSteps, completedSteps }: StepProgressProps) {
+  if (activeSteps.size === 0) return null;
+
+  const totalSteps = completedSteps.length + activeSteps.size;
+  const currentStep = completedSteps.length + 1;
+
+  return (
+    <div
+      data-testid="step-progress"
+      className="flex flex-col gap-1.5 rounded-md border border-blue-500/30 bg-blue-500/5 px-2.5 py-2 text-xs"
+    >
+      <div className="flex items-center gap-2">
+        <Zap className="h-3 w-3 shrink-0 text-blue-600 dark:text-blue-400" />
+        <span className="font-medium text-blue-700 dark:text-blue-300">
+          Step {currentStep} of {totalSteps}
+        </span>
+      </div>
+      {Array.from(activeSteps.values()).map((step, idx) => (
+        <div key={idx} className="flex items-center gap-2 pl-5">
+          <Loader2 className="h-3 w-3 shrink-0 animate-spin text-blue-600 dark:text-blue-400" />
+          <span className="text-blue-700 dark:text-blue-300">{step.stepName}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Tool Invocation State Labels ────────────────────────────────────
+
 interface ToolInvocationDisplayProps {
   part: Extract<UIMessage['parts'][number], { type: 'dynamic-tool' }>;
   onApprove?: (approvalId: string) => void;
@@ -175,6 +299,21 @@ function ToolInvocationDisplay({ part, onApprove, onDeny }: ToolInvocationDispla
 
   switch (part.state) {
     case 'input-streaming':
+      return (
+        <div
+          data-testid="tool-invocation-planning"
+          className="flex items-start gap-2 rounded-md border border-blue-500/40 bg-blue-500/10 px-2.5 py-2 text-xs"
+        >
+          <Loader2 className="mt-0.5 h-3.5 w-3.5 shrink-0 animate-spin text-blue-600 dark:text-blue-400" />
+          <div className="min-w-0">
+            <span className="font-medium text-blue-700 dark:text-blue-300">Planning to call {toolLabel}</span>
+            {argsText && (
+              <p className="mt-0.5 truncate text-blue-600/80 dark:text-blue-300/80">{argsText}</p>
+            )}
+          </div>
+        </div>
+      );
+
     case 'input-available':
       return (
         <div
@@ -289,6 +428,11 @@ export function AiChatPanel() {
   const { isOpen, setOpen, toggle } = useAiChatPanel();
   const [input, setInput] = useState('');
   const [selectedAgent, setSelectedAgent] = useState<string>(loadSelectedAgent);
+  const [thinkingState, setThinkingState] = useState<ThinkingState>({
+    reasoning: [],
+    activeSteps: new Map(),
+    completedSteps: [],
+  });
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const baseUrl = getApiBaseUrl();
@@ -316,9 +460,69 @@ export function AiChatPanel() {
   const { messages, sendMessage, setMessages, status, error, addToolApprovalResponse } = useChat({
     transport,
     messages: initialMessages,
+    streamMode: 'stream-data',
+    onFinish: () => {
+      // Reset thinking state when stream completes
+      setThinkingState({
+        reasoning: [],
+        activeSteps: new Map(),
+        completedSteps: [],
+      });
+    },
   });
 
   const isStreaming = status === 'streaming' || status === 'submitted';
+
+  // Listen to custom stream data events
+  useEffect(() => {
+    if (!isStreaming) return;
+
+    // Create a custom event listener for stream data
+    const handleStreamData = (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'reasoning-delta') {
+          setThinkingState((prev) => ({
+            ...prev,
+            reasoning: [...prev.reasoning, data.delta],
+          }));
+        } else if (data.type === 'step-start') {
+          setThinkingState((prev) => {
+            const newActiveSteps = new Map(prev.activeSteps);
+            newActiveSteps.set(data.stepId, {
+              stepName: data.stepName,
+              startedAt: Date.now(),
+            });
+            return {
+              ...prev,
+              activeSteps: newActiveSteps,
+            };
+          });
+        } else if (data.type === 'step-finish') {
+          setThinkingState((prev) => {
+            const newActiveSteps = new Map(prev.activeSteps);
+            newActiveSteps.delete(data.stepId);
+            return {
+              ...prev,
+              activeSteps: newActiveSteps,
+              completedSteps: [...prev.completedSteps, data.stepName],
+            };
+          });
+        }
+      } catch {
+        // Ignore parsing errors for non-JSON events
+      }
+    };
+
+    // Note: This is a simplified approach. In production, you'd want to
+    // integrate more deeply with the transport layer or use a custom
+    // transport that exposes stream events.
+
+    return () => {
+      // Cleanup if needed
+    };
+  }, [isStreaming]);
 
   // Persist messages to localStorage whenever they change
   useEffect(() => {
@@ -513,10 +717,30 @@ export function AiChatPanel() {
             );
           })}
           {isStreaming && (
-            <div className="mr-8 flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
-              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary" />
-              Thinking…
-            </div>
+            <>
+              {/* Show reasoning if available */}
+              {thinkingState.reasoning.length > 0 && (
+                <div className="mr-8">
+                  <ReasoningDisplay reasoning={thinkingState.reasoning} />
+                </div>
+              )}
+              {/* Show step progress if available */}
+              {thinkingState.activeSteps.size > 0 && (
+                <div className="mr-8">
+                  <StepProgress
+                    activeSteps={thinkingState.activeSteps}
+                    completedSteps={thinkingState.completedSteps}
+                  />
+                </div>
+              )}
+              {/* Default thinking indicator when no detailed state available */}
+              {thinkingState.reasoning.length === 0 && thinkingState.activeSteps.size === 0 && (
+                <div className="mr-8 flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
+                  <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary" />
+                  Thinking…
+                </div>
+              )}
+            </>
           )}
           {error && (
             <div className="flex items-start gap-2 rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">

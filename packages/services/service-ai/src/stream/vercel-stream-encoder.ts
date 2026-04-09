@@ -71,8 +71,33 @@ export function encodeStreamPart(part: TextStreamPart<ToolSet>): string {
         errorText: String(part.error),
       });
 
+    // Handle reasoning/thinking streams (DeepSeek R1, o1-style models)
+    case 'reasoning-start':
+      return sse({
+        type: 'reasoning-start',
+        id: part.id,
+      });
+
+    case 'reasoning-delta':
+      return sse({
+        type: 'reasoning-delta',
+        id: part.id,
+        delta: part.text,
+      });
+
+    case 'reasoning-end':
+      return sse({
+        type: 'reasoning-end',
+        id: part.id,
+      });
+
     // finish-step and finish are handled by the generator, not here
     default:
+      // Pass through any unknown event types that might be custom
+      // (e.g., step-start, step-finish from custom providers)
+      if ((part as any).type?.startsWith('step-')) {
+        return sse(part as any);
+      }
       return '';
   }
 }
