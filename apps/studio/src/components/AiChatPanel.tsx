@@ -35,38 +35,6 @@ interface AgentSummary {
 }
 
 /**
- * Extended stream event types for reasoning and steps.
- * These extend the standard Vercel AI SDK stream events.
- */
-interface ReasoningStartEvent {
-  type: 'reasoning-start';
-  id: string;
-}
-
-interface ReasoningDeltaEvent {
-  type: 'reasoning-delta';
-  id: string;
-  delta: string;
-}
-
-interface ReasoningEndEvent {
-  type: 'reasoning-end';
-  id: string;
-}
-
-interface StepStartEvent {
-  type: 'step-start';
-  stepId: string;
-  stepName: string;
-}
-
-interface StepFinishEvent {
-  type: 'step-finish';
-  stepId: string;
-  stepName: string;
-}
-
-/**
  * Track active thinking/reasoning state during streaming.
  */
 interface ThinkingState {
@@ -457,10 +425,9 @@ export function AiChatPanel() {
     [baseUrl, selectedAgent],
   );
 
-  const { messages, sendMessage, setMessages, status, error, addToolApprovalResponse, data } = useChat({
+  const { messages, sendMessage, setMessages, status, error, addToolApprovalResponse } = useChat({
     transport,
     messages: initialMessages,
-    streamMode: 'stream-data',
     onFinish: () => {
       // Reset thinking state when stream completes
       setThinkingState({
@@ -473,42 +440,34 @@ export function AiChatPanel() {
 
   const isStreaming = status === 'streaming' || status === 'submitted';
 
-  // Process stream data events for reasoning and step progress
+  // Extract reasoning and step progress from the latest assistant message parts
   useEffect(() => {
-    if (!data || data.length === 0) return;
+    if (!isStreaming || messages.length === 0) return;
 
-    // Process each data event from the stream
-    data.forEach((event: any) => {
-      if (event.type === 'reasoning-delta') {
-        setThinkingState((prev) => ({
-          ...prev,
-          reasoning: [...prev.reasoning, event.delta],
-        }));
-      } else if (event.type === 'step-start') {
-        setThinkingState((prev) => {
-          const newActiveSteps = new Map(prev.activeSteps);
-          newActiveSteps.set(event.stepId, {
-            stepName: event.stepName,
-            startedAt: Date.now(),
-          });
-          return {
-            ...prev,
-            activeSteps: newActiveSteps,
-          };
+    // Get the latest message
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage.role !== 'assistant') return;
+
+    // Process message parts for reasoning and steps
+    const reasoning: string[] = [];
+    const activeSteps = new Map<string, { stepName: string; startedAt: number }>();
+    const completedSteps: string[] = [];
+
+    (lastMessage.parts || []).forEach((part: any) => {
+      if (part.type === 'reasoning-delta' || part.type === 'reasoning') {
+        reasoning.push(part.text);
+      } else if (part.type === 'step-start') {
+        activeSteps.set(part.stepId, {
+          stepName: part.stepName,
+          startedAt: Date.now(),
         });
-      } else if (event.type === 'step-finish') {
-        setThinkingState((prev) => {
-          const newActiveSteps = new Map(prev.activeSteps);
-          newActiveSteps.delete(event.stepId);
-          return {
-            ...prev,
-            activeSteps: newActiveSteps,
-            completedSteps: [...prev.completedSteps, event.stepName],
-          };
-        });
+      } else if (part.type === 'step-finish') {
+        completedSteps.push(part.stepName);
       }
     });
-  }, [data]);
+
+    setThinkingState({ reasoning, activeSteps, completedSteps });
+  }, [messages, isStreaming]);
 
   // Persist messages to localStorage whenever they change
   useEffect(() => {
