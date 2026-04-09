@@ -185,11 +185,10 @@ export function createBrokerShim(kernel: any): BrokerShim {
                     // Combine types from both SchemaRegistry (static) and MetadataService (runtime)
                     const schemaTypes = SchemaRegistry.getRegisteredTypes();
 
-                    // MetadataService exposes types through its internal registry
-                    // Access via the manager's registry property if available
+                    // MetadataService exposes types through getRegisteredTypes() method
                     let runtimeTypes: string[] = [];
-                    if (metadataService && (metadataService as any).registry) {
-                        runtimeTypes = Array.from((metadataService as any).registry.keys());
+                    if (metadataService && typeof metadataService.getRegisteredTypes === 'function') {
+                        runtimeTypes = await metadataService.getRegisteredTypes();
                     }
 
                     // Merge and deduplicate
