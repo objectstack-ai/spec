@@ -32,6 +32,7 @@ import {
   UserCog,
   ChevronRight,
   Settings,
+  Wrench,
   type LucideIcon,
 } from "lucide-react"
 import { useState, useEffect, useCallback, useMemo } from "react"
@@ -94,7 +95,11 @@ const META_TYPE_HINTS: Record<string, { label: string; icon: LucideIcon }> = {
   profiles:       { label: 'Profiles',        icon: Shield },
   sharingRules:   { label: 'Sharing Rules',   icon: Shield },
   policies:       { label: 'Policies',        icon: Shield },
+  agent:          { label: 'Agents',          icon: Bot },
   agents:         { label: 'Agents',          icon: Bot },
+  tool:           { label: 'Tools',           icon: Wrench },
+  tools:          { label: 'Tools',           icon: Wrench },
+  ragPipeline:    { label: 'RAG Pipelines',   icon: BookOpen },
   ragPipelines:   { label: 'RAG Pipelines',   icon: BookOpen },
   apis:           { label: 'APIs',            icon: Globe },
   connectors:     { label: 'Connectors',      icon: Link2 },
@@ -123,7 +128,7 @@ const PROTOCOL_GROUPS: ProtocolGroup[] = [
   { key: 'ui',         label: 'UI',         icon: AppWindow,  types: ['app', 'apps', 'actions', 'views', 'pages', 'dashboards', 'reports', 'themes'] },
   { key: 'automation', label: 'Automation', icon: Workflow,   types: ['flows', 'workflows', 'approvals', 'webhooks'] },
   { key: 'security',   label: 'Security',   icon: Shield,     types: ['roles', 'permissions', 'profiles', 'sharingRules', 'policies'] },
-  { key: 'ai',         label: 'AI',         icon: Bot,        types: ['agents', 'ragPipelines'] },
+  { key: 'ai',         label: 'AI',         icon: Bot,        types: ['agent', 'tool', 'ragPipeline'] },
   { key: 'api',        label: 'API',        icon: Globe,      types: ['apis', 'connectors'] },
 ];
 
