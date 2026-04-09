@@ -365,6 +365,9 @@ export class ObjectQLPlugin implements Plugin {
    * This closes the persistence loop so that user-created schemas survive
    * kernel cold starts and redeployments.
    *
+   * Also registers loaded objects with the metadata service so they are
+   * visible to tools like AI chat that query the metadata service.
+   *
    * Gracefully degrades when:
    * - The protocol service is unavailable (e.g., in-memory-only mode).
    * - `loadMetaFromDb` is not implemented by the protocol shim.
@@ -387,14 +390,51 @@ export class ObjectQLPlugin implements Plugin {
       return;
     }
 
-    // Phase 2: DB hydration
+    // Phase 2: DB hydration (loads into SchemaRegistry)
     try {
       const { loaded, errors } = await protocol.loadMetaFromDb();
 
       if (loaded > 0 || errors > 0) {
-        ctx.logger.info('Metadata restored from database', { loaded, errors });
+        ctx.logger.info('Metadata restored from database to SchemaRegistry', { loaded, errors });
       } else {
         ctx.logger.debug('No persisted metadata found in database');
+        return;
+      }
+
+      // Phase 3: Bridge SchemaRegistry objects to metadata service
+      // This ensures objects loaded from sys_metadata are visible to AI tools and other
+      // consumers that query via IMetadataService.listObjects()
+      if (loaded > 0) {
+        try {
+          const metadataService = ctx.getService<any>('metadata');
+          if (metadataService && typeof metadataService.register === 'function' && this.ql?.registry) {
+            const objects = this.ql.registry.getAllObjects();
+            let bridged = 0;
+            for (const obj of objects) {
+              try {
+                // Check if object is already in metadata service to avoid duplicates
+                const existing = await metadataService.getObject(obj.name);
+                if (!existing) {
+                  // Register object that exists in SchemaRegistry but not in metadata service
+                  await metadataService.register('object', obj.name, obj);
+                  bridged++;
+                }
+              } catch (e: unknown) {
+                ctx.logger.debug('Failed to bridge object to metadata service', {
+                  object: obj.name,
+                  error: e instanceof Error ? e.message : String(e),
+                });
+              }
+            }
+            if (bridged > 0) {
+              ctx.logger.info('Bridged objects from SchemaRegistry to metadata service', { count: bridged });
+            }
+          }
+        } catch (e: unknown) {
+          ctx.logger.debug('Metadata service unavailable for bridging, skipping', {
+            error: e instanceof Error ? e.message : String(e),
+          });
+        }
       }
     } catch (e: unknown) {
       // Non-fatal: first-run or in-memory driver may not have sys_metadata yet
