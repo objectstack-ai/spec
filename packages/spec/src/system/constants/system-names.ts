@@ -42,6 +42,8 @@ export const SystemObjectName = {
   API_KEY: 'sys_api_key',
   /** Authentication: two-factor authentication credentials */
   TWO_FACTOR: 'sys_two_factor',
+  /** Authentication: user preferences (theme, locale, etc.) */
+  USER_PREFERENCE: 'sys_user_preference',
   /** Security: role definition for RBAC */
   ROLE: 'sys_role',
   /** Security: permission set grouping */

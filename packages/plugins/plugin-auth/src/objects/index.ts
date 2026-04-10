@@ -27,6 +27,7 @@ export { SysTeamMember } from './sys-team-member.object.js';
 // ── Additional Auth Objects ────────────────────────────────────────────────
 export { SysApiKey } from './sys-api-key.object.js';
 export { SysTwoFactor } from './sys-two-factor.object.js';
+export { SysUserPreference } from './sys-user-preference.object.js';
 
 // ── Backward Compatibility (deprecated) ────────────────────────────────────
 /** @deprecated Use `SysUser` instead */
