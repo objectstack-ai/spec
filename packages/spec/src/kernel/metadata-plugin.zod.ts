@@ -52,6 +52,20 @@ import { MergeStrategyConfigSchema, CustomizationPolicySchema } from './metadata
  * The canonical list of all metadata types managed by the platform.
  * Each type maps to a specific Zod schema (e.g., ObjectSchema, ViewSchema).
  * Plugins can extend this registry via `contributes.kinds` in the manifest.
+ *
+ * ## Naming Convention
+ * **IMPORTANT:** All metadata type names are in **SINGULAR** form:
+ * - ✅ Use: `'agent'`, `'tool'`, `'skill'`, `'view'`, `'flow'`, `'action'`
+ * - ❌ NOT: `'agents'`, `'tools'`, `'skills'`, `'views'`, `'flows'`, `'actions'`
+ *
+ * This convention applies to:
+ * - Protocol definitions (this enum)
+ * - UI plugin registrations (`metadataTypes`, `metadataIcons`)
+ * - Metadata service operations
+ * - File patterns (`*.agent.ts`, `*.tool.ts`)
+ *
+ * REST API endpoints continue to use plural forms per REST conventions:
+ * - `/api/v1/ai/agents`, `/api/v1/ai/conversations`
  */
 export const MetadataTypeSchema = z.enum([
   // Data Protocol

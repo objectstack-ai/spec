@@ -15,6 +15,8 @@
 3. **Naming Convention:**
     - **Configuration Keys (TS Props):** `camelCase` — e.g., `maxLength`, `referenceFilters`, `defaultValue`.
     - **Machine Names (Data Values):** `snake_case` — e.g., `name: 'first_name'`, `object: 'project_task'`.
+    - **Metadata Type Names:** `singular` — e.g., `'agent'`, `'tool'`, `'view'`, `'flow'` (NOT `'agents'`, `'tools'`, `'views'`, `'flows'`). This aligns with the canonical `MetadataTypeSchema` enum in `packages/spec/src/kernel/metadata-plugin.zod.ts`.
+    - **REST API Endpoints:** `plural` — e.g., `/api/v1/ai/agents`, `/api/v1/ai/conversations` (per REST convention for resource collections).
 4. **Namespace Imports:** Use `import { Data, UI, System } from '@objectstack/spec'` or subpath `import { Field } from '@objectstack/spec/data'`. Never use relative paths like `../../packages/spec`.
 5. **Best Practice Mandate:**
     - Benchmark against industry leaders (Salesforce, ServiceNow, Kubernetes) for structural decisions.
