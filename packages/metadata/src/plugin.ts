@@ -125,5 +125,20 @@ export class MetadataPlugin implements Plugin {
                 error: e.message,
             });
         }
+
+        // Bridge realtime service from kernel service registry to MetadataManager.
+        // RealtimeServicePlugin registers as 'realtime' service during init().
+        // This enables MetadataManager to publish metadata change events.
+        try {
+            const realtimeService = ctx.getService('realtime');
+            if (realtimeService) {
+                ctx.logger.info('[MetadataPlugin] Bridging realtime service to MetadataManager for event publishing');
+                this.manager.setRealtimeService(realtimeService);
+            }
+        } catch (e: any) {
+            ctx.logger.debug('[MetadataPlugin] No realtime service found — metadata events will not be published', {
+                error: e.message,
+            });
+        }
     }
 }

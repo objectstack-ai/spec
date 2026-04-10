@@ -28,6 +28,8 @@ import type {
   MetadataImportOptions,
   MetadataImportResult,
   MetadataTypeInfo,
+  IRealtimeService,
+  RealtimeEventPayload,
 } from '@objectstack/spec/contracts';
 import type {
   MetadataQuery,
@@ -82,6 +84,9 @@ export class MetadataManager implements IMetadataService {
 
   // Dependency tracking: "type:name" -> dependencies
   private dependencies = new Map<string, MetadataDependency[]>();
+
+  // Realtime service for event publishing
+  private realtimeService?: IRealtimeService;
 
   constructor(config: MetadataManagerOptions) {
     this.config = config;
@@ -140,6 +145,17 @@ export class MetadataManager implements IMetadataService {
   }
 
   /**
+   * Set the realtime service for publishing metadata change events.
+   * Should be called after kernel resolves the realtime service.
+   *
+   * @param service - An IRealtimeService instance for event publishing
+   */
+  setRealtimeService(service: IRealtimeService): void {
+    this.realtimeService = service;
+    this.logger.info('RealtimeService configured for metadata events');
+  }
+
+  /**
    * Register a new metadata loader (data source)
    */
   registerLoader(loader: MetadataLoader) {
@@ -169,6 +185,28 @@ export class MetadataManager implements IMetadataService {
     for (const loader of this.loaders.values()) {
       if (loader.save && loader.contract.protocol === 'datasource:' && loader.contract.capabilities.write) {
         await loader.save(type, name, data);
+      }
+    }
+
+    // Publish metadata.{type}.created event to realtime service
+    if (this.realtimeService) {
+      const event: RealtimeEventPayload = {
+        type: `metadata.${type}.created`,
+        object: type,
+        payload: {
+          metadataType: type,
+          name,
+          definition: data,
+          packageId: (data as any)?.packageId,
+        },
+        timestamp: new Date().toISOString(),
+      };
+
+      try {
+        await this.realtimeService.publish(event);
+        this.logger.debug(`Published metadata.${type}.created event`, { name });
+      } catch (error) {
+        this.logger.warn(`Failed to publish metadata event`, { type, name, error });
       }
     }
   }
@@ -244,6 +282,26 @@ export class MetadataManager implements IMetadataService {
         } catch (error) {
           this.logger.warn(`Failed to delete ${type}/${name} from loader ${loader.contract.name}`, { error });
         }
+      }
+    }
+
+    // Publish metadata.{type}.deleted event to realtime service
+    if (this.realtimeService) {
+      const event: RealtimeEventPayload = {
+        type: `metadata.${type}.deleted`,
+        object: type,
+        payload: {
+          metadataType: type,
+          name,
+        },
+        timestamp: new Date().toISOString(),
+      };
+
+      try {
+        await this.realtimeService.publish(event);
+        this.logger.debug(`Published metadata.${type}.deleted event`, { name });
+      } catch (error) {
+        this.logger.warn(`Failed to publish metadata event`, { type, name, error });
       }
     }
   }
