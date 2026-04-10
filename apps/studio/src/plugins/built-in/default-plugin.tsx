@@ -20,20 +20,14 @@ import type { StudioPlugin, MetadataViewerProps } from '../types';
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 
-/** Map Studio metadataType (often plural) to CodeExporter's ExportType (singular). */
+/** Map Studio metadataType to CodeExporter's ExportType (all now use singular). */
 const METADATA_TO_EXPORT_TYPE: Record<string, CodeExporterProps['type']> = {
   object: 'object',
-  objects: 'object',
   view: 'view',
-  views: 'view',
   flow: 'flow',
-  flows: 'flow',
   agent: 'agent',
-  agents: 'agent',
   tool: 'tool',
-  tools: 'tool',
   app: 'app',
-  apps: 'app',
 };
 
 // ─── Preview Viewer (JSON Inspector) ─────────────────────────────────

@@ -23,23 +23,23 @@ export const automationProtocolPlugin: StudioPlugin = {
           key: 'automation',
           label: 'Automation',
           icon: 'workflow',
-          metadataTypes: ['flows', 'workflows', 'approvals', 'webhooks'],
+          metadataTypes: ['flow', 'workflow', 'approval', 'webhook'],
           order: 30,
         },
       ],
       metadataIcons: [
-        { metadataType: 'flows', label: 'Flows', icon: 'workflow' },
-        { metadataType: 'workflows', label: 'Workflows', icon: 'workflow' },
-        { metadataType: 'approvals', label: 'Approvals', icon: 'check-square' },
-        { metadataType: 'webhooks', label: 'Webhooks', icon: 'webhook' },
+        { metadataType: 'flow', label: 'Flows', icon: 'workflow' },
+        { metadataType: 'workflow', label: 'Workflows', icon: 'workflow' },
+        { metadataType: 'approval', label: 'Approvals', icon: 'check-square' },
+        { metadataType: 'webhook', label: 'Webhooks', icon: 'webhook' },
       ],
     },
   }),
 
   activate(api) {
-    api.registerMetadataIcon('flows', Workflow, 'Flows');
-    api.registerMetadataIcon('workflows', Workflow, 'Workflows');
-    api.registerMetadataIcon('approvals', CheckSquare, 'Approvals');
-    api.registerMetadataIcon('webhooks', Webhook, 'Webhooks');
+    api.registerMetadataIcon('flow', Workflow, 'Flows');
+    api.registerMetadataIcon('workflow', Workflow, 'Workflows');
+    api.registerMetadataIcon('approval', CheckSquare, 'Approvals');
+    api.registerMetadataIcon('webhook', Webhook, 'Webhooks');
   },
 };
