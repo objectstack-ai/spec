@@ -46,10 +46,9 @@ export class UserPreferencesServicePlugin implements Plugin {
 
   private preferencesService?: IUserPreferencesService;
   private favoritesService?: IUserFavoritesService;
-  private readonly options: UserPreferencesServicePluginOptions;
 
-  constructor(options: UserPreferencesServicePluginOptions = {}) {
-    this.options = options;
+  constructor(_options: UserPreferencesServicePluginOptions = {}) {
+    // Reserved for future use
   }
 
   async init(ctx: PluginContext): Promise<void> {

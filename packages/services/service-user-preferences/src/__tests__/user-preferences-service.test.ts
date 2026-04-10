@@ -100,12 +100,8 @@ function createMemoryEngine(): IDataEngine {
       let deleted = 0;
       const multi = (options as any)?.multi ?? false;
       for (let i = table.length - 1; i >= 0; i--) {
-        if (where) {
-          let match = true;
-          for (const [key, value] of Object.entries(where)) {
-            if (table[i][key] !== value) { match = false; break; }
-          }
-          if (!match) continue;
+        if (where && !matchesCondition(table[i], where)) {
+          continue;
         }
         table.splice(i, 1);
         deleted++;

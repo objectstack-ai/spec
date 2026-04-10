@@ -196,6 +196,9 @@ importers:
       '@objectstack/service-feed':
         specifier: workspace:*
         version: link:../../packages/services/service-feed
+      '@objectstack/service-user-preferences':
+        specifier: workspace:*
+        version: link:../../packages/services/service-user-preferences
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec
@@ -1263,6 +1266,25 @@ importers:
         version: 4.1.2(@opentelemetry/api@1.9.0)(@types/node@25.5.2)(happy-dom@20.8.9)(msw@2.12.14(@types/node@25.5.2)(typescript@6.0.2))(vite@8.0.5(@types/node@25.5.2)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/services/service-storage:
+    dependencies:
+      '@objectstack/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../../spec
+    devDependencies:
+      '@types/node':
+        specifier: ^25.5.2
+        version: 25.5.2
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.2
+      vitest:
+        specifier: ^4.1.2
+        version: 4.1.2(@opentelemetry/api@1.9.0)(@types/node@25.5.2)(happy-dom@20.8.9)(msw@2.12.14(@types/node@25.5.2)(typescript@6.0.2))(vite@8.0.5(@types/node@25.5.2)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/services/service-user-preferences:
     dependencies:
       '@objectstack/core':
         specifier: workspace:*
@@ -10205,7 +10227,7 @@ snapshots:
     dependencies:
       chokidar: 4.0.3
       confbox: 0.2.4
-      defu: 6.1.4
+      defu: 6.1.6
       dotenv: 16.6.1
       exsolve: 1.0.8
       giget: 2.0.0
@@ -11098,7 +11120,7 @@ snapshots:
     dependencies:
       citty: 0.1.6
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.6
       node-fetch-native: 1.6.7
       nypm: 0.6.5
       pathe: 2.0.3
@@ -12759,7 +12781,7 @@ snapshots:
 
   rc9@2.1.2:
     dependencies:
-      defu: 6.1.4
+      defu: 6.1.6
       destr: 2.0.5
     optional: true
 

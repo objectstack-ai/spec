@@ -223,7 +223,7 @@ export class ObjectQLUserPreferencesService implements IUserPreferencesService {
       userId: row.user_id,
       key: row.key,
       value: row.value !== null ? this.deserializeValue(row.value) : null,
-      valueType: row.value_type ?? undefined,
+      valueType: (row.value_type as 'string' | 'number' | 'boolean' | 'object' | 'array' | 'null') ?? undefined,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     }));

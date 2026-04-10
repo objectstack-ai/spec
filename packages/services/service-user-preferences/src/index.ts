@@ -25,7 +25,7 @@
  * ```
  */
 
-export * from './plugin';
-export * from './adapters';
-export * from './objects';
-export * from './routes';
+export * from './plugin.js';
+export * from './adapters/index.js';
+export * from './objects/index.js';
+export * from './routes/index.js';
