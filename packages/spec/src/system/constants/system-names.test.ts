@@ -22,6 +22,7 @@ describe('SystemObjectName', () => {
     expect(SystemObjectName.TEAM_MEMBER).toBe('sys_team_member');
     expect(SystemObjectName.API_KEY).toBe('sys_api_key');
     expect(SystemObjectName.TWO_FACTOR).toBe('sys_two_factor');
+    expect(SystemObjectName.USER_PREFERENCE).toBe('sys_user_preference');
     expect(SystemObjectName.ROLE).toBe('sys_role');
     expect(SystemObjectName.PERMISSION_SET).toBe('sys_permission_set');
     expect(SystemObjectName.AUDIT_LOG).toBe('sys_audit_log');
@@ -54,6 +55,7 @@ describe('SystemObjectName', () => {
     expect(keys).toContain('TEAM_MEMBER');
     expect(keys).toContain('API_KEY');
     expect(keys).toContain('TWO_FACTOR');
+    expect(keys).toContain('USER_PREFERENCE');
     expect(keys).toContain('ROLE');
     expect(keys).toContain('PERMISSION_SET');
     expect(keys).toContain('AUDIT_LOG');

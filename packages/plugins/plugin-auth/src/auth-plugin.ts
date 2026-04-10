@@ -7,7 +7,7 @@ import {
   SysUser, SysSession, SysAccount, SysVerification,
   SysOrganization, SysMember, SysInvitation,
   SysTeam, SysTeamMember,
-  SysApiKey, SysTwoFactor,
+  SysApiKey, SysTwoFactor, SysUserPreference,
 } from './objects/index.js';
 
 /**
@@ -107,7 +107,7 @@ export class AuthPlugin implements Plugin {
         SysUser, SysSession, SysAccount, SysVerification,
         SysOrganization, SysMember, SysInvitation,
         SysTeam, SysTeamMember,
-        SysApiKey, SysTwoFactor,
+        SysApiKey, SysTwoFactor, SysUserPreference,
       ],
     });
 
