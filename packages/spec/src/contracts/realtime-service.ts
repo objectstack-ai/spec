@@ -44,6 +44,22 @@ export interface RealtimeSubscriptionOptions {
     filter?: Record<string, unknown>;
 }
 
+/**
+ * Enhanced subscription filter for metadata and data events
+ */
+export interface RealtimeSubscriptionFilter {
+    /** Metadata type filter (object, view, agent, tool, etc.) */
+    type?: string;
+    /** Package ID filter */
+    packageId?: string;
+    /** Event types to listen for */
+    eventTypes?: string[];
+    /** Record ID filter (for data events) */
+    recordId?: string;
+    /** Field names filter (for data events) */
+    fields?: string[];
+}
+
 export interface IRealtimeService {
     /**
      * Publish an event to all subscribers
@@ -72,4 +88,20 @@ export interface IRealtimeService {
      * @returns Standard Response object
      */
     handleUpgrade?(request: Request): Promise<Response>;
+
+    /**
+     * Subscribe to metadata events (convenience method)
+     * @param filter - Subscription filter
+     * @param handler - Event handler function
+     * @returns Subscription identifier for unsubscribing
+     */
+    subscribeMetadata?(filter: RealtimeSubscriptionFilter, handler: RealtimeEventHandler): Promise<string>;
+
+    /**
+     * Subscribe to data events (convenience method)
+     * @param filter - Subscription filter
+     * @param handler - Event handler function
+     * @returns Subscription identifier for unsubscribing
+     */
+    subscribeData?(filter: RealtimeSubscriptionFilter, handler: RealtimeEventHandler): Promise<string>;
 }
