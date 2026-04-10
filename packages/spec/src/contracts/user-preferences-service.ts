@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import type { UserPreferenceEntry, FavoriteEntry, FavoritesValue, RecentItemsValue } from '../identity/user-preference.zod';
+import type { UserPreferenceEntry, FavoriteEntry } from '../identity/user-preference.zod';
 
 /**
  * IUserPreferencesService — User Preferences Service Contract
@@ -24,7 +24,7 @@ import type { UserPreferenceEntry, FavoriteEntry, FavoritesValue, RecentItemsVal
  * await prefs.set('user123', 'theme', 'light');
  *
  * // Get structured data (favorites)
- * const favorites = await prefs.get<FavoritesValue>('user123', 'favorites');
+ * const favorites = await prefs.get<FavoriteEntry[]>('user123', 'favorites');
  *
  * // Set multiple preferences at once
  * await prefs.setMany('user123', {
