@@ -5,6 +5,18 @@ import type { AIService } from '../ai-service.js';
 import type { RouteDefinition } from './ai-routes.js';
 
 /**
+ * Extract string value from tool execution result output.
+ */
+function extractOutputValue(output: any): string {
+  if (!output) return '';
+  if (typeof output === 'string') return output;
+  if (typeof output === 'object' && 'value' in output) {
+    return String(output.value ?? '');
+  }
+  return JSON.stringify(output);
+}
+
+/**
  * Build tool-specific REST routes.
  *
  * | Method | Path | Description |
@@ -75,39 +87,44 @@ export function buildToolRoutes(
         }
 
         try {
-          // Look up the tool
-          const tool = aiService.toolRegistry.get(toolName);
-          if (!tool) {
+          // Check if tool exists
+          if (!aiService.toolRegistry.has(toolName)) {
             return { status: 404, body: { error: `Tool "${toolName}" not found` } };
           }
 
-          // Execute the tool
+          // Execute the tool using ToolRegistry's execute method
           const startTime = Date.now();
-          let result: any;
 
-          try {
-            result = await tool.handler(parameters);
-          } catch (err) {
-            const duration = Date.now() - startTime;
+          const toolCallPart = {
+            type: 'tool-call' as const,
+            toolCallId: `playground-${Date.now()}`,
+            toolName,
+            input: parameters,
+          };
+
+          const result = await aiService.toolRegistry.execute(toolCallPart);
+          const duration = Date.now() - startTime;
+
+          // Check if execution resulted in an error
+          if (result.isError) {
+            const errorMsg = extractOutputValue(result.output);
             logger.error(
               `[AI Route] Tool execution error: ${toolName}`,
-              err instanceof Error ? err : undefined,
+              new Error(errorMsg),
             );
             return {
               status: 500,
               body: {
-                error: err instanceof Error ? err.message : 'Tool execution failed',
+                error: errorMsg,
                 duration,
               },
             };
           }
 
-          const duration = Date.now() - startTime;
-
           return {
             status: 200,
             body: {
-              result,
+              result: extractOutputValue(result.output),
               duration,
               toolName,
             },

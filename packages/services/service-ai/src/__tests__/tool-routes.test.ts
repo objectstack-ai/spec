@@ -27,20 +27,22 @@ describe('Tool Routes', () => {
     });
 
     // Register a test tool
-    aiService.toolRegistry.register({
-      name: 'test_tool',
-      description: 'A test tool for playground',
-      parameters: {
-        type: 'object',
-        properties: {
-          message: { type: 'string' },
+    aiService.toolRegistry.register(
+      {
+        name: 'test_tool',
+        description: 'A test tool for playground',
+        parameters: {
+          type: 'object',
+          properties: {
+            message: { type: 'string' },
+          },
+          required: ['message'],
         },
-        required: ['message'],
       },
-      handler: async (params: any) => {
-        return { echo: params.message };
-      },
-    });
+      async (params: any) => {
+        return JSON.stringify({ echo: params.message });
+      }
+    );
 
     routes = buildToolRoutes(aiService, silentLogger);
   });
@@ -83,7 +85,8 @@ describe('Tool Routes', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('result');
-      expect((response.body as any).result).toEqual({ echo: 'Hello, Playground!' });
+      // Result is a JSON string from the handler
+      expect((response.body as any).result).toBe('{"echo":"Hello, Playground!"}');
       expect((response.body as any).toolName).toBe('test_tool');
       expect((response.body as any).duration).toBeTypeOf('number');
     });
@@ -135,14 +138,16 @@ describe('Tool Routes', () => {
 
     it('should handle tool execution errors', async () => {
       // Register a tool that throws an error
-      aiService.toolRegistry.register({
-        name: 'error_tool',
-        description: 'A tool that throws an error',
-        parameters: { type: 'object', properties: {} },
-        handler: async () => {
-          throw new Error('Tool execution failed');
+      aiService.toolRegistry.register(
+        {
+          name: 'error_tool',
+          description: 'A tool that throws an error',
+          parameters: { type: 'object', properties: {} },
         },
-      });
+        async () => {
+          throw new Error('Tool execution failed');
+        }
+      );
 
       const executeRoute = routes.find(
         r => r.method === 'POST' && r.path === '/api/v1/ai/tools/:toolName/execute'
