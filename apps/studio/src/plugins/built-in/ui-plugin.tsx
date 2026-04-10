@@ -25,27 +25,27 @@ export const uiProtocolPlugin: StudioPlugin = {
           key: 'ui',
           label: 'UI',
           icon: 'app-window',
-          metadataTypes: ['actions', 'views', 'pages', 'dashboards', 'reports', 'themes'],
+          metadataTypes: ['action', 'view', 'page', 'dashboard', 'report', 'theme'],
           order: 20,
         },
       ],
       metadataIcons: [
-        { metadataType: 'actions', label: 'Actions', icon: 'zap' },
-        { metadataType: 'views', label: 'Views', icon: 'eye' },
-        { metadataType: 'pages', label: 'Pages', icon: 'file-code' },
-        { metadataType: 'dashboards', label: 'Dashboards', icon: 'bar-chart-3' },
-        { metadataType: 'reports', label: 'Reports', icon: 'file-text' },
-        { metadataType: 'themes', label: 'Themes', icon: 'palette' },
+        { metadataType: 'action', label: 'Actions', icon: 'zap' },
+        { metadataType: 'view', label: 'Views', icon: 'eye' },
+        { metadataType: 'page', label: 'Pages', icon: 'file-code' },
+        { metadataType: 'dashboard', label: 'Dashboards', icon: 'bar-chart-3' },
+        { metadataType: 'report', label: 'Reports', icon: 'file-text' },
+        { metadataType: 'theme', label: 'Themes', icon: 'palette' },
       ],
     },
   }),
 
   activate(api) {
-    api.registerMetadataIcon('actions', Zap, 'Actions');
-    api.registerMetadataIcon('views', Eye, 'Views');
-    api.registerMetadataIcon('pages', FileCode, 'Pages');
-    api.registerMetadataIcon('dashboards', BarChart3, 'Dashboards');
-    api.registerMetadataIcon('reports', FileText, 'Reports');
-    api.registerMetadataIcon('themes', Palette, 'Themes');
+    api.registerMetadataIcon('action', Zap, 'Actions');
+    api.registerMetadataIcon('view', Eye, 'Views');
+    api.registerMetadataIcon('page', FileCode, 'Pages');
+    api.registerMetadataIcon('dashboard', BarChart3, 'Dashboards');
+    api.registerMetadataIcon('report', FileText, 'Reports');
+    api.registerMetadataIcon('theme', Palette, 'Themes');
   },
 };

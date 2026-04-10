@@ -32,7 +32,7 @@ export const objectDesignerPlugin: StudioPlugin = {
       metadataViewers: [
         {
           id: 'object-explorer',
-          metadataTypes: ['object', 'objects'],
+          metadataTypes: ['object'],
           label: 'Object Explorer',
           priority: 100,
           modes: ['preview', 'data', 'code'],
@@ -43,16 +43,15 @@ export const objectDesignerPlugin: StudioPlugin = {
           key: 'data',
           label: 'Data',
           icon: 'database',
-          metadataTypes: ['object', 'objects', 'hooks', 'mappings', 'analyticsCubes', 'data'],
+          metadataTypes: ['object', 'hook', 'mapping', 'analyticsCube', 'data'],
           order: 10,
         },
       ],
       metadataIcons: [
         { metadataType: 'object', label: 'Objects', icon: 'package' },
-        { metadataType: 'objects', label: 'Objects', icon: 'package' },
-        { metadataType: 'hooks', label: 'Hooks', icon: 'anchor' },
-        { metadataType: 'mappings', label: 'Mappings', icon: 'map' },
-        { metadataType: 'analyticsCubes', label: 'Analytics Cubes', icon: 'pie-chart' },
+        { metadataType: 'hook', label: 'Hooks', icon: 'anchor' },
+        { metadataType: 'mapping', label: 'Mappings', icon: 'map' },
+        { metadataType: 'analyticsCube', label: 'Analytics Cubes', icon: 'pie-chart' },
         { metadataType: 'data', label: 'Seed Data', icon: 'database' },
       ],
     },
@@ -64,10 +63,9 @@ export const objectDesignerPlugin: StudioPlugin = {
 
     // Register Lucide icons for metadata types
     api.registerMetadataIcon('object', Package, 'Objects');
-    api.registerMetadataIcon('objects', Package, 'Objects');
-    api.registerMetadataIcon('hooks', Anchor, 'Hooks');
-    api.registerMetadataIcon('mappings', Map, 'Mappings');
-    api.registerMetadataIcon('analyticsCubes', PieChart, 'Analytics Cubes');
+    api.registerMetadataIcon('hook', Anchor, 'Hooks');
+    api.registerMetadataIcon('mapping', Map, 'Mappings');
+    api.registerMetadataIcon('analyticsCube', PieChart, 'Analytics Cubes');
     api.registerMetadataIcon('data', Database, 'Seed Data');
   },
 };

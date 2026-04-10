@@ -23,19 +23,19 @@ export const apiProtocolPlugin: StudioPlugin = {
           key: 'api',
           label: 'API',
           icon: 'globe',
-          metadataTypes: ['apis', 'connectors'],
+          metadataTypes: ['api', 'connector'],
           order: 60,
         },
       ],
       metadataIcons: [
-        { metadataType: 'apis', label: 'APIs', icon: 'globe' },
-        { metadataType: 'connectors', label: 'Connectors', icon: 'link-2' },
+        { metadataType: 'api', label: 'APIs', icon: 'globe' },
+        { metadataType: 'connector', label: 'Connectors', icon: 'link-2' },
       ],
     },
   }),
 
   activate(api) {
-    api.registerMetadataIcon('apis', Globe, 'APIs');
-    api.registerMetadataIcon('connectors', Link2, 'Connectors');
+    api.registerMetadataIcon('api', Globe, 'APIs');
+    api.registerMetadataIcon('connector', Link2, 'Connectors');
   },
 };

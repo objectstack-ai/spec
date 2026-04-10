@@ -23,25 +23,25 @@ export const securityProtocolPlugin: StudioPlugin = {
           key: 'security',
           label: 'Security',
           icon: 'shield',
-          metadataTypes: ['roles', 'permissions', 'profiles', 'sharingRules', 'policies'],
+          metadataTypes: ['role', 'permission', 'profile', 'sharingRule', 'policy'],
           order: 40,
         },
       ],
       metadataIcons: [
-        { metadataType: 'roles', label: 'Roles', icon: 'user-cog' },
-        { metadataType: 'permissions', label: 'Permissions', icon: 'lock' },
-        { metadataType: 'profiles', label: 'Profiles', icon: 'shield' },
-        { metadataType: 'sharingRules', label: 'Sharing Rules', icon: 'shield' },
-        { metadataType: 'policies', label: 'Policies', icon: 'shield' },
+        { metadataType: 'role', label: 'Roles', icon: 'user-cog' },
+        { metadataType: 'permission', label: 'Permissions', icon: 'lock' },
+        { metadataType: 'profile', label: 'Profiles', icon: 'shield' },
+        { metadataType: 'sharingRule', label: 'Sharing Rules', icon: 'shield' },
+        { metadataType: 'policy', label: 'Policies', icon: 'shield' },
       ],
     },
   }),
 
   activate(api) {
-    api.registerMetadataIcon('roles', UserCog, 'Roles');
-    api.registerMetadataIcon('permissions', Lock, 'Permissions');
-    api.registerMetadataIcon('profiles', Shield, 'Profiles');
-    api.registerMetadataIcon('sharingRules', Shield, 'Sharing Rules');
-    api.registerMetadataIcon('policies', Shield, 'Policies');
+    api.registerMetadataIcon('role', UserCog, 'Roles');
+    api.registerMetadataIcon('permission', Lock, 'Permissions');
+    api.registerMetadataIcon('profile', Shield, 'Profiles');
+    api.registerMetadataIcon('sharingRule', Shield, 'Sharing Rules');
+    api.registerMetadataIcon('policy', Shield, 'Policies');
   },
 };
