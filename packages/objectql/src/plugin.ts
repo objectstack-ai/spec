@@ -73,15 +73,39 @@ export class ObjectQLPlugin implements Plugin {
 
     // Register Protocol Implementation
     // IMPORTANT: Use getKernel() to access services dynamically.
-    // ctx.getServices() returns a snapshot at call time, but we need
-    // live access to services that are registered after this plugin's init().
-    // MetadataPlugin and AIServicePlugin register after ObjectQLPlugin,
-    // so we must access kernel.context.getServices() at request time.
+    // We pass callbacks that invoke kernel methods at request time, ensuring
+    // we get live access to services registered after this plugin's init().
+    // MetadataPlugin and AIServicePlugin register after ObjectQLPlugin.
     const kernel = ctx.getKernel();
     const protocolShim = new ObjectStackProtocolImplementation(
       this.ql,
-      () => kernel.context?.getServices() ?? new Map(),
-      () => kernel.context?.getService('feed') as any
+      () => {
+        try {
+          // Get fresh services map at runtime by probing known service names
+          const services = new Map<string, any>();
+          const knownServices = ['data', 'metadata', 'ai', 'feed', 'cache', 'queue', 'manifest'];
+          for (const name of knownServices) {
+            try {
+              const service = kernel.getService(name);
+              if (service) {
+                services.set(name, service);
+              }
+            } catch {
+              // Service not available, skip
+            }
+          }
+          return services;
+        } catch {
+          return new Map();
+        }
+      },
+      () => {
+        try {
+          return kernel.getService('feed') as any;
+        } catch {
+          return undefined;
+        }
+      }
     );
 
     ctx.registerService('protocol', protocolShim);
