@@ -22,14 +22,14 @@
     "@objectstack/spec": "workspace:*"
   },
   "devDependencies": {
-    "@hono/node-server": "^1.19.12",
+    "@hono/node-server": "^1.19.14",
     "@objectstack/driver-memory": "workspace:*",
     "@objectstack/hono": "workspace:*",
     "@objectstack/objectql": "workspace:*",
     "@objectstack/plugin-hono-server": "workspace:*",
     "@objectstack/plugin-msw": "workspace:*",
     "@objectstack/runtime": "workspace:*",
-    "msw": "^2.12.14",
+    "msw": "^2.13.2",
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
   }

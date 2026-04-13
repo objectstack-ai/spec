@@ -33,7 +33,7 @@
     "@objectstack/core": "workspace:*",
     "@objectstack/driver-sql": "workspace:*",
     "@objectstack/spec": "workspace:*",
-    "better-sqlite3": "^12.8.0",
+    "better-sqlite3": "^12.9.0",
     "nanoid": "^5.1.7"
   },
   "devDependencies": {
