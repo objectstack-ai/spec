@@ -1,7 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import type { Automation } from '@objectstack/spec';
-type Flow = Automation.Flow;
+import type { Flow } from '@objectstack/spec/automation';
 
 /** Task Reminder Flow — scheduled flow to send reminders for upcoming tasks */
 export const TaskReminderFlow: Flow = {

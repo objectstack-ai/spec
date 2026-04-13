@@ -7,7 +7,7 @@ import * as objects from './src/objects';
 import * as actions from './src/actions';
 import * as dashboards from './src/dashboards';
 import * as reports from './src/reports';
-import * as flows from './src/flows';
+import { allFlows } from './src/flows';
 import * as apps from './src/apps';
 import * as translations from './src/translations';
 
@@ -59,7 +59,7 @@ export default defineStack({
   actions: Object.values(actions),
   dashboards: Object.values(dashboards),
   reports: Object.values(reports),
-  flows: Object.values(flows) as any,
+  flows: allFlows,
   apps: Object.values(apps),
 
   // I18n Configuration — per-locale file organization

@@ -24,8 +24,9 @@ const authPlugin = new AuthPlugin({
 
 export default defineStack({
   manifest: {
-    id: 'app-host',
-    name: 'app_host',
+    id: 'com.example.host',
+    namespace: 'host',
+    name: 'App Host',
     version: '1.0.0',
     description: 'Host application aggregating CRM, Todo and BI plugins',
     type: 'app',
@@ -91,8 +92,9 @@ export default defineStack({
  */
 export const PreviewHostExample = defineStack({
   manifest: {
-    id: 'app-host-preview',
-    name: 'app_host_preview',
+    id: 'com.example.host-preview',
+    namespace: 'host',
+    name: 'App Host Preview',
     version: '1.0.0',
     description: 'Host application in preview/demo mode — bypasses login, simulates admin user',
     type: 'app',

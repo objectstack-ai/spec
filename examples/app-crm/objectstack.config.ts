@@ -8,18 +8,16 @@ import * as apis from './src/apis';
 import * as actions from './src/actions';
 import * as dashboards from './src/dashboards';
 import * as reports from './src/reports';
-import * as flows from './src/flows';
-import * as agents from './src/agents';
+import { allFlows } from './src/flows';
+import { allAgents } from './src/agents';
 import * as ragPipelines from './src/rag';
 import * as profiles from './src/profiles';
 import * as apps from './src/apps';
-import * as interfaces from './src/interfaces';
 import * as translations from './src/translations';
 import { CrmSeedData } from './src/data';
 
 // ─── Sharing & Security (special: mixed single/array values) ───────
 import {
-  OrganizationDefaults,
   AccountTeamSharingRule, TerritorySharingRules,
   OpportunitySalesSharingRule,
   CaseEscalationSharingRule,
@@ -56,12 +54,11 @@ export default defineStack({
   actions: Object.values(actions),
   dashboards: Object.values(dashboards),
   reports: Object.values(reports),
-  flows: Object.values(flows) as any,
-  agents: Object.values(agents) as any,
+  flows: allFlows,
+  agents: allAgents,
   ragPipelines: Object.values(ragPipelines),
-  profiles: Object.values(profiles),
+  permissions: Object.values(profiles),
   apps: Object.values(apps),
-  interfaces: Object.values(interfaces),
 
   // Seed Data (top-level, registered as metadata)
   data: CrmSeedData,
@@ -77,13 +74,16 @@ export default defineStack({
   // I18n Translation Bundles (en, zh-CN, ja-JP, es-ES)
   translations: Object.values(translations),
 
-  // Sharing & security (requires explicit wiring)
+  // Sharing & security
   sharingRules: [
     AccountTeamSharingRule,
     OpportunitySalesSharingRule,
     CaseEscalationSharingRule,
     ...TerritorySharingRules,
   ],
-  roleHierarchy: RoleHierarchy,
-  organizationDefaults: OrganizationDefaults,
-} as any);
+  roles: RoleHierarchy.roles.map((r: { name: string; label: string; parentRole: string | null }) => ({
+    name: r.name,
+    label: r.label,
+    parent: r.parentRole ?? undefined,
+  })),
+});
