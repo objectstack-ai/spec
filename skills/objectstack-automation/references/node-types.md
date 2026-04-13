@@ -1,7 +1,7 @@
 # Automation Design — Node & Event Reference
 
 > Auto-derived from `packages/spec/src/automation/flow.zod.ts` and related schemas.
-> This file is for quick reference only. The Zod source is the single source of truth.
+> This file is bundled with the skill for offline/external use.
 
 ## Flow Types
 

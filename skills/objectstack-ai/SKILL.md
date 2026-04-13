@@ -343,9 +343,7 @@ structuredOutput: {
 
 ## References
 
-- Zod source: `packages/spec/src/ai/agent.zod.ts`
-- Zod source: `packages/spec/src/ai/skill.zod.ts`
-- Zod source: `packages/spec/src/ai/tool.zod.ts`
-- Zod source: `packages/spec/src/ai/rag-pipeline.zod.ts`
-- Zod source: `packages/spec/src/ai/model-registry.zod.ts`
-- Documentation: `content/docs/references/ai/`
+- **[Agent & Skill Reference](./references/agent-skill-reference.md)** — Agent, Skill, Tool schemas, LLM providers, trigger conditions
+- **[RAG Pipeline Reference](./references/rag-pipeline-reference.md)** — Vector stores, chunking strategies, retrieval config, embedding models
+
+> **Monorepo source** (for contributors): `packages/spec/src/ai/agent.zod.ts`, `skill.zod.ts`, `tool.zod.ts`, `rag-pipeline.zod.ts`, `model-registry.zod.ts`

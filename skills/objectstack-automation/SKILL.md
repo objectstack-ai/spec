@@ -322,9 +322,7 @@ Triggers fire automatically when data events occur.
 
 ## References
 
-- Zod source: `packages/spec/src/automation/flow.zod.ts`
-- Zod source: `packages/spec/src/automation/workflow.zod.ts`
-- Zod source: `packages/spec/src/automation/trigger-registry.zod.ts`
-- Zod source: `packages/spec/src/automation/approval.zod.ts`
-- Zod source: `packages/spec/src/automation/state-machine.zod.ts`
-- Documentation: `content/docs/references/automation/`
+- **[Node & Event Reference](./references/node-types.md)** — Flow types, 18 node types, trigger events, state machine config
+- **[Workflow Actions Reference](./references/workflow-actions.md)** — Approval process, field updates, email alerts, connector actions
+
+> **Monorepo source** (for contributors): `packages/spec/src/automation/flow.zod.ts`, `workflow.zod.ts`, `trigger-registry.zod.ts`, `approval.zod.ts`

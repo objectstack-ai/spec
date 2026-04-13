@@ -1,7 +1,7 @@
 # AI Agent Design — Skill & Tool Reference
 
 > Auto-derived from `packages/spec/src/ai/agent.zod.ts`, `skill.zod.ts`, and related schemas.
-> This file is for quick reference only. The Zod source is the single source of truth.
+> This file is bundled with the skill for offline/external use.
 
 ## Agent Schema Properties
 
@@ -82,3 +82,30 @@
 | `retrieval.topK` | Number of results to retrieve |
 | `retrieval.scoreThreshold` | Minimum relevance score |
 | `retrieval.reranker` | Re-ranking model |
+
+## Tool Category Enum
+
+| Category | Description |
+|:---------|:------------|
+| `data` | CRUD operations on ObjectStack records |
+| `action` | Server-side business logic |
+| `flow` | Launch an automation flow |
+| `integration` | External API connectors |
+| `vector_search` | Semantic / similarity search |
+| `analytics` | Reporting and aggregation |
+| `utility` | Helper tools (formatting, validation) |
+
+## Tool Schema — Full Properties
+
+| Property | Required | Description |
+|:---------|:---------|:------------|
+| `name` | ✅ | Unique identifier (snake_case) |
+| `label` | ✅ | Human-readable name |
+| `description` | ✅ | What the tool does (shown to LLM) |
+| `category` | ✅ | Tool category (see enum above) |
+| `parameters` | — | JSON Schema for input parameters |
+| `outputSchema` | — | JSON Schema for output |
+| `objectName` | — | Target object (for data tools) |
+| `requiresConfirmation` | — | User must approve before execution |
+| `permissions` | — | Required roles |
+| `active` | — | Enable/disable |

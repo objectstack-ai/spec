@@ -1,7 +1,7 @@
 # API Design — Endpoint & Method Reference
 
 > Auto-derived from `packages/spec/src/api/plugin-rest-api.zod.ts` and related schemas.
-> This file is for quick reference only. The Zod source is the single source of truth.
+> This file is bundled with the skill for offline/external use.
 
 ## API Methods (Object Operations)
 

@@ -1,7 +1,7 @@
 # Schema Design — Field Type Reference
 
-> Auto-derived from `packages/spec/src/data/field.zod.ts` FieldType enum.
-> This file is for quick reference only. The Zod source is the single source of truth.
+> Auto-derived from `packages/spec/src/data/field.zod.ts` and `validation.zod.ts`.
+> This file is bundled with the skill for offline/external use.
 
 ## FieldType Enum (48 types)
 
@@ -75,3 +75,51 @@
 | `fulltext` | Text search |
 | `gin` | Array / JSONB containment |
 | `gist` | Geospatial / range |
+
+## Relational Field Config
+
+| Property | Type | Description |
+|:---------|:-----|:------------|
+| `reference` | string | Target object name (required for lookup/master_detail/tree) |
+| `multiple` | boolean | `true` creates many-to-many junction |
+| `deleteBehavior` | enum | `cascade`, `restrict`, or `set_null` (master_detail) |
+| `referenceFilters` | array | Filter conditions on referenced records |
+
+## Currency Config
+
+| Property | Description |
+|:---------|:------------|
+| `precision` | Decimal places (default: 2) |
+| `currencyMode` | `dynamic` (per record) or `fixed` (global) |
+| `defaultCurrency` | ISO 4217 code (e.g., `USD`, `EUR`) |
+
+## Vector Config
+
+| Property | Description |
+|:---------|:------------|
+| `dimensions` | Embedding vector size (e.g., 1536 for OpenAI) |
+| `distanceMetric` | `cosine`, `euclidean`, `dot_product` |
+| `indexType` | `hnsw`, `ivfflat`, `flat` |
+
+## Summary (Roll-up) Config
+
+| Property | Description |
+|:---------|:------------|
+| `summaryObject` | Child object to aggregate |
+| `summaryField` | Field to aggregate (for sum/avg/min/max) |
+| `summaryFunction` | `count`, `sum`, `min`, `max`, `avg` |
+| `summaryFilter` | Optional filter on child records |
+
+## Formula Config
+
+| Property | Description |
+|:---------|:------------|
+| `expression` | Formula expression referencing other fields |
+| `returnType` | Result type: `text`, `number`, `boolean`, `date`, `datetime` |
+
+## Autonumber Config
+
+| Property | Description |
+|:---------|:------------|
+| `format` | Display format, e.g., `"CASE-{0000}"` |
+| `startValue` | Starting number (default: 1) |

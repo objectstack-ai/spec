@@ -319,9 +319,7 @@ const aiService = kernel.resolve<AIService>('ai');
 
 ## References
 
-- Zod source: `packages/spec/src/api/plugin-rest-api.zod.ts`
-- Zod source: `packages/spec/src/api/discovery.zod.ts`
-- Zod source: `packages/spec/src/data/datasource.zod.ts`
-- Zod source: `packages/spec/src/system/http-server.zod.ts`
-- Zod source: `packages/spec/src/contracts/`
-- Documentation: `content/docs/references/api/`
+- **[Endpoint & Method Reference](./references/endpoint-reference.md)** — API methods, HTTP verbs, error codes, security layers, drivers
+- **[Auth & Realtime Reference](./references/auth-realtime-reference.md)** — Auth providers, login types, realtime transport, session schema
+
+> **Monorepo source** (for contributors): `packages/spec/src/api/plugin-rest-api.zod.ts`, `discovery.zod.ts`, `realtime.zod.ts`, `auth.zod.ts`
