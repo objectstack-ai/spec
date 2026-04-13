@@ -1,5 +1,13 @@
 # @objectstack/service-ai
 
+## 4.0.3
+
+### Patch Changes
+
+- ee39bff: fix ai.
+  - @objectstack/spec@4.0.3
+  - @objectstack/core@4.0.3
+
 ## 4.0.2
 
 ### Patch Changes
