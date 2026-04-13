@@ -350,6 +350,10 @@ structuredOutput: {
 - [skill.zod.ts](./references/zod/ai/skill.zod.ts) — SkillSchema, trigger conditions
 - [rag-pipeline.zod.ts](./references/zod/ai/rag-pipeline.zod.ts) — RAG, chunking, retrieval, embeddings
 - [model-registry.zod.ts](./references/zod/ai/model-registry.zod.ts) — LLM providers, model versioning
+- [conversation.zod.ts](./references/zod/ai/conversation.zod.ts) — Chat context, message history, turns
+- [mcp.zod.ts](./references/zod/ai/mcp.zod.ts) — MCP protocol, tool/resource/prompt schemas
+- [orchestration.zod.ts](./references/zod/ai/orchestration.zod.ts) — Multi-agent orchestration patterns
+- [nlq.zod.ts](./references/zod/ai/nlq.zod.ts) — Natural language query schemas
 - [Schema index](./references/zod/_index.md) — All bundled schemas with dependency tree
 
 ### Quick Reference

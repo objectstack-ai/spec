@@ -329,6 +329,9 @@ Triggers fire automatically when data events occur.
 - [trigger-registry.zod.ts](./references/zod/automation/trigger-registry.zod.ts) — Trigger definitions
 - [approval.zod.ts](./references/zod/automation/approval.zod.ts) — Approval process, steps, escalation
 - [state-machine.zod.ts](./references/zod/automation/state-machine.zod.ts) — State machine transitions
+- [execution.zod.ts](./references/zod/automation/execution.zod.ts) — Execution state, history, scheduling
+- [webhook.zod.ts](./references/zod/automation/webhook.zod.ts) — Webhook triggers, delivery, retry
+- [node-executor.zod.ts](./references/zod/automation/node-executor.zod.ts) — Flow node execution runtime
 - [Schema index](./references/zod/_index.md) — All bundled schemas with dependency tree
 
 ### Quick Reference

@@ -356,7 +356,12 @@ export default ObjectSchema.create({
 
 - [field.zod.ts](./references/zod/data/field.zod.ts) — FieldType enum, FieldSchema, option/currency/vector config
 - [object.zod.ts](./references/zod/data/object.zod.ts) — ObjectSchema, capabilities, extension model
-- [validation.zod.ts](./references/zod/data/validation.zod.ts) — 9 validation rule types
+- [validation.zod.ts](./references/zod/data/validation.zod.ts) — Validation rule types
+- [query.zod.ts](./references/zod/data/query.zod.ts) — Query operations, pagination, sorting
+- [filter.zod.ts](./references/zod/data/filter.zod.ts) — Filter operators, compound conditions
+- [datasource.zod.ts](./references/zod/data/datasource.zod.ts) — Datasource config, driver capabilities
+- [hook.zod.ts](./references/zod/data/hook.zod.ts) — Lifecycle hooks (beforeInsert, afterUpdate, etc.)
+- [permission.zod.ts](./references/zod/security/permission.zod.ts) — Field/object-level permissions, CRUD access
 - [Schema index](./references/zod/_index.md) — All bundled schemas with dependency tree
 
 ### Quick Reference

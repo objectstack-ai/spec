@@ -350,6 +350,11 @@ Actions are user-triggered operations attached to objects or views.
 - [dashboard.zod.ts](./references/zod/ui/dashboard.zod.ts) — Dashboard widgets, layout, data queries
 - [chart.zod.ts](./references/zod/ui/chart.zod.ts) — 25+ chart types, axis config, legends
 - [action.zod.ts](./references/zod/ui/action.zod.ts) — UI actions, parameters, confirmation
+- [page.zod.ts](./references/zod/ui/page.zod.ts) — Page layouts, SDUI, slot definitions
+- [widget.zod.ts](./references/zod/ui/widget.zod.ts) — Widget definitions, data bindings
+- [component.zod.ts](./references/zod/ui/component.zod.ts) — Component registry, props schema
+- [report.zod.ts](./references/zod/ui/report.zod.ts) — Report definitions, grouping, aggregations
+- [theme.zod.ts](./references/zod/ui/theme.zod.ts) — Design tokens, color modes, typography
 - [Schema index](./references/zod/_index.md) — All bundled schemas with dependency tree
 
 ### Quick Reference
