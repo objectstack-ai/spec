@@ -101,6 +101,7 @@
     "gen:schema": "tsx scripts/build-schemas.ts",
     "gen:openapi": "tsx scripts/build-openapi.ts",
     "gen:docs": "tsx scripts/build-docs.ts",
+    "gen:skill-refs": "tsx scripts/build-skill-references.ts",
     "analyze": "tsx scripts/analyze-bundle-size.ts",
     "gen:sbom": "tsx scripts/generate-sbom.ts",
     "test": "vitest run",
@@ -116,14 +117,14 @@
   ],
   "author": "ObjectStack",
   "devDependencies": {
-    "@types/node": "^25.5.2",
-    "@vitest/coverage-v8": "^4.1.2",
+    "@types/node": "^25.6.0",
+    "@vitest/coverage-v8": "^4.1.4",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.4"
   },
   "dependencies": {
-    "ai": "^6.0.146",
+    "ai": "^6.0.158",
     "zod": "^4.3.6"
   },
   "engines": {

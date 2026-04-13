@@ -189,11 +189,11 @@ export const Campaign = ObjectSchema.create({
   
   // Database indexes
   indexes: [
-    { fields: ['name'], unique: false },
-    { fields: ['type'], unique: false },
-    { fields: ['status'], unique: false },
-    { fields: ['start_date'], unique: false },
-    { fields: ['owner'], unique: false },
+    { fields: ['name'] },
+    { fields: ['type'] },
+    { fields: ['status'] },
+    { fields: ['start_date'] },
+    { fields: ['owner'] },
   ],
   
   // Enable advanced features

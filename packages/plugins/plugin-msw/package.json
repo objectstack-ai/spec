@@ -24,12 +24,12 @@
     "@objectstack/objectql": "workspace:*",
     "@objectstack/spec": "workspace:*",
     "@objectstack/types": "workspace:*",
-    "msw": "^2.12.14"
+    "msw": "^2.13.2"
   },
   "devDependencies": {
     "@objectstack/runtime": "workspace:*",
-    "@types/node": "^25.5.2",
+    "@types/node": "^25.6.0",
     "typescript": "^6.0.2",
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.4"
   }
 }

@@ -122,9 +122,9 @@ export const Account = ObjectSchema.create({
   
   // Database indexes for performance
   indexes: [
-    { fields: ['name'], unique: false },
-    { fields: ['owner'], unique: false },
-    { fields: ['type', 'is_active'], unique: false },
+    { fields: ['name'] },
+    { fields: ['owner'] },
+    { fields: ['type', 'is_active'] },
   ],
   
   // Enable advanced features
