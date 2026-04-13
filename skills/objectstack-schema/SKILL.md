@@ -1,5 +1,5 @@
 ---
-name: schema-design
+name: objectstack-schema
 description: >
   Design ObjectStack data schemas (Objects, Fields, Validations, Indexes).
   Use when creating or modifying business object definitions, choosing field types,

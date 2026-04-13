@@ -1,5 +1,5 @@
 ---
-name: ai-agent-design
+name: objectstack-ai
 description: >
   Design ObjectStack AI agents, skills, tools, and RAG pipelines.
   Use when configuring autonomous agents, defining agent skills and tool sets,

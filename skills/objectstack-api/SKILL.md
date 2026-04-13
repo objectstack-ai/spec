@@ -1,5 +1,5 @@
 ---
-name: api-design
+name: objectstack-api
 description: >
   Design ObjectStack REST APIs, endpoints, service contracts, and integration
   protocols. Use when defining API routes, configuring authentication,
