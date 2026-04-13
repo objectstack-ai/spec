@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Broken pnpm lockfile** — Regenerated `pnpm-lock.yaml` from scratch to fix `ERR_PNPM_BROKEN_LOCKFILE` ("expected a single document in the stream, but found more") that was causing all CI jobs to fail. The previous merge of PR #1117 only included workflow cache key changes but did not carry over the regenerated lockfile.
+
 ### Added
 - **MCP Runtime Server Plugin (`plugin-mcp-server`)** — New kernel plugin that exposes ObjectStack
   as a Model Context Protocol (MCP) server for external AI clients (Claude Desktop, Cursor, VS Code
