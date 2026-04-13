@@ -352,7 +352,14 @@ export default ObjectSchema.create({
 
 ## References
 
-- **[Field Type Reference](./references/field-types.md)** — All 48 field types, validation rules, and index types
-- **[Object Schema Reference](./references/object-schema.md)** — Object properties, capabilities, extension model, and naming conventions
+### Zod Source Schemas (auto-copied)
 
-> **Monorepo source** (for contributors): `packages/spec/src/data/field.zod.ts`, `object.zod.ts`, `validation.zod.ts`
+- [field.zod.ts](./references/zod/data/field.zod.ts) — FieldType enum, FieldSchema, option/currency/vector config
+- [object.zod.ts](./references/zod/data/object.zod.ts) — ObjectSchema, capabilities, extension model
+- [validation.zod.ts](./references/zod/data/validation.zod.ts) — 9 validation rule types
+- [Schema index](./references/zod/_index.md) — All bundled schemas with dependency tree
+
+### Quick Reference
+
+- [Field Type Reference](./references/field-types.md) — Compact type table
+- [Object Schema Reference](./references/object-schema.md) — Property summary

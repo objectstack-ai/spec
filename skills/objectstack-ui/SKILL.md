@@ -343,7 +343,16 @@ Actions are user-triggered operations attached to objects or views.
 
 ## References
 
-- **[View Type Reference](./references/view-types.md)** — List/form views, data providers, column summaries, filter operators
-- **[Dashboard & Chart Reference](./references/dashboard-chart-reference.md)** — Widget types, chart types, report types, action types
+### Zod Source Schemas (auto-copied)
 
-> **Monorepo source** (for contributors): `packages/spec/src/ui/view.zod.ts`, `app.zod.ts`, `dashboard.zod.ts`, `report.zod.ts`, `action.zod.ts`
+- [view.zod.ts](./references/zod/ui/view.zod.ts) — Grid/kanban/calendar views, columns, filters
+- [app.zod.ts](./references/zod/ui/app.zod.ts) — App definition, navigation items
+- [dashboard.zod.ts](./references/zod/ui/dashboard.zod.ts) — Dashboard widgets, layout, data queries
+- [chart.zod.ts](./references/zod/ui/chart.zod.ts) — 25+ chart types, axis config, legends
+- [action.zod.ts](./references/zod/ui/action.zod.ts) — UI actions, parameters, confirmation
+- [Schema index](./references/zod/_index.md) — All bundled schemas with dependency tree
+
+### Quick Reference
+
+- [View Type Reference](./references/view-types.md) — Compact view type table
+- [Dashboard & Chart Reference](./references/dashboard-chart-reference.md) — Widget/chart overview

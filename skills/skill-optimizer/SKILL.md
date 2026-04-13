@@ -51,9 +51,16 @@ exist after installation. The fix:
 
 ```markdown
 ## References
-- **[Field Type Reference](./references/field-types.md)** — All 48 field types  ✅ relative link
-> **Monorepo source** (for contributors): `packages/spec/src/data/field.zod.ts`
+### Zod Source Schemas (auto-copied)
+- [field.zod.ts](./references/zod/data/field.zod.ts) — FieldType enum  ✅ relative link to real source
+### Quick Reference
+- [Field Type Reference](./references/field-types.md) — Compact summary  ✅ optional human overview
 ```
+
+**Best practice**: If your skill documents schemas defined in Zod, copy the actual
+`.zod.ts` files into `references/zod/` using a build script. AI agents read Zod
+natively — no need to manually convert to markdown. Use `build-skill-references.ts`
+as a reference implementation.
 
 ---
 
@@ -80,17 +87,26 @@ For each SKILL.md, inspect the `## References` section at the bottom:
 
 | Pattern | Status | Fix |
 |:--------|:-------|:----|
-| `[name](./references/file.md)` | ✅ Good | — |
-| `` `packages/spec/src/...` `` | ❌ Broken | Convert to relative link + bundle file |
+| `[name](./references/zod/...)` | ✅ Best | Zod source files — highest precision |
+| `[name](./references/file.md)` | ✅ Good | Markdown summary — compact overview |
+| `` `packages/spec/src/...` `` | ❌ Broken | Copy Zod source into `./references/zod/` |
 | `content/docs/references/...` | ❌ Broken | Extract content into `./references/` |
 | No references section | ⚠️ Missing | Add if skill needs external data |
 
+**Recommended structure** (Zod source + markdown summary):
+```markdown
+### Zod Source Schemas (auto-copied)
+- [field.zod.ts](./references/zod/data/field.zod.ts) — FieldType enum
+- [Schema index](./references/zod/_index.md) — All bundled schemas
+### Quick Reference
+- [Field Types](./references/field-types.md) — Compact overview
+```
+
 ### Step 3: Validate Bundled Assets
 
-For each `./references/*.md` file:
+For each file linked from SKILL.md:
 - [ ] File exists at the path SKILL.md links to
 - [ ] Content is self-contained (not just "see source at ...")
-- [ ] Header says "bundled with the skill" (not "source of truth is elsewhere")
 - [ ] File is < 200 lines (progressive loading token budget)
 
 ### Step 4: Check Description Quality

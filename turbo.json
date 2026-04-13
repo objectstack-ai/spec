@@ -19,6 +19,9 @@
     },
     "gen:schema": {
         "dependsOn": ["^build"]
+    },
+    "gen:skill-refs": {
+        "dependsOn": ["^build"]
     }
   }
 }

@@ -319,7 +319,15 @@ const aiService = kernel.resolve<AIService>('ai');
 
 ## References
 
-- **[Endpoint & Method Reference](./references/endpoint-reference.md)** — API methods, HTTP verbs, error codes, security layers, drivers
-- **[Auth & Realtime Reference](./references/auth-realtime-reference.md)** — Auth providers, login types, realtime transport, session schema
+### Zod Source Schemas (auto-copied)
 
-> **Monorepo source** (for contributors): `packages/spec/src/api/plugin-rest-api.zod.ts`, `discovery.zod.ts`, `realtime.zod.ts`, `auth.zod.ts`
+- [endpoint.zod.ts](./references/zod/api/endpoint.zod.ts) — Custom endpoint definitions
+- [auth.zod.ts](./references/zod/api/auth.zod.ts) — Auth providers, login types, session
+- [realtime.zod.ts](./references/zod/api/realtime.zod.ts) — WebSocket/SSE subscriptions
+- [rest-server.zod.ts](./references/zod/api/rest-server.zod.ts) — REST server config, routing
+- [Schema index](./references/zod/_index.md) — All bundled schemas with dependency tree
+
+### Quick Reference
+
+- [Endpoint & Method Reference](./references/endpoint-reference.md) — Compact API method table
+- [Auth & Realtime Reference](./references/auth-realtime-reference.md) — Providers, transport, sessions
