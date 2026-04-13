@@ -1,5 +1,13 @@
 # @objectstack/metadata
 
+## 4.0.3
+
+### Patch Changes
+
+- @objectstack/spec@4.0.3
+- @objectstack/core@4.0.3
+- @objectstack/types@4.0.3
+
 ## 4.0.2
 
 ### Patch Changes

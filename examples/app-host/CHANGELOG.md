@@ -1,5 +1,20 @@
 # @objectstack/example-host
 
+## 4.0.3
+
+### Patch Changes
+
+- @example/app-crm@4.0.3
+- @example/app-todo@4.0.3
+- @objectstack/plugin-auth@4.0.3
+- @objectstack/spec@4.0.3
+- @objectstack/metadata@4.0.3
+- @objectstack/objectql@4.0.3
+- @objectstack/runtime@4.0.3
+- @objectstack/driver-memory@4.0.3
+- @objectstack/plugin-hono-server@4.0.3
+- @example/plugin-bi@4.0.3
+
 ## 4.0.2
 
 ### Patch Changes
