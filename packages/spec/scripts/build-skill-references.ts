@@ -89,6 +89,16 @@ const SKILL_MAP: Record<string, string[]> = {
     'data/datasource.zod.ts',
     'data/dataset.zod.ts',
   ],
+  'objectstack-kernel': [
+    'kernel/plugin.zod.ts',
+    'kernel/context.zod.ts',
+    'kernel/service-registry.zod.ts',
+    'kernel/plugin-lifecycle-events.zod.ts',
+    'kernel/plugin-capability.zod.ts',
+    'kernel/plugin-loading.zod.ts',
+    'kernel/feature.zod.ts',
+    'kernel/metadata-plugin.zod.ts',
+  ],
 };
 
 // ── Import resolver ──────────────────────────────────────────────────────────

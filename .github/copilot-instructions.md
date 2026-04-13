@@ -226,6 +226,7 @@ The `skills/` directory contains domain-specific AI skill definitions. When work
 | Skill | Path | Use When |
 |:---|:---|:---|
 | **Quickstart** | `skills/objectstack-quickstart/SKILL.md` | Project creation, defineStack(), drivers, adapters, bootstrap |
+| **Kernel** | `skills/objectstack-kernel/SKILL.md` | Plugin lifecycle, DI, EventBus, Kernel config |
 | Data Design | `skills/objectstack-data/SKILL.md` | Designing Objects, Fields, Relations |
 | API Design | `skills/objectstack-api/SKILL.md` | Designing REST/GraphQL endpoints |
 | UI Design | `skills/objectstack-ui/SKILL.md` | Designing Views, Dashboards, Apps |
