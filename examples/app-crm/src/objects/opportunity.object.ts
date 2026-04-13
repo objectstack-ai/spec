@@ -158,11 +158,11 @@ export const Opportunity = ObjectSchema.create({
   
   // Database indexes for performance
   indexes: [
-    { fields: ['name'], type: 'btree' },
-    { fields: ['account'], type: 'btree' },
-    { fields: ['owner'], type: 'btree' },
-    { fields: ['stage'], type: 'btree' },
-    { fields: ['close_date'], type: 'btree' },
+    { fields: ['name'] },
+    { fields: ['account'] },
+    { fields: ['owner'] },
+    { fields: ['stage'] },
+    { fields: ['close_date'] },
   ],
   
   // Enable advanced features

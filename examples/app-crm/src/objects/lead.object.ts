@@ -195,10 +195,10 @@ export const Lead = ObjectSchema.create({
   
   // Database indexes for performance
   indexes: [
-    { fields: ['email'], type: 'btree', unique: true },
-    { fields: ['owner'], type: 'btree' },
-    { fields: ['status'], type: 'btree' },
-    { fields: ['company'], type: 'btree' },
+    { fields: ['email'], unique: true },
+    { fields: ['owner'] },
+    { fields: ['status'] },
+    { fields: ['company'] },
   ],
   
   enable: {

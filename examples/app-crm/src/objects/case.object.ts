@@ -177,11 +177,11 @@ export const Case = ObjectSchema.create({
   
   // Database indexes for performance
   indexes: [
-    { fields: ['case_number'], type: 'btree', unique: true },
-    { fields: ['account'], type: 'btree' },
-    { fields: ['owner'], type: 'btree' },
-    { fields: ['status'], type: 'btree' },
-    { fields: ['priority'], type: 'btree' },
+    { fields: ['case_number'], unique: true },
+    { fields: ['account'] },
+    { fields: ['owner'] },
+    { fields: ['status'] },
+    { fields: ['priority'] },
   ],
   
   enable: {

@@ -162,11 +162,11 @@ export const Contract = ObjectSchema.create({
   
   // Database indexes
   indexes: [
-    { fields: ['account'], type: 'btree' },
-    { fields: ['status'], type: 'btree' },
-    { fields: ['start_date'], type: 'btree' },
-    { fields: ['end_date'], type: 'btree' },
-    { fields: ['owner'], type: 'btree' },
+    { fields: ['account'] },
+    { fields: ['status'] },
+    { fields: ['start_date'] },
+    { fields: ['end_date'] },
+    { fields: ['owner'] },
   ],
   
   // Enable advanced features

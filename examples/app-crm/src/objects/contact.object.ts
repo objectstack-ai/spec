@@ -157,10 +157,10 @@ export const Contact = ObjectSchema.create({
   
   // Database indexes for performance
   indexes: [
-    { fields: ['account'], type: 'btree' },
-    { fields: ['email'], type: 'btree', unique: true },
-    { fields: ['owner'], type: 'btree' },
-    { fields: ['last_name', 'first_name'], type: 'btree' },
+    { fields: ['account'] },
+    { fields: ['email'], unique: true },
+    { fields: ['owner'] },
+    { fields: ['last_name', 'first_name'] },
   ],
   
   // Display configuration

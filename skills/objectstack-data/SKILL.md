@@ -235,23 +235,26 @@ The junction object has two `lookup` fields, one to each side.
 
 ## Index Strategy
 
+**Only declare non-default values.** `type` defaults to `'btree'` and `unique`
+defaults to `false` — omit them when using the default.
+
 ```typescript
 indexes: [
-  { fields: ['status', 'created_at'], type: 'btree' },
-  { fields: ['email'], type: 'btree', unique: true },
-  { fields: ['description'], type: 'fulltext' },
-  { fields: ['tags'], type: 'gin' },
-  { fields: ['location'], type: 'gist' },
+  { fields: ['status', 'created_at'] },              // btree (default)
+  { fields: ['email'], unique: true },                // btree + unique
+  { fields: ['description'], type: 'fulltext' },      // non-default type
+  { fields: ['tags'], type: 'gin' },                   // non-default type
+  { fields: ['location'], type: 'gist' },              // non-default type
 ]
 ```
 
-| Type | When to Use |
-|:-----|:------------|
-| `btree` | Default — equality and range queries |
-| `hash` | Exact equality only (rare) |
-| `fulltext` | Text search columns |
-| `gin` | Array / JSONB containment |
-| `gist` | Geospatial / range types |
+| Type | Default? | When to Use |
+|:-----|:---------|:------------|
+| `btree` | **Yes** | Equality and range queries — omit `type` |
+| `hash` | No | Exact equality only (rare) |
+| `fulltext` | No | Text search columns |
+| `gin` | No | Array / JSONB containment |
+| `gist` | No | Geospatial / range types |
 
 > Use `partial` indexes to index only a subset of rows
 > (e.g., `partial: "status = 'active'"`).
@@ -342,8 +345,8 @@ export default ObjectSchema.create({
     },
   ],
   indexes: [
-    { fields: ['status', 'priority'], type: 'btree' },
-    { fields: ['account'],            type: 'btree' },
+    { fields: ['status', 'priority'] },
+    { fields: ['account'] },
   ],
 });
 ```

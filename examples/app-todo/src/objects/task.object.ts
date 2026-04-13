@@ -173,11 +173,11 @@ export const Task = ObjectSchema.create({
   
   // Database indexes for performance
   indexes: [
-    { fields: ['status'], type: 'btree' },
-    { fields: ['priority'], type: 'btree' },
-    { fields: ['owner'], type: 'btree' },
-    { fields: ['due_date'], type: 'btree' },
-    { fields: ['category'], type: 'btree' },
+    { fields: ['status'] },
+    { fields: ['priority'] },
+    { fields: ['owner'] },
+    { fields: ['due_date'] },
+    { fields: ['category'] },
   ],
   
   titleFormat: '{subject}',
