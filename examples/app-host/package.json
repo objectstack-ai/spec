@@ -16,16 +16,21 @@
     "@example/app-crm": "workspace:*",
     "@example/app-todo": "workspace:*",
     "@example/plugin-bi": "workspace:*",
+    "@hono/node-server": "^1.19.14",
     "@objectstack/driver-memory": "workspace:*",
+    "@objectstack/hono": "workspace:*",
     "@objectstack/metadata": "workspace:*",
     "@objectstack/objectql": "workspace:*",
     "@objectstack/plugin-auth": "workspace:*",
     "@objectstack/plugin-hono-server": "workspace:*",
     "@objectstack/runtime": "workspace:*",
-    "@objectstack/spec": "workspace:*"
+    "@objectstack/spec": "workspace:*",
+    "better-sqlite3": "^11.8.1",
+    "hono": "^4.12.12"
   },
   "devDependencies": {
     "@objectstack/cli": "workspace:*",
+    "esbuild": "^0.24.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
