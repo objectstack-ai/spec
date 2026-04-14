@@ -818,6 +818,23 @@ describe('AIServicePlugin', () => {
     expect(ctx.replaceService).toHaveBeenCalledWith('ai', expect.any(Object));
   });
 
+  it('should contribute Setup navigation labels as plain strings', async () => {
+    const plugin = new AIServicePlugin();
+    const ctx = createMockContext();
+    const contribute = vi.fn();
+    ctx.registerService('setupNav', { contribute });
+
+    await plugin.init(ctx);
+
+    expect(contribute).toHaveBeenCalledWith({
+      areaId: 'area_ai',
+      items: [
+        expect.objectContaining({ id: 'nav_ai_conversations', label: 'Conversations' }),
+        expect.objectContaining({ id: 'nav_ai_messages', label: 'Messages' }),
+      ],
+    });
+  });
+
   it('should clean up on destroy', async () => {
     const plugin = new AIServicePlugin();
     const ctx = createMockContext();
