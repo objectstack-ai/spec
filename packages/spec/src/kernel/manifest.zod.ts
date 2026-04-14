@@ -54,10 +54,25 @@ export const ManifestSchema = z.object({
     .regex(/^[a-z][a-z0-9_]{1,19}$/, 'Namespace must be 2-20 chars, lowercase alphanumeric + underscore')
     .optional()
     .describe('Short namespace identifier for metadata scoping (e.g. "crm", "todo")'),
-  
-  /** 
+
+  /**
+   * Default datasource for all objects in this package.
+   *
+   * When set, all objects defined in this package will use this datasource
+   * by default unless they explicitly override it with their own `datasource` field.
+   *
+   * This provides package-level datasource configuration without needing to
+   * specify it on every individual object.
+   *
+   * @example "memory"  // Use in-memory driver for all package objects
+   * @example "turso"   // Use Turso/LibSQL for all package objects
+   */
+  defaultDatasource: z.string().optional().default('default')
+    .describe('Default datasource for all objects in this package'),
+
+  /**
    * Package version following semantic versioning (major.minor.patch).
-   * 
+   *
    * @example "1.0.0"
    * @example "2.1.0-beta.1"
    */

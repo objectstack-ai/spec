@@ -72,6 +72,19 @@ export class ObjectQL implements IDataEngine {
   private defaultDriver: string | null = null;
   private logger: Logger;
 
+  // Datasource mapping rules (imported from defineStack)
+  private datasourceMapping: Array<{
+    namespace?: string;
+    package?: string;
+    objectPattern?: string;
+    default?: boolean;
+    datasource: string;
+    priority?: number;
+  }> = [];
+
+  // Package manifests registry (for defaultDatasource lookup)
+  private manifests = new Map<string, any>();
+
   // Per-object hooks with priority support
   private hooks: Map<string, HookEntry[]> = new Map([
     ['beforeFind', []], ['afterFind', []],
@@ -307,6 +320,11 @@ export class ObjectQL implements IDataEngine {
       const id = manifest.id || manifest.name;
       const namespace = manifest.namespace as string | undefined;
       this.logger.debug('Registering package manifest', { id, namespace });
+
+      // Store manifest for defaultDatasource lookup
+      if (id) {
+        this.manifests.set(id, manifest);
+      }
 
       // 1. Register the Package (manifest + lifecycle state)
       SchemaRegistry.installPackage(manifest);
@@ -571,34 +589,133 @@ export class ObjectQL implements IDataEngine {
 
   /**
    * Helper to get the target driver
+   *
+   * Resolution priority (first match wins):
+   * 1. Object's explicit `datasource` field (if not 'default')
+   * 2. DatasourceMapping rules (namespace/package/pattern matching)
+   * 3. Package's `defaultDatasource` from manifest
+   * 4. Global default driver
    */
   private getDriver(objectName: string): DriverInterface {
     const object = SchemaRegistry.getObject(objectName);
-    
-    // 1. If object definition exists, check for explicit datasource
-    if (object) {
-      const datasourceName = object.datasource || 'default';
-      
-      // If configured for 'default', try to find the default driver
-      if (datasourceName === 'default') {
-        if (this.defaultDriver && this.drivers.has(this.defaultDriver)) {
-          return this.drivers.get(this.defaultDriver)!;
+
+    // 1. Object's explicit datasource field (highest priority)
+    if (object?.datasource && object.datasource !== 'default') {
+      if (this.drivers.has(object.datasource)) {
+        return this.drivers.get(object.datasource)!;
+      }
+      throw new Error(`[ObjectQL] Datasource '${object.datasource}' configured for object '${objectName}' is not registered.`);
+    }
+
+    // 2. Check datasourceMapping rules
+    const mappedDatasource = this.resolveDatasourceFromMapping(objectName, object);
+    if (mappedDatasource && this.drivers.has(mappedDatasource)) {
+      this.logger.debug('Resolved datasource from mapping', {
+        object: objectName,
+        datasource: mappedDatasource
+      });
+      return this.drivers.get(mappedDatasource)!;
+    }
+
+    // 3. Check package's defaultDatasource
+    if (object?.packageId) {
+      const manifest = this.manifests.get(object.packageId);
+      if (manifest?.defaultDatasource && manifest.defaultDatasource !== 'default') {
+        if (this.drivers.has(manifest.defaultDatasource)) {
+          this.logger.debug('Resolved datasource from package manifest', {
+            object: objectName,
+            package: object.packageId,
+            datasource: manifest.defaultDatasource
+          });
+          return this.drivers.get(manifest.defaultDatasource)!;
         }
-      } else {
-        // Specific datasource requested
-        if (this.drivers.has(datasourceName)) {
-            return this.drivers.get(datasourceName)!;
-        }
-        throw new Error(`[ObjectQL] Datasource '${datasourceName}' configured for object '${objectName}' is not registered.`);
       }
     }
 
-    // 2. Fallback for ad-hoc objects or missing definitions
-    if (this.defaultDriver) {
+    // 4. Fallback to global default driver
+    if (this.defaultDriver && this.drivers.has(this.defaultDriver)) {
       return this.drivers.get(this.defaultDriver)!;
     }
 
     throw new Error(`[ObjectQL] No driver available for object '${objectName}'`);
+  }
+
+  /**
+   * Resolve datasource from mapping rules
+   *
+   * Rules are evaluated in order (or by priority if specified).
+   * First matching rule wins.
+   */
+  private resolveDatasourceFromMapping(
+    objectName: string,
+    object?: any
+  ): string | null {
+    if (!this.datasourceMapping || this.datasourceMapping.length === 0) {
+      return null;
+    }
+
+    // Sort rules by priority if any have priority set
+    const sortedRules = [...this.datasourceMapping].sort((a, b) => {
+      const aPriority = a.priority ?? 1000;
+      const bPriority = b.priority ?? 1000;
+      return aPriority - bPriority;
+    });
+
+    for (const rule of sortedRules) {
+      // 1. Match by namespace
+      if (rule.namespace && object?.namespace === rule.namespace) {
+        return rule.datasource;
+      }
+
+      // 2. Match by package ID
+      if (rule.package && object?.packageId === rule.package) {
+        return rule.datasource;
+      }
+
+      // 3. Match by object name pattern (glob-style)
+      if (rule.objectPattern && this.matchPattern(objectName, rule.objectPattern)) {
+        return rule.datasource;
+      }
+
+      // 4. Default fallback rule
+      if (rule.default) {
+        return rule.datasource;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Simple glob pattern matching
+   * Supports * (any chars) and ? (single char)
+   */
+  private matchPattern(objectName: string, pattern: string): boolean {
+    const regexPattern = pattern
+      .replace(/[.+^${}()|[\]\\]/g, '\\$&')  // Escape regex special chars
+      .replace(/\*/g, '.*')                   // * → .*
+      .replace(/\?/g, '.');                   // ? → .
+
+    const regex = new RegExp(`^${regexPattern}$`);
+    return regex.test(objectName);
+  }
+
+  /**
+   * Set datasource mapping rules
+   * Called by ObjectQLPlugin during bootstrap
+   */
+  setDatasourceMapping(rules: Array<{
+    namespace?: string;
+    package?: string;
+    objectPattern?: string;
+    default?: boolean;
+    datasource: string;
+    priority?: number;
+  }>) {
+    this.datasourceMapping = rules;
+    this.logger.info('Datasource mapping rules configured', {
+      ruleCount: rules.length
+    });
   }
 
   /**
