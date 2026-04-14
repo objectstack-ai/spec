@@ -7,16 +7,8 @@ test/
 *.test.ts
 *.spec.ts
 
-# Ignore development files
+# Ignore development-only files that are not required by the Vercel build
 debug-registry.ts
-src/
-
-# Ignore source files (only need the bundle)
-server/
-scripts/bundle-api.mjs
-
-# Ignore metadata (using in-memory driver)
-metadata/
 
 # Keep only the bundled API handler
 !api/_handler.js
