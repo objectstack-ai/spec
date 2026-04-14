@@ -75,6 +75,15 @@ export class AppPlugin implements Plugin {
 
         ctx.logger.debug('Retrieved ObjectQL engine service', { appId });
 
+        // Configure datasourceMapping if provided in the stack definition
+        if (this.bundle.datasourceMapping && Array.isArray(this.bundle.datasourceMapping)) {
+            ctx.logger.info('Configuring datasource mapping rules', {
+                appId,
+                ruleCount: this.bundle.datasourceMapping.length
+            });
+            ql.setDatasourceMapping(this.bundle.datasourceMapping);
+        }
+
         const runtime = this.bundle.default || this.bundle;
         
         if (runtime && typeof runtime.onEnable === 'function') {

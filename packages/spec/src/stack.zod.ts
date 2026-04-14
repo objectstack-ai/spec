@@ -51,8 +51,67 @@ import { WebhookSchema } from './automation/webhook.zod';
 import { ConnectorSchema } from './integration/connector.zod';
 
 /**
+ * Datasource Mapping Rule Schema
+ *
+ * Defines rules for routing objects to specific datasources based on
+ * namespace, package, or object name patterns. This provides centralized
+ * control over datasource assignment without modifying individual objects.
+ *
+ * Inspired by Django's Database Router and Kubernetes StorageClass patterns.
+ *
+ * @example
+ * ```ts
+ * datasourceMapping: [
+ *   { namespace: 'crm', datasource: 'memory' },
+ *   { objectPattern: 'sys_*', datasource: 'turso' },
+ *   { package: 'com.example.analytics', datasource: 'bigquery' },
+ *   { default: true, datasource: 'default' }
+ * ]
+ * ```
+ */
+export const DatasourceMappingRuleSchema = z.object({
+  /**
+   * Match by namespace (e.g., 'crm', 'auth', 'todo')
+   * Objects with this namespace will use the specified datasource.
+   */
+  namespace: z.string().optional().describe('Match objects by namespace'),
+
+  /**
+   * Match by package ID (e.g., 'com.example.crm')
+   * All objects from this package will use the specified datasource.
+   */
+  package: z.string().optional().describe('Match objects by package ID'),
+
+  /**
+   * Match by object name pattern (supports wildcards: *, ?)
+   * Examples: 'sys_*', 'temp_*', 'cache_*'
+   */
+  objectPattern: z.string().optional().describe('Match objects by name pattern (glob-style)'),
+
+  /**
+   * Mark as default fallback rule.
+   * This rule applies to all objects that don't match any other rules.
+   */
+  default: z.boolean().optional().describe('Default fallback rule'),
+
+  /**
+   * Target datasource name.
+   * Must match a registered driver name (e.g., 'memory', 'turso', 'postgres').
+   */
+  datasource: z.string().describe('Target datasource name'),
+
+  /**
+   * Optional priority for rule ordering (lower = higher priority).
+   * If not specified, rules are evaluated in array order.
+   */
+  priority: z.number().optional().describe('Rule priority (lower = higher priority)'),
+}).describe('Datasource routing rule');
+
+export type DatasourceMappingRule = z.infer<typeof DatasourceMappingRuleSchema>;
+
+/**
  * ObjectStack Ecosystem Definition
- * 
+ *
  * This schema represents the "Full Stack" definition of a project or environment.
  * It is used for:
  * 1. Project Export/Import (YAML/JSON dumps)
@@ -75,6 +134,39 @@ export const ObjectStackDefinitionSchema = z.object({
   /** System Configuration */
   manifest: ManifestSchema.optional().describe('Project Package Configuration'),
   datasources: z.array(DatasourceSchema).optional().describe('External Data Connections'),
+
+  /**
+   * Datasource Mapping Configuration
+   *
+   * Centralized routing rules that map packages, namespaces, or object patterns
+   * to specific datasources. This eliminates the need to configure datasource
+   * on every individual object.
+   *
+   * Rules are evaluated in order (or by priority if specified). First match wins.
+   * If no match, falls back to object's explicit `datasource` field, then 'default'.
+   *
+   * @example
+   * ```ts
+   * datasourceMapping: [
+   *   // System objects use Turso (persistent storage)
+   *   { objectPattern: 'sys_*', datasource: 'turso' },
+   *   { namespace: 'auth', datasource: 'turso' },
+   *
+   *   // CRM application uses Memory (dev/test)
+   *   { namespace: 'crm', datasource: 'memory' },
+   *   { package: 'com.example.crm', datasource: 'memory' },
+   *
+   *   // Temporary objects use Memory
+   *   { objectPattern: 'temp_*', datasource: 'memory' },
+   *
+   *   // Default fallback
+   *   { default: true, datasource: 'turso' },
+   * ]
+   * ```
+   */
+  datasourceMapping: z.array(DatasourceMappingRuleSchema).optional()
+    .describe('Centralized datasource routing rules for packages/namespaces/objects'),
+
   translations: z.array(TranslationBundleSchema).optional().describe('I18n Translation Bundles'),
   i18n: TranslationConfigSchema.optional().describe('Internationalization configuration'),
 
