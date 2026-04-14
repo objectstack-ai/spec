@@ -12,7 +12,8 @@ set -euo pipefail
 # Steps:
 #   1. Build the project with turbo (includes studio)
 #   2. Bundle the API serverless function (→ api/_handler.js)
-#   3. Copy studio dist files to public/ for UI serving
+#   3. Copy native/external modules into local node_modules for Vercel packaging
+#   4. Copy studio dist files to public/ for UI serving
 
 echo "[build-vercel] Starting server build..."
 
@@ -25,7 +26,43 @@ cd apps/server
 # 2. Bundle API serverless function
 node scripts/bundle-api.mjs
 
-# 3. Copy studio dist files to public/ for UI serving
+# 3. Copy native/external modules into local node_modules for Vercel packaging.
+#
+#    This monorepo uses pnpm's default strict node_modules structure. External
+#    dependencies marked in bundle-api.mjs (@libsql/client, better-sqlite3) only
+#    exist in the monorepo root's node_modules/.pnpm/ virtual store.
+#
+#    The vercel.json includeFiles pattern references node_modules/ relative to
+#    apps/server/, so we must copy the actual module files here for Vercel to
+#    include them in the serverless function's deployment package.
+echo "[build-vercel] Copying external native modules to local node_modules..."
+for mod in "@libsql/client" better-sqlite3; do
+  src="../../node_modules/$mod"
+  if [ -e "$src" ]; then
+    dest="node_modules/$mod"
+    mkdir -p "$(dirname "$dest")"
+    cp -rL "$src" "$dest"
+    echo "[build-vercel]   ✓ Copied $mod"
+  else
+    echo "[build-vercel]   ⚠ $mod not found at $src (skipped)"
+  fi
+done
+
+# Copy native binary subdirectories for @libsql/client
+if [ -d "../../node_modules/@libsql" ]; then
+  mkdir -p "node_modules/@libsql"
+  for pkg in ../../node_modules/@libsql/*/; do
+    pkgname="$(basename "$pkg")"
+    if [ "$pkgname" != "client" ]; then  # client already copied above
+      cp -rL "$pkg" "node_modules/@libsql/$pkgname"
+      echo "[build-vercel]   ✓ Copied @libsql/$pkgname"
+    fi
+  done
+else
+  echo "[build-vercel]   ⚠ @libsql not found (skipped)"
+fi
+
+# 4. Copy studio dist files to public/ for UI serving
 echo "[build-vercel] Copying studio dist to public/..."
 rm -rf public
 mkdir -p public

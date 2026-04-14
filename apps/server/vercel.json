@@ -12,7 +12,11 @@
   "functions": {
     "api/**/*.js": {
       "memory": 1024,
-      "maxDuration": 60
+      "maxDuration": 60,
+      "includeFiles": [
+        "node_modules/@libsql/**",
+        "node_modules/better-sqlite3/**"
+      ]
     }
   },
   "headers": [

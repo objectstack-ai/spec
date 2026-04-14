@@ -13,6 +13,7 @@
 import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
 import { ObjectQLPlugin } from '@objectstack/objectql';
 import { TursoDriver } from '@objectstack/driver-turso';
+import { InMemoryDriver } from '@objectstack/driver-memory';
 import { createHonoApp } from '@objectstack/hono';
 import { AuthPlugin } from '@objectstack/plugin-auth';
 import { SecurityPlugin } from '@objectstack/plugin-security';
@@ -62,21 +63,40 @@ async function ensureKernel(): Promise<ObjectKernel> {
             // Register ObjectQL engine
             await kernel.use(new ObjectQLPlugin());
 
-            // Database driver - Turso (remote mode for Vercel)
+            // Register Memory Driver for example apps (volatile, fast)
+            await kernel.use(new DriverPlugin(new InMemoryDriver(), { name: 'memory' }));
+
+            // Register Turso Driver for system objects (persistent, production)
             const tursoUrl = process.env.TURSO_DATABASE_URL;
             const tursoToken = process.env.TURSO_AUTH_TOKEN;
 
             if (!tursoUrl || !tursoToken) {
-                throw new Error('Missing required environment variables: TURSO_DATABASE_URL and TURSO_AUTH_TOKEN');
+                console.warn('[Vercel] Turso credentials not found, falling back to file-based SQLite');
             }
 
             const tursoDriver = new TursoDriver({
-                url: tursoUrl,
+                url: tursoUrl ?? 'file:./data/server.db',
                 authToken: tursoToken,
                 // Remote mode - no local sync needed for Vercel
             });
 
-            await kernel.use(new DriverPlugin(tursoDriver));
+            await kernel.use(new DriverPlugin(tursoDriver, { name: 'turso' }));
+
+            // Configure datasource mapping
+            // This must be done before loading apps, so ObjectQL can route objects correctly
+            const ql = kernel.getService('ObjectQL');
+            if (ql && typeof ql.setDatasourceMapping === 'function') {
+                ql.setDatasourceMapping([
+                    // Example apps use in-memory driver for fast, ephemeral data
+                    { namespace: 'crm', datasource: 'memory' },
+                    { namespace: 'todo', datasource: 'memory' },
+                    { namespace: 'bi', datasource: 'memory' },
+                    // System objects use Turso for persistent, production-grade storage
+                    { namespace: 'sys', datasource: 'turso' },
+                    // Default fallback to memory driver
+                    { default: true, datasource: 'memory' },
+                ]);
+            }
 
             // Load app manifests (BEFORE plugins that need object schemas)
             await kernel.use(new AppPlugin(CrmApp));

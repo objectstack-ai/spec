@@ -14,8 +14,10 @@
 
 import { build } from 'esbuild';
 
-// Packages that cannot be bundled (native bindings / optional drivers)
+// Packages that cannot be bundled (native bindings / platform-specific modules)
 const EXTERNAL = [
+  // @libsql/client has platform-specific native binaries that must be external
+  '@libsql/client',
   // Optional knex database drivers — never used at runtime, but knex requires() them
   'pg',
   'pg-native',
@@ -23,6 +25,7 @@ const EXTERNAL = [
   'mysql',
   'mysql2',
   'sqlite3',
+  'better-sqlite3',
   'oracledb',
   'tedious',
   // macOS-only native file watcher
