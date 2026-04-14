@@ -6,6 +6,7 @@ import type { IDataDriver } from '@objectstack/spec/contracts';
 // Mock the SchemaRegistry to avoid side effects between tests
 vi.mock('./registry', () => {
   const mockObjects = new Map();
+  const mockContributors = new Map();
   return {
     SchemaRegistry: {
       getObject: vi.fn((name) => mockObjects.get(name)),
@@ -13,7 +14,17 @@ vi.mock('./registry', () => {
       registerObject: vi.fn((obj, packageId, namespace, ownership, priority) => {
         const fqn = namespace ? `${namespace}__${obj.name}` : obj.name;
         mockObjects.set(fqn, { ...obj, name: fqn });
+        // Also track contributors for getObjectOwner
+        if (!mockContributors.has(fqn)) {
+          mockContributors.set(fqn, []);
+        }
+        const contributors = mockContributors.get(fqn);
+        contributors.push({ packageId, namespace, ownership, priority, definition: obj });
         return fqn;
+      }),
+      getObjectOwner: vi.fn((fqn) => {
+        const contributors = mockContributors.get(fqn);
+        return contributors?.find(c => c.ownership === 'own');
       }),
       registerNamespace: vi.fn(),
       registerKind: vi.fn(),
@@ -25,7 +36,10 @@ vi.mock('./registry', () => {
         enabled: true,
         installedAt: new Date().toISOString(),
       })),
-      reset: vi.fn(() => mockObjects.clear()),
+      reset: vi.fn(() => {
+        mockObjects.clear();
+        mockContributors.clear();
+      }),
       metadata: {
         get: vi.fn(() => mockObjects) // Expose for verification if needed
       }
