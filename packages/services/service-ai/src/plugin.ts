@@ -231,8 +231,8 @@ export class AIServicePlugin implements Plugin {
         setupNav.contribute({
           areaId: 'area_ai',
           items: [
-            { id: 'nav_ai_conversations', type: 'object', label: { key: 'setup.nav.ai_conversations', defaultValue: 'Conversations' }, objectName: 'conversations', icon: 'message-square', order: 10 },
-            { id: 'nav_ai_messages', type: 'object', label: { key: 'setup.nav.ai_messages', defaultValue: 'Messages' }, objectName: 'messages', icon: 'messages-square', order: 20 },
+            { id: 'nav_ai_conversations', type: 'object', label: 'Conversations', objectName: 'conversations', icon: 'message-square', order: 10 },
+            { id: 'nav_ai_messages', type: 'object', label: 'Messages', objectName: 'messages', icon: 'messages-square', order: 20 },
           ],
         });
         ctx.logger.info('[AI] Navigation items contributed to Setup App');
