@@ -430,8 +430,12 @@ describe('defineStack', () => {
     const result = defineStack(config);
     // Default is now strict=true, so result is validated and is a different object reference
     expect(result).not.toBe(config);  // Validation creates new object
-    expect(result).toEqual(config);   // But content is the same
+    // Validation may add defaults like defaultDatasource
     expect(result.manifest).toBeDefined();
+    expect(result.manifest.id).toBe(baseManifest.id);
+    expect(result.manifest.name).toBe(baseManifest.name);
+    expect(result.manifest.version).toBe(baseManifest.version);
+    expect(result.manifest.type).toBe(baseManifest.type);
   });
 
   it('should return config as-is when strict is false', () => {

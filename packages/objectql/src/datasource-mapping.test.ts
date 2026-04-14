@@ -35,7 +35,7 @@ describe('DatasourceMapping', () => {
 
   beforeEach(() => {
     engine = new ObjectQL();
-    SchemaRegistry.clear();
+    SchemaRegistry.reset();
   });
 
   it('should route objects by namespace', async () => {
@@ -62,7 +62,7 @@ describe('DatasourceMapping', () => {
     );
 
     // Test that it uses memory driver
-    const result = await engine.create('account', { name: 'Test Account' });
+    const result = await engine.insert('account', { name: 'Test Account' });
     expect(result).toBeDefined();
     expect(result.name).toBe('Test Account');
   });
@@ -91,7 +91,7 @@ describe('DatasourceMapping', () => {
       'own'
     );
 
-    const result = await engine.create('sys_user', { username: 'admin' });
+    const result = await engine.insert('sys_user', { username: 'admin' });
     expect(result).toBeDefined();
   });
 
@@ -119,7 +119,7 @@ describe('DatasourceMapping', () => {
     );
 
     // Should use turso (priority 50) not memory (priority 100)
-    const result = await engine.create('account', { name: 'Test' });
+    const result = await engine.insert('account', { name: 'Test' });
     expect(result).toBeDefined();
   });
 
@@ -147,7 +147,7 @@ describe('DatasourceMapping', () => {
     );
 
     // Should use memory (default)
-    const result = await engine.create('task', { title: 'Do something' });
+    const result = await engine.insert('task', { title: 'Do something' });
     expect(result).toBeDefined();
   });
 
@@ -175,7 +175,7 @@ describe('DatasourceMapping', () => {
     );
 
     // Should use turso (explicit) not memory (mapping)
-    const result = await engine.create('account', { name: 'Test' });
+    const result = await engine.insert('account', { name: 'Test' });
     expect(result).toBeDefined();
   });
 });

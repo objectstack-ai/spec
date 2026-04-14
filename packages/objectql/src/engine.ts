@@ -618,7 +618,9 @@ export class ObjectQL implements IDataEngine {
     }
 
     // 3. Check package's defaultDatasource
-    const owner = SchemaRegistry.getObjectOwner(objectName);
+    // Use the object's FQN name (from getObject) for ownership lookup
+    const fqn = object?.name || objectName;
+    const owner = SchemaRegistry.getObjectOwner(fqn);
     if (owner?.packageId) {
       const manifest = this.manifests.get(owner.packageId);
       if (manifest?.defaultDatasource && manifest.defaultDatasource !== 'default') {

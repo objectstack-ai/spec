@@ -24,8 +24,8 @@ the canonical API contract.
 ## TypeScript Usage
 
 ```typescript
-import { AuthEndpoint } from '@objectstack/spec/api';
-import type { AuthEndpoint } from '@objectstack/spec/api';
+import { AuthEndpoint, AuthFeaturesConfig, AuthProviderInfo, EmailPasswordConfigPublic, GetAuthConfigResponse } from '@objectstack/spec/api';
+import type { AuthEndpoint, AuthFeaturesConfig, AuthProviderInfo, EmailPasswordConfigPublic, GetAuthConfigResponse } from '@objectstack/spec/api';
 
 // Validate data
 const result = AuthEndpoint.parse(data);
@@ -47,6 +47,59 @@ const result = AuthEndpoint.parse(data);
 | **resetPassword** | `Object` | ✅ |  |
 | **sendVerificationEmail** | `Object` | ✅ |  |
 | **verifyEmail** | `Object` | ✅ |  |
+
+
+---
+
+## AuthFeaturesConfig
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **twoFactor** | `boolean` | ✅ | Two-factor authentication enabled |
+| **passkeys** | `boolean` | ✅ | Passkey/WebAuthn support enabled |
+| **magicLink** | `boolean` | ✅ | Magic link login enabled |
+| **organization** | `boolean` | ✅ | Multi-tenant organization support enabled |
+
+
+---
+
+## AuthProviderInfo
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **id** | `string` | ✅ | Provider ID (e.g., google, github, microsoft) |
+| **name** | `string` | ✅ | Display name (e.g., Google, GitHub) |
+| **enabled** | `boolean` | ✅ | Whether this provider is enabled |
+
+
+---
+
+## EmailPasswordConfigPublic
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **enabled** | `boolean` | ✅ | Whether email/password auth is enabled |
+| **disableSignUp** | `boolean` | optional | Whether new user registration is disabled |
+| **requireEmailVerification** | `boolean` | optional | Whether email verification is required |
+
+
+---
+
+## GetAuthConfigResponse
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **emailPassword** | `Object` | ✅ | Email/password authentication config |
+| **socialProviders** | `Object[]` | ✅ | Available social/OAuth providers |
+| **features** | `Object` | ✅ | Enabled authentication features |
 
 
 ---
