@@ -2,6 +2,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthPlugin } from './auth-plugin';
+import { AuthManager } from './auth-manager';
 import type { PluginContext } from '@objectstack/core';
 
 describe('AuthPlugin', () => {

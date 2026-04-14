@@ -579,6 +579,16 @@ export class ObjectStackClient {
    */
   auth = {
     /**
+     * Get authentication configuration
+     * Returns available auth providers and features
+     */
+    getConfig: async () => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/config`);
+      return this.unwrapResponse(res);
+    },
+
+    /**
      * Login with email and password
      * Uses better-auth endpoint: POST /sign-in/email
      */
@@ -1872,4 +1882,8 @@ export type {
   SubscribeResponse,
   UnsubscribeResponse,
   WellKnownCapabilities,
+  GetAuthConfigResponse,
+  AuthProviderInfo,
+  EmailPasswordConfigPublic,
+  AuthFeaturesConfig,
 } from '@objectstack/spec/api';

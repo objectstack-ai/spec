@@ -158,6 +158,53 @@ export const EndpointMapping = {
 } as const;
 
 // ==========================================
+// Auth Configuration Discovery
+// ==========================================
+
+/**
+ * Auth Provider Information (Public)
+ *
+ * Public-facing information about an OAuth/social provider.
+ * Does NOT include sensitive configuration (clientSecret, etc.)
+ */
+export const AuthProviderInfoSchema = z.object({
+  id: z.string().describe('Provider ID (e.g., google, github, microsoft)'),
+  name: z.string().describe('Display name (e.g., Google, GitHub)'),
+  enabled: z.boolean().describe('Whether this provider is enabled'),
+});
+
+/**
+ * Email/Password Configuration (Public)
+ */
+export const EmailPasswordConfigPublicSchema = z.object({
+  enabled: z.boolean().describe('Whether email/password auth is enabled'),
+  disableSignUp: z.boolean().optional().describe('Whether new user registration is disabled'),
+  requireEmailVerification: z.boolean().optional().describe('Whether email verification is required'),
+});
+
+/**
+ * Auth Features Configuration (Public)
+ */
+export const AuthFeaturesConfigSchema = z.object({
+  twoFactor: z.boolean().default(false).describe('Two-factor authentication enabled'),
+  passkeys: z.boolean().default(false).describe('Passkey/WebAuthn support enabled'),
+  magicLink: z.boolean().default(false).describe('Magic link login enabled'),
+  organization: z.boolean().default(false).describe('Multi-tenant organization support enabled'),
+});
+
+/**
+ * Get Auth Config Response
+ *
+ * Returns the public authentication configuration that the frontend
+ * can use to render appropriate login UI (social provider buttons, etc.)
+ */
+export const GetAuthConfigResponseSchema = z.object({
+  emailPassword: EmailPasswordConfigPublicSchema.describe('Email/password authentication config'),
+  socialProviders: z.array(AuthProviderInfoSchema).describe('Available social/OAuth providers'),
+  features: AuthFeaturesConfigSchema.describe('Enabled authentication features'),
+});
+
+// ==========================================
 // Type Exports
 // ==========================================
 
@@ -165,3 +212,7 @@ export type AuthEndpoint = z.infer<typeof AuthEndpointSchema>;
 export type AuthEndpointPath = typeof AuthEndpointPaths[keyof typeof AuthEndpointPaths];
 export type AuthEndpointAlias = keyof typeof AuthEndpointAliases;
 export type EndpointMappingKey = keyof typeof EndpointMapping;
+export type AuthProviderInfo = z.infer<typeof AuthProviderInfoSchema>;
+export type EmailPasswordConfigPublic = z.infer<typeof EmailPasswordConfigPublicSchema>;
+export type AuthFeaturesConfig = z.infer<typeof AuthFeaturesConfigSchema>;
+export type GetAuthConfigResponse = z.infer<typeof GetAuthConfigResponseSchema>;
