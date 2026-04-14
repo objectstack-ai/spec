@@ -39,7 +39,6 @@ node scripts/bundle-api.mjs
 #    apps/studio/, so we must copy the actual module files here for Vercel to
 #    include them in the serverless function's deployment package.
 #
-#    Note: @libsql/client is now bundled by esbuild, so we no longer copy it.
 echo "[build-vercel] Copying external native modules to local node_modules..."
 for mod in better-sqlite3; do
   src="../../node_modules/$mod"
@@ -52,11 +51,26 @@ for mod in better-sqlite3; do
     echo "[build-vercel]   ⚠ $mod not found at $src (skipped)"
   fi
 done
-# Copy the @ai-sdk scope (dynamically loaded provider packages)
-if [ -d "../../node_modules/@ai-sdk" ]; then
-  mkdir -p "node_modules/@ai-sdk"
-  for pkg in ../../node_modules/@ai-sdk/*/; do
+# Copy the @libsql scope (includes @libsql/client and platform-specific binaries)
+# In pnpm monorepos, @libsql packages exist in the virtual store at node_modules/.pnpm/node_modules/@libsql
+if [ -d "../../node_modules/.pnpm/node_modules/@libsql" ]; then
+  mkdir -p "node_modules/@libsql"
+  for pkg in ../../node_modules/.pnpm/node_modules/@libsql/*/; do
     pkgname="$(basename "$pkg")"
+    # Use cp -rL to dereference symlinks and copy actual files
+    cp -rL "$pkg" "node_modules/@libsql/$pkgname"
+  done
+  echo "[build-vercel]   ✓ Copied @libsql/*"
+else
+  echo "[build-vercel]   ⚠ @libsql not found (skipped)"
+fi
+# Copy the @ai-sdk scope (dynamically loaded provider packages)
+# In pnpm monorepos, @ai-sdk packages exist in the virtual store at node_modules/.pnpm/node_modules/@ai-sdk
+if [ -d "../../node_modules/.pnpm/node_modules/@ai-sdk" ]; then
+  mkdir -p "node_modules/@ai-sdk"
+  for pkg in ../../node_modules/.pnpm/node_modules/@ai-sdk/*/; do
+    pkgname="$(basename "$pkg")"
+    # Use cp -rL to dereference symlinks and copy actual files
     cp -rL "$pkg" "node_modules/@ai-sdk/$pkgname"
   done
   echo "[build-vercel]   ✓ Copied @ai-sdk/*"
