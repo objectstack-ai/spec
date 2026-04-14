@@ -2,9 +2,10 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
-    "module": "NodeNext"
+    "rootDir": ".",
+    "module": "NodeNext",
+    "skipLibCheck": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["*.ts", "lib/**/*.ts", "server/**/*.ts", "api/**/*.ts"],
+  "exclude": ["node_modules", "dist", "test"]
 }
