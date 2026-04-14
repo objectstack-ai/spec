@@ -28,55 +28,15 @@ cd apps/studio
 # 2. Bundle API serverless function
 node scripts/bundle-api.mjs
 
-# 3. Copy native/external modules into local node_modules for Vercel packaging.
+# 3. External dependencies are now handled by adding them as direct dependencies
+#    in apps/studio/package.json. Vercel installs them automatically during deployment.
 #
-#    Unlike hotcrm (which uses shamefully-hoist=true), this monorepo uses pnpm's
-#    default strict node_modules structure. Transitive native dependencies like
-#    better-sqlite3 only exist in the monorepo root's node_modules/.pnpm/ virtual
-#    store — they're NOT symlinked into apps/studio/node_modules/.
+#    Packages marked as external in bundle-api.mjs (@libsql/client, better-sqlite3,
+#    @ai-sdk/*) are listed as direct dependencies in package.json, so Vercel includes
+#    them in the serverless function's deployment package via normal pnpm install.
 #
-#    The vercel.json includeFiles pattern references node_modules/ relative to
-#    apps/studio/, so we must copy the actual module files here for Vercel to
-#    include them in the serverless function's deployment package.
-#
-echo "[build-vercel] Copying external native modules to local node_modules..."
-for mod in better-sqlite3; do
-  src="../../node_modules/$mod"
-  if [ -e "$src" ]; then
-    dest="node_modules/$mod"
-    mkdir -p "$(dirname "$dest")"
-    cp -rL "$src" "$dest"
-    echo "[build-vercel]   ✓ Copied $mod"
-  else
-    echo "[build-vercel]   ⚠ $mod not found at $src (skipped)"
-  fi
-done
-# Copy the @libsql scope (includes @libsql/client and platform-specific binaries)
-# In pnpm monorepos, @libsql packages exist in the virtual store at node_modules/.pnpm/node_modules/@libsql
-if [ -d "../../node_modules/.pnpm/node_modules/@libsql" ]; then
-  mkdir -p "node_modules/@libsql"
-  for pkg in ../../node_modules/.pnpm/node_modules/@libsql/*/; do
-    pkgname="$(basename "$pkg")"
-    # Use cp -rL to dereference symlinks and copy actual files
-    cp -rL "$pkg" "node_modules/@libsql/$pkgname"
-  done
-  echo "[build-vercel]   ✓ Copied @libsql/*"
-else
-  echo "[build-vercel]   ⚠ @libsql not found (skipped)"
-fi
-# Copy the @ai-sdk scope (dynamically loaded provider packages)
-# In pnpm monorepos, @ai-sdk packages exist in the virtual store at node_modules/.pnpm/node_modules/@ai-sdk
-if [ -d "../../node_modules/.pnpm/node_modules/@ai-sdk" ]; then
-  mkdir -p "node_modules/@ai-sdk"
-  for pkg in ../../node_modules/.pnpm/node_modules/@ai-sdk/*/; do
-    pkgname="$(basename "$pkg")"
-    # Use cp -rL to dereference symlinks and copy actual files
-    cp -rL "$pkg" "node_modules/@ai-sdk/$pkgname"
-  done
-  echo "[build-vercel]   ✓ Copied @ai-sdk/*"
-else
-  echo "[build-vercel]   ⚠ @ai-sdk not found (skipped)"
-fi
+#    This avoids the cp -rL infinite recursion issue that occurs when copying packages
+#    that are already direct dependencies with circular symlinks.
 
 # 4. Copy Vite build output to public/ for static file serving
 rm -rf public

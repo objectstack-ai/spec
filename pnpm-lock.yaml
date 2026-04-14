@@ -145,6 +145,9 @@ importers:
       '@hono/node-server':
         specifier: ^1.19.14
         version: 1.19.14(hono@4.12.12)
+      '@libsql/client':
+        specifier: ^0.17.2
+        version: 0.17.2
       '@objectstack/client':
         specifier: workspace:*
         version: link:../../packages/client
@@ -247,6 +250,9 @@ importers:
       ai:
         specifier: ^6.0.158
         version: 6.0.158(zod@4.3.6)
+      better-sqlite3:
+        specifier: ^12.9.0
+        version: 12.9.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
