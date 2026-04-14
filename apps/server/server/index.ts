@@ -84,7 +84,7 @@ async function ensureKernel(): Promise<ObjectKernel> {
 
             // Configure datasource mapping
             // This must be done before loading apps, so ObjectQL can route objects correctly
-            const ql = kernel.getService('ObjectQL');
+            const ql = await kernel.getServiceAsync('ObjectQL');
             if (ql && typeof ql.setDatasourceMapping === 'function') {
                 ql.setDatasourceMapping([
                     // Example apps use in-memory driver for fast, ephemeral data
