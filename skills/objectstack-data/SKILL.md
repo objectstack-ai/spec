@@ -8,27 +8,28 @@ license: Apache-2.0
 compatibility: Requires @objectstack/spec Zod schemas (v4+)
 metadata:
   author: objectstack-ai
-  version: "1.0"
+  version: "2.0"
   domain: data
-  tags: object, field, validation, index, relationship
+  tags: object, field, validation, index, relationship, hooks
 ---
 
 # Schema Design — ObjectStack Data Protocol
 
 Expert instructions for designing business data schemas using the ObjectStack
 specification. This skill covers Object definitions, Field type selection,
-relationship modelling, validation rules, and index strategy.
+relationship modelling, validation rules, index strategy, and lifecycle hooks.
 
 ---
 
 ## When to Use This Skill
 
-- You are creating a **new business object** (e.g., `account`, `project_task`).
-- You need to **choose the right field type** from the 48 supported types.
-- You are configuring **lookup / master-detail relationships** between objects.
-- You need to add **validation rules** (uniqueness, cross-field, state machine, etc.).
-- You are optimising **query performance with indexes**.
-- You are extending an existing object with new fields or capabilities.
+- You are creating a **new business object** (e.g., `account`, `project_task`)
+- You need to **choose the right field type** from the 48 supported types
+- You are configuring **lookup / master-detail relationships** between objects
+- You need to add **validation rules** (uniqueness, cross-field, state machine, etc.)
+- You are optimising **query performance with indexes**
+- You are extending an existing object with new fields or capabilities
+- You need to **implement data lifecycle hooks** for business logic
 
 ---
 
@@ -55,7 +56,7 @@ database table and exposes automatic CRUD APIs.
 | `namespace` | — | Domain prefix; auto-derives `tableName` as `{namespace}_{name}` |
 | `datasource` | `'default'` | Target datasource ID for virtualized data |
 | `displayNameField` | `'name'` | Field used as record display name |
-| `enable` | — | Capability flags (see below) |
+| `enable` | — | Capability flags (trackHistory, searchable, apiEnabled, etc.) |
 
 ### Object Capabilities (`enable`)
 
@@ -76,220 +77,16 @@ Toggle system behaviours per object:
 
 ---
 
-## Field Type Reference
+## Quick Reference — Detailed Rules
 
-ObjectStack supports **48 field types** organised into categories.
+For comprehensive documentation with incorrect/correct examples:
 
-### Text & Content
-
-| Type | When to Use |
-|:-----|:------------|
-| `text` | Single-line strings (names, codes, short values) |
-| `textarea` | Multi-line plain text (notes, descriptions) |
-| `email` | Email addresses — built-in format validation |
-| `url` | Web URLs — built-in format validation |
-| `phone` | Phone numbers |
-| `password` | Masked / hashed input |
-| `markdown` | Markdown-formatted content |
-| `html` | Raw HTML content |
-| `richtext` | WYSIWYG rich text editor |
-
-### Numbers
-
-| Type | When to Use |
-|:-----|:------------|
-| `number` | Generic numeric value |
-| `currency` | Monetary amounts — supports `currencyConfig` with `precision`, `currencyMode`, `defaultCurrency` |
-| `percent` | Percentage values |
-
-### Date & Time
-
-| Type | When to Use |
-|:-----|:------------|
-| `date` | Date only (no time component) |
-| `datetime` | Full date + time |
-| `time` | Time only (no date component) |
-
-### Logic
-
-| Type | When to Use |
-|:-----|:------------|
-| `boolean` | Standard checkbox |
-| `toggle` | Toggle switch (distinct UI affordance from checkbox) |
-
-### Selection
-
-| Type | When to Use |
-|:-----|:------------|
-| `select` | Single-choice dropdown; define `options` array |
-| `multiselect` | Tag-style multi-choice |
-| `radio` | Radio button group (fewer choices, always visible) |
-| `checkboxes` | Checkbox group |
-
-> **Critical:** Every option must have a lowercase machine `value` and a
-> human-readable `label`. Optional `color` enables badge/chart styling.
-
-### Relational
-
-| Type | When to Use | Key Config |
-|:-----|:------------|:-----------|
-| `lookup` | Reference another object | `reference` (target object name) |
-| `master_detail` | Parent–child with lifecycle control | `reference`, `deleteBehavior` (`cascade` / `restrict` / `set_null`) |
-| `tree` | Hierarchical self-reference | `reference` |
-
-> Set `multiple: true` on a lookup to create a many-to-many junction.
-
-### Media
-
-`image`, `file`, `avatar`, `video`, `audio` — all support
-`fileAttachmentConfig` for size limits, allowed types, virus scanning, and
-storage provider.
-
-### Calculated
-
-| Type | When to Use |
-|:-----|:------------|
-| `formula` | Computed from an `expression` referencing other fields |
-| `summary` | Roll-up aggregation from child records (`count`, `sum`, `min`, `max`, `avg`) |
-| `autonumber` | Auto-incrementing display format (e.g., `"CASE-{0000}"`) |
-
-### Enhanced Types
-
-`location`, `address`, `code`, `json`, `color`, `rating`, `slider`,
-`signature`, `qrcode`, `progress`, `tags`, `vector`
-
-> **`vector`** is for AI/ML embeddings (semantic search, RAG). Configure
-> `vectorConfig` with `dimensions`, `distanceMetric`, and `indexType`.
-
----
-
-## Naming Rules — Non-Negotiable
-
-| Context | Convention | Example |
-|:--------|:-----------|:--------|
-| Object `name` | `snake_case` | `project_task` |
-| Field keys | `snake_case` | `first_name`, `due_date` |
-| Schema property keys (TS config) | `camelCase` | `maxLength`, `referenceFilters` |
-| Option `value` | lowercase machine ID | `in_progress` |
-| Option `label` | Any case | `"In Progress"` |
-
-> **Never** use `camelCase` or `PascalCase` for object names or field keys.
-> **Always** use `camelCase` for TypeScript configuration property keys.
-
----
-
-## Relationship Modelling Guide
-
-### When to Use `lookup` vs `master_detail`
-
-| Criteria | `lookup` | `master_detail` |
-|:---------|:---------|:-----------------|
-| Lifecycle coupling | Independent | Child deleted when parent deleted |
-| Required? | Optional by default | Always required |
-| Sharing | Independent | Inherits parent sharing model |
-| Roll-up summaries | Not available | Supported via `summary` fields |
-| Use case | "Related to" | "Owned by" (e.g., Invoice → Line Items) |
-
-### Many-to-Many Relationships
-
-ObjectStack does not have a native many-to-many type. Model it as:
-
-```
-ObjectA ← junction_object → ObjectB
-```
-
-The junction object has two `lookup` fields, one to each side.
-
----
-
-## Validation Rules — Best Practices
-
-### Available Rule Types
-
-| Type | Purpose |
-|:-----|:--------|
-| `script` | Formula expression — validation **fails** when expression is `true` |
-| `unique` | Composite uniqueness across multiple fields |
-| `state_machine` | Legal state transitions (e.g., `draft → submitted → approved`) |
-| `format` | Regex or built-in format (`email`, `url`, `phone`, `json`) |
-| `cross_field` | Compare values across fields (e.g., `end_date > start_date`) |
-| `json_schema` | Validate a JSON field against a JSON Schema |
-| `async` | External API validation (with timeout and debounce) |
-| `custom` | Registered validator function |
-| `conditional` | Apply a rule only when a condition is met |
-
-### Common Patterns
-
-1. **Prevent backdating:** `cross_field` with `condition: "start_date >= TODAY()"`
-2. **Enforce status flow:** `state_machine` on `status` field
-3. **Composite unique:** `unique` on `['tenant_id', 'email']` with `caseSensitive: false`
-
-### Pitfalls
-
-- `script` condition is **inverted**: `true` means **invalid**.
-- Always set `severity` (`error` | `warning` | `info`) — default is `error`.
-- Set `events` to control when the rule fires (`insert`, `update`, `delete`).
-- Lower `priority` numbers execute **first**.
-
----
-
-## Index Strategy
-
-**Only declare non-default values.** `type` defaults to `'btree'` and `unique`
-defaults to `false` — omit them when using the default.
-
-```typescript
-indexes: [
-  { fields: ['status', 'created_at'] },              // btree (default)
-  { fields: ['email'], unique: true },                // btree + unique
-  { fields: ['description'], type: 'fulltext' },      // non-default type
-  { fields: ['tags'], type: 'gin' },                   // non-default type
-  { fields: ['location'], type: 'gist' },              // non-default type
-]
-```
-
-| Type | Default? | When to Use |
-|:-----|:---------|:------------|
-| `btree` | **Yes** | Equality and range queries — omit `type` |
-| `hash` | No | Exact equality only (rare) |
-| `fulltext` | No | Text search columns |
-| `gin` | No | Array / JSONB containment |
-| `gist` | No | Geospatial / range types |
-
-> Use `partial` indexes to index only a subset of rows
-> (e.g., `partial: "status = 'active'"`).
-
----
-
-## Object Extension Model
-
-When extending an object you do not own:
-
-```typescript
-{
-  ownership: 'extend',
-  extend: 'crm.account',      // target object FQN
-  fields: { custom_score: { type: 'number' } },
-  priority: 300,               // higher = applied later
-}
-```
-
-- `priority` controls merge order (default `200`; range `0–999`).
-- Extensions can add fields, validations, and indexes — but cannot remove them.
-
----
-
-## Advanced Features Checklist
-
-| Feature | When to Consider |
-|:--------|:-----------------|
-| `tenancy` | Multi-tenant SaaS — choose `shared`, `isolated`, or `hybrid` |
-| `softDelete` | Regulatory requirement for data retention |
-| `versioning` | Audit / compliance — `snapshot`, `delta`, or `event-sourcing` |
-| `partitioning` | Tables > 100M rows — `range`, `hash`, or `list` |
-| `cdc` | Real-time sync to Kafka, webhooks, or data lakes |
-| `encryptionConfig` | GDPR / HIPAA / PCI-DSS field-level encryption |
-| `maskingRule` | PII masking for non-privileged users |
+- **[Naming Conventions](./rules/naming.md)** — snake_case rules, option values, config properties
+- **[Field Types](./rules/field-types.md)** — All 48 field types with decision tree and configs
+- **[Relationships](./rules/relationships.md)** — lookup vs master_detail, junction patterns, delete behaviors
+- **[Validation Rules](./rules/validation.md)** — All validation types, script inversion, severity levels
+- **[Index Strategy](./rules/indexing.md)** — btree/gin/gist/fulltext, composite indexes, partial indexes
+- **[Lifecycle Hooks](./rules/hooks.md)** — Data lifecycle hooks, before/after patterns, side effects
 
 ---
 
@@ -353,14 +150,141 @@ export default ObjectSchema.create({
 
 ---
 
+## Common Patterns
+
+### Naming Rules Summary
+
+| Context | Convention | Example |
+|:--------|:-----------|:--------|
+| Object `name` | `snake_case` | `project_task` |
+| Field keys | `snake_case` | `first_name`, `due_date` |
+| Schema properties | `camelCase` | `maxLength`, `referenceFilters` |
+| Option `value` | lowercase | `in_progress` |
+
+See [rules/naming.md](./rules/naming.md) for incorrect/correct examples.
+
+### Field Type Selection
+
+48 types available. Quick categories:
+
+- **Text:** `text`, `textarea`, `email`, `url`, `phone`, `markdown`, `html`, `richtext`
+- **Numbers:** `number`, `currency`, `percent`
+- **Date/Time:** `date`, `datetime`, `time`
+- **Logic:** `boolean`, `toggle`
+- **Selection:** `select`, `multiselect`, `radio`, `checkboxes`
+- **Relational:** `lookup`, `master_detail`, `tree`
+- **Media:** `image`, `file`, `avatar`, `video`, `audio`
+- **Calculated:** `formula`, `summary`, `autonumber`
+- **Enhanced:** `location`, `address`, `code`, `json`, `color`, `rating`, `slider`, `signature`, `qrcode`, `progress`, `tags`, `vector`
+
+See [rules/field-types.md](./rules/field-types.md) for full reference.
+
+### Relationship Patterns
+
+| Pattern | Implementation |
+|:--------|:---------------|
+| One-to-Many (independent) | `lookup` field on child |
+| One-to-Many (owned) | `master_detail` field on child |
+| Many-to-Many | Junction object with two `lookup` fields |
+| Hierarchical | `tree` field (self-reference) |
+
+See [rules/relationships.md](./rules/relationships.md) for detailed examples.
+
+### Validation Patterns
+
+**⚠️ Script validation is inverted:** Validation **fails** when expression is `true`.
+
+Common validation types:
+- `script` — Formula expression (inverted logic)
+- `unique` — Composite uniqueness
+- `state_machine` — Legal state transitions
+- `format` — Regex or built-in format
+- `cross_field` — Compare values across fields
+
+See [rules/validation.md](./rules/validation.md) for all types and examples.
+
+### Index Patterns
+
+**Omit default values:** `type` defaults to `'btree'`, `unique` defaults to `false`.
+
+```typescript
+indexes: [
+  { fields: ['status', 'created_at'] },              // btree (default)
+  { fields: ['email'], unique: true },                // btree + unique
+  { fields: ['description'], type: 'fulltext' },      // non-default type
+]
+```
+
+See [rules/indexing.md](./rules/indexing.md) for composite/partial/gin/gist indexes.
+
+### Lifecycle Hooks
+
+Implement business logic at data operation lifecycle points:
+
+```typescript
+import { Hook, HookContext } from '@objectstack/spec/data';
+
+const accountHook: Hook = {
+  name: 'account_defaults',
+  object: 'account',
+  events: ['beforeInsert'],
+  handler: async (ctx: HookContext) => {
+    if (!ctx.input.industry) {
+      ctx.input.industry = 'Other';
+    }
+    ctx.input.created_at = new Date().toISOString();
+  },
+};
+
+export default accountHook;
+```
+
+See [rules/hooks.md](./rules/hooks.md) for all 14 lifecycle events and patterns.
+
+---
+
+## Object Extension Model
+
+When extending an object you do not own:
+
+```typescript
+{
+  ownership: 'extend',
+  extend: 'crm.account',      // target object FQN
+  fields: { custom_score: { type: 'number' } },
+  priority: 300,               // higher = applied later
+}
+```
+
+- `priority` controls merge order (default `200`; range `0–999`)
+- Extensions can add fields, validations, and indexes — but cannot remove them
+
+---
+
+## Advanced Features Checklist
+
+| Feature | When to Consider |
+|:--------|:-----------------|
+| `tenancy` | Multi-tenant SaaS — choose `shared`, `isolated`, or `hybrid` |
+| `softDelete` | Regulatory requirement for data retention |
+| `versioning` | Audit / compliance — `snapshot`, `delta`, or `event-sourcing` |
+| `partitioning` | Tables > 100M rows — `range`, `hash`, or `list` |
+| `cdc` | Real-time sync to Kafka, webhooks, or data lakes |
+| `encryptionConfig` | GDPR / HIPAA / PCI-DSS field-level encryption |
+| `maskingRule` | PII masking for non-privileged users |
+
+---
+
 ## References
 
-- [field.zod.ts](./references/data/field.zod.ts) — FieldType enum, FieldSchema, option/currency/vector config
-- [object.zod.ts](./references/data/object.zod.ts) — ObjectSchema, capabilities, extension model
-- [validation.zod.ts](./references/data/validation.zod.ts) — Validation rule types
-- [query.zod.ts](./references/data/query.zod.ts) — Query operations, pagination, sorting
-- [filter.zod.ts](./references/data/filter.zod.ts) — Filter operators, compound conditions
-- [datasource.zod.ts](./references/data/datasource.zod.ts) — Datasource config, driver capabilities
-- [hook.zod.ts](./references/data/hook.zod.ts) — Lifecycle hooks (beforeInsert, afterUpdate, etc.)
-- [permission.zod.ts](./references/security/permission.zod.ts) — Field/object-level permissions, CRUD access
+- [rules/naming.md](./rules/naming.md) — Naming conventions with incorrect/correct examples
+- [rules/field-types.md](./rules/field-types.md) — All 48 field types with decision tree
+- [rules/relationships.md](./rules/relationships.md) — lookup vs master_detail, patterns
+- [rules/validation.md](./rules/validation.md) — All validation types, script inversion
+- [rules/indexing.md](./rules/indexing.md) — Index types, composite/partial strategies
+- [rules/hooks.md](./rules/hooks.md) — Data lifecycle hooks, 14 events, patterns
+- [references/data/field.zod.ts](./references/data/field.zod.ts) — FieldType enum, FieldSchema
+- [references/data/object.zod.ts](./references/data/object.zod.ts) — ObjectSchema, capabilities
+- [references/data/validation.zod.ts](./references/data/validation.zod.ts) — Validation rule types
+- [references/data/hook.zod.ts](./references/data/hook.zod.ts) — Hook schema, HookContext
 - [Schema index](./references/_index.md) — All bundled schemas with dependency tree
