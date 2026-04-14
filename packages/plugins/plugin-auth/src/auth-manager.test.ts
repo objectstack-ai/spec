@@ -755,4 +755,129 @@ describe('AuthManager', () => {
       expect(capturedConfig).not.toHaveProperty('advanced');
     });
   });
+
+  describe('getPublicConfig', () => {
+    it('should return safe public configuration', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const manager = new AuthManager({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+        socialProviders: {
+          google: {
+            clientId: 'google-client-id',
+            clientSecret: 'google-client-secret',
+            enabled: true,
+          },
+          github: {
+            clientId: 'github-client-id',
+            clientSecret: 'github-client-secret',
+          },
+        },
+        emailAndPassword: {
+          enabled: true,
+          disableSignUp: false,
+          requireEmailVerification: true,
+        },
+        plugins: {
+          twoFactor: true,
+          organization: true,
+        },
+      });
+      warnSpy.mockRestore();
+
+      const config = manager.getPublicConfig();
+
+      // Should include social providers without secrets
+      expect(config.socialProviders).toHaveLength(2);
+      expect(config.socialProviders[0]).toEqual({
+        id: 'google',
+        name: 'Google',
+        enabled: true,
+      });
+      expect(config.socialProviders[1]).toEqual({
+        id: 'github',
+        name: 'GitHub',
+        enabled: true,
+      });
+
+      // Should NOT include sensitive data
+      expect(config).not.toHaveProperty('secret');
+      expect(config.socialProviders[0]).not.toHaveProperty('clientSecret');
+      expect(config.socialProviders[0]).not.toHaveProperty('clientId');
+
+      // Should include email/password config
+      expect(config.emailPassword).toEqual({
+        enabled: true,
+        disableSignUp: false,
+        requireEmailVerification: true,
+      });
+
+      // Should include features
+      expect(config.features).toEqual({
+        twoFactor: true,
+        passkeys: false,
+        magicLink: false,
+        organization: true,
+      });
+    });
+
+    it('should filter out disabled providers', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const manager = new AuthManager({
+        secret: 'test-secret-at-least-32-chars-long',
+        socialProviders: {
+          google: {
+            clientId: 'google-client-id',
+            clientSecret: 'google-client-secret',
+            enabled: true,
+          },
+          github: {
+            clientId: 'github-client-id',
+            clientSecret: 'github-client-secret',
+            enabled: false,
+          },
+        },
+      });
+      warnSpy.mockRestore();
+
+      const config = manager.getPublicConfig();
+
+      expect(config.socialProviders).toHaveLength(1);
+      expect(config.socialProviders[0].id).toBe('google');
+    });
+
+    it('should default email/password to enabled', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const manager = new AuthManager({
+        secret: 'test-secret-at-least-32-chars-long',
+      });
+      warnSpy.mockRestore();
+
+      const config = manager.getPublicConfig();
+
+      expect(config.emailPassword.enabled).toBe(true);
+    });
+
+    it('should handle unknown provider names', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const manager = new AuthManager({
+        secret: 'test-secret-at-least-32-chars-long',
+        socialProviders: {
+          customProvider: {
+            clientId: 'custom-client-id',
+            clientSecret: 'custom-client-secret',
+          },
+        },
+      });
+      warnSpy.mockRestore();
+
+      const config = manager.getPublicConfig();
+
+      expect(config.socialProviders[0]).toEqual({
+        id: 'customProvider',
+        name: 'CustomProvider',
+        enabled: true,
+      });
+    });
+  });
 });

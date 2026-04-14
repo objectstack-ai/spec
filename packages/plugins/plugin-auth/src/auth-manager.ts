@@ -335,4 +335,65 @@ export class AuthManager {
   get api() {
     return this.getOrCreateAuth().api;
   }
+
+  /**
+   * Get public authentication configuration
+   * Returns safe, non-sensitive configuration that can be exposed to the frontend
+   *
+   * This allows the frontend to discover:
+   * - Which social/OAuth providers are available
+   * - Whether email/password login is enabled
+   * - Which advanced features are enabled (2FA, magic links, etc.)
+   */
+  getPublicConfig() {
+    // Extract social providers info (without sensitive data)
+    const socialProviders = [];
+    if (this.config.socialProviders) {
+      for (const [id, providerConfig] of Object.entries(this.config.socialProviders)) {
+        if (providerConfig.enabled !== false) {
+          // Map provider ID to friendly name
+          const nameMap: Record<string, string> = {
+            google: 'Google',
+            github: 'GitHub',
+            microsoft: 'Microsoft',
+            apple: 'Apple',
+            facebook: 'Facebook',
+            twitter: 'Twitter',
+            discord: 'Discord',
+            gitlab: 'GitLab',
+            linkedin: 'LinkedIn',
+          };
+
+          socialProviders.push({
+            id,
+            name: nameMap[id] || id.charAt(0).toUpperCase() + id.slice(1),
+            enabled: true,
+          });
+        }
+      }
+    }
+
+    // Extract email/password config (safe fields only)
+    const emailPasswordConfig = this.config.emailAndPassword || {};
+    const emailPassword = {
+      enabled: emailPasswordConfig.enabled !== false, // Default to true
+      disableSignUp: emailPasswordConfig.disableSignUp,
+      requireEmailVerification: emailPasswordConfig.requireEmailVerification,
+    };
+
+    // Extract enabled features
+    const pluginConfig = this.config.plugins || {};
+    const features = {
+      twoFactor: pluginConfig.twoFactor || false,
+      passkeys: pluginConfig.passkeys || false,
+      magicLink: pluginConfig.magicLink || false,
+      organization: pluginConfig.organization || false,
+    };
+
+    return {
+      emailPassword,
+      socialProviders,
+      features,
+    };
+  }
 }

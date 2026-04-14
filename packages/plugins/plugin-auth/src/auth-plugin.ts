@@ -245,6 +245,28 @@ export class AuthPlugin implements Plugin {
 
     const rawApp = (httpServer as any).getRawApp();
 
+    // Register auth config endpoint - public endpoint for frontend discovery
+    rawApp.get(`${basePath}/config`, async (c: any) => {
+      try {
+        const config = this.authManager!.getPublicConfig();
+        return c.json({
+          success: true,
+          data: config,
+        });
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        ctx.logger.error('Auth config error:', err);
+
+        return c.json({
+          success: false,
+          error: {
+            code: 'auth_config_error',
+            message: err.message,
+          },
+        }, 500);
+      }
+    });
+
     // Register wildcard route to forward all auth requests to better-auth.
     // better-auth is configured with basePath matching our route prefix, so we
     // forward the original request directly — no path rewriting needed.
