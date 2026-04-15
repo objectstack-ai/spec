@@ -11,7 +11,7 @@
  */
 
 import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
-import { ObjectQLPlugin } from '@objectstack/objectql';
+import { ObjectQLPlugin, ObjectQL } from '@objectstack/objectql';
 import { TursoDriver } from '@objectstack/driver-turso';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { createHonoApp } from '@objectstack/hono';
@@ -84,7 +84,7 @@ async function ensureKernel(): Promise<ObjectKernel> {
             await kernel.use(new DriverPlugin(tursoDriver, 'turso'));
 
             // Configure datasource mapping: sys namespace → Turso, everything else → Memory
-            const ql = await kernel.getServiceAsync<any>('objectql');
+            const ql = await kernel.getServiceAsync<ObjectQL>('objectql');
             if (ql && typeof ql.setDatasourceMapping === 'function') {
                 ql.setDatasourceMapping([
                     // System objects (sys namespace) use Turso for persistent storage
