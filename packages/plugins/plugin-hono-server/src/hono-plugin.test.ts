@@ -27,6 +27,7 @@ vi.mock('./adapter', () => ({
             close: vi.fn(),
             getRawApp: vi.fn().mockReturnValue({
                 get: vi.fn(),
+                use: vi.fn(),
             })
         };
     })
