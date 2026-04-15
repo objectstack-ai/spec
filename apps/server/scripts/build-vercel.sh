@@ -55,7 +55,7 @@ cat > api/_package.json << 'DEPS'
 DEPS
 cd api
 mv _package.json package.json
-npm install --production --no-package-lock --ignore-scripts 2>&1 | tail -3
+npm install --production --no-package-lock --ignore-scripts --loglevel error
 rm package.json
 cd ..
 echo "[build-vercel]   ✓ External dependencies installed in api/node_modules/"
