@@ -110,7 +110,15 @@ describe('ObjectStackClient (with Hono Server)', () => {
     }, 30_000);
 
     afterAll(async () => {
-        if (kernel) await kernel.shutdown();
+        if (kernel) {
+            // Race shutdown against a hard deadline.
+            // kernel.shutdown() can hang when pino's flush callback never fires
+            // in CI (worker-thread transport timing issues), so cap the wait.
+            await Promise.race([
+                kernel.shutdown(),
+                new Promise<void>((resolve) => setTimeout(resolve, 10_000)),
+            ]);
+        }
     }, 30_000);
 
     it('should connect to hono server and discover endpoints', async () => {
