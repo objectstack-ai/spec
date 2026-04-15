@@ -69,7 +69,7 @@ export default defineStack({
     new SecurityPlugin(),
     new AuditPlugin(),
     new FeedServicePlugin(),
-    new MetadataPlugin({ watch: !process.env.VERCEL }),
+    new MetadataPlugin({ watch: false }),
     new AIServicePlugin(),
     new AutomationServicePlugin(),
     new AnalyticsServicePlugin(),
