@@ -10,8 +10,11 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@objectstack/core': path.resolve(__dirname, '../../core/src'),
-      '@objectstack/spec': path.resolve(__dirname, '../../spec/src'),
+      '@objectstack/core': path.resolve(__dirname, '../../core/src/index.ts'),
+      '@objectstack/spec/api': path.resolve(__dirname, '../../spec/src/api/index.ts'),
+      '@objectstack/spec/contracts': path.resolve(__dirname, '../../spec/src/contracts/index.ts'),
+      '@objectstack/spec/system': path.resolve(__dirname, '../../spec/src/system/index.ts'),
+      '@objectstack/spec': path.resolve(__dirname, '../../spec/src/index.ts'),
     },
   },
 });

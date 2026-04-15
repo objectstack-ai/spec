@@ -83,22 +83,20 @@ if (fs.existsSync(OUT_DIR)) {
 
   // Use a more robust cleanup with multiple retries and longer delays
   // to handle filesystem race conditions in CI environments
-  let cleanupSuccess = false;
   for (let attempt = 0; attempt < MAX_RETRIES * 2; attempt++) {
     try {
       // Try removing with native Node.js rmSync
       if (fs.existsSync(OUT_DIR)) {
-        fs.rmSync(OUT_DIR, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
+        fs.rmSync(OUT_DIR, { recursive: true, force: true, maxRetries: 5, retryDelay: RETRY_DELAY_BASE_MS * 2 });
       }
 
       // Verify the directory is actually gone
       if (!fs.existsSync(OUT_DIR)) {
-        cleanupSuccess = true;
         break;
       }
 
-      // If still exists, wait before retrying
-      sleepSync(100 * (attempt + 1));
+      // If still exists, wait before retrying with exponential backoff
+      sleepSync(RETRY_DELAY_BASE_MS * (attempt + 1));
     } catch (error) {
       // If this is the last attempt, log but continue (we'll try to work with what's there)
       if (attempt === (MAX_RETRIES * 2 - 1)) {
@@ -107,7 +105,7 @@ if (fs.existsSync(OUT_DIR)) {
         break;
       }
       // Wait before retry with exponential backoff
-      sleepSync(100 * (attempt + 1));
+      sleepSync(RETRY_DELAY_BASE_MS * (attempt + 1));
     }
   }
 
