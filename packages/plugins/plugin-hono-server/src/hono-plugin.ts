@@ -66,6 +66,62 @@ export interface HonoPluginOptions {
  * - `@objectstack/rest` → CRUD, metadata, discovery, UI, batch
  * - `createDispatcherPlugin()` → auth, graphql, analytics, packages, etc.
  */
+/**
+ * Check if an origin matches a pattern with wildcards.
+ * Supports patterns like:
+ * - "https://*.example.com" - matches any subdomain
+ * - "http://localhost:*" - matches any port
+ * - "https://*.objectui.org,https://*.objectstack.ai" - comma-separated patterns
+ *
+ * @param origin The origin to check (e.g., "https://app.example.com")
+ * @param pattern The pattern to match against (supports * wildcard)
+ * @returns true if origin matches the pattern
+ */
+function matchOriginPattern(origin: string, pattern: string): boolean {
+    if (pattern === '*') return true;
+    if (pattern === origin) return true;
+
+    // Convert wildcard pattern to regex
+    // Escape special regex characters except *
+    const regexPattern = pattern
+        .replace(/[.+?^${}()|[\]\\]/g, '\\$&')  // Escape special chars
+        .replace(/\*/g, '.*');                    // Convert * to .*
+
+    const regex = new RegExp(`^${regexPattern}$`);
+    return regex.test(origin);
+}
+
+/**
+ * Create a CORS origin matcher function that supports wildcard patterns.
+ *
+ * @param patterns Single pattern, array of patterns, or comma-separated patterns
+ * @returns Function that returns the origin if it matches, or null/undefined
+ */
+function createOriginMatcher(
+    patterns: string | string[]
+): (origin: string) => string | undefined | null {
+    // Normalize to array
+    let patternList: string[];
+    if (typeof patterns === 'string') {
+        // Handle comma-separated patterns
+        patternList = patterns.includes(',')
+            ? patterns.split(',').map(s => s.trim()).filter(Boolean)
+            : [patterns];
+    } else {
+        patternList = patterns;
+    }
+
+    // Return matcher function
+    return (requestOrigin: string) => {
+        for (const pattern of patternList) {
+            if (matchOriginPattern(requestOrigin, pattern)) {
+                return requestOrigin;
+            }
+        }
+        return null;
+    };
+}
+
 export class HonoServerPlugin implements Plugin {
     name = 'com.objectstack.server.hono';
     type = 'server';
@@ -128,12 +184,27 @@ export class HonoServerPlugin implements Plugin {
                 const credentials = corsOpts.credentials ?? (process.env.CORS_CREDENTIALS !== 'false');
                 const maxAge = corsOpts.maxAge ?? (process.env.CORS_MAX_AGE ? parseInt(process.env.CORS_MAX_AGE, 10) : 86400);
 
-                // When credentials is true, browsers reject wildcard '*' for Access-Control-Allow-Origin.
-                // Use a function to reflect the request's Origin header instead.
+                // Determine origin handler based on configuration
                 let origin: string | string[] | ((origin: string) => string | undefined | null);
-                if (credentials && configuredOrigin === '*') {
+
+                // Check if patterns contain wildcards (*, subdomain patterns, port patterns)
+                const hasWildcard = (patterns: string | string[]): boolean => {
+                    const list = Array.isArray(patterns) ? patterns : [patterns];
+                    return list.some(p => p.includes('*'));
+                };
+
+                // When credentials is true, browsers reject wildcard '*' for Access-Control-Allow-Origin.
+                // For wildcard patterns (like "https://*.example.com"), always use a matcher function.
+                // For exact origins, we can pass them directly as string/array.
+                if (configuredOrigin === '*' && credentials) {
+                    // Credentials mode with '*' - reflect the request origin
                     origin = (requestOrigin: string) => requestOrigin || '*';
+                } else if (hasWildcard(configuredOrigin)) {
+                    // Wildcard patterns (including better-auth style patterns like "https://*.objectui.org")
+                    // Use pattern matcher to support subdomain and port wildcards
+                    origin = createOriginMatcher(configuredOrigin);
                 } else {
+                    // Exact origin(s) - pass through as-is
                     origin = configuredOrigin;
                 }
 
