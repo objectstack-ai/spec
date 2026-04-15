@@ -34,17 +34,12 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     ? `https://${process.env.VERCEL_URL}` : undefined)
   ?? 'http://localhost:3000';
 
-// Turso persistent storage — enabled when env vars are configured
-const tursoUrl = process.env.TURSO_DATABASE_URL;
-const tursoToken = process.env.TURSO_AUTH_TOKEN;
-const useTurso = !!(tursoUrl && tursoToken);
-
-const driverPlugins = useTurso
-  ? [
-      new DriverPlugin(new InMemoryDriver(), 'memory'),
-      new DriverPlugin(new TursoDriver({ url: tursoUrl!, authToken: tursoToken! }), 'turso'),
-    ]
-  : [new DriverPlugin(new InMemoryDriver(), 'memory')];
+// Turso driver for sys namespace — remote when env vars are configured, local SQLite otherwise
+const tursoDriver = new TursoDriver(
+  process.env.TURSO_DATABASE_URL
+    ? { url: process.env.TURSO_DATABASE_URL, authToken: process.env.TURSO_AUTH_TOKEN }
+    : { url: 'file:.objectstack/data/dev.db' },
+);
 
 export default defineStack({
   manifest: {
@@ -57,7 +52,8 @@ export default defineStack({
   },
   plugins: [
     new ObjectQLPlugin(),
-    ...driverPlugins,
+    new DriverPlugin(new InMemoryDriver(), 'memory'),
+    new DriverPlugin(tursoDriver, 'turso'),
     new AppPlugin(CrmApp),
     new AppPlugin(TodoApp),
     new AppPlugin(BiPluginManifest),
@@ -74,11 +70,8 @@ export default defineStack({
     new AutomationServicePlugin(),
     new AnalyticsServicePlugin(),
   ],
-  // When Turso is configured, route sys namespace to persistent storage
-  ...(useTurso && {
-    datasourceMapping: [
-      { namespace: 'sys', datasource: 'turso' },
-      { default: true, datasource: 'memory' },
-    ],
-  }),
+  datasourceMapping: [
+    { namespace: 'sys', datasource: 'turso' },
+    { default: true, datasource: 'memory' },
+  ],
 });
