@@ -11,7 +11,7 @@ import { ObjectKernel } from '@objectstack/runtime';
 import { createHonoApp } from '@objectstack/hono';
 import { getRequestListener } from '@hono/node-server';
 import type { Hono } from 'hono';
-import config from '../objectstack.config';
+import stackConfig from '../objectstack.config';
 
 // ---------------------------------------------------------------------------
 // Singleton state — persists across warm Vercel invocations
@@ -38,7 +38,11 @@ async function ensureKernel(): Promise<ObjectKernel> {
             const kernel = new ObjectKernel();
 
             // Register all plugins from shared config
-            for (const plugin of config.plugins ?? []) {
+            if (!stackConfig.plugins || stackConfig.plugins.length === 0) {
+                throw new Error(`[Vercel] No plugins found in stackConfig`);
+            }
+
+            for (const plugin of stackConfig.plugins) {
                 await kernel.use(plugin as any);
             }
 
