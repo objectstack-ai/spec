@@ -25,6 +25,8 @@ import { AnalyticsServicePlugin } from '@objectstack/service-analytics';
 import CrmApp from '../../examples/app-crm/objectstack.config';
 import TodoApp from '../../examples/app-todo/objectstack.config';
 import BiPluginManifest from '../../examples/plugin-bi/objectstack.config';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 
 // Resolve base URL: explicit env > Vercel production URL > Vercel preview URL > localhost
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
@@ -35,11 +37,20 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
   ?? 'http://localhost:3000';
 
 // Turso driver for sys namespace — remote when env vars are configured, local SQLite otherwise
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const tursoDriver = new TursoDriver(
   process.env.TURSO_DATABASE_URL
     ? { url: process.env.TURSO_DATABASE_URL, authToken: process.env.TURSO_AUTH_TOKEN }
-    : { url: 'file:.objectstack/data/dev.db' },
+    : { url: `file:${resolve(__dirname, '.objectstack/data/dev.db')}` },
 );
+
+// Datasource routing: sys namespace → turso, everything else → memory
+const datasourceMapping = [
+  { namespace: 'sys', datasource: 'com.objectstack.driver.turso' },
+  { default: true, datasource: 'com.objectstack.driver.memory' },
+];
+
+const oqlPlugin = new ObjectQLPlugin();
 
 export default defineStack({
   manifest: {
@@ -51,7 +62,15 @@ export default defineStack({
     type: 'app',
   },
   plugins: [
-    new ObjectQLPlugin(),
+    oqlPlugin,
+    // Set datasourceMapping right after ObjectQL init — access ql instance directly
+    {
+      name: 'datasource-mapping',
+      init() {
+        const ql = (oqlPlugin as any).ql;
+        if (ql?.setDatasourceMapping) ql.setDatasourceMapping(datasourceMapping);
+      },
+    },
     new DriverPlugin(new InMemoryDriver(), 'memory'),
     new DriverPlugin(tursoDriver, 'turso'),
     new AppPlugin(CrmApp),
@@ -70,8 +89,5 @@ export default defineStack({
     new AutomationServicePlugin(),
     new AnalyticsServicePlugin(),
   ],
-  datasourceMapping: [
-    { namespace: 'sys', datasource: 'turso' },
-    { default: true, datasource: 'memory' },
-  ],
-});
+  datasourceMapping,
+}, { strict: false });
