@@ -33,12 +33,23 @@ async function ensureKernel(): Promise<ObjectKernel> {
 
     _bootPromise = (async () => {
         console.log('[Vercel] Booting ObjectStack Kernel...');
+        console.log('[Vercel] Config type:', typeof config);
+        console.log('[Vercel] Config keys:', Object.keys(config || {}).join(', '));
+        console.log('[Vercel] Config.plugins type:', typeof config?.plugins);
+        console.log('[Vercel] Config.plugins length:', Array.isArray(config?.plugins) ? config.plugins.length : 'not an array');
 
         try {
             const kernel = new ObjectKernel();
 
             // Register all plugins from shared config
-            for (const plugin of config.plugins ?? []) {
+            const plugins = config.plugins || config.default?.plugins;
+            if (!plugins || !Array.isArray(plugins) || plugins.length === 0) {
+                throw new Error(`[Vercel] No plugins found in config. Config structure may be incorrect.`);
+            }
+
+            console.log(`[Vercel] Registering ${plugins.length} plugins...`);
+            for (const plugin of plugins) {
+                console.log(`[Vercel] Registering plugin: ${plugin?.name || 'unknown'}`);
                 await kernel.use(plugin as any);
             }
 
