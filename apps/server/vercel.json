@@ -24,6 +24,9 @@
       ]
     }
   ],
+  "redirects": [
+    { "source": "/", "destination": "/_studio", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/[[...route]]" },
     { "source": "/_studio/(.*)", "destination": "/_studio/$1" },
