@@ -490,6 +490,8 @@ describe('MetadataPlugin', () => {
       stopWatching = vi.fn();
       setTypeRegistry = vi.fn();
       setDatabaseDriver = vi.fn();
+      setDataEngine = vi.fn();
+      setRealtimeService = vi.fn();
       register = vi.fn();
     };
     return { NodeMetadataManager: MockNodeMetadataManager };
@@ -533,80 +535,82 @@ describe('MetadataPlugin', () => {
     expect(ctx.logger.info).toHaveBeenCalled();
   });
 
-  it('should bridge driver service to MetadataManager in start()', async () => {
+  it('should bridge ObjectQL engine to MetadataManager in start()', async () => {
     const { MetadataPlugin } = await import('./plugin.js');
     const plugin = new MetadataPlugin({ rootDir: '/tmp/test', watch: false });
 
-    const mockDriver = { name: 'mock-driver', find: vi.fn(), create: vi.fn() };
-    const services = new Map<string, any>();
-    services.set('driver.mock-driver', mockDriver);
+    const mockObjectQL = { find: vi.fn(), create: vi.fn(), update: vi.fn() };
 
     const ctx = createMockPluginContext();
-    ctx.getServices = vi.fn().mockReturnValue(services);
+    ctx.getService = vi.fn().mockImplementation((name: string) => {
+      if (name === 'objectql') return mockObjectQL;
+      return null;
+    });
 
     await plugin.init(ctx);
     await plugin.start(ctx);
 
-    // Verify setDatabaseDriver was called on the manager with the driver
+    // Verify setDataEngine was called on the manager with the ObjectQL engine
     const manager = (plugin as any).manager;
-    expect(manager.setDatabaseDriver).toHaveBeenCalledWith(mockDriver);
+    expect(manager.setDataEngine).toHaveBeenCalledWith(mockObjectQL);
   });
 
-  it('should bridge driver AFTER filesystem metadata loading', async () => {
+  it('should bridge ObjectQL engine AFTER filesystem metadata loading', async () => {
     const { MetadataPlugin } = await import('./plugin.js');
     const plugin = new MetadataPlugin({ rootDir: '/tmp/test', watch: false });
 
     const callOrder: string[] = [];
-    const mockDriver = { name: 'mock-driver', find: vi.fn(), create: vi.fn() };
-    const services = new Map<string, any>();
-    services.set('driver.mock-driver', mockDriver);
+    const mockObjectQL = { find: vi.fn(), create: vi.fn(), update: vi.fn() };
 
     const manager = (plugin as any).manager;
     manager.loadMany = vi.fn().mockImplementation(async () => {
       callOrder.push('loadMany');
       return [];
     });
-    manager.setDatabaseDriver = vi.fn().mockImplementation(() => {
-      callOrder.push('setDatabaseDriver');
+    manager.setDataEngine = vi.fn().mockImplementation(() => {
+      callOrder.push('setDataEngine');
     });
 
     const ctx = createMockPluginContext();
-    ctx.getServices = vi.fn().mockReturnValue(services);
+    ctx.getService = vi.fn().mockImplementation((name: string) => {
+      if (name === 'objectql') return mockObjectQL;
+      return null;
+    });
 
     await plugin.init(ctx);
     await plugin.start(ctx);
 
-    // setDatabaseDriver must be called after all loadMany calls
+    // setDataEngine must be called after all loadMany calls
     const lastLoad = callOrder.lastIndexOf('loadMany');
-    const driverIdx = callOrder.indexOf('setDatabaseDriver');
+    const driverIdx = callOrder.indexOf('setDataEngine');
     expect(driverIdx).toBeGreaterThan(lastLoad);
   });
 
-  it('should not fail when no driver service is available', async () => {
+  it('should not fail when no ObjectQL service is available', async () => {
     const { MetadataPlugin } = await import('./plugin.js');
     const plugin = new MetadataPlugin({ rootDir: '/tmp/test', watch: false });
 
     const ctx = createMockPluginContext();
-    ctx.getServices = vi.fn().mockReturnValue(new Map());
+    // getService returns null by default — no objectql available
 
     await plugin.init(ctx);
     // Should not throw
     await expect(plugin.start(ctx)).resolves.not.toThrow();
 
-    // setDatabaseDriver should not have been called
+    // setDataEngine should not have been called
     const manager = (plugin as any).manager;
-    expect(manager.setDatabaseDriver).not.toHaveBeenCalled();
+    expect(manager.setDataEngine).not.toHaveBeenCalled();
   });
 
-  it('should gracefully handle getServices errors', async () => {
+  it('should gracefully handle getService errors', async () => {
     const { MetadataPlugin } = await import('./plugin.js');
     const plugin = new MetadataPlugin({ rootDir: '/tmp/test', watch: false });
 
     const ctx = createMockPluginContext();
-    ctx.getServices = vi.fn().mockImplementation(() => { throw new Error('services unavailable'); });
+    ctx.getService = vi.fn().mockImplementation(() => { throw new Error('service unavailable'); });
 
     await plugin.init(ctx);
-    // Should not throw even when getServices fails
+    // Should not throw even when getService fails
     await expect(plugin.start(ctx)).resolves.not.toThrow();
   });
 });
