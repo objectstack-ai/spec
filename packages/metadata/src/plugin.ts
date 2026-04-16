@@ -104,40 +104,17 @@ export class MetadataPlugin implements Plugin {
             registeredTypes: sortedTypes.length,
         });
 
-        // Bridge database driver from kernel service registry to MetadataManager.
-        // Uses ObjectQL engine's datasource mapping to resolve the correct driver
-        // for sys_metadata (respects namespace → datasource routing).
+        // Bridge ObjectQL data engine to MetadataManager.
+        // The engine handles datasource routing automatically via namespace mapping
+        // (e.g. namespace:'sys' → turso driver). No manual driver resolution needed.
         try {
             const ql = ctx.getService<any>('objectql');
             if (ql) {
-                const tableName = this.manager['config']?.tableName ?? 'sys_metadata';
-                const driver = ql.getDriverForObject?.(tableName);
-                if (driver) {
-                    ctx.logger.info('[MetadataPlugin] Bridging driver to MetadataManager via ObjectQL routing', {
-                        tableName,
-                        driver: driver.name,
-                    });
-                    this.manager.setDatabaseDriver(driver);
-                } else {
-                    ctx.logger.debug('[MetadataPlugin] ObjectQL could not resolve driver for metadata table', { tableName });
-                }
+                ctx.logger.info('[MetadataPlugin] Bridging ObjectQL engine to MetadataManager');
+                this.manager.setDataEngine(ql);
             }
         } catch {
-            // ObjectQL not available — fall back to first available driver service
-            try {
-                const services = ctx.getServices();
-                for (const [serviceName, service] of services) {
-                    if (serviceName.startsWith('driver.') && service) {
-                        ctx.logger.info('[MetadataPlugin] Bridging driver to MetadataManager (fallback: first driver)', {
-                            driverService: serviceName,
-                        });
-                        this.manager.setDatabaseDriver(service);
-                        break;
-                    }
-                }
-            } catch (e: any) {
-                ctx.logger.debug('[MetadataPlugin] No driver service found', { error: e.message });
-            }
+            ctx.logger.debug('[MetadataPlugin] ObjectQL not available — database persistence disabled');
         }
 
         // Bridge realtime service from kernel service registry to MetadataManager.

@@ -21,16 +21,24 @@ import type {
 } from '@objectstack/spec/system';
 import { SysMetadataObject } from '../objects/sys-metadata.object.js';
 import { SysMetadataHistoryObject } from '../objects/sys-metadata-history.object.js';
-import type { IDataDriver } from '@objectstack/spec/contracts';
+import type { IDataDriver, IDataEngine } from '@objectstack/spec/contracts';
 import type { MetadataLoader } from './loader-interface.js';
 import { calculateChecksum } from '../utils/metadata-history-utils.js';
 
 /**
  * Configuration for the DatabaseLoader.
+ *
+ * Accepts either a raw `IDataDriver` or an `IDataEngine` (ObjectQL).
+ * When `engine` is provided, all CRUD operations route through the engine
+ * which handles datasource mapping automatically — no manual driver
+ * resolution needed. Schema sync is also skipped (the engine handles it).
  */
 export interface DatabaseLoaderOptions {
   /** The IDataDriver instance to use for database operations */
-  driver: IDataDriver;
+  driver?: IDataDriver;
+
+  /** The IDataEngine (ObjectQL) instance — preferred over raw driver */
+  engine?: IDataEngine;
 
   /** The table name to store metadata records (default: 'sys_metadata') */
   tableName?: string;
@@ -64,7 +72,8 @@ export class DatabaseLoader implements MetadataLoader {
     },
   };
 
-  private driver: IDataDriver;
+  private driver?: IDataDriver;
+  private engine?: IDataEngine;
   private tableName: string;
   private historyTableName: string;
   private tenantId?: string;
@@ -73,11 +82,61 @@ export class DatabaseLoader implements MetadataLoader {
   private historySchemaReady = false;
 
   constructor(options: DatabaseLoaderOptions) {
+    if (!options.driver && !options.engine) {
+      throw new Error('DatabaseLoader requires either a driver or engine');
+    }
     this.driver = options.driver;
+    this.engine = options.engine;
     this.tableName = options.tableName ?? 'sys_metadata';
     this.historyTableName = options.historyTableName ?? 'sys_metadata_history';
     this.tenantId = options.tenantId;
     this.trackHistory = options.trackHistory !== false; // Default to true
+  }
+
+  // ==========================================
+  // Internal CRUD helpers (driver vs engine)
+  // ==========================================
+
+  private async _find(table: string, query: Record<string, unknown>): Promise<Record<string, unknown>[]> {
+    if (this.engine) {
+      return this.engine.find(table, query as any);
+    }
+    return this.driver!.find(table, { object: table, ...query } as any);
+  }
+
+  private async _findOne(table: string, query: Record<string, unknown>): Promise<Record<string, unknown> | null> {
+    if (this.engine) {
+      return this.engine.findOne(table, query as any);
+    }
+    return this.driver!.findOne(table, { object: table, ...query } as any);
+  }
+
+  private async _count(table: string, query: Record<string, unknown>): Promise<number> {
+    if (this.engine) {
+      return this.engine.count(table, query as any);
+    }
+    return this.driver!.count(table, { object: table, ...query } as any);
+  }
+
+  private async _create(table: string, data: Record<string, unknown>): Promise<Record<string, unknown>> {
+    if (this.engine) {
+      return this.engine.insert(table, data);
+    }
+    return this.driver!.create(table, data);
+  }
+
+  private async _update(table: string, id: string, data: Record<string, unknown>): Promise<Record<string, unknown>> {
+    if (this.engine) {
+      return this.engine.update(table, { id, ...data });
+    }
+    return this.driver!.update(table, id, data);
+  }
+
+  private async _delete(table: string, id: string): Promise<any> {
+    if (this.engine) {
+      return this.engine.delete(table, { where: { id } } as any);
+    }
+    return this.driver!.delete(table, id);
   }
 
   /**
@@ -88,8 +147,14 @@ export class DatabaseLoader implements MetadataLoader {
   private async ensureSchema(): Promise<void> {
     if (this.schemaReady) return;
 
+    // When using engine, schema sync is handled by ObjectQL startup
+    if (this.engine) {
+      this.schemaReady = true;
+      return;
+    }
+
     try {
-      await this.driver.syncSchema(this.tableName, {
+      await this.driver!.syncSchema(this.tableName, {
         ...SysMetadataObject,
         name: this.tableName,
       });
@@ -107,8 +172,14 @@ export class DatabaseLoader implements MetadataLoader {
   private async ensureHistorySchema(): Promise<void> {
     if (!this.trackHistory || this.historySchemaReady) return;
 
+    // When using engine, schema sync is handled by ObjectQL startup
+    if (this.engine) {
+      this.historySchemaReady = true;
+      return;
+    }
+
     try {
-      await this.driver.syncSchema(this.historyTableName, {
+      await this.driver!.syncSchema(this.historyTableName, {
         ...SysMetadataHistoryObject,
         name: this.historyTableName,
       });
@@ -191,7 +262,7 @@ export class DatabaseLoader implements MetadataLoader {
     };
 
     try {
-      await this.driver.create(this.historyTableName, {
+      await this._create(this.historyTableName, {
         id: historyRecord.id,
         metadata_id: historyRecord.metadataId,
         name: historyRecord.name,
@@ -269,8 +340,7 @@ export class DatabaseLoader implements MetadataLoader {
     await this.ensureSchema();
 
     try {
-      const row = await this.driver.findOne(this.tableName, {
-        object: this.tableName,
+      const row = await this._findOne(this.tableName, {
         where: this.baseFilter(type, name),
       });
 
@@ -306,8 +376,7 @@ export class DatabaseLoader implements MetadataLoader {
     await this.ensureSchema();
 
     try {
-      const rows = await this.driver.find(this.tableName, {
-        object: this.tableName,
+      const rows = await this._find(this.tableName, {
         where: this.baseFilter(type),
       });
 
@@ -323,8 +392,7 @@ export class DatabaseLoader implements MetadataLoader {
     await this.ensureSchema();
 
     try {
-      const count = await this.driver.count(this.tableName, {
-        object: this.tableName,
+      const count = await this._count(this.tableName, {
         where: this.baseFilter(type, name),
       });
 
@@ -338,8 +406,7 @@ export class DatabaseLoader implements MetadataLoader {
     await this.ensureSchema();
 
     try {
-      const row = await this.driver.findOne(this.tableName, {
-        object: this.tableName,
+      const row = await this._findOne(this.tableName, {
         where: this.baseFilter(type, name),
       });
 
@@ -365,8 +432,7 @@ export class DatabaseLoader implements MetadataLoader {
     await this.ensureSchema();
 
     try {
-      const rows = await this.driver.find(this.tableName, {
-        object: this.tableName,
+      const rows = await this._find(this.tableName, {
         where: this.baseFilter(type),
         fields: ['name'],
       });
@@ -393,8 +459,7 @@ export class DatabaseLoader implements MetadataLoader {
     await this.ensureHistorySchema();
 
     // Resolve the parent metadata record ID
-    const metadataRow = await this.driver.findOne(this.tableName, {
-      object: this.tableName,
+    const metadataRow = await this._findOne(this.tableName, {
       where: this.baseFilter(type, name),
     });
     if (!metadataRow) return null;
@@ -407,8 +472,7 @@ export class DatabaseLoader implements MetadataLoader {
       filter.tenant_id = this.tenantId;
     }
 
-    const row = await this.driver.findOne(this.historyTableName, {
-      object: this.historyTableName,
+    const row = await this._findOne(this.historyTableName, {
       where: filter,
     });
     if (!row) return null;
@@ -428,6 +492,95 @@ export class DatabaseLoader implements MetadataLoader {
       recordedBy: row.recorded_by as string | undefined,
       recordedAt: row.recorded_at as string,
     };
+  }
+
+  /**
+   * Query history records with pagination and filtering.
+   * Encapsulates history table queries so MetadataManager doesn't need
+   * direct driver access.
+   */
+  async queryHistory(
+    type: string,
+    name: string,
+    options?: {
+      operationType?: string;
+      since?: string;
+      until?: string;
+      limit?: number;
+      offset?: number;
+      includeMetadata?: boolean;
+    }
+  ): Promise<{ records: any[]; total: number; hasMore: boolean }> {
+    if (!this.trackHistory) {
+      return { records: [], total: 0, hasMore: false };
+    }
+
+    await this.ensureSchema();
+    await this.ensureHistorySchema();
+
+    // Find the metadata record
+    const filter: Record<string, unknown> = { type, name };
+    if (this.tenantId) filter.tenant_id = this.tenantId;
+
+    const metadataRecord = await this._findOne(this.tableName, { where: filter });
+    if (!metadataRecord) {
+      return { records: [], total: 0, hasMore: false };
+    }
+
+    // Build history query
+    const historyFilter: Record<string, unknown> = {
+      metadata_id: metadataRecord.id,
+    };
+    if (this.tenantId) historyFilter.tenant_id = this.tenantId;
+    if (options?.operationType) historyFilter.operation_type = options.operationType;
+    if (options?.since) historyFilter.recorded_at = { $gte: options.since };
+    if (options?.until) {
+      if (historyFilter.recorded_at) {
+        (historyFilter.recorded_at as Record<string, unknown>).$lte = options.until;
+      } else {
+        historyFilter.recorded_at = { $lte: options.until };
+      }
+    }
+
+    const limit = options?.limit ?? 50;
+    const offset = options?.offset ?? 0;
+
+    const historyRecords = await this._find(this.historyTableName, {
+      where: historyFilter,
+      orderBy: [{ field: 'recorded_at', order: 'desc' as const }],
+      limit: limit + 1,
+      offset,
+    });
+
+    const hasMore = historyRecords.length > limit;
+    const records = historyRecords.slice(0, limit);
+    const total = await this._count(this.historyTableName, { where: historyFilter });
+
+    const includeMetadata = options?.includeMetadata !== false;
+    const result = records.map((row: Record<string, unknown>) => {
+      const parsedMetadata =
+        typeof row.metadata === 'string'
+          ? JSON.parse(row.metadata as string)
+          : (row.metadata as Record<string, unknown> | null | undefined);
+
+      return {
+        id: row.id as string,
+        metadataId: row.metadata_id as string,
+        name: row.name as string,
+        type: row.type as string,
+        version: row.version as number,
+        operationType: row.operation_type as string,
+        metadata: includeMetadata ? parsedMetadata : null,
+        checksum: row.checksum as string,
+        previousChecksum: row.previous_checksum as string | undefined,
+        changeNote: row.change_note as string | undefined,
+        tenantId: row.tenant_id as string | undefined,
+        recordedBy: row.recorded_by as string | undefined,
+        recordedAt: row.recorded_at as string,
+      };
+    });
+
+    return { records: result, total, hasMore };
   }
 
   /**
@@ -451,8 +604,7 @@ export class DatabaseLoader implements MetadataLoader {
     const metadataJson = JSON.stringify(restoredData);
     const newChecksum = await calculateChecksum(restoredData);
 
-    const existing = await this.driver.findOne(this.tableName, {
-      object: this.tableName,
+    const existing = await this._findOne(this.tableName, {
       where: this.baseFilter(type, name),
     });
 
@@ -463,7 +615,7 @@ export class DatabaseLoader implements MetadataLoader {
     const previousChecksum = existing.checksum as string | undefined;
     const newVersion = ((existing.version as number) ?? 0) + 1;
 
-    await this.driver.update(this.tableName, existing.id as string, {
+    await this._update(this.tableName, existing.id as string, {
       metadata: metadataJson,
       version: newVersion,
       checksum: newChecksum,
@@ -500,8 +652,7 @@ export class DatabaseLoader implements MetadataLoader {
     const newChecksum = await calculateChecksum(data);
 
     try {
-      const existing = await this.driver.findOne(this.tableName, {
-        object: this.tableName,
+      const existing = await this._findOne(this.tableName, {
         where: this.baseFilter(type, name),
       });
 
@@ -520,7 +671,7 @@ export class DatabaseLoader implements MetadataLoader {
         // Update existing record
         const version = ((existing.version as number) ?? 0) + 1;
 
-        await this.driver.update(this.tableName, existing.id as string, {
+        await this._update(this.tableName, existing.id as string, {
           metadata: metadataJson,
           version,
           checksum: newChecksum,
@@ -548,7 +699,7 @@ export class DatabaseLoader implements MetadataLoader {
       } else {
         // Create new record
         const id = generateId();
-        await this.driver.create(this.tableName, {
+        await this._create(this.tableName, {
           id,
           name,
           type,
@@ -598,8 +749,7 @@ export class DatabaseLoader implements MetadataLoader {
     await this.ensureSchema();
 
     // Find the existing record to get its ID
-    const existing = await this.driver.findOne(this.tableName, {
-      object: this.tableName,
+    const existing = await this._findOne(this.tableName, {
       where: this.baseFilter(type, name),
     });
 
@@ -609,7 +759,7 @@ export class DatabaseLoader implements MetadataLoader {
     }
 
     // Delete from the main metadata table using the record's ID
-    await this.driver.delete(this.tableName, existing.id as string);
+    await this._delete(this.tableName, existing.id as string);
   }
 }
 

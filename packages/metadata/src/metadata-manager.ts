@@ -45,7 +45,7 @@ import { JSONSerializer } from './serializers/json-serializer.js';
 import { YAMLSerializer } from './serializers/yaml-serializer.js';
 import { TypeScriptSerializer } from './serializers/typescript-serializer.js';
 import type { MetadataSerializer } from './serializers/serializer-interface.js';
-import type { IDataDriver } from '@objectstack/spec/contracts';
+import type { IDataDriver, IDataEngine } from '@objectstack/spec/contracts';
 import type { MetadataLoader } from './loaders/loader-interface.js';
 import { DatabaseLoader } from './loaders/database-loader.js';
 import { generateSimpleDiff, generateDiffSummary } from './utils/metadata-history-utils.js';
@@ -142,6 +142,24 @@ export class MetadataManager implements IMetadataService {
     });
     this.registerLoader(dbLoader);
     this.logger.info('DatabaseLoader configured', { datasource: this.config.datasource, tableName });
+  }
+
+  /**
+   * Configure and register a DatabaseLoader backed by an IDataEngine (ObjectQL).
+   * The engine handles datasource routing automatically — sys_metadata will
+   * be routed to the correct driver via the standard namespace mapping.
+   * No manual driver resolution needed.
+   *
+   * @param engine - An IDataEngine instance (typically the ObjectQL service)
+   */
+  setDataEngine(engine: IDataEngine): void {
+    const tableName = this.config.tableName ?? 'sys_metadata';
+    const dbLoader = new DatabaseLoader({
+      engine,
+      tableName,
+    });
+    this.registerLoader(dbLoader);
+    this.logger.info('DatabaseLoader configured via DataEngine', { tableName });
   }
 
   /**
@@ -1284,107 +1302,14 @@ export class MetadataManager implements IMetadataService {
       throw new Error('History tracking requires a database loader to be configured');
     }
 
-    // Get the metadata record to find its ID
-    const driver = (dbLoader as any).driver as IDataDriver;
-    const tableName = (dbLoader as any).tableName as string;
-    const historyTableName = (dbLoader as any).historyTableName as string;
-    const tenantId = (dbLoader as any).tenantId as string | undefined;
-
-    // Find the metadata record
-    const filter: Record<string, unknown> = { type, name };
-    if (tenantId) {
-      filter.tenant_id = tenantId;
-    }
-
-    const metadataRecord = await driver.findOne(tableName, {
-      object: tableName,
-      where: filter,
+    return dbLoader.queryHistory(type, name, {
+      operationType: options?.operationType,
+      since: options?.since,
+      until: options?.until,
+      limit: options?.limit,
+      offset: options?.offset,
+      includeMetadata: options?.includeMetadata,
     });
-
-    if (!metadataRecord) {
-      return {
-        records: [],
-        total: 0,
-        hasMore: false,
-      };
-    }
-
-    // Build history query
-    const historyFilter: Record<string, unknown> = {
-      metadata_id: metadataRecord.id,
-    };
-
-    if (tenantId) {
-      historyFilter.tenant_id = tenantId;
-    }
-
-    if (options?.operationType) {
-      historyFilter.operation_type = options.operationType;
-    }
-
-    if (options?.since) {
-      historyFilter.recorded_at = { $gte: options.since };
-    }
-
-    if (options?.until) {
-      if (historyFilter.recorded_at) {
-        (historyFilter.recorded_at as Record<string, unknown>).$lte = options.until;
-      } else {
-        historyFilter.recorded_at = { $lte: options.until };
-      }
-    }
-
-    // Query history records with pagination
-    const limit = options?.limit ?? 50;
-    const offset = options?.offset ?? 0;
-
-    const historyRecords = await driver.find(historyTableName, {
-      object: historyTableName,
-      where: historyFilter,
-      orderBy: [{ field: 'recorded_at', order: 'desc' as const }],
-      limit: limit + 1, // Fetch one extra to determine hasMore
-      offset,
-    });
-
-    const hasMore = historyRecords.length > limit;
-    const records = historyRecords.slice(0, limit);
-
-    // Get total count
-    const total = await driver.count(historyTableName, {
-      object: historyTableName,
-      where: historyFilter,
-    });
-
-    // Convert rows to MetadataHistoryRecord format
-    const includeMetadata = options?.includeMetadata !== false;
-    const historyResult = records.map((row: Record<string, unknown>) => {
-      const parsedMetadata =
-        typeof row.metadata === 'string'
-          ? JSON.parse(row.metadata as string)
-          : (row.metadata as Record<string, unknown> | null | undefined);
-
-      return {
-        id: row.id as string,
-        metadataId: row.metadata_id as string,
-        name: row.name as string,
-        type: row.type as string,
-        version: row.version as number,
-        operationType: row.operation_type as 'create' | 'update' | 'publish' | 'revert' | 'delete',
-        metadata: includeMetadata ? parsedMetadata : null,
-        checksum: row.checksum as string,
-        previousChecksum: row.previous_checksum as string | undefined,
-        changeNote: row.change_note as string | undefined,
-        tenantId: row.tenant_id as string | undefined,
-        recordedBy: row.recorded_by as string | undefined,
-        recordedAt: row.recorded_at as string,
-      };
-    });
-
-    return {
-      records: historyResult,
-      total,
-      hasMore,
-    };
   }
 
   /**
