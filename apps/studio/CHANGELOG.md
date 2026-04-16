@@ -1,9 +1,34 @@
 # @objectstack/studio
 
+## 4.0.4
+
+### Patch Changes
+
+- Updated dependencies [326b66b]
+  - @objectstack/spec@4.0.4
+  - @objectstack/client@4.0.4
+  - @objectstack/client-react@4.0.4
+  - @objectstack/metadata@4.0.4
+  - @objectstack/objectql@4.0.4
+  - @objectstack/driver-memory@4.0.4
+  - @objectstack/driver-turso@4.0.4
+  - @objectstack/plugin-audit@4.0.4
+  - @objectstack/plugin-auth@4.0.4
+  - @objectstack/plugin-msw@4.0.4
+  - @objectstack/plugin-security@4.0.4
+  - @objectstack/plugin-setup@4.0.4
+  - @objectstack/runtime@4.0.4
+  - @objectstack/service-ai@4.0.4
+  - @objectstack/service-analytics@4.0.4
+  - @objectstack/service-automation@4.0.4
+  - @objectstack/service-feed@4.0.4
+  - @objectstack/hono@4.0.4
+
 ## 4.0.3
 
 ### Patch Changes
 
+- Fix simulateBrowser mock handlers to properly support query parameters (top, skip, sort, select, filter) in data endpoints, use protocol service for metadata endpoints (types, items), and return correct response formats matching the ObjectStack protocol spec
 - Updated dependencies [ee39bff]
   - @objectstack/service-ai@4.0.3
   - @objectstack/plugin-auth@4.0.3
