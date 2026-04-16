@@ -7,13 +7,13 @@ set -euo pipefail
 #   - api/[[...route]].js is committed to the repo (Vercel detects it pre-build)
 #   - esbuild bundles server/index.ts → api/_handler.js (self-contained bundle)
 #   - The committed .js wrapper re-exports from _handler.js at runtime
-#   - Studio SPA is built and copied to public/ for serving the UI
+#   - Studio SPA is built and copied to api/_studio/ for serving at /_studio
 #   - External dependencies installed in api/node_modules/ (no symlinks)
 #
 # Steps:
 #   1. Build the project with turbo (includes studio)
 #   2. Bundle the API serverless function (→ api/_handler.js)
-#   3. Copy studio dist files to public/ for UI serving
+#   3. Copy studio dist files to api/_studio/ for UI serving at /_studio
 #   4. Install external deps in api/node_modules/ (resolve pnpm symlinks)
 
 echo "[build-vercel] Starting server build..."
@@ -27,13 +27,13 @@ cd apps/server
 # 2. Bundle API serverless function
 node scripts/bundle-api.mjs
 
-# 3. Copy studio dist files to public/ for UI serving
-echo "[build-vercel] Copying studio dist to public/..."
-rm -rf public
-mkdir -p public
+# 3. Copy studio dist files to api/_studio/ for UI serving at /_studio
+echo "[build-vercel] Copying studio dist to api/_studio/..."
+rm -rf api/_studio
+mkdir -p api/_studio
 if [ -d "../studio/dist" ]; then
-  cp -r ../studio/dist/* public/
-  echo "[build-vercel]   ✓ Copied studio dist to public/"
+  cp -r ../studio/dist/* api/_studio/
+  echo "[build-vercel]   ✓ Copied studio dist to api/_studio/"
 else
   echo "[build-vercel]   ⚠ Studio dist not found (skipped)"
 fi
@@ -60,4 +60,4 @@ rm package.json
 cd ..
 echo "[build-vercel]   ✓ External dependencies installed in api/node_modules/"
 
-echo "[build-vercel] Done. Static files in public/, serverless function in api/[[...route]].js → api/_handler.js"
+echo "[build-vercel] Done. Studio files in api/_studio/, serverless function in api/[[...route]].js → api/_handler.js"

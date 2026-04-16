@@ -10,8 +10,11 @@
 import { ObjectKernel } from '@objectstack/runtime';
 import { createHonoApp } from '@objectstack/hono';
 import { getRequestListener } from '@hono/node-server';
+import { serveStatic } from '@hono/node-server/serve-static';
 import type { Hono } from 'hono';
 import stackConfig from '../objectstack.config';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 
 // ---------------------------------------------------------------------------
 // Singleton state — persists across warm Vercel invocations
@@ -69,6 +72,33 @@ async function ensureApp(): Promise<Hono> {
 
     const kernel = await ensureKernel();
     _app = createHonoApp({ kernel, prefix: '/api/v1' });
+
+    // Serve studio at /_studio
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const studioPath = join(__dirname, '_studio');
+
+    // Serve static files from /_studio
+    _app.get('/_studio/*', serveStatic({
+        root: __dirname,
+        rewriteRequestPath: (path) => {
+            // Rewrite /_studio/assets/x.js -> /_studio/assets/x.js
+            return path;
+        }
+    }));
+
+    // SPA fallback for studio
+    _app.get('/_studio/*', serveStatic({
+        root: __dirname,
+        rewriteRequestPath: () => '/_studio/index.html'
+    }));
+
+    // Serve studio index at /_studio root
+    _app.get('/_studio', serveStatic({
+        root: __dirname,
+        rewriteRequestPath: () => '/_studio/index.html'
+    }));
+
     return _app;
 }
 

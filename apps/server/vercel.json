@@ -12,7 +12,7 @@
   "functions": {
     "api/**/*.js": {
       "maxDuration": 60,
-      "includeFiles": "api/node_modules/**"
+      "includeFiles": "api/{node_modules,_studio}/**"
     }
   },
   "headers": [
@@ -24,7 +24,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/[[...route]]" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/api/:path*", "destination": "/api/[[...route]]" }
   ]
 }
