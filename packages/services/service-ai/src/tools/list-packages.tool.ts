@@ -14,7 +14,7 @@ export const listPackagesTool = defineTool({
   description:
     'Lists all installed packages in the system. Use this to see what packages are available ' +
     'before creating or modifying metadata. Packages are the containers that hold metadata.',
-  category: 'system',
+  category: 'utility',
   builtIn: true,
   parameters: {
     type: 'object',

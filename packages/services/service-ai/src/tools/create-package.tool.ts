@@ -15,7 +15,7 @@ export const createPackageTool = defineTool({
     'Creates a new package (metadata container) with the specified manifest. ' +
     'All metadata in ObjectStack should belong to a package. Use this when starting new development ' +
     'or when the user wants to organize their metadata into a new module.',
-  category: 'system',
+  category: 'utility',
   builtIn: true,
   parameters: {
     type: 'object',

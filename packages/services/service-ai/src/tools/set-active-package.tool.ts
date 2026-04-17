@@ -14,7 +14,7 @@ export const setActivePackageTool = defineTool({
   description:
     'Sets the active package for this conversation. All subsequent metadata creation operations ' +
     '(objects, views, flows, etc.) will be associated with this package unless explicitly overridden.',
-  category: 'system',
+  category: 'utility',
   builtIn: true,
   parameters: {
     type: 'object',

@@ -13,7 +13,7 @@ export const getPackageTool = defineTool({
   description:
     'Gets detailed information about a specific installed package, including its manifest, ' +
     'metadata, and installation status.',
-  category: 'system',
+  category: 'utility',
   builtIn: true,
   parameters: {
     type: 'object',

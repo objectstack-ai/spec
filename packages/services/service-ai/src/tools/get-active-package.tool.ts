@@ -13,7 +13,7 @@ export const getActivePackageTool = defineTool({
   description:
     'Gets the currently active package in this conversation. The active package determines ' +
     'where new metadata will be created. Returns null if no package is set.',
-  category: 'system',
+  category: 'utility',
   builtIn: true,
   parameters: {
     type: 'object',
