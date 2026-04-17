@@ -82,6 +82,20 @@ function isSnakeCase(value: string): boolean {
 export interface MetadataToolContext {
   /** Metadata service for schema CRUD operations. */
   metadataService: IMetadataService;
+
+  /** Optional: Conversation service for retrieving active package context */
+  conversationService?: {
+    getMetadata?(conversationId: string): Promise<Record<string, unknown> | undefined>;
+  };
+
+  /** Optional: Current conversation ID (if in a conversation context) */
+  conversationId?: string;
+
+  /** Optional: Package registry for validating package existence */
+  packageRegistry?: {
+    exists(packageId: string): Promise<boolean>;
+    get(packageId: string): Promise<{ manifest: { scope?: string; source?: string } } | undefined>;
+  };
 }
 
 // ---------------------------------------------------------------------------
