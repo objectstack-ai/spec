@@ -1,5 +1,17 @@
 # @objectstack/cli
 
+## Unreleased
+
+### Patch Changes
+
+- `createStudioStaticPlugin` now injects
+  `<script>window.__OBJECTSTACK_STUDIO_BASEPATH__="/_studio";</script>` into the
+  rewritten `index.html`. This allows the Studio's TanStack Router to discover
+  its mount path at runtime — a pre-built Studio `dist/` (whose
+  `import.meta.env.BASE_URL` is baked in as `'./'` at build time) previously
+  hard-coded its router basepath to `'/'`, breaking deep-link refresh and
+  causing sidebar navigation to drop the `/_studio` prefix.
+
 ## 4.0.4
 
 ### Patch Changes

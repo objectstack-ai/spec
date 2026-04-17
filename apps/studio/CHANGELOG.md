@@ -8,9 +8,17 @@
   (e.g. `/_studio/` via the CLI `--ui` flag). Previously, routes such as
   `/_studio/packages` or `/_studio/:package/objects/:name` failed to match —
   the router treated the mount prefix as a `$package` route parameter, producing
-  "Not Found" errors. The router now derives `basepath` from Vite's
-  `import.meta.env.BASE_URL`, which works transparently for both root and
-  sub-path deployments.
+  "Not Found" errors on hard refresh and dropping the prefix on sidebar clicks
+  (`navigate({ to: '/packages' })` → `/packages`).
+
+  The router now resolves its `basepath` from (1) a runtime global
+  `window.__OBJECTSTACK_STUDIO_BASEPATH__` injected by the host server, falling
+  back to (2) Vite's `import.meta.env.BASE_URL`, then (3) `'/'`. The runtime
+  override is required because `import.meta.env.BASE_URL` is a build-time
+  constant — a pre-built dist (shipped via npm and re-hosted by the CLI static
+  plugin under `/_studio/`) would otherwise hard-code basepath as `'/'`
+  regardless of its actual mount path. The CLI's `createStudioStaticPlugin` now
+  injects the appropriate global so the same dist works at any mount point.
 
 ## 4.0.4
 

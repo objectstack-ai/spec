@@ -284,11 +284,23 @@ export function createStudioStaticPlugin(distPath: string, options?: { isDev?: b
       // Read and rewrite index.html so asset paths respect the mount path.
       // The dist may have been built with base '/' (absolute paths like
       // /assets/...) which won't resolve when mounted under /_studio/.
+      //
+      // We also inject a tiny inline script that publishes the runtime
+      // basepath as `window.__OBJECTSTACK_STUDIO_BASEPATH__`. The Studio's
+      // TanStack Router reads this at boot to configure its `basepath` —
+      // without it, a pre-built bundle (whose `import.meta.env.BASE_URL`
+      // is baked in at build time) would treat the mount prefix as a
+      // route parameter and fail to resolve sub-routes.
       const rawHtml = fs.readFileSync(indexPath, 'utf-8');
-      const rewrittenHtml = rawHtml.replace(
+      const withRewrittenUrls = rawHtml.replace(
         /(\s(?:href|src))="\/(?!\/)/g,
         `$1="${STUDIO_PATH}/`,
       );
+      const basepathScript =
+        `<script>window.__OBJECTSTACK_STUDIO_BASEPATH__=${JSON.stringify(STUDIO_PATH)};</script>`;
+      const rewrittenHtml = withRewrittenUrls.includes('</head>')
+        ? withRewrittenUrls.replace('</head>', `${basepathScript}</head>`)
+        : `${basepathScript}${withRewrittenUrls}`;
 
       // In dev mode, redirect root to Studio for convenience
       if (options?.isDev) {
