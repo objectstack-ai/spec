@@ -4,6 +4,10 @@
 
 ### Patch Changes
 
+- **Fixed missing `Access-Control-Allow-Origin` header on Vercel deployment.** Two code paths in `server/index.ts` previously returned raw `Response` objects that bypassed the Hono app (and therefore the CORS middleware registered inside `createHonoApp`):
+  - `OPTIONS` preflight requests went through full kernel bootstrap, which is slow and can fail on cold start — causing the browser to see a preflight with no CORS headers and block every subsequent `/api/v1/*` GET.
+  - Bootstrap-failure `503` responses had no CORS headers at all, surfacing in the browser as a generic "missing Access-Control-Allow-Origin" error instead of the real status code.
+  - Fix: `OPTIONS` is now short-circuited **before** `ensureApp()` with a proper CORS preflight response; the `503` bootstrap-failure response is now wrapped with the same CORS headers via `withCorsHeaders()`. Both helpers honour the same `CORS_ENABLED` / `CORS_ORIGIN` / `CORS_CREDENTIALS` / `CORS_MAX_AGE` env vars as the Hono adapter, so behaviour is identical whether or not the kernel has finished booting.
 - **Unified Studio mount path to `/_studio/` for all deployments** (CLI embedded, Vercel, self-host).
   - `vercel.json`: studio SPA now serves under `/_studio/:path*` with a dedicated rewrite to `/_studio/index.html`. Root `/` and bare `/_studio` redirect to `/_studio/`. Asset caching headers scoped to `/_studio/assets/*`. `VITE_BASE=/_studio/` is set in `build.env`.
   - `scripts/build-vercel.sh`: studio dist is copied to `public/_studio/` (previously `public/`), so Vercel serves it under the same sub-path the CLI uses. This resolves the deep-link / sidebar-click routing failures that occurred when the Studio was mounted at the public root.
