@@ -108,11 +108,12 @@ async function resolvePackageId(
     packageId = await getActivePackageId(ctx);
   }
 
-  // If no package ID could be resolved, return error
+  // If no package ID could be resolved, return null (backward compatibility)
+  // This allows metadata to be stored without package association
   if (!packageId) {
     return {
       packageId: null,
-      error: 'No package specified. Either provide packageId parameter or set an active package using set_active_package.',
+      warning: 'No package specified. Metadata will be created without package association. Consider using set_active_package or providing packageId parameter.',
     };
   }
 
@@ -191,7 +192,7 @@ function createCreateObjectHandler(ctx: MetadataToolContext): ToolHandler {
     if (resolved.error) {
       return JSON.stringify({ error: resolved.error });
     }
-    const packageId = resolved.packageId!;
+    const packageId = resolved.packageId;
 
     // Validate snake_case name
     if (!isSnakeCase(name)) {
@@ -230,7 +231,7 @@ function createCreateObjectHandler(ctx: MetadataToolContext): ToolHandler {
     const objectDef: Record<string, unknown> = {
       name,
       label,
-      packageId,
+      ...(packageId ? { packageId } : {}),
       ...(Object.keys(fieldMap).length > 0 ? { fields: fieldMap } : {}),
       ...(enableFeatures ? { enable: enableFeatures } : {}),
     };
@@ -240,7 +241,7 @@ function createCreateObjectHandler(ctx: MetadataToolContext): ToolHandler {
     return JSON.stringify({
       name,
       label,
-      packageId,
+      ...(packageId ? { packageId } : {}),
       fieldCount: Object.keys(fieldMap).length,
     });
   };
