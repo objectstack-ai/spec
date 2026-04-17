@@ -3,9 +3,9 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { PluginRegistry, PluginRegistryProvider, usePluginRegistry } from '../src/plugins';
+import { PluginRegistry, PluginRegistryProvider, usePluginRegistry } from '../../src/plugins';
 import { defineStudioPlugin } from '@objectstack/spec/studio';
-import type { StudioPlugin } from '../src/plugins/types';
+import type { StudioPlugin } from '../../src/plugins/types';
 
 // Test component that uses the plugin registry
 function TestPluginConsumer() {

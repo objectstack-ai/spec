@@ -3,10 +3,10 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { AppSidebar } from '../src/components/app-sidebar';
+import { AppSidebar } from '../../src/components/app-sidebar';
 import { ObjectStackProvider } from '@objectstack/client-react';
 import { ObjectStackClient } from '@objectstack/client';
-import { PluginRegistryProvider } from '../src/plugins';
+import { PluginRegistryProvider } from '../../src/plugins';
 import type { InstalledPackage } from '@objectstack/spec/kernel';
 
 const mockClient = {

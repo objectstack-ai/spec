@@ -3,7 +3,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { ObjectDataTable } from '../src/components/ObjectDataTable';
+import { ObjectDataTable } from '../../src/components/ObjectDataTable';
 import { ObjectStackProvider } from '@objectstack/client-react';
 import { ObjectStackClient } from '@objectstack/client';
 
