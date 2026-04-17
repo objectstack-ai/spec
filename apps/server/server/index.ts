@@ -9,6 +9,7 @@
 
 import { ObjectKernel } from '@objectstack/runtime';
 import { createHonoApp } from '@objectstack/hono';
+import { createOriginMatcher, hasWildcardPattern } from '@objectstack/plugin-hono-server';
 import { getRequestListener } from '@hono/node-server';
 import type { Hono } from 'hono';
 import stackConfig from '../objectstack.config';
@@ -102,8 +103,20 @@ function corsMaxAge(): number {
  *
  * - If `CORS_ORIGIN` is unset, reflects the request `Origin` (or `*` when
  *   credentials are disabled and no `Origin` is sent).
- * - If `CORS_ORIGIN` is a comma-separated list, matches against it.
+ * - If `CORS_ORIGIN` contains wildcard patterns (e.g. `https://*.example.com`
+ *   or `http://localhost:*`), matches them against the request origin using
+ *   the same rules as the Hono plugin's CORS middleware — see
+ *   `@objectstack/plugin-hono-server`'s `createOriginMatcher`.
+ * - If `CORS_ORIGIN` is a comma-separated list of exact origins, matches
+ *   against it directly.
  * - Returns `null` if the origin is disallowed.
+ *
+ * Keeping the wildcard semantics identical to the Hono plugin is critical:
+ * the Vercel handler short-circuits OPTIONS preflight responses here
+ * *before* the Hono app runs. If this function rejected a wildcard origin
+ * that the plugin itself would have accepted, the browser would see a
+ * missing `Access-Control-Allow-Origin` header and block every subsequent
+ * request.
  */
 function resolveAllowOrigin(requestOrigin: string | null): string | null {
     const credentials = corsCredentials();
@@ -119,6 +132,14 @@ function resolveAllowOrigin(requestOrigin: string | null): string | null {
     if (envOrigin === '*') {
         if (credentials) return requestOrigin || null;
         return '*';
+    }
+
+    // Wildcard patterns (e.g. "https://*.objectui.org", "http://localhost:*")
+    // must be matched using the shared pattern matcher — plain Array.includes()
+    // treats '*' as a literal character and produces spurious CORS errors.
+    if (hasWildcardPattern(envOrigin)) {
+        if (!requestOrigin) return null;
+        return createOriginMatcher(envOrigin)(requestOrigin);
     }
 
     const allowed = envOrigin.includes(',')

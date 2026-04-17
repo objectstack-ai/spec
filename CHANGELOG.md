@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **CORS wildcard patterns on Vercel deployments** — `CORS_ORIGIN` values containing wildcard patterns (e.g. `https://*.objectui.org,https://*.objectstack.ai,http://localhost:*`) no longer cause browser CORS errors when `apps/server` is deployed to Vercel. The Vercel entrypoint's OPTIONS preflight short-circuit previously matched origins with a literal `Array.includes()`, treating `*` as a plain character and rejecting legitimate subdomains. It now shares the same pattern-matching logic as the Hono plugin's `cors()` middleware via new exports `createOriginMatcher` / `hasWildcardPattern` / `matchOriginPattern` / `normalizeOriginPatterns` from `@objectstack/plugin-hono-server`. (`apps/server/server/index.ts`, `packages/plugins/plugin-hono-server/src/pattern-matcher.ts`)
+
 ### Added
 - **Claude Code integration (`CLAUDE.md`)** — Added root `CLAUDE.md` file so that [Claude Code](https://docs.anthropic.com/en/docs/claude-code) automatically loads the project's system prompt when launched in the repository. Content is synced with `.github/copilot-instructions.md` and includes build/test quick-reference commands, all prime directives, monorepo structure, protocol domains, coding patterns, and domain-specific prompt references. This complements the existing GitHub Copilot instructions and `skills/` directory.
 - **AI Skills documentation pages** — Added two new documentation pages covering the Skills System:
