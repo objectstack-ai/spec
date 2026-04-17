@@ -5,20 +5,22 @@ description: Complete reference of all ObjectStack packages in the monorepo
 
 # Package Reference
 
-ObjectStack is distributed as a monorepo containing **25 packages** organized into core packages, adapters, and plugins.
+ObjectStack is distributed as a monorepo containing **42 packages** organized into core runtime, client SDKs, framework adapters, drivers, plugins, and platform services.
 
-> **Note for AI Agents**: Each package's `README.md` contains a specific "AI Development Context" section describing its architectural role and usage rules.
+> **Note for AI Agents**: Each package's `README.md` contains a specific architectural role and usage rules section.
 
 ## Package Overview
 
 | Category | Count | Description |
 | :--- | :---: | :--- |
-| [Core Packages](#core-packages) | 9 | Essential runtime, protocols, client SDKs, and CLI |
-| [Framework Adapters](#framework-adapters) | 7 | Express, Fastify, Hono, NestJS, Next.js, Nuxt, SvelteKit |
-| [Plugin Packages](#plugin-packages) | 6 | Drivers, server, auth, security, dev, and MSW plugins |
-| [Tools](#tools) | 3 | Project scaffolder, VSCode extension, REST API server |
+| Core runtime | 7 | `spec`, `core`, `runtime`, `types`, `metadata`, `objectql`, `rest` |
+| Client / DX | 5 | `client`, `client-react`, `cli`, `create-objectstack`, `vscode-objectstack` |
+| Framework adapters | 7 | Express, Fastify, Hono, NestJS, Next.js, Nuxt, SvelteKit |
+| Drivers | 3 | `driver-memory`, `driver-sql`, `driver-turso` |
+| Plugins | 8 | Auth, Security, Audit, Hono-Server, MCP-Server, MSW, Dev, Setup |
+| Platform services | 12 | AI, Analytics, Automation, Cache, Feed, I18n, Job, Package, Queue, Realtime, Storage, Tenant |
 
-**Total: 25 packages**
+**Total: 42 packages**
 
 ---
 

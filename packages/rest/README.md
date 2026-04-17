@@ -1,43 +1,48 @@
 # @objectstack/rest
 
-ObjectStack REST API Server — automatic REST endpoint generation from protocol metadata. Turns your ObjectStack schema definitions into fully functional CRUD endpoints with zero boilerplate.
+> Auto-generated REST API layer for ObjectStack — turns protocol metadata into CRUD, batch, metadata, and discovery endpoints with zero boilerplate.
 
-## Features
+[![npm](https://img.shields.io/npm/v/@objectstack/rest.svg)](https://www.npmjs.com/package/@objectstack/rest)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-- **Auto-Generated Endpoints**: CRUD routes (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`) from object schemas.
-- **Batch Operations**: `/createMany`, `/updateMany`, `/deleteMany`, `/batch` endpoints.
-- **Metadata API**: `/meta`, `/meta/{type}`, `/meta/{type}/{name}` for runtime introspection.
-- **Discovery Endpoint**: `/api/v1` for API self-documentation.
-- **Route Manager**: Centralized route registration, grouping, and middleware chain.
-- **HTTP Caching**: ETag and Last-Modified header support.
-- **Configurable Paths**: Plural, kebab-case, and camelCase path transformations.
+## Overview
 
-## Usage
+`@objectstack/rest` is registered as a kernel plugin and emits HTTP routes for every object defined in the protocol metadata. Framework adapters (`@objectstack/express`, `hono`, `fastify`, `nextjs`, `nuxt`, `nestjs`, `sveltekit`) invoke these routes through `HttpDispatcher` from `@objectstack/runtime`.
+
+## Installation
+
+```bash
+pnpm add @objectstack/rest
+```
+
+## Quick Start
 
 ```typescript
+import { ObjectKernel } from '@objectstack/core';
 import { createRestApiPlugin } from '@objectstack/rest';
 
-const restPlugin = createRestApiPlugin({
+const kernel = new ObjectKernel();
+
+kernel.use(createRestApiPlugin({
   api: {
     version: 'v1',
     basePath: '/api',
   },
-});
+}));
 
-// Register with ObjectKernel
-kernel.use(restPlugin);
+await kernel.bootstrap();
 ```
 
-### Standalone RestServer
+### Standalone `RestServer`
 
 ```typescript
 import { RestServer } from '@objectstack/rest';
 
 const server = new RestServer(protocol, config);
-server.registerRoutes(httpServer);
+server.registerRoutes(dispatcher);
 ```
 
-### Route Manager
+### Custom routes via `RouteManager`
 
 ```typescript
 import { RouteManager } from '@objectstack/rest';
@@ -45,6 +50,78 @@ import { RouteManager } from '@objectstack/rest';
 const routes = new RouteManager();
 routes.register({ method: 'GET', path: '/custom', handler });
 ```
+
+## Generated endpoints
+
+For every object `Project` defined in metadata, the plugin exposes:
+
+| Method | Path | Purpose |
+|:---|:---|:---|
+| `GET` | `/api/v1/projects` | List with `filter`, `sort`, `top`, `skip`, `select`, `groupBy`, `aggregations`. |
+| `GET` | `/api/v1/projects/:id` | Single record (with ETag / Last-Modified). |
+| `POST` | `/api/v1/projects` | Create. |
+| `PATCH` | `/api/v1/projects/:id` | Partial update. |
+| `PUT` | `/api/v1/projects/:id` | Full replacement. |
+| `DELETE` | `/api/v1/projects/:id` | Delete. |
+| `POST` | `/api/v1/projects/createMany` | Batch create. |
+| `POST` | `/api/v1/projects/updateMany` | Batch update. |
+| `POST` | `/api/v1/projects/deleteMany` | Batch delete. |
+| `POST` | `/api/v1/projects/batch` | Mixed batch. |
+
+Plus metadata and discovery routes:
+
+| Path | Description |
+|:---|:---|
+| `/api/v1/meta` | All metadata types. |
+| `/api/v1/meta/:type` | Objects, views, apps, flows, agents, tools, translations. |
+| `/api/v1/meta/:type/:name` | Single metadata resource. |
+| `/api/v1` and `/.well-known/objectstack` | Discovery / service manifest. |
+
+## Key Exports
+
+| Export | Kind | Description |
+|:---|:---|:---|
+| `createRestApiPlugin(config)` | function | Kernel plugin factory. |
+| `RestApiPluginConfig` | type | `{ api: { version, basePath }, ... }`. |
+| `RestServer` | class | Direct instantiation for adapters that need it. |
+| `RouteManager`, `RouteGroupBuilder` | classes | Register and group custom routes. |
+| `RouteEntry` | type | Route definition shape. |
+
+## Configuration
+
+| Option | Type | Default | Notes |
+|:---|:---|:---|:---|
+| `api.version` | `string` | `'v1'` | Embedded in the route prefix. |
+| `api.basePath` | `string` | `'/api'` | Root path for the API. |
+| `paths.pathTransform` | `'plural' \| 'kebab' \| 'camel'` | `'plural'` | Object → URL segment transform. |
+| `caching.etag` | `boolean` | `true` | Emits `ETag` header. |
+| `caching.lastModified` | `boolean` | `true` | Emits `Last-Modified`. |
+
+## HTTP semantics
+
+- JSON envelope: `{ success, data, error?, meta? }`.
+- Validation errors: HTTP 400 with Zod issue list.
+- Auth/permission failures: HTTP 401/403 emitted by `@objectstack/plugin-auth` and `@objectstack/plugin-security`.
+- `If-None-Match` / `If-Modified-Since` honored for GET.
+
+## When to use
+
+- ✅ Every runtime that exposes ObjectStack data over HTTP.
+
+## When not to use
+
+- ❌ RPC-only or GraphQL-only deployments — use a custom `@objectstack/runtime` consumer.
+
+## Related Packages
+
+- [`@objectstack/runtime`](../runtime) — `HttpDispatcher` that invokes routes.
+- Framework adapters under [`packages/adapters/*`](../adapters).
+
+## Links
+
+- 📖 Docs: <https://objectstack.ai/docs>
+- 📚 API Reference: <https://objectstack.ai/docs/references/api>
+- 🤖 Skill: [`skills/objectstack-api/SKILL.md`](../../skills/objectstack-api/SKILL.md)
 
 ## License
 

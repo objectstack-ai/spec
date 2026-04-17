@@ -1,5 +1,50 @@
 # Release Notes
 
+## v4.0.4 — Release Readiness: Documentation Alignment _(in progress)_
+
+### 🎯 Purpose
+
+Prepare all 42 packages under `@objectstack/*` for formal public release on npm by:
+
+- Guaranteeing consistent, complete publishing metadata on every package.
+- Normalizing README structure so every package documents overview, installation, quick start, exports, configuration, when/when-not, related packages, and links to the docs site.
+- Bringing version numbers for previously experimental packages (`service-tenant`, `service-package`) in lockstep with the release train at `4.0.4`.
+- Correcting stale package counts and missing entries in the official documentation site.
+
+### 📦 Package inventory (42)
+
+| Category | Count | Packages |
+|:---|:---:|:---|
+| Core runtime | 7 | `spec`, `core`, `runtime`, `types`, `metadata`, `objectql`, `rest` |
+| Client / DX | 5 | `client`, `client-react`, `cli`, `create-objectstack`, `vscode-objectstack` |
+| Adapters | 7 | `express`, `fastify`, `hono`, `nestjs`, `nextjs`, `nuxt`, `sveltekit` |
+| Drivers | 3 | `driver-memory`, `driver-sql`, `driver-turso` |
+| Plugins | 8 | `plugin-auth`, `plugin-security`, `plugin-audit`, `plugin-hono-server`, `plugin-mcp-server`, `plugin-msw`, `plugin-dev`, `plugin-setup` |
+| Services | 12 | `service-ai`, `service-analytics`, `service-automation`, `service-cache`, `service-feed`, `service-i18n`, `service-job`, `service-package`, `service-queue`, `service-realtime`, `service-storage`, `service-tenant` |
+
+### ✅ Release readiness checklist
+
+- [x] Canonical README template and publishing checklist committed at `docs/internal/PACKAGE_README_TEMPLATE.md`.
+- [x] Every `package.json` has: `description`, `keywords` (≥ 3), `repository` (with `directory`), `homepage`, `bugs`, `license`, `publishConfig.access: public`, `files`, `engines.node`.
+- [x] `service-tenant` and `service-package` version-aligned to `4.0.4`.
+- [x] `packages/services/service-package/README.md` authored.
+- [x] Thin READMEs rewritten: `core`, `rest`, `driver-memory`, `plugin-security`, all 7 adapters.
+- [x] `content/docs/guides/packages.mdx` updated to 42-package inventory including `service-package` and `service-tenant`.
+- [x] `content/docs/concepts/packages.mdx` updated to 42-package inventory.
+- [x] `CHANGELOG.md` carries a release-prep entry.
+- [ ] `pnpm build` passes for every publishable package.
+- [ ] `pnpm test` passes.
+- [ ] `lychee` link check passes across all READMEs and `content/docs/**`.
+- [ ] `pnpm docs:build` succeeds.
+- [ ] `content/docs/references/` regenerated via `pnpm --filter @objectstack/spec gen:docs`.
+
+### 📝 Known follow-ups
+
+- Existing strong READMEs (e.g. `service-ai`, `service-storage`, `plugin-audit`, `runtime`, `spec`, `driver-sql`, `driver-turso`) are structurally sound and were not rewritten — they retain their individual voice and depth. A future pass may add standardized npm + license badges across them.
+- `content/docs/references/` regeneration is out of scope for this PR because it requires a full spec rebuild; it should run as part of the release pipeline.
+
+---
+
 ## v1.2.0 - Studio DX, REST Extraction, Dispatcher Plugin (2026-02-09)
 
 ### 📦 Released Packages
