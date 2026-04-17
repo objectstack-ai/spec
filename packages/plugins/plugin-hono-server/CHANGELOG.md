@@ -1,5 +1,14 @@
 # @objectstack/plugin-hono-server
 
+## Unreleased
+
+### Minor Changes
+
+- CORS middleware now exposes `set-auth-token` by default so clients can
+  capture rotated bearer tokens emitted by `@objectstack/plugin-auth`.
+- `HonoCorsOptions` accepts `allowHeaders` and `exposeHeaders`. User-supplied
+  `exposeHeaders` are merged with the `set-auth-token` default.
+
 ## 4.0.4
 
 ### Patch Changes

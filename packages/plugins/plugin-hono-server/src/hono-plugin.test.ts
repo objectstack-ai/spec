@@ -33,6 +33,16 @@ vi.mock('./adapter', () => ({
     })
 }));
 
+// Capture the config passed to hono/cors so we can assert allowHeaders / exposeHeaders.
+const corsConfigCapture: { last?: any } = {};
+vi.mock('hono/cors', () => ({
+    cors: vi.fn((config: any) => {
+        corsConfigCapture.last = config;
+        // Return a no-op middleware
+        return async (_c: any, next: any) => next();
+    }),
+}));
+
 describe('HonoServerPlugin', () => {
     let context: any;
     let logger: any;
@@ -231,6 +241,48 @@ describe('HonoServerPlugin', () => {
             } else {
                 delete process.env.CORS_ENABLED;
             }
+        });
+
+        it('should always expose set-auth-token header (for better-auth bearer plugin)', async () => {
+            corsConfigCapture.last = undefined;
+
+            const plugin = new HonoServerPlugin();
+            await plugin.init(context as PluginContext);
+
+            expect(corsConfigCapture.last).toBeDefined();
+            expect(corsConfigCapture.last.exposeHeaders).toContain('set-auth-token');
+            // Default allowHeaders should include Authorization so Bearer tokens work
+            expect(corsConfigCapture.last.allowHeaders).toContain('Authorization');
+        });
+
+        it('should merge user-supplied exposeHeaders with set-auth-token default', async () => {
+            corsConfigCapture.last = undefined;
+
+            const plugin = new HonoServerPlugin({
+                cors: {
+                    exposeHeaders: ['X-Request-Id', 'X-Rate-Limit'],
+                },
+            });
+            await plugin.init(context as PluginContext);
+
+            expect(corsConfigCapture.last.exposeHeaders).toEqual(
+                expect.arrayContaining(['set-auth-token', 'X-Request-Id', 'X-Rate-Limit']),
+            );
+        });
+
+        it('should honor custom allowHeaders while still allowing bearer auth header when explicitly provided', async () => {
+            corsConfigCapture.last = undefined;
+
+            const plugin = new HonoServerPlugin({
+                cors: {
+                    allowHeaders: ['Content-Type', 'Authorization', 'X-Tenant-Id'],
+                },
+            });
+            await plugin.init(context as PluginContext);
+
+            expect(corsConfigCapture.last.allowHeaders).toEqual(
+                ['Content-Type', 'Authorization', 'X-Tenant-Id'],
+            );
         });
     });
 });

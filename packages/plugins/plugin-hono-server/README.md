@@ -100,6 +100,28 @@ kernel.use(new HonoServerPlugin({
 }));
 ```
 
+### Bearer token auth (`set-auth-token`)
+
+The CORS middleware always includes `set-auth-token` in `Access-Control-Expose-Headers`
+so that `@objectstack/plugin-auth`'s `bearer()` plugin can deliver rotated session
+tokens to cross-origin and mobile clients. `Authorization` is included in
+`Access-Control-Allow-Headers` by default so `Authorization: Bearer <token>`
+requests succeed preflight.
+
+You can contribute additional exposed / allowed headers — `exposeHeaders`
+entries you supply are **merged** with the `set-auth-token` default:
+
+```typescript
+kernel.use(new HonoServerPlugin({
+  cors: {
+    origins: ['https://app.example.com'],
+    credentials: true,
+    exposeHeaders: ['X-Request-Id'],           // in addition to set-auth-token
+    allowHeaders: ['Content-Type', 'Authorization', 'X-Tenant-Id'],
+  },
+}));
+```
+
 ## Architecture
 
 This plugin wraps `@objectstack/hono` to provide a turnkey HTTP server solution for the Runtime. It binds the standard `HttpDispatcher` to a Hono application and starts listening on the configured port.

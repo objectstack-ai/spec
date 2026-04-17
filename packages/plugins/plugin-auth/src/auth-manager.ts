@@ -5,6 +5,7 @@ import type { Auth, BetterAuthOptions } from 'better-auth';
 import { organization } from 'better-auth/plugins/organization';
 import { twoFactor } from 'better-auth/plugins/two-factor';
 import { magicLink } from 'better-auth/plugins/magic-link';
+import { bearer } from 'better-auth/plugins/bearer';
 import type {
   AuthConfig,
   EmailAndPasswordConfig,
@@ -203,6 +204,22 @@ export class AuthManager {
   private buildPluginList(): any[] {
     const pluginConfig = this.config.plugins;
     const plugins: any[] = [];
+
+    // bearer() — ALWAYS enabled.
+    //
+    // Enables token-based authentication for cross-origin and mobile clients
+    // where third-party cookies are blocked (e.g. Safari ITP, Chrome CHIPS,
+    // native apps). The plugin:
+    //   • Accepts `Authorization: Bearer <token>` on incoming requests and
+    //     transparently resolves the session as if a cookie had been sent.
+    //   • Emits a `set-auth-token` response header on sign-in / session-refresh
+    //     that the client can store (e.g. in `localStorage`) and replay on
+    //     subsequent requests.
+    //
+    // This mirrors how Salesforce, Notion, Supabase and first-party mobile
+    // SDKs handle auth. Cookie-based auth remains available for same-origin
+    // browser deployments; bearer is additive, not a replacement.
+    plugins.push(bearer());
 
     if (pluginConfig?.organization) {
       plugins.push(organization({
