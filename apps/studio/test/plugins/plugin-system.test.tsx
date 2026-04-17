@@ -2,16 +2,19 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { PluginRegistry, PluginRegistryProvider, usePluginRegistry } from '../../src/plugins';
+import { render, screen, waitFor } from '@testing-library/react';
+import {
+  PluginRegistry,
+  PluginRegistryProvider,
+  usePluginRegistry,
+} from '../../src/plugins';
 import { defineStudioPlugin } from '@objectstack/spec/studio';
 import type { StudioPlugin } from '../../src/plugins/types';
 
-// Test component that uses the plugin registry
-function TestPluginConsumer() {
+// Test component that reads viewer info from the registry
+function ViewerProbe({ metadataType }: { metadataType: string }) {
   const registry = usePluginRegistry();
-  const viewers = registry.getViewersForType('object');
-
+  const viewers = registry.getViewers(metadataType);
   return (
     <div>
       <div data-testid="viewer-count">{viewers.length}</div>
@@ -22,153 +25,157 @@ function TestPluginConsumer() {
   );
 }
 
-// Mock plugin
-const mockPlugin: StudioPlugin = {
-  manifest: defineStudioPlugin({
-    id: 'test.plugin',
-    name: 'Test Plugin',
-    version: '1.0.0',
-    description: 'Test plugin',
-    contributes: {
-      metadataViewers: [
-        {
-          id: 'test-viewer',
-          metadataTypes: ['object'],
-          label: 'Test Viewer',
-          priority: 100,
-        },
-      ],
-      sidebarGroups: [
-        {
-          key: 'test',
-          label: 'Test',
-          icon: 'database',
-          metadataTypes: ['object'],
-          order: 10,
-        },
-      ],
-    },
-  }),
-  activate: vi.fn(),
-};
+// Minimal React component used as a registered viewer
+function DummyViewer() {
+  return <div>dummy</div>;
+}
 
-describe('Plugin System', () => {
+/** Build a plugin that contributes a single metadata viewer + sidebar group. */
+function makePlugin(opts: {
+  id: string;
+  viewerId: string;
+  priority?: number;
+  label?: string;
+  metadataTypes?: string[];
+  groupKey?: string;
+}): StudioPlugin {
+  const {
+    id,
+    viewerId,
+    priority = 100,
+    label = viewerId,
+    metadataTypes = ['object'],
+    groupKey = 'test-group',
+  } = opts;
+  return {
+    manifest: defineStudioPlugin({
+      id,
+      name: id,
+      version: '1.0.0',
+      description: `${id} test plugin`,
+      contributes: {
+        metadataViewers: [
+          {
+            id: viewerId,
+            metadataTypes,
+            label,
+            priority,
+            modes: ['preview'],
+          },
+        ],
+        sidebarGroups: [
+          {
+            key: groupKey,
+            label: 'Test Group',
+            icon: 'database',
+            metadataTypes,
+            order: 10,
+          },
+        ],
+      },
+    }),
+    activate: vi.fn((api) => {
+      api.registerViewer(viewerId, DummyViewer);
+    }),
+  };
+}
+
+describe('Studio Plugin System', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('PluginRegistry', () => {
-    it('should register plugins', () => {
-      const registry = new PluginRegistry([mockPlugin]);
+    it('registers plugins via register()', () => {
+      const registry = new PluginRegistry();
+      const plugin = makePlugin({ id: 'p1', viewerId: 'v1' });
 
-      expect(registry.getAllPlugins()).toHaveLength(1);
-      expect(registry.getPlugin('test.plugin')).toBe(mockPlugin);
+      registry.register(plugin);
+
+      expect(registry.getPlugins()).toHaveLength(1);
+      expect(registry.getPlugins()[0].manifest.id).toBe('p1');
     });
 
-    it('should activate plugins', () => {
-      const registry = new PluginRegistry([mockPlugin]);
-      const api = {} as any; // Mock API
+    it('activates plugins and invokes their activate() callback', async () => {
+      const registry = new PluginRegistry();
+      const plugin = makePlugin({ id: 'p1', viewerId: 'v1' });
 
-      registry.activateAll(api);
+      await registry.registerAndActivate(plugin);
 
-      expect(mockPlugin.activate).toHaveBeenCalledWith(api);
+      expect(plugin.activate).toHaveBeenCalledTimes(1);
+      expect(registry.isActivated('p1')).toBe(true);
     });
 
-    it('should return viewers for metadata type', () => {
-      const registry = new PluginRegistry([mockPlugin]);
+    it('returns viewers matching a given metadata type', async () => {
+      const registry = new PluginRegistry();
+      await registry.registerAndActivate(
+        makePlugin({ id: 'p1', viewerId: 'v1', metadataTypes: ['object'] }),
+      );
 
-      const viewers = registry.getViewersForType('object');
-
+      const viewers = registry.getViewers('object');
       expect(viewers).toHaveLength(1);
-      expect(viewers[0].id).toBe('test-viewer');
-      expect(viewers[0].label).toBe('Test Viewer');
+      expect(viewers[0].id).toBe('v1');
     });
 
-    it('should return empty array for unknown metadata type', () => {
-      const registry = new PluginRegistry([mockPlugin]);
+    it('returns an empty array for unknown metadata types', async () => {
+      const registry = new PluginRegistry();
+      await registry.registerAndActivate(
+        makePlugin({ id: 'p1', viewerId: 'v1', metadataTypes: ['object'] }),
+      );
 
-      const viewers = registry.getViewersForType('unknown');
-
-      expect(viewers).toHaveLength(0);
+      expect(registry.getViewers('unknown-type')).toHaveLength(0);
     });
 
-    it('should return sidebar groups', () => {
-      const registry = new PluginRegistry([mockPlugin]);
+    it('returns sidebar groups contributed by registered plugins', () => {
+      const registry = new PluginRegistry();
+      registry.register(makePlugin({ id: 'p1', viewerId: 'v1' }));
 
       const groups = registry.getSidebarGroups();
-
       expect(groups).toHaveLength(1);
-      expect(groups[0].key).toBe('test');
-      expect(groups[0].label).toBe('Test');
+      expect(groups[0].key).toBe('test-group');
+      expect(groups[0].label).toBe('Test Group');
     });
 
-    it('should sort viewers by priority (higher first)', () => {
-      const plugin1: StudioPlugin = {
-        manifest: defineStudioPlugin({
-          id: 'plugin1',
-          name: 'Plugin 1',
-          version: '1.0.0',
-          contributes: {
-            metadataViewers: [
-              {
-                id: 'viewer1',
-                metadataTypes: ['object'],
-                label: 'Viewer 1',
-                priority: 50,
-              },
-            ],
-          },
-        }),
-        activate: vi.fn(),
-      };
+    it('sorts viewers by priority (higher first)', async () => {
+      const registry = new PluginRegistry();
+      await registry.registerAndActivate(
+        makePlugin({ id: 'p1', viewerId: 'v-low', priority: 50 }),
+      );
+      await registry.registerAndActivate(
+        makePlugin({ id: 'p2', viewerId: 'v-high', priority: 100 }),
+      );
 
-      const plugin2: StudioPlugin = {
-        manifest: defineStudioPlugin({
-          id: 'plugin2',
-          name: 'Plugin 2',
-          version: '1.0.0',
-          contributes: {
-            metadataViewers: [
-              {
-                id: 'viewer2',
-                metadataTypes: ['object'],
-                label: 'Viewer 2',
-                priority: 100,
-              },
-            ],
-          },
-        }),
-        activate: vi.fn(),
-      };
-
-      const registry = new PluginRegistry([plugin1, plugin2]);
-      const viewers = registry.getViewersForType('object');
-
-      expect(viewers[0].id).toBe('viewer2'); // Higher priority first
-      expect(viewers[1].id).toBe('viewer1');
+      const viewers = registry.getViewers('object');
+      expect(viewers.map(v => v.id)).toEqual(['v-high', 'v-low']);
     });
   });
 
   describe('PluginRegistryProvider', () => {
-    it('should provide plugin registry to children', () => {
+    it('provides an activated plugin registry to children', async () => {
+      const plugin = makePlugin({ id: 'p1', viewerId: 'v1' });
+
       render(
-        <PluginRegistryProvider plugins={[mockPlugin]}>
-          <TestPluginConsumer />
-        </PluginRegistryProvider>
+        <PluginRegistryProvider plugins={[plugin]} registry={new PluginRegistry()}>
+          <ViewerProbe metadataType="object" />
+        </PluginRegistryProvider>,
       );
 
-      expect(screen.getByTestId('viewer-count')).toHaveTextContent('1');
-      expect(screen.getByTestId('viewer-test-viewer')).toHaveTextContent('Test Viewer');
+      await waitFor(() => {
+        expect(screen.getByTestId('viewer-count')).toHaveTextContent('1');
+      });
+      expect(screen.getByTestId('viewer-v1')).toHaveTextContent('v1');
     });
 
-    it('should handle empty plugin list', () => {
+    it('handles an empty plugin list', async () => {
       render(
-        <PluginRegistryProvider plugins={[]}>
-          <TestPluginConsumer />
-        </PluginRegistryProvider>
+        <PluginRegistryProvider plugins={[]} registry={new PluginRegistry()}>
+          <ViewerProbe metadataType="object" />
+        </PluginRegistryProvider>,
       );
 
-      expect(screen.getByTestId('viewer-count')).toHaveTextContent('0');
+      await waitFor(() => {
+        expect(screen.getByTestId('viewer-count')).toHaveTextContent('0');
+      });
     });
   });
 });
