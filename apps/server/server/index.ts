@@ -98,6 +98,18 @@ function corsMaxAge(): number {
 }
 
 /**
+ * Check if a request origin matches an allowed origin pattern.
+ * Supports simple wildcard `*` matching (e.g. `http://localhost:*`
+ * matches `http://localhost:5173`).
+ */
+function originMatches(pattern: string, origin: string): boolean {
+    if (pattern === origin) return true;
+    if (!pattern.includes('*')) return false;
+    const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+    return new RegExp(`^${escaped}$`).test(origin);
+}
+
+/**
  * Resolve the `Access-Control-Allow-Origin` value for a given request.
  *
  * - If `CORS_ORIGIN` is unset, reflects the request `Origin` (or `*` when
@@ -125,7 +137,7 @@ function resolveAllowOrigin(requestOrigin: string | null): string | null {
         ? envOrigin.split(',').map((s: string) => s.trim()).filter(Boolean)
         : [envOrigin];
 
-    if (requestOrigin && allowed.includes(requestOrigin)) return requestOrigin;
+    if (requestOrigin && allowed.some(pattern => originMatches(pattern, requestOrigin))) return requestOrigin;
     // Exact match with the single configured origin is allowed as a safe default
     if (allowed.length === 1 && !requestOrigin) return allowed[0];
     return null;
