@@ -98,7 +98,7 @@ export const SysPackageInstallation = ObjectSchema.create({
     { fields: ['tenant_id'] },
     { fields: ['package_id'] },
     { fields: ['status'] },
-  },
+  ],
 
   enable: {
     trackHistory: true,

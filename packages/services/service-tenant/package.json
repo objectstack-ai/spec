@@ -24,7 +24,8 @@
   },
   "dependencies": {
     "@objectstack/spec": "workspace:^",
-    "@objectstack/core": "workspace:^"
+    "@objectstack/core": "workspace:^",
+    "@objectstack/driver-turso": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
