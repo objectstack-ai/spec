@@ -37,10 +37,6 @@ export const createPackageTool = defineTool({
         type: 'string',
         description: 'Brief description of what this package provides',
       },
-      author: {
-        type: 'string',
-        description: 'Package author name or organization',
-      },
       namespace: {
         type: 'string',
         description: 'Namespace prefix for metadata (snake_case, e.g., crm, sales). If not provided, derived from package ID.',

@@ -190,7 +190,6 @@ function createGetPackageHandler(ctx: PackageToolContext): ToolHandler {
       installedAt: pkg.installedAt,
       updatedAt: pkg.updatedAt,
       description: pkg.manifest.description,
-      author: pkg.manifest.author,
       namespace: pkg.manifest.namespace,
       dependencies: pkg.manifest.dependencies,
       registeredNamespaces: pkg.registeredNamespaces,
@@ -200,12 +199,11 @@ function createGetPackageHandler(ctx: PackageToolContext): ToolHandler {
 
 function createCreatePackageHandler(ctx: PackageToolContext): ToolHandler {
   return async (args) => {
-    const { id, name, version = '1.0.0', description, author, namespace, type = 'application' } = args as {
+    const { id, name, version = '1.0.0', description, namespace, type = 'application' } = args as {
       id: string;
       name: string;
       version?: string;
       description?: string;
-      author?: string;
       namespace?: string;
       type?: string;
     };
@@ -251,7 +249,6 @@ function createCreatePackageHandler(ctx: PackageToolContext): ToolHandler {
       type,
       namespace: derivedNamespace,
       ...(description ? { description } : {}),
-      ...(author ? { author } : {}),
     };
 
     // Install the package
