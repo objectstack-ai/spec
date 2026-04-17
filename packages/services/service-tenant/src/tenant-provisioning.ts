@@ -73,14 +73,14 @@ export class TenantProvisioningService {
   /**
    * Provision a new tenant database
    *
-   * Production flow:
-   * 1. Call Turso Platform API to create database
-   * 2. Generate tenant-specific auth token
-   * 3. Store tenant record in global control plane database
-   * 4. Initialize tenant database with base schema
-   * 5. Apply any pre-installed packages
+   * Supports multiple driver types:
+   * - Turso: Cloud-native production deployment
+   * - Memory: Development and testing (data lost on restart)
+   * - SQL: Enterprise PostgreSQL/MySQL/etc.
+   * - SQLite: Local file-based storage
+   * - Custom: Custom driver implementation
    *
-   * @param request - Provisioning request
+   * @param request - Provisioning request with driver configuration
    * @returns Provisioning result with tenant database info
    */
   async provisionTenant(request: ProvisionTenantRequest): Promise<ProvisionTenantResponse> {
@@ -89,75 +89,39 @@ export class TenantProvisioningService {
 
     // Generate UUID for tenant database
     const tenantId = randomUUID();
-    const databaseName = tenantId; // UUID-based naming
 
-    // Determine region
-    const region = request.region || this.config.defaultRegion || 'us-east-1';
+    // Provision based on driver type
+    let tenant: TenantDatabase;
 
-    let databaseUrl: string;
-    let authToken: string;
+    switch (request.driverConfig.driver) {
+      case 'turso':
+        tenant = await this.provisionTursoDatabase(tenantId, request, warnings);
+        break;
 
-    if (this.tursoClient) {
-      // Production mode: Use Turso Platform API
-      try {
-        // Step 1: Create database via Platform API
-        const createDbResponse = await this.tursoClient.createDatabase({
-          name: databaseName,
-          group: this.config.databaseGroup,
-        });
+      case 'memory':
+        tenant = await this.provisionMemoryDriver(tenantId, request, warnings);
+        break;
 
-        // Step 2: Generate database-specific auth token
-        const tokenResponse = await this.tursoClient.createDatabaseToken(databaseName, {
-          authorization: 'full-access',
-        });
+      case 'sql':
+        tenant = await this.provisionSQLDatabase(tenantId, request, warnings);
+        break;
 
-        databaseUrl = `libsql://${createDbResponse.database.Hostname}`;
-        authToken = this.encryptAuthToken(tokenResponse.jwt);
-      } catch (error) {
-        throw new Error(
-          `Failed to provision tenant database: ${error instanceof Error ? error.message : String(error)}`,
-        );
-      }
-    } else {
-      // Development/Mock mode: Generate placeholder values
-      databaseUrl = `libsql://${databaseName}.turso.io`;
-      authToken = this.encryptAuthToken(`mock-token-${tenantId}`);
-      warnings.push('Running in mock mode - Turso Platform API credentials not configured');
+      case 'sqlite':
+        tenant = await this.provisionSQLiteDatabase(tenantId, request, warnings);
+        break;
+
+      case 'custom':
+        tenant = await this.provisionCustomDriver(tenantId, request, warnings);
+        break;
+
+      default:
+        throw new Error(`Unsupported driver type: ${(request.driverConfig as any).driver}`);
     }
 
-    // Step 3: Create tenant database record
-    const tenant: TenantDatabase = {
-      id: tenantId,
-      organizationId: request.organizationId,
-      databaseName,
-      databaseUrl,
-      authToken,
-      status: 'active',
-      region,
-      plan: request.plan || 'free',
-      storageLimitMb: request.storageLimitMb || this.config.defaultStorageLimitMb || 1024,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      metadata: request.metadata,
-    };
-
-    // Step 4: Store tenant record in global control plane
+    // Store tenant record in global control plane
     if (this.config.controlPlaneDriver) {
       try {
-        await this.config.controlPlaneDriver.create('tenant_database', {
-          id: tenant.id,
-          organization_id: tenant.organizationId,
-          database_name: tenant.databaseName,
-          database_url: tenant.databaseUrl,
-          auth_token: tenant.authToken,
-          status: tenant.status,
-          region: tenant.region,
-          plan: tenant.plan,
-          storage_limit_mb: tenant.storageLimitMb,
-          created_at: tenant.createdAt,
-          updated_at: tenant.updatedAt,
-          metadata: tenant.metadata,
-        });
+        await this.storeTenantRecord(tenant);
       } catch (error) {
         warnings.push(
           `Failed to store tenant record in control plane: ${error instanceof Error ? error.message : String(error)}`,
@@ -167,9 +131,6 @@ export class TenantProvisioningService {
       warnings.push('Control plane driver not configured - tenant record not persisted');
     }
 
-    // Step 5: Initialize tenant database with base schema
-    // TODO: This will be implemented when we have the schema initialization service
-
     const durationMs = Date.now() - startTime;
 
     return {
@@ -177,6 +138,223 @@ export class TenantProvisioningService {
       durationMs,
       warnings: warnings.length > 0 ? warnings : undefined,
     };
+  }
+
+  /**
+   * Provision Turso database
+   */
+  private async provisionTursoDatabase(
+    tenantId: string,
+    request: ProvisionTenantRequest,
+    warnings: string[],
+  ): Promise<TenantDatabase> {
+    const config = request.driverConfig;
+    if (config.driver !== 'turso') {
+      throw new Error('Invalid driver config for Turso provisioning');
+    }
+
+    const databaseName = tenantId; // UUID-based naming
+    let databaseUrl: string;
+    let authToken: string;
+
+    if (this.tursoClient) {
+      // Production mode: Use Turso Platform API
+      try {
+        const createDbResponse = await this.tursoClient.createDatabase({
+          name: databaseName,
+          group: this.config.databaseGroup,
+        });
+
+        const tokenResponse = await this.tursoClient.createDatabaseToken(databaseName, {
+          authorization: 'full-access',
+        });
+
+        databaseUrl = `libsql://${createDbResponse.database.Hostname}`;
+        authToken = this.encryptAuthToken(tokenResponse.jwt);
+      } catch (error) {
+        throw new Error(
+          `Failed to provision Turso database: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    } else {
+      // Development/Mock mode
+      databaseUrl = `libsql://${databaseName}.turso.io`;
+      authToken = this.encryptAuthToken(`mock-token-${tenantId}`);
+      warnings.push('Running in mock mode - Turso Platform API credentials not configured');
+    }
+
+    return {
+      id: tenantId,
+      organizationId: request.organizationId,
+      driverConfig: {
+        driver: 'turso',
+        databaseUrl,
+        authToken,
+        region: config.region,
+        syncUrl: config.syncUrl,
+      },
+      status: 'active',
+      plan: request.plan || 'free',
+      storageLimitMb: request.storageLimitMb || this.config.defaultStorageLimitMb || 1024,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      metadata: request.metadata,
+    };
+  }
+
+  /**
+   * Provision Memory driver (for development/testing)
+   */
+  private async provisionMemoryDriver(
+    tenantId: string,
+    request: ProvisionTenantRequest,
+    warnings: string[],
+  ): Promise<TenantDatabase> {
+    const config = request.driverConfig;
+    if (config.driver !== 'memory') {
+      throw new Error('Invalid driver config for Memory provisioning');
+    }
+
+    warnings.push('Memory driver: Data will be lost on restart unless persistence is enabled');
+
+    return {
+      id: tenantId,
+      organizationId: request.organizationId,
+      driverConfig: {
+        driver: 'memory',
+        persistent: config.persistent,
+        dataFile: config.dataFile,
+      },
+      status: 'active',
+      plan: request.plan || 'free',
+      storageLimitMb: request.storageLimitMb || 512, // Lower default for memory
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      metadata: request.metadata,
+    };
+  }
+
+  /**
+   * Provision SQL database (PostgreSQL, MySQL, etc.)
+   */
+  private async provisionSQLDatabase(
+    tenantId: string,
+    request: ProvisionTenantRequest,
+    warnings: string[],
+  ): Promise<TenantDatabase> {
+    const config = request.driverConfig;
+    if (config.driver !== 'sql') {
+      throw new Error('Invalid driver config for SQL provisioning');
+    }
+
+    // In production, you might create a new database via SQL admin connection
+    // For now, we assume the database already exists or will be created externally
+
+    return {
+      id: tenantId,
+      organizationId: request.organizationId,
+      driverConfig: {
+        driver: 'sql',
+        dialect: config.dialect,
+        host: config.host,
+        port: config.port,
+        database: config.database,
+        username: config.username,
+        password: config.password,
+        ssl: config.ssl,
+        pool: config.pool,
+      },
+      status: 'active',
+      plan: request.plan || 'enterprise',
+      storageLimitMb: request.storageLimitMb || 10240, // 10GB default for SQL
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      metadata: request.metadata,
+    };
+  }
+
+  /**
+   * Provision SQLite database
+   */
+  private async provisionSQLiteDatabase(
+    tenantId: string,
+    request: ProvisionTenantRequest,
+    warnings: string[],
+  ): Promise<TenantDatabase> {
+    const config = request.driverConfig;
+    if (config.driver !== 'sqlite') {
+      throw new Error('Invalid driver config for SQLite provisioning');
+    }
+
+    return {
+      id: tenantId,
+      organizationId: request.organizationId,
+      driverConfig: {
+        driver: 'sqlite',
+        filename: config.filename,
+        readonly: config.readonly,
+      },
+      status: 'active',
+      plan: request.plan || 'free',
+      storageLimitMb: request.storageLimitMb || 2048,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      metadata: request.metadata,
+    };
+  }
+
+  /**
+   * Provision Custom driver
+   */
+  private async provisionCustomDriver(
+    tenantId: string,
+    request: ProvisionTenantRequest,
+    warnings: string[],
+  ): Promise<TenantDatabase> {
+    const config = request.driverConfig;
+    if (config.driver !== 'custom') {
+      throw new Error('Invalid driver config for Custom provisioning');
+    }
+
+    warnings.push(`Using custom driver: ${config.driverName}`);
+
+    return {
+      id: tenantId,
+      organizationId: request.organizationId,
+      driverConfig: {
+        driver: 'custom',
+        driverName: config.driverName,
+        config: config.config,
+      },
+      status: 'active',
+      plan: request.plan || 'custom',
+      storageLimitMb: request.storageLimitMb || 5120,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      metadata: request.metadata,
+    };
+  }
+
+  /**
+   * Store tenant record in control plane database
+   */
+  private async storeTenantRecord(tenant: TenantDatabase): Promise<void> {
+    if (!this.config.controlPlaneDriver) {
+      return;
+    }
+
+    await this.config.controlPlaneDriver.create('tenant_database', {
+      id: tenant.id,
+      organization_id: tenant.organizationId,
+      driver_config: JSON.stringify(tenant.driverConfig),
+      status: tenant.status,
+      plan: tenant.plan,
+      storage_limit_mb: tenant.storageLimitMb,
+      created_at: tenant.createdAt,
+      updated_at: tenant.updatedAt,
+      last_accessed_at: tenant.lastAccessedAt,
+      metadata: tenant.metadata,
+    });
   }
 
   /**

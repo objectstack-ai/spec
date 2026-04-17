@@ -5,4 +5,5 @@ export * from './tenant-plugin.js';
 export * from './tenant-provisioning.js';
 export * from './turso-platform-client.js';
 export * from './tenant-schema-initializer.js';
+export * from './driver-factory.js';
 export * from './objects/index.js';

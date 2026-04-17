@@ -7,12 +7,13 @@ import { z } from 'zod';
  *
  * Defines the schema for managing multi-tenant architecture with:
  * - Global control plane: Single database for auth, org management, tenant registry
- * - Tenant data plane: Isolated databases per organization (UUID-based naming)
+ * - Tenant data plane: Isolated databases per organization with flexible driver selection
  *
  * Design decisions:
- * - Database naming: {uuid}.turso.io (not org-slug, since slugs can be modified)
- * - Each tenant has its own Turso database for complete data isolation
+ * - Database naming: UUID-based (not org-slug, since slugs can be modified)
+ * - Each organization can choose its own database driver (Turso, Memory, SQL, etc.)
  * - Global database stores user auth, organizations, and tenant metadata
+ * - Supports development (memory), production (Turso), and enterprise (SQL) scenarios
  */
 
 /**
@@ -42,10 +43,101 @@ export const TenantPlanSchema = z.enum([
 export type TenantPlan = z.infer<typeof TenantPlanSchema>;
 
 /**
+ * Organization Database Driver Type
+ *
+ * Specifies which driver implementation to use for the organization's data storage.
+ */
+export const OrganizationDatabaseDriverSchema = z.enum([
+  'turso',        // Turso/LibSQL driver (cloud-native, edge-ready)
+  'memory',       // In-memory driver (dev/test only, data lost on restart)
+  'sql',          // Generic SQL driver (PostgreSQL, MySQL, MariaDB, MSSQL)
+  'sqlite',       // SQLite file-based driver (local development)
+  'custom',       // Custom driver implementation
+]);
+
+export type OrganizationDatabaseDriver = z.infer<typeof OrganizationDatabaseDriverSchema>;
+
+/**
+ * Driver Configuration Schemas
+ *
+ * Each driver type has its own configuration structure.
+ * Uses discriminated union for type-safe driver config.
+ */
+
+/** Turso Driver Configuration */
+export const TursoDriverConfigSchema = z.object({
+  driver: z.literal('turso'),
+  databaseUrl: z.string().url().describe('Turso database URL'),
+  authToken: z.string().describe('Turso auth token'),
+  region: z.string().optional().describe('Deployment region'),
+  syncUrl: z.string().url().optional().describe('Sync URL for embedded replicas'),
+});
+
+/** Memory Driver Configuration */
+export const MemoryDriverConfigSchema = z.object({
+  driver: z.literal('memory'),
+  persistent: z.boolean().default(false).describe('Enable persistence to disk'),
+  dataFile: z.string().optional().describe('File path for persistent storage'),
+});
+
+/** SQL Driver Configuration */
+export const SQLDriverConfigSchema = z.object({
+  driver: z.literal('sql'),
+  dialect: z.enum(['postgresql', 'mysql', 'mariadb', 'mssql']).describe('SQL dialect'),
+  host: z.string().describe('Database host'),
+  port: z.number().int().positive().describe('Database port'),
+  database: z.string().describe('Database name'),
+  username: z.string().describe('Database username'),
+  password: z.string().describe('Database password'),
+  ssl: z.boolean().optional().describe('Enable SSL connection'),
+  pool: z.object({
+    min: z.number().int().optional(),
+    max: z.number().int().optional(),
+  }).optional().describe('Connection pool configuration'),
+});
+
+/** SQLite Driver Configuration */
+export const SQLiteDriverConfigSchema = z.object({
+  driver: z.literal('sqlite'),
+  filename: z.string().describe('SQLite database file path'),
+  readonly: z.boolean().optional().describe('Open database in readonly mode'),
+});
+
+/** Custom Driver Configuration */
+export const CustomDriverConfigSchema = z.object({
+  driver: z.literal('custom'),
+  driverName: z.string().describe('Custom driver identifier'),
+  config: z.record(z.string(), z.unknown()).describe('Driver-specific configuration'),
+});
+
+/**
+ * Driver Configuration (Discriminated Union)
+ *
+ * Type-safe union of all supported driver configurations.
+ * The 'driver' field discriminates which config structure to use.
+ */
+export const DriverConfigSchema = z.discriminatedUnion('driver', [
+  TursoDriverConfigSchema,
+  MemoryDriverConfigSchema,
+  SQLDriverConfigSchema,
+  SQLiteDriverConfigSchema,
+  CustomDriverConfigSchema,
+]);
+
+export type DriverConfig = z.infer<typeof DriverConfigSchema>;
+export type TursoDriverConfig = z.infer<typeof TursoDriverConfigSchema>;
+export type MemoryDriverConfig = z.infer<typeof MemoryDriverConfigSchema>;
+export type SQLDriverConfig = z.infer<typeof SQLDriverConfigSchema>;
+export type SQLiteDriverConfig = z.infer<typeof SQLiteDriverConfigSchema>;
+export type CustomDriverConfig = z.infer<typeof CustomDriverConfigSchema>;
+
+/**
  * Tenant Database Registry Entry
  *
- * Tracks each tenant's dedicated database instance.
+ * Tracks each tenant's database configuration.
  * Stored in the global control plane database.
+ *
+ * Now supports multiple driver types instead of hardcoded Turso configuration.
  */
 export const TenantDatabaseSchema = z.object({
   /**
@@ -59,32 +151,17 @@ export const TenantDatabaseSchema = z.object({
   organizationId: z.string().describe('Organization ID (foreign key to sys_organization)'),
 
   /**
-   * Database name (UUID-based for immutability)
-   * Example: "550e8400-e29b-41d4-a716-446655440000"
+   * Driver Configuration
+   *
+   * Specifies which database driver to use and its configuration.
+   * Replaces hardcoded Turso fields for flexibility.
    */
-  databaseName: z.string().describe('Database name (UUID-based)'),
-
-  /**
-   * Full database URL
-   * Example: "libsql://550e8400-e29b-41d4-a716-446655440000.turso.io"
-   */
-  databaseUrl: z.string().url().describe('Full database URL'),
-
-  /**
-   * Encrypted tenant-specific auth token
-   */
-  authToken: z.string().describe('Encrypted tenant-specific auth token'),
+  driverConfig: DriverConfigSchema.describe('Database driver configuration'),
 
   /**
    * Database provisioning and runtime status
    */
   status: TenantDatabaseStatusSchema.default('provisioning').describe('Database status'),
-
-  /**
-   * Deployment region
-   * Example: "us-east-1", "eu-west-1", "ap-southeast-1"
-   */
-  region: z.string().describe('Deployment region'),
 
   /**
    * Tenant plan tier
@@ -299,7 +376,7 @@ export type TenantRoutingConfig = z.infer<typeof TenantRoutingConfigSchema>;
 /**
  * Tenant Provisioning Request
  *
- * Request to provision a new tenant database
+ * Request to provision a new organization database with flexible driver selection.
  */
 export const ProvisionTenantRequestSchema = z.object({
   /**
@@ -308,9 +385,11 @@ export const ProvisionTenantRequestSchema = z.object({
   organizationId: z.string().describe('Organization ID'),
 
   /**
-   * Deployment region preference
+   * Driver Configuration
+   *
+   * Specifies which database driver to use and its configuration.
    */
-  region: z.string().optional().describe('Deployment region preference'),
+  driverConfig: DriverConfigSchema.describe('Database driver configuration'),
 
   /**
    * Tenant plan tier

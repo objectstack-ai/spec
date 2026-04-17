@@ -5,8 +5,8 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
 /**
  * sys_tenant_database — Global Tenant Registry Object
  *
- * Stores tenant database information in the global control plane.
- * Each tenant has its own isolated Turso database with UUID-based naming.
+ * Stores tenant database configuration in the global control plane.
+ * Each tenant can use different database drivers (Turso, Memory, SQL, SQLite, Custom).
  *
  * @namespace sys
  */
@@ -17,9 +17,9 @@ export const SysTenantDatabase = ObjectSchema.create({
   pluralLabel: 'Tenant Databases',
   icon: 'database',
   isSystem: true,
-  description: 'Tenant database registry for multi-tenant architecture',
-  titleFormat: '{database_name}',
-  compactLayout: ['database_name', 'organization_id', 'status', 'plan'],
+  description: 'Tenant database registry with flexible driver configuration',
+  titleFormat: '{id}',
+  compactLayout: ['id', 'organization_id', 'status', 'plan'],
 
   fields: {
     id: Field.text({
@@ -47,24 +47,10 @@ export const SysTenantDatabase = ObjectSchema.create({
       description: 'Foreign key to sys_organization',
     }),
 
-    database_name: Field.text({
-      label: 'Database Name',
+    driver_config: Field.textarea({
+      label: 'Driver Configuration',
       required: true,
-      maxLength: 255,
-      description: 'UUID-based database name (immutable)',
-    }),
-
-    database_url: Field.url({
-      label: 'Database URL',
-      required: true,
-      description: 'Full database connection URL (e.g., libsql://{uuid}.turso.io)',
-    }),
-
-    auth_token: Field.text({
-      label: 'Auth Token',
-      required: true,
-      maxLength: 2000,
-      description: 'Encrypted database-specific auth token',
+      description: 'JSON-serialized driver configuration (type: turso|memory|sql|sqlite|custom)',
     }),
 
     status: Field.picklist({
@@ -78,13 +64,6 @@ export const SysTenantDatabase = ObjectSchema.create({
         { value: 'failed', label: 'Failed' },
       ],
       defaultValue: 'provisioning',
-    }),
-
-    region: Field.text({
-      label: 'Region',
-      required: true,
-      maxLength: 100,
-      description: 'Deployment region (e.g., us-east-1, eu-west-1)',
     }),
 
     plan: Field.picklist({
@@ -121,7 +100,6 @@ export const SysTenantDatabase = ObjectSchema.create({
   },
 
   indexes: [
-    { fields: ['database_name'], unique: true },
     { fields: ['organization_id'] },
     { fields: ['status'] },
     { fields: ['plan'] },

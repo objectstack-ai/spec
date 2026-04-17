@@ -4,25 +4,50 @@ import type {
   TenantContext,
   TenantIdentificationSource,
   TenantRoutingConfig,
+  TenantDatabase,
 } from '@objectstack/spec/cloud';
+import type { IDataDriver } from '@objectstack/spec';
+import { DriverFactory, type DriverFactoryConfig } from './driver-factory.js';
+
+/**
+ * Tenant Context Service Configuration
+ */
+export interface TenantContextServiceConfig extends TenantRoutingConfig {
+  /**
+   * Driver factory for creating driver instances
+   */
+  driverFactory?: DriverFactory;
+
+  /**
+   * Driver factory configuration (if driverFactory not provided)
+   */
+  driverFactoryConfig?: DriverFactoryConfig;
+
+  /**
+   * Control plane driver for querying tenant database records
+   */
+  controlPlaneDriver?: IDataDriver;
+}
 
 /**
  * Tenant Context Service
  *
  * Manages tenant identification and context resolution from HTTP requests.
- * Supports multiple identification strategies:
- * - Subdomain extraction (e.g., acme.objectstack.app)
- * - Custom domain mapping
- * - HTTP headers (X-Tenant-ID)
- * - JWT claims (organizationId)
- * - Session data
+ * Supports multiple identification strategies and runtime driver resolution.
  */
 export class TenantContextService {
-  private config: TenantRoutingConfig;
+  private config: TenantContextServiceConfig;
   private tenantCache = new Map<string, TenantContext>();
+  private tenantDbCache = new Map<string, TenantDatabase>();
+  private driverFactory: DriverFactory;
 
-  constructor(config: TenantRoutingConfig) {
+  constructor(config: TenantContextServiceConfig) {
     this.config = config;
+
+    // Initialize driver factory
+    this.driverFactory =
+      config.driverFactory ||
+      new DriverFactory(config.driverFactoryConfig || {});
   }
 
   /**
@@ -209,6 +234,75 @@ export class TenantContextService {
   }
 
   /**
+   * Get driver instance for a specific organization
+   *
+   * @param organizationId - Organization ID
+   * @returns Driver instance configured for the organization
+   */
+  async getDriverForOrganization(organizationId: string): Promise<IDataDriver> {
+    // Get tenant database configuration
+    const tenantDb = await this.getTenantDatabase(organizationId);
+
+    if (!tenantDb) {
+      throw new Error(`No tenant database found for organization: ${organizationId}`);
+    }
+
+    // Create or retrieve driver instance
+    return this.driverFactory.create(tenantDb.driverConfig);
+  }
+
+  /**
+   * Get tenant database configuration by organization ID
+   */
+  private async getTenantDatabase(organizationId: string): Promise<TenantDatabase | null> {
+    // Check cache first
+    const cached = this.tenantDbCache.get(organizationId);
+    if (cached) {
+      return cached;
+    }
+
+    // Query control plane database
+    if (!this.config.controlPlaneDriver) {
+      return null;
+    }
+
+    try {
+      const results = await this.config.controlPlaneDriver.find('tenant_database', {
+        filter: { organization_id: organizationId },
+        limit: 1,
+      });
+
+      if (results.records.length === 0) {
+        return null;
+      }
+
+      const record = results.records[0];
+      const tenantDb: TenantDatabase = {
+        id: record.id as string,
+        organizationId: record.organization_id as string,
+        driverConfig: typeof record.driver_config === 'string'
+          ? JSON.parse(record.driver_config)
+          : record.driver_config,
+        status: record.status as any,
+        plan: record.plan as any,
+        storageLimitMb: record.storage_limit_mb as number,
+        createdAt: record.created_at as string,
+        updatedAt: record.updated_at as string,
+        lastAccessedAt: record.last_accessed_at as string | undefined,
+        metadata: record.metadata,
+      };
+
+      // Cache the result
+      this.tenantDbCache.set(organizationId, tenantDb);
+
+      return tenantDb;
+    } catch (error) {
+      console.error(`Failed to fetch tenant database for org ${organizationId}:`, error);
+      return null;
+    }
+  }
+
+  /**
    * Clear tenant cache
    */
   clearCache(): void {
@@ -216,9 +310,23 @@ export class TenantContextService {
   }
 
   /**
+   * Clear tenant database cache
+   */
+  clearDbCache(): void {
+    this.tenantDbCache.clear();
+  }
+
+  /**
    * Invalidate specific tenant from cache
    */
   invalidateTenant(tenantId: string): void {
     this.tenantCache.delete(tenantId);
+  }
+
+  /**
+   * Invalidate specific tenant database from cache
+   */
+  invalidateTenantDb(organizationId: string): void {
+    this.tenantDbCache.delete(organizationId);
   }
 }
