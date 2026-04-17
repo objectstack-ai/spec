@@ -299,7 +299,7 @@ describe('AuthManager', () => {
   });
 
   describe('plugin registration', () => {
-    it('should not include any plugins when no plugin config is provided', () => {
+    it('should always register the bearer plugin even with no plugin config', () => {
       let capturedConfig: any;
       (betterAuth as any).mockImplementation((config: any) => {
         capturedConfig = config;
@@ -314,7 +314,7 @@ describe('AuthManager', () => {
       manager.getAuthInstance();
       warnSpy.mockRestore();
 
-      expect(capturedConfig.plugins).toEqual([]);
+      expect(capturedConfig.plugins.map((p: any) => p.id)).toEqual(['bearer']);
     });
 
     it('should register organization plugin with schema mapping when enabled', () => {
@@ -404,10 +404,32 @@ describe('AuthManager', () => {
       manager.getAuthInstance();
       warnSpy.mockRestore();
 
-      expect(capturedConfig.plugins).toHaveLength(3);
+      expect(capturedConfig.plugins).toHaveLength(4);
       expect(capturedConfig.plugins.map((p: any) => p.id).sort()).toEqual(
-        ['magic-link', 'organization', 'two-factor'],
+        ['bearer', 'magic-link', 'organization', 'two-factor'],
       );
+    });
+  });
+
+  describe('bearer plugin (cross-origin / mobile token auth)', () => {
+    it('should always register the bearer plugin regardless of other flags', () => {
+      let capturedConfig: any;
+      (betterAuth as any).mockImplementation((config: any) => {
+        capturedConfig = config;
+        return { handler: vi.fn(), api: {} };
+      });
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const manager = new AuthManager({
+        secret: 'test-secret-at-least-32-chars-long',
+        baseUrl: 'http://localhost:3000',
+        plugins: { organization: true },
+      });
+      manager.getAuthInstance();
+      warnSpy.mockRestore();
+
+      const bearerPlugin = capturedConfig.plugins.find((p: any) => p.id === 'bearer');
+      expect(bearerPlugin).toBeDefined();
     });
   });
 

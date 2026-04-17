@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Minor Changes
+
+- Always register better-auth's `bearer()` plugin so cross-origin browsers
+  (where third-party cookies are blocked) and native mobile clients can
+  authenticate via `Authorization: Bearer <token>` headers and pick up
+  rotated tokens from the `set-auth-token` response header (fixes #1172).
+
 ## 4.0.4
 
 ### Patch Changes

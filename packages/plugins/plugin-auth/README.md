@@ -28,6 +28,9 @@ Authentication & Identity Plugin for ObjectStack.
 - ✅ **Passkeys** - WebAuthn/Passkey support (when enabled)
 - ✅ **Magic Links** - Passwordless authentication (when enabled)
 - ✅ **Organizations** - Multi-tenant support (when enabled)
+- ✅ **Bearer-token Auth** - Cross-origin and mobile clients can authenticate
+  via `Authorization: Bearer <token>` and receive rotated tokens on the
+  `set-auth-token` response header (always enabled, no config required).
 
 ### ObjectQL-Based Database Architecture
 - ✅ **Native ObjectQL Data Persistence** - Uses ObjectQL's IDataEngine interface

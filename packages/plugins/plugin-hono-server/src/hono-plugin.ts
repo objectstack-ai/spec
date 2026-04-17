@@ -209,11 +209,23 @@ export class HonoServerPlugin implements Plugin {
                 }
 
                 const rawApp = this.server.getRawApp();
+                // Always include `set-auth-token` in exposed headers so that
+                // the better-auth `bearer()` plugin can deliver rotated
+                // session tokens to cross-origin clients (see plugin-auth).
+                // User-supplied exposeHeaders are merged with this default.
+                const defaultAllowHeaders = ['Content-Type', 'Authorization', 'X-Requested-With'];
+                const defaultExposeHeaders = ['set-auth-token'];
+                const allowHeaders = corsOpts.allowHeaders ?? defaultAllowHeaders;
+                const exposeHeaders = Array.from(new Set([
+                    ...defaultExposeHeaders,
+                    ...(corsOpts.exposeHeaders ?? []),
+                ]));
+
                 rawApp.use('*', cors({
                     origin: origin as any,
                     allowMethods: corsOpts.methods || ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
-                    allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-                    exposeHeaders: [],
+                    allowHeaders,
+                    exposeHeaders,
                     credentials,
                     maxAge,
                 }));

@@ -16,6 +16,22 @@ export interface HonoCorsOptions {
     enabled?: boolean;
     origins?: string | string[];
     methods?: string[];
+    /**
+     * Request headers allowed on preflight (`Access-Control-Allow-Headers`).
+     *
+     * Defaults to `['Content-Type', 'Authorization', 'X-Requested-With']`,
+     * which is sufficient for cookie and bearer-token auth.
+     */
+    allowHeaders?: string[];
+    /**
+     * Response headers exposed to JS (`Access-Control-Expose-Headers`).
+     *
+     * Defaults to `['set-auth-token']` so that better-auth's `bearer()` plugin
+     * can hand rotated session tokens to cross-origin clients. User-supplied
+     * values are merged with this default — `set-auth-token` is always
+     * exposed unless CORS is disabled entirely.
+     */
+    exposeHeaders?: string[];
     credentials?: boolean;
     maxAge?: number;
 }
