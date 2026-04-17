@@ -5,7 +5,19 @@ description: Complete guide to all ObjectStack packages, services, drivers, plug
 
 # Package Overview
 
-ObjectStack is organized into **27 packages** across multiple categories. This guide provides a complete overview of each package, its purpose, and when to use it.
+ObjectStack is organized into **42 packages** across multiple categories. This guide provides a complete overview of each package, its purpose, and when to use it.
+
+### Package categories at a glance
+
+| Category | Count | Packages |
+|:---|:---:|:---|
+| **Core runtime** | 7 | `spec`, `core`, `runtime`, `types`, `metadata`, `objectql`, `rest` |
+| **Client / DX** | 5 | `client`, `client-react`, `cli`, `create-objectstack`, `vscode-objectstack` |
+| **Framework adapters** | 7 | `express`, `fastify`, `hono`, `nestjs`, `nextjs`, `nuxt`, `sveltekit` |
+| **Drivers** | 3 | `driver-memory`, `driver-sql`, `driver-turso` |
+| **Plugins** | 8 | `plugin-auth`, `plugin-security`, `plugin-audit`, `plugin-hono-server`, `plugin-mcp-server`, `plugin-msw`, `plugin-dev`, `plugin-setup` |
+| **Platform services** | 12 | `service-ai`, `service-analytics`, `service-automation`, `service-cache`, `service-feed`, `service-i18n`, `service-job`, `service-package`, `service-queue`, `service-realtime`, `service-storage`, `service-tenant` |
+
 
 ## Core Packages
 
@@ -240,6 +252,22 @@ All services implement contracts from `@objectstack/spec/contracts` and are kern
 - **Features**: Upload, download, signed URLs, multipart uploads, metadata
 - **When to use**: File attachments, document management, media storage
 - **README**: [View README](/packages/services/service-storage/README.md)
+
+### @objectstack/service-package
+
+**Package Registry Service** — Publish, version, and retrieve ObjectStack metadata packages from the `sys_packages` table.
+
+- **Features**: Upsert by `(id, version)`, SHA-256 integrity hash, `latest` resolution, bulk list/delete
+- **When to use**: Marketplace backends, internal tenant-facing registries, CI-driven metadata distribution
+- **README**: [View README](/packages/services/service-package/README.md)
+
+### @objectstack/service-tenant
+
+**Multi-Tenant Service** — Tenant context, routing, and isolation for SaaS deployments.
+
+- **Features**: Tenant resolution from host/header/cookie, per-tenant metadata and data isolation
+- **When to use**: Any multi-tenant SaaS on ObjectStack
+- **README**: [View README](/packages/services/service-tenant/README.md)
 
 ---
 

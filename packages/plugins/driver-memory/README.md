@@ -1,21 +1,102 @@
 # @objectstack/driver-memory
 
-In-Memory Database access layer for ObjectStack. Supports rich querying capabilities (MongoDB-style operators) on standard JavaScript arrays.
+> In-memory ObjectQL driver for ObjectStack — zero-config storage for development, unit tests, Storybook, and browser MSW mocks.
 
-## Features
+[![npm](https://img.shields.io/npm/v/@objectstack/driver-memory.svg)](https://www.npmjs.com/package/@objectstack/driver-memory)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-- **NoSQL Syntax**: Supports `$eq`, `$gt`, `$lt`, `$in`, `$and`, `$or` operators.
-- **Sorting & Pagination**: Full support for `sort`, `skip`, `limit`.
-- **Zero Config**: Perfect for prototyping, testing, and the **MSW Browser Mock**.
-- **Stateful**: Preserves data in memory during the session.
+## Overview
 
-## Usage
+Implements the `IDataEngine` contract against in-memory `Map`-backed tables. Supports the full ObjectQL surface: MongoDB-style operators (`$eq`, `$ne`, `$gt`, `$lt`, `$gte`, `$lte`, `$in`, `$nin`, `$and`, `$or`, `$not`), sorting, pagination, aggregations, and joins. Optional persistence adapters serialize state to disk (Node) or `localStorage` (browser).
+
+## Installation
+
+```bash
+pnpm add @objectstack/driver-memory
+```
+
+## Quick Start
+
+```typescript
+import { ObjectKernel } from '@objectstack/core';
+import memoryPlugin from '@objectstack/driver-memory';
+
+const kernel = new ObjectKernel();
+kernel.use(memoryPlugin);                 // default plugin
+await kernel.bootstrap();
+```
+
+### Direct instantiation
 
 ```typescript
 import { InMemoryDriver } from '@objectstack/driver-memory';
 
 const driver = new InMemoryDriver();
 await driver.connect();
-
-// Used internally by ObjectQL
 ```
+
+### With filesystem persistence (Node)
+
+```typescript
+import { InMemoryDriver, FileSystemPersistenceAdapter } from '@objectstack/driver-memory';
+
+const driver = new InMemoryDriver({
+  persistence: new FileSystemPersistenceAdapter('./data/snapshot.json'),
+});
+await driver.connect();
+```
+
+### With `localStorage` persistence (browser)
+
+```typescript
+import { InMemoryDriver, LocalStoragePersistenceAdapter } from '@objectstack/driver-memory';
+
+const driver = new InMemoryDriver({
+  persistence: new LocalStoragePersistenceAdapter('objectstack:dev'),
+});
+```
+
+## Key Exports
+
+| Export | Kind | Description |
+|:---|:---|:---|
+| `default` | kernel plugin | Drop-in plugin. |
+| `InMemoryDriver` | class | Driver instance for direct use. |
+| `InMemoryStrategy` | class | Query execution strategy used by ObjectQL. |
+| `FileSystemPersistenceAdapter` | class | Node-only persistence. |
+| `LocalStoragePersistenceAdapter` | class | Browser-only persistence. |
+| `MemoryAnalyticsService` | class | Adds analytics aggregations backed by memory store. |
+| `InMemoryDriverConfig`, `PersistenceAdapterInterface`, `MemoryAnalyticsConfig` | types | Configuration shapes. |
+
+## Configuration
+
+| Option | Type | Default | Notes |
+|:---|:---|:---|:---|
+| `persistence` | `PersistenceAdapterInterface?` | `undefined` | Optional snapshot store. |
+| `seed` | `Record<string, any[]>?` | `{}` | Initial rows keyed by object name. |
+| `idStrategy` | `'uuid' \| 'auto'` | `'uuid'` | ID generation strategy. |
+
+## When to use
+
+- ✅ Development, unit tests, CI, Storybook.
+- ✅ Browser-only demos pairing with [`@objectstack/plugin-msw`](../plugin-msw).
+
+## When not to use
+
+- ❌ Production — data is lost on restart without a persistence adapter; durability/concurrency guarantees are minimal.
+- ❌ Multi-process deployments.
+
+## Related Packages
+
+- [`@objectstack/objectql`](../../objectql) — query engine.
+- [`@objectstack/driver-sql`](../driver-sql), [`@objectstack/driver-turso`](../driver-turso) — production drivers.
+- [`@objectstack/plugin-msw`](../plugin-msw) — browser mock API.
+
+## Links
+
+- 📖 Docs: <https://objectstack.ai/docs>
+- 📚 API Reference: <https://objectstack.ai/docs/references>
+
+## License
+
+Apache-2.0 © ObjectStack

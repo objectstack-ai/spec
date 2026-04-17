@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Release-readiness documentation pass (42 packages)** — Aligned every `@objectstack/*` package for the formal v4.x release:
+  - Canonical README template and `package.json` publishing checklist committed at `docs/internal/PACKAGE_README_TEMPLATE.md`
+  - New `packages/services/service-package/README.md` documenting the package registry service
+  - All `package.json` files now carry `description`, at least 3 `keywords`, a full `repository` block with `directory`, `homepage`, `bugs`, `engines.node`, `publishConfig.access: public`, and a `files` whitelist
+  - `@objectstack/service-tenant` (was `0.1.0`) and `@objectstack/service-package` (was `1.0.0`) bumped to `4.0.4` in lockstep with the release train
+  - Rewrote thin READMEs for `core`, `rest`, `driver-memory`, `plugin-security`, and all seven framework adapters (`express`, `fastify`, `hono`, `nestjs`, `nextjs`, `nuxt`, `sveltekit`) to the canonical structure: overview, installation, quick start, key exports, configuration, when/when-not, related packages, and docs links
+  - Updated `content/docs/guides/packages.mdx` and `content/docs/concepts/packages.mdx` to reflect the actual **42 package** inventory and to include `service-package` and `service-tenant`
+
 ### Fixed
 - **Cross-origin auth tokens stripped in `@objectstack/hono` adapter (follow-up to PR #1178)** — `createHonoApp()` was not exposing `set-auth-token` via `Access-Control-Expose-Headers`, diverging from `plugin-hono-server`'s CORS wiring. On Vercel deployments (where all traffic flows through `createHonoApp()`), the browser stripped the header from every response, preventing the better-auth `bearer()` plugin from delivering rotated session tokens to cross-origin clients. Cross-origin sessions silently broke even after the wildcard fixes in #1177/#1178. The adapter now always includes `set-auth-token` in `exposeHeaders`, merged with any user-supplied values, mirroring the invariant established in commit `151dd19c`. (`packages/adapters/hono/src/index.ts`)
 - **CORS wildcard patterns in `@objectstack/hono` adapter (follow-up to PR #1177)** — `createHonoApp()` was the third CORS code path that still treated wildcard origins (e.g. `https://*.objectui.org`) as literal strings when passing them to Hono's `cors()` middleware. Because `apps/server` routes all non-OPTIONS requests through this adapter on Vercel, the browser would see a successful preflight (handled by the Vercel short-circuit) followed by a POST/GET response with no `Access-Control-Allow-Origin` header, blocking every real request. The adapter now imports `hasWildcardPattern` / `createOriginMatcher` from `@objectstack/plugin-hono-server` and uses the same matcher-function branch as `plugin-hono-server`, so all three Hono-based CORS paths share a single source of truth. (`packages/adapters/hono/src/index.ts`)

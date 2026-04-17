@@ -136,6 +136,7 @@ os doctor         # Check environment health
 | Package | Description |
 | :--- | :--- |
 | [`@objectstack/plugin-hono-server`](packages/plugins/plugin-hono-server) | Hono-based HTTP server plugin |
+| [`@objectstack/plugin-mcp-server`](packages/plugins/plugin-mcp-server) | Model Context Protocol server — exposes ObjectStack to AI agents |
 | [`@objectstack/plugin-msw`](packages/plugins/plugin-msw) | Mock Service Worker plugin for browser testing |
 | [`@objectstack/plugin-auth`](packages/plugins/plugin-auth) | Authentication plugin (better-auth) |
 | [`@objectstack/plugin-security`](packages/plugins/plugin-security) | RBAC, Row-Level Security, Field-Level Security |
@@ -147,11 +148,18 @@ os doctor         # Check environment health
 
 | Package | Description |
 | :--- | :--- |
-| [`@objectstack/service-feed`](packages/services/service-feed) | Activity feed service |
-| [`@objectstack/service-automation`](packages/services/service-automation) | Automation engine — flows, triggers, DAG-based workflows |
 | [`@objectstack/service-ai`](packages/services/service-ai) | AI service — Agent, Tool, Skill, Vercel AI SDK integration |
-| [`@objectstack/service-realtime`](packages/services/service-realtime) | Real-time events and subscriptions |
+| [`@objectstack/service-analytics`](packages/services/service-analytics) | Analytics — aggregations, time series, funnels, dashboards |
+| [`@objectstack/service-automation`](packages/services/service-automation) | Automation engine — flows, triggers, DAG-based workflows |
+| [`@objectstack/service-cache`](packages/services/service-cache) | Cache — in-memory, Redis, multi-tier |
+| [`@objectstack/service-feed`](packages/services/service-feed) | Activity feed / chatter |
 | [`@objectstack/service-i18n`](packages/services/service-i18n) | Internationalization service |
+| [`@objectstack/service-job`](packages/services/service-job) | Cron & interval job scheduler |
+| [`@objectstack/service-package`](packages/services/service-package) | Package registry — publish, version, retrieve metadata packages |
+| [`@objectstack/service-queue`](packages/services/service-queue) | Background job queue (in-memory, BullMQ) |
+| [`@objectstack/service-realtime`](packages/services/service-realtime) | Real-time events and subscriptions |
+| [`@objectstack/service-storage`](packages/services/service-storage) | File storage (local, S3, R2, GCS) |
+| [`@objectstack/service-tenant`](packages/services/service-tenant) | Multi-tenant context and routing |
 
 ### Framework Adapters
 
@@ -188,7 +196,7 @@ os doctor         # Check environment health
 
 | Metric | Value |
 | :--- | :--- |
-| Packages | 27 |
+| Packages | 42 |
 | Zod schema files | 200 |
 | Exported schemas | 1,600+ |
 | `.describe()` annotations | 8,750+ |
