@@ -1,60 +1,5 @@
 import { describe, it, expect } from 'vitest';
-
-/**
- * Check if an origin matches a pattern with wildcards.
- * Supports patterns like:
- * - "https://*.example.com" - matches any subdomain
- * - "http://localhost:*" - matches any port
- * - "https://*.objectui.org,https://*.objectstack.ai" - comma-separated patterns
- *
- * @param origin The origin to check (e.g., "https://app.example.com")
- * @param pattern The pattern to match against (supports * wildcard)
- * @returns true if origin matches the pattern
- */
-function matchOriginPattern(origin: string, pattern: string): boolean {
-    if (pattern === '*') return true;
-    if (pattern === origin) return true;
-
-    // Convert wildcard pattern to regex
-    // Escape special regex characters except *
-    const regexPattern = pattern
-        .replace(/[.+?^${}()|[\]\\]/g, '\\$&')  // Escape special chars
-        .replace(/\*/g, '.*');                    // Convert * to .*
-
-    const regex = new RegExp(`^${regexPattern}$`);
-    return regex.test(origin);
-}
-
-/**
- * Create a CORS origin matcher function that supports wildcard patterns.
- *
- * @param patterns Single pattern, array of patterns, or comma-separated patterns
- * @returns Function that returns the origin if it matches, or null/undefined
- */
-function createOriginMatcher(
-    patterns: string | string[]
-): (origin: string) => string | undefined | null {
-    // Normalize to array
-    let patternList: string[];
-    if (typeof patterns === 'string') {
-        // Handle comma-separated patterns
-        patternList = patterns.includes(',')
-            ? patterns.split(',').map(s => s.trim()).filter(Boolean)
-            : [patterns];
-    } else {
-        patternList = patterns;
-    }
-
-    // Return matcher function
-    return (requestOrigin: string) => {
-        for (const pattern of patternList) {
-            if (matchOriginPattern(requestOrigin, pattern)) {
-                return requestOrigin;
-            }
-        }
-        return null;
-    };
-}
+import { matchOriginPattern, createOriginMatcher, hasWildcardPattern, normalizeOriginPatterns } from './pattern-matcher';
 
 describe('matchOriginPattern', () => {
     describe('exact matching', () => {
@@ -176,5 +121,38 @@ describe('createOriginMatcher', () => {
             expect(matcher('http://localhost:8080')).toBe('http://localhost:8080');
             expect(matcher('http://127.0.0.1:3000')).toBe(null);
         });
+    });
+
+    describe('empty origin handling', () => {
+        it('should return null for empty request origin', () => {
+            const matcher = createOriginMatcher('https://*.example.com');
+            expect(matcher('')).toBe(null);
+        });
+    });
+});
+
+describe('hasWildcardPattern', () => {
+    it('detects wildcards in a single string', () => {
+        expect(hasWildcardPattern('https://*.example.com')).toBe(true);
+        expect(hasWildcardPattern('https://example.com')).toBe(false);
+    });
+
+    it('detects wildcards in an array', () => {
+        expect(hasWildcardPattern(['https://a.com', 'https://*.b.com'])).toBe(true);
+        expect(hasWildcardPattern(['https://a.com', 'https://b.com'])).toBe(false);
+    });
+});
+
+describe('normalizeOriginPatterns', () => {
+    it('splits comma-separated strings and trims whitespace', () => {
+        expect(normalizeOriginPatterns('a, b , c')).toEqual(['a', 'b', 'c']);
+    });
+
+    it('passes arrays through after trimming', () => {
+        expect(normalizeOriginPatterns([' a ', 'b'])).toEqual(['a', 'b']);
+    });
+
+    it('drops empty entries', () => {
+        expect(normalizeOriginPatterns('a,,b')).toEqual(['a', 'b']);
     });
 });
