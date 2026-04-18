@@ -51,6 +51,8 @@ export const ObjectTranslationDataSchema = z.object({
   label: z.string().describe('Translated singular label'),
   /** Translated plural label for the object */
   pluralLabel: z.string().optional().describe('Translated plural label'),
+  /** Translated description shown in list/detail headings */
+  description: z.string().optional().describe('Translated object description'),
   /** Field-level translations keyed by field name (snake_case) */
   fields: z.record(z.string(), FieldTranslationSchema).optional().describe('Field-level translations'),
 }).describe('Translation data for a single object');

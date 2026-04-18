@@ -70,13 +70,26 @@ export const zhCN: TranslationData = {
     lead: {
       label: '线索',
       pluralLabel: '线索',
+      description: '尚未确认的潜在客户',
       fields: {
+        salutation: {
+          label: '称谓',
+          options: { mr: '先生', ms: '女士', mrs: '夫人', dr: '博士' },
+        },
         first_name: { label: '名' },
         last_name: { label: '姓' },
+        full_name: { label: '全名' },
         company: { label: '公司' },
         title: { label: '职位' },
         email: { label: '邮箱' },
         phone: { label: '电话' },
+        industry: {
+          label: '行业',
+          options: {
+            technology: '科技', finance: '金融', healthcare: '医疗',
+            retail: '零售', manufacturing: '制造', education: '教育',
+          },
+        },
         status: {
           label: '状态',
           options: {
@@ -93,6 +106,149 @@ export const zhCN: TranslationData = {
         },
         owner: { label: '线索负责人' },
         is_converted: { label: '已转化' },
+        description: { label: '描述' },
+      },
+    },
+
+    quote: {
+      label: '报价单',
+      pluralLabel: '报价单',
+      description: '发送给客户的价格报价',
+      fields: {
+        quote_number: { label: '报价单编号' },
+        name: { label: '报价名称' },
+        account: { label: '所属客户' },
+        opportunity: { label: '关联商机' },
+        status: {
+          label: '状态',
+          options: {
+            draft: '草稿', presented: '已提交', accepted: '已接受',
+            rejected: '已拒绝', expired: '已过期',
+          },
+        },
+        total_price: { label: '总金额' },
+        discount: { label: '折扣 (%)' },
+        expiration_date: { label: '到期日期' },
+        description: { label: '描述' },
+      },
+    },
+
+    contract: {
+      label: '合同',
+      pluralLabel: '合同',
+      description: '与客户签署的法律合同',
+      fields: {
+        contract_number: { label: '合同编号' },
+        account: { label: '所属客户' },
+        status: {
+          label: '状态',
+          options: {
+            draft: '草稿', active: '生效中', expired: '已过期', terminated: '已终止',
+          },
+        },
+        start_date: { label: '开始日期' },
+        end_date: { label: '结束日期' },
+        contract_value: { label: '合同金额' },
+        description: { label: '描述' },
+      },
+    },
+
+    case: {
+      label: '服务案例',
+      pluralLabel: '服务案例',
+      description: '客户支持案例与服务请求',
+      fields: {
+        case_number: { label: '案例编号' },
+        subject: { label: '主题' },
+        description: { label: '描述' },
+        account: { label: '所属客户' },
+        contact: { label: '联系人' },
+        status: {
+          label: '状态',
+          options: {
+            new: '新建', in_progress: '处理中', waiting: '等待中',
+            resolved: '已解决', closed: '已关闭',
+          },
+        },
+        priority: {
+          label: '优先级',
+          options: { low: '低', medium: '中', high: '高', critical: '紧急' },
+        },
+        type: { label: '类型' },
+        owner: { label: '负责人' },
+      },
+    },
+
+    task: {
+      label: '任务',
+      pluralLabel: '任务',
+      description: '活动与待办事项',
+      fields: {
+        subject: { label: '主题' },
+        description: { label: '描述' },
+        status: {
+          label: '状态',
+          options: {
+            not_started: '未开始', in_progress: '进行中',
+            completed: '已完成', deferred: '已推迟', cancelled: '已取消',
+          },
+        },
+        priority: {
+          label: '优先级',
+          options: { low: '低', normal: '普通', high: '高' },
+        },
+        due_date: { label: '截止日期' },
+        assigned_to: { label: '负责人' },
+        related_to: { label: '关联对象' },
+      },
+    },
+
+    campaign: {
+      label: '营销活动',
+      pluralLabel: '营销活动',
+      description: '市场营销活动与推广',
+      fields: {
+        campaign_code: { label: '活动代码' },
+        name: { label: '活动名称' },
+        type: {
+          label: '类型',
+          options: {
+            email: '邮件营销', webinar: '线上研讨会', event: '线下活动',
+            advertising: '广告', 'direct-mail': '直邮', telemarketing: '电话营销',
+          },
+        },
+        status: {
+          label: '状态',
+          options: {
+            planned: '已计划', in_progress: '进行中',
+            completed: '已完成', aborted: '已中止',
+          },
+        },
+        start_date: { label: '开始日期' },
+        end_date: { label: '结束日期' },
+        budget: { label: '预算' },
+        expected_revenue: { label: '预期收入' },
+        description: { label: '描述' },
+      },
+    },
+
+    product: {
+      label: '产品',
+      pluralLabel: '产品',
+      description: '公司提供的产品与服务',
+      fields: {
+        product_code: { label: '产品代码' },
+        name: { label: '产品名称' },
+        category: {
+          label: '产品类别',
+          options: {
+            software: '软件', hardware: '硬件', service: '服务',
+            subscription: '订阅', training: '培训',
+          },
+        },
+        price: { label: '单价' },
+        cost: { label: '成本' },
+        is_active: { label: '是否启用' },
         description: { label: '描述' },
       },
     },
