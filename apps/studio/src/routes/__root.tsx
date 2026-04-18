@@ -1,7 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { createRootRoute, Outlet } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { ObjectStackProvider } from '@objectstack/client-react';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -36,7 +35,6 @@ function RootComponent() {
           </SidebarProvider>
         </ErrorBoundary>
       </PluginRegistryProvider>
-      <TanStackRouterDevtools />
     </ObjectStackProvider>
   );
 }
