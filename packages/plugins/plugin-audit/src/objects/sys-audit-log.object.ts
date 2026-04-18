@@ -8,6 +8,9 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * Immutable audit trail for all significant platform events.
  * Records who did what, when, and the before/after state.
  *
+ * Every field is `readonly: true` — audit logs are written only by
+ * internal system hooks, never via UI forms. API exposes only `get` + `list`.
+ *
  * @namespace sys
  */
 export const SysAuditLog = ObjectSchema.create({
@@ -18,84 +21,120 @@ export const SysAuditLog = ObjectSchema.create({
   icon: 'scroll-text',
   isSystem: true,
   description: 'Immutable audit trail for platform events',
-  titleFormat: '{action} on {object_name} by {user_id}',
-  compactLayout: ['action', 'object_name', 'user_id', 'created_at'],
-  
+  displayNameField: 'action',
+  titleFormat: '{action} · {object_name}',
+  compactLayout: ['created_at', 'action', 'object_name', 'record_id', 'user_id'],
+
   fields: {
-    id: Field.text({
-      label: 'Audit Log ID',
-      required: true,
-      readonly: true,
-    }),
-    
+    // ── Event ────────────────────────────────────────────────────
     created_at: Field.datetime({
       label: 'Timestamp',
       required: true,
       defaultValue: 'NOW()',
       readonly: true,
+      group: 'Event',
     }),
-    
+
+    action: Field.select(
+      ['create', 'update', 'delete', 'restore', 'login', 'logout', 'permission_change', 'config_change', 'export', 'import'],
+      {
+        label: 'Action',
+        required: true,
+        readonly: true,
+        searchable: true,
+        description: 'Action type (snake_case)',
+        group: 'Event',
+      },
+    ),
+
     user_id: Field.text({
-      label: 'User ID',
+      label: 'Actor',
       required: false,
+      readonly: true,
+      searchable: true,
       description: 'User who performed the action (null for system actions)',
+      group: 'Event',
     }),
-    
-    action: Field.select(['create', 'update', 'delete', 'restore', 'login', 'logout', 'permission_change', 'config_change', 'export', 'import'], {
-      label: 'Action',
-      required: true,
-      description: 'Action type (snake_case). Values: create, update, delete, restore, login, logout, permission_change, config_change, export, import',
-    }),
-    
+
+    // ── Target record ────────────────────────────────────────────
     object_name: Field.text({
-      label: 'Object Name',
+      label: 'Object',
       required: false,
+      readonly: true,
+      searchable: true,
       maxLength: 255,
       description: 'Target object (e.g. sys_user, project_task)',
+      group: 'Target',
     }),
-    
+
     record_id: Field.text({
       label: 'Record ID',
       required: false,
+      readonly: true,
+      searchable: true,
       description: 'ID of the affected record',
+      group: 'Target',
     }),
-    
+
+    // ── Change payload ───────────────────────────────────────────
     old_value: Field.textarea({
       label: 'Old Value',
       required: false,
+      readonly: true,
       description: 'JSON-serialized previous state',
+      group: 'Changes',
     }),
-    
+
     new_value: Field.textarea({
       label: 'New Value',
       required: false,
+      readonly: true,
       description: 'JSON-serialized new state',
+      group: 'Changes',
     }),
-    
+
+    // ── Client fingerprint ───────────────────────────────────────
     ip_address: Field.text({
       label: 'IP Address',
       required: false,
+      readonly: true,
       maxLength: 45,
+      group: 'Client',
     }),
-    
+
     user_agent: Field.textarea({
       label: 'User Agent',
       required: false,
+      readonly: true,
+      group: 'Client',
     }),
-    
+
+    // ── Context ──────────────────────────────────────────────────
     tenant_id: Field.text({
-      label: 'Tenant ID',
+      label: 'Tenant',
       required: false,
+      readonly: true,
       description: 'Tenant context for multi-tenant isolation',
+      group: 'Context',
     }),
-    
+
     metadata: Field.textarea({
       label: 'Metadata',
       required: false,
+      readonly: true,
       description: 'JSON-serialized additional context',
+      group: 'Context',
+    }),
+
+    // ── System ───────────────────────────────────────────────────
+    id: Field.text({
+      label: 'Audit Log ID',
+      required: true,
+      readonly: true,
+      group: 'System',
     }),
   },
-  
+
   indexes: [
     { fields: ['created_at'] },
     { fields: ['user_id'] },
@@ -103,12 +142,12 @@ export const SysAuditLog = ObjectSchema.create({
     { fields: ['action'] },
     { fields: ['tenant_id'] },
   ],
-  
+
   enable: {
     trackHistory: false, // Audit logs are themselves the audit trail
     searchable: true,
     apiEnabled: true,
-    apiMethods: ['get', 'list'], // Read-only — audit logs are immutable; creation happens via internal system hooks only
+    apiMethods: ['get', 'list'], // Read-only — creation happens via internal system hooks only
     trash: false, // Never soft-delete audit logs
     mru: false,
     clone: false,

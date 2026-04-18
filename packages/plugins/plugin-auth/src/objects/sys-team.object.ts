@@ -18,46 +18,55 @@ export const SysTeam = ObjectSchema.create({
   icon: 'users',
   isSystem: true,
   description: 'Teams within organizations for fine-grained grouping',
+  displayNameField: 'name',
   titleFormat: '{name}',
-  compactLayout: ['name', 'organization_id', 'created_at'],
-  
+  compactLayout: ['name', 'organization_id'],
+
   fields: {
-    id: Field.text({
-      label: 'Team ID',
-      required: true,
-      readonly: true,
-    }),
-    
-    created_at: Field.datetime({
-      label: 'Created At',
-      defaultValue: 'NOW()',
-      readonly: true,
-    }),
-    
-    updated_at: Field.datetime({
-      label: 'Updated At',
-      defaultValue: 'NOW()',
-      readonly: true,
-    }),
-    
+    // ── Identity ─────────────────────────────────────────────────
     name: Field.text({
       label: 'Name',
       required: true,
       searchable: true,
       maxLength: 255,
+      group: 'Identity',
     }),
-    
+
     organization_id: Field.text({
-      label: 'Organization ID',
+      label: 'Organization',
       required: true,
+      description: 'Parent organization for this team',
+      group: 'Identity',
+    }),
+
+    // ── System ───────────────────────────────────────────────────
+    id: Field.text({
+      label: 'Team ID',
+      required: true,
+      readonly: true,
+      group: 'System',
+    }),
+
+    created_at: Field.datetime({
+      label: 'Created At',
+      defaultValue: 'NOW()',
+      readonly: true,
+      group: 'System',
+    }),
+
+    updated_at: Field.datetime({
+      label: 'Updated At',
+      defaultValue: 'NOW()',
+      readonly: true,
+      group: 'System',
     }),
   },
-  
+
   indexes: [
     { fields: ['organization_id'] },
     { fields: ['name', 'organization_id'], unique: true },
   ],
-  
+
   enable: {
     trackHistory: true,
     searchable: true,

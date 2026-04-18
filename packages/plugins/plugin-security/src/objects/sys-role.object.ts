@@ -18,70 +18,85 @@ export const SysRole = ObjectSchema.create({
   icon: 'shield',
   isSystem: true,
   description: 'Role definitions for RBAC access control',
-  titleFormat: '{name}',
-  compactLayout: ['name', 'label', 'active'],
-  
+  displayNameField: 'label',
+  titleFormat: '{label}',
+  compactLayout: ['label', 'name', 'active', 'is_default'],
+
   fields: {
-    id: Field.text({
-      label: 'Role ID',
+    // ── Identity ─────────────────────────────────────────────────
+    label: Field.text({
+      label: 'Display Name',
       required: true,
-      readonly: true,
+      searchable: true,
+      maxLength: 255,
+      group: 'Identity',
     }),
-    
-    created_at: Field.datetime({
-      label: 'Created At',
-      defaultValue: 'NOW()',
-      readonly: true,
-    }),
-    
-    updated_at: Field.datetime({
-      label: 'Updated At',
-      defaultValue: 'NOW()',
-      readonly: true,
-    }),
-    
+
     name: Field.text({
       label: 'API Name',
       required: true,
       searchable: true,
       maxLength: 100,
       description: 'Unique machine name for the role (e.g. admin, editor, viewer)',
+      group: 'Identity',
     }),
-    
-    label: Field.text({
-      label: 'Display Name',
-      required: true,
-      maxLength: 255,
-    }),
-    
+
     description: Field.textarea({
       label: 'Description',
       required: false,
+      group: 'Identity',
     }),
-    
+
+    // ── Configuration ────────────────────────────────────────────
     permissions: Field.textarea({
       label: 'Permissions',
       required: false,
       description: 'JSON-serialized array of permission strings',
+      group: 'Configuration',
     }),
-    
+
+    // ── Status ───────────────────────────────────────────────────
     active: Field.boolean({
       label: 'Active',
       defaultValue: true,
+      group: 'Status',
     }),
-    
+
     is_default: Field.boolean({
       label: 'Default Role',
       defaultValue: false,
       description: 'Automatically assigned to new users',
+      group: 'Status',
+    }),
+
+    // ── System ───────────────────────────────────────────────────
+    id: Field.text({
+      label: 'Role ID',
+      required: true,
+      readonly: true,
+      group: 'System',
+    }),
+
+    created_at: Field.datetime({
+      label: 'Created At',
+      defaultValue: 'NOW()',
+      readonly: true,
+      group: 'System',
+    }),
+
+    updated_at: Field.datetime({
+      label: 'Updated At',
+      defaultValue: 'NOW()',
+      readonly: true,
+      group: 'System',
     }),
   },
-  
+
   indexes: [
     { fields: ['name'], unique: true },
     { fields: ['active'] },
   ],
-  
+
   enable: {
     trackHistory: true,
     searchable: true,

@@ -8,6 +8,9 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * Canonical user identity record for the ObjectStack platform.
  * Backed by better-auth's `user` model with ObjectStack field conventions.
  *
+ * Field order drives default list/form layout: identity first, then profile,
+ * then system-managed audit fields (hidden from create/edit forms).
+ *
  * @namespace sys
  */
 export const SysUser = ObjectSchema.create({
@@ -18,57 +21,68 @@ export const SysUser = ObjectSchema.create({
   icon: 'user',
   isSystem: true,
   description: 'User accounts for authentication',
-  titleFormat: '{name} ({email})',
+  displayNameField: 'name',
+  titleFormat: '{name}',
   compactLayout: ['name', 'email', 'email_verified'],
-  
+
   fields: {
-    id: Field.text({
-      label: 'User ID',
-      required: true,
-      readonly: true,
-    }),
-    
-    created_at: Field.datetime({
-      label: 'Created At',
-      defaultValue: 'NOW()',
-      readonly: true,
-    }),
-    
-    updated_at: Field.datetime({
-      label: 'Updated At',
-      defaultValue: 'NOW()',
-      readonly: true,
-    }),
-    
-    email: Field.email({
-      label: 'Email',
-      required: true,
-      searchable: true,
-    }),
-    
-    email_verified: Field.boolean({
-      label: 'Email Verified',
-      defaultValue: false,
-    }),
-    
+    // ── Identity (primary business fields) ───────────────────────
     name: Field.text({
       label: 'Name',
       required: true,
       searchable: true,
       maxLength: 255,
+      group: 'Identity',
     }),
-    
+
+    email: Field.email({
+      label: 'Email',
+      required: true,
+      searchable: true,
+      group: 'Identity',
+    }),
+
+    email_verified: Field.boolean({
+      label: 'Email Verified',
+      defaultValue: false,
+      group: 'Identity',
+    }),
+
+    // ── Profile ──────────────────────────────────────────────────
     image: Field.url({
       label: 'Profile Image',
       required: false,
+      group: 'Profile',
+    }),
+
+    // ── System (auto-managed, hidden from create/edit forms) ─────
+    id: Field.text({
+      label: 'User ID',
+      required: true,
+      readonly: true,
+      group: 'System',
+    }),
+
+    created_at: Field.datetime({
+      label: 'Created At',
+      defaultValue: 'NOW()',
+      readonly: true,
+      group: 'System',
+    }),
+
+    updated_at: Field.datetime({
+      label: 'Updated At',
+      defaultValue: 'NOW()',
+      readonly: true,
+      group: 'System',
     }),
   },
-  
+
   indexes: [
     { fields: ['email'], unique: true },
     { fields: ['created_at'], unique: false },
   ],
-  
+
   enable: {
     trackHistory: true,
     searchable: true,
@@ -77,7 +91,7 @@ export const SysUser = ObjectSchema.create({
     trash: true,
     mru: true,
   },
-  
+
   validations: [
     {
       name: 'email_unique',

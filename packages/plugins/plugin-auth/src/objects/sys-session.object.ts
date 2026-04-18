@@ -8,6 +8,10 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * Active user session record for the ObjectStack platform.
  * Backed by better-auth's `session` model with ObjectStack field conventions.
  *
+ * The `token` field is hidden by default — sessions are managed by the
+ * auth plugin, not edited manually. Admins see session metadata
+ * (user, expiry, IP, active context) without exposing the token value.
+ *
  * @namespace sys
  */
 export const SysSession = ObjectSchema.create({
@@ -18,71 +22,91 @@ export const SysSession = ObjectSchema.create({
   icon: 'key',
   isSystem: true,
   description: 'Active user sessions',
-  titleFormat: 'Session {token}',
-  compactLayout: ['user_id', 'expires_at', 'ip_address'],
-  
+  displayNameField: 'user_id',
+  titleFormat: 'Session — {user_id}',
+  compactLayout: ['user_id', 'ip_address', 'expires_at'],
+
   fields: {
-    id: Field.text({
-      label: 'Session ID',
-      required: true,
-      readonly: true,
-    }),
-    
-    created_at: Field.datetime({
-      label: 'Created At',
-      defaultValue: 'NOW()',
-      readonly: true,
-    }),
-    
-    updated_at: Field.datetime({
-      label: 'Updated At',
-      defaultValue: 'NOW()',
-      readonly: true,
-    }),
-    
+    // ── Session owner & expiry ──────────────────────────────────
     user_id: Field.text({
-      label: 'User ID',
+      label: 'User',
       required: true,
+      searchable: true,
+      group: 'Session',
     }),
-    
+
     expires_at: Field.datetime({
       label: 'Expires At',
       required: true,
+      group: 'Session',
     }),
-    
-    token: Field.text({
-      label: 'Session Token',
-      required: true,
+
+    // ── Active context (multi-org/team) ──────────────────────────
+    active_organization_id: Field.text({
+      label: 'Active Organization',
+      required: false,
+      group: 'Context',
     }),
-    
+
+    active_team_id: Field.text({
+      label: 'Active Team',
+      required: false,
+      group: 'Context',
+    }),
+
+    // ── Client fingerprint ───────────────────────────────────────
     ip_address: Field.text({
       label: 'IP Address',
       required: false,
       maxLength: 45, // Support IPv6
+      group: 'Client',
     }),
-    
+
     user_agent: Field.textarea({
       label: 'User Agent',
       required: false,
+      group: 'Client',
     }),
 
-    active_organization_id: Field.text({
-      label: 'Active Organization ID',
-      required: false,
+    // ── Secret (hidden by default) ──────────────────────────────
+    token: Field.text({
+      label: 'Session Token',
+      required: true,
+      hidden: true,
+      readonly: true,
+      description: 'Opaque session token — never exposed in UI',
+      group: 'Secret',
     }),
 
-    active_team_id: Field.text({
-      label: 'Active Team ID',
-      required: false,
+    // ── System ───────────────────────────────────────────────────
+    id: Field.text({
+      label: 'Session ID',
+      required: true,
+      readonly: true,
+      group: 'System',
+    }),
+
+    created_at: Field.datetime({
+      label: 'Created At',
+      defaultValue: 'NOW()',
+      readonly: true,
+      group: 'System',
+    }),
+
+    updated_at: Field.datetime({
+      label: 'Updated At',
+      defaultValue: 'NOW()',
+      readonly: true,
+      group: 'System',
     }),
   },
-  
+
   indexes: [
     { fields: ['token'], unique: true },
     { fields: ['user_id'], unique: false },
     { fields: ['expires_at'], unique: false },
   ],
-  
+
   enable: {
     trackHistory: false,
     searchable: false,
@@ -90,5 +114,6 @@ export const SysSession = ObjectSchema.create({
     apiMethods: ['get', 'list', 'create', 'delete'],
     trash: false,
     mru: false,
+    clone: false,
   },
 });
