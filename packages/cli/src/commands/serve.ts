@@ -217,13 +217,29 @@ export default class Serve extends Command {
         (p: any) => p.name === 'com.objectstack.service.i18n'
             || p.constructor?.name === 'I18nServicePlugin'
       );
+      // Check the top-level config AND any nested AppPlugin bundles in the
+      // `plugins` array — host/aggregator configs (e.g. apps/server) don't
+      // define translations themselves but compose multiple `new AppPlugin(...)`
+      // entries, each carrying its own translations.
+      const pluginBundleHasTranslations = (bundle: any): boolean => {
+        if (!bundle || typeof bundle !== 'object') return false;
+        if (Array.isArray(bundle.translations) && bundle.translations.length > 0) return true;
+        if (bundle.i18n) return true;
+        if (bundle.manifest && (
+          (Array.isArray(bundle.manifest.translations) && bundle.manifest.translations.length > 0)
+          || bundle.manifest.i18n
+        )) return true;
+        return false;
+      };
+      const anyAppPluginHasTranslations = plugins.some((p: any) => {
+        if (!p) return false;
+        // AppPlugin instances expose their bundle on `.bundle`
+        if (p.bundle && pluginBundleHasTranslations(p.bundle)) return true;
+        return false;
+      });
       const configHasTranslations = (
-        (Array.isArray(config.translations) && config.translations.length > 0)
-        || config.i18n
-        || (config.manifest && (
-            (Array.isArray(config.manifest.translations) && config.manifest.translations.length > 0)
-            || config.manifest.i18n
-          ))
+        pluginBundleHasTranslations(config)
+        || anyAppPluginHasTranslations
       );
       if (!hasI18nPlugin && configHasTranslations) {
         try {

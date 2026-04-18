@@ -1,6 +1,36 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 /**
+ * Recursively merge `source` into `target`. Nested plain objects are merged
+ * rather than replaced, so multiple plugins can each contribute their own
+ * slice of a locale's translations (e.g. `{objects: {account: ...}}` and
+ * `{objects: {task: ...}}`) without clobbering one another.
+ */
+function deepMerge(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>,
+): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...target };
+  for (const key of Object.keys(source)) {
+    const tVal = target[key];
+    const sVal = source[key];
+    if (
+      tVal && sVal
+      && typeof tVal === 'object' && !Array.isArray(tVal)
+      && typeof sVal === 'object' && !Array.isArray(sVal)
+    ) {
+      result[key] = deepMerge(
+        tVal as Record<string, unknown>,
+        sVal as Record<string, unknown>,
+      );
+    } else {
+      result[key] = sVal;
+    }
+  }
+  return result;
+}
+
+/**
  * Resolve a locale code against available locales with fallback.
  *
  * Fallback chain:
@@ -93,8 +123,12 @@ export function createMemoryI18n() {
     },
 
     loadTranslations(locale: string, data: Record<string, unknown>): void {
-      const existing = translations.get(locale) ?? {};
-      translations.set(locale, { ...existing, ...data });
+      const existing = translations.get(locale);
+      if (existing) {
+        translations.set(locale, deepMerge(existing, data));
+      } else {
+        translations.set(locale, { ...data });
+      }
     },
 
     getLocales(): string[] {
