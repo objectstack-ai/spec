@@ -14,6 +14,8 @@ export const SalesDashboard: Dashboard = {
   label: 'Sales Performance',
   description: 'Pipeline analytics, win rate trends, and rep performance',
 
+  columns: 12,
+  gap: 4,
   refreshInterval: 180, // 3 minutes
 
   header: {
