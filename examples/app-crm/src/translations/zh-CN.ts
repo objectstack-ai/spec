@@ -64,6 +64,23 @@ export const zhCN: TranslationData = {
         owner: { label: '联系人负责人' },
         description: { label: '描述' },
         is_primary: { label: '主要联系人' },
+        reports_to: { label: '直属上级', help: '直属上级/主管' },
+        mailing_street: { label: '邮寄地址' },
+        mailing_city: { label: '邮寄城市' },
+        mailing_state: { label: '邮寄省份' },
+        mailing_postal_code: { label: '邮政编码' },
+        mailing_country: { label: '邮寄国家' },
+        birthdate: { label: '生日' },
+        lead_source: {
+          label: '线索来源',
+          options: {
+            web: '网站', referral: '推荐', event: '活动',
+            partner: '合作伙伴', advertisement: '广告',
+          },
+        },
+        do_not_call: { label: '禁止致电' },
+        email_opt_out: { label: '拒绝邮件' },
+        avatar: { label: '头像' },
       },
     },
 
