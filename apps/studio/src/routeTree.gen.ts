@@ -9,20 +9,35 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as PackagesRouteImport } from './routes/packages'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as ApiConsoleRouteImport } from './routes/api-console'
 import { Route as PackageRouteImport } from './routes/$package'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OrgsIndexRouteImport } from './routes/orgs.index'
 import { Route as EnvironmentsIndexRouteImport } from './routes/environments.index'
 import { Route as PackageIndexRouteImport } from './routes/$package.index'
+import { Route as OrgsNewRouteImport } from './routes/orgs.new'
+import { Route as OrgsOrgIdRouteImport } from './routes/orgs.$orgId'
 import { Route as EnvironmentsEnvironmentIdRouteImport } from './routes/environments.$environmentId'
 import { Route as EnvironmentsEnvironmentIdIndexRouteImport } from './routes/environments.$environmentId.index'
 import { Route as PackageObjectsNameRouteImport } from './routes/$package.objects.$name'
 import { Route as PackageMetadataTypeNameRouteImport } from './routes/$package.metadata.$type.$name'
 
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PackagesRoute = PackagesRouteImport.update({
   id: '/packages',
   path: '/packages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiConsoleRoute = ApiConsoleRouteImport.update({
@@ -40,6 +55,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrgsIndexRoute = OrgsIndexRouteImport.update({
+  id: '/orgs/',
+  path: '/orgs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EnvironmentsIndexRoute = EnvironmentsIndexRouteImport.update({
   id: '/environments/',
   path: '/environments/',
@@ -49,6 +69,16 @@ const PackageIndexRoute = PackageIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PackageRoute,
+} as any)
+const OrgsNewRoute = OrgsNewRouteImport.update({
+  id: '/orgs/new',
+  path: '/orgs/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrgsOrgIdRoute = OrgsOrgIdRouteImport.update({
+  id: '/orgs/$orgId',
+  path: '/orgs/$orgId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const EnvironmentsEnvironmentIdRoute =
   EnvironmentsEnvironmentIdRouteImport.update({
@@ -77,10 +107,15 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$package': typeof PackageRouteWithChildren
   '/api-console': typeof ApiConsoleRoute
+  '/login': typeof LoginRoute
   '/packages': typeof PackagesRoute
+  '/register': typeof RegisterRoute
   '/environments/$environmentId': typeof EnvironmentsEnvironmentIdRouteWithChildren
+  '/orgs/$orgId': typeof OrgsOrgIdRoute
+  '/orgs/new': typeof OrgsNewRoute
   '/$package/': typeof PackageIndexRoute
   '/environments/': typeof EnvironmentsIndexRoute
+  '/orgs/': typeof OrgsIndexRoute
   '/$package/objects/$name': typeof PackageObjectsNameRoute
   '/environments/$environmentId/': typeof EnvironmentsEnvironmentIdIndexRoute
   '/$package/metadata/$type/$name': typeof PackageMetadataTypeNameRoute
@@ -88,9 +123,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api-console': typeof ApiConsoleRoute
+  '/login': typeof LoginRoute
   '/packages': typeof PackagesRoute
+  '/register': typeof RegisterRoute
+  '/orgs/$orgId': typeof OrgsOrgIdRoute
+  '/orgs/new': typeof OrgsNewRoute
   '/$package': typeof PackageIndexRoute
   '/environments': typeof EnvironmentsIndexRoute
+  '/orgs': typeof OrgsIndexRoute
   '/$package/objects/$name': typeof PackageObjectsNameRoute
   '/environments/$environmentId': typeof EnvironmentsEnvironmentIdIndexRoute
   '/$package/metadata/$type/$name': typeof PackageMetadataTypeNameRoute
@@ -100,10 +140,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$package': typeof PackageRouteWithChildren
   '/api-console': typeof ApiConsoleRoute
+  '/login': typeof LoginRoute
   '/packages': typeof PackagesRoute
+  '/register': typeof RegisterRoute
   '/environments/$environmentId': typeof EnvironmentsEnvironmentIdRouteWithChildren
+  '/orgs/$orgId': typeof OrgsOrgIdRoute
+  '/orgs/new': typeof OrgsNewRoute
   '/$package/': typeof PackageIndexRoute
   '/environments/': typeof EnvironmentsIndexRoute
+  '/orgs/': typeof OrgsIndexRoute
   '/$package/objects/$name': typeof PackageObjectsNameRoute
   '/environments/$environmentId/': typeof EnvironmentsEnvironmentIdIndexRoute
   '/$package/metadata/$type/$name': typeof PackageMetadataTypeNameRoute
@@ -114,10 +159,15 @@ export interface FileRouteTypes {
     | '/'
     | '/$package'
     | '/api-console'
+    | '/login'
     | '/packages'
+    | '/register'
     | '/environments/$environmentId'
+    | '/orgs/$orgId'
+    | '/orgs/new'
     | '/$package/'
     | '/environments/'
+    | '/orgs/'
     | '/$package/objects/$name'
     | '/environments/$environmentId/'
     | '/$package/metadata/$type/$name'
@@ -125,9 +175,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/api-console'
+    | '/login'
     | '/packages'
+    | '/register'
+    | '/orgs/$orgId'
+    | '/orgs/new'
     | '/$package'
     | '/environments'
+    | '/orgs'
     | '/$package/objects/$name'
     | '/environments/$environmentId'
     | '/$package/metadata/$type/$name'
@@ -136,10 +191,15 @@ export interface FileRouteTypes {
     | '/'
     | '/$package'
     | '/api-console'
+    | '/login'
     | '/packages'
+    | '/register'
     | '/environments/$environmentId'
+    | '/orgs/$orgId'
+    | '/orgs/new'
     | '/$package/'
     | '/environments/'
+    | '/orgs/'
     | '/$package/objects/$name'
     | '/environments/$environmentId/'
     | '/$package/metadata/$type/$name'
@@ -149,18 +209,37 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PackageRoute: typeof PackageRouteWithChildren
   ApiConsoleRoute: typeof ApiConsoleRoute
+  LoginRoute: typeof LoginRoute
   PackagesRoute: typeof PackagesRoute
+  RegisterRoute: typeof RegisterRoute
   EnvironmentsEnvironmentIdRoute: typeof EnvironmentsEnvironmentIdRouteWithChildren
+  OrgsOrgIdRoute: typeof OrgsOrgIdRoute
+  OrgsNewRoute: typeof OrgsNewRoute
   EnvironmentsIndexRoute: typeof EnvironmentsIndexRoute
+  OrgsIndexRoute: typeof OrgsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/packages': {
       id: '/packages'
       path: '/packages'
       fullPath: '/packages'
       preLoaderRoute: typeof PackagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api-console': {
@@ -184,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/orgs/': {
+      id: '/orgs/'
+      path: '/orgs'
+      fullPath: '/orgs/'
+      preLoaderRoute: typeof OrgsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/environments/': {
       id: '/environments/'
       path: '/environments'
@@ -197,6 +283,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/$package/'
       preLoaderRoute: typeof PackageIndexRouteImport
       parentRoute: typeof PackageRoute
+    }
+    '/orgs/new': {
+      id: '/orgs/new'
+      path: '/orgs/new'
+      fullPath: '/orgs/new'
+      preLoaderRoute: typeof OrgsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orgs/$orgId': {
+      id: '/orgs/$orgId'
+      path: '/orgs/$orgId'
+      fullPath: '/orgs/$orgId'
+      preLoaderRoute: typeof OrgsOrgIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/environments/$environmentId': {
       id: '/environments/$environmentId'
@@ -262,9 +362,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PackageRoute: PackageRouteWithChildren,
   ApiConsoleRoute: ApiConsoleRoute,
+  LoginRoute: LoginRoute,
   PackagesRoute: PackagesRoute,
+  RegisterRoute: RegisterRoute,
   EnvironmentsEnvironmentIdRoute: EnvironmentsEnvironmentIdRouteWithChildren,
+  OrgsOrgIdRoute: OrgsOrgIdRoute,
+  OrgsNewRoute: OrgsNewRoute,
   EnvironmentsIndexRoute: EnvironmentsIndexRoute,
+  OrgsIndexRoute: OrgsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

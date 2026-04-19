@@ -15,6 +15,8 @@ import { Badge } from "@/components/ui/badge"
 import { Cpu } from 'lucide-react'
 import { config } from '@/lib/config'
 import { EnvironmentSwitcher } from '@/components/environment-switcher'
+import { OrganizationSwitcher } from '@/components/organization-switcher'
+import { UserMenu } from '@/components/user-menu'
 
 interface SiteHeaderProps {
   selectedObject?: string | null;
@@ -51,6 +53,8 @@ export function SiteHeader({ selectedObject = null, selectedMeta, selectedView, 
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
+        <OrganizationSwitcher />
+        <Separator orientation="vertical" className="mx-1 h-4" />
         <EnvironmentSwitcher />
         <Separator orientation="vertical" className="mx-1 h-4" />
         <Breadcrumb>
@@ -107,6 +111,7 @@ export function SiteHeader({ selectedObject = null, selectedMeta, selectedView, 
           {config.mode.toUpperCase()}
         </Badge>
         <ThemeToggle />
+        <UserMenu />
       </div>
     </header>
   )

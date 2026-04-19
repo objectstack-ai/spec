@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/select';
 import { useDrivers, useProvisionEnvironment } from '@/hooks/useEnvironments';
 import { toast } from '@/hooks/use-toast';
+import { useActiveOrganizationId, useSession } from '@/hooks/useSession';
 
 const ENV_TYPES: { value: EnvironmentType; label: string; hint: string }[] = [
   { value: 'development', label: 'Development', hint: 'For makers building and iterating' },
@@ -59,6 +60,8 @@ export function NewEnvironmentDialog({
 }: NewEnvironmentDialogProps) {
   const { provision, provisioning } = useProvisionEnvironment();
   const { drivers, loading: driversLoading } = useDrivers();
+  const activeOrgId = useActiveOrganizationId();
+  const { user } = useSession();
   const [slug, setSlug] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [envType, setEnvType] = useState<EnvironmentType>('development');
@@ -87,11 +90,18 @@ export function NewEnvironmentDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!slug.trim()) return;
+    if (!activeOrgId) {
+      toast({
+        title: 'No active organization',
+        description: 'Select or create an organization first.',
+        variant: 'destructive',
+      });
+      return;
+    }
     try {
       const res = await provision({
-        // organizationId + createdBy come from session on the server.
-        organizationId: '__session__',
-        createdBy: '__session__',
+        organizationId: activeOrgId,
+        createdBy: user?.id ?? '__session__',
         slug: slug.trim(),
         displayName: displayName.trim() || undefined,
         envType,

@@ -707,6 +707,104 @@ export class ObjectStackClient {
   };
 
   /**
+   * Organization Services
+   *
+   * Thin wrapper around better-auth's organization plugin endpoints, which
+   * are mounted under `/api/v1/auth/organization/**`. Used by the Studio
+   * OrganizationSwitcher and the /orgs management routes.
+   */
+  organizations = {
+    /**
+     * List organizations the current user belongs to.
+     * GET /api/v1/auth/organization/list
+     */
+    list: async () => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/organization/list`);
+      const data = await res.json();
+      // better-auth returns the array directly, sometimes wrapped in { data }.
+      const orgs = Array.isArray(data) ? data : (data?.data ?? []);
+      return { organizations: orgs as Array<{ id: string; name: string; slug?: string; logo?: string; metadata?: any }> };
+    },
+
+    /**
+     * Create a new organization.
+     * POST /api/v1/auth/organization/create
+     */
+    create: async (req: { name: string; slug?: string; logo?: string; metadata?: Record<string, unknown> }) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/organization/create`, {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
+      return res.json();
+    },
+
+    /**
+     * Set the active organization on the current session. The server writes
+     * `activeOrganizationId` on the better-auth session, which downstream
+     * handlers (e.g. `EnvironmentProvisioningService`) consult.
+     *
+     * POST /api/v1/auth/organization/set-active
+     */
+    setActive: async (organizationId: string) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/organization/set-active`, {
+        method: 'POST',
+        body: JSON.stringify({ organizationId }),
+      });
+      return res.json();
+    },
+
+    /**
+     * Get full organization detail (members, invitations, teams).
+     * GET /api/v1/auth/organization/get-full-organization?organizationId=...
+     */
+    get: async (organizationId: string) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(
+        `${this.baseUrl}${route}/organization/get-full-organization?organizationId=${encodeURIComponent(organizationId)}`,
+      );
+      return res.json();
+    },
+
+    /**
+     * List members of an organization.
+     */
+    listMembers: async (organizationId: string) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(
+        `${this.baseUrl}${route}/organization/list-members?organizationId=${encodeURIComponent(organizationId)}`,
+      );
+      return res.json();
+    },
+
+    /**
+     * Invite a user to the organization.
+     */
+    invite: async (req: { email: string; role?: string; organizationId?: string }) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/organization/invite-member`, {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
+      return res.json();
+    },
+
+    /**
+     * Leave the given organization.
+     */
+    leave: async (organizationId: string) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/organization/leave`, {
+        method: 'POST',
+        body: JSON.stringify({ organizationId }),
+      });
+      return res.json();
+    },
+  };
+
+  /**
    * Update the active environment id used for subsequent requests.
    * Pass `undefined` to clear (falls back to the session default).
    */

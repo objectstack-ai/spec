@@ -1053,6 +1053,24 @@ export class HttpDispatcher {
 
             if (parts.length === 1 && parts[0] === 'environments' && m === 'POST') {
                 const req = body || {};
+                // Resolve `__session__` placeholders from the active session so clients
+                // can omit these fields and let the server infer them.
+                if (req.organizationId === '__session__' || req.createdBy === '__session__') {
+                    try {
+                        const authService: any = await this.getService(CoreServiceName.enum.auth);
+                        const sessionData = await authService?.api?.getSession?.({
+                            headers: _context?.request?.headers,
+                        });
+                        if (req.organizationId === '__session__') {
+                            req.organizationId = sessionData?.session?.activeOrganizationId ?? undefined;
+                        }
+                        if (req.createdBy === '__session__') {
+                            req.createdBy = sessionData?.user?.id ?? 'system';
+                        }
+                    } catch {
+                        // Fall through — validation below will reject missing fields.
+                    }
+                }
                 if (!req.organizationId || !req.slug || !req.displayName || !req.envType) {
                     return { handled: true, response: this.error('organizationId, slug, displayName, envType are required', 400) };
                 }
