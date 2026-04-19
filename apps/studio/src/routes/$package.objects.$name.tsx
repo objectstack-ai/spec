@@ -1,32 +1,22 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { createFileRoute } from '@tanstack/react-router';
-import { SiteHeader } from '@/components/site-header';
-import { PluginHost } from '../plugins';
-import { usePackages } from '../hooks/usePackages';
-
-function ObjectViewComponent() {
-  const { name } = Route.useParams();
-  const { selectedPackage } = usePackages();
-
-  return (
-    <>
-      <SiteHeader
-        selectedObject={name}
-        selectedView="object"
-        packageLabel={selectedPackage?.manifest?.name || selectedPackage?.manifest?.id}
-      />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <PluginHost
-          metadataType="object"
-          metadataName={name}
-          packageId={selectedPackage?.manifest?.id}
-        />
-      </div>
-    </>
-  );
-}
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/$package/objects/$name')({
-  component: ObjectViewComponent,
+  beforeLoad: ({ params }) => {
+    const lastEnvId =
+      typeof localStorage !== 'undefined'
+        ? localStorage.getItem('objectstack.lastEnvId')
+        : null;
+
+    if (lastEnvId) {
+      throw redirect({
+        to: '/environments/$environmentId/$package/objects/$name',
+        params: { environmentId: lastEnvId, package: params.package, name: params.name },
+        replace: true,
+      });
+    }
+    throw redirect({ to: '/environments', replace: true });
+  },
+  component: () => null,
 });

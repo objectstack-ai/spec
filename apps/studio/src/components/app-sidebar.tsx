@@ -167,10 +167,12 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   packages: InstalledPackage[];
   selectedPackage: InstalledPackage | null;
   onSelectPackage: (pkg: InstalledPackage) => void;
+  /** When set, all package-content URLs are rooted at /environments/:envId/:pkg/* */
+  environmentId?: string;
 }
 
 export function AppSidebar({
-  packages, selectedPackage, onSelectPackage,
+  packages, selectedPackage, onSelectPackage, environmentId,
   ...props
 }: AppSidebarProps) {
   const client = useClient();
@@ -365,7 +367,14 @@ export function AppSidebar({
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={!!params.package && !params.name && !params.type}
-                  onClick={() => navigate({ to: `/${selectedPackage?.manifest?.id || 'default'}` })}
+                  onClick={() => {
+                    const pkgId = selectedPackage?.manifest?.id || 'default';
+                    if (environmentId) {
+                      navigate({ to: `/environments/${environmentId}/${pkgId}/` });
+                    } else {
+                      navigate({ to: `/${pkgId}` });
+                    }
+                  }}
                 >
                   <LayoutDashboard className="h-4 w-4" />
                   <span>Overview</span>
@@ -461,8 +470,12 @@ export function AppSidebar({
 
                                 const packagePath = selectedPackage?.manifest?.id || 'default';
                                 const handleClick = isObjectType
-                                  ? () => navigate({ to: `/${packagePath}/objects/${itemName}` })
-                                  : () => navigate({ to: `/${packagePath}/metadata/${type}/${itemName}` });
+                                  ? () => environmentId
+                                      ? navigate({ to: `/environments/${environmentId}/${packagePath}/objects/${itemName}` })
+                                      : navigate({ to: `/${packagePath}/objects/${itemName}` })
+                                  : () => environmentId
+                                      ? navigate({ to: `/environments/${environmentId}/${packagePath}/metadata/${type}/${itemName}` })
+                                      : navigate({ to: `/${packagePath}/metadata/${type}/${itemName}` });
 
                                 return (
                                   <SidebarMenuSubItem key={itemName}>

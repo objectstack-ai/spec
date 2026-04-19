@@ -47,6 +47,11 @@ function EnvironmentLayoutComponent() {
     return () => registerActiveEnv({ envType: undefined });
   }, [detail, registerActiveEnv]);
 
+  // Persist last-used environment so legacy /$package/* redirects can restore context.
+  useEffect(() => {
+    if (environmentId) localStorage.setItem('objectstack.lastEnvId', environmentId);
+  }, [environmentId]);
+
   useEffect(() => {
     if (error) {
       toast({
