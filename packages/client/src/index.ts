@@ -858,7 +858,11 @@ export class ObjectStackClient {
      */
     logout: async () => {
         const route = this.getRoute('auth');
-        await this.fetch(`${this.baseUrl}${route}/sign-out`, { method: 'POST' });
+        await this.fetch(`${this.baseUrl}${route}/sign-out`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: '{}',
+        });
         this.token = undefined;
     },
 
