@@ -61,7 +61,7 @@ export const SysPackageInstallation = ObjectSchema.create({
       description: 'Installed package version (semver)',
     }),
 
-    status: Field.picklist({
+    status: Field.select({
       label: 'Status',
       required: true,
       options: [

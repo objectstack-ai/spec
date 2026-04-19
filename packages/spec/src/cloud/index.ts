@@ -17,3 +17,4 @@ export * from './developer-portal.zod';
 export * from './marketplace-admin.zod';
 export * from './app-store.zod';
 export * from './tenant.zod';
+export * from './environment.zod';

@@ -46,6 +46,13 @@ export type TenantPlan = z.infer<typeof TenantPlanSchema>;
  *
  * Tracks each tenant's dedicated database instance.
  * Stored in the global control plane database.
+ *
+ * @deprecated v4.x shim — superseded by the environment-per-database
+ * isolation model introduced in v4.1. New code should use
+ * {@link EnvironmentSchema} + {@link EnvironmentDatabaseSchema} +
+ * {@link DatabaseCredentialSchema} from `./environment.zod`. This schema
+ * (and the `sys_tenant_database` table) will be removed in v5.0.
+ * See `docs/adr/0002-environment-database-isolation.md`.
  */
 export const TenantDatabaseSchema = z.object({
   /**

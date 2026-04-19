@@ -628,6 +628,16 @@ Objects now declare `namespace: 'sys'` and a short `name` (e.g., `name: 'user'`)
   - [ ] Tenant usage tracking and quota enforcement
   - [ ] Cross-tenant data sharing policies
   - [ ] Tenant-specific RBAC and permissions
+- [x] **Phase 4: Environment-Per-Database Isolation (v4.1)** — ✅ Protocol & service foundation landed (2026-04-19) — see [`docs/adr/0002-environment-database-isolation.md`](docs/adr/0002-environment-database-isolation.md)
+  - [x] Protocol schemas (`packages/spec/src/cloud/environment.zod.ts`): `EnvironmentSchema`, `EnvironmentDatabaseSchema`, `DatabaseCredentialSchema`, `EnvironmentMemberSchema` + provisioning requests/responses; `TenantDatabaseSchema` marked `@deprecated`
+  - [x] Control-plane objects: `sys_environment`, `sys_environment_database`, `sys_database_credential`, `sys_environment_member` (all with `.describe()` coverage and explicit UNIQUE constraints)
+  - [x] `EnvironmentProvisioningService` with `provisionOrganization()` / `provisionEnvironment()` / `rotateCredential()` and pluggable `EnvironmentDatabaseAdapter` (turso/libsql/sqlite/postgres-ready)
+  - [x] v4.x deprecation shim for `sys_tenant_database` (opt-out via `registerLegacyTenantDatabase: false`)
+  - [x] v4→v5 migration skeleton (`migrations/v4-to-v5-env-migration.ts`) — idempotent, non-destructive, re-encrypts credentials
+  - [ ] better-auth session `active_environment_id` integration (v4.2)
+  - [ ] Per-environment quota enforcement via `sys_quota` (v4.2)
+  - [ ] Solution publishing on environment DBs via `sys_solution_history` (v4.2)
+  - [ ] v5.0: remove `sys_tenant_database` and legacy provisioning code; run migration on production tenants
 
 ### 6.3 Observability
 

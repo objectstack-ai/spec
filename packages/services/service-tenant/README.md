@@ -2,11 +2,35 @@
 
 Multi-tenant context management and routing service for ObjectStack.
 
+> **⚠️ Architectural upgrade (v4.1): Environment-per-Database**
+>
+> Starting in v4.1 this package ships the **environment-per-database**
+> isolation model described in [ADR-0002](../../../docs/adr/0002-environment-database-isolation.md).
+> Each `environment` (prod / sandbox / dev / test / preview / …) gets its
+> **own physical database**, registered in the new control-plane objects
+> `sys_environment`, `sys_environment_database`, `sys_database_credential`,
+> and `sys_environment_member`.
+>
+> The legacy `sys_tenant_database` (per-organization DB) registry is
+> **deprecated** and kept as a v4.x shim only. It will be **removed in
+> v5.0** together with `TenantDatabaseSchema`. Run
+> `migrateV4ToV5Environments()` (from `migrations/v4-to-v5-env-migration.ts`)
+> before upgrading to v5.0. The migration is idempotent, non-destructive,
+> and reuses your existing physical databases as each org's new `prod`
+> environment DB — no data movement required.
+>
+> New integrations should use `EnvironmentProvisioningService`
+> (`provisionOrganization()` + `provisionEnvironment()`) instead of
+> `TenantProvisioningService`.
+
 ## Overview
 
 This service provides comprehensive multi-tenant infrastructure for ObjectStack deployments, including:
 
 - Tenant identification and context resolution
+- **Environment registry + per-environment database provisioning** *(v4.1+)*
+- **Rotatable, encrypted per-environment database credentials** *(v4.1+)*
+- **Per-environment RBAC** *(v4.1+)*
 - Turso Platform API integration for automated database provisioning
 - Tenant database schema initialization
 - Global control plane management
