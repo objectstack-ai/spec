@@ -6,6 +6,7 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/toaster';
 import { AiChatPanel } from '@/components/AiChatPanel';
+import { ProductionGuardProvider } from '@/components/production-guard';
 import { PluginRegistryProvider } from '../plugins';
 import { builtInPlugins } from '../plugins/built-in';
 import { useObjectStackClient } from '../hooks/useObjectStackClient';
@@ -29,9 +30,11 @@ function RootComponent() {
       <PluginRegistryProvider plugins={builtInPlugins}>
         <ErrorBoundary>
           <SidebarProvider>
-            <Outlet />
-            <Toaster />
-            <AiChatPanel />
+            <ProductionGuardProvider>
+              <Outlet />
+              <Toaster />
+              <AiChatPanel />
+            </ProductionGuardProvider>
           </SidebarProvider>
         </ErrorBoundary>
       </PluginRegistryProvider>

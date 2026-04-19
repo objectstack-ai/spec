@@ -3,17 +3,26 @@
 import { useState, useEffect } from 'react';
 import { ObjectStackClient } from '@objectstack/client';
 import { getApiBaseUrl, config } from '../lib/config';
+import { recallActiveEnvironment } from './useEnvironments';
 
 /**
- * Hook to create and manage ObjectStack client instance
+ * Hook to create and manage the ObjectStack client instance.
+ *
+ * When the browser has a previously-remembered active environment id
+ * (see `useEnvironments`), it is applied as the initial `X-Environment-Id`
+ * header so the first network request already lands in the correct
+ * environment's database — no pre-switch roundtrip needed.
  */
 export function useObjectStackClient() {
   const [client, setClient] = useState<ObjectStackClient | null>(null);
 
   useEffect(() => {
     const baseUrl = getApiBaseUrl();
-    console.log(`[App] Connecting to API: ${baseUrl} (mode: ${config.mode})`);
-    setClient(new ObjectStackClient({ baseUrl }));
+    const environmentId = recallActiveEnvironment() ?? undefined;
+    console.log(
+      `[App] Connecting to API: ${baseUrl} (mode: ${config.mode}, env: ${environmentId ?? 'session-default'})`,
+    );
+    setClient(new ObjectStackClient({ baseUrl, environmentId }));
   }, []);
 
   return client;

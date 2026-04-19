@@ -12,13 +12,14 @@ import {
 } from "@/components/ui/breadcrumb"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Badge } from "@/components/ui/badge"
-import { Cpu, Terminal } from 'lucide-react'
+import { Cpu } from 'lucide-react'
 import { config } from '@/lib/config'
+import { EnvironmentSwitcher } from '@/components/environment-switcher'
 
 interface SiteHeaderProps {
-  selectedObject: string | null;
+  selectedObject?: string | null;
   selectedMeta?: { type: string; name: string } | null;
-  selectedView: 'overview' | 'packages' | 'object' | 'metadata' | 'api-console';
+  selectedView: 'overview' | 'packages' | 'object' | 'metadata' | 'api-console' | 'environments';
   packageLabel?: string;
 }
 
@@ -35,11 +36,12 @@ const META_TYPE_LABELS: Record<string, string> = {
   data: 'Seed Data',
 };
 
-export function SiteHeader({ selectedObject, selectedMeta, selectedView, packageLabel }: SiteHeaderProps) {
+export function SiteHeader({ selectedObject = null, selectedMeta, selectedView, packageLabel }: SiteHeaderProps) {
   const viewLabels: Record<string, string> = {
     overview: 'Overview',
     packages: 'Package Manager',
     'api-console': 'API Console',
+    environments: 'Environments',
     object: selectedObject || 'Object',
     metadata: selectedMeta ? (META_TYPE_LABELS[selectedMeta.type] || selectedMeta.type) : 'Metadata',
   };
@@ -49,15 +51,18 @@ export function SiteHeader({ selectedObject, selectedMeta, selectedView, package
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
+        <EnvironmentSwitcher />
+        <Separator orientation="vertical" className="mx-1 h-4" />
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink href="#" className="flex items-center gap-1.5">
-                <Terminal className="h-3.5 w-3.5" />
-                {packageLabel || 'ObjectStack'}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator className="hidden md:block" />
+            {packageLabel && (
+              <>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="#">{packageLabel}</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+              </>
+            )}
             <BreadcrumbItem>
               <BreadcrumbPage className="font-medium">
                 {viewLabels[selectedView] || 'Overview'}

@@ -112,6 +112,14 @@ export interface ClientConfig {
    * Enable debug logging
    */
   debug?: boolean;
+  /**
+   * Active environment id (UUID of `sys_environment`). When present, the
+   * client injects an `X-Environment-Id` header on every request so the
+   * server's tenant router can resolve the physical data-plane database.
+   *
+   * @see docs/adr/0002-environment-database-isolation.md
+   */
+  environmentId?: string;
 }
 
 /**
@@ -226,6 +234,7 @@ export interface StandardError {
 export class ObjectStackClient {
   private baseUrl: string;
   private token?: string;
+  private environmentId?: string;
   private fetchImpl: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
   private discoveryInfo?: DiscoveryResult;
   private logger: Logger;
@@ -234,6 +243,7 @@ export class ObjectStackClient {
   constructor(config: ClientConfig) {
     this.baseUrl = config.baseUrl.replace(/\/$/, ''); // Remove trailing slash
     this.token = config.token;
+    this.environmentId = config.environmentId;
     this.fetchImpl = config.fetch || globalThis.fetch.bind(globalThis);
 
     // Initialize logger
@@ -573,6 +583,133 @@ export class ObjectStackClient {
         return this.unwrapResponse<{ package: any; message?: string }>(res);
     },
   };
+
+  /**
+   * Environment Management Services
+   *
+   * Environments are the v4.1+ isolation primitive — each environment owns a
+   * physically separate data-plane database. All Studio-level switching goes
+   * through this API.
+   *
+   * Endpoints:
+   * - GET    /api/v1/cloud/environments            → list environments
+   * - GET    /api/v1/cloud/environments/:id        → get one (with database info)
+   * - POST   /api/v1/cloud/environments            → provision a new environment
+   * - PATCH  /api/v1/cloud/environments/:id        → update (displayName, plan, status, …)
+   * - POST   /api/v1/cloud/environments/:id/activate → set as session's active environment
+   * - POST   /api/v1/cloud/environments/:id/credentials/rotate → rotate credential
+   *
+   * @see docs/adr/0002-environment-database-isolation.md
+   */
+  environments = {
+    /**
+     * List environments visible to the current session. Optionally filter
+     * by organization (control-plane query — not routed through a data-plane DB).
+     */
+    list: async (filters?: { organizationId?: string; envType?: string; status?: string }) => {
+      const params = new URLSearchParams();
+      if (filters?.organizationId) params.set('organizationId', filters.organizationId);
+      if (filters?.envType) params.set('envType', filters.envType);
+      if (filters?.status) params.set('status', filters.status);
+      const qs = params.toString();
+      const url = `${this.baseUrl}/api/v1/cloud/environments${qs ? '?' + qs : ''}`;
+      const res = await this.fetch(url);
+      return this.unwrapResponse<{ environments: any[]; total: number }>(res);
+    },
+
+    /**
+     * Get a single environment (joined with its database and membership row).
+     */
+    get: async (id: string) => {
+      const res = await this.fetch(`${this.baseUrl}/api/v1/cloud/environments/${encodeURIComponent(id)}`);
+      return this.unwrapResponse<{
+        environment: any;
+        database?: any;
+        credential?: any;
+        membership?: any;
+        organization?: any;
+      }>(res);
+    },
+
+    /**
+     * Provision a new environment. Delegates to
+     * `EnvironmentProvisioningService.provisionEnvironment` on the server.
+     */
+    create: async (req: {
+      organizationId: string;
+      slug: string;
+      displayName: string;
+      envType: string;
+      plan?: string;
+      region?: string;
+      driver?: string;
+      cloneFromEnvironmentId?: string;
+    }) => {
+      const res = await this.fetch(`${this.baseUrl}/api/v1/cloud/environments`, {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
+      return this.unwrapResponse<{ environment: any; database: any }>(res);
+    },
+
+    /**
+     * Update an environment (displayName, plan, status, isDefault, metadata).
+     */
+    update: async (id: string, patch: Record<string, unknown>) => {
+      const res = await this.fetch(`${this.baseUrl}/api/v1/cloud/environments/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        body: JSON.stringify(patch),
+      });
+      return this.unwrapResponse<{ environment: any }>(res);
+    },
+
+    /**
+     * Activate this environment for the current session. The server writes
+     * `active_environment_id` on the better-auth session; subsequent requests
+     * are routed to this environment's database.
+     */
+    activate: async (id: string) => {
+      const res = await this.fetch(`${this.baseUrl}/api/v1/cloud/environments/${encodeURIComponent(id)}/activate`, {
+        method: 'POST',
+      });
+      return this.unwrapResponse<{ environment: any; sessionUpdated: boolean }>(res);
+    },
+
+    /**
+     * Rotate the active database credential for this environment.
+     */
+    rotateCredential: async (id: string, plaintext: string) => {
+      const res = await this.fetch(`${this.baseUrl}/api/v1/cloud/environments/${encodeURIComponent(id)}/credentials/rotate`, {
+        method: 'POST',
+        body: JSON.stringify({ plaintext }),
+      });
+      return this.unwrapResponse<{ credential: any }>(res);
+    },
+
+    /**
+     * List members of an environment (per-environment RBAC).
+     */
+    listMembers: async (id: string) => {
+      const res = await this.fetch(`${this.baseUrl}/api/v1/cloud/environments/${encodeURIComponent(id)}/members`);
+      return this.unwrapResponse<{ members: any[] }>(res);
+    },
+  };
+
+  /**
+   * Update the active environment id used for subsequent requests.
+   * Pass `undefined` to clear (falls back to the session default).
+   */
+  setEnvironmentId(environmentId: string | undefined): void {
+    this.environmentId = environmentId;
+    this.logger.debug('Active environment changed', { environmentId });
+  }
+
+  /**
+   * Current active environment id (if set).
+   */
+  getEnvironmentId(): string | undefined {
+    return this.environmentId;
+  }
 
   /**
    * Authentication Services
@@ -1726,6 +1863,10 @@ export class ObjectStackClient {
 
     if (this.token) {
         headers['Authorization'] = `Bearer ${this.token}`;
+    }
+
+    if (this.environmentId) {
+        headers['X-Environment-Id'] = this.environmentId;
     }
 
     const res = await this.fetchImpl(url, { ...options, headers });
