@@ -5,6 +5,14 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
 /**
  * sys_tenant_database — Global Tenant Registry Object
  *
+ * @deprecated v4.x deprecation shim — superseded by the
+ * environment-per-database isolation model. New deployments should use
+ * `sys_environment` + `sys_environment_database` + `sys_database_credential`.
+ * This object is kept for backwards compatibility with existing v4.x
+ * tenants and will be **removed in v5.0** together with the associated
+ * migration in `migrations/v4-to-v5-env-migration.ts`. See
+ * `docs/adr/0002-environment-database-isolation.md`.
+ *
  * Stores tenant database information in the global control plane.
  * Each tenant has its own isolated Turso database with UUID-based naming.
  *
@@ -67,7 +75,7 @@ export const SysTenantDatabase = ObjectSchema.create({
       description: 'Encrypted database-specific auth token',
     }),
 
-    status: Field.picklist({
+    status: Field.select({
       label: 'Status',
       required: true,
       options: [
@@ -87,7 +95,7 @@ export const SysTenantDatabase = ObjectSchema.create({
       description: 'Deployment region (e.g., us-east-1, eu-west-1)',
     }),
 
-    plan: Field.picklist({
+    plan: Field.select({
       label: 'Plan',
       required: true,
       options: [
