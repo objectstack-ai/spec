@@ -13,7 +13,7 @@
  * and navigating into the new environment.
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Environment, EnvironmentType } from '@objectstack/spec/cloud';
 import {
   Dialog,
@@ -33,7 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useProvisionEnvironment } from '@/hooks/useEnvironments';
+import { useDrivers, useProvisionEnvironment } from '@/hooks/useEnvironments';
 import { toast } from '@/hooks/use-toast';
 
 const ENV_TYPES: { value: EnvironmentType; label: string; hint: string }[] = [
@@ -58,16 +58,30 @@ export function NewEnvironmentDialog({
   onCreated,
 }: NewEnvironmentDialogProps) {
   const { provision, provisioning } = useProvisionEnvironment();
+  const { drivers, loading: driversLoading } = useDrivers();
   const [slug, setSlug] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [envType, setEnvType] = useState<EnvironmentType>('development');
   const [region, setRegion] = useState('');
+  const [driver, setDriver] = useState<string>('');
+
+  // Auto-select a sensible default once drivers load: prefer turso, then memory,
+  // otherwise the first registered driver.
+  useEffect(() => {
+    if (driver || drivers.length === 0) return;
+    const preferred =
+      drivers.find((d) => d.name === 'turso') ??
+      drivers.find((d) => d.name === 'memory') ??
+      drivers[0];
+    if (preferred) setDriver(preferred.name);
+  }, [driver, drivers]);
 
   const reset = () => {
     setSlug('');
     setDisplayName('');
     setEnvType('development');
     setRegion('');
+    setDriver('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,6 +96,7 @@ export function NewEnvironmentDialog({
         displayName: displayName.trim() || undefined,
         envType,
         region: region.trim() || undefined,
+        driver: driver || undefined,
       } as any);
       const env = (res?.environment ?? res) as Environment;
       toast({
@@ -162,6 +177,43 @@ export function NewEnvironmentDialog({
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="grid gap-1.5">
+              <Label>Driver</Label>
+              <Select
+                value={driver}
+                onValueChange={setDriver}
+                disabled={driversLoading || drivers.length === 0}
+              >
+                <SelectTrigger>
+                  <SelectValue
+                    placeholder={
+                      driversLoading
+                        ? 'Loading drivers…'
+                        : drivers.length === 0
+                          ? 'No drivers registered'
+                          : 'Select a driver'
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {drivers.map((d) => (
+                    <SelectItem key={d.driverId} value={d.name}>
+                      <div className="flex flex-col">
+                        <span>{d.name}</span>
+                        <span className="text-[11px] text-muted-foreground">
+                          {d.driverId}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground">
+                Where this environment's data will be stored. `memory` is ideal
+                for tests; `turso` persists to libSQL.
+              </p>
             </div>
 
             <div className="grid gap-1.5">

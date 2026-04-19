@@ -693,6 +693,17 @@ export class ObjectStackClient {
       const res = await this.fetch(`${this.baseUrl}/api/v1/cloud/environments/${encodeURIComponent(id)}/members`);
       return this.unwrapResponse<{ members: any[] }>(res);
     },
+
+    /**
+     * List ObjectQL drivers registered on the server. Useful for populating a
+     * driver selector when provisioning a new environment (memory / turso /
+     * future sql drivers). Returned `name` is the short alias (e.g. `memory`,
+     * `turso`); `driverId` is the full FQN (e.g. `com.objectstack.driver.memory`).
+     */
+    listDrivers: async () => {
+      const res = await this.fetch(`${this.baseUrl}/api/v1/cloud/drivers`);
+      return this.unwrapResponse<{ drivers: Array<{ name: string; driverId: string }>; total: number }>(res);
+    },
   };
 
   /**

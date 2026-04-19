@@ -939,13 +939,24 @@ export class HttpDispatcher {
     /**
      * Cloud / Environment Control-Plane routes.
      *
+     *  - GET    /cloud/drivers                                 → list registered ObjectQL drivers (for env provisioning)
      *  - GET    /cloud/environments                            → list
-     *  - POST   /cloud/environments                            → provision
+     *  - POST   /cloud/environments                            → provision (driver: memory | turso | <any registered driver>)
      *  - GET    /cloud/environments/:id                        → detail (+ db, credential, membership)
      *  - PATCH  /cloud/environments/:id                        → update displayName / plan / status / isDefault / metadata
      *  - POST   /cloud/environments/:id/activate               → mark as active for session (stub)
      *  - POST   /cloud/environments/:id/credentials/rotate     → rotate credential
      *  - GET    /cloud/environments/:id/members                → list members
+     *
+     * Driver binding
+     * --------------
+     * Environments are not tied to any specific driver. At provisioning time the
+     * caller passes `driver` (a short name such as `memory`, `turso`, or any
+     * future `sql` / `postgres` driver). The dispatcher validates the name
+     * against the kernel's registered driver services (`driver.<name>`) and
+     * derives an appropriate placeholder `database_url` for the chosen driver.
+     * If `driver` is omitted, the dispatcher auto-selects the first available
+     * in preference order: turso → memory → any other registered driver.
      *
      * Backed by ObjectQL sys__environment / sys__environment_database /
      * sys__database_credential / sys__environment_member tables (registered
@@ -966,6 +977,54 @@ export class HttpDispatcher {
         const CRED = 'sys__database_credential';
         const MEM = 'sys__environment_member';
 
+        // Enumerate registered ObjectQL drivers. Driver services are registered
+        // by `DriverPlugin` under the key `driver.<driver.name>` where
+        // `driver.name` is typically the full FQN like `com.objectstack.driver.memory`.
+        // We derive a short name by stripping the `com.objectstack.driver.` prefix.
+        const toShortName = (driverId: string): string => {
+            const prefix = 'com.objectstack.driver.';
+            return driverId.startsWith(prefix) ? driverId.slice(prefix.length) : driverId;
+        };
+        const listRegisteredDrivers = (): Array<{ name: string; driverId: string }> => {
+            const services = this.getServicesMap();
+            const drivers: Array<{ name: string; driverId: string }> = [];
+            for (const [serviceKey, svc] of Object.entries(services)) {
+                if (!serviceKey.startsWith('driver.')) continue;
+                const raw = serviceKey.slice('driver.'.length);
+                if (!raw || raw === 'unknown') continue;
+                const driverId = (svc as any)?.name ?? raw;
+                drivers.push({ name: toShortName(driverId), driverId });
+            }
+            return drivers;
+        };
+
+        const resolveDriver = (requested: string | undefined): { name: string; driverId: string } | undefined => {
+            const registered = listRegisteredDrivers();
+            if (requested) {
+                const wanted = String(requested).toLowerCase();
+                return registered.find((d) => d.name === wanted || d.driverId === wanted);
+            }
+            // Auto-pick: prefer turso, then memory, then whatever is available.
+            return (
+                registered.find((d) => d.name === 'turso') ??
+                registered.find((d) => d.name === 'memory') ??
+                registered[0]
+            );
+        };
+
+        const buildDatabaseUrl = (driverName: string, environmentId: string): string => {
+            const dbName = `env-${environmentId}`;
+            switch (driverName) {
+                case 'memory':
+                    return `memory://${dbName}`;
+                case 'turso':
+                    return `libsql://${dbName}.mock-turso.local`;
+                default:
+                    // Generic placeholder for future SQL / postgres / mysql drivers.
+                    return `${driverName}://${dbName}`;
+            }
+        };
+
         const findOne = async (obj: string, where: Record<string, unknown>): Promise<any | undefined> => {
             let rows = await ql.find(obj, { where } as any);
             if (rows && (rows as any).value) rows = (rows as any).value;
@@ -974,6 +1033,12 @@ export class HttpDispatcher {
         };
 
         try {
+            // ----- /cloud/drivers ------------------------------------------
+            if (parts.length === 1 && parts[0] === 'drivers' && m === 'GET') {
+                const drivers = listRegisteredDrivers();
+                return { handled: true, response: this.success({ drivers, total: drivers.length }) };
+            }
+
             // ----- /cloud/environments collection routes -----
             if (parts.length === 1 && parts[0] === 'environments' && m === 'GET') {
                 const where: Record<string, unknown> = {};
@@ -995,10 +1060,34 @@ export class HttpDispatcher {
                 const environmentDatabaseId = randomUUID();
                 const credentialId = randomUUID();
                 const nowIso = new Date().toISOString();
-                const driver = req.driver ?? 'turso';
+
+                // Bind environment to a driver. `req.driver` is optional — any
+                // registered ObjectQL driver is accepted (memory / turso / future
+                // sql / postgres). If omitted, pick the best default available.
+                const resolved = resolveDriver(req.driver);
+                if (!resolved) {
+                    const available = listRegisteredDrivers().map((d) => d.name);
+                    if (req.driver) {
+                        return {
+                            handled: true,
+                            response: this.error(
+                                `Unknown driver '${req.driver}'. Available drivers: [${available.join(', ') || 'none'}]`,
+                                400,
+                            ),
+                        };
+                    }
+                    return {
+                        handled: true,
+                        response: this.error(
+                            'No ObjectQL driver is registered. Register at least one DriverPlugin (e.g. InMemoryDriver or TursoDriver).',
+                            503,
+                        ),
+                    };
+                }
+                const driver = resolved.name;
                 const region = req.region ?? 'us-east-1';
                 const databaseName = `env-${environmentId}`;
-                const databaseUrl = `libsql://${databaseName}.mock-${driver}.local`;
+                const databaseUrl = buildDatabaseUrl(driver, environmentId);
                 const plaintextSecret = `mock-token-${environmentId}`;
 
                 await ql.insert(ENV, {

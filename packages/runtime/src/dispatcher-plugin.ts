@@ -318,6 +318,15 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
             });
 
             // ── Cloud (Environments) ─────────────────────────────────────
+            server.get(`${prefix}/cloud/drivers`, async (req: any, res: any) => {
+                try {
+                    const result = await dispatcher.handleCloud('/drivers', 'GET', {}, req.query, { request: req });
+                    sendResult(result, res);
+                } catch (err: any) {
+                    errorResponse(err, res);
+                }
+            });
+
             server.get(`${prefix}/cloud/environments`, async (req: any, res: any) => {
                 try {
                     const result = await dispatcher.handleCloud('/environments', 'GET', {}, req.query, { request: req });

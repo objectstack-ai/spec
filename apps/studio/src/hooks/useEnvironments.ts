@@ -129,6 +129,45 @@ export function useEnvironmentDetail(environmentId: string | undefined) {
 }
 
 /**
+ * Hook: list ObjectQL drivers registered on the server.
+ *
+ * Used by the NewEnvironmentDialog to populate the "Driver" selector. The
+ * server exposes whatever drivers are registered via `DriverPlugin`
+ * (`memory`, `turso`, or future `sql` drivers) — Studio does not hardcode
+ * any particular driver.
+ */
+export function useDrivers() {
+  const client = useClient() as any;
+  const [drivers, setDrivers] = useState<Array<{ name: string; driverId: string }>>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!client?.environments?.listDrivers) return;
+    let alive = true;
+    setLoading(true);
+    (async () => {
+      try {
+        const result = await client.environments.listDrivers();
+        if (!alive) return;
+        setDrivers(result?.drivers ?? []);
+      } catch (err) {
+        if (!alive) return;
+        setError(err as Error);
+        setDrivers([]);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [client]);
+
+  return { drivers, loading, error };
+}
+
+/**
  * Hook: provision a new environment via the control-plane API.
  */
 export function useProvisionEnvironment() {
