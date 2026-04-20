@@ -6,9 +6,12 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * sys_view Object Definition
  *
  * Represents view metadata as queryable data.
+ *
+ * Registered under namespace `sys`, so the fully qualified name (FQN) is
+ * `sys__view` (produced by `SchemaRegistry.computeFQN(namespace, name)`).
  */
 export const SysView = ObjectSchema.create({
-  name: 'sys_view',
+  name: 'view',
   namespace: 'sys',
   label: 'View Definition',
   pluralLabel: 'View Definitions',

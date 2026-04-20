@@ -7,9 +7,12 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  *
  * Represents object metadata as queryable data.
  * Allows Studio to browse/filter/search object definitions using the Object Protocol.
+ *
+ * Registered under namespace `sys`, so the fully qualified name (FQN) is
+ * `sys__object` (produced by `SchemaRegistry.computeFQN(namespace, name)`).
  */
 export const SysObject = ObjectSchema.create({
-  name: 'sys_object',
+  name: 'object',
   namespace: 'sys',
   label: 'Object Definition',
   pluralLabel: 'Object Definitions',

@@ -82,8 +82,8 @@ export class MetadataPlugin implements Plugin {
             });
 
             ctx.logger.info('Registered system metadata objects', {
-                metadata: ['sys_metadata', 'sys_metadata_history'],
-                objectos: Object.keys(SystemObjects),
+                metadata: ['sys__metadata', 'sys__metadata_history'],
+                objectos: Object.keys(SystemObjects).map((name) => `sys__${name}`),
             });
         } catch {
             // ObjectQL not loaded yet — objects will be discovered via legacy fallback
