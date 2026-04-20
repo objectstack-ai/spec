@@ -761,6 +761,9 @@ importers:
       '@objectstack/core':
         specifier: workspace:*
         version: link:../core
+      '@objectstack/objectos':
+        specifier: workspace:*
+        version: link:../objectos
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../spec
