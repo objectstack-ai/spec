@@ -271,6 +271,7 @@ const result = MetadataCollectionInfo.parse(data);
 | **owner** | `string` | optional |  |
 | **state** | `Enum<'draft' \| 'active' \| 'archived' \| 'deprecated'>` | ✅ |  |
 | **organizationId** | `string` | optional | Organization identifier for multi-tenant isolation |
+| **tenantId** | `string` | optional | Tenant identifier for multi-tenant isolation |
 | **environmentId** | `string` | optional | Environment ID — null = platform-global, set = env-scoped |
 | **version** | `number` | ✅ | Record version for optimistic concurrency control |
 | **checksum** | `string` | optional | Content checksum for change detection |

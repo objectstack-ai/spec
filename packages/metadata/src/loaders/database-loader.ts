@@ -562,7 +562,10 @@ export class DatabaseLoader implements MetadataLoader {
 
     const historyRecords = await this._find(this.historyTableName, {
       where: historyFilter,
-      orderBy: [{ field: 'recorded_at', order: 'desc' as const }],
+      orderBy: [
+        { field: 'recorded_at', order: 'desc' as const },
+        { field: 'version', order: 'desc' as const },
+      ],
       limit: limit + 1,
       offset,
     });
