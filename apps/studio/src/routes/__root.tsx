@@ -8,6 +8,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/toaster';
 import { AiChatPanel } from '@/components/AiChatPanel';
 import { ProductionGuardProvider } from '@/components/production-guard';
+import { GlobalSidebar } from '@/components/global-sidebar';
 import { PluginRegistryProvider } from '../plugins';
 import { builtInPlugins } from '../plugins/built-in';
 import { useObjectStackClient } from '../hooks/useObjectStackClient';
@@ -15,6 +16,34 @@ import { SessionProvider, useSession } from '../hooks/useSession';
 
 /** Routes that don't require authentication. */
 const PUBLIC_ROUTES = new Set(['/login', '/register']);
+
+/**
+ * Returns true when the current route should render the GlobalSidebar
+ * (the top-level nav shell) rather than the package-scoped AppSidebar.
+ *
+ * Package-scoped routes (`/$package/*` and `/environments/:id/:package/*`)
+ * have their own AppSidebar injected by their layout component, so the
+ * GlobalSidebar must be suppressed there to avoid rendering two sidebars.
+ */
+function isGlobalShellPath(pathname: string): boolean {
+  if (PUBLIC_ROUTES.has(pathname)) return false;
+  // Anything *inside* an environment (overview, packages mgmt, package workspace)
+  // renders the package-scoped AppSidebar from environments.$environmentId.tsx.
+  if (/^\/environments\/[^/]+/.test(pathname)) return false;
+  // Legacy package routes: /:package/... (anything not in the known global prefixes).
+  const globalPrefixes = [
+    '/orgs',
+    '/environments',
+    '/packages',
+    '/api-console',
+    '/templates',
+    '/examples',
+  ];
+  if (pathname === '/') return true;
+  return globalPrefixes.some(
+    (p) => pathname === p || pathname.startsWith(p + '/'),
+  );
+}
 
 /**
  * Routes where an environment selection is NOT required.
@@ -62,6 +91,18 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 
   if (!user && !isPublic) {
     return null;
+  }
+
+  // On global shell paths (non-package routes), render the GlobalSidebar
+  // alongside children. Package-scoped routes keep rendering their own
+  // AppSidebar from within their layout component.
+  if (user && isGlobalShellPath(location.pathname)) {
+    return (
+      <>
+        <GlobalSidebar />
+        {children}
+      </>
+    );
   }
 
   return <>{children}</>;

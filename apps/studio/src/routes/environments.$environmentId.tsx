@@ -6,27 +6,31 @@
  * Mirrors Power Platform's URL structure:
  *   https://make.powerapps.com/environments/<env-uuid>/apps
  *
- * This layout's only job is to bind the URL `environmentId` to the
- * ObjectStackClient via {@link useEnvironmentDetail}, which causes every
- * downstream API request to carry the `X-Environment-Id` header. Child
- * routes render inside `<Outlet />` and can read the current environment
- * from the route params.
- *
- * On load, if the requested environment cannot be found (404, revoked
- * membership, etc.), the layout redirects back to `/environments` so the
- * user can pick another.
+ * Responsibilities:
+ *  - Bind the URL `environmentId` to the ObjectStackClient via
+ *    {@link useEnvironmentDetail}, causing every downstream API request to
+ *    carry the `X-Environment-Id` header.
+ *  - Render the package-scoped {@link AppSidebar} (metadata tree) for ALL
+ *    routes under `/environments/:envId/*` — overview, package management,
+ *    and the package workspace — so the user sees the metadata list as soon
+ *    as they select an environment.
+ *  - Redirect back to `/environments` when the environment cannot be loaded.
  */
 
 import {
   createFileRoute,
   Outlet,
+  useLocation,
   useNavigate,
   useParams,
 } from '@tanstack/react-router';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
+import type { InstalledPackage } from '@objectstack/spec/kernel';
 import { useEnvironmentDetail } from '@/hooks/useEnvironments';
 import { useRegisterActiveEnvironment } from '@/components/production-guard';
 import { toast } from '@/hooks/use-toast';
+import { AppSidebar } from '@/components/app-sidebar';
+import { useEnvAwarePackages } from '@/hooks/useEnvAwarePackages';
 
 function EnvironmentLayoutComponent() {
   const { environmentId } = useParams({
@@ -35,6 +39,51 @@ function EnvironmentLayoutComponent() {
   const { detail, error } = useEnvironmentDetail(environmentId);
   const registerActiveEnv = useRegisterActiveEnvironment();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const { packages, selectedPackage, setSelectedPackage } =
+    useEnvAwarePackages(environmentId);
+
+  // Extract the $package segment from the URL when the user is on a
+  // package-scoped child route. This lets the sidebar highlight the
+  // current package without requiring the child route to own the sidebar.
+  const activePackageId = useMemo(() => {
+    const m = location.pathname.match(
+      /^\/environments\/[^/]+\/([^/]+)(?:\/|$)/,
+    );
+    if (!m) return undefined;
+    const seg = m[1];
+    // Reserved child segments that are NOT package ids.
+    if (seg === 'packages') return undefined;
+    return seg;
+  }, [location.pathname]);
+
+  // Sync selectedPackage with URL.
+  useEffect(() => {
+    if (!activePackageId) {
+      if (selectedPackage) setSelectedPackage(null);
+      return;
+    }
+    if (!packages.length) return;
+    const pkg = packages.find(
+      (p) =>
+        p.manifest?.id === activePackageId ||
+        p.manifest?.id?.endsWith('.' + activePackageId),
+    );
+    if (pkg && pkg !== selectedPackage) setSelectedPackage(pkg);
+  }, [activePackageId, packages, selectedPackage, setSelectedPackage]);
+
+  const handleSelectPackage = useCallback(
+    (pkg: InstalledPackage) => {
+      const nextId = pkg.manifest?.id;
+      if (!nextId) return;
+      navigate({
+        to: '/environments/$environmentId/$package',
+        params: { environmentId, package: nextId },
+      });
+    },
+    [navigate, environmentId],
+  );
 
   // Publish the active environment to the production guard so that any
   // descendant component can call useProductionGuard().confirm() and have
@@ -63,7 +112,17 @@ function EnvironmentLayoutComponent() {
     }
   }, [error, navigate]);
 
-  return <Outlet />;
+  return (
+    <>
+      <AppSidebar
+        packages={packages}
+        selectedPackage={selectedPackage}
+        onSelectPackage={handleSelectPackage}
+        environmentId={environmentId}
+      />
+      <Outlet />
+    </>
+  );
 }
 
 export const Route = createFileRoute('/environments/$environmentId')({

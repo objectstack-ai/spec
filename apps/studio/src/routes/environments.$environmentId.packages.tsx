@@ -11,8 +11,7 @@
 import { createFileRoute, useParams, useNavigate } from '@tanstack/react-router';
 import { useState, useEffect, useCallback } from 'react';
 import { useClient } from '@objectstack/client-react';
-import { Package, Power, PowerOff, Trash2, Plus, RefreshCw } from 'lucide-react';
-import { AppSidebar } from '@/components/app-sidebar';
+import { Package, Power, PowerOff, Trash2, Plus, RefreshCw, ArrowRight } from 'lucide-react';
 import { SiteHeader } from '@/components/site-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -101,17 +100,11 @@ function EnvironmentPackagesComponent() {
   };
 
   return (
-    <>
-      <AppSidebar
-        packages={[]}
-        selectedPackage={null}
-        onSelectPackage={() => {}}
-      />
-      <main className="flex min-w-0 flex-1 flex-col h-svh overflow-hidden bg-background">
-        <SiteHeader selectedView="packages" />
+    <main className="flex min-w-0 flex-1 flex-col h-svh overflow-hidden bg-background">
+      <SiteHeader selectedView="packages" />
 
-        <div className="flex-1 overflow-auto p-6">
-          <div className="mx-auto max-w-4xl space-y-8">
+      <div className="flex-1 overflow-auto p-6">
+        <div className="mx-auto max-w-4xl space-y-8">
 
             {/* Installed packages */}
             <section>
@@ -153,6 +146,23 @@ function EnvironmentPackagesComponent() {
                         <Badge variant={pkg.enabled ? 'default' : 'secondary'}>
                           {pkg.status}
                         </Badge>
+                        {pkg.enabled && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-1.5"
+                            title="Open package workspace"
+                            onClick={() =>
+                              navigate({
+                                to: '/environments/$environmentId/$package',
+                                params: { environmentId, package: pkg.packageId },
+                              })
+                            }
+                          >
+                            Open
+                            <ArrowRight className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="icon"
@@ -231,8 +241,7 @@ function EnvironmentPackagesComponent() {
             </section>
           </div>
         </div>
-      </main>
-    </>
+    </main>
   );
 }
 

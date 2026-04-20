@@ -21,7 +21,6 @@ import {
   AlertTriangle,
   Package,
 } from 'lucide-react';
-import { AppSidebar } from '@/components/app-sidebar';
 import { SiteHeader } from '@/components/site-header';
 import { EnvironmentBadge } from '@/components/environment-badge';
 import { Card } from '@/components/ui/card';
@@ -29,7 +28,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useEnvironmentDetail } from '@/hooks/useEnvironments';
-import { usePackages } from '@/hooks/usePackages';
 import { useClient } from '@objectstack/client-react';
 import { useProductionGuard } from '@/components/production-guard';
 import { toast } from '@/hooks/use-toast';
@@ -39,7 +37,6 @@ function EnvironmentOverviewComponent() {
     from: '/environments/$environmentId',
   });
   const { detail, loading } = useEnvironmentDetail(environmentId);
-  const { packages, selectedPackage, setSelectedPackage } = usePackages();
   const client = useClient() as any;
   const navigate = useNavigate();
   const guard = useProductionGuard();
@@ -82,17 +79,11 @@ function EnvironmentOverviewComponent() {
   };
 
   return (
-    <>
-      <AppSidebar
-        packages={packages}
-        selectedPackage={selectedPackage}
-        onSelectPackage={setSelectedPackage}
-      />
-      <main className="flex min-w-0 flex-1 flex-col h-svh overflow-hidden bg-background">
-        <SiteHeader selectedView="environments" />
+    <main className="flex min-w-0 flex-1 flex-col h-svh overflow-hidden bg-background">
+      <SiteHeader selectedView="environments" />
 
-        <div className="flex-1 overflow-auto p-6">
-          <div className="mx-auto max-w-4xl space-y-6">
+      <div className="flex-1 overflow-auto p-6">
+        <div className="mx-auto max-w-4xl space-y-6">
             {loading && !env && (
               <div className="text-sm text-muted-foreground">Loading…</div>
             )}
@@ -276,8 +267,7 @@ function EnvironmentOverviewComponent() {
             )}
           </div>
         </div>
-      </main>
-    </>
+    </main>
   );
 }
 

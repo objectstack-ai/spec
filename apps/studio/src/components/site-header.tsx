@@ -21,7 +21,7 @@ import { UserMenu } from '@/components/user-menu'
 interface SiteHeaderProps {
   selectedObject?: string | null;
   selectedMeta?: { type: string; name: string } | null;
-  selectedView: 'overview' | 'packages' | 'object' | 'metadata' | 'api-console' | 'environments';
+  selectedView: 'overview' | 'packages' | 'object' | 'metadata' | 'api-console' | 'environments' | 'templates' | 'examples';
   packageLabel?: string;
 }
 
@@ -44,6 +44,8 @@ export function SiteHeader({ selectedObject = null, selectedMeta, selectedView, 
     packages: 'Package Manager',
     'api-console': 'API Console',
     environments: 'Environments',
+    templates: 'Templates',
+    examples: 'Examples',
     object: selectedObject || 'Object',
     metadata: selectedMeta ? (META_TYPE_LABELS[selectedMeta.type] || selectedMeta.type) : 'Metadata',
   };
