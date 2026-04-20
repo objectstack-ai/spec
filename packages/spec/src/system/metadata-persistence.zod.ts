@@ -99,6 +99,9 @@ export const MetadataRecordSchema = z.object({
   /** Organization ID for multi-tenant isolation */
   organizationId: z.string().optional().describe('Organization identifier for multi-tenant isolation'),
 
+  /** Tenant ID for multi-tenant isolation (alias of organizationId in some contexts) */
+  tenantId: z.string().optional().describe('Tenant identifier for multi-tenant isolation'),
+
   /** Environment ID — null means platform-global, set means env-scoped */
   environmentId: z.string().optional().describe('Environment ID — null = platform-global, set = env-scoped'),
 

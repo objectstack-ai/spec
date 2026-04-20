@@ -550,7 +550,7 @@ describe('MetadataPlugin', () => {
 
     // Verify setDataEngine was called on the manager with ObjectQL
     const manager = (plugin as any).manager;
-    expect(manager.setDataEngine).toHaveBeenCalledWith(mockObjectQL);
+    expect(manager.setDataEngine).toHaveBeenCalledWith(mockObjectQL, undefined, undefined);
   });
 
   it('should bridge ObjectQL AFTER filesystem metadata loading', async () => {
