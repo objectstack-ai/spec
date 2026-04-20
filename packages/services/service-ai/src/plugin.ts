@@ -214,6 +214,7 @@ export class AIServicePlugin implements Plugin {
       name: 'AI Service',
       version: '1.0.0',
       type: 'plugin',
+      scope: 'platform',
       namespace: 'ai',
       objects: [AiConversationObject, AiMessageObject],
     });

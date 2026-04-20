@@ -20,8 +20,13 @@ export function usePackages() {
       try {
         const result = await client.packages.list();
         const all: InstalledPackage[] = result?.packages || [];
-        // Filter out the root dev-workspace — it's the monorepo aggregator, not a real package
-        const items = all.filter((p) => p.manifest?.version !== '0.0.0' && p.manifest?.id !== 'dev-workspace');
+        // Filter out dev-workspace (monorepo aggregator) and platform-scoped packages (runtime-global, not env-installable)
+        const items = all.filter(
+          (p) =>
+            p.manifest?.version !== '0.0.0' &&
+            p.manifest?.id !== 'dev-workspace' &&
+            (p.manifest as any)?.scope !== 'platform',
+        );
         console.log('[App] Fetched packages:', items.map((p) => p.manifest?.name || p.manifest?.id));
         if (mounted && items.length > 0) {
           setPackages(items);

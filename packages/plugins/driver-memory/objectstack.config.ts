@@ -13,6 +13,7 @@ const MemoryDriverPlugin: ObjectStackManifest = {
   name: 'In-Memory Driver',
   version: '1.0.0',
   type: 'driver',
+  scope: 'platform',
   description: 'A reference specification implementation of the DriverInterface using in-memory arrays. Suitable for testing and development.',
   
   configuration: {

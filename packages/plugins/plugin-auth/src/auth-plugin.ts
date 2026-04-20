@@ -102,6 +102,7 @@ export class AuthPlugin implements Plugin {
       name: 'System',
       version: '1.0.0',
       type: 'plugin',
+      scope: 'platform',
       namespace: 'sys',
       objects: [
         SysUser, SysSession, SysAccount, SysVerification,

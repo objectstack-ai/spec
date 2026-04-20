@@ -62,6 +62,7 @@ export class FeedServicePlugin implements Plugin {
       name: 'Feed Service',
       version: '1.0.0',
       type: 'plugin',
+      scope: 'platform',
       objects: [FeedItem, FeedReaction, RecordSubscription],
     });
 

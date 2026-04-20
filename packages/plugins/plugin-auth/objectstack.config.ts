@@ -15,6 +15,7 @@ export default defineStack({
     namespace: 'auth',
     version: '3.0.1',
     type: 'plugin',
+    scope: 'platform',
     name: 'Authentication & Identity Plugin',
     description: 'Core authentication objects for ObjectStack (User, Session, Account, Verification)',
   },

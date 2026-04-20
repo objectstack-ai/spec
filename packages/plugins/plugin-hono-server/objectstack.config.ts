@@ -13,6 +13,7 @@ const HonoServerPlugin: ObjectStackManifest = {
   name: 'Hono Server Adapter',
   version: '1.0.0',
   type: 'adapter',
+  scope: 'platform',
   description: 'HTTP server adapter using Hono framework. Exposes ObjectStack Runtime Protocol via REST API endpoints.',
   
   configuration: {

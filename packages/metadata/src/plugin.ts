@@ -57,6 +57,7 @@ export class MetadataPlugin implements Plugin {
                 name: 'Metadata',
                 version: '1.0.0',
                 type: 'plugin',
+                scope: 'platform',
                 namespace: 'sys',
                 objects: [SysMetadataObject, SysMetadataHistoryObject],
             });

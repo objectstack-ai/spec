@@ -13,6 +13,7 @@ const MSWPlugin: ObjectStackManifest = {
   name: 'Mock Service Worker Plugin',
   version: '1.0.0',
   type: 'plugin',
+  scope: 'platform',
   description: 'MSW (Mock Service Worker) integration for testing and development. Provides browser-based API mocking using ObjectStack runtime protocol.',
   
   configuration: {

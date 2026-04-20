@@ -44,6 +44,7 @@ export class SecurityPlugin implements Plugin {
       name: 'Security',
       version: '1.0.0',
       type: 'plugin',
+      scope: 'platform',
       namespace: 'sys',
       objects: [SysRole, SysPermissionSet],
     });
