@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@objectstack/runtime": "workspace:*",
-    "fastify": "^5.8.4",
+    "fastify": "^5.8.5",
     "typescript": "^6.0.2",
     "vitest": "^4.1.4"
   },

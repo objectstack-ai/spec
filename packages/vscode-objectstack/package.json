@@ -59,8 +59,8 @@
     "package": "vsce package"
   },
   "devDependencies": {
-    "@types/vscode": "^1.115.0",
-    "@vscode/vsce": "^3.7.1",
+    "@types/vscode": "^1.116.0",
+    "@vscode/vsce": "^3.9.1",
     "typescript": "^6.0.2"
   },
   "keywords": [
