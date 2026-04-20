@@ -4,14 +4,20 @@
  * GlobalSidebar
  *
  * Top-level navigation shell rendered on routes that are NOT scoped to a
- * specific package (i.e. outside `/$package/*` and
- * `/environments/:envId/:package/*`). Provides stable entry points to
- * organizations, environments, packages, and the library of templates &
- * examples — mirroring the v0.app-style left rail.
+ * specific package — i.e. the home page, organization management, the
+ * environments list, an environment's overview page, and the per-environment
+ * packages management page.
  *
- * When the user drills into a package, the package-scoped `AppSidebar`
- * takes over instead. The two sidebars are mutually exclusive and share
- * the same `SidebarProvider` in `routes/__root.tsx`.
+ * The sidebar deliberately exposes only two navigation entries:
+ *
+ *   1. **Environments** — links to `/environments` (browse / pick an env).
+ *   2. **Packages** — links to `/environments/:envId/packages`. Disabled
+ *      until the user has selected an environment.
+ *
+ * Once the user drills into a specific package
+ * (`/environments/:envId/:package/*`), the package-scoped {@link AppSidebar}
+ * takes over instead. The two sidebars are mutually exclusive and share the
+ * same `SidebarProvider` in `routes/__root.tsx`.
  */
 
 import { useMemo } from 'react';
@@ -21,14 +27,9 @@ import {
   Check,
   ChevronsUpDown,
   Plus,
-  Home,
   Boxes,
   Package as PackageIcon,
-  LayoutTemplate,
-  Sparkles,
   Settings,
-  Terminal,
-  MapPin,
 } from 'lucide-react';
 
 import {
@@ -36,15 +37,10 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSkeleton,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import {
@@ -56,10 +52,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useOrganizations, useSession } from '@/hooks/useSession';
-import { useEnvironments } from '@/hooks/useEnvironments';
 import { toast } from '@/hooks/use-toast';
-
-const MAX_ENV_ITEMS = 6;
 
 /** Header: active organization + switcher. */
 function OrgHeader() {
@@ -163,137 +156,17 @@ function OrgHeader() {
   );
 }
 
-interface NavItem {
-  label: string;
-  to: string;
-  icon: React.ComponentType<{ className?: string }>;
-  matchPrefix?: string;
-}
-
-const WORKSPACE_ITEMS: NavItem[] = [
-  { label: 'Home', to: '/', icon: Home, matchPrefix: '/' },
-  { label: 'Organizations', to: '/orgs', icon: Building2, matchPrefix: '/orgs' },
-];
-
-const PACKAGE_ITEMS: NavItem[] = [
-  { label: 'Packages', to: '/packages', icon: PackageIcon, matchPrefix: '/packages' },
-  {
-    label: 'API Console',
-    to: '/api-console',
-    icon: Terminal,
-    matchPrefix: '/api-console',
-  },
-];
-
-const LIBRARY_ITEMS: NavItem[] = [
-  { label: 'Templates', to: '/templates', icon: LayoutTemplate, matchPrefix: '/templates' },
-  { label: 'Examples', to: '/examples', icon: Sparkles, matchPrefix: '/examples' },
-];
-
-function isActive(pathname: string, item: NavItem): boolean {
-  if (item.matchPrefix === '/') return pathname === '/';
-  if (!item.matchPrefix) return pathname === item.to;
-  return pathname === item.matchPrefix || pathname.startsWith(item.matchPrefix + '/');
-}
-
-function NavSection({
-  label,
-  items,
-  pathname,
-}: {
-  label: string;
-  items: NavItem[];
-  pathname: string;
-}) {
-  return (
-    <SidebarGroup>
-      <SidebarGroupLabel>{label}</SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {items.map((item) => {
-            const Icon = item.icon;
-            return (
-              <SidebarMenuItem key={item.to}>
-                <SidebarMenuButton asChild isActive={isActive(pathname, item)}>
-                  <Link to={item.to}>
-                    <Icon className="size-4" />
-                    <span>{item.label}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            );
-          })}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  );
-}
-
-function EnvironmentsSection({ pathname }: { pathname: string }) {
-  const { environments, loading } = useEnvironments();
-  const envsActive =
-    pathname === '/environments' || pathname.startsWith('/environments/');
-
-  const shown = environments.slice(0, MAX_ENV_ITEMS);
-  const hasMore = environments.length > MAX_ENV_ITEMS;
-
-  return (
-    <SidebarGroup>
-      <SidebarGroupLabel>Environments</SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={envsActive && shown.length === 0}>
-              <Link to="/environments">
-                <Boxes className="size-4" />
-                <span>All environments</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          {loading && environments.length === 0 && (
-            <>
-              <SidebarMenuSkeleton showIcon />
-              <SidebarMenuSkeleton showIcon />
-            </>
-          )}
-          {shown.length > 0 && (
-            <SidebarMenuSub>
-              {shown.map((env) => {
-                const href = `/environments/${env.id}`;
-                const active = pathname === href || pathname.startsWith(href + '/');
-                return (
-                  <SidebarMenuSubItem key={env.id}>
-                    <SidebarMenuSubButton asChild isActive={active}>
-                      <Link
-                        to="/environments/$environmentId"
-                        params={{ environmentId: env.id }}
-                      >
-                        <MapPin className="size-3.5 opacity-60" />
-                        <span className="truncate">
-                          {env.displayName || env.name || env.id}
-                        </span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                );
-              })}
-              {hasMore && (
-                <SidebarMenuSubItem>
-                  <SidebarMenuSubButton asChild>
-                    <Link to="/environments">
-                      <span className="text-muted-foreground">
-                        View all ({environments.length})…
-                      </span>
-                    </Link>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              )}
-            </SidebarMenuSub>
-          )}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  );
+/**
+ * Extract the `:envId` segment from the current pathname when the user is
+ * anywhere under `/environments/:envId(...)`. Returns undefined on the
+ * environments list page (`/environments`) or any non-environment route.
+ */
+function useActiveEnvironmentId(): string | undefined {
+  const location = useLocation();
+  return useMemo(() => {
+    const m = location.pathname.match(/^\/environments\/([^/]+)/);
+    return m?.[1];
+  }, [location.pathname]);
 }
 
 export function GlobalSidebar() {
@@ -301,21 +174,73 @@ export function GlobalSidebar() {
   const pathname = location.pathname;
   const { session } = useSession();
   const activeOrgId = session?.activeOrganizationId ?? undefined;
+  const envId = useActiveEnvironmentId();
+
+  const envsActive = pathname === '/environments';
+  const packagesHref = envId ? `/environments/${envId}/packages` : undefined;
+  const packagesActive = !!packagesHref && pathname === packagesHref;
 
   return (
     <Sidebar collapsible="icon">
       <OrgHeader />
       <SidebarContent>
-        <NavSection label="Workspace" items={WORKSPACE_ITEMS} pathname={pathname} />
-        <EnvironmentsSection pathname={pathname} />
-        <NavSection label="Packages" items={PACKAGE_ITEMS} pathname={pathname} />
-        <NavSection label="Library" items={LIBRARY_ITEMS} pathname={pathname} />
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {/* Environments — single-row entry, no expansion. */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={envsActive} tooltip="Environments">
+                  <Link to="/environments">
+                    <Boxes className="size-4" />
+                    <span>Environments</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* Packages — single-row entry. Depends on a selected environment;
+                  disabled and tooltipped when none is selected. */}
+              <SidebarMenuItem>
+                {envId ? (
+                  <SidebarMenuButton
+                    asChild
+                    isActive={packagesActive}
+                    tooltip="Packages"
+                  >
+                    <Link
+                      to="/environments/$environmentId/packages"
+                      params={{ environmentId: envId }}
+                    >
+                      <PackageIcon className="size-4" />
+                      <span>Packages</span>
+                    </Link>
+                  </SidebarMenuButton>
+                ) : (
+                  <SidebarMenuButton
+                    disabled
+                    aria-disabled="true"
+                    tooltip="Select an environment first"
+                    className="cursor-not-allowed opacity-50"
+                  >
+                    <PackageIcon className="size-4" />
+                    <span>Packages</span>
+                  </SidebarMenuButton>
+                )}
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         <SidebarSeparator />
+
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === `/orgs/${activeOrgId}`}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === `/orgs/${activeOrgId}`}
+                  tooltip="Settings"
+                >
                   {activeOrgId ? (
                     <Link to="/orgs/$orgId" params={{ orgId: activeOrgId }}>
                       <Settings className="size-4" />

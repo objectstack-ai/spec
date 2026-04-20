@@ -9,11 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as PackagesRouteImport } from './routes/packages'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as ExamplesRouteImport } from './routes/examples'
 import { Route as ApiConsoleRouteImport } from './routes/api-console'
 import { Route as PackageRouteImport } from './routes/$package'
 import { Route as IndexRouteImport } from './routes/index'
@@ -32,11 +30,6 @@ import { Route as PackageMetadataTypeNameRouteImport } from './routes/$package.m
 import { Route as EnvironmentsEnvironmentIdPackageObjectsNameRouteImport } from './routes/environments.$environmentId.$package.objects.$name'
 import { Route as EnvironmentsEnvironmentIdPackageMetadataTypeNameRouteImport } from './routes/environments.$environmentId.$package.metadata.$type.$name'
 
-const TemplatesRoute = TemplatesRouteImport.update({
-  id: '/templates',
-  path: '/templates',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -50,11 +43,6 @@ const PackagesRoute = PackagesRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExamplesRoute = ExamplesRouteImport.update({
-  id: '/examples',
-  path: '/examples',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiConsoleRoute = ApiConsoleRouteImport.update({
@@ -154,11 +142,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$package': typeof PackageRouteWithChildren
   '/api-console': typeof ApiConsoleRoute
-  '/examples': typeof ExamplesRoute
   '/login': typeof LoginRoute
   '/packages': typeof PackagesRoute
   '/register': typeof RegisterRoute
-  '/templates': typeof TemplatesRoute
   '/environments/$environmentId': typeof EnvironmentsEnvironmentIdRouteWithChildren
   '/orgs/$orgId': typeof OrgsOrgIdRoute
   '/orgs/new': typeof OrgsNewRoute
@@ -177,11 +163,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api-console': typeof ApiConsoleRoute
-  '/examples': typeof ExamplesRoute
   '/login': typeof LoginRoute
   '/packages': typeof PackagesRoute
   '/register': typeof RegisterRoute
-  '/templates': typeof TemplatesRoute
   '/orgs/$orgId': typeof OrgsOrgIdRoute
   '/orgs/new': typeof OrgsNewRoute
   '/$package': typeof PackageIndexRoute
@@ -200,11 +184,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$package': typeof PackageRouteWithChildren
   '/api-console': typeof ApiConsoleRoute
-  '/examples': typeof ExamplesRoute
   '/login': typeof LoginRoute
   '/packages': typeof PackagesRoute
   '/register': typeof RegisterRoute
-  '/templates': typeof TemplatesRoute
   '/environments/$environmentId': typeof EnvironmentsEnvironmentIdRouteWithChildren
   '/orgs/$orgId': typeof OrgsOrgIdRoute
   '/orgs/new': typeof OrgsNewRoute
@@ -226,11 +208,9 @@ export interface FileRouteTypes {
     | '/'
     | '/$package'
     | '/api-console'
-    | '/examples'
     | '/login'
     | '/packages'
     | '/register'
-    | '/templates'
     | '/environments/$environmentId'
     | '/orgs/$orgId'
     | '/orgs/new'
@@ -249,11 +229,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/api-console'
-    | '/examples'
     | '/login'
     | '/packages'
     | '/register'
-    | '/templates'
     | '/orgs/$orgId'
     | '/orgs/new'
     | '/$package'
@@ -271,11 +249,9 @@ export interface FileRouteTypes {
     | '/'
     | '/$package'
     | '/api-console'
-    | '/examples'
     | '/login'
     | '/packages'
     | '/register'
-    | '/templates'
     | '/environments/$environmentId'
     | '/orgs/$orgId'
     | '/orgs/new'
@@ -296,11 +272,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PackageRoute: typeof PackageRouteWithChildren
   ApiConsoleRoute: typeof ApiConsoleRoute
-  ExamplesRoute: typeof ExamplesRoute
   LoginRoute: typeof LoginRoute
   PackagesRoute: typeof PackagesRoute
   RegisterRoute: typeof RegisterRoute
-  TemplatesRoute: typeof TemplatesRoute
   EnvironmentsEnvironmentIdRoute: typeof EnvironmentsEnvironmentIdRouteWithChildren
   OrgsOrgIdRoute: typeof OrgsOrgIdRoute
   OrgsNewRoute: typeof OrgsNewRoute
@@ -310,13 +284,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/templates': {
-      id: '/templates'
-      path: '/templates'
-      fullPath: '/templates'
-      preLoaderRoute: typeof TemplatesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -336,13 +303,6 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/examples': {
-      id: '/examples'
-      path: '/examples'
-      fullPath: '/examples'
-      preLoaderRoute: typeof ExamplesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api-console': {
@@ -527,11 +487,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PackageRoute: PackageRouteWithChildren,
   ApiConsoleRoute: ApiConsoleRoute,
-  ExamplesRoute: ExamplesRoute,
   LoginRoute: LoginRoute,
   PackagesRoute: PackagesRoute,
   RegisterRoute: RegisterRoute,
-  TemplatesRoute: TemplatesRoute,
   EnvironmentsEnvironmentIdRoute: EnvironmentsEnvironmentIdRouteWithChildren,
   OrgsOrgIdRoute: OrgsOrgIdRoute,
   OrgsNewRoute: OrgsNewRoute,

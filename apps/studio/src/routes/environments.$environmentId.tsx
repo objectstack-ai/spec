@@ -112,14 +112,19 @@ function EnvironmentLayoutComponent() {
     }
   }, [error, navigate]);
 
+  // Only render the package-scoped AppSidebar once the user has drilled into
+  // a specific package. Environment overview and the packages management page
+  // continue to render the GlobalSidebar from `routes/__root.tsx`.
   return (
     <>
-      <AppSidebar
-        packages={packages}
-        selectedPackage={selectedPackage}
-        onSelectPackage={handleSelectPackage}
-        environmentId={environmentId}
-      />
+      {activePackageId && (
+        <AppSidebar
+          packages={packages}
+          selectedPackage={selectedPackage}
+          onSelectPackage={handleSelectPackage}
+          environmentId={environmentId}
+        />
+      )}
       <Outlet />
     </>
   );

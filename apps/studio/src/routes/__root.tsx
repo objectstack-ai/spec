@@ -27,18 +27,15 @@ const PUBLIC_ROUTES = new Set(['/login', '/register']);
  */
 function isGlobalShellPath(pathname: string): boolean {
   if (PUBLIC_ROUTES.has(pathname)) return false;
-  // Anything *inside* an environment (overview, packages mgmt, package workspace)
-  // renders the package-scoped AppSidebar from environments.$environmentId.tsx.
-  if (/^\/environments\/[^/]+/.test(pathname)) return false;
-  // Legacy package routes: /:package/... (anything not in the known global prefixes).
-  const globalPrefixes = [
-    '/orgs',
-    '/environments',
-    '/packages',
-    '/api-console',
-    '/templates',
-    '/examples',
-  ];
+  // Once the user drills into a package under an environment
+  // (`/environments/:envId/:package/*` where :package is NOT the reserved
+  // `packages` segment), the package-scoped AppSidebar takes over.
+  if (/^\/environments\/[^/]+\/(?!packages(?:\/|$))[^/]+/.test(pathname)) {
+    return false;
+  }
+  // /environments (list), /environments/:envId (overview), and
+  // /environments/:envId/packages (package management) all keep GlobalSidebar.
+  const globalPrefixes = ['/orgs', '/environments', '/packages', '/api-console'];
   if (pathname === '/') return true;
   return globalPrefixes.some(
     (p) => pathname === p || pathname.startsWith(p + '/'),
