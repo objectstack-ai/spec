@@ -61,7 +61,7 @@ await metadataService.registerSystemObjects(SystemObjects);
 
 // Or register individual objects
 import { SysObject } from '@objectstack/objectos/objects';
-await metadataService.register('object', 'sys_object', SysObject);
+await metadataService.register('object', 'object', SysObject);
 ```
 
 ## Design Philosophy
