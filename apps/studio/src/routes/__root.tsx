@@ -82,7 +82,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 
   if (loading && !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-screen w-full flex-1 items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
       </div>
     );
@@ -105,6 +105,12 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   }
 
   return <>{children}</>;
+}
+
+function AuthedAiChatPanel() {
+  const { user } = useSession();
+  if (!user) return null;
+  return <AiChatPanel />;
 }
 
 function RootComponent() {
@@ -132,7 +138,7 @@ function RootComponent() {
                   <Outlet />
                 </RequireAuth>
                 <Toaster />
-                <AiChatPanel />
+                <AuthedAiChatPanel />
               </ProductionGuardProvider>
             </SidebarProvider>
           </ErrorBoundary>
