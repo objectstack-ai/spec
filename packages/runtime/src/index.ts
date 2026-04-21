@@ -24,8 +24,12 @@ export { MiddlewareManager } from './middleware.js';
 export {
     DefaultEnvironmentDriverRegistry,
     createEnvironmentDriverRegistry,
+    NoopSecretEncryptor,
 } from './environment-registry.js';
-export type { EnvironmentDriverRegistry } from './environment-registry.js';
+export type {
+    EnvironmentDriverRegistry,
+    SecretEncryptor,
+} from './environment-registry.js';
 
 // Re-export from @objectstack/rest
 export {

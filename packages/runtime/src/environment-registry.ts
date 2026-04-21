@@ -2,10 +2,6 @@
 
 import type { Contracts } from '@objectstack/spec';
 type IDataDriver = Contracts.IDataDriver;
-import { TursoDriver } from '@objectstack/driver-turso';
-import { InMemoryDriver } from '@objectstack/driver-memory';
-import { NoopSecretEncryptor } from '@objectstack/service-tenant/environment-provisioning';
-import { LocalSQLiteDriver } from '@objectstack/driver-sql/local-sqlite';
 
 /**
  * Environment-scoped driver registry with LRU caching.
@@ -45,11 +41,33 @@ interface CacheEntry {
 }
 
 /**
+ * Secret encryptor interface - must match service-tenant NoopSecretEncryptor
+ */
+export interface SecretEncryptor {
+  readonly keyId: string;
+  encrypt(plaintext: string): Promise<string> | string;
+  decrypt(ciphertext: string): Promise<string> | string;
+}
+
+/**
+ * No-op encryptor used in development / tests. **Never** use in production.
+ */
+export class NoopSecretEncryptor implements SecretEncryptor {
+  readonly keyId = 'noop';
+  encrypt(plaintext: string): string {
+    return plaintext;
+  }
+  decrypt(ciphertext: string): string {
+    return ciphertext;
+  }
+}
+
+/**
  * Default implementation of EnvironmentDriverRegistry with LRU caching.
  */
 export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegistry {
   private readonly controlPlaneDriver: IDataDriver;
-  private readonly encryptor: NoopSecretEncryptor;
+  private readonly encryptor: SecretEncryptor;
   private readonly cacheTTL: number;
   private readonly hostnameCache = new Map<string, CacheEntry>();
   private readonly idCache = new Map<string, CacheEntry>();
@@ -57,7 +75,7 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
 
   constructor(config: {
     controlPlaneDriver: IDataDriver;
-    encryptor?: NoopSecretEncryptor;
+    encryptor?: SecretEncryptor;
     cacheTTLMs?: number;
   }) {
     this.controlPlaneDriver = config.controlPlaneDriver;
@@ -219,7 +237,7 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
     );
 
     // Instantiate driver based on driver type
-    const driver = this.createDriver(databaseDriver, databaseUrl, plaintextSecret);
+    const driver = await this.createDriver(databaseDriver, databaseUrl, plaintextSecret);
 
     return {
       environmentId,
@@ -228,11 +246,13 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
     };
   }
 
-  private createDriver(driverType: string, databaseUrl: string, authToken: string): IDataDriver {
+  private async createDriver(driverType: string, databaseUrl: string, authToken: string): Promise<IDataDriver> {
+    // Dynamic import drivers to avoid circular dependencies
     switch (driverType) {
       case 'memory': {
         // Memory driver: URL format is memory://dbname or memory://
         const dbName = databaseUrl.replace('memory://', '') || 'default';
+        const { InMemoryDriver } = await import('@objectstack/driver-memory');
         return new InMemoryDriver({
           name: `com.objectstack.driver.memory.${dbName}`,
           persistence: 'file', // Use file persistence for environments
@@ -242,14 +262,19 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
       case 'sqlite': {
         // SQLite driver: URL format is file:./path/to/db.db
         const filePath = databaseUrl.replace('file:', '');
-        return new LocalSQLiteDriver({
-          name: 'com.objectstack.driver.sql',
-          url: filePath,
+        const { SqlDriver } = await import('@objectstack/driver-sql');
+        return new SqlDriver({
+          client: 'better-sqlite3',
+          connection: {
+            filename: filePath,
+          },
+          useNullAsDefault: true,
         });
       }
 
       case 'turso': {
         // Turso driver: URL format is libsql://hostname
+        const { TursoDriver } = await import('@objectstack/driver-turso');
         return new TursoDriver({
           name: 'com.objectstack.driver.turso',
           url: databaseUrl,
@@ -269,7 +294,7 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
 export function createEnvironmentDriverRegistry(
   controlPlaneDriver: IDataDriver,
   options?: {
-    encryptor?: NoopSecretEncryptor;
+    encryptor?: SecretEncryptor;
     cacheTTLMs?: number;
   },
 ): EnvironmentDriverRegistry {
