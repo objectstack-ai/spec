@@ -317,7 +317,7 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
                 }
             });
 
-            // ── Cloud (Environments) ─────────────────────────────────────
+            // ── Cloud (Projects) ─────────────────────────────────────
             server.get(`${prefix}/cloud/drivers`, async (req: any, res: any) => {
                 try {
                     const result = await dispatcher.handleCloud('/drivers', 'GET', {}, req.query, { request: req });
@@ -327,155 +327,155 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
                 }
             });
 
-            server.get(`${prefix}/cloud/environments`, async (req: any, res: any) => {
+            server.get(`${prefix}/cloud/projects`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud('/environments', 'GET', {}, req.query, { request: req });
+                    const result = await dispatcher.handleCloud('/projects', 'GET', {}, req.query, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            server.post(`${prefix}/cloud/environments`, async (req: any, res: any) => {
+            server.post(`${prefix}/cloud/projects`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud('/environments', 'POST', req.body, {}, { request: req });
+                    const result = await dispatcher.handleCloud('/projects', 'POST', req.body, {}, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            server.get(`${prefix}/cloud/environments/:id`, async (req: any, res: any) => {
+            server.get(`${prefix}/cloud/projects/:id`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}`, 'GET', {}, req.query, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}`, 'GET', {}, req.query, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            server.patch(`${prefix}/cloud/environments/:id`, async (req: any, res: any) => {
+            server.patch(`${prefix}/cloud/projects/:id`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}`, 'PATCH', req.body, {}, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}`, 'PATCH', req.body, {}, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            server.delete(`${prefix}/cloud/environments/:id`, async (req: any, res: any) => {
+            server.delete(`${prefix}/cloud/projects/:id`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}`, 'DELETE', {}, {}, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}`, 'DELETE', {}, {}, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            server.post(`${prefix}/cloud/environments/:id/rotate-credential`, async (req: any, res: any) => {
+            server.post(`${prefix}/cloud/projects/:id/rotate-credential`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}/rotate-credential`, 'POST', req.body, {}, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}/rotate-credential`, 'POST', req.body, {}, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            // Alias expected by @objectstack/client: POST /environments/:id/credentials/rotate
-            server.post(`${prefix}/cloud/environments/:id/credentials/rotate`, async (req: any, res: any) => {
+            // Alias expected by @objectstack/client: POST /projects/:id/credentials/rotate
+            server.post(`${prefix}/cloud/projects/:id/credentials/rotate`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}/credentials/rotate`, 'POST', req.body, {}, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}/credentials/rotate`, 'POST', req.body, {}, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            server.post(`${prefix}/cloud/environments/:id/activate`, async (req: any, res: any) => {
+            server.post(`${prefix}/cloud/projects/:id/activate`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}/activate`, 'POST', req.body, {}, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}/activate`, 'POST', req.body, {}, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            server.post(`${prefix}/cloud/environments/:id/retry`, async (req: any, res: any) => {
+            server.post(`${prefix}/cloud/projects/:id/retry`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}/retry`, 'POST', req.body, {}, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}/retry`, 'POST', req.body, {}, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            server.get(`${prefix}/cloud/environments/:id/members`, async (req: any, res: any) => {
+            server.get(`${prefix}/cloud/projects/:id/members`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}/members`, 'GET', {}, req.query, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}/members`, 'GET', {}, req.query, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            // ── Cloud — Per-env packages ─────────────────────────────────
-            server.get(`${prefix}/cloud/environments/:id/packages`, async (req: any, res: any) => {
+            // ── Cloud — Per-project packages ─────────────────────────────────
+            server.get(`${prefix}/cloud/projects/:id/packages`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}/packages`, 'GET', {}, req.query, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}/packages`, 'GET', {}, req.query, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            server.post(`${prefix}/cloud/environments/:id/packages`, async (req: any, res: any) => {
+            server.post(`${prefix}/cloud/projects/:id/packages`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}/packages`, 'POST', req.body, {}, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}/packages`, 'POST', req.body, {}, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            server.get(`${prefix}/cloud/environments/:id/packages/:pkgId`, async (req: any, res: any) => {
+            server.get(`${prefix}/cloud/projects/:id/packages/:pkgId`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}/packages/${req.params.pkgId}`, 'GET', {}, req.query, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}/packages/${req.params.pkgId}`, 'GET', {}, req.query, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            server.delete(`${prefix}/cloud/environments/:id/packages/:pkgId`, async (req: any, res: any) => {
+            server.delete(`${prefix}/cloud/projects/:id/packages/:pkgId`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}/packages/${req.params.pkgId}`, 'DELETE', {}, {}, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}/packages/${req.params.pkgId}`, 'DELETE', {}, {}, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            server.patch(`${prefix}/cloud/environments/:id/packages/:pkgId/enable`, async (req: any, res: any) => {
+            server.patch(`${prefix}/cloud/projects/:id/packages/:pkgId/enable`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}/packages/${req.params.pkgId}/enable`, 'PATCH', {}, {}, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}/packages/${req.params.pkgId}/enable`, 'PATCH', {}, {}, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            server.patch(`${prefix}/cloud/environments/:id/packages/:pkgId/disable`, async (req: any, res: any) => {
+            server.patch(`${prefix}/cloud/projects/:id/packages/:pkgId/disable`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}/packages/${req.params.pkgId}/disable`, 'PATCH', {}, {}, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}/packages/${req.params.pkgId}/disable`, 'PATCH', {}, {}, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
                 }
             });
 
-            server.post(`${prefix}/cloud/environments/:id/packages/:pkgId/upgrade`, async (req: any, res: any) => {
+            server.post(`${prefix}/cloud/projects/:id/packages/:pkgId/upgrade`, async (req: any, res: any) => {
                 try {
-                    const result = await dispatcher.handleCloud(`/environments/${req.params.id}/packages/${req.params.pkgId}/upgrade`, 'POST', req.body, {}, { request: req });
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}/packages/${req.params.pkgId}/upgrade`, 'POST', req.body, {}, { request: req });
                     sendResult(result, res);
                 } catch (err: any) {
                     errorResponse(err, res);
