@@ -4,10 +4,7 @@ import {
   Database,
   Package,
   LayoutDashboard,
-  ChevronsUpDown,
-  Sparkles,
   Search,
-  Check,
   Zap,
   BarChart3,
   FileText,
@@ -33,6 +30,7 @@ import {
   ChevronRight,
   Settings,
   Wrench,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react"
 import { useState, useEffect, useCallback, useMemo } from "react"
@@ -43,6 +41,7 @@ import type { InstalledPackage } from '@objectstack/spec/kernel';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -50,26 +49,18 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSkeleton,
-  SidebarHeader,
   SidebarSeparator,
   SidebarInput,
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 // ─── Icon & label hints ──────────────────────────────────────────────
 const META_TYPE_HINTS: Record<string, { label: string; icon: LucideIcon }> = {
@@ -306,59 +297,10 @@ export function AppSidebar({
     return { ...group, visibleTypes, totalItems };
   }).filter(g => g.totalItems > 0);
 
-  // Package switcher state
-  const SelectedPkgIcon = selectedPackage ? (PKG_TYPE_ICONS[selectedPackage.manifest?.type] || Package) : Sparkles;
+  // Package switcher state (no longer used in AppSidebar, moved to TopBar)
 
   return (
     <Sidebar {...props}>
-      {/* ── Package Switcher ── */}
-      <SidebarHeader className="border-b">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-sidebar-accent transition-colors">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <SelectedPkgIcon className="h-4 w-4" />
-              </div>
-              <div className="flex flex-1 min-w-0 flex-col gap-0.5 leading-none overflow-hidden">
-                <span className="truncate font-semibold text-sm">
-                  {selectedPackage ? (selectedPackage.manifest?.name || selectedPackage.manifest?.id) : 'ObjectStack'}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {selectedPackage ? `v${selectedPackage.manifest?.version} · ${selectedPackage.manifest?.type}` : 'Loading packages...'}
-                </span>
-              </div>
-              <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-64" align="start" sideOffset={4}>
-            <DropdownMenuLabel>Installed Packages</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {packages.map((pkg) => {
-              const Icon = PKG_TYPE_ICONS[pkg.manifest?.type] || Package;
-              const isSelected = selectedPackage?.manifest?.id === pkg.manifest?.id;
-              return (
-                <DropdownMenuItem key={pkg.manifest?.id} onClick={() => onSelectPackage(pkg)} className="gap-2 py-2">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-primary/10 text-primary">
-                    <Icon className="h-3.5 w-3.5" />
-                  </div>
-                  <div className="flex flex-1 flex-col leading-tight">
-                    <span className="text-sm font-medium">{pkg.manifest?.name || pkg.manifest?.id}</span>
-                    <span className="text-xs text-muted-foreground">
-                      v{pkg.manifest?.version} · {pkg.manifest?.type}
-                      {!pkg.enabled && ' · disabled'}
-                    </span>
-                  </div>
-                  {isSelected && <Check className="h-4 w-4 text-primary" />}
-                </DropdownMenuItem>
-              );
-            })}
-            {packages.length === 0 && (
-              <div className="px-2 py-4 text-center text-xs text-muted-foreground">No packages installed</div>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarHeader>
-
       <SidebarContent>
         {/* ── Overview ── */}
         <SidebarGroup>
@@ -607,6 +549,13 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarTrigger />
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   )
 }
