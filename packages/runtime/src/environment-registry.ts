@@ -254,10 +254,8 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
     switch (driverType) {
       case 'memory': {
         // Memory driver: URL format is memory://dbname or memory://
-        const dbName = databaseUrl.replace('memory://', '') || 'default';
         const { InMemoryDriver } = await import('@objectstack/driver-memory');
         return new InMemoryDriver({
-          name: `com.objectstack.driver.memory.${dbName}`,
           persistence: 'file', // Use file persistence for environments
         });
       }
@@ -279,7 +277,6 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
         // Turso driver: URL format is libsql://hostname
         const { TursoDriver } = await import('@objectstack/driver-turso');
         return new TursoDriver({
-          name: 'com.objectstack.driver.turso',
           url: databaseUrl,
           authToken,
         });
