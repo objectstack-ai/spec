@@ -535,7 +535,8 @@ export class EnvironmentProvisioningService {
  *    the control-plane ObjectQL driver handles persisting the record into
  *    `memory-driver.json` in its native format).
  *  - Always register the `sqlite` adapter (writes a `.db` file per env
- *    under `.objectstack/data/environments/`).
+ *    under `.objectstack/data/environments/` in local dev, or `/tmp/.objectstack/data/environments/`
+ *    in serverless environments like Vercel where only /tmp is writable).
  *  - For the `turso` key:
  *      - if `TURSO_ORG_NAME` + `TURSO_API_TOKEN` are both set → use the
  *        real Turso Platform adapter (creates cloud databases);
@@ -547,7 +548,15 @@ export function createDefaultEnvironmentAdapters(
 ): EnvironmentDatabaseAdapter[] {
   const adapters: EnvironmentDatabaseAdapter[] = [];
   adapters.push(new MemoryEnvironmentDatabaseAdapter());
-  adapters.push(new LocalSQLiteEnvironmentDatabaseAdapter());
+
+  // Use /tmp for serverless environments (Vercel, AWS Lambda, etc.)
+  // These platforms only have /tmp as writable filesystem
+  const isServerless = env.VERCEL === '1' || env.AWS_LAMBDA_FUNCTION_NAME || env.FUNCTION_NAME;
+  const sqliteBaseDir = isServerless
+    ? '/tmp/.objectstack/data/environments'
+    : '.objectstack/data/environments';
+
+  adapters.push(new LocalSQLiteEnvironmentDatabaseAdapter(sqliteBaseDir));
 
   const orgName = env.TURSO_ORG_NAME;
   const apiToken = env.TURSO_API_TOKEN;
@@ -557,7 +566,7 @@ export function createDefaultEnvironmentAdapters(
     // Local-dev fallback: when the user picks `turso` in Studio but no
     // platform creds are configured, still create a real file on disk so
     // the UX is "I created an env and I can see it".
-    adapters.push(new LocalSQLiteEnvironmentDatabaseAdapter(undefined, 'turso'));
+    adapters.push(new LocalSQLiteEnvironmentDatabaseAdapter(sqliteBaseDir, 'turso'));
   }
   return adapters;
 }
