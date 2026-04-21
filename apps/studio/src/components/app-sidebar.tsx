@@ -30,6 +30,7 @@ import {
   ChevronRight,
   Settings,
   Wrench,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react"
 import { useState, useEffect, useCallback, useMemo } from "react"
