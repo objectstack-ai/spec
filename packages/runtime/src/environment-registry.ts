@@ -153,6 +153,7 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
     try {
       // Query control plane: SELECT ... FROM sys__environment WHERE hostname = ? LIMIT 1
       const result = await this.controlPlaneDriver.find('environment', {
+        object: 'environment',
         where: { hostname: host },
         limit: 1,
       });
@@ -181,6 +182,7 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
     try {
       // Query control plane: SELECT ... FROM sys__environment WHERE id = ? LIMIT 1
       const result = await this.controlPlaneDriver.find('environment', {
+        object: 'environment',
         where: { id: environmentId },
         limit: 1,
       });
@@ -219,6 +221,7 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
 
     // Fetch active credential
     const credResult = await this.controlPlaneDriver.find('database_credential', {
+      object: 'database_credential',
       where: { environment_id: environmentId, status: 'active' },
       limit: 1,
     });
