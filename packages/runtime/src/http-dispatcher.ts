@@ -19,6 +19,8 @@ function randomUUID(): string {
 export interface HttpProtocolContext {
     request: any;
     response?: any;
+    environmentId?: string;   // Resolved environment ID
+    dataDriver?: any; // IDataDriver - Resolved environment-scoped driver
 }
 
 export interface HttpDispatcherResult {
@@ -41,9 +43,11 @@ export interface HttpDispatcherResult {
  */
 export class HttpDispatcher {
     private kernel: any; // Casting to any to access dynamic props like services, graphql
+    private envRegistry?: any; // EnvironmentDriverRegistry
 
-    constructor(kernel: ObjectKernel) {
+    constructor(kernel: ObjectKernel, envRegistry?: any) {
         this.kernel = kernel;
+        this.envRegistry = envRegistry;
     }
 
     private success(data: any, meta?: any) {
@@ -82,10 +86,12 @@ export class HttpDispatcher {
     /**
      * Direct data service dispatch — replaces broker.call('data.*').
      * Tries protocol service first (supports expand/populate), falls back to ObjectQL.
+     *
+     * @param dataDriver - Optional environment-scoped driver to use instead of kernel default
      */
-    private async callData(action: string, params: any): Promise<any> {
+    private async callData(action: string, params: any, dataDriver?: any): Promise<any> {
         const protocol = await this.resolveService('protocol');
-        const qlService = await this.getObjectQLService();
+        const qlService = dataDriver ?? await this.getObjectQLService();
         const ql = qlService ?? await this.resolveService('objectql');
 
         if (action === 'create') {
@@ -155,6 +161,106 @@ export class HttpDispatcher {
         }
 
         throw { statusCode: 400, message: `Unknown data action: ${action}` };
+    }
+
+    /**
+     * Resolve environment context for incoming request.
+     *
+     * Precedence:
+     * 1. request.headers.host → envRegistry.resolveByHostname(host)
+     * 2. request.headers['x-environment-id'] → envRegistry.resolveById(id)
+     * 3. session.activeEnvironmentId → envRegistry.resolveById(id)
+     * 4. session.activeOrganizationId → find default environment → envRegistry.resolveById(id)
+     *
+     * Skip for paths: /auth, /cloud, /health, /discovery, /meta
+     */
+    private async resolveEnvironmentContext(context: HttpProtocolContext, path: string): Promise<void> {
+        // Skip environment resolution for control-plane routes
+        const skipPaths = ['/auth', '/cloud', '/health', '/discovery', '/meta'];
+        if (skipPaths.some(p => path.startsWith(p))) {
+            return;
+        }
+
+        // If no environment registry, skip
+        if (!this.envRegistry) {
+            return;
+        }
+
+        try {
+            // 1. Try hostname resolution
+            const host = context.request?.headers?.host || context.request?.headers?.['Host'];
+            if (host) {
+                // Strip port if present (e.g., "localhost:3000" → "localhost")
+                const hostname = host.split(':')[0];
+                const result = await this.envRegistry.resolveByHostname(hostname);
+                if (result) {
+                    context.environmentId = result.environmentId;
+                    context.dataDriver = result.driver;
+                    return;
+                }
+            }
+
+            // 2. Try X-Environment-Id header
+            const envIdHeader = context.request?.headers?.['x-environment-id'] || context.request?.headers?.['X-Environment-Id'];
+            if (envIdHeader) {
+                const driver = await this.envRegistry.resolveById(envIdHeader);
+                if (driver) {
+                    context.environmentId = envIdHeader;
+                    context.dataDriver = driver;
+                    return;
+                }
+            }
+
+            // 3. Try session.activeEnvironmentId
+            try {
+                const authService: any = await this.getService(CoreServiceName.enum.auth);
+                const sessionData = await authService?.api?.getSession?.({
+                    headers: context.request?.headers,
+                });
+
+                const activeEnvironmentId = sessionData?.session?.activeEnvironmentId;
+                if (activeEnvironmentId) {
+                    const driver = await this.envRegistry.resolveById(activeEnvironmentId);
+                    if (driver) {
+                        context.environmentId = activeEnvironmentId;
+                        context.dataDriver = driver;
+                        return;
+                    }
+                }
+
+                // 4. Try default environment for organization
+                const activeOrganizationId = sessionData?.session?.activeOrganizationId;
+                if (activeOrganizationId) {
+                    // Query control plane for default environment
+                    const qlService = await this.getObjectQLService();
+                    const ql = qlService ?? await this.resolveService('objectql');
+                    if (ql) {
+                        let rows = await ql.find('sys__environment', {
+                            where: {
+                                organization_id: activeOrganizationId,
+                                is_default: true
+                            },
+                            limit: 1
+                        } as any);
+                        if (rows && (rows as any).value) rows = (rows as any).value;
+                        if (Array.isArray(rows) && rows[0]) {
+                            const defaultEnv = rows[0];
+                            const driver = await this.envRegistry.resolveById(defaultEnv.id);
+                            if (driver) {
+                                context.environmentId = defaultEnv.id;
+                                context.dataDriver = driver;
+                                return;
+                            }
+                        }
+                    }
+                }
+            } catch (sessionError) {
+                // Session resolution failed, continue without environment context
+                console.debug('[HttpDispatcher] Session resolution failed:', sessionError);
+            }
+        } catch (error) {
+            console.error('[HttpDispatcher] Environment resolution failed:', error);
+        }
     }
 
     /**
@@ -599,9 +705,17 @@ export class HttpDispatcher {
     async handleData(path: string, method: string, body: any, query: any, _context: HttpProtocolContext): Promise<HttpDispatcherResult> {
         const parts = path.replace(/^\/+/, '').split('/');
         const objectName = parts[0];
-        
+
         if (!objectName) {
             return { handled: true, response: this.error('Object name required', 400) };
+        }
+
+        // Check if environment is resolved for data-plane requests
+        if (!_context.dataDriver && this.envRegistry) {
+            return {
+                handled: true,
+                response: this.error('Environment not resolved. Please specify X-Environment-Id header or ensure hostname maps to an environment.', 428)
+            };
         }
 
         const m = method.toUpperCase();
@@ -609,17 +723,17 @@ export class HttpDispatcher {
         // 1. Custom Actions (query, batch)
         if (parts.length > 1) {
             const action = parts[1];
-            
+
             // POST /data/:object/query
             if (action === 'query' && m === 'POST') {
                 // Spec: returns FindDataResponse = { object, records, total?, hasMore? }
-                const result = await this.callData('query', { object: objectName, ...body });
+                const result = await this.callData('query', { object: objectName, ...body }, _context.dataDriver);
                 return { handled: true, response: this.success(result) };
             }
 
             // POST /data/:object/batch
             if (action === 'batch' && m === 'POST') {
-                const result = await this.callData('batch', { object: objectName, ...body });
+                const result = await this.callData('batch', { object: objectName, ...body }, _context.dataDriver);
                 return { handled: true, response: this.success(result) };
             }
 
@@ -633,7 +747,7 @@ export class HttpDispatcher {
                 if (select != null) allowedParams.select = select;
                 if (expand != null) allowedParams.expand = expand;
                 // Spec: returns GetDataResponse = { object, id, record }
-                const result = await this.callData('get', { object: objectName, id, ...allowedParams });
+                const result = await this.callData('get', { object: objectName, id, ...allowedParams }, _context.dataDriver);
                 return { handled: true, response: this.success(result) };
             }
 
@@ -641,7 +755,7 @@ export class HttpDispatcher {
             if (parts.length === 2 && m === 'PATCH') {
                 const id = parts[1];
                 // Spec: returns UpdateDataResponse = { object, id, record }
-                const result = await this.callData('update', { object: objectName, id, data: body });
+                const result = await this.callData('update', { object: objectName, id, data: body }, _context.dataDriver);
                 return { handled: true, response: this.success(result) };
             }
 
@@ -649,7 +763,7 @@ export class HttpDispatcher {
             if (parts.length === 2 && m === 'DELETE') {
                 const id = parts[1];
                 // Spec: returns DeleteDataResponse = { object, id, deleted }
-                const result = await this.callData('delete', { object: objectName, id });
+                const result = await this.callData('delete', { object: objectName, id }, _context.dataDriver);
                 return { handled: true, response: this.success(result) };
             }
         } else {
@@ -697,20 +811,20 @@ export class HttpDispatcher {
                 }
 
                 // Spec: returns FindDataResponse = { object, records, total?, hasMore? }
-                const result = await this.callData('query', { object: objectName, query: normalized });
+                const result = await this.callData('query', { object: objectName, query: normalized }, _context.dataDriver);
                 return { handled: true, response: this.success(result) };
             }
 
             // POST /data/:object (Create)
             if (m === 'POST') {
                 // Spec: returns CreateDataResponse = { object, id, record }
-                const result = await this.callData('create', { object: objectName, data: body });
+                const result = await this.callData('create', { object: objectName, data: body }, _context.dataDriver);
                 const res = this.success(result);
                 res.status = 201;
                 return { handled: true, response: res };
             }
         }
-        
+
         return { handled: false };
     }
 
@@ -1095,6 +1209,7 @@ export class HttpDispatcher {
                 databaseDriver: row.database_driver,
                 storageLimitMb: row.storage_limit_mb,
                 provisionedAt: row.provisioned_at,
+                hostname: row.hostname,
             };
         };
 
@@ -1171,6 +1286,23 @@ export class HttpDispatcher {
                 const region = req.region ?? 'us-east-1';
                 let plaintextSecret = `mock-token-${environmentId}`;
 
+                // Compute hostname if not provided
+                // Format: {org-slug}-{env-slug}.{rootDomain}
+                // For now, use a simple format. In production, fetch org.slug from database.
+                let computedHostname = req.hostname;
+                if (!computedHostname) {
+                    // Try to look up organization slug
+                    try {
+                        const orgRow = await findOne('sys__organization', { id: req.organizationId });
+                        const orgSlug = orgRow?.slug || req.organizationId;
+                        const rootDomain = getEnv('ROOT_DOMAIN', 'objectstack.app');
+                        computedHostname = `${orgSlug}-${req.slug}.${rootDomain}`;
+                    } catch {
+                        // Fallback if sys__organization doesn't exist
+                        computedHostname = `${req.organizationId}-${req.slug}.objectstack.app`;
+                    }
+                }
+
                 // Insert environment row in `provisioning` state first so the
                 // UI can show a "Provisioning…" indicator while the driver
                 // handshake runs in the background. Status transitions to
@@ -1200,6 +1332,7 @@ export class HttpDispatcher {
                     database_driver: driver,
                     storage_limit_mb: req.storageLimitMb ?? 1024,
                     provisioned_at: null,
+                    hostname: computedHostname,
                 });
 
                 // Fire-and-forget the provisioning work so the POST returns
@@ -2032,6 +2165,10 @@ export class HttpDispatcher {
      */
     async dispatch(method: string, path: string, body: any, query: any, context: HttpProtocolContext, prefix?: string): Promise<HttpDispatcherResult> {
         const cleanPath = path.replace(/\/$/, ''); // Remove trailing slash if present, but strict on clean paths
+
+        // ── Environment Resolution ──
+        // Resolve environment context for data-plane requests before routing
+        await this.resolveEnvironmentContext(context, cleanPath);
 
         // 0. Discovery Endpoint (GET /discovery or GET /)
         // Standard route: /discovery (protocol-compliant)

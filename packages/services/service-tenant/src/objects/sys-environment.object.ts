@@ -163,6 +163,14 @@ export const SysEnvironment = ObjectSchema.create({
       required: false,
       description: 'JSON-serialized free-form metadata (feature flags, tags, …).',
     }),
+
+    hostname: Field.text({
+      label: 'Hostname',
+      required: false,
+      maxLength: 255,
+      unique: true,
+      description: 'Canonical hostname for this environment (e.g. acme-dev.objectstack.app or api.acme.com). UNIQUE. Auto-set on creation; can be overridden for custom domains.',
+    }),
   },
 
   indexes: [
@@ -172,6 +180,7 @@ export const SysEnvironment = ObjectSchema.create({
     { fields: ['status'] },
     { fields: ['env_type'] },
     { fields: ['database_driver'] },
+    { fields: ['hostname'], unique: true },
   ],
 
   enable: {

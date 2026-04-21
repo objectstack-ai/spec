@@ -20,6 +20,17 @@ export { HttpDispatcher } from './http-dispatcher.js';
 export type { HttpProtocolContext, HttpDispatcherResult } from './http-dispatcher.js';
 export { MiddlewareManager } from './middleware.js';
 
+// Export Environment Registry
+export {
+    DefaultEnvironmentDriverRegistry,
+    createEnvironmentDriverRegistry,
+    NoopSecretEncryptor,
+} from './environment-registry.js';
+export type {
+    EnvironmentDriverRegistry,
+    SecretEncryptor,
+} from './environment-registry.js';
+
 // Re-export from @objectstack/rest
 export {
     RestServer,
