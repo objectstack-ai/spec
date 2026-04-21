@@ -398,6 +398,7 @@ export class EnvironmentProvisioningService {
       databaseDriver: driver,
       storageLimitMb,
       provisionedAt: nowIso,
+      hostname: parsed.hostname,
     };
 
     const credential: DatabaseCredential = {
@@ -432,6 +433,7 @@ export class EnvironmentProvisioningService {
           storage_limit_mb: environment.storageLimitMb,
           provisioned_at: environment.provisionedAt,
           metadata: environment.metadata ? JSON.stringify(environment.metadata) : null,
+          hostname: environment.hostname,
         });
 
         await this.config.controlPlaneDriver.create('database_credential', {

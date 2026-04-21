@@ -121,6 +121,16 @@ export const EnvironmentSchema = z.object({
 
   /** Free-form metadata (feature flags, tags, …). */
   metadata: z.record(z.string(), z.unknown()).optional().describe('Free-form metadata'),
+
+  /**
+   * Canonical hostname for this environment (e.g. acme-dev.objectstack.app or api.acme.com).
+   * UNIQUE. Auto-set on creation; can be overridden for custom domains.
+   * Used for environment resolution via hostname matching.
+   */
+  hostname: z
+    .string()
+    .optional()
+    .describe('Canonical hostname for this environment (e.g. acme-dev.objectstack.app or api.acme.com). UNIQUE. Auto-set on creation; can be overridden for custom domains.'),
 });
 
 export type Environment = z.infer<typeof EnvironmentSchema>;
@@ -297,6 +307,7 @@ export const ProvisionEnvironmentRequestSchema = z.object({
   isDefault: z.boolean().optional().describe('Mark as the organization default environment'),
   createdBy: z.string().describe('User ID that initiated the provisioning'),
   metadata: z.record(z.string(), z.unknown()).optional().describe('Free-form metadata'),
+  hostname: z.string().optional().describe('Canonical hostname for this environment (auto-generated if omitted)'),
 });
 
 export type ProvisionEnvironmentRequest = z.infer<typeof ProvisionEnvironmentRequestSchema>;
