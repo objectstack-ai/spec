@@ -12,7 +12,6 @@
 
 import { useLocation, useParams } from '@tanstack/react-router';
 import { useMemo } from 'react';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
 import {
   Breadcrumb,
@@ -181,8 +180,6 @@ export function TopBar({
     <header className="flex h-12 shrink-0 items-center justify-between gap-2 border-b px-4">
       {/* Left segment: Org + Env + Package switchers */}
       <div className="flex items-center gap-2">
-        <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="mr-2 h-4" />
         <OrganizationSwitcher />
         <Separator orientation="vertical" className="mx-1 h-4" />
         <EnvironmentSwitcher />

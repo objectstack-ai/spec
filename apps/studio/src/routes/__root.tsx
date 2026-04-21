@@ -139,17 +139,21 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
     const showGlobalSidebar = isGlobalShellPath(location.pathname);
 
     return (
-      <div className="flex min-h-screen flex-col">
-        <TopBar
-          packages={packages}
-          selectedPackage={selectedPackage}
-          onSelectPackage={handleSelectPackage}
-        />
-        <div className="flex flex-1 min-h-0">
-          {showGlobalSidebar && <GlobalSidebar />}
-          {children}
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full flex-col">
+          <TopBar
+            packages={packages}
+            selectedPackage={selectedPackage}
+            onSelectPackage={handleSelectPackage}
+          />
+          <div className="flex flex-1 w-full overflow-hidden">
+            {showGlobalSidebar && <GlobalSidebar />}
+            <main className="flex flex-1 min-w-0 overflow-hidden">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
+      </SidebarProvider>
     );
   }
 
@@ -181,15 +185,13 @@ function RootComponent() {
       <SessionProvider>
         <PluginRegistryProvider plugins={builtInPlugins}>
           <ErrorBoundary>
-            <SidebarProvider>
-              <ProductionGuardProvider>
-                <RequireAuth>
-                  <Outlet />
-                </RequireAuth>
-                <Toaster />
-                <AuthedAiChatPanel />
-              </ProductionGuardProvider>
-            </SidebarProvider>
+            <ProductionGuardProvider>
+              <RequireAuth>
+                <Outlet />
+              </RequireAuth>
+              <Toaster />
+              <AuthedAiChatPanel />
+            </ProductionGuardProvider>
           </ErrorBoundary>
         </PluginRegistryProvider>
       </SessionProvider>
