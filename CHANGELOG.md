@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **`examples/app-crm` — showcase `fieldGroups` MVP** — The CRM reference example (`Account`, `Contact`, `Opportunity`, `Lead`) now demonstrates the new `fieldGroups` protocol end to end. Each object declares logical groups (e.g., *Basic Information*, *Financials*, *Contact Information*, *Ownership & Status*, *System*) and every field opts in via `group: '<key>'`. No business logic changed — only field-layout metadata — so existing validations, workflows, indexes, and state machines are unaffected. Useful as a reference when designing multi-group forms and detail pages.
+
 ### Added
 - **Field Groups (`fieldGroups`) — simplified MVP protocol** — Introduced a data-layer protocol for grouping fields on an object in forms, detail pages, and editors. Designed to be AI-generation- and extension-friendly by intentionally minimizing surface area:
   - New `ObjectFieldGroupSchema` in `packages/spec/src/data/object.zod.ts` with `key` (snake_case machine key), `label`, optional `icon`, `description`, `defaultExpanded` (default `true`), and `visibleOn` (expression for conditional visibility). No `order` property — **array declaration order is the display order**.
