@@ -6,10 +6,18 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * sys_metadata Object Definition
  *
  * Generic metadata envelope for ALL metadata types.
- * This is the source of truth for package management, version control, and deployment.
+ *
+ * ⚠️ NOTE: The canonical `sys__metadata` object used by the runtime is owned
+ * by `@objectstack/metadata` (see `packages/metadata/src/objects/sys-metadata.object.ts`).
+ * This richer schema is preserved here as a reference/design artifact for the
+ * ObjectOS layer but is **not** auto-registered by `SystemObjects` — registering
+ * it would cause an ownership conflict on the FQN `sys__metadata`.
+ *
+ * If you need to consume it directly, import the exported constant; do not
+ * register it alongside `@objectstack/metadata` without coordinating ownership.
  */
 export const SysMetadata = ObjectSchema.create({
-  name: 'sys_metadata',
+  name: 'metadata',
   namespace: 'sys',
   label: 'Metadata Record',
   pluralLabel: 'Metadata Records',

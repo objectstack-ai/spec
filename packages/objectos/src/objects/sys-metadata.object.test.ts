@@ -5,7 +5,7 @@ import { SysMetadata } from './sys-metadata.object';
 
 describe('SysMetadata Object', () => {
   it('should have correct object name', () => {
-    expect(SysMetadata.name).toBe('sys_metadata');
+    expect(SysMetadata.name).toBe('metadata');
   });
 
   it('should have sys namespace', () => {
