@@ -14,8 +14,8 @@ API Operations Enum
 ## TypeScript Usage
 
 ```typescript
-import { ApiMethod, CDCConfig, Index, ObjectCapabilities, ObjectExtension, ObjectOwnershipEnum, PartitioningConfig, SoftDeleteConfig, TenancyConfig, VersioningConfig } from '@objectstack/spec/data';
-import type { ApiMethod, CDCConfig, Index, ObjectCapabilities, ObjectExtension, ObjectOwnershipEnum, PartitioningConfig, SoftDeleteConfig, TenancyConfig, VersioningConfig } from '@objectstack/spec/data';
+import { ApiMethod, CDCConfig, Index, ObjectCapabilities, ObjectExtension, ObjectFieldGroup, ObjectOwnershipEnum, PartitioningConfig, SoftDeleteConfig, TenancyConfig, VersioningConfig } from '@objectstack/spec/data';
+import type { ApiMethod, CDCConfig, Index, ObjectCapabilities, ObjectExtension, ObjectFieldGroup, ObjectOwnershipEnum, PartitioningConfig, SoftDeleteConfig, TenancyConfig, VersioningConfig } from '@objectstack/spec/data';
 
 // Validate data
 const result = ApiMethod.parse(data);
@@ -107,6 +107,22 @@ const result = ApiMethod.parse(data);
 | **validations** | `[__schema0](./__schema0)[]` | optional | Additional validation rules to merge into the target object |
 | **indexes** | `Object[]` | optional | Additional indexes to merge into the target object |
 | **priority** | `integer` | ✅ | Merge priority (higher = applied later) |
+
+
+---
+
+## ObjectFieldGroup
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **key** | `string` | ✅ | Group machine key (snake_case). Referenced by Field.group. |
+| **label** | `string` | ✅ | Group display label |
+| **icon** | `string` | optional | Icon name (Lucide/Material) for the group header |
+| **description** | `string` | optional | Optional description shown under the group header |
+| **defaultExpanded** | `boolean` | ✅ | Whether the group is expanded by default |
+| **visibleOn** | `string` | optional | Visibility condition expression; when false the group is hidden |
 
 
 ---

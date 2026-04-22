@@ -4,8 +4,6 @@ import { describe, it, expect, vi } from 'vitest';
 import {
   ProjectProvisioningService,
   MockProjectDatabaseAdapter,
-  NoopSecretEncryptor,
-  type ProjectDatabaseAdapter,
 } from './project-provisioning.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -15,22 +13,18 @@ const PLATFORM_ORG_ID = '00000000-0000-0000-0000-000000000000';
 describe('ProjectProvisioningService.provisionProject', () => {
   it('returns a fully-formed project + credential in detached mode', async () => {
     const svc = new ProjectProvisioningService({
-      defaultRegion: 'eu-west-1',
       defaultStorageLimitMb: 2048,
     });
 
     const result = await svc.provisionProject({
       organizationId: 'org-123',
-      slug: 'dev',
-      projectType: 'development',
+      displayName: 'Alice dev',
       createdBy: 'user-1',
     });
 
     expect(result.project.id).toMatch(UUID_RE);
     expect(result.project.organizationId).toBe('org-123');
-    expect(result.project.slug).toBe('dev');
-    expect(result.project.projectType).toBe('development');
-    expect(result.project.region).toBe('eu-west-1');
+    expect(result.project.displayName).toBe('Alice dev');
     expect(result.project.status).toBe('active');
     expect(result.project.isDefault).toBe(false);
     expect(result.project.isSystem).toBe(false);
@@ -69,8 +63,7 @@ describe('ProjectProvisioningService.provisionProject', () => {
 
     const result = await svc.provisionProject({
       organizationId: 'org-42',
-      slug: 'prod',
-      projectType: 'production',
+      displayName: 'Production',
       isDefault: true,
       createdBy: 'user-1',
     });
@@ -82,9 +75,13 @@ describe('ProjectProvisioningService.provisionProject', () => {
     expect(projectRow.organization_id).toBe('org-42');
     expect(projectRow.is_default).toBe(true);
     expect(projectRow.is_system).toBe(false);
-    expect(projectRow.slug).toBe('prod');
+    expect(projectRow.display_name).toBe('Production');
     expect(projectRow.database_url).toBeTruthy();
     expect(projectRow.database_driver).toBe('turso');
+    // slug / project_type / region must not be persisted anymore.
+    expect(projectRow.slug).toBeUndefined();
+    expect(projectRow.project_type).toBeUndefined();
+    expect(projectRow.region).toBeUndefined();
 
     expect(result.warnings).toBeUndefined();
   });
@@ -104,8 +101,7 @@ describe('ProjectProvisioningService.provisionProject', () => {
     await expect(
       svc.provisionProject({
         organizationId: 'org-42',
-        slug: 'prod-2',
-        projectType: 'production',
+        displayName: 'Prod 2',
         isDefault: true,
         createdBy: 'user-1',
       }),
@@ -117,17 +113,13 @@ describe('ProjectProvisioningService.provisionProject', () => {
 
 describe('ProjectProvisioningService.provisionSystemProject', () => {
   it('creates system project with well-known UUID in detached mode', async () => {
-    const svc = new ProjectProvisioningService({
-      defaultRegion: 'us-east-1',
-    });
+    const svc = new ProjectProvisioningService();
 
     const result = await svc.provisionSystemProject();
 
     expect(result.project.id).toBe(SYSTEM_PROJECT_ID);
     expect(result.project.organizationId).toBe(PLATFORM_ORG_ID);
-    expect(result.project.slug).toBe('system');
     expect(result.project.displayName).toBe('System');
-    expect(result.project.projectType).toBe('production');
     expect(result.project.isDefault).toBe(false);
     expect(result.project.isSystem).toBe(true);
     expect(result.project.plan).toBe('enterprise');
@@ -170,7 +162,7 @@ describe('ProjectProvisioningService.provisionSystemProject', () => {
     expect(created[0].object).toBe('project');
     expect(projectRow.id).toBe(SYSTEM_PROJECT_ID);
     expect(projectRow.organization_id).toBe(PLATFORM_ORG_ID);
-    expect(projectRow.slug).toBe('system');
+    expect(projectRow.display_name).toBe('System');
     expect(projectRow.is_system).toBe(true);
     expect(projectRow.is_default).toBe(false);
     expect(projectRow.plan).toBe('enterprise');
@@ -190,12 +182,9 @@ describe('ProjectProvisioningService.provisionSystemProject', () => {
           return {
             id: SYSTEM_PROJECT_ID,
             organization_id: PLATFORM_ORG_ID,
-            slug: 'system',
             display_name: 'System',
-            project_type: 'production',
             is_default: false,
             is_system: true,
-            region: 'us-east-1',
             plan: 'enterprise',
             status: 'active',
             created_by: 'system',

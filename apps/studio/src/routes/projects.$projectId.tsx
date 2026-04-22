@@ -89,7 +89,7 @@ function ProjectLayoutComponent() {
   // the dialog know which project it's protecting.
   useEffect(() => {
     registerActiveProject({
-      projectType: detail?.project?.projectType,
+      projectType: undefined,
       displayName: detail?.project?.displayName,
     });
     return () => registerActiveProject({ projectType: undefined });

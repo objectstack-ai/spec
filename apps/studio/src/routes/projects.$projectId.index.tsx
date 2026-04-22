@@ -23,7 +23,6 @@ import {
   Loader2,
   Package,
 } from 'lucide-react';
-import { ProjectBadge } from '@/components/project-badge';
 import { ProjectStatusBadge } from '@/components/project-status-badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -130,7 +129,6 @@ function ProjectOverviewComponent() {
                       <h1 className="text-2xl font-semibold">
                         {project.displayName}
                       </h1>
-                      <ProjectBadge projectType={project.projectType} />
                       {project.isDefault && (
                         <Badge variant="outline">default</Badge>
                       )}
@@ -222,7 +220,7 @@ function ProjectOverviewComponent() {
                   </Card>
                 )}
 
-                {project.projectType === 'production' && project.status === 'active' && (
+                {false && project.status === 'active' && (
                   <Card className="flex items-start gap-3 border-red-500/40 bg-red-500/5 p-4">
                     <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
                     <div className="text-sm">

@@ -189,6 +189,8 @@ const result = BatchEndpointsConfig.parse(data);
 | **enableUi** | `boolean` | ✅ | Enable UI API endpoints (Views, Menus, Layouts) |
 | **enableBatch** | `boolean` | ✅ | Enable batch operation endpoints |
 | **enableDiscovery** | `boolean` | ✅ | Enable API discovery endpoint |
+| **enableProjectScoping** | `boolean` | ✅ | Enable project-scoped routing for data/meta/AI APIs |
+| **projectResolution** | `Enum<'required' \| 'optional' \| 'auto'>` | ✅ | Project ID resolution strategy |
 | **documentation** | `Object` | optional | OpenAPI/Swagger documentation config |
 | **responseFormat** | `Object` | optional | Response format options |
 

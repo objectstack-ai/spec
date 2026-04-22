@@ -260,10 +260,7 @@ export class ProjectProvisioningService {
 
     const defaultProject = await this.provisionProject({
       organizationId: parsed.organizationId,
-      slug: parsed.defaultProjectSlug,
-      displayName: parsed.defaultProjectSlug === 'prod' ? 'Production' : parsed.defaultProjectSlug,
-      projectType: parsed.defaultProjectType,
-      region: parsed.region,
+      displayName: parsed.defaultProjectDisplayName,
       driver: parsed.driver,
       plan: parsed.plan,
       storageLimitMb: parsed.storageLimitMb,
@@ -295,7 +292,7 @@ export class ProjectProvisioningService {
     const credentialId = randomUUID();
 
     const driver: ProjectDriver = parsed.driver ?? this.config.defaultDriver;
-    const region = parsed.region ?? this.config.defaultRegion;
+    const region = this.config.defaultRegion;
     const storageLimitMb = parsed.storageLimitMb ?? this.config.defaultStorageLimitMb;
     const databaseName = `proj-${projectId}`;
 
@@ -348,12 +345,9 @@ export class ProjectProvisioningService {
     const project: Project = {
       id: projectId,
       organizationId: parsed.organizationId,
-      slug: parsed.slug,
-      displayName: parsed.displayName ?? parsed.slug,
-      projectType: parsed.projectType,
+      displayName: parsed.displayName,
       isDefault: parsed.isDefault ?? false,
       isSystem: false, // Regular projects are not system projects
-      region,
       plan: parsed.plan ?? 'free',
       status: 'active',
       createdBy: parsed.createdBy,
@@ -383,12 +377,9 @@ export class ProjectProvisioningService {
         await this.config.controlPlaneDriver.create('project', {
           id: project.id,
           organization_id: project.organizationId,
-          slug: project.slug,
           display_name: project.displayName,
-          project_type: project.projectType,
           is_default: project.isDefault,
           is_system: project.isSystem,
-          region: project.region,
           plan: project.plan,
           status: project.status,
           created_by: project.createdBy,
@@ -510,12 +501,9 @@ export class ProjectProvisioningService {
             project: {
               id: existing.id,
               organizationId: existing.organization_id,
-              slug: existing.slug,
               displayName: existing.display_name,
-              projectType: existing.project_type,
               isDefault: existing.is_default,
               isSystem: existing.is_system ?? true,
-              region: existing.region,
               plan: existing.plan,
               status: existing.status,
               createdBy: existing.created_by,
@@ -553,12 +541,9 @@ export class ProjectProvisioningService {
     const project: Project = {
       id: SYSTEM_PROJECT_ID,
       organizationId: PLATFORM_ORG_ID,
-      slug: 'system',
       displayName: 'System',
-      projectType: 'production',
       isDefault: false,
       isSystem: true,
-      region: this.config.defaultRegion,
       plan: 'enterprise',
       status: 'active',
       createdBy: 'system',
@@ -591,12 +576,9 @@ export class ProjectProvisioningService {
         await this.config.controlPlaneDriver.create('project', {
           id: project.id,
           organization_id: project.organizationId,
-          slug: project.slug,
           display_name: project.displayName,
-          project_type: project.projectType,
           is_default: project.isDefault,
           is_system: project.isSystem,
-          region: project.region,
           plan: project.plan,
           status: project.status,
           created_by: project.createdBy,

@@ -4,10 +4,9 @@
  * ProjectSwitcher
  *
  * Power Platform-style project picker, anchored on the left of the
- * site header. Lists every project visible to the current session,
- * grouped by `projectType`, and navigates to `/projects/:id/overview`
- * when one is selected. Also exposes a "+ New project…" footer that
- * opens {@link NewProjectDialog}.
+ * site header. Lists every project visible to the current session and
+ * navigates to `/projects/:id/overview` when one is selected. Also
+ * exposes a "+ New project…" footer that opens {@link NewProjectDialog}.
  *
  * The switcher is intentionally stateless with respect to the active
  * project — the URL is the source of truth, read via
@@ -21,12 +20,10 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { ChevronsUpDown, Plus, Search, Check } from 'lucide-react';
-import type { Project, ProjectType } from '@objectstack/spec/cloud';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -35,27 +32,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useProjects } from '@/hooks/useProjects';
 import { NewProjectDialog } from '@/components/new-project-dialog';
-import { ProjectBadge } from '@/components/project-badge';
-
-const ENV_TYPE_ORDER: ProjectType[] = [
-  'production',
-  'staging',
-  'sandbox',
-  'development',
-  'test',
-  'preview',
-  'trial',
-];
-
-const ENV_TYPE_LABEL: Record<ProjectType, string> = {
-  production: 'Production',
-  staging: 'Staging',
-  sandbox: 'Sandbox',
-  development: 'Development',
-  test: 'Test',
-  preview: 'Preview',
-  trial: 'Trial',
-};
 
 export function ProjectSwitcher() {
   const navigate = useNavigate();
@@ -71,24 +47,13 @@ export function ProjectSwitcher() {
     [projects, activeId],
   );
 
-  const grouped = useMemo(() => {
+  const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const filtered = q
-      ? projects.filter(
-          (e) =>
-            e.slug.toLowerCase().includes(q) ||
-            e.displayName.toLowerCase().includes(q) ||
-            e.id.toLowerCase().includes(q),
-        )
-      : projects;
-    const map = new Map<ProjectType, Project[]>();
-    for (const e of filtered) {
-      const arr = map.get(e.projectType) ?? [];
-      arr.push(e);
-      map.set(e.projectType, arr);
-    }
-    return ENV_TYPE_ORDER.filter((t) => map.has(t)).map(
-      (t) => [t, map.get(t)!] as const,
+    if (!q) return projects;
+    return projects.filter(
+      (e) =>
+        e.displayName.toLowerCase().includes(q) ||
+        e.id.toLowerCase().includes(q),
     );
   }, [projects, search]);
 
@@ -111,12 +76,9 @@ export function ProjectSwitcher() {
             className="h-8 gap-2 px-2 text-sm font-medium"
           >
             {active ? (
-              <>
-                <span className="max-w-[160px] truncate">
-                  {active.displayName}
-                </span>
-                <ProjectBadge projectType={active.projectType} />
-              </>
+              <span className="max-w-[160px] truncate">
+                {active.displayName}
+              </span>
             ) : (
               <span className="text-muted-foreground">
                 {loading ? 'Loading projects…' : 'Select project'}
@@ -149,47 +111,40 @@ export function ProjectSwitcher() {
                 No projects yet.
               </div>
             )}
-            {grouped.map(([projectType, list]) => (
-              <div key={projectType}>
-                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  {ENV_TYPE_LABEL[projectType]}
-                </DropdownMenuLabel>
-                {list.map((env) => (
-                  <DropdownMenuItem
-                    key={env.id}
-                    onSelect={(e) => {
-                      e.preventDefault();
-                      handleSelect(env.id);
-                    }}
-                    className="flex items-start gap-2"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="truncate font-medium">
-                          {env.displayName}
-                        </span>
-                        {env.isDefault && (
-                          <Badge
-                            variant="outline"
-                            className="h-4 px-1 text-[9px]"
-                          >
-                            default
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                        <code className="font-mono">{env.slug}</code>
-                        {env.region && <span>· {env.region}</span>}
-                        <span>· {env.status}</span>
-                      </div>
-                    </div>
-                    <ProjectBadge projectType={env.projectType} />
-                    {env.id === activeId && (
-                      <Check className="h-3.5 w-3.5 text-primary" />
+            {filtered.map((env) => (
+              <DropdownMenuItem
+                key={env.id}
+                onSelect={(e) => {
+                  e.preventDefault();
+                  handleSelect(env.id);
+                }}
+                className="flex items-start gap-2"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate font-medium">
+                      {env.displayName}
+                    </span>
+                    {env.isDefault && (
+                      <Badge
+                        variant="outline"
+                        className="h-4 px-1 text-[9px]"
+                      >
+                        default
+                      </Badge>
                     )}
-                  </DropdownMenuItem>
-                ))}
-              </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <code className="font-mono opacity-60">
+                      {env.id.slice(0, 8)}
+                    </code>
+                    <span>· {env.status}</span>
+                  </div>
+                </div>
+                {env.id === activeId && (
+                  <Check className="h-3.5 w-3.5 text-primary" />
+                )}
+              </DropdownMenuItem>
             ))}
           </div>
 

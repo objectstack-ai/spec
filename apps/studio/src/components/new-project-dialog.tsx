@@ -5,8 +5,8 @@
  * organization via `client.projects.create()`.
  *
  * Form fields mirror {@link ProvisionProjectRequestSchema}:
- * slug, displayName, projectType, region, plan. The `organizationId` and
- * `createdBy` fields are injected by the backend from the session.
+ * displayName (required) + driver. The `organizationId` and `createdBy`
+ * fields are injected by the backend from the session.
  *
  * On success, the dialog invokes `onCreated(env)` and closes; the parent
  * (ProjectSwitcher) is responsible for reloading the project list
@@ -14,7 +14,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import type { Project, ProjectType } from '@objectstack/spec/cloud';
+import type { Project } from '@objectstack/spec/cloud';
 import {
   Dialog,
   DialogContent,
@@ -37,16 +37,6 @@ import { useDrivers, useProvisionProject } from '@/hooks/useProjects';
 import { toast } from '@/hooks/use-toast';
 import { useActiveOrganizationId, useSession } from '@/hooks/useSession';
 
-const PROJECT_TYPES: { value: ProjectType; label: string; hint: string }[] = [
-  { value: 'development', label: 'Development', hint: 'For makers building and iterating' },
-  { value: 'test', label: 'Test', hint: 'Automated test runs, throwaway data' },
-  { value: 'sandbox', label: 'Sandbox', hint: 'Isolated clone of production' },
-  { value: 'preview', label: 'Preview', hint: 'Feature preview / PR environment' },
-  { value: 'staging', label: 'Staging', hint: 'Pre-production parity' },
-  { value: 'production', label: 'Production', hint: 'Live, customer-facing data' },
-  { value: 'trial', label: 'Trial', hint: 'Time-boxed demo workspace' },
-];
-
 export interface NewProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -62,10 +52,7 @@ export function NewProjectDialog({
   const { drivers, loading: driversLoading } = useDrivers();
   const activeOrgId = useActiveOrganizationId();
   const { user } = useSession();
-  const [slug, setSlug] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [projectType, setProjectType] = useState<ProjectType>('development');
-  const [region, setRegion] = useState('');
   const [driver, setDriver] = useState<string>('');
 
   // Auto-select a sensible default once drivers load: prefer turso, then memory,
@@ -80,16 +67,13 @@ export function NewProjectDialog({
   }, [driver, drivers]);
 
   const reset = () => {
-    setSlug('');
     setDisplayName('');
-    setProjectType('development');
-    setRegion('');
     setDriver('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!slug.trim()) return;
+    if (!displayName.trim()) return;
     if (!activeOrgId) {
       toast({
         title: 'No active organization',
@@ -102,16 +86,13 @@ export function NewProjectDialog({
       const res = await provision({
         organizationId: activeOrgId,
         createdBy: user?.id ?? '__session__',
-        slug: slug.trim(),
-        displayName: displayName.trim() || undefined,
-        projectType,
-        region: region.trim() || undefined,
+        displayName: displayName.trim(),
         driver: driver || undefined,
       } as any);
       const project = (res?.project ?? res) as Project;
       toast({
         title: 'Project provisioned',
-        description: `${project.displayName} (${project.slug}) is ready.`,
+        description: `${project.displayName} is ready.`,
       });
       reset();
       onOpenChange(false);
@@ -139,54 +120,17 @@ export function NewProjectDialog({
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-1.5">
-              <Label htmlFor="env-slug">
-                Slug <span className="text-destructive">*</span>
+              <Label htmlFor="env-name">
+                Name <span className="text-destructive">*</span>
               </Label>
-              <Input
-                id="env-slug"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder="dev-alice"
-                pattern="^[a-z0-9][a-z0-9-]{0,62}$"
-                required
-              />
-              <p className="text-[11px] text-muted-foreground">
-                Lowercase letters, numbers, and dashes. Unique per organization.
-              </p>
-            </div>
-
-            <div className="grid gap-1.5">
-              <Label htmlFor="env-name">Display name</Label>
               <Input
                 id="env-name"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Alice's dev sandbox"
+                required
+                autoFocus
               />
-            </div>
-
-            <div className="grid gap-1.5">
-              <Label>Type</Label>
-              <Select
-                value={projectType}
-                onValueChange={(v) => setProjectType(v as ProjectType)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {PROJECT_TYPES.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>
-                      <div className="flex flex-col">
-                        <span>{t.label}</span>
-                        <span className="text-[11px] text-muted-foreground">
-                          {t.hint}
-                        </span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="grid gap-1.5">
@@ -225,16 +169,6 @@ export function NewProjectDialog({
                 for tests; `turso` persists to libSQL.
               </p>
             </div>
-
-            <div className="grid gap-1.5">
-              <Label htmlFor="env-region">Region (optional)</Label>
-              <Input
-                id="env-region"
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
-                placeholder="us-east-1"
-              />
-            </div>
           </div>
 
           <DialogFooter>
@@ -246,7 +180,7 @@ export function NewProjectDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={provisioning || !slug.trim()}>
+            <Button type="submit" disabled={provisioning || !displayName.trim()}>
               {provisioning ? 'Provisioning…' : 'Create project'}
             </Button>
           </DialogFooter>

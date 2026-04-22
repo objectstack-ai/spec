@@ -4,8 +4,8 @@
  * /projects — project list & management page.
  *
  * Entry point for the project administration flows: lists every
- * project visible to the current session, groups them by projectType,
- * and surfaces one-click navigation into each project's overview
+ * project visible to the current session and surfaces one-click navigation
+ * into each project's overview
  * (`/projects/:projectId`).
  *
  * Provisioning new projects is handled by {@link NewProjectDialog}
@@ -14,11 +14,10 @@
 
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { Plus, Database, MapPin, RefreshCw } from 'lucide-react';
+import { Plus, Database, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ProjectBadge } from '@/components/project-badge';
 import { ProjectStatusBadge } from '@/components/project-status-badge';
 import { NewProjectDialog } from '@/components/new-project-dialog';
 import { useProjects } from '@/hooks/useProjects';
@@ -98,7 +97,6 @@ function ProjectsListComponent() {
                       <h3 className="truncate text-base font-medium">
                         {project.displayName}
                       </h3>
-                      <ProjectBadge projectType={project.projectType} />
                       {project.isDefault && (
                         <Badge variant="outline" className="text-[10px]">
                           default
@@ -107,13 +105,6 @@ function ProjectsListComponent() {
                       <ProjectStatusBadge status={project.status} />
                     </div>
                     <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
-                      <code className="font-mono">{project.slug}</code>
-                      {project.region && (
-                        <span className="inline-flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {project.region}
-                        </span>
-                      )}
                       <code className="font-mono opacity-60">{project.id}</code>
                     </div>
                   </div>

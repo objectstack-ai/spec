@@ -24,7 +24,7 @@ export const SysProject = ObjectSchema.create({
   isSystem: true,
   description: 'Control-plane registry of tenant projects (prod/test/dev/sandbox).',
   titleFormat: '{display_name}',
-  compactLayout: ['display_name', 'slug', 'project_type', 'status', 'is_default'],
+  compactLayout: ['display_name', 'status', 'is_default'],
 
   fields: {
     id: Field.text({
@@ -54,33 +54,11 @@ export const SysProject = ObjectSchema.create({
       description: 'Foreign key to sys_organization.',
     }),
 
-    slug: Field.text({
-      label: 'Slug',
-      required: true,
-      maxLength: 63,
-      description: 'Slug unique per organization (e.g. `prod`, `qa-2`). snake_case/kebab-case allowed.',
-    }),
-
     display_name: Field.text({
       label: 'Display Name',
       required: true,
       maxLength: 255,
       description: 'Display name shown in Studio and APIs.',
-    }),
-
-    project_type: Field.select({
-      label: 'Project Type',
-      required: true,
-      description: 'Project classification (prod/sandbox/dev/test/staging/preview/trial).',
-      options: [
-        { value: 'production', label: 'Production' },
-        { value: 'sandbox', label: 'Sandbox' },
-        { value: 'development', label: 'Development' },
-        { value: 'test', label: 'Test' },
-        { value: 'staging', label: 'Staging' },
-        { value: 'preview', label: 'Preview' },
-        { value: 'trial', label: 'Trial' },
-      ],
     }),
 
     is_default: Field.boolean({
@@ -95,13 +73,6 @@ export const SysProject = ObjectSchema.create({
       required: true,
       defaultValue: false,
       description: 'Whether this is a system project (platform infrastructure, not user data).',
-    }),
-
-    region: Field.text({
-      label: 'Region',
-      required: false,
-      maxLength: 100,
-      description: 'Region where the physical database is deployed (e.g. us-east-1, eu-west-1).',
     }),
 
     plan: Field.select({
@@ -181,11 +152,9 @@ export const SysProject = ObjectSchema.create({
   },
 
   indexes: [
-    { fields: ['organization_id', 'slug'], unique: true },
     { fields: ['organization_id'] },
     { fields: ['organization_id', 'is_default'] },
     { fields: ['status'] },
-    { fields: ['project_type'] },
     { fields: ['database_driver'] },
     { fields: ['hostname'], unique: true },
   ],

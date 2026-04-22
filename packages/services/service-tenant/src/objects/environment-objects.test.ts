@@ -29,11 +29,17 @@ describe('control-plane project objects', () => {
     );
   });
 
-  it('declares UNIQUE (organization_id, slug) on sys_project', () => {
+  it('declares UNIQUE hostname on sys_project', () => {
     const idx = SysProject.indexes ?? [];
     expect(
-      idx.some((i: any) => i.unique && i.fields.join(',') === 'organization_id,slug'),
+      idx.some((i: any) => i.unique && i.fields.join(',') === 'hostname'),
     ).toBe(true);
+  });
+
+  it('no longer defines slug / project_type / region columns', () => {
+    expect(SysProject.fields).not.toHaveProperty('slug');
+    expect(SysProject.fields).not.toHaveProperty('project_type');
+    expect(SysProject.fields).not.toHaveProperty('region');
   });
 
   it('sys_project has database addressing fields', () => {

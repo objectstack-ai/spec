@@ -55,11 +55,9 @@ export type ProjectDriver = z.infer<typeof ProjectDriverSchema>;
 /**
  * Project — one logical runtime of an organization's data.
  *
- * An organization may own many projects (e.g. `prod`, `staging`,
- * `dev-alice`, `sandbox-demo`). Physical database connection info is
+ * An organization may own many projects. Physical database connection info is
  * stored directly on this row so a single lookup gives both logical
- * and physical addressing. Projects are addressable by
- * `(organizationId, slug)`.
+ * and physical addressing. Projects are addressable by `id` (UUID).
  */
 export const ProjectSchema = z.object({
   /** UUID of the project (stable, never reused). */
@@ -68,26 +66,14 @@ export const ProjectSchema = z.object({
   /** Organization that owns this project. */
   organizationId: z.string().describe('Organization that owns this project'),
 
-  /** Human-friendly slug, unique within the organization (e.g. `prod`, `qa-2`). */
-  slug: z
-    .string()
-    .regex(/^[a-z0-9][a-z0-9-]{0,62}$/)
-    .describe('Slug unique per organization (snake_case/kebab-case allowed)'),
-
   /** Display name shown in Studio and APIs. */
   displayName: z.string().describe('Display name shown in Studio and APIs'),
-
-  /** Project classification used for routing, quotas, and RBAC defaults. */
-  projectType: ProjectTypeSchema.describe('Project classification'),
 
   /** Whether this is the organization's **default** project. Exactly one per org. */
   isDefault: z.boolean().default(false).describe('Whether this is the default project for the organization'),
 
   /** Whether this is a system project (platform infrastructure, not user data). */
   isSystem: z.boolean().default(false).describe('Whether this is a system project (platform infrastructure, not user data)'),
-
-  /** Region where the physical database is deployed. */
-  region: z.string().optional().describe('Region where the physical database is deployed (e.g. us-east-1)'),
 
   /** Plan tier applied to this project for quota/billing enforcement. */
   plan: TenantPlanSchema.default('free').describe('Plan tier for this project'),
@@ -236,13 +222,7 @@ export type ProjectMember = z.infer<typeof ProjectMemberSchema>;
  */
 export const ProvisionProjectRequestSchema = z.object({
   organizationId: z.string().describe('Organization that will own the new project'),
-  slug: z
-    .string()
-    .regex(/^[a-z0-9][a-z0-9-]{0,62}$/)
-    .describe('Slug unique per organization'),
-  displayName: z.string().optional().describe('Display name (defaults to slug)'),
-  projectType: ProjectTypeSchema.describe('Project type'),
-  region: z.string().optional().describe('Region preference for the physical DB'),
+  displayName: z.string().min(1).describe('Display name shown in Studio and APIs'),
   driver: ProjectDriverSchema.optional().describe('Driver key (defaults to provisioning service config)'),
   plan: TenantPlanSchema.optional().describe('Plan tier'),
   storageLimitMb: z.number().int().positive().optional().describe('Storage quota in megabytes'),
@@ -272,13 +252,11 @@ export type ProvisionProjectResponse = z.infer<typeof ProvisionProjectResponseSc
  */
 export const ProvisionOrganizationRequestSchema = z.object({
   organizationId: z.string().describe('Organization being bootstrapped'),
-  defaultProjectType: ProjectTypeSchema.default('production').describe('Project type for the default project'),
-  defaultProjectSlug: z
+  defaultProjectDisplayName: z
     .string()
-    .regex(/^[a-z0-9][a-z0-9-]{0,62}$/)
-    .default('prod')
-    .describe('Slug for the default project'),
-  region: z.string().optional().describe('Region preference'),
+    .min(1)
+    .default('Production')
+    .describe('Display name for the default project'),
   driver: ProjectDriverSchema.optional().describe('Driver key'),
   plan: TenantPlanSchema.optional().describe('Plan tier'),
   storageLimitMb: z.number().int().positive().optional().describe('Storage quota in megabytes'),
