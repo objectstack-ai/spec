@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useClient } from '@objectstack/client-react';
+import { useScopedClient } from './useObjectStackClient';
 
 // ─── Types ──────────────────────────────────────────────────────────
 
@@ -34,13 +35,6 @@ interface ServiceEndpointEntry {
 
 /** Metadata types that should be excluded from the endpoint tree */
 const EXCLUDED_META_TYPES = ['plugin', 'plugins', 'kind', 'package'];
-
-const SYSTEM_ENDPOINTS: EndpointDef[] = [
-  { method: 'GET', path: '/api/v1/discovery', desc: 'API Discovery', group: 'System' },
-  { method: 'GET', path: '/api/v1/meta/types', desc: 'List metadata types', group: 'Metadata' },
-  { method: 'GET', path: '/api/v1/packages', desc: 'List packages', group: 'System' },
-  { method: 'GET', path: '/api/v1/health', desc: 'Health check', group: 'System' },
-];
 
 /** Build auth endpoints from the discovered auth base path. */
 function buildAuthEndpoints(authBase: string): EndpointDef[] {
@@ -194,16 +188,32 @@ export function buildServiceEndpoints(serviceName: string, routePrefix: string):
 
 // ─── Hook ───────────────────────────────────────────────────────────
 
-export function useApiDiscovery() {
-  const client = useClient();
+export function useApiDiscovery(projectId?: string) {
+  const unscopedClient = useClient();
+  const scopedClient = useScopedClient(projectId);
+  const client: any = projectId ? scopedClient : unscopedClient;
   const [groups, setGroups] = useState<EndpointGroup[]>([]);
   const [allEndpoints, setAllEndpoints] = useState<EndpointDef[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const discover = useCallback(async () => {
+    // When projectId is provided but the scoped client hasn't resolved yet,
+    // defer until the next render.
+    if (projectId && !scopedClient) return;
+
     setLoading(true);
     setError(null);
+
+    // Scope prefix for system endpoints; discovery already handles its own routes.
+    const scopePrefix = projectId ? `/api/v1/projects/${projectId}` : '/api/v1';
+    const discoveryUrl = `${scopePrefix}/discovery`;
+    const systemEndpoints: EndpointDef[] = [
+      { method: 'GET', path: discoveryUrl, desc: 'API Discovery', group: 'System' },
+      { method: 'GET', path: `${scopePrefix}/meta/types`, desc: 'List metadata types', group: 'Metadata' },
+      { method: 'GET', path: `${scopePrefix}/packages`, desc: 'List packages', group: 'System' },
+      { method: 'GET', path: '/api/v1/health', desc: 'Health check', group: 'System' },
+    ];
 
     try {
       // 1. Fetch discovery response — the source of truth for available services
@@ -212,7 +222,7 @@ export function useApiDiscovery() {
       let discoveredRoutes: Record<string, string> = {};
 
       try {
-        const discRes = await fetch('/api/v1/discovery');
+        const discRes = await fetch(discoveryUrl);
         if (discRes.ok) {
           const discData = await discRes.json();
           const data = discData?.data ?? discData;
@@ -238,10 +248,15 @@ export function useApiDiscovery() {
         const hasHandler = serviceInfo?.handlerReady
           ?? (serviceInfo?.status === 'available' || serviceInfo?.status === 'degraded');
 
-        // Use route from discovery services, discovery routes map, or catalog default
-        const routePrefix = serviceInfo?.route
+        // Use route from discovery services, discovery routes map, or catalog default.
+        // When in a project scope, rewrite unscoped catalog defaults so they include
+        // the /projects/:projectId segment.
+        const rawRoute = serviceInfo?.route
           ?? discoveredRoutes[serviceName]
           ?? catalog.defaultRoute;
+        const routePrefix = projectId && rawRoute.startsWith('/api/v1/') && !rawRoute.includes('/projects/')
+          ? rawRoute.replace('/api/v1/', `/api/v1/projects/${projectId}/`)
+          : rawRoute;
 
         if (isEnabled && hasHandler) {
           serviceEndpoints.push(...buildServiceEndpoints(serviceName, routePrefix));
@@ -279,11 +294,11 @@ export function useApiDiscovery() {
 
       // 5. Build dynamic data endpoints for each object
       const dataEndpoints: EndpointDef[] = objectNames.flatMap(name => [
-        { method: 'GET' as HttpMethod, path: `/api/v1/data/${name}`, desc: `List ${name}`, group: `Data: ${name}` },
-        { method: 'POST' as HttpMethod, path: `/api/v1/data/${name}`, desc: `Create ${name}`, group: `Data: ${name}`, bodyTemplate: { name: 'example' } },
-        { method: 'GET' as HttpMethod, path: `/api/v1/data/${name}/:id`, desc: `Get ${name} by ID`, group: `Data: ${name}` },
-        { method: 'PATCH' as HttpMethod, path: `/api/v1/data/${name}/:id`, desc: `Update ${name}`, group: `Data: ${name}`, bodyTemplate: { name: 'updated' } },
-        { method: 'DELETE' as HttpMethod, path: `/api/v1/data/${name}/:id`, desc: `Delete ${name}`, group: `Data: ${name}` },
+        { method: 'GET' as HttpMethod, path: `${scopePrefix}/data/${name}`, desc: `List ${name}`, group: `Data: ${name}` },
+        { method: 'POST' as HttpMethod, path: `${scopePrefix}/data/${name}`, desc: `Create ${name}`, group: `Data: ${name}`, bodyTemplate: { name: 'example' } },
+        { method: 'GET' as HttpMethod, path: `${scopePrefix}/data/${name}/:id`, desc: `Get ${name} by ID`, group: `Data: ${name}` },
+        { method: 'PATCH' as HttpMethod, path: `${scopePrefix}/data/${name}/:id`, desc: `Update ${name}`, group: `Data: ${name}`, bodyTemplate: { name: 'updated' } },
+        { method: 'DELETE' as HttpMethod, path: `${scopePrefix}/data/${name}/:id`, desc: `Delete ${name}`, group: `Data: ${name}` },
       ]);
 
       // 6. Build metadata endpoints for each type
@@ -291,7 +306,7 @@ export function useApiDiscovery() {
         .filter(t => !EXCLUDED_META_TYPES.includes(t))
         .map(type => ({
           method: 'GET' as HttpMethod,
-          path: `/api/v1/meta/${type}`,
+          path: `${scopePrefix}/meta/${type}`,
           desc: `List ${type} metadata`,
           group: 'Metadata',
         }));
@@ -299,14 +314,14 @@ export function useApiDiscovery() {
       // 7. Build per-object schema endpoints
       const schemaEndpoints: EndpointDef[] = objectNames.map(name => ({
         method: 'GET' as HttpMethod,
-        path: `/api/v1/meta/object/${name}`,
+        path: `${scopePrefix}/meta/object/${name}`,
         desc: `${name} schema`,
         group: 'Metadata',
       }));
 
       // 8. Combine all endpoints
       const all = [
-        ...SYSTEM_ENDPOINTS,
+        ...systemEndpoints,
         ...buildAuthEndpoints(authBase),
         ...serviceEndpoints,
         ...metaEndpoints,
@@ -346,7 +361,7 @@ export function useApiDiscovery() {
     } finally {
       setLoading(false);
     }
-  }, [client]);
+  }, [client, projectId, scopedClient]);
 
   useEffect(() => { discover(); }, [discover]);
 

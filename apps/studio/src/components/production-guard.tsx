@@ -65,17 +65,17 @@ export interface GuardOptions {
   /** Visual variant of the confirm button. Defaults to "destructive". */
   confirmVariant?: 'default' | 'destructive';
   /**
-   * If true, the user must type the project's displayName (or slug) to
+   * If true, the user must type the project's display_name (or slug) to
    * enable the confirm button. Use for the most destructive operations.
    */
   requireTypedConfirmation?: boolean;
-  /** The displayName/slug the user must type when requireTypedConfirmation. */
+  /** The display_name/slug the user must type when requireTypedConfirmation. */
   typedConfirmationValue?: string;
 }
 
 interface ActiveProjectSnapshot {
   projectType: ProjectType | undefined;
-  displayName?: string;
+  display_name?: string;
 }
 
 interface ProductionGuardContextValue {
@@ -135,7 +135,7 @@ export function ProductionGuardProvider({ children }: { children: ReactNode }) {
   );
 
   const expectedPhrase =
-    opts?.typedConfirmationValue ?? active.displayName ?? '';
+    opts?.typedConfirmationValue ?? active.display_name ?? '';
   const typedOk =
     !opts?.requireTypedConfirmation || typed.trim() === expectedPhrase.trim();
 
@@ -163,7 +163,7 @@ export function ProductionGuardProvider({ children }: { children: ReactNode }) {
           <div className="my-2 flex items-center gap-2 rounded-md border border-red-500/30 bg-red-500/5 p-3 text-sm">
             <ProjectBadge projectType="production" />
             <span className="font-medium">
-              {active.displayName ?? 'Production project'}
+              {active.display_name ?? 'Production project'}
             </span>
           </div>
 

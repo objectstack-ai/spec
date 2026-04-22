@@ -35,7 +35,7 @@ function LoginPage() {
     const lastProjectId = localStorage.getItem('objectstack.lastProjectId');
     const targetProject =
       (lastProjectId && projects.find((p) => p.id === lastProjectId)) ||
-      projects.find((p) => p.isDefault) ||
+      projects.find((p) => p.is_default) ||
       projects[0];
 
     if (targetProject) {

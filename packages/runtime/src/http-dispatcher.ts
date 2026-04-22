@@ -1338,29 +1338,16 @@ export class HttpDispatcher {
             return rows[0];
         };
 
-        const toProjectDto = (row: any): any => {
+        // Data crosses the wire as snake_case — matching the canonical
+        // `sys__project` schema. The only post-processing is JSON-parsing the
+        // `metadata` column so consumers don't need to unwrap it.
+        const cleanProjectRow = (row: any): any => {
             if (!row) return row;
             let metadata: any = row.metadata;
             if (typeof metadata === 'string') {
                 try { metadata = JSON.parse(metadata); } catch { /* keep raw string if not JSON */ }
             }
-            return {
-                id: row.id,
-                organizationId: row.organization_id,
-                displayName: row.display_name,
-                isDefault: row.is_default ?? false,
-                plan: row.plan,
-                status: row.status,
-                createdBy: row.created_by,
-                metadata,
-                createdAt: row.created_at,
-                updatedAt: row.updated_at,
-                databaseUrl: row.database_url,
-                databaseDriver: row.database_driver,
-                storageLimitMb: row.storage_limit_mb,
-                provisionedAt: row.provisioned_at,
-                hostname: row.hostname,
-            };
+            return { ...row, metadata };
         };
 
         try {
@@ -1377,7 +1364,7 @@ export class HttpDispatcher {
                 if (query?.status) where.status = query.status;
                 let rows = await ql.find(ENV, Object.keys(where).length ? ({ where } as any) : undefined);
                 if (rows && (rows as any).value) rows = (rows as any).value;
-                const projects = (Array.isArray(rows) ? rows : []).map(toProjectDto);
+                const projects = (Array.isArray(rows) ? rows : []).map(cleanProjectRow);
                 return { handled: true, response: this.success({ projects, total: projects.length }) };
             }
 
@@ -1385,24 +1372,24 @@ export class HttpDispatcher {
                 const req = body || {};
                 // Resolve `__session__` placeholders from the active session so clients
                 // can omit these fields and let the server infer them.
-                if (req.organizationId === '__session__' || req.createdBy === '__session__') {
+                if (req.organization_id === '__session__' || req.created_by === '__session__') {
                     try {
                         const authService: any = await this.getService(CoreServiceName.enum.auth);
                         const sessionData = await authService?.api?.getSession?.({
                             headers: _context?.request?.headers,
                         });
-                        if (req.organizationId === '__session__') {
-                            req.organizationId = sessionData?.session?.activeOrganizationId ?? undefined;
+                        if (req.organization_id === '__session__') {
+                            req.organization_id = sessionData?.session?.activeOrganizationId ?? undefined;
                         }
-                        if (req.createdBy === '__session__') {
-                            req.createdBy = sessionData?.user?.id ?? 'system';
+                        if (req.created_by === '__session__') {
+                            req.created_by = sessionData?.user?.id ?? 'system';
                         }
                     } catch {
                         // Fall through — validation below will reject missing fields.
                     }
                 }
-                if (!req.organizationId || !req.displayName) {
-                    return { handled: true, response: this.error('organizationId and displayName are required', 400) };
+                if (!req.organization_id || !req.display_name) {
+                    return { handled: true, response: this.error('organization_id and display_name are required', 400) };
                 }
                 const projectId = randomUUID();
                 const credentialId = randomUUID();
@@ -1442,13 +1429,13 @@ export class HttpDispatcher {
                 if (!computedHostname) {
                     const shortId = projectId.slice(0, 8);
                     try {
-                        const orgRow = await findOne('sys__organization', { id: req.organizationId });
-                        const orgSlug = orgRow?.slug || req.organizationId;
+                        const orgRow = await findOne('sys__organization', { id: req.organization_id });
+                        const orgSlug = orgRow?.slug || req.organization_id;
                         const rootDomain = getEnv('ROOT_DOMAIN', 'objectstack.app');
                         computedHostname = `${orgSlug}-${shortId}.${rootDomain}`;
                     } catch {
                         // Fallback if sys__organization doesn't exist
-                        computedHostname = `${req.organizationId}-${shortId}.objectstack.app`;
+                        computedHostname = `${req.organization_id}-${shortId}.objectstack.app`;
                     }
                 }
 
@@ -1465,18 +1452,19 @@ export class HttpDispatcher {
                 const simulateDelayMs = Number((baseMetadata as any).__simulateDelayMs ?? 1500);
                 await ql.insert(ENV, {
                     id: projectId,
-                    organization_id: req.organizationId,
-                    display_name: req.displayName,
-                    is_default: req.isDefault ?? false,
+                    organization_id: req.organization_id,
+                    display_name: req.display_name,
+                    is_default: req.is_default ?? false,
+                    is_system: req.is_system ?? false,
                     plan: req.plan ?? 'free',
                     status: 'provisioning',
-                    created_by: req.createdBy ?? 'system',
+                    created_by: req.created_by ?? 'system',
                     metadata: JSON.stringify(baseMetadata),
                     created_at: nowIso,
                     updated_at: nowIso,
                     database_url: null,
                     database_driver: driver,
-                    storage_limit_mb: req.storageLimitMb ?? 1024,
+                    storage_limit_mb: req.storage_limit_mb ?? 1024,
                     provisioned_at: null,
                     hostname: computedHostname,
                 });
@@ -1503,7 +1491,7 @@ export class HttpDispatcher {
                                     projectId,
                                     databaseName: `proj-${projectId}`,
                                     region: 'us-east-1',
-                                    storageLimitMb: req.storageLimitMb ?? 1024,
+                                    storageLimitMb: req.storage_limit_mb ?? 1024,
                                 });
                                 databaseUrl = result.databaseUrl;
                                 if (result.plaintextSecret) plaintextSecret = result.plaintextSecret;
@@ -1559,7 +1547,7 @@ export class HttpDispatcher {
                 // Don't await — respond immediately with the provisioning row.
                 void runProvisioning();
 
-                const project = toProjectDto(await findOne(ENV, { id: projectId }));
+                const project = cleanProjectRow(await findOne(ENV, { id: projectId }));
                 const res = this.success({ project });
                 res.status = 202; // Accepted — provisioning continues async.
                 return { handled: true, response: res };
@@ -1586,34 +1574,34 @@ export class HttpDispatcher {
                         : undefined;
                     // Expose a `database` block so Studio can show physical DB
                     // addressing directly (mirrors the legacy sys_environment_database shape).
-                    const envDto = toProjectDto(envRow);
-                    const database = envDto.databaseUrl
+                    const project = cleanProjectRow(envRow);
+                    const database = project.database_url
                         ? {
-                              driver: envDto.databaseDriver,
-                              databaseName: `env-${envDto.id}`,
-                              databaseUrl: envDto.databaseUrl,
-                              storageLimitMb: envDto.storageLimitMb,
-                              provisionedAt: envDto.provisionedAt,
+                              driver: project.database_driver,
+                              database_name: `env-${project.id}`,
+                              database_url: project.database_url,
+                              storage_limit_mb: project.storage_limit_mb,
+                              provisioned_at: project.provisioned_at,
                           }
                         : undefined;
                     return {
                         handled: true,
-                        response: this.success({ project: envDto, database, credential: credMeta, membership }),
+                        response: this.success({ project, database, credential: credMeta, membership }),
                     };
                 }
 
                 if (m === 'PATCH') {
                     const patch: Record<string, unknown> = {};
-                    if (body?.displayName !== undefined) patch.display_name = body.displayName;
+                    if (body?.display_name !== undefined) patch.display_name = body.display_name;
                     if (body?.plan !== undefined) patch.plan = body.plan;
                     if (body?.status !== undefined) patch.status = body.status;
-                    if (body?.isDefault !== undefined) patch.is_default = body.isDefault;
+                    if (body?.is_default !== undefined) patch.is_default = body.is_default;
                     if (body?.metadata !== undefined) patch.metadata = JSON.stringify(body.metadata);
                     patch.updated_at = new Date().toISOString();
                     await ql.update(ENV, patch, { where: { id } } as any);
                     const envRow = await findOne(ENV, { id });
                     if (!envRow) return { handled: true, response: this.error(`Project '${id}' not found`, 404) };
-                    return { handled: true, response: this.success({ project: toProjectDto(envRow) }) };
+                    return { handled: true, response: this.success({ project: cleanProjectRow(envRow) }) };
                 }
             }
 
@@ -1748,7 +1736,7 @@ export class HttpDispatcher {
                 };
                 void runRetry();
 
-                const envAfter = toProjectDto(await findOne(ENV, { id }));
+                const envAfter = cleanProjectRow(await findOne(ENV, { id }));
                 const retryRes = this.success({ project: envAfter });
                 retryRes.status = 202;
                 return { handled: true, response: retryRes };
@@ -1760,7 +1748,7 @@ export class HttpDispatcher {
                 const envRow = await findOne(ENV, { id });
                 if (!envRow) return { handled: true, response: this.error(`Project '${id}' not found`, 404) };
                 // TODO: persist active_project_id on the session once session service is wired.
-                return { handled: true, response: this.success({ project: toProjectDto(envRow), sessionUpdated: false }) };
+                return { handled: true, response: this.success({ project: cleanProjectRow(envRow), sessionUpdated: false }) };
             }
 
             // ----- /cloud/projects/:id/credentials/rotate -----

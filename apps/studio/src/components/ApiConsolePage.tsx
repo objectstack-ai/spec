@@ -63,9 +63,9 @@ interface RequestHistoryEntry {
 
 let nextParamId = 1;
 
-export function ApiConsolePage() {
+export function ApiConsolePage({ projectId }: { projectId?: string } = {}) {
   const client = useClient();
-  const { groups, loading: discovering, refresh } = useApiDiscovery();
+  const { groups, loading: discovering, refresh } = useApiDiscovery(projectId);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());

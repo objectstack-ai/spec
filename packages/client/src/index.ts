@@ -606,10 +606,10 @@ export class ObjectStackClient {
      * List environments visible to the current session. Optionally filter
      * by organization (control-plane query — not routed through a data-plane DB).
      */
-    list: async (filters?: { organizationId?: string; envType?: string; status?: string }) => {
+    list: async (filters?: { organization_id?: string; env_type?: string; status?: string }) => {
       const params = new URLSearchParams();
-      if (filters?.organizationId) params.set('organizationId', filters.organizationId);
-      if (filters?.envType) params.set('envType', filters.envType);
+      if (filters?.organization_id) params.set('organizationId', filters.organization_id);
+      if (filters?.env_type) params.set('envType', filters.env_type);
       if (filters?.status) params.set('status', filters.status);
       const qs = params.toString();
       const url = `${this.baseUrl}/api/v1/cloud/projects${qs ? '?' + qs : ''}`;
@@ -636,15 +636,18 @@ export class ObjectStackClient {
      * `ProjectProvisioningService.provisionProject` on the server.
      */
     create: async (req: {
-      organizationId: string;
+      organization_id: string;
       slug?: string;
-      displayName: string;
-      envType?: string;
-      projectType?: string;
+      display_name: string;
+      env_type?: string;
+      project_type?: string;
       plan?: string;
       region?: string;
       driver?: string;
-      cloneFromProjectId?: string;
+      is_default?: boolean;
+      is_system?: boolean;
+      storage_limit_mb?: number;
+      clone_from_project_id?: string;
     }) => {
       const res = await this.fetch(`${this.baseUrl}/api/v1/cloud/projects`, {
         method: 'POST',
@@ -654,7 +657,7 @@ export class ObjectStackClient {
     },
 
     /**
-     * Update a project (displayName, plan, status, isDefault, metadata).
+     * Update a project (display_name, plan, status, is_default, metadata).
      */
     update: async (id: string, patch: Record<string, unknown>) => {
       const res = await this.fetch(`${this.baseUrl}/api/v1/cloud/projects/${encodeURIComponent(id)}`, {

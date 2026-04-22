@@ -49,16 +49,16 @@ export default class ProjectsShow extends Command {
         formatOutput(res, 'yaml');
       } else {
         const p = res?.project ?? {};
-        console.log(`\nProject: ${p.displayName ?? p.id}`);
+        console.log(`\nProject: ${p.display_name ?? p.id}`);
         console.log('─'.repeat(60));
         console.log(`  id:             ${p.id}`);
-        console.log(`  organization:   ${p.organizationId ?? '—'}`);
+        console.log(`  organization:   ${p.organization_id ?? '—'}`);
         console.log(`  status:         ${p.status ?? '—'}`);
         console.log(`  plan:           ${p.plan ?? '—'}`);
-        console.log(`  isDefault:      ${Boolean(p.isDefault)}`);
-        console.log(`  isSystem:       ${Boolean(p.isSystem)}`);
+        console.log(`  is_default:     ${Boolean(p.is_default)}`);
+        console.log(`  is_system:      ${Boolean(p.is_system)}`);
         if (res?.database) {
-          console.log(`  database:       ${res.database.driver ?? '—'} @ ${res.database.url ?? '—'}`);
+          console.log(`  database:       ${res.database.driver ?? '—'} @ ${res.database.database_url ?? '—'}`);
         }
         if (res?.membership) {
           console.log(`  yourRole:       ${res.membership.role ?? '—'}`);

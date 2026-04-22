@@ -90,7 +90,7 @@ function ProjectLayoutComponent() {
   useEffect(() => {
     registerActiveProject({
       projectType: undefined,
-      displayName: detail?.project?.displayName,
+      display_name: detail?.project?.display_name,
     });
     return () => registerActiveProject({ projectType: undefined });
   }, [detail, registerActiveProject]);

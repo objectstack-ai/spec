@@ -52,11 +52,11 @@ export default class ProjectsCreate extends Command {
       requireAuth(token);
 
       const res = await client.projects.create({
-        organizationId: flags.org,
-        displayName: flags.name,
+        organization_id: flags.org,
+        display_name: flags.name,
         plan: flags.plan,
         driver: flags.driver,
-        cloneFromProjectId: flags['clone-from'],
+        clone_from_project_id: flags['clone-from'],
       });
 
       if (flags.activate && res?.project?.id) {
@@ -80,7 +80,7 @@ export default class ProjectsCreate extends Command {
         formatOutput(res, 'yaml');
       } else {
         const p = res?.project ?? {};
-        console.log(`\n✓ Project created: ${p.displayName ?? p.id} (${p.id})`);
+        console.log(`\n✓ Project created: ${p.display_name ?? p.id} (${p.id})`);
         if (flags.activate) {
           console.log(`  active project set to ${p.id}`);
         }

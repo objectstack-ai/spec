@@ -528,8 +528,15 @@ export function AppSidebar({
               <SidebarMenuItem>
                 <SidebarMenuButton
                   tooltip="API Console"
-                  isActive={location.pathname === '/api-console'}
-                  onClick={() => navigate({ to: '/api-console' })}
+                  isActive={location.pathname.endsWith('/api-console')}
+                  onClick={() => {
+                    const projectId = params.projectId as string | undefined;
+                    if (projectId) {
+                      navigate({ to: '/projects/$projectId/api-console', params: { projectId } });
+                    } else {
+                      navigate({ to: '/api-console' });
+                    }
+                  }}
                 >
                   <Globe className="h-4 w-4" />
                   <span>API Console</span>
@@ -541,8 +548,8 @@ export function AppSidebar({
                   isActive={location.pathname.endsWith('/packages')}
                   onClick={() => {
                     const projectId = params.projectId as string | undefined;
-                    if (envId) {
-                      navigate({ to: '/projects/$projectId/packages', params: { projectId: envId } });
+                    if (projectId) {
+                      navigate({ to: '/projects/$projectId/packages', params: { projectId } });
                     } else {
                       navigate({ to: '/projects' });
                     }

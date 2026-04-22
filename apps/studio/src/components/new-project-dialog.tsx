@@ -14,7 +14,31 @@
  */
 
 import { useEffect, useState } from 'react';
-import type { Project } from '@objectstack/spec/cloud';
+/**
+ * Canonical project row shape returned by the HTTP API.
+ *
+ * The dispatcher returns raw ObjectQL rows (snake_case column names) — no
+ * camelCase translation layer. See `packages/runtime/src/http-dispatcher.ts`
+ * `cleanProjectRow()`.
+ */
+type ProjectRow = {
+  id: string;
+  organization_id: string;
+  display_name: string;
+  is_default?: boolean;
+  is_system?: boolean;
+  status?: string;
+  plan?: string;
+  created_by?: string;
+  created_at?: string;
+  updated_at?: string;
+  database_url?: string;
+  database_driver?: string;
+  storage_limit_mb?: number;
+  provisioned_at?: string;
+  hostname?: string;
+  metadata?: Record<string, unknown>;
+};
 import {
   Dialog,
   DialogContent,
@@ -40,7 +64,7 @@ import { useActiveOrganizationId, useSession } from '@/hooks/useSession';
 export interface NewProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreated?: (env: Project) => void;
+  onCreated?: (env: ProjectRow) => void;
 }
 
 export function NewProjectDialog({
@@ -84,15 +108,15 @@ export function NewProjectDialog({
     }
     try {
       const res = await provision({
-        organizationId: activeOrgId,
-        createdBy: user?.id ?? '__session__',
-        displayName: displayName.trim(),
+        organization_id: activeOrgId,
+        created_by: user?.id ?? '__session__',
+        display_name: displayName.trim(),
         driver: driver || undefined,
       } as any);
-      const project = (res?.project ?? res) as Project;
+      const project = (res?.project ?? res) as ProjectRow;
       toast({
         title: 'Project provisioned',
-        description: `${project.displayName} is ready.`,
+        description: `${project.display_name} is ready.`,
       });
       reset();
       onOpenChange(false);

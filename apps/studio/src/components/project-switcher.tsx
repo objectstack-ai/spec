@@ -52,7 +52,7 @@ export function ProjectSwitcher() {
     if (!q) return projects;
     return projects.filter(
       (e) =>
-        e.displayName.toLowerCase().includes(q) ||
+        e.display_name.toLowerCase().includes(q) ||
         e.id.toLowerCase().includes(q),
     );
   }, [projects, search]);
@@ -77,7 +77,7 @@ export function ProjectSwitcher() {
           >
             {active ? (
               <span className="max-w-[160px] truncate">
-                {active.displayName}
+                {active.display_name}
               </span>
             ) : (
               <span className="text-muted-foreground">
@@ -123,9 +123,9 @@ export function ProjectSwitcher() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="truncate font-medium">
-                      {env.displayName}
+                      {env.display_name}
                     </span>
-                    {env.isDefault && (
+                    {env.is_default && (
                       <Badge
                         variant="outline"
                         className="h-4 px-1 text-[9px]"

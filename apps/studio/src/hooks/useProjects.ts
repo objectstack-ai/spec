@@ -12,13 +12,56 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useClient } from '@objectstack/client-react';
-import type { Project, ProjectDatabase, ProjectMember } from '@objectstack/spec/cloud';
 import { useActiveOrganizationId } from '@/hooks/useSession';
 
+/**
+ * Snake_case database metadata as returned by the HTTP dispatcher under
+ * `GET /cloud/projects/:id`. See `http-dispatcher.ts` (the `database` block
+ * it builds alongside the project row).
+ */
+export interface ProjectDatabaseRow {
+  driver?: string;
+  database_name?: string;
+  database_url?: string;
+  storage_limit_mb?: number;
+  provisioned_at?: string;
+}
+
+export interface ProjectMembershipRow {
+  role?: string;
+  user_id?: string;
+  project_id?: string;
+}
+
+/**
+ * Canonical project row shape returned by the HTTP API (snake_case).
+ *
+ * The dispatcher returns raw ObjectQL rows; Studio consumes them verbatim
+ * with no camelCase translation.
+ */
+export interface ProjectRow {
+  id: string;
+  organization_id: string;
+  display_name: string;
+  is_default?: boolean;
+  is_system?: boolean;
+  status?: string;
+  plan?: string;
+  created_by?: string;
+  created_at?: string;
+  updated_at?: string;
+  database_url?: string;
+  database_driver?: string;
+  storage_limit_mb?: number;
+  provisioned_at?: string;
+  hostname?: string;
+  metadata?: Record<string, unknown>;
+}
+
 export interface ProjectDetail {
-  project: Project;
-  database?: ProjectDatabase;
-  membership?: ProjectMember;
+  project: ProjectRow;
+  database?: ProjectDatabaseRow;
+  membership?: ProjectMembershipRow;
   credential?: { id: string; status: string; activatedAt?: string };
   organization?: { id: string; name: string; displayName?: string };
 }
@@ -50,7 +93,7 @@ export function recallActiveProject(): string | null {
 export function useProjects() {
   const client = useClient() as any;
   const activeOrgId = useActiveOrganizationId();
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<ProjectRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -63,8 +106,8 @@ export function useProjects() {
     setLoading(true);
     setError(null);
     try {
-      const result = await client.projects.list({ organizationId: activeOrgId });
-      setProjects((result?.projects as Project[]) ?? []);
+      const result = await client.projects.list({ organization_id: activeOrgId });
+      setProjects((result?.projects as ProjectRow[]) ?? []);
     } catch (err) {
       setError(err as Error);
       setProjects([]);

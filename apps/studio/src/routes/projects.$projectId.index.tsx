@@ -88,7 +88,7 @@ function ProjectOverviewComponent() {
       confirmLabel: 'Rotate credential',
       confirmVariant: 'destructive',
       requireTypedConfirmation: true,
-      typedConfirmationValue: project.displayName,
+      typedConfirmationValue: project.display_name,
     });
     if (!ok) return;
     setRotating(true);
@@ -127,9 +127,9 @@ function ProjectOverviewComponent() {
                   <div>
                     <div className="flex items-center gap-3">
                       <h1 className="text-2xl font-semibold">
-                        {project.displayName}
+                        {project.display_name}
                       </h1>
-                      {project.isDefault && (
+                      {project.is_default && (
                         <Badge variant="outline">default</Badge>
                       )}
                       <ProjectStatusBadge status={project.status} />
@@ -257,16 +257,16 @@ function ProjectOverviewComponent() {
                       <dt className="text-muted-foreground">Physical name</dt>
                       <dd>
                         <code className="font-mono text-xs">
-                          {detail.database.databaseName}
+                          {detail.database.database_name}
                         </code>
                       </dd>
                       <dt className="text-muted-foreground">Storage quota</dt>
-                      <dd>{detail.database.storageLimitMb} MB</dd>
+                      <dd>{detail.database.storage_limit_mb} MB</dd>
                       <dt className="text-muted-foreground">Provisioned</dt>
                       <dd>
-                        {new Date(
-                          detail.database.provisionedAt,
-                        ).toLocaleString()}
+                        {detail.database.provisioned_at
+                          ? new Date(detail.database.provisioned_at).toLocaleString()
+                          : '—'}
                       </dd>
                     </dl>
                   ) : (

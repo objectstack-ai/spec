@@ -95,9 +95,9 @@ function ProjectsListComponent() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <h3 className="truncate text-base font-medium">
-                        {project.displayName}
+                        {project.display_name}
                       </h3>
-                      {project.isDefault && (
+                      {project.is_default && (
                         <Badge variant="outline" className="text-[10px]">
                           default
                         </Badge>

@@ -46,7 +46,7 @@ export default class ProjectsList extends Command {
       requireAuth(token);
 
       const res = await client.projects.list({
-        organizationId: flags.org,
+        organization_id: flags.org,
         status: flags.status,
       });
 
@@ -63,10 +63,10 @@ export default class ProjectsList extends Command {
         } else {
           for (const p of projects) {
             const active = p.id === activeId ? ' ★' : '';
-            const defaultTag = p.isDefault ? ' [default]' : '';
-            const systemTag = p.isSystem ? ' [system]' : '';
+            const defaultTag = p.is_default ? ' [default]' : '';
+            const systemTag = p.is_system ? ' [system]' : '';
             console.log(
-              `  • ${p.displayName ?? p.id}${active}${defaultTag}${systemTag}`,
+              `  • ${p.display_name ?? p.id}${active}${defaultTag}${systemTag}`,
             );
             console.log(`      id:   ${p.id}`);
             console.log(`      status: ${p.status ?? '—'}  plan: ${p.plan ?? '—'}`);

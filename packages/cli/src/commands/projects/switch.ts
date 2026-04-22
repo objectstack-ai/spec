@@ -59,7 +59,7 @@ export default class ProjectsSwitch extends Command {
       cfg.lastUsedAt = new Date().toISOString();
       await writeAuthConfig(cfg);
 
-      console.log(`\n✓ Active project: ${project.displayName ?? project.id}`);
+      console.log(`\n✓ Active project: ${project.display_name ?? project.id}`);
       console.log(`  id: ${project.id}`);
       if (!flags.remote) {
         console.log('  (local only — server session unchanged)');

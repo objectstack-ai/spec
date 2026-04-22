@@ -23,6 +23,7 @@ import { Route as OrgsNewRouteImport } from './routes/orgs.new'
 import { Route as OrgsOrgIdRouteImport } from './routes/orgs.$orgId'
 import { Route as ProjectsProjectIdIndexRouteImport } from './routes/projects.$projectId.index'
 import { Route as ProjectsProjectIdPackagesRouteImport } from './routes/projects.$projectId.packages'
+import { Route as ProjectsProjectIdApiConsoleRouteImport } from './routes/projects.$projectId.api-console'
 import { Route as ProjectsProjectIdPackageRouteImport } from './routes/projects.$projectId.$package'
 import { Route as PackageObjectsNameRouteImport } from './routes/$package.objects.$name'
 import { Route as ProjectsProjectIdPackageIndexRouteImport } from './routes/projects.$projectId.$package.index'
@@ -101,6 +102,12 @@ const ProjectsProjectIdPackagesRoute =
     path: '/packages',
     getParentRoute: () => ProjectsProjectIdRoute,
   } as any)
+const ProjectsProjectIdApiConsoleRoute =
+  ProjectsProjectIdApiConsoleRouteImport.update({
+    id: '/api-console',
+    path: '/api-console',
+    getParentRoute: () => ProjectsProjectIdRoute,
+  } as any)
 const ProjectsProjectIdPackageRoute =
   ProjectsProjectIdPackageRouteImport.update({
     id: '/$package',
@@ -151,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/projects/': typeof ProjectsIndexRoute
   '/$package/objects/$name': typeof PackageObjectsNameRoute
   '/projects/$projectId/$package': typeof ProjectsProjectIdPackageRouteWithChildren
+  '/projects/$projectId/api-console': typeof ProjectsProjectIdApiConsoleRoute
   '/projects/$projectId/packages': typeof ProjectsProjectIdPackagesRoute
   '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
   '/$package/metadata/$type/$name': typeof PackageMetadataTypeNameRoute
@@ -170,6 +178,7 @@ export interface FileRoutesByTo {
   '/orgs': typeof OrgsIndexRoute
   '/projects': typeof ProjectsIndexRoute
   '/$package/objects/$name': typeof PackageObjectsNameRoute
+  '/projects/$projectId/api-console': typeof ProjectsProjectIdApiConsoleRoute
   '/projects/$projectId/packages': typeof ProjectsProjectIdPackagesRoute
   '/projects/$projectId': typeof ProjectsProjectIdIndexRoute
   '/$package/metadata/$type/$name': typeof PackageMetadataTypeNameRoute
@@ -193,6 +202,7 @@ export interface FileRoutesById {
   '/projects/': typeof ProjectsIndexRoute
   '/$package/objects/$name': typeof PackageObjectsNameRoute
   '/projects/$projectId/$package': typeof ProjectsProjectIdPackageRouteWithChildren
+  '/projects/$projectId/api-console': typeof ProjectsProjectIdApiConsoleRoute
   '/projects/$projectId/packages': typeof ProjectsProjectIdPackagesRoute
   '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
   '/$package/metadata/$type/$name': typeof PackageMetadataTypeNameRoute
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/projects/'
     | '/$package/objects/$name'
     | '/projects/$projectId/$package'
+    | '/projects/$projectId/api-console'
     | '/projects/$projectId/packages'
     | '/projects/$projectId/'
     | '/$package/metadata/$type/$name'
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | '/orgs'
     | '/projects'
     | '/$package/objects/$name'
+    | '/projects/$projectId/api-console'
     | '/projects/$projectId/packages'
     | '/projects/$projectId'
     | '/$package/metadata/$type/$name'
@@ -258,6 +270,7 @@ export interface FileRouteTypes {
     | '/projects/'
     | '/$package/objects/$name'
     | '/projects/$projectId/$package'
+    | '/projects/$projectId/api-console'
     | '/projects/$projectId/packages'
     | '/projects/$projectId/'
     | '/$package/metadata/$type/$name'
@@ -380,6 +393,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsProjectIdPackagesRouteImport
       parentRoute: typeof ProjectsProjectIdRoute
     }
+    '/projects/$projectId/api-console': {
+      id: '/projects/$projectId/api-console'
+      path: '/api-console'
+      fullPath: '/projects/$projectId/api-console'
+      preLoaderRoute: typeof ProjectsProjectIdApiConsoleRouteImport
+      parentRoute: typeof ProjectsProjectIdRoute
+    }
     '/projects/$projectId/$package': {
       id: '/projects/$projectId/$package'
       path: '/$package'
@@ -462,12 +482,14 @@ const ProjectsProjectIdPackageRouteWithChildren =
 
 interface ProjectsProjectIdRouteChildren {
   ProjectsProjectIdPackageRoute: typeof ProjectsProjectIdPackageRouteWithChildren
+  ProjectsProjectIdApiConsoleRoute: typeof ProjectsProjectIdApiConsoleRoute
   ProjectsProjectIdPackagesRoute: typeof ProjectsProjectIdPackagesRoute
   ProjectsProjectIdIndexRoute: typeof ProjectsProjectIdIndexRoute
 }
 
 const ProjectsProjectIdRouteChildren: ProjectsProjectIdRouteChildren = {
   ProjectsProjectIdPackageRoute: ProjectsProjectIdPackageRouteWithChildren,
+  ProjectsProjectIdApiConsoleRoute: ProjectsProjectIdApiConsoleRoute,
   ProjectsProjectIdPackagesRoute: ProjectsProjectIdPackagesRoute,
   ProjectsProjectIdIndexRoute: ProjectsProjectIdIndexRoute,
 }
