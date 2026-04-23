@@ -22,13 +22,18 @@ import {
   AlertTriangle,
   Loader2,
   Package,
+  Globe,
+  Pencil,
+  Check,
+  X,
 } from 'lucide-react';
 import { ProjectStatusBadge } from '@/components/project-status-badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useProjectDetail, useRetryProvisioning } from '@/hooks/useProjects';
+import { Input } from '@/components/ui/input';
+import { useProjectDetail, useRetryProvisioning, useUpdateHostname } from '@/hooks/useProjects';
 import { useClient } from '@objectstack/client-react';
 import { useProductionGuard } from '@/components/production-guard';
 import { toast } from '@/hooks/use-toast';
@@ -43,6 +48,9 @@ function ProjectOverviewComponent() {
   const guard = useProductionGuard();
   const [rotating, setRotating] = useState(false);
   const { retry, retrying } = useRetryProvisioning();
+  const { updateHostname, updating: hostnameUpdating } = useUpdateHostname();
+  const [hostnameEditing, setHostnameEditing] = useState(false);
+  const [hostnameInput, setHostnameInput] = useState('');
 
   const project = detail?.project;
   const provisioningError =
@@ -76,6 +84,18 @@ function ProjectOverviewComponent() {
         description: (err as Error).message,
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleHostnameSave = async () => {
+    if (!project) return;
+    try {
+      await updateHostname(project.id, hostnameInput);
+      toast({ title: 'Hostname updated', description: `Bound to ${hostnameInput}` });
+      setHostnameEditing(false);
+      await reload();
+    } catch (err) {
+      toast({ title: 'Failed to update hostname', description: (err as Error).message, variant: 'destructive' });
     }
   };
 
@@ -273,6 +293,59 @@ function ProjectOverviewComponent() {
                     <p className="text-sm text-muted-foreground">
                       Database is still provisioning…
                     </p>
+                  )}
+                </Card>
+
+                <Card className="p-5">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                      <Globe className="h-3.5 w-3.5" />
+                      Domains
+                    </h2>
+                    {!hostnameEditing && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-2"
+                        onClick={() => {
+                          setHostnameInput(project.hostname ?? '');
+                          setHostnameEditing(true);
+                        }}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Edit
+                      </Button>
+                    )}
+                  </div>
+                  {hostnameEditing ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        className="h-8 font-mono text-sm"
+                        value={hostnameInput}
+                        onChange={(e) => setHostnameInput(e.target.value)}
+                        placeholder="my-project.example.com"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleHostnameSave();
+                          if (e.key === 'Escape') setHostnameEditing(false);
+                        }}
+                      />
+                      <Button size="sm" variant="default" onClick={handleHostnameSave} disabled={hostnameUpdating} className="gap-1">
+                        <Check className="h-3.5 w-3.5" />
+                        Save
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setHostnameEditing(false)} className="gap-1">
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <dl className="grid grid-cols-[140px_1fr] gap-2 text-sm">
+                      <dt className="text-muted-foreground">Hostname</dt>
+                      <dd>
+                        {project.hostname
+                          ? <code className="font-mono text-xs">{project.hostname}</code>
+                          : <span className="text-muted-foreground">—</span>}
+                      </dd>
+                    </dl>
                   )}
                 </Card>
 

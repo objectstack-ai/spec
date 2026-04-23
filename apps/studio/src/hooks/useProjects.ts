@@ -245,6 +245,34 @@ export function useProvisionProject() {
 }
 
 /**
+ * Hook: update the hostname bound to a project.
+ */
+export function useUpdateHostname() {
+  const client = useClient() as any;
+  const [updating, setUpdating] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const updateHostname = useCallback(
+    async (projectId: string, hostname: string) => {
+      if (!client?.projects?.updateHostname) throw new Error('Client not ready');
+      setUpdating(true);
+      setError(null);
+      try {
+        return await client.projects.updateHostname(projectId, hostname);
+      } catch (err) {
+        setError(err as Error);
+        throw err;
+      } finally {
+        setUpdating(false);
+      }
+    },
+    [client],
+  );
+
+  return { updateHostname, updating, error };
+}
+
+/**
  * Hook: retry provisioning for a project stuck in `failed` state.
  *
  * Wraps `client.projects.retryProvisioning(id)`. Exposes `retrying`

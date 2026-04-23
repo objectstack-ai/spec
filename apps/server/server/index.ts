@@ -7,51 +7,39 @@
  * and delegates all /api/* traffic to the ObjectStack Hono adapter.
  */
 
-import { ObjectKernel } from '@objectstack/runtime';
 import { createHonoApp } from '@objectstack/hono';
 import { createOriginMatcher, hasWildcardPattern } from '@objectstack/plugin-hono-server';
 import { getRequestListener } from '@hono/node-server';
 import type { Hono } from 'hono';
-import stackConfig from '../objectstack.config';
+import { bootstrap, type BootstrapResult } from './bootstrap.js';
 
 // ---------------------------------------------------------------------------
 // Singleton state — persists across warm Vercel invocations
 // ---------------------------------------------------------------------------
 
-let _kernel: ObjectKernel | null = null;
+let _boot: BootstrapResult | null = null;
 let _app: Hono | null = null;
 
 /** Shared boot promise — prevents concurrent cold-start races. */
-let _bootPromise: Promise<ObjectKernel> | null = null;
+let _bootPromise: Promise<BootstrapResult> | null = null;
 
 // ---------------------------------------------------------------------------
-// Kernel bootstrap
+// Kernel bootstrap — delegates to dual-mode `bootstrap()`
+// (self-hosted: single kernel; cloud: KernelManager + per-project kernels).
 // ---------------------------------------------------------------------------
 
-async function ensureKernel(): Promise<ObjectKernel> {
-    if (_kernel) return _kernel;
+async function ensureBoot(): Promise<BootstrapResult> {
+    if (_boot) return _boot;
     if (_bootPromise) return _bootPromise;
 
     _bootPromise = (async () => {
-        console.log('[Vercel] Booting ObjectStack Kernel...');
-
+        console.log('[Vercel] Booting ObjectStack runtime...');
         try {
-            const kernel = new ObjectKernel();
-
-            // Register all plugins from shared config
-            if (!stackConfig.plugins || stackConfig.plugins.length === 0) {
-                throw new Error(`[Vercel] No plugins found in stackConfig`);
-            }
-
-            for (const plugin of stackConfig.plugins) {
-                await kernel.use(plugin as any);
-            }
-
-            await kernel.bootstrap();
-            console.log('[Vercel] Kernel ready.');
-            return kernel;
+            const result = await bootstrap();
+            _boot = result;
+            console.log(`[Vercel] Runtime ready (mode=${result.mode}).`);
+            return result;
         } catch (err) {
-            // Clear the lock so the next request can retry
             _bootPromise = null;
             console.error('[Vercel] Kernel boot failed:', (err as any)?.message || err);
             throw err;
@@ -68,10 +56,12 @@ async function ensureKernel(): Promise<ObjectKernel> {
 async function ensureApp(): Promise<Hono> {
     if (_app) return _app;
 
-    const kernel = await ensureKernel();
-    _app = createHonoApp({ kernel, prefix: '/api/v1' });
+    const { kernel, kernelManager, envRegistry } = await ensureBoot();
+    _app = createHonoApp({ kernel, kernelManager, envRegistry, prefix: '/api/v1' });
     return _app;
 }
+
+export { ensureApp, ensureBoot };
 
 // ---------------------------------------------------------------------------
 // CORS headers — applied to responses that bypass the Hono app

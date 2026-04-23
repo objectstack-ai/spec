@@ -16,6 +16,21 @@ export type { DispatcherPluginConfig } from './dispatcher-plugin.js';
 export { createSystemProjectPlugin, SYSTEM_PROJECT_ID } from './system-project-plugin.js';
 export type { SystemProjectPluginConfig } from './system-project-plugin.js';
 
+// Export Multi-Kernel Scheduling (ADR-0003)
+export { KernelManager } from './kernel-manager.js';
+export type {
+    ProjectKernelFactory,
+    KernelManagerConfig,
+} from './kernel-manager.js';
+export { DefaultProjectKernelFactory } from './project-kernel-factory.js';
+export type {
+    DefaultProjectKernelFactoryConfig,
+    BasePluginsFactory,
+    AppBundleResolver,
+    SysProjectRow,
+    SysProjectCredentialRow,
+} from './project-kernel-factory.js';
+
 // Export HTTP Server Components
 export { HttpServer } from './http-server.js';
 export { HttpDispatcher } from './http-dispatcher.js';

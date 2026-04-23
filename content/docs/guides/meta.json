@@ -24,6 +24,7 @@
     "data-flow",
     "---Operations---",
     "deployment-vercel",
+    "cloud-deployment",
     "objectql-migration",
     "error-handling-client",
     "error-handling-server",

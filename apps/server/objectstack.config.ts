@@ -1,15 +1,20 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 /**
- * Shared ObjectStack Server Configuration
+ * Single-Kernel Server Configuration
  *
- * Single source of truth for all plugins — used by both:
- *   - `objectstack serve` (local dev via CLI)
- *   - `server/index.ts` (Vercel serverless deployment)
+ * Used only by the legacy **single** bootstrap shape (no env flags set).
+ * In multi-project modes — whether local (`OBJECTSTACK_MULTI_PROJECT=true`)
+ * or remote (`OBJECTSTACK_CONTROL_PLANE_URL=...`) — the plugin list here is
+ * ignored: the control plane uses `createControlPlanePlugins()` and each
+ * project kernel is assembled by `DefaultProjectKernelFactory` from the
+ * base-plugin factory wired in `bootstrap.ts`.
+ *
+ * See `server/bootstrap.ts` for shape selection logic.
  */
 
 import { defineStack } from '@objectstack/spec';
-import { AppPlugin, DriverPlugin, createSystemProjectPlugin } from '@objectstack/runtime';
+import { AppPlugin, DriverPlugin } from '@objectstack/runtime';
 import { ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { TursoDriver } from '@objectstack/driver-turso';
@@ -22,8 +27,6 @@ import { MetadataPlugin } from '@objectstack/metadata';
 import { AIServicePlugin } from '@objectstack/service-ai';
 import { AutomationServicePlugin } from '@objectstack/service-automation';
 import { AnalyticsServicePlugin } from '@objectstack/service-analytics';
-import { PackageServicePlugin } from '@objectstack/service-package';
-import { createTenantPlugin } from '@objectstack/service-tenant';
 import CrmApp from '../../examples/app-crm/objectstack.config';
 import TodoApp from '../../examples/app-todo/objectstack.config';
 import BiPluginManifest from '../../examples/plugin-bi/objectstack.config';
@@ -46,11 +49,18 @@ const tursoDriver = new TursoDriver(
     : { url: `file:${resolve(__dirname, '.objectstack/data/dev.db')}` },
 );
 
-// Datasource routing: sys namespace → turso, everything else → memory
-const datasourceMapping = [
-  { namespace: 'sys', datasource: 'com.objectstack.driver.turso' },
-  { default: true, datasource: 'com.objectstack.driver.memory' },
-];
+// Datasource routing: default → memory for self-hosted data plane.
+// sys_* namespaces are handled by the control-plane preset in multi-project
+// shapes; in single-kernel mode the tenant/auth tables are bootstrapped via
+// turso when TURSO_DATABASE_URL is configured.
+const datasourceMapping = process.env.TURSO_DATABASE_URL
+  ? [
+      { namespace: 'sys', datasource: 'com.objectstack.driver.turso' },
+      { default: true, datasource: 'com.objectstack.driver.memory' },
+    ]
+  : [
+      { default: true, datasource: 'com.objectstack.driver.memory' },
+    ];
 
 const oqlPlugin = new ObjectQLPlugin();
 
@@ -81,11 +91,6 @@ export default defineStack({
     },
     new DriverPlugin(new InMemoryDriver(), 'memory'),
     new DriverPlugin(tursoDriver, 'turso'),
-    new PackageServicePlugin(), // Package management service
-    createTenantPlugin({ registerSystemObjects: true, registerLegacyTenantDatabase: false }),
-    // Provisions the well-known system project (00000000-0000-0000-0000-000000000001)
-    // on startup. Idempotent — safe to register unconditionally.
-    createSystemProjectPlugin(),
     new AppPlugin(CrmApp),
     new AppPlugin(TodoApp),
     new AppPlugin(BiPluginManifest),

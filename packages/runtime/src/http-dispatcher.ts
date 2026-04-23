@@ -3,6 +3,7 @@
 import { ObjectKernel, getEnv, resolveLocale } from '@objectstack/core';
 import { CoreServiceName } from '@objectstack/spec/system';
 import { pluralToSingular } from '@objectstack/spec/shared';
+import type { KernelManager } from './kernel-manager.js';
 
 /** Browser-safe UUID generator — prefers Web Crypto, falls back to RFC 4122 v4 */
 function randomUUID(): string {
@@ -34,6 +35,23 @@ export interface HttpDispatcherResult {
 }
 
 /**
+ * Optional configuration passed to the dispatcher constructor. Supports the
+ * legacy `enforceProjectMembership` toggle plus the new multi-kernel
+ * scheduling hook required by ADR-0003's cloud runtime mode.
+ */
+export interface HttpDispatcherOptions {
+    enforceProjectMembership?: boolean;
+    /**
+     * Optional {@link KernelManager}. When present, the dispatcher resolves
+     * `context.projectId` first and then routes the request against the
+     * project's dedicated kernel via `kernelManager.getOrCreate(projectId)`.
+     * Requests that fail to resolve a projectId fall through to the
+     * constructor-supplied kernel (self-hosted / legacy behavior).
+     */
+    kernelManager?: KernelManager;
+}
+
+/**
  * @deprecated Use `createDispatcherPlugin()` from `@objectstack/runtime` instead.
  * This class will be removed in v2. Prefer the plugin-based approach:
  * ```ts
@@ -43,7 +61,9 @@ export interface HttpDispatcherResult {
  */
 export class HttpDispatcher {
     private kernel: any; // Casting to any to access dynamic props like services, graphql
+    private defaultKernel: ObjectKernel;
     private envRegistry?: any; // EnvironmentDriverRegistry
+    private kernelManager?: KernelManager;
     /**
      * When `true`, scoped data-plane routes enforce a
      * `sys_project_member` lookup and return 403 for non-members.
@@ -65,10 +85,12 @@ export class HttpDispatcher {
     /** Well-known platform org id — members bypass project membership. */
     private static readonly PLATFORM_ORG_ID = '00000000-0000-0000-0000-000000000000';
 
-    constructor(kernel: ObjectKernel, envRegistry?: any, options?: { enforceProjectMembership?: boolean }) {
+    constructor(kernel: ObjectKernel, envRegistry?: any, options?: HttpDispatcherOptions) {
         this.kernel = kernel;
+        this.defaultKernel = kernel;
         this.envRegistry = envRegistry;
         this.enforceMembership = options?.enforceProjectMembership ?? true;
+        this.kernelManager = options?.kernelManager;
     }
 
     private success(data: any, meta?: any) {
@@ -1439,6 +1461,33 @@ export class HttpDispatcher {
                     }
                 }
 
+                // Hostname pre-flight: surface a clean 409 before we
+                // kick off fire-and-forget provisioning, so the client
+                // gets an actionable error rather than a silent
+                // status: 'failed' + metadata.provisioningError later.
+                // The sys_project.hostname column is UNIQUE at the DB
+                // layer but that constraint would only trip during
+                // insert — by which point the caller has already moved
+                // on from the HTTP response.
+                try {
+                    const existing = await findOne('sys__project', {
+                        hostname: computedHostname,
+                    });
+                    if (existing && existing.id !== projectId) {
+                        return {
+                            handled: true,
+                            response: this.error(
+                                `Hostname '${computedHostname}' is already in use by another project.`,
+                                409,
+                                { code: 'HOSTNAME_TAKEN', hostname: computedHostname },
+                            ),
+                        };
+                    }
+                } catch {
+                    // sys__project table may not yet be ready (first-run cold
+                    // boot) — fall through and let the DB enforce uniqueness.
+                }
+
                 // Insert environment row in `provisioning` state first so the
                 // UI can show a "Provisioning…" indicator while the driver
                 // handshake runs in the background. Status transitions to
@@ -1603,6 +1652,46 @@ export class HttpDispatcher {
                     if (!envRow) return { handled: true, response: this.error(`Project '${id}' not found`, 404) };
                     return { handled: true, response: this.success({ project: cleanProjectRow(envRow) }) };
                 }
+            }
+
+            // ----- /cloud/projects/:id/hostname -----
+            if (parts.length === 3 && parts[0] === 'projects' && parts[2] === 'hostname' && (m === 'POST' || m === 'PUT')) {
+                const id = decodeURIComponent(parts[1]);
+                const hostname = body?.hostname;
+                if (!hostname || typeof hostname !== 'string') {
+                    return { handled: true, response: this.error('hostname is required', 400) };
+                }
+                const normalized = hostname.trim().toLowerCase();
+                if (!/^[a-z0-9]([a-z0-9\-\.]*[a-z0-9])?$/.test(normalized)) {
+                    return { handled: true, response: this.error('Invalid hostname format', 400) };
+                }
+                const envRow = await findOne(ENV, { id });
+                if (!envRow) return { handled: true, response: this.error(`Project '${id}' not found`, 404) };
+                // Enforce uniqueness — reject if another project already owns this hostname.
+                let existing: any;
+                try {
+                    const rows = await ql.find(ENV, { where: { hostname: normalized } } as any);
+                    const arr = Array.isArray(rows) ? rows : ((rows as any)?.value ?? []);
+                    existing = arr.find((r: any) => r.id !== id);
+                } catch { /* table may be empty */ }
+                if (existing) {
+                    return {
+                        handled: true,
+                        response: this.error(
+                            `Hostname '${normalized}' is already in use by another project.`,
+                            409,
+                            { code: 'HOSTNAME_TAKEN', hostname: normalized },
+                        ),
+                    };
+                }
+                const updatedAt = new Date().toISOString();
+                await ql.update(ENV, { hostname: normalized, updated_at: updatedAt }, { where: { id } } as any);
+                // Invalidate the hostname cache entry so the routing layer picks up the new value.
+                if (this.envRegistry?.invalidate) {
+                    try { await this.envRegistry.invalidate(id); } catch { /* best-effort */ }
+                }
+                const updated = cleanProjectRow(await findOne(ENV, { id }));
+                return { handled: true, response: this.success({ project: updated }) };
             }
 
             // ----- /cloud/projects/:id/retry -----
@@ -2302,6 +2391,16 @@ export class HttpDispatcher {
         // ── Environment Resolution ──
         // Resolve environment context for data-plane requests before routing
         await this.resolveEnvironmentContext(context, cleanPath);
+
+        // ── Multi-Kernel Routing (ADR-0003 cloud mode) ──
+        // When a KernelManager is wired in, per-request routing targets the
+        // project's dedicated kernel. Self-hosted / legacy deployments leave
+        // `kernelManager` unset and continue using the constructor kernel.
+        if (this.kernelManager && context.projectId) {
+            this.kernel = await this.kernelManager.getOrCreate(context.projectId);
+        } else {
+            this.kernel = this.defaultKernel;
+        }
 
         // ── Project Membership Enforcement ──
         // Once the projectId is known, gate scoped data/meta/AI/automation

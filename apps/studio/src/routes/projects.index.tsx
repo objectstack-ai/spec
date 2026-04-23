@@ -14,7 +14,7 @@
 
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { Plus, Database, RefreshCw } from 'lucide-react';
+import { Plus, Database, RefreshCw, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -106,6 +106,12 @@ function ProjectsListComponent() {
                     </div>
                     <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
                       <code className="font-mono opacity-60">{project.id}</code>
+                      {project.hostname && (
+                        <span className="flex items-center gap-1">
+                          <Globe className="h-3 w-3" />
+                          <code className="font-mono">{project.hostname}</code>
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

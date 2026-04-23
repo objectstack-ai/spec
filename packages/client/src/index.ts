@@ -691,6 +691,18 @@ export class ObjectStackClient {
     },
 
     /**
+     * Update the hostname bound to this project. Validates format and
+     * uniqueness server-side; invalidates the dispatcher's routing cache.
+     */
+    updateHostname: async (id: string, hostname: string) => {
+      const res = await this.fetch(`${this.baseUrl}/api/v1/cloud/projects/${encodeURIComponent(id)}/hostname`, {
+        method: 'POST',
+        body: JSON.stringify({ hostname }),
+      });
+      return this.unwrapResponse<{ project: any }>(res);
+    },
+
+    /**
      * Retry provisioning for a project stuck in `failed` (or
      * `provisioning`) state. The server re-runs the driver handshake; on
      * success the project flips to `active`, on failure it stays

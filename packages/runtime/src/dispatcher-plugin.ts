@@ -405,6 +405,24 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
                 }
             });
 
+            server.post(`${prefix}/cloud/projects/:id/hostname`, async (req: any, res: any) => {
+                try {
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}/hostname`, 'POST', req.body, {}, { request: req });
+                    sendResult(result, res);
+                } catch (err: any) {
+                    errorResponse(err, res);
+                }
+            });
+
+            server.put(`${prefix}/cloud/projects/:id/hostname`, async (req: any, res: any) => {
+                try {
+                    const result = await dispatcher.handleCloud(`/projects/${req.params.id}/hostname`, 'PUT', req.body, {}, { request: req });
+                    sendResult(result, res);
+                } catch (err: any) {
+                    errorResponse(err, res);
+                }
+            });
+
             server.post(`${prefix}/cloud/projects/:id/rotate-credential`, async (req: any, res: any) => {
                 try {
                     const result = await dispatcher.handleCloud(`/projects/${req.params.id}/rotate-credential`, 'POST', req.body, {}, { request: req });

@@ -2,7 +2,13 @@
 
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { type ObjectKernel, HttpDispatcher, HttpDispatcherResult } from '@objectstack/runtime';
+import {
+  type ObjectKernel,
+  HttpDispatcher,
+  HttpDispatcherResult,
+  KernelManager,
+  type EnvironmentDriverRegistry,
+} from '@objectstack/runtime';
 import { createOriginMatcher, hasWildcardPattern } from '@objectstack/plugin-hono-server';
 
 export interface ObjectStackHonoCorsOptions {
@@ -27,6 +33,20 @@ export interface ObjectStackHonoOptions {
   prefix?: string;
   /** CORS configuration. Set to `false` to disable entirely. */
   cors?: ObjectStackHonoCorsOptions | false;
+  /**
+   * Optional {@link KernelManager}. When provided, the dispatcher will route
+   * per-project requests to a project-scoped kernel resolved via
+   * `kernelManager.getOrCreate(projectId)`. When absent (self-hosted mode),
+   * all requests use the single `kernel` passed above.
+   */
+  kernelManager?: KernelManager;
+  /**
+   * Optional {@link EnvironmentDriverRegistry}. When provided, the dispatcher
+   * resolves incoming requests to a project via hostname / `X-Project-Id`
+   * header / session before invoking the KernelManager. Required for
+   * host-based routing in cloud / multi-project mode.
+   */
+  envRegistry?: EnvironmentDriverRegistry;
 }
 
 /**
@@ -68,7 +88,11 @@ export function objectStackMiddleware(kernel: ObjectKernel) {
 export function createHonoApp(options: ObjectStackHonoOptions): Hono {
   const app = new Hono();
   const prefix = options.prefix || '/api';
-  const dispatcher = new HttpDispatcher(options.kernel);
+  const dispatcher = new HttpDispatcher(
+    options.kernel,
+    options.envRegistry,
+    options.kernelManager ? { kernelManager: options.kernelManager } : undefined,
+  );
 
   // ─── CORS Middleware ──────────────────────────────────────────────────────
   // Enabled by default. Controlled via options.cors or environment variables:

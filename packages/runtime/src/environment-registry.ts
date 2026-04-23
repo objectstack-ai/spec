@@ -4,39 +4,50 @@ import type { Contracts } from '@objectstack/spec';
 type IDataDriver = Contracts.IDataDriver;
 
 /**
- * Environment-scoped driver registry with LRU caching.
+ * Project-scoped driver registry with LRU caching.
  *
- * Resolves environments by hostname or ID, lazily instantiates data drivers,
+ * Resolves projects by hostname or ID, lazily instantiates data drivers,
  * and caches them with TTL to avoid re-querying control plane on every request.
  *
- * Implements ADR-0002 environment routing: request → hostname/header/session →
- * sys__environment → sys__database_credential → env-scoped IDataDriver.
+ * Implements ADR-0004 project routing: request → hostname/header/session →
+ * sys_project → sys_project_credential → project-scoped IDataDriver.
+ *
+ * (Historically named "EnvironmentDriverRegistry" for ADR-0002 compatibility;
+ * semantics are the same — each project owns its physical database.)
  */
 export interface EnvironmentDriverRegistry {
   /**
-   * Resolve environment by hostname (e.g. "acme-dev.objectstack.app").
-   * Returns { environmentId, driver } if found, null otherwise.
+   * Resolve project by hostname (e.g. "acme-dev.objectstack.app").
+   * Returns { projectId, driver } if found, null otherwise.
    * Caches result with TTL.
    */
-  resolveByHostname(host: string): Promise<{ environmentId: string; driver: IDataDriver } | null>;
+  resolveByHostname(host: string): Promise<{ projectId: string; driver: IDataDriver } | null>;
 
   /**
-   * Resolve environment by ID.
+   * Resolve project by ID.
    * Returns driver if found, null otherwise.
    * Caches result with TTL.
    */
-  resolveById(environmentId: string): Promise<IDataDriver | null>;
+  resolveById(projectId: string): Promise<IDataDriver | null>;
 
   /**
-   * Invalidate cached driver for given environment.
-   * Call this when environment is updated (e.g. hostname change, credential rotation).
+   * Lookup cached project row + driver by ID without fetching from control plane.
+   * Returns the full cached row (driver + project metadata) when fresh, else null.
+   * Used by DefaultProjectKernelFactory to avoid duplicate control-plane queries.
    */
-  invalidate(environmentId: string): void;
+  peekById(projectId: string): { projectId: string; driver: IDataDriver; project: any } | null;
+
+  /**
+   * Invalidate cached driver for given project.
+   * Call this when project is updated (e.g. hostname change, credential rotation).
+   */
+  invalidate(projectId: string): void;
 }
 
 interface CacheEntry {
-  environmentId: string;
+  projectId: string;
   driver: IDataDriver;
+  project: any;
   expiresAt: number;
 }
 
@@ -64,11 +75,15 @@ export class NoopSecretEncryptor implements SecretEncryptor {
 
 /**
  * Default implementation of EnvironmentDriverRegistry with LRU caching.
+ *
+ * Queries `sys.project` + `sys.project_credential` on the control-plane driver.
  */
 export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegistry {
   private readonly controlPlaneDriver: IDataDriver;
   private readonly encryptor: SecretEncryptor;
   private readonly cacheTTL: number;
+  private readonly projectObjectName: string;
+  private readonly credentialObjectName: string;
   private readonly hostnameCache = new Map<string, CacheEntry>();
   private readonly idCache = new Map<string, CacheEntry>();
   private readonly pendingResolves = new Map<string, Promise<CacheEntry | null>>();
@@ -77,56 +92,54 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
     controlPlaneDriver: IDataDriver;
     encryptor?: SecretEncryptor;
     cacheTTLMs?: number;
+    projectObjectName?: string;
+    credentialObjectName?: string;
   }) {
     this.controlPlaneDriver = config.controlPlaneDriver;
     this.encryptor = config.encryptor ?? new NoopSecretEncryptor();
-    this.cacheTTL = config.cacheTTLMs ?? 5 * 60 * 1000; // 5 minutes default
+    this.cacheTTL = config.cacheTTLMs ?? 5 * 60 * 1000;
+    this.projectObjectName = config.projectObjectName ?? 'project';
+    this.credentialObjectName = config.credentialObjectName ?? 'project_credential';
   }
 
-  async resolveByHostname(host: string): Promise<{ environmentId: string; driver: IDataDriver } | null> {
-    // Check cache first
+  async resolveByHostname(host: string): Promise<{ projectId: string; driver: IDataDriver } | null> {
     const cached = this.hostnameCache.get(host);
     if (cached && cached.expiresAt > Date.now()) {
-      return { environmentId: cached.environmentId, driver: cached.driver };
+      return { projectId: cached.projectId, driver: cached.driver };
     }
 
-    // Prevent concurrent lookups for same hostname
     const cacheKey = `host:${host}`;
     const pending = this.pendingResolves.get(cacheKey);
     if (pending) {
       const result = await pending;
-      return result ? { environmentId: result.environmentId, driver: result.driver } : null;
+      return result ? { projectId: result.projectId, driver: result.driver } : null;
     }
 
-    // Resolve from control plane
     const resolvePromise = this.fetchAndCacheByHostname(host);
     this.pendingResolves.set(cacheKey, resolvePromise);
 
     try {
       const entry = await resolvePromise;
-      return entry ? { environmentId: entry.environmentId, driver: entry.driver } : null;
+      return entry ? { projectId: entry.projectId, driver: entry.driver } : null;
     } finally {
       this.pendingResolves.delete(cacheKey);
     }
   }
 
-  async resolveById(environmentId: string): Promise<IDataDriver | null> {
-    // Check cache first
-    const cached = this.idCache.get(environmentId);
+  async resolveById(projectId: string): Promise<IDataDriver | null> {
+    const cached = this.idCache.get(projectId);
     if (cached && cached.expiresAt > Date.now()) {
       return cached.driver;
     }
 
-    // Prevent concurrent lookups for same ID
-    const cacheKey = `id:${environmentId}`;
+    const cacheKey = `id:${projectId}`;
     const pending = this.pendingResolves.get(cacheKey);
     if (pending) {
       const result = await pending;
       return result?.driver ?? null;
     }
 
-    // Resolve from control plane
-    const resolvePromise = this.fetchAndCacheById(environmentId);
+    const resolvePromise = this.fetchAndCacheById(projectId);
     this.pendingResolves.set(cacheKey, resolvePromise);
 
     try {
@@ -137,13 +150,18 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
     }
   }
 
-  invalidate(environmentId: string): void {
-    // Remove from ID cache
-    this.idCache.delete(environmentId);
+  peekById(projectId: string): { projectId: string; driver: IDataDriver; project: any } | null {
+    const cached = this.idCache.get(projectId);
+    if (cached && cached.expiresAt > Date.now()) {
+      return { projectId: cached.projectId, driver: cached.driver, project: cached.project };
+    }
+    return null;
+  }
 
-    // Remove from hostname cache (need to find entry by environmentId)
+  invalidate(projectId: string): void {
+    this.idCache.delete(projectId);
     for (const [hostname, entry] of this.hostnameCache.entries()) {
-      if (entry.environmentId === environmentId) {
+      if (entry.projectId === projectId) {
         this.hostnameCache.delete(hostname);
       }
     }
@@ -151,24 +169,23 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
 
   private async fetchAndCacheByHostname(host: string): Promise<CacheEntry | null> {
     try {
-      // Query control plane: SELECT ... FROM sys__environment WHERE hostname = ? LIMIT 1
-      const result = await this.controlPlaneDriver.find('environment', {
-        object: 'environment',
+      const result = await this.controlPlaneDriver.find(this.projectObjectName, {
+        object: this.projectObjectName,
         where: { hostname: host },
         limit: 1,
-      });
+      } as any);
 
       const rows = Array.isArray(result) ? result : (result as any)?.value ?? [];
-      const envRow = rows[0];
+      const projectRow = rows[0];
 
-      if (!envRow) {
+      if (!projectRow) {
         return null;
       }
 
-      const entry = await this.buildCacheEntry(envRow);
+      const entry = await this.buildCacheEntry(projectRow);
       if (entry) {
         this.hostnameCache.set(host, entry);
-        this.idCache.set(entry.environmentId, entry);
+        this.idCache.set(entry.projectId, entry);
       }
 
       return entry;
@@ -178,91 +195,80 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
     }
   }
 
-  private async fetchAndCacheById(environmentId: string): Promise<CacheEntry | null> {
+  private async fetchAndCacheById(projectId: string): Promise<CacheEntry | null> {
     try {
-      // Query control plane: SELECT ... FROM sys__environment WHERE id = ? LIMIT 1
-      const result = await this.controlPlaneDriver.find('environment', {
-        object: 'environment',
-        where: { id: environmentId },
+      const result = await this.controlPlaneDriver.find(this.projectObjectName, {
+        object: this.projectObjectName,
+        where: { id: projectId },
         limit: 1,
-      });
+      } as any);
 
       const rows = Array.isArray(result) ? result : (result as any)?.value ?? [];
-      const envRow = rows[0];
+      const projectRow = rows[0];
 
-      if (!envRow) {
+      if (!projectRow) {
         return null;
       }
 
-      const entry = await this.buildCacheEntry(envRow);
+      const entry = await this.buildCacheEntry(projectRow);
       if (entry) {
-        this.idCache.set(environmentId, entry);
-        if (envRow.hostname) {
-          this.hostnameCache.set(envRow.hostname, entry);
+        this.idCache.set(projectId, entry);
+        if (projectRow.hostname) {
+          this.hostnameCache.set(projectRow.hostname, entry);
         }
       }
 
       return entry;
     } catch (error) {
-      console.error(`[EnvironmentRegistry] Failed to resolve environment ID ${environmentId}:`, error);
+      console.error(`[EnvironmentRegistry] Failed to resolve project ID ${projectId}:`, error);
       return null;
     }
   }
 
-  private async buildCacheEntry(envRow: any): Promise<CacheEntry | null> {
-    const environmentId = envRow.id;
-    const databaseUrl = envRow.database_url;
-    const databaseDriver = envRow.database_driver;
+  private async buildCacheEntry(projectRow: any): Promise<CacheEntry | null> {
+    const projectId = projectRow.id;
+    const databaseUrl = projectRow.database_url;
+    const databaseDriver = projectRow.database_driver;
 
     if (!databaseUrl || !databaseDriver) {
-      console.warn(`[EnvironmentRegistry] Environment ${environmentId} missing database_url or database_driver`);
+      console.warn(`[EnvironmentRegistry] Project ${projectId} missing database_url or database_driver`);
       return null;
     }
 
-    // Fetch active credential
-    const credResult = await this.controlPlaneDriver.find('database_credential', {
-      object: 'database_credential',
-      where: { environment_id: environmentId, status: 'active' },
+    const credResult = await this.controlPlaneDriver.find(this.credentialObjectName, {
+      object: this.credentialObjectName,
+      where: { project_id: projectId, status: 'active' },
       limit: 1,
-    });
+    } as any);
 
     const credRows = Array.isArray(credResult) ? credResult : (credResult as any)?.value ?? [];
     const credRow = credRows[0];
 
-    if (!credRow) {
-      console.warn(`[EnvironmentRegistry] No active credential for environment ${environmentId}`);
-      return null;
-    }
+    const plaintextSecret = credRow
+      ? await Promise.resolve(this.encryptor.decrypt(credRow.secret_ciphertext))
+      : '';
 
-    // Decrypt secret
-    const plaintextSecret = await Promise.resolve(
-      this.encryptor.decrypt(credRow.secret_ciphertext),
-    );
-
-    // Instantiate driver based on driver type
     const driver = await this.createDriver(databaseDriver, databaseUrl, plaintextSecret);
 
     return {
-      environmentId,
+      projectId,
       driver,
+      project: projectRow,
       expiresAt: Date.now() + this.cacheTTL,
     };
   }
 
   private async createDriver(driverType: string, databaseUrl: string, authToken: string): Promise<IDataDriver> {
-    // Dynamic import drivers to avoid circular dependencies
     switch (driverType) {
       case 'memory': {
-        // Memory driver: URL format is memory://dbname or memory://
         const { InMemoryDriver } = await import('@objectstack/driver-memory');
         return new InMemoryDriver({
-          persistence: 'file', // Use file persistence for environments
-        });
+          persistence: 'file',
+        }) as unknown as IDataDriver;
       }
 
       case 'sqlite': {
-        // SQLite driver: URL format is file:./path/to/db.db
-        const filePath = databaseUrl.replace('file:', '');
+        const filePath = databaseUrl.replace(/^file:/, '');
         const { SqlDriver } = await import('@objectstack/driver-sql');
         return new SqlDriver({
           client: 'better-sqlite3',
@@ -270,16 +276,27 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
             filename: filePath,
           },
           useNullAsDefault: true,
-        });
+        }) as unknown as IDataDriver;
       }
 
+      case 'libsql':
       case 'turso': {
-        // Turso driver: URL format is libsql://hostname
         const { TursoDriver } = await import('@objectstack/driver-turso');
         return new TursoDriver({
           url: databaseUrl,
           authToken,
-        });
+        }) as unknown as IDataDriver;
+      }
+
+      case 'postgres':
+      case 'postgresql':
+      case 'pg': {
+        const { SqlDriver } = await import('@objectstack/driver-sql');
+        return new SqlDriver({
+          client: 'pg',
+          connection: databaseUrl,
+          pool: { min: 0, max: 5 },
+        }) as unknown as IDataDriver;
       }
 
       default:
@@ -296,11 +313,15 @@ export function createEnvironmentDriverRegistry(
   options?: {
     encryptor?: SecretEncryptor;
     cacheTTLMs?: number;
+    projectObjectName?: string;
+    credentialObjectName?: string;
   },
 ): EnvironmentDriverRegistry {
   return new DefaultEnvironmentDriverRegistry({
     controlPlaneDriver,
     encryptor: options?.encryptor,
     cacheTTLMs: options?.cacheTTLMs,
+    projectObjectName: options?.projectObjectName,
+    credentialObjectName: options?.credentialObjectName,
   });
 }
