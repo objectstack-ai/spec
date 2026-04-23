@@ -2520,7 +2520,7 @@ export class HttpDispatcher {
      * Routes the request to the appropriate handler based on path and precedence
      */
     async dispatch(method: string, path: string, body: any, query: any, context: HttpProtocolContext, prefix?: string): Promise<HttpDispatcherResult> {
-        const cleanPath = path.replace(/\/$/, ''); // Remove trailing slash if present, but strict on clean paths
+        let cleanPath = path.replace(/\/$/, ''); // Remove trailing slash if present, but strict on clean paths
 
         // ── Environment Resolution ──
         // Resolve environment context for data-plane requests before routing
@@ -2543,6 +2543,18 @@ export class HttpDispatcher {
         const forbidden = await this.enforceProjectMembership(context, cleanPath);
         if (forbidden) {
             return { handled: true, response: forbidden };
+        }
+
+        // Strip the `/projects/:projectId` prefix so the protocol dispatchers
+        // below (meta, data, ui, automation, …) see the same shape whether
+        // the caller used host-based routing, `X-Project-Id`, or a scoped URL.
+        // `/cloud/projects/:id` is explicitly excluded — those are control
+        // plane CRUD endpoints and must reach handleCloud() unchanged.
+        if (!cleanPath.startsWith('/cloud/')) {
+            const scopedMatch = cleanPath.match(/^\/projects\/[^/]+(\/.*)?$/);
+            if (scopedMatch) {
+                cleanPath = scopedMatch[1] ?? '';
+            }
         }
 
         // 0. Discovery Endpoint (GET /discovery or GET /)

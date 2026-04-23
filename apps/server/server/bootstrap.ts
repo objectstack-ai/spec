@@ -1,28 +1,23 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 /**
- * ObjectStack Server — Unified Bootstrap
+ * ObjectStack Server — Bootstrap
  *
- * The same `apps/server` process can run in three shapes, selected by env:
+ * The control plane is always on: one kernel owns the `sys_*` namespace
+ * (projects, credentials, members, auth) and per-project kernels are minted
+ * on demand by `DefaultProjectKernelFactory` / `KernelManager`.
  *
- *  - **single** (default, no env flag needed)
- *    Legacy single-kernel mode: register every plugin from
- *    `objectstack.config.ts` against one shared `ObjectKernel`. No control
- *    plane, no per-project routing. Best for OSS single-project deployments.
+ * The only knob is which database backs the control plane. It is selected
+ * by a single URL-style env var, following the Turso/Prisma convention:
  *
- *  - **multi-project-local** (`OBJECTSTACK_MULTI_PROJECT=true`)
- *    Multi-project self-hosted: control-plane tables (sys_project, …) live
- *    in a local SQLite file (`OBJECTSTACK_CONTROL_DB`, defaults to
- *    `/data/control.db`). Projects are created via the Studio UI / REST API
- *    and each binds its own driver (sqlite file / Turso URL / …).
+ *   OBJECTSTACK_DATABASE_URL
+ *     - unset                 → `file:./.objectstack/data/control.db` (SQLite)
+ *     - `file:<path>` / path  → SQLite at that path (better-sqlite3)
+ *     - `libsql://…`          → libSQL/Turso
+ *     - `http(s)://…`         → libSQL/sqld over HTTP
  *
- *  - **multi-project-remote** (`OBJECTSTACK_CONTROL_PLANE_URL` set)
- *    SaaS shape: control-plane tables live in a remote Turso DB. Same as
- *    local multi-project except the control driver is a TursoDriver.
- *
- * All three shapes share the same per-project kernel path:
- *   hostname → envRegistry.resolveByHostname() → kernelManager.getOrCreate()
- * so Studio + HTTP routes are identical regardless of where sys_* lives.
+ *   OBJECTSTACK_DATABASE_AUTH_TOKEN
+ *     - optional, forwarded to TursoDriver when the URL is libSQL/HTTP.
  */
 
 import { resolve as resolvePath } from 'node:path';
@@ -46,102 +41,69 @@ import { createTemplateSeeder } from './template-seeder.js';
 type IDataDriver = Contracts.IDataDriver;
 
 /**
- * Public runtime mode — preserved for backwards compatibility with callers
- * that inspected this value. Internally we now distinguish three shapes.
+ * Inferred from the resolved control-plane URL: libSQL/HTTP → `cloud`,
+ * SQLite file → `self-hosted`. Preserved on `BootstrapResult` for callers
+ * (logs, diagnostics) that previously keyed off shape.
  */
 export type RuntimeMode = 'self-hosted' | 'cloud';
 
-type ControlPlaneShape = 'single' | 'multi-project-local' | 'multi-project-remote';
-
 export interface BootstrapResult {
     kernel: ObjectKernel;
-    kernelManager?: KernelManager;
-    envRegistry?: EnvironmentDriverRegistry;
+    kernelManager: KernelManager;
+    envRegistry: EnvironmentDriverRegistry;
     mode: RuntimeMode;
-    /** Internal classification for logging / diagnostics. */
-    shape: ControlPlaneShape;
+    /** Resolved control-plane URL, for logging. */
+    databaseUrl: string;
+    /** Short driver id (`sqlite` | `turso`). */
+    driverName: 'sqlite' | 'turso';
 }
 
-export function resolveRuntimeMode(): RuntimeMode {
-    const raw = process.env.OBJECTSTACK_RUNTIME_MODE?.toLowerCase();
-    if (raw === 'cloud') return 'cloud';
-    return 'self-hosted';
-}
-
-function resolveShape(): ControlPlaneShape {
-    if (process.env.OBJECTSTACK_CONTROL_PLANE_URL) return 'multi-project-remote';
-    if (process.env.OBJECTSTACK_MULTI_PROJECT === 'true') return 'multi-project-local';
-    // Legacy: OBJECTSTACK_RUNTIME_MODE=cloud implies remote control plane.
-    if (process.env.OBJECTSTACK_RUNTIME_MODE?.toLowerCase() === 'cloud') {
-        return 'multi-project-remote';
-    }
-    return 'single';
+interface ResolvedControlDriver {
+    driver: IDataDriver;
+    driverName: 'sqlite' | 'turso';
+    mode: RuntimeMode;
+    databaseUrl: string;
 }
 
 /**
- * Single-kernel bootstrap — the legacy path. Registers every plugin declared
- * in `apps/server/objectstack.config.ts` against one shared `ObjectKernel`.
+ * Resolve the control-plane driver from `OBJECTSTACK_DATABASE_URL`.
+ *
+ * `libsql:` and `http(s):` URLs select `TursoDriver`. Anything else is
+ * treated as a SQLite filesystem path, with a `file:` / `file://` prefix
+ * stripped for convenience so all three of `file:./x.db`, `file:///x.db`,
+ * and `./x.db` point at the same file.
  */
-async function bootstrapSingle(): Promise<BootstrapResult> {
-    console.log('[Bootstrap] Shape: single');
-    const kernel = new ObjectKernel();
+function buildControlDriver(): ResolvedControlDriver {
+    const raw = process.env.OBJECTSTACK_DATABASE_URL?.trim()
+        || `file:${resolvePath(process.cwd(), '.objectstack/data/control.db')}`;
 
-    // stackConfig is imported dynamically so the multi-project shapes — which
-    // never touch it — do not incur the Zod validation cost of the example
-    // apps/plugins it references. A schema drift in one of the examples
-    // shouldn't crash multi-project boots (or the E2E test harness) when
-    // they don't need those bundles at all.
-    const dyn = (spec: string) =>
-        (new Function('s', 'return import(s)') as (s: string) => Promise<any>)(spec);
-    const stackConfig = (await dyn('../objectstack.config.ts')).default;
-
-    if (!stackConfig.plugins || stackConfig.plugins.length === 0) {
-        throw new Error('[Bootstrap] No plugins found in stackConfig');
-    }
-    for (const plugin of stackConfig.plugins) {
-        await kernel.use(plugin as any);
-    }
-    await kernel.bootstrap();
-    return { kernel, mode: 'self-hosted', shape: 'single' };
-}
-
-/**
- * Build the control-plane driver based on the resolved shape.
- */
-function buildControlDriver(
-    shape: 'multi-project-local' | 'multi-project-remote',
-): { driver: IDataDriver; driverName: string } {
-    if (shape === 'multi-project-remote') {
-        const url = process.env.TURSO_DATABASE_URL;
-        if (!url) {
-            throw new Error(
-                '[Bootstrap] TURSO_DATABASE_URL is required when OBJECTSTACK_CONTROL_PLANE_URL is set.',
-            );
-        }
+    if (/^(libsql|https?):\/\//i.test(raw)) {
         const driver = new TursoDriver({
-            url,
-            authToken: process.env.TURSO_AUTH_TOKEN,
+            url: raw,
+            authToken: process.env.OBJECTSTACK_DATABASE_AUTH_TOKEN,
         });
-        return { driver: driver as unknown as IDataDriver, driverName: 'turso' };
+        return {
+            driver: driver as unknown as IDataDriver,
+            driverName: 'turso',
+            mode: 'cloud',
+            databaseUrl: raw,
+        };
     }
 
-    // multi-project-local
-    const dbFile = process.env.OBJECTSTACK_CONTROL_DB
-        ?? resolvePath(process.cwd(), '.objectstack/data/control.db');
+    const filename = raw.replace(/^file:(\/\/)?/, '');
     const driver = new SqlDriver({
         client: 'better-sqlite3',
-        connection: { filename: dbFile },
+        connection: { filename },
         useNullAsDefault: true,
     });
-    return { driver: driver as unknown as IDataDriver, driverName: 'sqlite' };
+    return {
+        driver: driver as unknown as IDataDriver,
+        driverName: 'sqlite',
+        mode: 'self-hosted',
+        databaseUrl: `file:${filename}`,
+    };
 }
 
-/**
- * Boot the control-plane kernel. This kernel owns the sys_* namespace —
- * project registry, credentials, members, auth. It also acts as the fallback
- * kernel for routes that are not project-scoped (discovery, auth, system
- * endpoints).
- */
 async function bootstrapControlKernel(
     controlDriver: IDataDriver,
     driverName: string,
@@ -173,20 +135,18 @@ async function bootstrapControlKernel(
 }
 
 /**
- * Multi-project bootstrap (both `local` and `remote` share this path).
+ * Boot the control-plane kernel and wire up the per-project KernelManager.
  *
- * 1. Build the control-plane driver (local sqlite file or remote Turso).
- * 2. Boot the control-plane kernel with the preset plugin set.
- * 3. Wire up envRegistry + DefaultProjectKernelFactory + KernelManager.
- * 4. Return the control-plane kernel as the default kernel — per-project
- *    traffic switches to a project kernel inside HttpDispatcher.
+ * 1. Resolve the control-plane driver from env.
+ * 2. Boot the control-plane kernel (owns `sys_*`, auth, discovery).
+ * 3. Wire envRegistry + DefaultProjectKernelFactory + KernelManager for
+ *    per-project routing inside HttpDispatcher.
+ * 4. Register the template-seeder service on the control kernel so
+ *    `/cloud/templates` and project provisioning can resolve it.
  */
-async function bootstrapMultiProject(
-    shape: 'multi-project-local' | 'multi-project-remote',
-): Promise<BootstrapResult> {
-    console.log(`[Bootstrap] Shape: ${shape}`);
-
-    const { driver: controlDriver, driverName } = buildControlDriver(shape);
+export async function bootstrap(): Promise<BootstrapResult> {
+    const { driver: controlDriver, driverName, mode, databaseUrl } = buildControlDriver();
+    console.log(`[Bootstrap] Control DB: ${databaseUrl} (${driverName})`);
 
     const envRegistry = new DefaultEnvironmentDriverRegistry({
         controlPlaneDriver: controlDriver,
@@ -195,21 +155,16 @@ async function bootstrapMultiProject(
         ),
     });
 
-    // Example bundles are no longer pre-installed into every project kernel.
-    // They are seeded once at provisioning time via `createTemplateSeeder`.
+    // Example bundles are seeded once at provisioning time via
+    // `createTemplateSeeder` — not pre-installed into every project kernel.
     const appBundles: AppBundleResolver = {
         async resolve() { return []; },
     };
 
-    // Per-project kernels only need the minimal base — driver is injected
-    // by the factory. Additional service plugins (AI, automation, …) can
-    // be added here when they are ready to run per-project.
-    //
-    // Both ObjectQL and Metadata are scoped to the project id via
-    // `environmentId`. This keeps DatabaseLoader's baseFilter
-    // (`env_id = <projectId>`) and protocol.saveMetaItem writes aligned,
-    // so newly created objects are visible on the next read even though
-    // every project already has its own physical database.
+    // Per-project kernels get the minimal base; driver is injected by the
+    // factory. Both ObjectQL and Metadata are scoped to projectId so
+    // DatabaseLoader's `env_id` filter and `protocol.saveMetaItem` writes
+    // stay aligned across the physically-isolated project databases.
     const basePlugins: BasePluginsFactory = ({ projectId }) => [
         new ObjectQLPlugin({ environmentId: projectId }),
         new MetadataPlugin({ watch: false, environmentId: projectId }),
@@ -230,8 +185,6 @@ async function bootstrapMultiProject(
 
     const controlKernel = await bootstrapControlKernel(controlDriver, driverName);
 
-    // Register the template seeder so http-dispatcher can resolve it during
-    // provisioning via `kernel.getServiceAsync('template-seeder')`.
     const seeder = createTemplateSeeder(kernelManager);
     controlKernel.registerService('template-seeder', seeder);
 
@@ -239,35 +192,8 @@ async function bootstrapMultiProject(
         kernel: controlKernel,
         kernelManager,
         envRegistry,
-        mode: shape === 'multi-project-remote' ? 'cloud' : 'self-hosted',
-        shape,
+        mode,
+        databaseUrl,
+        driverName,
     };
-}
-
-// ---------------------------------------------------------------------------
-// Legacy exports — kept for tests / tooling that imports them directly.
-// ---------------------------------------------------------------------------
-
-export async function bootstrapSelfHosted(): Promise<BootstrapResult> {
-    const shape = resolveShape();
-    if (shape === 'multi-project-local') {
-        return bootstrapMultiProject('multi-project-local');
-    }
-    return bootstrapSingle();
-}
-
-export async function bootstrapCloud(): Promise<BootstrapResult> {
-    return bootstrapMultiProject('multi-project-remote');
-}
-
-export async function bootstrap(): Promise<BootstrapResult> {
-    const shape = resolveShape();
-    switch (shape) {
-        case 'single':
-            return bootstrapSingle();
-        case 'multi-project-local':
-            return bootstrapMultiProject('multi-project-local');
-        case 'multi-project-remote':
-            return bootstrapMultiProject('multi-project-remote');
-    }
 }

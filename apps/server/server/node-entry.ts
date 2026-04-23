@@ -22,7 +22,7 @@ const host = process.env.HOST ?? '0.0.0.0';
 async function main(): Promise<void> {
     console.log('[ObjectStack] Booting kernel...');
     const boot = await ensureBoot();
-    console.log(`[ObjectStack] Kernel ready (shape=${boot.shape}).`);
+    console.log(`[ObjectStack] Kernel ready (mode=${boot.mode}, driver=${boot.driverName}).`);
 
     const app = await ensureApp();
 
