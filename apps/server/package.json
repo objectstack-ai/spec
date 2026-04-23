@@ -5,9 +5,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "tsx watch server/node-entry.ts",
-    "start": "tsx server/node-entry.ts",
-    "start:cli": "objectstack serve",
+    "dev": "objectstack dev",
+    "start": "objectstack serve",
     "doctor": "objectstack doctor",
     "typecheck": "tsc --noEmit",
     "test": "objectstack test",

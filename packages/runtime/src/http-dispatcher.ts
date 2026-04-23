@@ -88,9 +88,16 @@ export class HttpDispatcher {
     constructor(kernel: ObjectKernel, envRegistry?: any, options?: HttpDispatcherOptions) {
         this.kernel = kernel;
         this.defaultKernel = kernel;
-        this.envRegistry = envRegistry;
+        // Auto-resolve multi-project services from the kernel registry when
+        // the caller didn't pass them explicitly. Lets `MultiProjectPlugin`
+        // wire everything up by just registering services — no dispatcher
+        // constructor threading required.
+        const resolveService = (name: string): any => {
+            try { return (kernel as any).getService?.(name); } catch { return undefined; }
+        };
+        this.envRegistry = envRegistry ?? resolveService('env-registry');
         this.enforceMembership = options?.enforceProjectMembership ?? true;
-        this.kernelManager = options?.kernelManager;
+        this.kernelManager = options?.kernelManager ?? resolveService('kernel-manager');
     }
 
     private success(data: any, meta?: any) {
