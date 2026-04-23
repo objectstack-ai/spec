@@ -114,8 +114,25 @@ function extractMetadataItems(bundle: any): ExtractedItem[] {
     pushAll('flow', bundle?.flows);
     pushAll('agent', bundle?.agents);
     pushAll('app', bundle?.apps);
+    pushAll('action', bundle?.actions);
 
     return items;
+}
+
+/**
+ * Rewrite a dataset's `object` to the namespaced FQN so seed rows target
+ * the object the metadata layer actually registered. Bundle authors write
+ * the short name (`task`) because the namespace lives on the manifest;
+ * `extractMetadataItems` does the equivalent rewrite for objects.
+ */
+function namespaceDatasets(bundle: any): any[] {
+    const ns = bundle?.manifest?.namespace as string | undefined;
+    const datasets = Array.isArray(bundle?.data) ? bundle.data : [];
+    if (!ns || RESERVED_NS.has(ns)) return datasets;
+    return datasets.map((ds: any) => {
+        if (!ds?.object || ds.object.includes('__')) return ds;
+        return { ...ds, object: `${ns}__${ds.object}` };
+    });
 }
 
 function createTemplateSeeder(
