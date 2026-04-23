@@ -91,9 +91,12 @@ async function bootstrapSingle(): Promise<BootstrapResult> {
     // apps/plugins it references. A schema drift in one of the examples
     // shouldn't crash multi-project boots (or the E2E test harness) when
     // they don't need those bundles at all.
-    const dyn = (spec: string) =>
-        (new Function('s', 'return import(s)') as (s: string) => Promise<any>)(spec);
-    const stackConfig = (await dyn('../objectstack.config.ts')).default;
+    //
+    // Use a proper dynamic import (not Function constructor) so esbuild can
+    // bundle the config into the Vercel handler. The Function constructor
+    // bypasses static analysis and prevents bundling, causing runtime errors
+    // when the source .ts file isn't deployed.
+    const stackConfig = (await import('../objectstack.config.js')).default;
 
     if (!stackConfig.plugins || stackConfig.plugins.length === 0) {
         throw new Error('[Bootstrap] No plugins found in stackConfig');
