@@ -309,7 +309,8 @@ export class ProjectProvisioningService {
     const driver: ProjectDriver = parsed.driver ?? this.config.defaultDriver;
     const region = this.config.defaultRegion;
     const storageLimitMb = parsed.storageLimitMb ?? this.config.defaultStorageLimitMb;
-    const databaseName = `proj-${projectId}`;
+    // Turso requires database names ≤ 26 chars; use 'p-' prefix + first 24 hex chars
+    const databaseName = `p-${projectId.replace(/-/g, '').slice(0, 24)}`;
 
     // Enforce "exactly one default project per org" invariant.
     if (parsed.isDefault && this.config.controlPlaneDriver) {
