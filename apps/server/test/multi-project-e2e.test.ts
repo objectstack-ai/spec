@@ -67,8 +67,8 @@ function expect(actual: any) {
 }
 
 // ---------------------------------------------------------------------------
-// Env setup must happen BEFORE importing the server — bootstrap.ts reads
-// OBJECTSTACK_DATABASE_URL when selecting the control-plane driver.
+// Env setup must happen BEFORE importing the server — objectstack.config.ts
+// reads OBJECTSTACK_DATABASE_URL when selecting the control-plane driver.
 // ---------------------------------------------------------------------------
 
 const workdir = mkdtempSync(join(tmpdir(), 'objectstack-e2e-'));
