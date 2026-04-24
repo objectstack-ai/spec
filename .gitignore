@@ -90,3 +90,8 @@ apps/*/.next/docs/
 # Local env overrides (may contain secrets)
 .env.local
 .env.*.local
+
+# Playwright
+playwright-report/
+test-results/
+playwright/.cache/

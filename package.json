@@ -10,6 +10,8 @@
     "studio:dev": "pnpm --filter @objectstack/studio dev",
     "studio:start": "pnpm --filter @objectstack/studio start",
     "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "test:e2e:install": "pnpm --filter @objectstack/studio test:e2e:install",
     "clean": "turbo run clean && rm -rf dist",
     "doctor": "pnpm --filter @objectstack/server doctor",
     "setup": "pnpm install && pnpm --filter @objectstack/spec build",
