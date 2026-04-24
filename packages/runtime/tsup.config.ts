@@ -15,5 +15,7 @@ export default defineConfig({
     '@objectstack/driver-memory',
     '@objectstack/driver-sql',
     '@objectstack/driver-turso',
+    '@objectstack/metadata',
+    '@objectstack/objectql',
   ],
 });

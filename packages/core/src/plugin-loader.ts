@@ -22,7 +22,7 @@ export enum ServiceLifecycle {
  * Service Factory
  * Function that creates a service instance
  */
-export type ServiceFactory<T = any> = (ctx: PluginContext) => T | Promise<T>;
+export type ServiceFactory<T = any> = (ctx: PluginContext, scopeId?: string) => T | Promise<T>;
 
 /**
  * Service Registration Options
@@ -452,20 +452,20 @@ export class PluginLoader {
         if (!this.scopedServices.has(scopeId)) {
             this.scopedServices.set(scopeId, new Map());
         }
-        
+
         const scope = this.scopedServices.get(scopeId)!;
         let instance = scope.get(registration.name);
-        
+
         if (!instance) {
-            instance = await this.createServiceInstance(registration);
+            instance = await this.createServiceInstance(registration, scopeId);
             scope.set(registration.name, instance);
             this.logger.debug(`Scoped service created: ${registration.name} (scope: ${scopeId})`);
         }
-        
+
         return instance as T;
     }
 
-    private async createServiceInstance(registration: ServiceRegistration): Promise<any> {
+    private async createServiceInstance(registration: ServiceRegistration, scopeId?: string): Promise<any> {
         if (!this.context) {
             throw new Error(`[PluginLoader] Context not set - cannot create service '${registration.name}'`);
         }
@@ -476,7 +476,7 @@ export class PluginLoader {
 
         this.creating.add(registration.name);
         try {
-            return await registration.factory(this.context);
+            return await registration.factory(this.context, scopeId);
         } finally {
             this.creating.delete(registration.name);
         }

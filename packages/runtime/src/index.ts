@@ -16,6 +16,12 @@ export type { DispatcherPluginConfig } from './dispatcher-plugin.js';
 export { createSystemProjectPlugin, SYSTEM_PROJECT_ID } from './system-project-plugin.js';
 export type { SystemProjectPluginConfig } from './system-project-plugin.js';
 
+// Export Shared-Kernel Scoped Services (ADR-0003 v2)
+export { SharedProjectPlugin } from './shared-project-plugin.js';
+export type { SharedProjectPluginConfig } from './shared-project-plugin.js';
+export { ProjectScopeManager } from './project-scope-manager.js';
+export type { ProjectScopeManagerConfig } from './project-scope-manager.js';
+
 // Export Multi-Kernel Scheduling (ADR-0003)
 export { KernelManager } from './kernel-manager.js';
 export type {

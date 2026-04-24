@@ -423,6 +423,14 @@ export class SecurePluginContext implements PluginContext {
   getKernel() {
     return this.baseContext.getKernel();
   }
+
+  registerServiceFactory(name: string, factory: (ctx: PluginContext, scopeId?: string) => any, lifecycle?: import('../plugin-loader.js').ServiceLifecycle, dependencies?: string[]): void {
+    this.baseContext.registerServiceFactory(name, factory, lifecycle, dependencies);
+  }
+
+  getServiceScoped<T>(name: string, scopeId: string): Promise<T> {
+    return this.baseContext.getServiceScoped<T>(name, scopeId);
+  }
 }
 
 /**

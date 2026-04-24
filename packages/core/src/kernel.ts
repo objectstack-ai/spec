@@ -77,6 +77,9 @@ export class ObjectKernel {
             registerService: (name, service) => {
                 this.registerService(name, service);
             },
+            registerServiceFactory: (name, factory, lifecycle, dependencies) => {
+                this.registerServiceFactory(name, factory, lifecycle, dependencies);
+            },
             getService: <T>(name: string) => {
                 // 1. Try direct service map first (synchronous cache)
                 const service = this.services.get(name);
@@ -143,6 +146,9 @@ export class ObjectKernel {
             },
             getServices: () => {
                 return new Map(this.services);
+            },
+            getServiceScoped: <T>(name: string, scopeId: string): Promise<T> => {
+                return this.pluginLoader.getService<T>(name, scopeId);
             },
             logger: this.logger,
             getKernel: () => this as any, // Type compatibility
@@ -431,6 +437,14 @@ export class ObjectKernel {
      */
     async getServiceAsync<T>(name: string, scopeId?: string): Promise<T> {
         return await this.pluginLoader.getService<T>(name, scopeId);
+    }
+
+    /**
+     * Clear all scoped service instances for a given scope (e.g., projectId).
+     * Releases driver connections and metadata caches for idle projects.
+     */
+    clearScope(scopeId: string): void {
+        this.pluginLoader.clearScope(scopeId);
     }
 
     /**

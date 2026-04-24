@@ -49,6 +49,11 @@ export interface HttpDispatcherOptions {
      * constructor-supplied kernel (self-hosted / legacy behavior).
      */
     kernelManager?: KernelManager;
+    /**
+     * Optional {@link ProjectScopeManager}. When present, `touch(projectId)` is
+     * called on every scoped request so idle projects are evicted after TTL.
+     */
+    scopeManager?: import('./project-scope-manager.js').ProjectScopeManager;
 }
 
 /**
@@ -64,6 +69,7 @@ export class HttpDispatcher {
     private defaultKernel: ObjectKernel;
     private envRegistry?: any; // EnvironmentDriverRegistry
     private kernelManager?: KernelManager;
+    private scopeManager?: import('./project-scope-manager.js').ProjectScopeManager;
     /**
      * When `true`, scoped data-plane routes enforce a
      * `sys_project_member` lookup and return 403 for non-members.
@@ -98,6 +104,7 @@ export class HttpDispatcher {
         this.envRegistry = envRegistry ?? resolveService('env-registry');
         this.enforceMembership = options?.enforceProjectMembership ?? true;
         this.kernelManager = options?.kernelManager ?? resolveService('kernel-manager');
+        this.scopeManager = options?.scopeManager ?? resolveService('scope-manager');
     }
 
     private success(data: any, meta?: any) {
@@ -138,11 +145,12 @@ export class HttpDispatcher {
      * Tries protocol service first (supports expand/populate), falls back to ObjectQL.
      *
      * @param dataDriver - Optional environment-scoped driver to use instead of kernel default
+     * @param scopeId - Optional project ID for scoped service resolution (SharedProjectPlugin mode)
      */
-    private async callData(action: string, params: any, dataDriver?: any): Promise<any> {
-        const protocol = await this.resolveService('protocol');
-        const qlService = dataDriver ?? await this.getObjectQLService();
-        const ql = qlService ?? await this.resolveService('objectql');
+    private async callData(action: string, params: any, dataDriver?: any, scopeId?: string): Promise<any> {
+        const protocol = await this.resolveService('protocol', scopeId);
+        const qlService = dataDriver ?? await this.getObjectQLService(scopeId);
+        const ql = qlService ?? await this.resolveService('objectql', scopeId);
 
         if (action === 'create') {
             if (ql) {
@@ -705,7 +713,7 @@ export class HttpDispatcher {
         // GET /metadata/types
         if (parts[0] === 'types') {
             // PRIORITY 1: Try MetadataService directly (includes both typeRegistry with agent/tool AND runtime-registered types)
-            const metadataService = await this.resolveService('metadata');
+            const metadataService = await this.resolveService('metadata', _context.projectId);
 
             if (metadataService && typeof (metadataService as any).getRegisteredTypes === 'function') {
                 try {
@@ -736,7 +744,7 @@ export class HttpDispatcher {
                 return { handled: true, response: this.success(data) };
             }
             // Fallback — try MetadataService via resolveService
-            const metaSvc = await this.resolveService('metadata');
+            const metaSvc = await this.resolveService('metadata', _context.projectId);
             if (metaSvc && typeof (metaSvc as any).getPublished === 'function') {
                 try {
                     const fallbackData = await (metaSvc as any).getPublished(type, name);
@@ -767,7 +775,7 @@ export class HttpDispatcher {
                 }
 
                 // Fallback: try MetadataService directly
-                const metaSvc = await this.resolveService('metadata');
+                const metaSvc = await this.resolveService('metadata', _context.projectId);
                 if (metaSvc && typeof (metaSvc as any).saveItem === 'function') {
                     try {
                         const data = await (metaSvc as any).saveItem(type, name, body);
@@ -841,7 +849,7 @@ export class HttpDispatcher {
                 }
 
                 // Try MetadataService for runtime-registered types
-                const metaSvc = await this.resolveService('metadata');
+                const metaSvc = await this.resolveService('metadata', _context.projectId);
                 if (metaSvc && typeof (metaSvc as any).getItem === 'function') {
                     try {
                         const data = await (metaSvc as any).getItem(singularType, name);
@@ -919,7 +927,7 @@ export class HttpDispatcher {
         // GET /metadata — return available metadata types
         if (parts.length === 0) {
             // Try MetadataService for registered types
-            const metadataService = await this.resolveService('metadata');
+            const metadataService = await this.resolveService('metadata', _context.projectId);
             if (metadataService && typeof (metadataService as any).getRegisteredTypes === 'function') {
                 try {
                     const types = await (metadataService as any).getRegisteredTypes();
@@ -967,13 +975,7 @@ export class HttpDispatcher {
             // POST /data/:object/query
             if (action === 'query' && m === 'POST') {
                 // Spec: returns FindDataResponse = { object, records, total?, hasMore? }
-                const result = await this.callData('query', { object: objectName, ...body }, _context.dataDriver);
-                return { handled: true, response: this.success(result) };
-            }
-
-            // POST /data/:object/batch
-            if (action === 'batch' && m === 'POST') {
-                const result = await this.callData('batch', { object: objectName, ...body }, _context.dataDriver);
+                const result = await this.callData('query', { object: objectName, ...body }, _context.dataDriver, _context.projectId);
                 return { handled: true, response: this.success(result) };
             }
 
@@ -987,7 +989,7 @@ export class HttpDispatcher {
                 if (select != null) allowedParams.select = select;
                 if (expand != null) allowedParams.expand = expand;
                 // Spec: returns GetDataResponse = { object, id, record }
-                const result = await this.callData('get', { object: objectName, id, ...allowedParams }, _context.dataDriver);
+                const result = await this.callData('get', { object: objectName, id, ...allowedParams }, _context.dataDriver, _context.projectId);
                 return { handled: true, response: this.success(result) };
             }
 
@@ -995,7 +997,7 @@ export class HttpDispatcher {
             if (parts.length === 2 && m === 'PATCH') {
                 const id = parts[1];
                 // Spec: returns UpdateDataResponse = { object, id, record }
-                const result = await this.callData('update', { object: objectName, id, data: body }, _context.dataDriver);
+                const result = await this.callData('update', { object: objectName, id, data: body }, _context.dataDriver, _context.projectId);
                 return { handled: true, response: this.success(result) };
             }
 
@@ -1003,7 +1005,7 @@ export class HttpDispatcher {
             if (parts.length === 2 && m === 'DELETE') {
                 const id = parts[1];
                 // Spec: returns DeleteDataResponse = { object, id, deleted }
-                const result = await this.callData('delete', { object: objectName, id }, _context.dataDriver);
+                const result = await this.callData('delete', { object: objectName, id }, _context.dataDriver, _context.projectId);
                 return { handled: true, response: this.success(result) };
             }
         } else {
@@ -1051,14 +1053,14 @@ export class HttpDispatcher {
                 }
 
                 // Spec: returns FindDataResponse = { object, records, total?, hasMore? }
-                const result = await this.callData('query', { object: objectName, query: normalized }, _context.dataDriver);
+                const result = await this.callData('query', { object: objectName, query: normalized }, _context.dataDriver, _context.projectId);
                 return { handled: true, response: this.success(result) };
             }
 
             // POST /data/:object (Create)
             if (m === 'POST') {
                 // Spec: returns CreateDataResponse = { object, id, record }
-                const result = await this.callData('create', { object: objectName, data: body }, _context.dataDriver);
+                const result = await this.callData('create', { object: objectName, data: body }, _context.dataDriver, _context.projectId);
                 const res = this.success(result);
                 res.status = 201;
                 return { handled: true, response: res };
@@ -2380,10 +2382,22 @@ export class HttpDispatcher {
 
     /**
      * Resolve any service by name, supporting async factories.
-     * Fallback chain: getServiceAsync → getService (sync) → context.getService → services map.
+     * Fallback chain: getServiceAsync(scopeId) → getServiceAsync → getService (sync) → context.getService → services map.
      * Only returns when a non-null service is found; otherwise falls through to the next step.
+     *
+     * When `scopeId` is provided, tries the SCOPED factory on `defaultKernel` first (SharedProjectPlugin
+     * mode). Falls back to the current `kernel` for singleton / legacy services.
      */
-    private async resolveService(name: string) {
+    private async resolveService(name: string, scopeId?: string) {
+        // Prefer scoped lookup on defaultKernel when scopeId is given (shared-kernel / multi-project mode)
+        if (scopeId && typeof this.defaultKernel.getServiceAsync === 'function') {
+            try {
+                const svc = await this.defaultKernel.getServiceAsync(name, scopeId);
+                if (svc != null) return svc;
+            } catch {
+                // Not a scoped service — fall through to singleton resolution
+            }
+        }
         // Prefer async resolution to support factory-based services (e.g. auth, analytics, protocol)
         if (typeof this.kernel.getServiceAsync === 'function') {
             try {
@@ -2417,10 +2431,10 @@ export class HttpDispatcher {
      * Get the ObjectQL service which provides access to SchemaRegistry.
      * Tries multiple access patterns since kernel structure varies.
      */
-    private async getObjectQLService(): Promise<any> {
-        // 1. Try via resolveService (handles async factories, sync, context, and map)
+    private async getObjectQLService(scopeId?: string): Promise<any> {
+        // 1. Try via resolveService (handles scoped, async factories, sync, context, and map)
         try {
-            const svc = await this.resolveService('objectql');
+            const svc = await this.resolveService('objectql', scopeId);
             if (svc?.registry) return svc;
         } catch { /* service not available */ }
         return null;
@@ -2548,6 +2562,11 @@ export class HttpDispatcher {
             this.kernel = this.defaultKernel;
         }
 
+        // Touch scope for TTL/LRU tracking in shared-kernel mode
+        if (this.scopeManager && context.projectId) {
+            this.scopeManager.touch(context.projectId);
+        }
+
         // ── Project Membership Enforcement ──
         // Once the projectId is known, gate scoped data/meta/AI/automation
         // routes on `sys_project_member`. Control-plane paths, the system
@@ -2647,7 +2666,7 @@ export class HttpDispatcher {
         // OpenAPI Specification
         if (cleanPath === '/openapi.json' && method === 'GET') {
              try {
-                const metaSvc = await this.resolveService('metadata');
+                const metaSvc = await this.resolveService('metadata', context.projectId);
                 if (metaSvc && typeof (metaSvc as any).generateOpenApi === 'function') {
                     const result = await (metaSvc as any).generateOpenApi({});
                     return { handled: true, response: this.success(result) };
@@ -2675,7 +2694,7 @@ export class HttpDispatcher {
     async handleApiEndpoint(path: string, method: string, body: any, query: any, context: HttpProtocolContext): Promise<HttpDispatcherResult> {
         try {
             // Attempt to find a matching endpoint in the registry
-            const metaSvc = await this.resolveService('metadata');
+            const metaSvc = await this.resolveService('metadata', context.projectId);
             if (!metaSvc || typeof (metaSvc as any).matchEndpoint !== 'function') {
                 return { handled: false };
             }

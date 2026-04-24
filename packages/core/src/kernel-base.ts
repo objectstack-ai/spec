@@ -123,6 +123,12 @@ export abstract class ObjectKernelBase {
             },
             logger: this.logger,
             getKernel: () => this as any,
+            registerServiceFactory: (_name, _factory, _lifecycle, _dependencies) => {
+                throw new Error('[KernelBase] registerServiceFactory not supported — use ObjectKernel');
+            },
+            getServiceScoped: async <T>(_name: string, _scopeId: string): Promise<T> => {
+                throw new Error('[KernelBase] getServiceScoped not supported — use ObjectKernel');
+            },
         };
     }
 

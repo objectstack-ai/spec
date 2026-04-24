@@ -21,6 +21,13 @@ export interface PluginContext {
     registerService(name: string, service: any): void;
 
     /**
+     * Register a service factory with lifecycle management.
+     * Use `ServiceLifecycle.SCOPED` for per-project services — the factory
+     * receives `(ctx, scopeId)` where `scopeId` is the project ID.
+     */
+    registerServiceFactory(name: string, factory: (ctx: PluginContext, scopeId?: string) => any, lifecycle?: import('./plugin-loader.js').ServiceLifecycle, dependencies?: string[]): void;
+
+    /**
      * Get a service registered by another plugin
      * @param name - Service name
      * @returns Service instance
@@ -38,6 +45,12 @@ export interface PluginContext {
      * @throws Error if the service does not exist
      */
     replaceService<T>(name: string, implementation: T): void;
+
+    /**
+     * Get a scoped service instance for a given scope (e.g., projectId).
+     * Creates the instance on first access; reuses on subsequent calls within the same scope.
+     */
+    getServiceScoped<T>(name: string, scopeId: string): Promise<T>;
 
     /**
      * Get all registered services
