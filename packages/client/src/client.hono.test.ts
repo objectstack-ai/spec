@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { LiteKernel } from '@objectstack/core';
-import { ObjectQL, ObjectQLPlugin, SchemaRegistry } from '@objectstack/objectql';
+import { ObjectQL, ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
 import { ObjectStackClient } from './index';
@@ -67,11 +67,12 @@ describe('ObjectStackClient (with Hono Server)', () => {
                 if (service === 'metadata') {
                     // ObjectQLPlugin registers itself as 'metadata' but doesn't implement all broker methods directly
                     // We use SchemaRegistry for lookups
+                    const ql = kernel.getService<any>('objectql');
                     if (method === 'getObject') {
-                         return SchemaRegistry.getObject(params.objectName);
+                         return ql.registry.getObject(params.objectName);
                     }
                     if (method === 'objects') {
-                         return SchemaRegistry.getAllObjects();
+                         return ql.registry.getAllObjects();
                     }
                 }
                 
@@ -92,7 +93,7 @@ describe('ObjectStackClient (with Hono Server)', () => {
         ql.registerDriver(new InMemoryDriver(), true);
 
         // 4. Load Metadata (Schema)
-        SchemaRegistry.registerObject({
+        ql.registerObject({
             name: 'customer',
             label: 'Customer',
             fields: {

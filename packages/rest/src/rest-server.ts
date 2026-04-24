@@ -393,6 +393,7 @@ export class RestServer {
                         const items = await p.getMetaItems({
                             type: req.params.type,
                             packageId,
+                            ...(projectId ? { projectId } : {}),
                         } as any);
                         res.json(items);
                     } catch (error: any) {
@@ -427,6 +428,7 @@ export class RestServer {
                                 type: req.params.type,
                                 name: req.params.name,
                                 cacheRequest,
+                                ...(projectId ? { projectId } : {}),
                             } as any);
 
                             if (result.notModified) {
@@ -494,6 +496,7 @@ export class RestServer {
                         type: req.params.type,
                         name: req.params.name,
                         item: req.body,
+                        ...(projectId ? { projectId } : {}),
                     } as any);
                     res.json(result);
                 } catch (error: any) {
@@ -527,6 +530,7 @@ export class RestServer {
                         const view = await p.getUiView({
                             object: req.params.object,
                             type: req.params.type as any,
+                            ...(projectId ? { projectId } : {}),
                         } as any);
                         res.json(view);
                     } else {
@@ -566,6 +570,7 @@ export class RestServer {
                         const result = await p.findData({
                             object: req.params.object,
                             query: req.query,
+                            ...(projectId ? { projectId } : {}),
                         } as any);
                         res.json(result);
                     } catch (error: any) {
@@ -595,6 +600,7 @@ export class RestServer {
                             id: req.params.id,
                             ...(select != null ? { select } : {}),
                             ...(expand != null ? { expand } : {}),
+                            ...(projectId ? { projectId } : {}),
                         } as any);
                         res.json(result);
                     } catch (error: any) {
@@ -621,6 +627,7 @@ export class RestServer {
                         const result = await p.createData({
                             object: req.params.object,
                             data: req.body,
+                            ...(projectId ? { projectId } : {}),
                         } as any);
                         res.status(201).json(result);
                     } catch (error: any) {
@@ -648,6 +655,7 @@ export class RestServer {
                             object: req.params.object,
                             id: req.params.id,
                             data: req.body,
+                            ...(projectId ? { projectId } : {}),
                         } as any);
                         res.json(result);
                     } catch (error: any) {
@@ -674,6 +682,7 @@ export class RestServer {
                         const result = await p.deleteData({
                             object: req.params.object,
                             id: req.params.id,
+                            ...(projectId ? { projectId } : {}),
                         } as any);
                         res.json(result);
                     } catch (error: any) {
@@ -711,6 +720,7 @@ export class RestServer {
                         const result = await p.batchData!({
                             object: req.params.object,
                             request: req.body,
+                            ...(projectId ? { projectId } : {}),
                         } as any);
                         res.json(result);
                     } catch (error: any) {
@@ -737,6 +747,7 @@ export class RestServer {
                         const result = await p.createManyData!({
                             object: req.params.object,
                             records: req.body || [],
+                            ...(projectId ? { projectId } : {}),
                         } as any);
                         res.status(201).json(result);
                     } catch (error: any) {
@@ -763,6 +774,7 @@ export class RestServer {
                         const result = await p.updateManyData!({
                             object: req.params.object,
                             ...req.body,
+                            ...(projectId ? { projectId } : {}),
                         } as any);
                         res.json(result);
                     } catch (error: any) {
@@ -789,6 +801,7 @@ export class RestServer {
                         const result = await p.deleteManyData!({
                             object: req.params.object,
                             ...req.body,
+                            ...(projectId ? { projectId } : {}),
                         } as any);
                         res.json(result);
                     } catch (error: any) {

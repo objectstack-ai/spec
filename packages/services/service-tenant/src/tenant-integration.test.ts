@@ -27,8 +27,8 @@ describe('TenantProvisioningService', () => {
       expect(response.tenant.storageLimitMb).toBe(2048);
       expect(response.tenant.status).toBe('active');
       expect(response.tenant.databaseName).toMatch(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
-      ); // UUID format
+        /^[0-9a-f]{26}$/,
+      ); // 26-char hex (UUID with dashes stripped, truncated)
       expect(response.tenant.databaseUrl).toContain('libsql://');
       expect(response.durationMs).toBeGreaterThanOrEqual(0);
       expect(response.warnings).toBeDefined();
@@ -66,9 +66,9 @@ describe('TenantProvisioningService', () => {
       expect(response1.tenant.id).not.toBe(response2.tenant.id);
       expect(response1.tenant.databaseName).not.toBe(response2.tenant.databaseName);
 
-      // Database name should match tenant ID (UUID-based)
-      expect(response1.tenant.databaseName).toBe(response1.tenant.id);
-      expect(response2.tenant.databaseName).toBe(response2.tenant.id);
+      // Database name is derived from tenant ID (dashes stripped, first 26 chars)
+      expect(response1.tenant.databaseName).toBe(response1.tenant.id.replace(/-/g, '').slice(0, 26));
+      expect(response2.tenant.databaseName).toBe(response2.tenant.id.replace(/-/g, '').slice(0, 26));
     });
   });
 

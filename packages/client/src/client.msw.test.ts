@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 import { LiteKernel } from '@objectstack/core';
-import { ObjectQLPlugin, SchemaRegistry } from '@objectstack/objectql';
+import { ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { MSWPlugin } from '@objectstack/plugin-msw';
 import { ObjectStackClient } from './index';
@@ -71,8 +71,9 @@ describe('ObjectStackClient (with MSW Plugin)', () => {
                 }
                 
                 if (service === 'metadata') {
-                    if (method === 'getObject') return SchemaRegistry.getObject(params.objectName);
-                    if (method === 'objects') return SchemaRegistry.getAllObjects();
+                    const ql = kernel.getService<any>('objectql');
+                    if (method === 'getObject') return ql.registry.getObject(params.objectName);
+                    if (method === 'objects') return ql.registry.getAllObjects();
                 }
                 
                 console.warn(`[BrokerShim] Action not implemented: ${action}`);
@@ -87,7 +88,7 @@ describe('ObjectStackClient (with MSW Plugin)', () => {
         const ql = kernel.getService<any>('objectql');
         ql.registerDriver(new InMemoryDriver(), true);
 
-        SchemaRegistry.registerObject({
+        ql.registerObject({
             name: 'customer',
             fields: {
                 name: { type: 'text' }

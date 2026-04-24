@@ -22,6 +22,7 @@ export default defineConfig({
     globals: true,
     environment: 'happy-dom',
     setupFiles: [path.resolve(__dirname, './test/setup.ts')],
+    exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: [

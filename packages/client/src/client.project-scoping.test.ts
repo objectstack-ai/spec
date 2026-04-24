@@ -15,7 +15,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { LiteKernel } from '@objectstack/core';
-import { ObjectQL, ObjectQLPlugin, SchemaRegistry } from '@objectstack/objectql';
+import { ObjectQL, ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
 import { createRestApiPlugin } from '@objectstack/runtime';
@@ -56,7 +56,7 @@ describe('Project-scoped REST routing (live Hono)', () => {
         const ql = kernel.getService<ObjectQL>('objectql');
         ql.registerDriver(new InMemoryDriver(), true);
 
-        SchemaRegistry.registerObject({
+        ql.registerObject({
             name: 'task',
             label: 'Task',
             fields: {

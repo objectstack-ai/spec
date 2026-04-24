@@ -69,9 +69,9 @@ describe('ProjectProvisioningService.provisionProject', () => {
     });
 
     const objects = created.map((c) => c.object);
-    expect(objects).toEqual(['project', 'project_credential']);
+    expect(objects).toEqual(['sys_project', 'sys_project_credential']);
 
-    const projectRow = created.find((c) => c.object === 'project')!.data;
+    const projectRow = created.find((c) => c.object === 'sys_project')!.data;
     expect(projectRow.organization_id).toBe('org-42');
     expect(projectRow.is_default).toBe(true);
     expect(projectRow.is_system).toBe(false);
@@ -159,7 +159,7 @@ describe('ProjectProvisioningService.provisionSystemProject', () => {
     expect(created).toHaveLength(1);
     const projectRow = created[0].data;
 
-    expect(created[0].object).toBe('project');
+    expect(created[0].object).toBe('sys_project');
     expect(projectRow.id).toBe(SYSTEM_PROJECT_ID);
     expect(projectRow.organization_id).toBe(PLATFORM_ORG_ID);
     expect(projectRow.display_name).toBe('System');
@@ -178,7 +178,7 @@ describe('ProjectProvisioningService.provisionSystemProject', () => {
       find: vi.fn(async () => []),
       findOne: vi.fn(async (object: string, query: any) => {
         findOneCalled.push(object);
-        if (object === 'project' && query.where?.id === SYSTEM_PROJECT_ID) {
+        if (object === 'sys_project' && query.where?.id === SYSTEM_PROJECT_ID) {
           return {
             id: SYSTEM_PROJECT_ID,
             organization_id: PLATFORM_ORG_ID,
@@ -206,7 +206,7 @@ describe('ProjectProvisioningService.provisionSystemProject', () => {
     const result = await svc.provisionSystemProject();
 
     // Should have queried for existing system project
-    expect(findOneCalled).toContain('project');
+    expect(findOneCalled).toContain('sys_project');
 
     // Should NOT have called create since project exists
     expect(driver.create).not.toHaveBeenCalled();
