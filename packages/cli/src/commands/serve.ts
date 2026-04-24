@@ -63,6 +63,21 @@ export default class Serve extends Command {
     ui: Flags.boolean({ description: 'Enable Studio UI at /_studio/ (default: true in dev mode)', allowNo: true }),
     server: Flags.boolean({ description: 'Start HTTP server plugin', default: true, allowNo: true }),
     prebuilt: Flags.boolean({ description: 'Skip esbuild/bundle-require — load config as native ESM (production mode)', default: false }),
+    preset: Flags.string({
+      description: 'Plugin tier preset: minimal | default | full (overridden by config.tiers if set)',
+      options: ['minimal', 'default', 'full'],
+    }),
+  };
+
+  /**
+   * Auto-registered plugin tiers. Plugins explicitly listed in
+   * `config.plugins` are always loaded — tiers only gate the optional
+   * auto-registration blocks below (AIService, I18n, Studio UI, etc.).
+   */
+  static readonly TIER_PRESETS: Record<string, string[]> = {
+    minimal: ['core'],
+    default: ['core', 'i18n', 'ui'],
+    full: ['core', 'i18n', 'ui', 'ai'],
   };
 
   async run(): Promise<void> {
@@ -154,6 +169,19 @@ export default class Serve extends Command {
         throw new Error(`No default export found in ${args.config}`);
       }
 
+      // ── Resolve plugin tiers ──────────────────────────────────────
+      // Precedence: config.tiers > --preset > built-in default.
+      // Tiers gate the OPTIONAL auto-registration blocks (AIService,
+      // I18n, Studio UI). Explicitly-listed config.plugins always load.
+      const presetName = flags.preset ?? (isDev ? 'default' : 'default');
+      const presetTiers = Serve.TIER_PRESETS[presetName] ?? Serve.TIER_PRESETS.default;
+      const tiers: Set<string> = new Set(
+        Array.isArray((config as any).tiers) && (config as any).tiers.length > 0
+          ? (config as any).tiers
+          : presetTiers
+      );
+      const tierEnabled = (t: string) => tiers.has(t);
+
       // Import ObjectStack runtime
       const { Runtime } = await import('@objectstack/runtime');
 
@@ -244,7 +272,7 @@ export default class Serve extends Command {
         pluginBundleHasTranslations(config)
         || anyAppPluginHasTranslations
       );
-      if (!hasI18nPlugin && configHasTranslations) {
+      if (!hasI18nPlugin && configHasTranslations && tierEnabled('i18n')) {
         try {
           // Dynamic import with variable to prevent tsc from resolving the optional package
           const i18nPkg = '@objectstack/service-i18n';
@@ -372,7 +400,7 @@ export default class Serve extends Command {
         (p: any) => p.name === 'com.objectstack.service-ai'
             || p.constructor?.name === 'AIServicePlugin'
       );
-      if (!hasAIPlugin) {
+      if (!hasAIPlugin && tierEnabled('ai')) {
         try {
           const aiPkg = '@objectstack/service-ai';
           const { AIServicePlugin } = await import(/* webpackIgnore: true */ aiPkg);
@@ -394,7 +422,7 @@ export default class Serve extends Command {
       // ── Studio UI ─────────────────────────────────────────────────
       // In dev mode, Studio UI is enabled by default (use --no-ui to disable).
       // Always serves the pre-built dist/ — no Vite dev server, no extra port.
-      const enableUI = flags.ui ?? isDev;
+      const enableUI = (flags.ui ?? isDev) && tierEnabled('ui');
 
       if (enableUI) {
         const studioPath = resolveStudioPath();
