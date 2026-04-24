@@ -390,7 +390,7 @@ export class ProjectProvisioningService {
     // Persist to the control plane.
     if (this.config.controlPlaneDriver) {
       try {
-        await this.config.controlPlaneDriver.create('project', {
+        await this.config.controlPlaneDriver.create('sys_project', {
           id: project.id,
           organization_id: project.organizationId,
           display_name: project.displayName,
@@ -409,7 +409,7 @@ export class ProjectProvisioningService {
           hostname: project.hostname,
         });
 
-        await this.config.controlPlaneDriver.create('project_credential', {
+        await this.config.controlPlaneDriver.create('sys_project_credential', {
           id: credential.id,
           project_id: credential.projectId,
           secret_ciphertext: credential.secretCiphertext,
@@ -463,19 +463,19 @@ export class ProjectProvisioningService {
     };
 
     // Revoke existing active credentials.
-    const existing = (await this.config.controlPlaneDriver.find('project_credential', {
+    const existing = (await this.config.controlPlaneDriver.find('sys_project_credential', {
       where: { project_id: projectId, status: 'active' },
     } as any)) as Array<{ id: string }>;
 
     for (const row of existing ?? []) {
-      await this.config.controlPlaneDriver.update('project_credential', row.id, {
+      await this.config.controlPlaneDriver.update('sys_project_credential', row.id, {
         status: 'revoked',
         revoked_at: nowIso,
         updated_at: nowIso,
       });
     }
 
-    await this.config.controlPlaneDriver.create('project_credential', {
+    await this.config.controlPlaneDriver.create('sys_project_credential', {
       id: credential.id,
       project_id: credential.projectId,
       secret_ciphertext: credential.secretCiphertext,
@@ -504,9 +504,9 @@ export class ProjectProvisioningService {
     // Check if system project already exists (idempotent operation)
     if (this.config.controlPlaneDriver) {
       try {
-        const existing = await this.config.controlPlaneDriver.findOne('project', {
+        const existing = await this.config.controlPlaneDriver.findOne('sys_project', {
           where: { id: SYSTEM_PROJECT_ID },
-        });
+        } as any);
 
         if (existing) {
           // System project already exists - return it
@@ -589,7 +589,7 @@ export class ProjectProvisioningService {
     // Persist to control plane
     if (this.config.controlPlaneDriver) {
       try {
-        await this.config.controlPlaneDriver.create('project', {
+        await this.config.controlPlaneDriver.create('sys_project', {
           id: project.id,
           organization_id: project.organizationId,
           display_name: project.displayName,
@@ -630,7 +630,7 @@ export class ProjectProvisioningService {
   private async findDefaultProject(organizationId: string): Promise<{ id: string } | null> {
     if (!this.config.controlPlaneDriver) return null;
     try {
-      const rows = (await this.config.controlPlaneDriver.find('project', {
+      const rows = (await this.config.controlPlaneDriver.find('sys_project', {
         where: { organization_id: organizationId, is_default: true },
       } as any)) as Array<{ id: string }>;
       return rows && rows.length > 0 ? rows[0] : null;

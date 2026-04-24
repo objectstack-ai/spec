@@ -343,7 +343,7 @@ export class HttpDispatcher {
                     const qlService = await this.getObjectQLService();
                     const ql = qlService ?? await this.resolveService('objectql');
                     if (ql) {
-                        let rows = await ql.find('sys__project', {
+                        let rows = await ql.find('sys_project', {
                             where: {
                                 organization_id: activeOrganizationId,
                                 is_default: true
@@ -443,7 +443,7 @@ export class HttpDispatcher {
             const ql = qlService ?? await this.resolveService('objectql');
             if (!ql) return null; // No QL — cannot enforce; fail open.
 
-            let rows = await ql.find('sys__project_member', {
+            let rows = await ql.find('sys_project_member', {
                 where: { project_id: projectId, user_id: userId },
                 limit: 1,
             } as any);
@@ -1336,10 +1336,10 @@ export class HttpDispatcher {
             return { handled: true, response: this.error('Project service not available (ObjectQL missing)', 503) };
         }
 
-        const ENV = 'sys__project';
-        const CRED = 'sys__project_credential';
-        const MEM = 'sys__project_member';
-        const PKG_INSTALL = 'sys__package_installation';
+        const ENV = 'sys_project';
+        const CRED = 'sys_project_credential';
+        const MEM = 'sys_project_member';
+        const PKG_INSTALL = 'sys_package_installation';
 
         // Enumerate registered ObjectQL drivers. Driver services are registered
         // by `DriverPlugin` under the key `driver.<driver.name>` where
@@ -1558,7 +1558,7 @@ export class HttpDispatcher {
                 if (!computedHostname) {
                     const shortId = projectId.slice(0, 8);
                     try {
-                        const orgRow = await findOne('sys__organization', { id: req.organization_id });
+                        const orgRow = await findOne('sys_organization', { id: req.organization_id });
                         const orgSlug = orgRow?.slug || req.organization_id;
                         const rootDomain = getEnv('ROOT_DOMAIN', 'objectstack.app');
                         computedHostname = `${orgSlug}-${shortId}.${rootDomain}`;
@@ -1577,7 +1577,7 @@ export class HttpDispatcher {
                 // insert — by which point the caller has already moved
                 // on from the HTTP response.
                 try {
-                    const existing = await findOne('sys__project', {
+                    const existing = await findOne('sys_project', {
                         hostname: computedHostname,
                     });
                     if (existing && existing.id !== projectId) {
