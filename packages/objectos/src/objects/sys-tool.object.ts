@@ -11,8 +11,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * `sys__tool` (produced by `SchemaRegistry.computeFQN(namespace, name)`).
  */
 export const SysTool = ObjectSchema.create({
-  name: 'tool',
-  namespace: 'sys',
+  name: 'sys_tool',
   label: 'AI Tool',
   pluralLabel: 'AI Tools',
   description: 'AI tool definitions',

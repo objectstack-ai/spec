@@ -12,8 +12,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * `sys__object` (produced by `SchemaRegistry.computeFQN(namespace, name)`).
  */
 export const SysObject = ObjectSchema.create({
-  name: 'object',
-  namespace: 'sys',
+  name: 'sys_object',
   label: 'Object Definition',
   pluralLabel: 'Object Definitions',
   description: 'Metadata for business objects',

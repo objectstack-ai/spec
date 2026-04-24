@@ -11,8 +11,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * `sys__view` (produced by `SchemaRegistry.computeFQN(namespace, name)`).
  */
 export const SysView = ObjectSchema.create({
-  name: 'view',
-  namespace: 'sys',
+  name: 'sys_view',
   label: 'View Definition',
   pluralLabel: 'View Definitions',
   description: 'Metadata for UI views (grid, kanban, calendar, etc.)',

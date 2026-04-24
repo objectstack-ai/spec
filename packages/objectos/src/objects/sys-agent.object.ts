@@ -11,8 +11,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * `sys__agent` (produced by `SchemaRegistry.computeFQN(namespace, name)`).
  */
 export const SysAgent = ObjectSchema.create({
-  name: 'agent',
-  namespace: 'sys',
+  name: 'sys_agent',
   label: 'AI Agent',
   pluralLabel: 'AI Agents',
   description: 'AI agent definitions',

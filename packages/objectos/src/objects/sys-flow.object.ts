@@ -11,8 +11,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * `sys__flow` (produced by `SchemaRegistry.computeFQN(namespace, name)`).
  */
 export const SysFlow = ObjectSchema.create({
-  name: 'flow',
-  namespace: 'sys',
+  name: 'sys_flow',
   label: 'Flow',
   pluralLabel: 'Flows',
   description: 'Visual logic flow definitions',

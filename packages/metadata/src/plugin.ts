@@ -76,13 +76,12 @@ export class MetadataPlugin implements Plugin {
                 version: '1.0.0',
                 type: 'plugin',
                 scope: 'platform',
-                namespace: 'sys',
                 objects: Object.values(SystemObjects),
             });
 
             ctx.logger.info('Registered system metadata objects', {
                 metadata: ['sys_metadata', 'sys_metadata_history'],
-                objectos: Object.keys(SystemObjects).map((name) => `sys__${name}`),
+                objectos: Object.keys(SystemObjects).map((name) => `sys_${name}`),
             });
         } catch {
             // ObjectQL not loaded yet — objects will be discovered via legacy fallback
