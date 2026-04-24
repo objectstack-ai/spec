@@ -619,7 +619,8 @@ export class ObjectQL implements IDataEngine {
     if (schema) {
       return StorageNameMapping.resolveTableName(schema);
     }
-    return name; // Ad-hoc object, keep as-is
+    // Strip FQN namespace prefix even for unregistered objects (e.g. 'crm__account' → 'account')
+    return StorageNameMapping.resolveTableName({ name });
   }
 
   /**

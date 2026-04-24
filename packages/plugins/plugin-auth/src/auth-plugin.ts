@@ -120,11 +120,11 @@ export class AuthPlugin implements Plugin {
         setupNav.contribute({
           areaId: 'area_administration',
           items: [
-            { id: 'nav_users', type: 'object', label: 'Users', objectName: 'sys__user', icon: 'users', order: 10 },
-            { id: 'nav_organizations', type: 'object', label: 'Organizations', objectName: 'sys__organization', icon: 'building-2', order: 20 },
-            { id: 'nav_teams', type: 'object', label: 'Teams', objectName: 'sys__team', icon: 'users-round', order: 30 },
-            { id: 'nav_api_keys', type: 'object', label: 'API Keys', objectName: 'sys__api_key', icon: 'key', order: 40 },
-            { id: 'nav_sessions', type: 'object', label: 'Sessions', objectName: 'sys__session', icon: 'monitor', order: 50 },
+            { id: 'nav_users', type: 'object', label: 'Users', objectName: 'sys_user', icon: 'users', order: 10 },
+            { id: 'nav_organizations', type: 'object', label: 'Organizations', objectName: 'sys_organization', icon: 'building-2', order: 20 },
+            { id: 'nav_teams', type: 'object', label: 'Teams', objectName: 'sys_team', icon: 'users-round', order: 30 },
+            { id: 'nav_api_keys', type: 'object', label: 'API Keys', objectName: 'sys_api_key', icon: 'key', order: 40 },
+            { id: 'nav_sessions', type: 'object', label: 'Sessions', objectName: 'sys_session', icon: 'monitor', order: 50 },
           ],
         });
         ctx.logger.info('Auth navigation items contributed to Setup App');

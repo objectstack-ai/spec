@@ -6,9 +6,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * sys_tool Object Definition
  *
  * Represents AI tool metadata as queryable data.
- *
- * Registered under namespace `sys`, so the fully qualified name (FQN) is
- * `sys__tool` (produced by `SchemaRegistry.computeFQN(namespace, name)`).
+ * Registered without a namespace, so FQN = `sys_tool` and table = `sys_tool`.
  */
 export const SysTool = ObjectSchema.create({
   name: 'sys_tool',

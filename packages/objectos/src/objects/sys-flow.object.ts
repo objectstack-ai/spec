@@ -6,9 +6,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * sys_flow Object Definition
  *
  * Represents flow metadata as queryable data.
- *
- * Registered under namespace `sys`, so the fully qualified name (FQN) is
- * `sys__flow` (produced by `SchemaRegistry.computeFQN(namespace, name)`).
+ * Registered without a namespace, so FQN = `sys_flow` and table = `sys_flow`.
  */
 export const SysFlow = ObjectSchema.create({
   name: 'sys_flow',

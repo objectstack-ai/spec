@@ -6,9 +6,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * sys_agent Object Definition
  *
  * Represents AI agent metadata as queryable data.
- *
- * Registered under namespace `sys`, so the fully qualified name (FQN) is
- * `sys__agent` (produced by `SchemaRegistry.computeFQN(namespace, name)`).
+ * Registered without a namespace, so FQN = `sys_agent` and table = `sys_agent`.
  */
 export const SysAgent = ObjectSchema.create({
   name: 'sys_agent',

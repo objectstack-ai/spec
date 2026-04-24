@@ -162,16 +162,15 @@ export class ObjectQLPlugin implements Plugin {
     // Initialize drivers (calls driver.connect() which sets up persistence)
     await this.ql?.init();
 
-    // Sync all registered object schemas to database first.
-    // This ensures tables/collections (including sys_metadata) are created
-    // before we attempt to read from them in restoreMetadataFromDb.
+    // Phase 1: Sync built-in schemas so sys_metadata table exists before reading it.
     await this.syncRegisteredSchemas(ctx);
 
-    // Restore persisted metadata from sys_metadata table.
-    // This hydrates SchemaRegistry with objects/views/apps that were saved
-    // via protocol.saveMetaItem() in a previous session, ensuring custom
-    // schemas survive cold starts and redeployments.
+    // Phase 2: Hydrate SchemaRegistry from sys_metadata (loads custom/template objects).
     await this.restoreMetadataFromDb(ctx);
+
+    // Phase 3: Sync any new schemas that were just hydrated from the DB
+    // (e.g. CRM objects seeded via template — they must have tables before use).
+    await this.syncRegisteredSchemas(ctx);
 
     // Bridge all SchemaRegistry objects to metadata service.
     //
