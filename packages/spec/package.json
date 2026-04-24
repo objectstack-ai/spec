@@ -95,7 +95,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "pnpm gen:schema && pnpm gen:openapi && tsup",
+    "build": "pnpm gen:schema && pnpm gen:openapi && tsup && NODE_OPTIONS=\"--max-old-space-size=4096\" BUILD_DTS=true tsup",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "gen:schema": "tsx scripts/build-schemas.ts",
