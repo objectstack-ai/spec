@@ -5,7 +5,7 @@ import type {
   ProvisionTenantResponse,
   TenantDatabase,
 } from '@objectstack/spec/cloud';
-import type { IDataDriver } from '@objectstack/spec';
+import type { IDataDriver } from '@objectstack/spec/contracts';
 import { randomUUID } from 'node:crypto';
 import { TursoPlatformClient, type TursoPlatformConfig } from './turso-platform-client';
 

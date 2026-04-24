@@ -1,7 +1,8 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { RouteHandler, IHttpServer } from '@objectstack/core';
-import { System, Shared } from '@objectstack/spec';
+import * as System from '@objectstack/spec/system';
+import * as Shared from '@objectstack/spec/shared';
 import { z } from 'zod';
 
 type RouteHandlerMetadata = System.RouteHandlerMetadata;

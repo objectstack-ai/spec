@@ -22,7 +22,7 @@
  * constructor arguments from the host app.
  */
 
-import type { Contracts } from '@objectstack/spec';
+import type * as Contracts from '@objectstack/spec/contracts';
 import { Plugin, PluginContext } from '@objectstack/core';
 import { SeedLoaderConfigSchema } from '@objectstack/spec/data';
 import {

@@ -77,7 +77,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import type { IDataDriver } from '@objectstack/spec';
+import type { IDataDriver } from '@objectstack/spec/contracts';
 
 /** Options for the v4→v5 migration. */
 export interface V4ToV5MigrationOptions {

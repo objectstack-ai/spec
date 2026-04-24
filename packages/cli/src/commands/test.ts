@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import path from 'path';
 import fs from 'fs';
 import { QA as CoreQA } from '@objectstack/core';
-import { QA } from '@objectstack/spec';
+import * as QA from '@objectstack/spec/qa';
 
 /**
  * Resolve a glob-like pattern to matching file paths.

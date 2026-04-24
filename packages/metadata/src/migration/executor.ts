@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { System } from '@objectstack/spec';
+import * as System from '@objectstack/spec/system';
 import { ISchemaDriver } from '@objectstack/spec/contracts';
 
 export class MigrationExecutor {

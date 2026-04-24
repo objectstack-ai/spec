@@ -29,7 +29,7 @@
  */
 
 import { resolve as resolvePath } from 'node:path';
-import type { Contracts } from '@objectstack/spec';
+import type * as Contracts from '@objectstack/spec/contracts';
 import {
     type BasePluginsFactory,
     type AppBundleResolver,
