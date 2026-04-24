@@ -1,0 +1,304 @@
+---
+title: Seed Data & Fixtures
+description: Populate ObjectStack objects with bootstrap data, reference records, and demo fixtures using defineDataset()
+---
+
+# Seed Data & Fixtures
+
+`defineDataset()` is the canonical way to define seed data in ObjectStack. It provides
+compile-time type safety by inferring valid field keys directly from your object
+definition, so typos in record field names are caught before the code runs.
+
+Use seed data for:
+
+- **System bootstrap** — default roles, admin users, system configuration
+- **Reference data** — countries, currencies, ISO codes, standard picklist values
+- **Demo / test fixtures** — realistic sample records for development and CI
+
+---
+
+## Quick Start
+
+```typescript
+import { defineDataset } from '@objectstack/spec/data';
+import { Account } from './objects/account.object';
+
+export const accountsSeed = defineDataset(Account, {
+  externalId: 'name',      // field used as the upsert / idempotency key
+  mode: 'upsert',          // create if new, update if found
+  env: ['dev', 'test'],    // only load in dev and test environments
+  records: [
+    {
+      name: 'Acme Corporation',
+      type: 'customer',
+      industry: 'technology',
+      annual_revenue: 5000000,
+    },
+    {
+      name: 'Globex Industries',
+      type: 'prospect',
+      industry: 'manufacturing',
+      annual_revenue: 12000000,
+    },
+  ],
+});
+```
+
+The first argument is the **object definition** (the exported constant from your
+object file), not a string. This lets TypeScript validate every field name in
+`records` against the object's `fields` map at compile time.
+
+---
+
+## Import Modes
+
+The `mode` field controls how the seed runner behaves when it encounters an existing
+record (matched by `externalId`).
+
+| Mode | Behavior | Use Case |
+|:-----|:---------|:---------|
+| `upsert` | Create if new, update if found | Default — idempotent for most data |
+| `insert` | Create only, throw on duplicate | Append-only tables, audit logs |
+| `update` | Update only, skip if not found | Migration patches on existing rows |
+| `ignore` | Create if new, silently skip duplicates | Bootstrap data that must not overwrite user edits |
+| `replace` | Delete ALL records then insert | Cache / lookup tables rebuilt on each run |
+
+### `upsert` — Recommended Default
+
+```typescript
+defineDataset(Currency, {
+  externalId: 'code',
+  mode: 'upsert',
+  records: [
+    { code: 'USD', name: 'US Dollar',    symbol: '$' },
+    { code: 'EUR', name: 'Euro',         symbol: '€' },
+    { code: 'GBP', name: 'British Pound', symbol: '£' },
+  ],
+});
+```
+
+### `ignore` — Bootstrap Without Overwriting
+
+```typescript
+defineDataset(SystemRole, {
+  externalId: 'code',
+  mode: 'ignore',
+  records: [
+    { code: 'admin',  label: 'Administrator' },
+    { code: 'viewer', label: 'Viewer' },
+  ],
+});
+```
+
+### `replace` — Full Table Rebuild
+
+```typescript
+// ⚠️ Deletes ALL records in the object before inserting.
+// Only use for cache or lookup tables with no user-generated data.
+defineDataset(ExchangeRateCache, {
+  externalId: 'key',
+  mode: 'replace',
+  env: ['dev'],
+  records: [
+    { key: 'USD_EUR', rate: 0.92 },
+    { key: 'USD_GBP', rate: 0.79 },
+  ],
+});
+```
+
+---
+
+## Environment Scoping
+
+The `env` array controls which deployment environments receive the records. The
+default is `['prod', 'dev', 'test']` — all environments.
+
+```typescript
+// Reference data — safe for all environments (default)
+defineDataset(Country, {
+  // env omitted → defaults to ['prod', 'dev', 'test']
+  records: [
+    { code: 'US', name: 'United States' },
+    { code: 'GB', name: 'United Kingdom' },
+  ],
+});
+
+// Demo data — never reaches production
+defineDataset(Account, {
+  env: ['dev', 'test'],
+  records: [
+    { name: 'Demo Corp', type: 'customer' },
+  ],
+});
+
+// Automated test fixtures — CI/CD only
+defineDataset(TestUser, {
+  env: ['test'],
+  records: [
+    { email: 'ci-admin@example.com', role: 'admin' },
+  ],
+});
+```
+
+---
+
+## Type Safety
+
+`defineDataset()` infers valid field keys from the object definition you pass as the
+first argument. If you reference a field that does not exist on the object, TypeScript
+reports an error immediately.
+
+```typescript
+import { Account } from './objects/account.object';
+
+defineDataset(Account, {
+  records: [
+    {
+      name: 'Test Corp',
+      typo_fild: 'value',
+      //  ^^^^^^^^^
+      //  TS Error: Object literal may only specify known properties,
+      //  and 'typo_fild' does not exist in type 'Partial<Record<keyof ...>>'
+    },
+  ],
+});
+```
+
+This is a major advantage over writing plain JSON — always use `defineDataset()`
+over the raw `DatasetSchema.parse()` call.
+
+---
+
+## Relationship Fields
+
+For `lookup` fields that reference another object, supply the **natural key value**
+of the related record (such as `name`, `email`, or `code`) — not its UUID. The seed
+runner resolves natural keys to database IDs automatically at load time.
+
+```typescript
+// Step 1 — seed the parent object first
+const accountsSeed = defineDataset(Account, {
+  externalId: 'name',
+  records: [
+    { name: 'Acme Corporation', type: 'customer' },
+  ],
+});
+
+// Step 2 — seed the child object, referencing the parent by natural key
+const contactsSeed = defineDataset(Contact, {
+  externalId: 'email',
+  records: [
+    {
+      email: 'john.smith@acme.example.com',
+      first_name: 'John',
+      last_name: 'Smith',
+      account: 'Acme Corporation',   // natural key, not a UUID
+    },
+  ],
+});
+
+// Export in dependency order — parents before children
+export const SeedData = [accountsSeed, contactsSeed];
+```
+
+---
+
+## Organising Multiple Datasets
+
+For applications with several objects, co-locate seed files under `src/data/` and
+export a single aggregate array.
+
+```
+src/
+  data/
+    index.ts              ← exports SeedData array in dependency order
+    accounts.seed.ts
+    contacts.seed.ts
+    leads.seed.ts
+    products.seed.ts
+```
+
+```typescript
+// src/data/index.ts
+import { accountsSeed }  from './accounts.seed';
+import { contactsSeed }  from './contacts.seed';
+import { leadsSeed }     from './leads.seed';
+import { productsSeed }  from './products.seed';
+
+/** All seed datasets — order determines load sequence */
+export const SeedData = [
+  accountsSeed,   // no dependencies
+  productsSeed,   // no dependencies
+  contactsSeed,   // depends on accounts
+  leadsSeed,      // no dependencies
+];
+```
+
+---
+
+## Best Practices
+
+### Choose a stable `externalId`
+
+The `externalId` field must be a **stable natural key** that does not change between
+environments. Avoid using the auto-generated `id` (UUID) because UUIDs differ between
+databases.
+
+| Scenario | Recommended `externalId` |
+|:---------|:------------------------|
+| Named entities (countries, currencies) | `'code'` or `'slug'` |
+| User records | `'email'` |
+| Generic named records | `'name'` (default) |
+| Externally sourced data | `'external_id'` |
+
+### Scope demo data with `env`
+
+Keep demo and test-only records out of production by setting `env: ['dev', 'test']`.
+System bootstrap data that must exist in production should omit `env` (or explicitly
+set `['prod', 'dev', 'test']`).
+
+### Use `upsert` by default
+
+`upsert` is idempotent and the safest default. Only change the mode when the use
+case requires it — for example, `ignore` when you must not overwrite user edits to
+system defaults, or `replace` for ephemeral cache tables.
+
+### Seed in dependency order
+
+Always export parent datasets before child datasets. If `contact` has a lookup to
+`account`, `accountsSeed` must appear before `contactsSeed` in the exported array.
+
+### Keep records realistic
+
+Demo data appears in screenshots, documentation, and live demos. Use realistic
+company names, email addresses, and values — not `foo`, `bar`, or `test123`.
+
+### One file per object
+
+Split large seed payloads into `{object}.seed.ts` files. A single `index.ts` that
+re-exports and orders them keeps the entry point clean.
+
+---
+
+## `defineDataset()` API Reference
+
+```typescript
+function defineDataset<
+  const TObj extends { name: string; fields: Record<string, unknown> }
+>(
+  objectDef: TObj,
+  config: {
+    externalId?: string;                    // default: 'name'
+    mode?: 'insert' | 'update' | 'upsert' | 'replace' | 'ignore'; // default: 'upsert'
+    env?: Array<'prod' | 'dev' | 'test'>;  // default: ['prod','dev','test']
+    records: Array<Partial<Record<keyof TObj['fields'], unknown>>>;
+  }
+): Dataset
+```
+
+The returned `Dataset` object is a plain serialisable value — pass it to your
+stack's seed runner or store it in an export array.
+
+---
+
+**Next:** [Data Modeling Guide](./data-modeling)
