@@ -10,6 +10,12 @@
       "outputs": ["coverage/**"],
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.ts", "test/**/*.tsx"]
     },
+    "test:e2e": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "outputs": ["playwright-report/**", "test-results/**"],
+      "inputs": ["src/**", "e2e/**", "playwright.config.ts"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
