@@ -379,7 +379,11 @@ export default class Serve extends Command {
           // No need to manually construct the adapter here.
           await kernel.use(new AIServicePlugin());
           trackPlugin('AIService');
-        } catch {
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          if (!msg.includes('Cannot find module') && !msg.includes('ERR_MODULE_NOT_FOUND')) {
+            console.error('[AI] AIServicePlugin failed to start:', msg);
+          }
           // @objectstack/service-ai not installed — AI features unavailable
         }
       }
@@ -405,7 +409,7 @@ export default class Serve extends Command {
       // Boot the runtime
       await runtime.start();
 
-      // Wait briefly for pino worker thread buffers to flush, then restore
+      // Brief delay to allow logger writes to flush before restoring stdout
       await new Promise(r => setTimeout(r, 100));
       restoreOutput();
 
@@ -420,13 +424,8 @@ export default class Serve extends Command {
         studioPath: STUDIO_PATH,
       });
 
-      // Keep process alive
-      process.on('SIGINT', async () => {
-        console.warn(chalk.yellow(`\n\n⏹  Stopping server...`));
-        await runtime.getKernel().shutdown();
-        console.log(chalk.green(`✅ Server stopped`));
-        process.exit(0);
-      });
+      // Kernel already registers SIGINT/SIGTERM handlers during bootstrap.
+      // No duplicate handler needed here — just keep the process alive.
 
     } catch (error: any) {
       restoreOutput();

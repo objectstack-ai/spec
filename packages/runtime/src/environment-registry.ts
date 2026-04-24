@@ -240,7 +240,13 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
     const databaseDriver = projectRow.database_driver;
 
     if (!databaseUrl || !databaseDriver) {
-      console.warn(`[EnvironmentRegistry] Project ${projectId} missing database_url or database_driver`);
+      const status = projectRow.status;
+      if (status === 'provisioning' || status === 'pending') {
+        // Expected during async provisioning — database_url is set after the background job completes
+        console.debug(`[EnvironmentRegistry] Project ${projectId} is ${status}, database not ready yet`);
+      } else {
+        console.warn(`[EnvironmentRegistry] Project ${projectId} missing database_url or database_driver (status: ${status ?? 'unknown'})`);
+      }
       return null;
     }
 

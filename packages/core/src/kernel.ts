@@ -328,6 +328,7 @@ export class ObjectKernel {
                 
                 if (!result.success) {
                     this.logger.error(`Plugin startup failed: ${plugin.name}`, result.error);
+                    console.error(`[Kernel] Plugin startup failed: ${plugin.name}`, result.error instanceof Error ? result.error.message : result.error, result.error instanceof Error ? result.error.stack : '');
                     
                     if (this.config.rollbackOnFailure) {
                         this.logger.warn('Rolling back started plugins...');
@@ -366,25 +367,26 @@ export class ObjectKernel {
         this.logger.info('Graceful shutdown started');
 
         try {
-            // Create shutdown promise with timeout
             const shutdownPromise = this.performShutdown();
             const timeoutPromise = new Promise<void>((_, reject) => {
-                setTimeout(() => {
+                const t = setTimeout(() => {
                     reject(new Error('Shutdown timeout exceeded'));
                 }, this.config.shutdownTimeout);
+                // Don't let this timer keep the event loop alive
+                if (t.unref) t.unref();
             });
 
-            // Race between shutdown and timeout
             await Promise.race([shutdownPromise, timeoutPromise]);
 
             this.state = 'stopped';
             this.logger.info('✅ Graceful shutdown complete');
         } catch (error) {
-            this.logger.error('Shutdown error - forcing stop', error as Error);
+            this.logger.error('Shutdown timed out — forcing exit', error as Error);
             this.state = 'stopped';
-            throw error;
+            // Flush logger then hard-exit; the process would otherwise hang
+            await this.logger.destroy();
+            process.exit(1);
         } finally {
-            // Cleanup logger resources
             await this.logger.destroy();
         }
     }
