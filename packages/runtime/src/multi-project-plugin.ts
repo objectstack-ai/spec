@@ -84,31 +84,27 @@ interface ExtractedItem {
     data: unknown;
 }
 
-const RESERVED_NS = new Set(['base', 'system']);
 
 /**
  * Flatten an `ObjectStackDefinition` bundle into `{type, name, data}`
- * items consumable by `MetadataPlugin.bulkRegister`. Object names are
- * namespaced (`${ns}__${name}`) when the bundle declares a non-reserved
- * namespace and the name is not already prefixed.
+ * items consumable by `MetadataPlugin.bulkRegister`.
+ *
+ * Object names are kept as the canonical short name — FQN
+ * (`${ns}__${name}`) is no longer the canonical key per the current
+ * naming convention; the registry stores items by short name and
+ * disambiguates via the `_packageId`/namespace tag instead.
  */
 function extractMetadataItems(bundle: any): ExtractedItem[] {
     const items: ExtractedItem[] = [];
-    const ns = bundle?.manifest?.namespace as string | undefined;
 
-    const toFQN = (name: string): string =>
-        name.includes('__') || !ns || RESERVED_NS.has(ns) ? name : `${ns}__${name}`;
-
-    const pushAll = (type: string, arr?: any[], rewriteName = false) => {
+    const pushAll = (type: string, arr?: any[]) => {
         for (const item of arr ?? []) {
             if (!item?.name) continue;
-            const name = rewriteName ? toFQN(item.name) : item.name;
-            const data = rewriteName ? { ...item, name } : item;
-            items.push({ type, name, data });
+            items.push({ type, name: item.name, data: item });
         }
     };
 
-    pushAll('object', bundle?.objects, true);
+    pushAll('object', bundle?.objects);
     pushAll('view', bundle?.views);
     pushAll('dashboard', bundle?.dashboards);
     pushAll('report', bundle?.reports);
@@ -121,19 +117,13 @@ function extractMetadataItems(bundle: any): ExtractedItem[] {
 }
 
 /**
- * Rewrite a dataset's `object` to the namespaced FQN so seed rows target
- * the object the metadata layer actually registered. Bundle authors write
- * the short name (`task`) because the namespace lives on the manifest;
- * `extractMetadataItems` does the equivalent rewrite for objects.
+ * Pass datasets through unchanged. Object names in datasets are
+ * canonical short names — matching the names registered in the
+ * registry (which no longer applies an `${ns}__` prefix).
  */
 function namespaceDatasets(bundle: any): any[] {
-    const ns = bundle?.manifest?.namespace as string | undefined;
     const datasets = Array.isArray(bundle?.data) ? bundle.data : [];
-    if (!ns || RESERVED_NS.has(ns)) return datasets;
-    return datasets.map((ds: any) => {
-        if (!ds?.object || ds.object.includes('__')) return ds;
-        return { ...ds, object: `${ns}__${ds.object}` };
-    });
+    return datasets;
 }
 
 function createTemplateSeeder(

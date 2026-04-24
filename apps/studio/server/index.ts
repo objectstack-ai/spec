@@ -178,15 +178,9 @@ async function seedData(kernel: ObjectKernel, configs: any[]) {
     const ql = (kernel as any).context?.getService('objectql');
     if (!ql) return;
 
-    const RESERVED_NS = new Set(['base', 'system']);
-    const toFQN = (name: string, namespace?: string) => {
-        if (name.includes('__') || !namespace || RESERVED_NS.has(namespace)) return name;
-        return `${namespace}__${name}`;
-    };
-
+    // Object names in datasets are canonical short names — the registry stores
+    // objects by short name; namespace disambiguation is internal to the registry.
     for (const appConfig of configs) {
-        const namespace = (appConfig.manifest || appConfig)?.namespace as string | undefined;
-
         const seedDatasets: any[] = [];
         if (Array.isArray(appConfig.data)) {
             seedDatasets.push(...appConfig.data);
@@ -198,15 +192,15 @@ async function seedData(kernel: ObjectKernel, configs: any[]) {
         for (const dataset of seedDatasets) {
             if (!dataset.records || !dataset.object) continue;
 
-            const objectFQN = toFQN(dataset.object, namespace);
+            const objectName = dataset.object;
 
-            let existing = await ql.find(objectFQN);
+            let existing = await ql.find(objectName);
             if (existing && (existing as any).value) existing = (existing as any).value;
 
             if (!existing || existing.length === 0) {
-                console.log(`[Vercel] Seeding ${dataset.records.length} records for ${objectFQN}`);
+                console.log(`[Vercel] Seeding ${dataset.records.length} records for ${objectName}`);
                 for (const record of dataset.records) {
-                    await ql.insert(objectFQN, record);
+                    await ql.insert(objectName, record);
                 }
             }
         }

@@ -108,17 +108,10 @@ export async function createKernel(options: KernelOptions) {
     // FORCE SYNC SEED: Guarantees data availability for both Browser and Tests
     const ql = (kernel as any).context?.getService('objectql');
     if (ql) {
-        // Helper: resolve short object name to FQN using namespace
-        const RESERVED_NS = new Set(['base', 'system']);
-        const toFQN = (name: string, namespace?: string) => {
-            if (name.includes('__') || !namespace || RESERVED_NS.has(namespace)) return name;
-            return `${namespace}__${name}`;
-        };
-
-        // Seed data for all app configs
+        // Seed data for all app configs. Object names in datasets are
+        // canonical short names — the registry stores objects by short name
+        // and disambiguates cross-package collisions via the package tag.
         for (const appConfig of allConfigs) {
-            const namespace = (appConfig.manifest || appConfig)?.namespace as string | undefined;
-            
             // Collect datasets from all locations:
             // 1. Top-level `data` (new standard)
             // 2. `manifest.data` (legacy/backward compat)
@@ -129,23 +122,23 @@ export async function createKernel(options: KernelOptions) {
             if (appConfig.manifest && Array.isArray(appConfig.manifest.data)) {
                 seedDatasets.push(...appConfig.manifest.data);
             }
-            
+
             for (const dataset of seedDatasets) {
                 if (!dataset.records || !dataset.object) continue;
-                
-                const objectFQN = toFQN(dataset.object, namespace);
-                
+
+                const objectName = dataset.object;
+
                 // Check if data already seeded
-                let existing = await ql.find(objectFQN);
+                let existing = await ql.find(objectName);
                 if (existing && (existing as any).value) existing = (existing as any).value;
-                
+
                 if (!existing || existing.length === 0) {
-                    console.log(`[KernelFactory] Manual Seeding ${dataset.records.length} records for ${objectFQN}`);
+                    console.log(`[KernelFactory] Manual Seeding ${dataset.records.length} records for ${objectName}`);
                     for (const record of dataset.records) {
-                        await ql.insert(objectFQN, record);
+                        await ql.insert(objectName, record);
                     }
                 } else {
-                    console.log(`[KernelFactory] Data verified present for ${objectFQN}: ${existing.length} records.`);
+                    console.log(`[KernelFactory] Data verified present for ${objectName}: ${existing.length} records.`);
                 }
             }
         }

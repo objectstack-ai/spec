@@ -4,10 +4,10 @@
  * Flatten an `ObjectStackDefinition` bundle into the `{type, name, data}`
  * shape consumed by `MetadataPlugin.bulkRegister`.
  *
- * Object names are namespaced (`${ns}__${name}`) when the bundle declares
- * a non-reserved namespace and the name is not already prefixed. Other
- * metadata types (view/dashboard/flow/...) are preserved as-is to match
- * the existing AppPlugin install path.
+ * Object names are kept as the canonical short name. The registry stores
+ * objects by short name and disambiguates cross-package collisions via the
+ * package/namespace tag — adding `${ns}__` here would surface FQN names in
+ * URLs and queries (forbidden by the naming convention).
  *
  * Skipped on purpose:
  *   - apis / actions   — handler refs require kernel code, not metadata only
@@ -21,25 +21,17 @@ export interface ExtractedItem {
     data: unknown;
 }
 
-const RESERVED_NS = new Set(['base', 'system']);
-
 export function extractMetadataItems(bundle: any): ExtractedItem[] {
     const items: ExtractedItem[] = [];
-    const ns = bundle?.manifest?.namespace as string | undefined;
 
-    const toFQN = (name: string): string =>
-        name.includes('__') || !ns || RESERVED_NS.has(ns) ? name : `${ns}__${name}`;
-
-    const pushAll = (type: string, arr?: any[], rewriteName = false) => {
+    const pushAll = (type: string, arr?: any[]) => {
         for (const item of arr ?? []) {
             if (!item?.name) continue;
-            const name = rewriteName ? toFQN(item.name) : item.name;
-            const data = rewriteName ? { ...item, name } : item;
-            items.push({ type, name, data });
+            items.push({ type, name: item.name, data: item });
         }
     };
 
-    pushAll('object', bundle?.objects, true);
+    pushAll('object', bundle?.objects);
     pushAll('view', bundle?.views);
     pushAll('dashboard', bundle?.dashboards);
     pushAll('report', bundle?.reports);
