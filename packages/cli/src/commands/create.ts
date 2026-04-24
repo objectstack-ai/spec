@@ -42,7 +42,7 @@ export const templates = {
         },
         include: ['src/**/*'],
       }),
-      'src/index.ts': (name: string) => `import type { Plugin } from '@objectstack/spec';
+      'src/index.ts': (name: string) => `import type { Plugin } from '@objectstack/spec/contracts';
 
 /**
  * ${name} Plugin for ObjectStack

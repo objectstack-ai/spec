@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { QA } from '@objectstack/spec';
+import * as QA from '@objectstack/spec/qa';
 import { TestExecutionAdapter } from './adapter.js';
 
 export class HttpTestAdapter implements TestExecutionAdapter {

@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import type { Contracts } from '@objectstack/spec';
+import type * as Contracts from '@objectstack/spec/contracts';
 type IDataDriver = Contracts.IDataDriver;
 
 /**

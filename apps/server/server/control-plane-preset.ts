@@ -12,7 +12,7 @@
  * (start, stop) to the real instance stored on `_impl`.
  */
 
-import type { Contracts } from '@objectstack/spec';
+import type * as Contracts from '@objectstack/spec/contracts';
 
 export interface ControlPlanePresetConfig {
   /** Promise resolving to the control-plane driver. Accepted as a Promise so

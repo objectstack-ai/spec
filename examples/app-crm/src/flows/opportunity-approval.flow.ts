@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import type { Automation } from '@objectstack/spec';
+import type * as Automation from '@objectstack/spec/automation';
 type Flow = Automation.Flow;
 
 /** Opportunity Approval — multi-level approval for deals over $100K */

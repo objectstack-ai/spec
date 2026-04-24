@@ -6,7 +6,7 @@ import type {
   AIToolDefinition,
   IMetadataService,
 } from '@objectstack/spec/contracts';
-import type { Agent } from '@objectstack/spec';
+import type { Agent } from '@objectstack/spec/ai';
 import { AgentSchema } from '@objectstack/spec/ai';
 
 /**

@@ -1,6 +1,6 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import type { Agent } from '@objectstack/spec';
+import type { Agent } from '@objectstack/spec/ai';
 
 /**
  * Built-in `metadata_assistant` agent definition.

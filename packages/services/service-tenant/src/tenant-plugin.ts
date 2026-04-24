@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import type { Plugin, PluginContext } from '@objectstack/spec';
+import type { Plugin } from '@objectstack/spec/contracts';
+import type { PluginContext } from '@objectstack/spec/kernel';
 import type { TenantRoutingConfig } from '@objectstack/spec/cloud';
 import { TenantContextService } from './tenant-context';
 import {

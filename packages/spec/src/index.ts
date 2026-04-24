@@ -40,26 +40,18 @@
  */
 
 // ============================================================================
-// NAMESPACE EXPORTS
+// NAMESPACE EXPORTS — REMOVED
 // ============================================================================
-// Export protocol domains as namespaces to prevent naming conflicts
-// and establish clear boundaries between different protocol layers.
-export * as Shared from './shared';
-export * as Data from './data';
-export * as Security from './security';
-export * as UI from './ui';
-export * as System from './system';
-export * as Kernel from './kernel';
-export * as Cloud from './cloud';
-export * as QA from './qa';
-export * as Identity from './identity';
-export * as AI from './ai';
-export * as API from './api';
-
-export * as Automation from './automation';
-export * as Integration from './integration';
-export * as Contracts from './contracts';
-export * as Studio from './studio';
+// `export * as Namespace from './sub'` is NOT tree-shakeable in Node ESM —
+// every subdomain (16 of them, ~400 Zod schema closures) is force-evaluated
+// on the first `import` of `@objectstack/spec`, even when consumers only
+// touch one namespace. This caused ~1.2GB RSS bloat in `@objectstack/server`.
+//
+// Use subpath imports instead:
+//   import * as Data from '@objectstack/spec/data';
+//   import { Field } from '@objectstack/spec/data';
+//
+// Enforced by the `no-restricted-imports` ESLint rule.
 
 export {
   defineStack,

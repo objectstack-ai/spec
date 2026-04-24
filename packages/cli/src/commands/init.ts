@@ -52,7 +52,7 @@ export default defineStack({
     srcFiles: {
       'src/objects/index.ts': (name) => `export { default as ${toCamelCase(name)} } from './${name}';
 `,
-      'src/objects/__name__.ts': (name) => `import { Data } from '@objectstack/spec';
+      'src/objects/__name__.ts': (name) => `import * as Data from '@objectstack/spec/data';
 
 const ${toCamelCase(name)}: Data.Object = {
   name: '${name}',
@@ -120,7 +120,7 @@ export default defineStack({
     srcFiles: {
       'src/objects/index.ts': (name) => `export { default as ${toCamelCase(name)} } from './${name}';
 `,
-      'src/objects/__name__.ts': (name) => `import { Data } from '@objectstack/spec';
+      'src/objects/__name__.ts': (name) => `import * as Data from '@objectstack/spec/data';
 
 const ${toCamelCase(name)}: Data.Object = {
   name: '${name}',

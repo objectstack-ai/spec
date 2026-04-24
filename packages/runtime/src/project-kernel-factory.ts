@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { ObjectKernel, Plugin } from '@objectstack/core';
-import type { Contracts } from '@objectstack/spec';
+import type * as Contracts from '@objectstack/spec/contracts';
 import { DriverPlugin } from './driver-plugin.js';
 import { AppPlugin } from './app-plugin.js';
 import type { ProjectKernelFactory } from './kernel-manager.js';

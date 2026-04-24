@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import type { IDataDriver, ObjectDefinition } from '@objectstack/spec';
+import type { IDataDriver } from '@objectstack/spec/contracts';
+import type { ObjectDefinition } from '@objectstack/spec/data';
 import { TursoDriver } from '@objectstack/driver-turso';
 
 /**

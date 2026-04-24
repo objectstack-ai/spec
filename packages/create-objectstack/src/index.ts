@@ -82,7 +82,7 @@ export default defineStack({
         include: ['*.ts', 'src/**/*'],
         exclude: ['dist', 'node_modules'],
       }, null, 2) + '\n',
-      'src/objects/task.ts': () => `import { Data } from '@objectstack/spec';
+      'src/objects/task.ts': () => `import * as Data from '@objectstack/spec/data';
 
 const task: Data.Object = {
   name: 'task',
@@ -217,7 +217,7 @@ export default defineStack({
         include: ['*.ts', 'src/**/*'],
         exclude: ['dist', 'node_modules'],
       }, null, 2) + '\n',
-      'src/objects/contact.ts': () => `import { Data } from '@objectstack/spec';
+      'src/objects/contact.ts': () => `import * as Data from '@objectstack/spec/data';
 
 const contact: Data.Object = {
   name: 'contact',
@@ -252,7 +252,7 @@ const contact: Data.Object = {
 
 export default contact;
 `,
-      'src/objects/company.ts': () => `import { Data } from '@objectstack/spec';
+      'src/objects/company.ts': () => `import * as Data from '@objectstack/spec/data';
 
 const company: Data.Object = {
   name: 'company',
@@ -283,7 +283,7 @@ const company: Data.Object = {
 
 export default company;
 `,
-      'src/objects/deal.ts': () => `import { Data } from '@objectstack/spec';
+      'src/objects/deal.ts': () => `import * as Data from '@objectstack/spec/data';
 
 const deal: Data.Object = {
   name: 'deal',
@@ -334,7 +334,7 @@ export default deal;
 export { default as company } from './company';
 export { default as deal } from './deal';
 `,
-      'src/views/contact_list.ts': () => `import { UI } from '@objectstack/spec';
+      'src/views/contact_list.ts': () => `import * as UI from '@objectstack/spec/ui';
 
 const contactList: UI.View = {
   name: 'contact_list',
@@ -346,7 +346,7 @@ const contactList: UI.View = {
 
 export default contactList;
 `,
-      'src/views/company_list.ts': () => `import { UI } from '@objectstack/spec';
+      'src/views/company_list.ts': () => `import * as UI from '@objectstack/spec/ui';
 
 const companyList: UI.View = {
   name: 'company_list',
@@ -358,7 +358,7 @@ const companyList: UI.View = {
 
 export default companyList;
 `,
-      'src/views/deal_list.ts': () => `import { UI } from '@objectstack/spec';
+      'src/views/deal_list.ts': () => `import * as UI from '@objectstack/spec/ui';
 
 const dealList: UI.View = {
   name: 'deal_list',
@@ -370,7 +370,7 @@ const dealList: UI.View = {
 
 export default dealList;
 `,
-      'src/apps/crm.ts': () => `import { UI } from '@objectstack/spec';
+      'src/apps/crm.ts': () => `import * as UI from '@objectstack/spec/ui';
 
 const crm: UI.App = {
   name: 'crm',
@@ -483,7 +483,7 @@ export default defineStack({
  */
 export * as objects from './objects';
 `,
-      'src/objects/sample.ts': (name) => `import { Data } from '@objectstack/spec';
+      'src/objects/sample.ts': (name) => `import * as Data from '@objectstack/spec/data';
 
 const sample: Data.Object = {
   name: '${name}_sample',
