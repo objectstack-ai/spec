@@ -98,7 +98,7 @@
     "build": "pnpm gen:schema && pnpm gen:openapi && tsup && NODE_OPTIONS=\"--max-old-space-size=4096\" BUILD_DTS=true tsup",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "gen:schema": "tsx scripts/build-schemas.ts",
+    "gen:schema": "OBJECTSTACK_EAGER_SCHEMAS=1 tsx scripts/build-schemas.ts",
     "gen:openapi": "tsx scripts/build-openapi.ts",
     "gen:docs": "tsx scripts/build-docs.ts",
     "gen:skill-refs": "tsx scripts/build-skill-references.ts",

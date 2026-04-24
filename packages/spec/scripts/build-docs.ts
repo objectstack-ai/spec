@@ -266,12 +266,22 @@ function generateZodFileMarkdown(zodFile: string, schemas: Array<{name: string, 
 
 console.log('Building documentation...');
 
-// 1. Clean existing category folders from DOCS_ROOT
+// 1. Clean existing category folders from DOCS_ROOT — but only when there are
+// JSON schemas to regenerate from. Otherwise we'd silently delete every .mdx
+// file when the upstream `gen:schema` step produced nothing (data loss).
 Object.keys(CATEGORIES).forEach(category => {
   const dir = path.join(DOCS_ROOT, category);
+  const schemaDir = path.join(SCHEMA_DIR, category);
+  const hasSchemas = fs.existsSync(schemaDir)
+    && fs.readdirSync(schemaDir).some(f => f.endsWith('.json'));
+  if (!hasSchemas) {
+    if (fs.existsSync(dir)) {
+      console.warn(`⚠ Skipping clean of ${category}/ — no JSON schemas found in ${schemaDir}. Run \`pnpm gen:schema\` first.`);
+    }
+    return;
+  }
   if (fs.existsSync(dir)) {
     fs.rmSync(dir, { recursive: true, force: true });
-    // console.log(`Cleaned ${dir}`);
   }
 });
 

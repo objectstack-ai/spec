@@ -8,7 +8,29 @@ process.env.OBJECTSTACK_EAGER_SCHEMAS = '1';
 import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
-import * as Protocol from '../src/index';
+import * as AI from '../src/ai';
+import * as API from '../src/api';
+import * as Automation from '../src/automation';
+import * as Cloud from '../src/cloud';
+import * as Contracts from '../src/contracts';
+import * as Data from '../src/data';
+import * as Identity from '../src/identity';
+import * as Integration from '../src/integration';
+import * as Kernel from '../src/kernel';
+import * as QA from '../src/qa';
+import * as Security from '../src/security';
+import * as Shared from '../src/shared';
+import * as Studio from '../src/studio';
+import * as System from '../src/system';
+import * as UI from '../src/ui';
+
+// Root index no longer re-exports namespaces (removed for tree-shaking — see
+// packages/spec/src/index.ts). Build subpath-by-subpath instead so every
+// category folder under json-schema/ gets populated.
+const Protocol: Record<string, Record<string, unknown>> = {
+  AI, API, Automation, Cloud, Contracts, Data, Identity, Integration,
+  Kernel, QA, Security, Shared, Studio, System, UI,
+};
 
 const OUT_DIR = path.resolve(__dirname, '../json-schema');
 const SPEC_VERSION = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf-8')).version;
