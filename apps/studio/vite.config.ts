@@ -90,10 +90,6 @@ export default defineConfig({
       transformMixedEsModules: true
     },
     rollupOptions: {
-      external: [
-        '@objectstack/metadata',
-        '@objectstack/objectql',
-      ],
       // Suppress warnings for optional dynamic imports in runtime
       onwarn(warning, warn) {
         // Ignore unresolved import warnings for @objectstack/driver-memory

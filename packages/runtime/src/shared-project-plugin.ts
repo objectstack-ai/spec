@@ -72,8 +72,9 @@ export class SharedProjectPlugin implements Plugin {
                 if (!scopeId) {
                     throw new Error('[SharedProjectPlugin] scopeId (projectId) required for scoped metadata');
                 }
-                // Dynamic import — @objectstack/metadata is a peer dep, not a hard dep of runtime
-                const metadataMod = await import('@objectstack/metadata' as string);
+                // Dynamic import — @objectstack/metadata is a peer dep, not a hard dep of runtime.
+                // new Function prevents bundlers (Vite/Rolldown) from resolving this as a bare specifier.
+                const metadataMod = await new Function('m', 'return import(m)')('@objectstack/metadata');
                 const MetadataManager = metadataMod.MetadataManager;
                 const driver = await _ctx.getServiceScoped<any>('driver', scopeId);
                 const manager = new MetadataManager();
@@ -91,8 +92,9 @@ export class SharedProjectPlugin implements Plugin {
                 if (!scopeId) {
                     throw new Error('[SharedProjectPlugin] scopeId (projectId) required for scoped objectql');
                 }
-                // Dynamic import — @objectstack/objectql is a peer dep, not a hard dep of runtime
-                const objectqlMod = await import('@objectstack/objectql' as string);
+                // Dynamic import — @objectstack/objectql is a peer dep, not a hard dep of runtime.
+                // new Function prevents bundlers (Vite/Rolldown) from resolving this as a bare specifier.
+                const objectqlMod = await new Function('m', 'return import(m)')('@objectstack/objectql');
                 const ObjectQL = objectqlMod.ObjectQL;
                 const driver = await _ctx.getServiceScoped<any>('driver', scopeId);
                 const ql = new ObjectQL({ logger: _ctx.logger });
