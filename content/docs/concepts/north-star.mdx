@@ -1,0 +1,413 @@
+---
+title: North Star
+description: The product shape of ObjectStack — cloud dashboard, org/project/branch hierarchy, per-project ObjectOS, and compiled app artifacts. Every architecture decision aligns here first.
+---
+
+import { Cloud, Cpu, GitBranch, Globe, Layers, AlertTriangle } from 'lucide-react';
+
+# North Star
+
+> This document is the **product-shape blueprint** for ObjectStack. The sibling documents
+> (`architecture.mdx`, `metadata-driven.mdx`) describe the **microkernel internals**.
+> This one describes **what users actually do** and **what the platform looks like from
+> the outside**. When an architecture decision is unclear, read this first.
+
+## 1. Mission
+
+ObjectStack is a **metadata-driven Post-SaaS Operating System**. Users define
+data shape, business logic, and UI as **declarative metadata** in a cloud dashboard.
+The platform compiles that metadata into running applications — no glue code, no
+hand-written CRUD, no separate frontend/backend codebases.
+
+Four non-negotiable tenets:
+
+- **Data as Code** — objects, fields, functions, views, flows are all metadata artifacts
+- **Centralized Metadata, Stateless Runtime** — metadata is the single source of truth in the control plane; ObjectOS runtimes are stateless consumers that pull a compiled artifact and serve it
+- **Local-First** — every project can run against local drivers; cloud is an enhancement, not a dependency
+- **Open Core** — the runtime and protocols are MIT-licensed; only hosted cloud features are proprietary
+
+## 2. The Product Metaphor
+
+ObjectStack is **Git + Supabase, applied to metadata**. Git gives us branching
+and versioning semantics on metadata; Supabase gives us the hosted-project
+developer experience. The runtime is a consumer of compiled artifacts, not a
+living editor.
+
+<Cards>
+  <Card icon={<Cloud />} title="Studio Dashboard" description="Create orgs, projects, branches. Edit metadata visually. All writes land in control plane." />
+  <Card icon={<Globe />} title="Artifact API" description="Control plane endpoint that returns a branch's compiled artifact. HTTP today, S3-backed tomorrow." />
+  <Card icon={<Cpu />} title="ObjectOS Runtime" description="Stateless artifact consumer. Pulls once, caches, serves API + UI. Survives control-plane outages." />
+</Cards>
+
+| Git / Supabase        | ObjectStack                                              |
+| :-------------------- | :------------------------------------------------------- |
+| Organization          | Organization                                             |
+| Repo                  | Project                                                  |
+| Branch                | Branch — metadata version line in control plane          |
+| Commit                | Metadata edit via Studio                                 |
+| Tag / Release         | Published App Artifact *(designed now, implemented next round)* |
+| `git pull` + run      | ObjectOS pulls artifact → boots                          |
+| Postgres schema       | User metadata (Objects/Fields/Functions/…) in control plane |
+| Postgres rows         | Business data in per-project DB                          |
+| Project URL           | Project / Branch Hostname                                |
+| Dashboard             | Studio                                                   |
+
+The analogy isn't cosmetic — the developer workflow (branch to develop, merge to
+main, publish to production) is the same pattern, applied to **metadata** instead
+of Postgres schemas. Unlike Supabase, **branches do not fork business data**:
+they fork *metadata only*. Business rows live in the project's own DB,
+independent of which branch is currently serving.
+
+## 3. Primary Surfaces
+
+Three user-facing surfaces. Everything else is infrastructure.
+
+### <Cloud className="inline" /> Studio Dashboard
+
+Cloud-hosted web UI. The **only** surface where humans author metadata.
+All writes land directly in the control-plane database.
+
+**Responsibilities:**
+- Org / member / billing management
+- Project lifecycle (create, configure, delete)
+- Branch lifecycle (create, switch, diff, merge, delete)
+- Visual metadata editors (Object / Field / Function / View / Flow / Agent) — writes to control-plane metadata tables
+- API console, logs, usage metrics
+- Publish button — today: marks a branch state as serving; *next round*: freezes an artifact tag
+
+**Status:** ~70% built (org/project/member UI). Branch UI and Publish flow not yet started. See [apps/studio/src/routes/](apps/studio/src/routes/).
+
+### <Globe className="inline" /> Control Plane Artifact API
+
+The **protocol boundary** between the control plane and ObjectOS runtimes.
+A single well-known HTTP endpoint — everything ObjectOS needs to boot a project
+is returned here.
+
+```
+GET /api/v1/apps/:projectId/artifact?branch=main
+→ { metadata, functions, manifest, checksum }
+```
+
+**Today:** the control plane assembles the artifact on-the-fly by querying its
+own metadata tables filtered by `project_id` + `branch_id`.
+**Tomorrow:** the same endpoint returns a redirect or signed URL pointing at an
+S3 object (frozen at Publish time). The interface is stable; the backend swaps.
+
+**Responsibilities:**
+- Serve a branch's current metadata + inlined function code as a single consumable blob
+- Expose a content hash/ETag so runtimes can detect drift and decide when to refetch
+- Leave room in the response shape for future `{ url, expiresAt, checksum }` indirection
+- Be cacheable at the CDN edge (future; read-heavy by design)
+
+**Status:** Not yet built. This is the biggest Missing item under §7.
+
+### <Cpu className="inline" /> ObjectOS Runtime
+
+The per-project runtime kernel. **Stateless** with respect to metadata —
+everything it knows comes from an artifact pulled over HTTP from the control
+plane. Connects to an **independent business database** for the project's
+actual data rows.
+
+**Responsibilities:**
+- Resolve incoming request → correct (project, branch) kernel via hostname
+- On first request for a branch: pull artifact from Artifact API → deserialize into kernel
+- Cache artifact locally; continue serving even if the control plane is unreachable
+- Auto-generate REST API from the artifact's object schemas
+- Auto-generate UI schemas (Amis/React-renderable)
+- Execute object functions in sandboxed runtime
+- Query/mutate the project's **business DB** (not the control-plane DB) through ObjectQL
+- Enforce permissions, emit audit events back to the control plane (best-effort)
+
+**Status:** Multi-project kernel + hostname routing built. Metadata still loads from the **project DB** via `MetadataPlugin` — this is the biggest Drift under §7. See [packages/runtime/src/project-kernel-factory.ts](packages/runtime/src/project-kernel-factory.ts) and [packages/metadata/src/plugin.ts](packages/metadata/src/plugin.ts).
+
+## 4. Core Entity Hierarchy
+
+Everything in the control plane; business data lives alongside but isolated per project.
+
+```
+Organization                            ← control plane
+  ├── Members (with roles)
+  ├── Billing
+  └── Project                           ← control plane; binds primary hostname
+        ├── Branch                      ← control plane; Git-style version line
+        │    ├── Hostname (e.g. feature-x.proj.app)
+        │    └── Metadata records       ← control plane
+        │         Objects / Fields / Functions / Views / Flows / Agents
+        │         (rows scoped by project_id + branch_id)
+        ├── Release / Tag               ← control plane (next round)
+        │    └── Frozen artifact snapshot of a branch at Publish time
+        └── Business DB                 ← per-project, independent
+             └── Rows of user objects (customer, order, …)
+             ⚠ Does NOT store metadata. Does NOT fork per branch.
+```
+
+| Entity          | Location / Table                                   | Status                                           |
+| :-------------- | :------------------------------------------------- | :----------------------------------------------- |
+| Organization    | Control plane `sys_organization`                   | Built                                            |
+| Project         | Control plane `sys_project` (hostname binding)     | Built                                            |
+| Branch          | Control plane `sys_branch`                         | **To build** — metadata version line; main always exists |
+| Metadata        | Control plane — filtered by `project_id` + `branch_id` on every metadata table | **To migrate** — today lives in project DB (`sys_metadata`); needs to move to control plane |
+| Release / Tag   | Control plane `sys_release`                        | **Next round** — freezes a branch's artifact at Publish time |
+| Business DB     | Per-project dedicated DB (Turso / SQL / memory)    | Built (driver provisioning), but currently shares space with metadata |
+
+See [packages/services/service-tenant/src/objects/sys-project.object.ts](packages/services/service-tenant/src/objects/sys-project.object.ts) for the current Project schema.
+
+## 5. Operational Architecture — Two Planes, One Protocol
+
+This is **how the platform runs**, not how the code is organized. The old
+three-layer model (control plane / runtime / artifact) has collapsed: the
+artifact is no longer a third layer but the **protocol** that connects the other
+two. Everything happens in two planes, joined by one HTTP contract.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Control Plane  (singleton, cloud-hosted)                    │
+│ ──────────────────────────────────────                      │
+│ Studio UI (React) + Hono backend                            │
+│                                                             │
+│ Platform metadata:                                          │
+│   sys_organization · sys_project · sys_branch · sys_release │
+│   sys_user · sys_app · Auth · Billing · Audit               │
+│                                                             │
+│ User metadata (ALL projects, ALL branches):                 │
+│   Objects / Fields / Functions / Views / Flows / Agents     │
+│   — scoped by project_id + branch_id                        │
+│                                                             │
+│ Artifact API:                                               │
+│   GET /api/v1/apps/:projectId/artifact?branch=…             │
+│   today : assembles live from control-plane DB              │
+│   future: returns S3 redirect / signed URL                  │
+│                                                             │
+│ Hostname routing: (host) → (project, branch)                │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ Artifact over HTTP   ← the protocol
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│ ObjectOS Runtimes  (one ObjectKernel per active branch)     │
+│ ──────────────────────────────────────                      │
+│ Boot : pull artifact via HTTP → hydrate kernel              │
+│ Cache: keep artifact on local disk/memory                   │
+│        → survives control-plane outages                     │
+│ Serve: auto-generated REST + UI schema from metadata        │
+│ Data : business driver → per-project business DB            │
+│        (no metadata queries; business rows only)            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+The **immutability of the artifact** is not a separate layer — it is a property
+of the HTTP contract: a given `(projectId, branch, version)` URL always returns
+the same bytes. When Tag/Release ships next round, the `version` parameter will
+point at a frozen S3 object. Until then it points at "current state of the
+branch in control-plane DB."
+
+**Key code anchors:**
+- Control-plane entry: [apps/studio/src/routes/](apps/studio/src/routes/)
+- Hostname → project resolver: [packages/runtime/src/environment-registry.ts](packages/runtime/src/environment-registry.ts)
+- Per-project kernel factory: [packages/runtime/src/project-kernel-factory.ts](packages/runtime/src/project-kernel-factory.ts)
+- HTTP dispatch: [packages/runtime/src/http-dispatcher.ts](packages/runtime/src/http-dispatcher.ts)
+- Org-scoped proxy: [packages/runtime/src/control-plane-proxy-driver.ts](packages/runtime/src/control-plane-proxy-driver.ts)
+- Metadata loading (currently project-DB, needs to swap to Artifact API): [packages/metadata/src/plugin.ts](packages/metadata/src/plugin.ts)
+- App catalog sync: [packages/services/service-tenant/src/services/app-catalog.service.ts](packages/services/service-tenant/src/services/app-catalog.service.ts)
+
+## 6. Key Lifecycles
+
+### 6.1 Onboarding
+
+```
+signup → create org → create project
+  → control plane creates "main" branch row + allocates primary hostname
+  → control plane provisions per-project business DB (Turso / SQL / memory)
+  → Studio lands on the project overview (main branch)
+  → ObjectOS does NOT boot yet — it boots lazily on first request
+```
+
+### 6.2 Development (with Branch)
+
+```
+open project
+  → create branch "feature-x"
+       → control plane copies all metadata rows from main, re-stamped with branch_id=feature-x
+       → allocates branch hostname: feature-x.proj.app
+       → business DB is NOT forked (branches share business data by default)
+  → Studio edits metadata on feature-x (writes land in control-plane DB)
+  → browse feature-x.proj.app → ObjectOS pulls feature-x artifact → preview
+  → diff feature-x ↔ main (SQL-level comparison in control plane)
+  → merge feature-x → main (control-plane metadata rewrite)
+  → (next round) click Publish on main → freeze artifact as tag v1.3
+```
+
+Under this model, Branch is a **metadata-only construct** in the control-plane
+DB. There is no cross-branch data migration problem for business rows because
+branches share the same business DB. If a feature branch needs isolated data
+for testing, that is modeled as a separate "environment" (see Open Questions).
+
+### 6.3 Runtime Request
+
+```
+GET https://feature-x.proj.app/api/v1/data/customer
+  ↓
+Control plane receives request → EnvironmentDriverRegistry resolves
+  hostname → (projectId, branchId=feature-x)
+  ↓
+KernelManager looks up ObjectKernel for (projectId, feature-x)
+  ↓
+If kernel has no artifact loaded:
+    GET /api/v1/apps/:projectId/artifact?branch=feature-x
+    → hydrate metadata + function code into kernel
+    → cache artifact locally (survives control-plane downtime)
+  ↓
+REST plugin auto-generates `customer` handler from artifact schema
+  ↓
+ObjectQL runs query against the project's BUSINESS DB (not control plane)
+  ↓
+Response flows back; audit event emitted to control plane (best-effort)
+```
+
+Subsequent requests on the same branch reuse the cached artifact. Cache
+invalidation strategy (push / poll / ETag) is an Open Question.
+
+## 7. Alignment Check
+
+Honest state of the platform as of 2026-04-25, **re-classified under the new
+centralized-metadata model**. Every future architectural decision should
+preserve column 1, reduce column 2, and advance column 3.
+
+### <Layers className="inline" /> Built (Aligned)
+
+- Organization CRUD + member/invitation system — [apps/studio/src/hooks/useSession.ts](apps/studio/src/hooks/useSession.ts)
+- Project CRUD + per-project Turso/memory DB provisioning — [packages/services/service-tenant/](packages/services/service-tenant/)
+- Per-project ObjectKernel with LRU cache — [packages/runtime/src/project-kernel-factory.ts](packages/runtime/src/project-kernel-factory.ts)
+- Hostname-based routing: `sys_project.hostname` → kernel resolution — [packages/runtime/src/environment-registry.ts](packages/runtime/src/environment-registry.ts)
+- ControlPlaneProxyDriver for org-scoped data isolation — [packages/runtime/src/control-plane-proxy-driver.ts](packages/runtime/src/control-plane-proxy-driver.ts)
+- AppCatalogService (per-project app events → org-scoped `sys_app` catalog) — [packages/services/service-tenant/src/services/app-catalog.service.ts](packages/services/service-tenant/src/services/app-catalog.service.ts)
+
+### <AlertTriangle className="inline" /> Drift (Needs Cleanup)
+
+- **🔴 Biggest drift: `MetadataPlugin` loads metadata from the project DB.**
+  Today [packages/metadata/src/plugin.ts](packages/metadata/src/plugin.ts)
+  reads `sys_metadata` rows from each project's own database. Under the new
+  model, metadata is centralized in the control plane and delivered to the
+  runtime via the Artifact API. The project DB should contain business rows
+  only. This is the single largest architectural drift to fix.
+- **`env_id` semantics blurred with branch.** `env_id` was introduced as a
+  branch-like scoping column on metadata rows in the project DB. Under the new
+  model, branch scoping lives on control-plane metadata tables via a dedicated
+  `branch_id`. `env_id` needs to be repurposed (e.g. "deployment environment"
+  ≠ branch) or removed — not left ambiguous.
+- **`namespace` residue**: deprecated in favor of embedding prefix in object
+  `name`, but leftovers remain. Schema should be single-sourced on `name` for
+  identity.
+- **Plugin `scope` enum bloat**: grew to 5 values (`cloud` / `system` / `project` /
+  `platform` / `environment`) with last two marked as deprecated aliases. Break
+  cleanly, don't carry aliases.
+- **Half-wired abstractions**: `ScopedServiceManager` and `SharedProjectPlugin`
+  were added but their integration into the request path is incomplete. Either
+  finish them or remove.
+- **Recent plugin-config churn** (commit `a4f5eb51`): large reorganization
+  moving object registration between files without obvious feature value.
+  Should converge on one home.
+
+### <GitBranch className="inline" /> Missing (Not Started)
+
+- **`sys_branch` entity** in the control plane — Branch CRUD + `branch_id`
+  column on every metadata table + default-create `main` per project.
+- **Metadata migration to control plane** — move all user-metadata tables out
+  of the project DB into the control-plane DB, scoped by `project_id` + `branch_id`.
+- **Artifact API endpoint** — `GET /api/v1/apps/:projectId/artifact?branch=…`
+  that assembles a branch's metadata + inlined function code into a single
+  consumable blob, with a content hash/ETag for cache validation.
+- **ObjectOS artifact loader** — swap `MetadataPlugin`'s data source from
+  project-DB reads to HTTP fetch against the Artifact API; add local artifact
+  cache with durability across control-plane outages.
+- **Studio branch management UI** — create, switch, diff, merge branches in
+  the dashboard.
+- **Compile-to-App pipeline specification** — exact serialization format for
+  the artifact (JSON document? tarball + manifest?), function-code packaging,
+  driver/plugin requirement declaration.
+- **UI auto-generation** — artifact schemas → Amis/React components without
+  hand-wiring.
+- **Versioning / Release / Tag** — *deferred to next round.* Publish currently
+  means "mark branch state as serving"; tagging/freezing will come with the
+  release entity.
+- **Studio Publish UI** — Publish button, artifact browser, rollback flow
+  (blocked on the Release entity above).
+
+## 8. Non-Goals and Anti-Patterns
+
+Decisions the platform has already rejected. Do not relitigate without explicit
+user buy-in at the project level.
+
+### Architectural boundaries
+
+- <AlertTriangle className="inline" /> **ObjectOS runtimes don't talk to the control-plane DB.** The only
+  coupling surface is the Artifact API (HTTP). Runtimes never open a connection
+  to the control-plane database, even for "just a quick lookup." Keep the
+  contract on HTTP so S3 can swap in later without touching runtime code.
+- <AlertTriangle className="inline" /> **Branches don't fork business data.** A branch forks *metadata only*
+  (control-plane rows). Business rows live in the per-project business DB and
+  are shared across branches by default. If a branch needs isolated data, use
+  a separate "environment" concept — don't overload Branch.
+- <AlertTriangle className="inline" /> **No S3 in this round.** The Artifact API's backend is the
+  control-plane DB today. Design the response shape to accommodate a future
+  `{ url, expiresAt, checksum }` indirection (S3 signed URLs) without a
+  breaking change, but don't build the S3 path now.
+- <AlertTriangle className="inline" /> **No versioning / Tag / Release this round.** Branch ships first.
+  Freezing a branch state into an immutable tag (the "Publish" action) is
+  deferred. Until then, the `version` parameter on the Artifact API always
+  resolves to "branch's current state."
+
+### Prior anti-patterns (still in force)
+
+- <AlertTriangle className="inline" /> **No escape hatch for non-metadata logic.** All business logic lives in
+  declared Object Functions or Flows. "Just add a raw endpoint" is not a supported pattern.
+- <AlertTriangle className="inline" /> **`packages/spec` stays logic-free.** Schemas, types, constants only. Runtime
+  logic belongs in `core` / `runtime` / `services`. (Prime Directive #2.)
+- <AlertTriangle className="inline" /> **No `namespace` prefix mechanism.** If a module needs a prefix, embed it in
+  the object `name` (`sys_user`, `crm_account`). The field is deprecated. (Prime Directive #7.)
+- <AlertTriangle className="inline" /> **No direct-DB SDK.** Every client access goes through ObjectQL — no bypass,
+  no "just for perf" exception.
+- <AlertTriangle className="inline" /> **No one-way scaffolds.** `create-objectstack` produces projects that remain
+  fully editable via Studio. Never emit code that can't be round-tripped back to metadata.
+- <AlertTriangle className="inline" /> **No deprecated-alias enums.** When refactoring enums (plugin scope, metadata
+  types, etc.), break cleanly with a migration. Do not ship "old value still accepted" aliases.
+- <AlertTriangle className="inline" /> **No hand-written content in `content/docs/references/`.** That tree is
+  regenerated from Zod schemas.
+
+## 9. Open Questions
+
+Questions this document deliberately leaves unresolved. Answer them in
+follow-up design docs before building. (Previously-open *"Branch DB fork
+semantics"* is now resolved: branches don't fork business data — see §8.)
+
+1. **Artifact content format.** Single JSON document (all metadata + function
+   source inline) or tarball (multiple files + `manifest.json`)? Affects
+   client load complexity, CDN cache granularity, and future S3 storage.
+2. **Studio metadata write path.** Does Studio write directly to control-plane
+   metadata tables (simplest) or go through a control-plane REST API (more
+   formal, easier to audit/hook)? Trade-off between velocity and governance.
+3. **Business DB connection config ownership.** Does the Artifact include the
+   business DB connection string (simple but mixes environment into artifact),
+   or is it injected into ObjectOS at boot time (artifact stays clean, but
+   requires per-deployment config)?
+4. **Artifact cache invalidation.** Control-plane push notification?
+   Periodic polling from ObjectOS? HTTP ETag on every request? Each has
+   latency / chattiness / outage-resilience trade-offs.
+5. **Custom domains.** Customers bringing their own domain (`app.acme.com`) —
+   how does it map to (project, branch), and where is the TLS cert issued?
+6. **Branch vs Environment.** `env_id` already exists; under the new model,
+   Branch ≈ development version line, Environment ≈ deployment instance
+   (dev/staging/prod). Are they orthogonal (preferred) or equivalent? Needs
+   to be settled before either can stabilize.
+7. **Metadata merge-conflict UX.** When merging branch → main, what does a
+   conflict on an object's field list look like? Git-style three-way merge?
+   Last-write-wins? Does Studio need an inline diff viewer?
+8. **(Next round) Versioning / Tag implementation.** Freezing a branch state
+   into an immutable tag — is it a full metadata copy (simple, space-heavy)
+   or a reference + immutability flag (space-efficient, more plumbing)?
+
+---
+
+> **When in doubt, re-read this.** Every PR description, every commit, every
+> plan should be testable against this document: does this change advance
+> something in §7 Built, shrink something in Drift, unlock something in
+> Missing, or answer an Open Question? If none, it probably shouldn't ship.

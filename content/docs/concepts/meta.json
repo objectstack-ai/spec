@@ -1,4 +1,4 @@
 {
   "title": "Concepts",
-  "pages": ["index", "metadata-driven", "design-principles", "architecture", "skills", "core", "packages", "terminology", "implementation-status"]
+  "pages": ["index", "north-star", "metadata-driven", "design-principles", "architecture", "skills", "core", "packages", "terminology", "implementation-status"]
 }
