@@ -57,9 +57,26 @@ export interface BasePluginsFactory {
   (args: { projectId: string; project: SysProjectRow; driver: IDataDriver }): Promise<Plugin[]> | Plugin[];
 }
 
+/**
+ * Static project config for local / offline mode (M1.x).
+ * When present, `DefaultProjectKernelFactory` skips all control-plane
+ * queries and boots directly from these values + the artifact file.
+ * Corresponds to env vars: `OBJECTSTACK_PROJECT_ID`, `OBJECTSTACK_DATABASE_URL`,
+ * `OBJECTSTACK_DATABASE_DRIVER`.
+ */
+export interface LocalProjectConfig {
+  projectId: string;
+  organizationId?: string;
+  databaseUrl: string;
+  databaseDriver: string;
+}
+
 export interface DefaultProjectKernelFactoryConfig {
-  /** Control-plane data driver (shared singleton) used to fetch metadata. */
-  controlPlaneDriver: IDataDriver;
+  /**
+   * Control-plane data driver (shared singleton) used to fetch metadata.
+   * Not required when `localProject` is set and no cloud datasource is needed.
+   */
+  controlPlaneDriver?: IDataDriver;
   /** Returns base plugins (ObjectQL, Metadata, REST, …). Required. */
   basePlugins: BasePluginsFactory;
   /** Optional resolver for project-subscribed App bundles. */
@@ -77,6 +94,14 @@ export interface DefaultProjectKernelFactoryConfig {
   logger?: { info?: (...a: any[]) => void; warn?: (...a: any[]) => void; error?: (...a: any[]) => void };
   /** Override kernel config (timeouts, etc.). */
   kernelConfig?: ConstructorParameters<typeof ObjectKernel>[0];
+  /**
+   * Local / offline project config (M1.x Deployment Config).
+   * When provided, the factory bypasses control-plane DB queries entirely
+   * and does NOT mount a `ControlPlaneProxyDriver`. Resolves the Drift
+   * where `ProjectKernelFactory` previously read `sys_project` /
+   * `sys_project_credential` directly.
+   */
+  localProject?: LocalProjectConfig;
 }
 
 /**
@@ -92,13 +117,14 @@ export interface DefaultProjectKernelFactoryConfig {
  * 4. Returns the bootstrapped kernel.
  */
 export class DefaultProjectKernelFactory implements ProjectKernelFactory {
-  private readonly controlPlaneDriver: IDataDriver;
+  private readonly controlPlaneDriver?: IDataDriver;
   private readonly basePlugins: BasePluginsFactory;
   private readonly appBundles?: AppBundleResolver;
   private readonly encryptor: SecretEncryptor;
   private readonly envRegistry?: EnvironmentDriverRegistry;
   private readonly logger: NonNullable<DefaultProjectKernelFactoryConfig['logger']>;
   private readonly kernelConfig?: DefaultProjectKernelFactoryConfig['kernelConfig'];
+  private readonly localProject?: LocalProjectConfig;
 
   constructor(config: DefaultProjectKernelFactoryConfig) {
     this.controlPlaneDriver = config.controlPlaneDriver;
@@ -108,9 +134,22 @@ export class DefaultProjectKernelFactory implements ProjectKernelFactory {
     this.envRegistry = config.envRegistry;
     this.logger = config.logger ?? console;
     this.kernelConfig = config.kernelConfig;
+    this.localProject = config.localProject;
   }
 
   async create(projectId: string): Promise<ObjectKernel> {
+    // ── Local / offline mode (M1.x) ──────────────────────────────────────────
+    // When `localProject` is configured and the ID matches, skip all
+    // control-plane queries and boot purely from Deployment Config env vars.
+    if (this.localProject && this.localProject.projectId === projectId) {
+      return this._createLocalKernel(this.localProject);
+    }
+
+    // ── Cloud mode ────────────────────────────────────────────────────────────
+    if (!this.controlPlaneDriver) {
+      throw new Error(`[ProjectKernelFactory] No controlPlaneDriver configured and no matching localProject for '${projectId}'`);
+    }
+
     // Fast path: reuse envRegistry's cached driver + project row when
     // HttpDispatcher has already warmed it via hostname/header resolution.
     let project: SysProjectRow | null = null;
@@ -170,7 +209,7 @@ export class DefaultProjectKernelFactory implements ProjectKernelFactory {
     if (!orgId) {
       throw new Error(`[ProjectKernelFactory] project '${projectId}' is missing organization_id — cannot mount cloud datasource`);
     }
-    const proxyDriver = new ControlPlaneProxyDriver(this.controlPlaneDriver, orgId);
+    const proxyDriver = new ControlPlaneProxyDriver(this.controlPlaneDriver!, orgId);
     await kernel.use(new DriverPlugin(proxyDriver, { registerAsDefault: false, datasourceName: 'cloud' }));
 
     for (const p of basePlugins) await kernel.use(p);
@@ -237,7 +276,56 @@ export class DefaultProjectKernelFactory implements ProjectKernelFactory {
     return kernel;
   }
 
+  /**
+   * Local offline kernel: bypasses all control-plane reads.
+   * No ControlPlaneProxyDriver is mounted — system plugins that declare
+   * `defaultDatasource:'cloud'` will fall back to the project driver.
+   */
+  private async _createLocalKernel(cfg: LocalProjectConfig): Promise<ObjectKernel> {
+    const { projectId, organizationId, databaseUrl, databaseDriver } = cfg;
+
+    const syntheticProject: SysProjectRow = {
+      id: projectId,
+      organization_id: organizationId,
+      database_url: databaseUrl,
+      database_driver: databaseDriver,
+    };
+
+    const driver = await this.createDriver(databaseDriver, databaseUrl, '');
+    const basePlugins = await this.basePlugins({ projectId, project: syntheticProject, driver });
+    const bundles = this.appBundles ? await this.appBundles.resolve(syntheticProject) : [];
+
+    const kernel = new ObjectKernel(this.kernelConfig);
+    await kernel.use(new DriverPlugin(driver));
+    for (const p of basePlugins) await kernel.use(p);
+
+    const projectName = syntheticProject.hostname ?? projectId;
+    for (const b of bundles) {
+      const sys = b?.manifest || b;
+      const packageId = sys?.packageId ?? sys?.package_id ?? b?.packageId;
+      await kernel.use(new AppPlugin(b, {
+        projectId,
+        organizationId: organizationId ?? '',
+        projectName,
+        packageId,
+        source: packageId ? 'package' : 'user',
+      }));
+    }
+
+    await kernel.bootstrap();
+
+    this.logger.info?.('[ProjectKernelFactory] local kernel ready', {
+      projectId,
+      driver: databaseDriver,
+      bundles: bundles.length,
+    });
+    return kernel;
+  }
+
   private async fetchProject(projectId: string): Promise<SysProjectRow | null> {
+    if (!this.controlPlaneDriver) {
+      throw new Error(`[ProjectKernelFactory] controlPlaneDriver is required in cloud mode`);
+    }
     // Tenant plugin registers the project object under namespace 'sys' so
     // ObjectQL / the underlying driver store it as the physical table
     // `sys_project` (namespace `_` name). Use that physical name here —
@@ -253,6 +341,9 @@ export class DefaultProjectKernelFactory implements ProjectKernelFactory {
   }
 
   private async fetchActiveCredential(projectId: string): Promise<SysProjectCredentialRow | null> {
+    if (!this.controlPlaneDriver) {
+      throw new Error(`[ProjectKernelFactory] controlPlaneDriver is required in cloud mode`);
+    }
     const result = await this.controlPlaneDriver.find('sys_project_credential', {
       object: 'sys_project_credential',
       where: { project_id: projectId, status: 'active' },

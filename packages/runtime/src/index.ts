@@ -36,6 +36,7 @@ export type {
     AppBundleResolver,
     SysProjectRow,
     SysProjectCredentialRow,
+    LocalProjectConfig,
 } from './project-kernel-factory.js';
 export { MultiProjectPlugin } from './multi-project-plugin.js';
 export type {

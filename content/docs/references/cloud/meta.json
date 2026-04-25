@@ -9,6 +9,7 @@
     "package-version",
     "plugin-security",
     "project",
+    "project-artifact",
     "project-package",
     "provisioning",
     "tenant"
