@@ -12,10 +12,15 @@
  * Single-project, offline-first.  No control-plane DB is required.
  * Required env vars:
  *   OBJECTSTACK_PROJECT_ID        — project identity (e.g. "proj_local")
- *   OBJECTSTACK_DATABASE_URL      — project business DB (file:./app.db, memory://mydb, libsql://…)
- *   OBJECTSTACK_DATABASE_DRIVER   — driver name: sqlite | memory | turso | postgres
+ *   OBJECTSTACK_DATABASE_URL      — project business DB (file:./app.db, memory://mydb, libsql://…, https://…)
+ *   OBJECTSTACK_DATABASE_AUTH_TOKEN — optional auth token for libSQL/Turso URLs
+ *   OBJECTSTACK_DATABASE_DRIVER   — driver name: sqlite | memory | turso (auto-detected from URL)
  *   OBJECTSTACK_ARTIFACT_PATH     — path to compiled artifact (default: ./dist/objectstack.json)
  *   AUTH_SECRET                   — JWT signing secret (≥32 chars)
+ *
+ * For Vercel / serverless deployments use a Turso database:
+ *   TURSO_DATABASE_URL            — libsql:// or https:// Turso URL (fallback alias for OBJECTSTACK_DATABASE_URL)
+ *   TURSO_AUTH_TOKEN              — Turso auth token (fallback alias for OBJECTSTACK_DATABASE_AUTH_TOKEN)
  *
  * ### Cloud mode  (`OBJECTSTACK_CLOUD_URL` is set)
  *
@@ -87,15 +92,25 @@ async function buildLocalPlugins() {
     }
 
     // Build a database driver for local mode.
-    // Defaults to SQLite at .objectstack/data/app.db if no env var is set.
+    // Defaults to SQLite at .objectstack/data/app.db relative to the server root.
+    // For Vercel / serverless deployments, set OBJECTSTACK_DATABASE_URL to a
+    // libsql:// or https:// Turso URL (and OBJECTSTACK_DATABASE_AUTH_TOKEN if needed).
+    const serverDir = dirname(fileURLToPath(import.meta.url));
     const dbUrl = process.env.OBJECTSTACK_DATABASE_URL?.trim()
-        || `file:${resolvePath(dirname(fileURLToPath(import.meta.url)), '.objectstack/data/app.db')}`;
-    const dbDriver = process.env.OBJECTSTACK_DATABASE_DRIVER?.trim() || 'sqlite';
+        || process.env.TURSO_DATABASE_URL?.trim()
+        || `file:${resolvePath(serverDir, '.objectstack/data/app.db')}`;
+    const dbAuthToken = process.env.OBJECTSTACK_DATABASE_AUTH_TOKEN?.trim()
+        || process.env.TURSO_AUTH_TOKEN?.trim();
+    const dbDriver = process.env.OBJECTSTACK_DATABASE_DRIVER?.trim()
+        || (/^(libsql|https?):\/\//i.test(dbUrl) ? 'turso' : 'sqlite');
 
     let driverPlugin: any;
     if (dbDriver === 'memory' || dbUrl.startsWith('memory://')) {
         const { InMemoryDriver: MemoryDriver } = await import('@objectstack/driver-memory');
         driverPlugin = new DriverPlugin(new MemoryDriver());
+    } else if (dbDriver === 'turso' || /^(libsql|https?):\/\//i.test(dbUrl)) {
+        const { TursoDriver } = await import('@objectstack/driver-turso');
+        driverPlugin = new DriverPlugin(new TursoDriver({ url: dbUrl, authToken: dbAuthToken }) as any);
     } else {
         const { SqlDriver } = await import('@objectstack/driver-sql');
         const filename = dbUrl.replace(/^file:(\/\/)?/, '');
