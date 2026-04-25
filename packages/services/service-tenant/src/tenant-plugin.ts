@@ -10,12 +10,12 @@ import {
 } from './project-provisioning.js';
 import {
   SysTenantDatabase,
-  SysPackage,
-  SysPackageVersion,
-  SysPackageInstallation,
   SysProject,
   SysProjectCredential,
   SysProjectMember,
+  SysPackage,
+  SysPackageVersion,
+  SysPackageInstallation,
   SysApp,
 } from './objects';
 import { AppCatalogService } from './services/app-catalog.service.js';
@@ -57,17 +57,6 @@ export function createTenantPlugin(config: TenantPluginConfig = {}): Plugin {
   return {
     name: '@objectstack/service-tenant',
     version: '0.2.0',
-    // NOTE: System objects are registered inside `init()` via the `manifest`
-    // service — the kernel does NOT consume a top-level `objects:` field on
-    // plugins added via `kernel.use(plugin)`. Only nested plugins inside a
-    // parent manifest are picked up that way (see
-    // `packages/objectql/src/engine.ts` → `registerPlugin()`).
-    //
-    // Without going through the manifest service, schemas never reach
-    // `SchemaRegistry`, which means `ObjectQL.getDriver()` cannot match the
-    // `namespace: 'sys' → turso` datasourceMapping rule and silently falls
-    // back to the default driver — losing every write across lambda
-    // invocations on Vercel.
 
     async init(ctx: PluginContext) {
       // Register the physical-DB adapter registry so HTTP dispatcher can
@@ -108,35 +97,24 @@ export function createTenantPlugin(config: TenantPluginConfig = {}): Plugin {
       }
 
       if (config.registerSystemObjects !== false) {
-        // Register system objects via the `manifest` service. This is the
-        // ONLY supported path — see the class-level note above for why a
-        // top-level `objects:` field on the plugin object would be silently
-        // ignored. Mirrors the convention used by AuthPlugin / SecurityPlugin
-        // / SetupPlugin / etc.
         const manifestObjects: any[] = [
-          // Control-plane objects (project-per-database model).
           SysProject,
           SysProjectCredential,
           SysProjectMember,
-          // Package registry (ADR-0003).
           SysPackage,
           SysPackageVersion,
           SysPackageInstallation,
-          // Org-scoped app catalog (mirrored from each project kernel via
-          // AppCatalogService hooks — avoids per-project DB fan-out for
-          // "all apps in this org" frontend queries).
           SysApp,
         ];
         if (config.registerLegacyTenantDatabase !== false) {
-          // v4.x deprecation shim — opt out via `registerLegacyTenantDatabase: false`.
           manifestObjects.push(SysTenantDatabase);
         }
 
         try {
           const manifestService = ctx.getService<{ register(m: any): void }>('manifest');
           manifestService.register({
-            id: 'com.objectstack.tenant',
-            name: 'Tenant',
+            id: 'com.objectstack.service-tenant',
+            name: 'Tenant Service',
             version: '0.2.0',
             type: 'plugin',
             scope: 'cloud',

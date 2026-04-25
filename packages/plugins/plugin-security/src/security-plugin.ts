@@ -5,7 +5,7 @@ import type { PermissionSet, RowLevelSecurityPolicy } from '@objectstack/spec/se
 import { PermissionEvaluator } from './permission-evaluator.js';
 import { RLSCompiler } from './rls-compiler.js';
 import { FieldMasker } from './field-masker.js';
-import { SysRole, SysPermissionSet } from './objects/index.js';
+import * as objects from './objects/index.js';
 
 /**
  * SecurityPlugin
@@ -38,16 +38,15 @@ export class SecurityPlugin implements Plugin {
     ctx.registerService('security.rls', this.rlsCompiler);
     ctx.registerService('security.fieldMasker', this.fieldMasker);
 
-    // Register security system objects via the manifest service.
     ctx.getService<{ register(m: any): void }>('manifest').register({
-      id: 'com.objectstack.security',
-      name: 'Security',
+      id: 'com.objectstack.plugin-security',
+      name: 'Security Plugin',
       version: '1.0.0',
       type: 'plugin',
       scope: 'system',
       defaultDatasource: 'cloud',
       namespace: 'sys',
-      objects: [SysRole, SysPermissionSet],
+      objects: Object.values(objects),
     });
 
     // Contribute navigation items to the Setup App (if SetupPlugin is loaded).

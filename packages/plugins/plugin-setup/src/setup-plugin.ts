@@ -76,7 +76,6 @@ export class SetupPlugin implements Plugin {
       areas: areas.length > 0 ? areas : undefined,
     };
 
-    // Register the finalized Setup App via the manifest service.
     ctx.getService<{ register(m: any): void }>('manifest').register({
       id: 'com.objectstack.setup',
       name: 'Setup',

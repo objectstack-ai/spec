@@ -3,12 +3,7 @@
 import { Plugin, PluginContext, IHttpServer } from '@objectstack/core';
 import { AuthConfig } from '@objectstack/spec/system';
 import { AuthManager } from './auth-manager.js';
-import {
-  SysUser, SysSession, SysAccount, SysVerification,
-  SysOrganization, SysMember, SysInvitation,
-  SysTeam, SysTeamMember,
-  SysApiKey, SysTwoFactor, SysUserPreference,
-} from './objects/index.js';
+import * as objects from './objects/index.js';
 
 /**
  * Auth Plugin Options
@@ -96,21 +91,15 @@ export class AuthPlugin implements Plugin {
     // Register auth service
     ctx.registerService('auth', this.authManager);
 
-    // Register system objects via the manifest service.
     ctx.getService<{ register(m: any): void }>('manifest').register({
-      id: 'com.objectstack.system',
-      name: 'System',
-      version: '1.0.0',
+      id: 'com.objectstack.plugin-auth',
+      name: 'Authentication & Identity Plugin',
+      version: '3.0.1',
       type: 'plugin',
       scope: 'system',
       defaultDatasource: 'cloud',
       namespace: 'sys',
-      objects: [
-        SysUser, SysSession, SysAccount, SysVerification,
-        SysOrganization, SysMember, SysInvitation,
-        SysTeam, SysTeamMember,
-        SysApiKey, SysTwoFactor, SysUserPreference,
-      ],
+      objects: Object.values(objects),
     });
 
     // Contribute navigation items to the Setup App (if SetupPlugin is loaded).

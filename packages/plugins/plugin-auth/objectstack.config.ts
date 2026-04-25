@@ -12,15 +12,14 @@ import * as objects from './src/objects';
 export default defineStack({
   manifest: {
     id: 'com.objectstack.plugin-auth',
-    namespace: 'auth',
+    namespace: 'sys',
     version: '3.0.1',
     type: 'plugin',
     scope: 'system',
-    defaultDatasource: 'control-plane',
+    defaultDatasource: 'cloud',
     name: 'Authentication & Identity Plugin',
     description: 'Core authentication objects for ObjectStack (User, Session, Account, Verification)',
   },
 
-  // Export all authentication kernel objects
   objects: Object.values(objects),
 });
