@@ -18,7 +18,6 @@
   "dependencies": {
     "@example/app-crm": "workspace:*",
     "@example/app-todo": "workspace:*",
-    "@example/plugin-bi": "workspace:*",
     "@hono/node-server": "^1.19.14",
     "@libsql/client": "^0.17.2",
     "@objectstack/driver-memory": "workspace:*",

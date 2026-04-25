@@ -102,9 +102,6 @@ importers:
       '@example/app-todo':
         specifier: workspace:*
         version: link:../../examples/app-todo
-      '@example/plugin-bi':
-        specifier: workspace:*
-        version: link:../../examples/plugin-bi
       '@hono/node-server':
         specifier: ^1.19.14
         version: 1.19.14(hono@4.12.14)
@@ -442,16 +439,6 @@ importers:
       '@objectstack/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      typescript:
-        specifier: ^6.0.2
-        version: 6.0.2
-
-  examples/plugin-bi:
-    dependencies:
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../../packages/spec
-    devDependencies:
       typescript:
         specifier: ^6.0.2
         version: 6.0.2

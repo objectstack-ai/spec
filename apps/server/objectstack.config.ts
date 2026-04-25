@@ -32,10 +32,12 @@
  */
 
 import { resolve as resolvePath } from 'node:path';
+import { readFile } from 'node:fs/promises';
 import type * as Contracts from '@objectstack/spec/contracts';
 import {
     type BasePluginsFactory,
     type AppBundleResolver,
+    AppPlugin,
 } from '@objectstack/runtime';
 import { createControlPlanePlugins } from './server/control-plane-preset.js';
 import { templateRegistry } from './server/templates/registry.js';
@@ -59,38 +61,47 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
 // ── LOCAL MODE ────────────────────────────────────────────────────────────────
 
 const localProjectId = process.env.OBJECTSTACK_PROJECT_ID ?? 'proj_local';
-const localDatabaseUrl = process.env.OBJECTSTACK_DATABASE_URL
-    ?? `file:${resolvePath(process.cwd(), '.objectstack/data/local.db')}`;
-const localDatabaseDriver = process.env.OBJECTSTACK_DATABASE_DRIVER ?? 'sqlite';
 const localArtifactPath = process.env.OBJECTSTACK_ARTIFACT_PATH
     ?? resolvePath(process.cwd(), 'dist/objectstack.json');
 
-// Lazy-loading proxy for local boot: registers ObjectQL + MetadataPlugin(local-file) + Auth
-// on the kernel. No control-plane, no MultiProjectPlugin.
-const localBootPluginProxy: any = {
-    name: 'com.objectstack.local-boot',
-    version: '0.0.0',
-    async init(ctx: any) {
-        const { ObjectQLPlugin } = await import('@objectstack/objectql');
-        const { MetadataPlugin } = await import('@objectstack/metadata');
-        const { AuthPlugin } = await import('@objectstack/plugin-auth');
+async function buildLocalPlugins() {
+    const { ObjectQLPlugin } = await import('@objectstack/objectql');
+    const { MetadataPlugin } = await import('@objectstack/metadata');
+    const { AuthPlugin } = await import('@objectstack/plugin-auth');
 
-        await ctx.kernel.use(new ObjectQLPlugin({ environmentId: localProjectId }));
-        await ctx.kernel.use(new MetadataPlugin({
+    // Load artifact JSON to register app bundle (objects, views, etc.) via AppPlugin.
+    // AppPlugin.init() calls manifest.register() → ql.registerApp() which is the
+    // correct pathway for objects to enter the ObjectQL schema registry.
+    let artifactBundle: any = null;
+    try {
+        const raw = await readFile(localArtifactPath, 'utf8');
+        const parsed = JSON.parse(raw);
+        // Detect envelope vs bare ObjectStackDefinition
+        artifactBundle = (parsed?.schemaVersion && parsed?.metadata !== undefined)
+            ? parsed.metadata
+            : parsed;
+    } catch {
+        // Artifact not available yet (e.g. first run before compile) — AppPlugin skipped.
+    }
+
+    // MetadataPlugin must start before ObjectQLPlugin so that when ObjectQL's
+    // start() calls loadMetadataFromService(), the artifact is already loaded.
+    const plugins: any[] = [
+        new MetadataPlugin({
             watch: false,
             environmentId: localProjectId,
             artifactSource: { mode: 'local-file', path: localArtifactPath },
-        }));
-        await ctx.kernel.use(new AuthPlugin({ secret: authSecret, baseUrl }));
+        }),
+        new ObjectQLPlugin({ environmentId: localProjectId }),
+        new AuthPlugin({ secret: authSecret, baseUrl }),
+    ];
 
-        ctx.logger?.info?.('[LocalBoot] plugins registered', {
-            projectId: localProjectId,
-            databaseUrl: localDatabaseUrl,
-            databaseDriver: localDatabaseDriver,
-            artifactPath: localArtifactPath,
-        });
-    },
-};
+    if (artifactBundle) {
+        plugins.push(new AppPlugin(artifactBundle));
+    }
+
+    return plugins;
+}
 
 // ── CLOUD MODE ────────────────────────────────────────────────────────────────
 
@@ -171,9 +182,9 @@ const multiProjectPluginProxy: any = {
 
 // ── Export ────────────────────────────────────────────────────────────────────
 
-export default isLocalMode
+const config = isLocalMode
     ? {
-        plugins: [localBootPluginProxy],
+        plugins: await buildLocalPlugins(),
         api: {
             enableProjectScoping: false,
             projectResolution: 'none' as const,
@@ -193,3 +204,5 @@ export default isLocalMode
             projectResolution: 'auto' as const,
         },
     };
+
+export default config;

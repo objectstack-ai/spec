@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { Plugin, PluginContext } from '@objectstack/core';
 import { NodeMetadataManager } from './node-metadata-manager.js';
+import { MemoryLoader } from './loaders/memory-loader.js';
 import { DEFAULT_METADATA_TYPE_REGISTRY } from '@objectstack/spec/kernel';
 import type { MetadataPluginConfig } from '@objectstack/spec/kernel';
 import { SysMetadataObject } from './objects/sys-metadata.object.js';
@@ -212,6 +213,12 @@ export class MetadataPlugin implements Plugin {
             metadata = def as Record<string, unknown[]>;
         }
 
+        // Register artifact items into a MemoryLoader so they are visible to
+        // both `loadMany()` (used by ObjectQL's sync path) and `list()` (used
+        // by REST meta endpoints). `register()` alone only writes to the in-memory
+        // registry Map which `loadMany()` does not read.
+        const memLoader = new MemoryLoader();
+
         let totalRegistered = 0;
         for (const [field, metaType] of Object.entries(ARTIFACT_FIELD_TO_TYPE)) {
             const items = (metadata as any)[field];
@@ -219,10 +226,14 @@ export class MetadataPlugin implements Plugin {
             for (const item of items) {
                 const name = (item as any)?.name;
                 if (!name) continue;
+                await memLoader.save(metaType, name, item);
                 await this.manager.register(metaType, name, item);
                 totalRegistered++;
             }
         }
+
+        // Mount the loader so `loadMany` queries hit it.
+        this.manager.registerLoader(memLoader);
 
         ctx.logger.info('[MetadataPlugin] Artifact metadata loaded', {
             path: filePath,
