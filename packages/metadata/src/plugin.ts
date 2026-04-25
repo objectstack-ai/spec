@@ -7,8 +7,17 @@ import { NodeMetadataManager } from './node-metadata-manager.js';
 import { MemoryLoader } from './loaders/memory-loader.js';
 import { DEFAULT_METADATA_TYPE_REGISTRY } from '@objectstack/spec/kernel';
 import type { MetadataPluginConfig } from '@objectstack/spec/kernel';
-import { SysMetadataObject, SysMetadataHistoryObject } from '@objectstack/platform-objects/metadata';
-import { SystemObjects } from '@objectstack/objectos';
+import {
+    SysAgent,
+    SysFlow,
+    SysMetadataObject,
+    SysMetadataHistoryObject,
+    SysObject,
+    SysTool,
+    SysView,
+} from '@objectstack/platform-objects/metadata';
+
+const queryableMetadataObjects = [SysObject, SysView, SysFlow, SysAgent, SysTool];
 
 // Map from ObjectStackDefinition field name to MetadataType name
 const ARTIFACT_FIELD_TO_TYPE: Record<string, string> = {
@@ -108,20 +117,20 @@ export class MetadataPlugin implements Plugin {
                 objects: [SysMetadataObject, SysMetadataHistoryObject],
             });
 
-            // Register the queryable system objects from @objectstack/objectos
+            // Register the queryable metadata-layer platform objects.
             manifestService.register({
-                id: 'com.objectstack.objectos',
-                name: 'ObjectOS System Objects',
+                id: 'com.objectstack.metadata-objects',
+                name: 'Metadata Platform Objects',
                 version: '1.0.0',
                 type: 'plugin',
                 scope: 'system',
                 defaultDatasource: 'cloud',
-                objects: Object.values(SystemObjects),
+                objects: queryableMetadataObjects,
             });
 
             ctx.logger.info('Registered system metadata objects', {
                 metadata: ['sys_metadata', 'sys_metadata_history'],
-                objectos: Object.keys(SystemObjects),
+                queryable: queryableMetadataObjects.map((object) => object.name),
             });
         } catch {
             // ObjectQL not loaded yet — objects will be discovered via legacy fallback

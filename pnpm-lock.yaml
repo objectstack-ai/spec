@@ -745,9 +745,6 @@ importers:
       '@objectstack/core':
         specifier: workspace:*
         version: link:../core
-      '@objectstack/objectos':
-        specifier: workspace:*
-        version: link:../objectos
       '@objectstack/platform-objects':
         specifier: workspace:*
         version: link:../platform-objects
@@ -776,37 +773,6 @@ importers:
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0
-      typescript:
-        specifier: ^6.0.2
-        version: 6.0.2
-      vitest:
-        specifier: ^4.1.4
-        version: 4.1.4(@opentelemetry/api@1.9.0)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.4)(happy-dom@20.9.0)(msw@2.13.4(@types/node@25.6.0)(typescript@6.0.2))(vite@8.0.9(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
-
-  packages/objectos:
-    dependencies:
-      '@objectstack/platform-objects':
-        specifier: workspace:*
-        version: link:../platform-objects
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../spec
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
-    devDependencies:
-      '@types/node':
-        specifier: ^25.6.0
-        version: 25.6.0
-      '@vitest/coverage-v8':
-        specifier: ^4.1.4
-        version: 4.1.4(vitest@4.1.4)
-      tsup:
-        specifier: ^8.5.1
-        version: 8.5.1(jiti@2.6.1)(postcss@8.5.10)(tsx@4.21.0)(typescript@6.0.2)(yaml@2.8.3)
-      tsx:
-        specifier: ^4.21.0
-        version: 4.21.0
       typescript:
         specifier: ^6.0.2
         version: 6.0.2

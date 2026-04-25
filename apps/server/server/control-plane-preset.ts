@@ -25,7 +25,6 @@ export interface ControlPlanePresetConfig {
   authSecret: string;
   baseUrl: string;
   registerSystemObjects?: boolean;
-  registerLegacyTenantDatabase?: boolean;
   authPlugins?: Record<string, unknown>;
 }
 
@@ -128,7 +127,6 @@ export function createControlPlanePlugins(cfg: ControlPlanePresetConfig): any[] 
       const { createTenantPlugin } = await import('@objectstack/service-tenant');
       return createTenantPlugin({
         registerSystemObjects: cfg.registerSystemObjects ?? true,
-        registerLegacyTenantDatabase: cfg.registerLegacyTenantDatabase ?? false,
       });
     }),
 

@@ -142,7 +142,7 @@ async function ensureKernel(): Promise<ObjectKernel> {
             await kernel.use(new SecurityPlugin());
             await kernel.use(new AuditPlugin());
             await kernel.use(new FeedServicePlugin());
-            await kernel.use(createTenantPlugin({ registerSystemObjects: true, registerLegacyTenantDatabase: false }));
+            await kernel.use(createTenantPlugin({ registerSystemObjects: true }));
             await kernel.use(new MetadataPlugin({ watch: false }));
             await kernel.use(new AIServicePlugin());
             await kernel.use(new AutomationServicePlugin());

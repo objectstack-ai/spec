@@ -177,7 +177,7 @@ const basePlugins: BasePluginsFactory = async ({ projectId, project }) => {
     return [
         new ObjectQLPlugin({ environmentId: projectId }),
         new MetadataPlugin({ watch: false, environmentId: projectId, organizationId: orgId }),
-        createTenantPlugin({ registerSystemObjects: true, registerLegacyTenantDatabase: false }),
+        createTenantPlugin({ registerSystemObjects: true }),
         new AuthPlugin({ secret: authSecret, baseUrl }),
         new SecurityPlugin(),
         new AuditPlugin(),

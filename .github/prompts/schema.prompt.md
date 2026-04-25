@@ -11,9 +11,8 @@ Project & Responsibilities
    * Rule: All other packages depend on this. No circular dependencies.
  * packages/objectql (Data Engine) [Apache 2.0]
    * Universal Data Protocol. Compiles GraphQL-like queries into SQL/Redis commands.
- * packages/objectos (Business Kernel) [AGPL v3]
-   * The Crown Jewel. Identity, RBAC, Workflow, and Audit Logging.
-   * License Note: Strict AGPL to prevent SaaS wrapping by competitors.
+  * packages/platform-objects (Platform Object Catalog) [Apache 2.0]
+   * Canonical ObjectStack platform objects for identity, security, audit, tenant, and metadata.
  * packages/objectui (Projection Engine) [MIT]
    * React/Shadcn UI components for Server-Driven UI (SDUI).
  * packages/sdk (Plugin Kit) [MIT]
@@ -177,6 +176,5 @@ When I give you a short command, map it to the following actions:
 3. **定义表单布局时**：
 > "Create Layout Protocol."
 > *（AI 会自动生成 List 和 Form 的布局结构定义。）*
-
 
 

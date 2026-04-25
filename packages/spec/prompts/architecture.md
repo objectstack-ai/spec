@@ -11,9 +11,8 @@ Directory Structure & Responsibilities
    * Rule: All other packages depend on this. No circular dependencies.
  * packages/objectql (Data Engine) [Apache 2.0]
    * Universal Data Protocol. Compiles GraphQL-like queries into SQL/Redis commands.
- * packages/objectos (Business Kernel) [AGPL v3]
-   * The Crown Jewel. Identity, RBAC, Workflow, and Audit Logging.
-   * License Note: Strict AGPL to prevent SaaS wrapping by competitors.
+  * packages/platform-objects (Platform Object Catalog) [Apache 2.0]
+   * Canonical ObjectStack platform objects for identity, security, audit, tenant, and metadata.
  * packages/objectui (Projection Engine) [MIT]
    * React/Shadcn UI components for Server-Driven UI (SDUI).
  * packages/sdk (Plugin Kit) [MIT]
@@ -60,7 +59,7 @@ Key Fields:
  * lifecycle: Hooks for onInstall, onEnable.
 4. Strategic Rules for AI Generation
 A. Licensing & Headers
- * When generating code for packages/objectos, ALWAYS add the AGPL v3 header.
+ * When generating code for packages/platform-objects, use Apache 2.0.
  * When generating code for packages/objectql, use Apache 2.0.
  * When generating code for apps/studio or apps/www, use MIT.
 B. Terminology
