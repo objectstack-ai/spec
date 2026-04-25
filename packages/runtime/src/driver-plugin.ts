@@ -16,21 +16,36 @@ import { Plugin, PluginContext } from '@objectstack/core';
  * const driverPlugin = new DriverPlugin(memoryDriver, 'memory');
  * kernel.use(driverPlugin);
  */
+export interface DriverPluginOptions {
+    /**
+     * If set, registers a named datasource so packages declaring
+     * `defaultDatasource: '<name>'` resolve to this driver.
+     */
+    datasourceName?: string;
+    /**
+     * If `true` (default), registers this driver as the `default` datasource
+     * when none exists. Set to `false` for proxy drivers (e.g. cloud proxy)
+     * that should never become the default.
+     */
+    registerAsDefault?: boolean;
+}
+
 export class DriverPlugin implements Plugin {
     name: string;
     type = 'driver';
     version = '1.0.0';
-    // dependencies = ['com.objectstack.engine.objectql']; // Removed: Driver is a producer, not strictly a consumer during init
 
     private driver: any;
+    private options: DriverPluginOptions;
 
-    constructor(driver: any, driverName?: string) {
+    constructor(driver: any, driverNameOrOptions?: string | DriverPluginOptions, options?: DriverPluginOptions) {
         this.driver = driver;
+        const driverName = typeof driverNameOrOptions === 'string' ? driverNameOrOptions : undefined;
+        this.options = (typeof driverNameOrOptions === 'object' ? driverNameOrOptions : options) ?? {};
         this.name = `com.objectstack.driver.${driverName || driver.name || 'unknown'}`;
     }
 
     init = async (ctx: PluginContext) => {
-        // Register driver as a service instead of directly to objectql
         const serviceName = `driver.${this.driver.name || 'unknown'}`;
         ctx.registerService(serviceName, this.driver);
         ctx.logger.info('Driver service registered', { 
@@ -41,34 +56,30 @@ export class DriverPlugin implements Plugin {
     }
 
     start = async (ctx: PluginContext) => {
-        // Drivers don't need start phase, initialization happens in init
-        // Auto-configure alias for shorter access if it follows reverse domain standard
-        if (this.name.startsWith('com.objectstack.driver.')) {
-            // const shortName = this.name.split('.').pop();
-            // Optional: ctx.registerService(`driver.${shortName}`, this.driver);
-        }
-
-        // Auto-configure 'default' datasource if none exists
-        // We do this in 'start' phase to ensure metadata service is likely available
         try {
             const metadata = ctx.getService<any>('metadata');
-            if (metadata && metadata.addDatasource) {
-                // Check if default datasource exists
+            if (!metadata?.addDatasource) return;
+
+            // Register a named datasource for this driver (e.g. 'cloud').
+            if (this.options.datasourceName) {
+                await metadata.addDatasource({
+                    name: this.options.datasourceName,
+                    driver: this.driver.name,
+                });
+                ctx.logger.info(`[DriverPlugin] Registered named datasource '${this.options.datasourceName}'`, { driver: this.driver.name });
+            }
+
+            // Auto-register as 'default' datasource unless explicitly disabled.
+            if (this.options.registerAsDefault !== false) {
                 const datasources = metadata.getDatasources ? metadata.getDatasources() : [];
                 const hasDefault = datasources.some((ds: any) => ds.name === 'default');
-
                 if (!hasDefault) {
-                    ctx.logger.info(`[DriverPlugin] No 'default' datasource found. Auto-configuring '${this.driver.name}' as default.`);
-                    await metadata.addDatasource({
-                        name: 'default',
-                        driver: this.driver.name, // The driver's internal name (e.g. com.objectstack.driver.memory)
-                    });
+                    ctx.logger.info(`[DriverPlugin] No 'default' datasource found — registering '${this.driver.name}' as default.`);
+                    await metadata.addDatasource({ name: 'default', driver: this.driver.name });
                 }
             }
         } catch (e) {
-            // Metadata service might not be ready or available, which is fine
-            // We just skip auto-configuration
-            ctx.logger.debug('[DriverPlugin] Failed to auto-configure default datasource (Metadata service missing?)', { error: e });
+            ctx.logger.debug('[DriverPlugin] Failed to configure datasource (metadata service missing?)', { error: e });
         }
 
         ctx.logger.debug('Driver plugin started', { driverName: this.driver.name || 'unknown' });

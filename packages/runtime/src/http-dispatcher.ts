@@ -2059,11 +2059,12 @@ export class HttpDispatcher {
                 const { packageId, version, settings, enableOnInstall } = body ?? {};
                 if (!packageId) return { handled: true, response: this.error('packageId is required', 400) };
 
-                // Prevent installing platform-scope packages per-env
+                // Prevent installing cloud/system-scope packages per-project
                 const allPkgs = this.kernel.packages?.getAll?.() ?? [];
                 const manifest = allPkgs.find((p: any) => (p.manifest?.id ?? p.id) === packageId)?.manifest ?? allPkgs.find((p: any) => (p.manifest?.id ?? p.id) === packageId);
-                if (manifest?.scope === 'platform') {
-                    return { handled: true, response: this.error(`Package '${packageId}' has scope=platform and cannot be installed per-project`, 403) };
+                const CLOUD_SCOPES = new Set(['cloud', 'system', 'platform']);
+                if (CLOUD_SCOPES.has(manifest?.scope)) {
+                    return { handled: true, response: this.error(`Package '${packageId}' has scope=${manifest.scope} and cannot be installed per-project`, 403) };
                 }
 
                 const nowIso = new Date().toISOString();
@@ -2100,8 +2101,8 @@ export class HttpDispatcher {
                 const pkgId = decodeURIComponent(parts[3]);
                 const record = await ql.findOne(PKG_INSTALL, { where: { project_id: envId, package_id: pkgId } } as any) as any;
                 if (!record) return { handled: true, response: this.error(`Package '${pkgId}' is not installed in this project`, 404) };
-                if (record.scope === 'platform') {
-                    return { handled: true, response: this.error(`Platform-scope package '${pkgId}' cannot be uninstalled`, 403) };
+                if (['cloud', 'system', 'platform'].includes(record.scope)) {
+                    return { handled: true, response: this.error(`Package '${pkgId}' with scope=${record.scope} cannot be uninstalled`, 403) };
                 }
                 await ql.delete(PKG_INSTALL, { where: { id: record.id } } as any);
                 return { handled: true, response: this.success({ id: record.id, success: true }) };
@@ -2125,8 +2126,8 @@ export class HttpDispatcher {
                 const pkgId = decodeURIComponent(parts[3]);
                 const record = await ql.findOne(PKG_INSTALL, { where: { project_id: envId, package_id: pkgId } } as any) as any;
                 if (!record) return { handled: true, response: this.error(`Package '${pkgId}' is not installed in this project`, 404) };
-                if (record.scope === 'platform') {
-                    return { handled: true, response: this.error(`Platform-scope package '${pkgId}' cannot be disabled`, 403) };
+                if (['cloud', 'system', 'platform'].includes(record.scope)) {
+                    return { handled: true, response: this.error(`Package '${pkgId}' with scope=${record.scope} cannot be disabled`, 403) };
                 }
                 const nowIso = new Date().toISOString();
                 await ql.update(PKG_INSTALL, { enabled: false, status: 'disabled', updated_at: nowIso }, { where: { id: record.id } } as any);

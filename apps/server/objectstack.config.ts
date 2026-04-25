@@ -78,12 +78,25 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     ?? `http://localhost:${process.env.PORT ?? 3000}`;
 
 // Per-project kernels share a minimal base. Loaded lazily on project provisioning.
-const basePlugins: BasePluginsFactory = async ({ projectId }) => {
+// System plugins (Tenant, Auth, Security, Audit) are included so that sys_*
+// objects are visible at project API endpoints. They declare
+// `defaultDatasource: 'cloud'` so their queries route through the
+// ControlPlaneProxyDriver (org-scoped) mounted by ProjectKernelFactory.
+const basePlugins: BasePluginsFactory = async ({ projectId, project }) => {
     const { ObjectQLPlugin } = await import('@objectstack/objectql');
     const { MetadataPlugin } = await import('@objectstack/metadata');
+    const { createTenantPlugin } = await import('@objectstack/service-tenant');
+    const { AuthPlugin } = await import('@objectstack/plugin-auth');
+    const { SecurityPlugin } = await import('@objectstack/plugin-security');
+    const { AuditPlugin } = await import('@objectstack/plugin-audit');
+    const orgId = project.organization_id;
     return [
         new ObjectQLPlugin({ environmentId: projectId }),
-        new MetadataPlugin({ watch: false, environmentId: projectId }),
+        new MetadataPlugin({ watch: false, environmentId: projectId, organizationId: orgId }),
+        createTenantPlugin({ registerSystemObjects: true, registerLegacyTenantDatabase: false }),
+        new AuthPlugin({ secret: authSecret, baseUrl }),
+        new SecurityPlugin(),
+        new AuditPlugin(),
     ];
 };
 

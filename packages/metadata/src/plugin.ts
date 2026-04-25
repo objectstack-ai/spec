@@ -65,7 +65,8 @@ export class MetadataPlugin implements Plugin {
                 name: 'Metadata',
                 version: '1.0.0',
                 type: 'plugin',
-                scope: 'platform',
+                scope: 'system',
+                defaultDatasource: 'cloud',
                 objects: [SysMetadataObject, SysMetadataHistoryObject],
             });
 
@@ -75,7 +76,8 @@ export class MetadataPlugin implements Plugin {
                 name: 'ObjectOS System Objects',
                 version: '1.0.0',
                 type: 'plugin',
-                scope: 'platform',
+                scope: 'system',
+                defaultDatasource: 'cloud',
                 objects: Object.values(SystemObjects),
             });
 

@@ -4,6 +4,7 @@ import { ObjectKernel, Plugin } from '@objectstack/core';
 import type * as Contracts from '@objectstack/spec/contracts';
 import { DriverPlugin } from './driver-plugin.js';
 import { AppPlugin } from './app-plugin.js';
+import { ControlPlaneProxyDriver } from './control-plane-proxy-driver.js';
 import type { ProjectKernelFactory } from './kernel-manager.js';
 import type { EnvironmentDriverRegistry, SecretEncryptor } from './environment-registry.js';
 import { NoopSecretEncryptor } from './environment-registry.js';
@@ -161,6 +162,17 @@ export class DefaultProjectKernelFactory implements ProjectKernelFactory {
 
     // Driver first — base plugins (ObjectQL, Metadata, …) depend on it.
     await kernel.use(new DriverPlugin(driver));
+
+    // Register cloud proxy driver so scope:'system' packages
+    // (plugin-auth, plugin-audit, …) that set defaultDatasource:'cloud'
+    // resolve to the shared cloud DB with automatic org filtering.
+    const orgId = project.organization_id;
+    if (!orgId) {
+      throw new Error(`[ProjectKernelFactory] project '${projectId}' is missing organization_id — cannot mount cloud datasource`);
+    }
+    const proxyDriver = new ControlPlaneProxyDriver(this.controlPlaneDriver, orgId);
+    await kernel.use(new DriverPlugin(proxyDriver, { registerAsDefault: false, datasourceName: 'cloud' }));
+
     for (const p of basePlugins) await kernel.use(p);
     for (const b of bundles) await kernel.use(new AppPlugin(b));
 

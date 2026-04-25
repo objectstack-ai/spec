@@ -226,18 +226,35 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         const { packageId } = request;
         let items: unknown[] = [];
 
-        // Scoped (project) kernels must NOT read from SchemaRegistry — the
-        // registry is a process-wide static singleton shared across every
-        // project kernel, so a Studio request for project A would otherwise
-        // see project B's definitions (and system-bridged entries that don't
-        // belong to any user project). Go straight to the DB with an env_id
-        // filter so isolation is guaranteed. Mirrors the getMetaItem rule.
+        // Unscoped kernels (control plane): read everything from SchemaRegistry.
+        // Scoped (project) kernels: skip user-project entries in SchemaRegistry to
+        // prevent cross-project leakage, but DO include scope:'system' packages
+        // (plugin-auth, plugin-security, plugin-audit, …) — those are globally
+        // shared and must be visible at every project's meta endpoint.
         if (this.environmentId === undefined) {
             items = [...this.engine.registry.listItems(request.type, packageId)];
             // Normalize singular/plural using explicit mapping
             if (items.length === 0) {
                 const alt = PLURAL_TO_SINGULAR[request.type] ?? SINGULAR_TO_PLURAL[request.type];
                 if (alt) items = [...this.engine.registry.listItems(alt, packageId)];
+            }
+        } else {
+            // For project kernels, include system-scope objects from SchemaRegistry.
+            const systemPkgIds = this.engine.registry
+                .listItems<{ manifest: { scope?: string; id: string } }>('package')
+                .filter(p => p.manifest?.scope === 'system')
+                .map(p => p.manifest.id);
+            for (const sysId of systemPkgIds) {
+                const sysItems = this.engine.registry.listItems<unknown>(request.type, sysId);
+                items.push(...sysItems);
+            }
+            if (items.length === 0) {
+                const alt = PLURAL_TO_SINGULAR[request.type] ?? SINGULAR_TO_PLURAL[request.type];
+                if (alt) {
+                    for (const sysId of systemPkgIds) {
+                        items.push(...this.engine.registry.listItems<unknown>(alt, sysId));
+                    }
+                }
             }
         }
 

@@ -129,6 +129,7 @@ function namespaceDatasets(bundle: any): any[] {
 function createTemplateSeeder(
     kernelManager: KernelManager,
     templates: Record<string, ProjectTemplate>,
+    envRegistry: EnvironmentDriverRegistry,
 ): TemplateSeeder {
     return {
         listTemplates() {
@@ -178,7 +179,9 @@ function createTemplateSeeder(
                 );
             }
             if (typeof metadata.setDataEngine === 'function') {
-                try { metadata.setDataEngine(engine, undefined, projectId); } catch { /* already set */ }
+                const cached = envRegistry.peekById(projectId);
+                const orgId = (cached?.project as any)?.organization_id as string | undefined;
+                try { metadata.setDataEngine(engine, orgId, projectId); } catch { /* already set */ }
             }
 
             if (items.length > 0) {
@@ -267,7 +270,7 @@ export class MultiProjectPlugin implements Plugin {
         });
         this.kernelManager = kernelManager;
 
-        const seeder = createTemplateSeeder(kernelManager, this.config.templates ?? {});
+        const seeder = createTemplateSeeder(kernelManager, this.config.templates ?? {}, envRegistry);
 
         ctx.registerService('env-registry', envRegistry);
         ctx.registerService('kernel-manager', kernelManager);

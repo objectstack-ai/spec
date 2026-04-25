@@ -82,7 +82,7 @@ export class SetupPlugin implements Plugin {
       name: 'Setup',
       version: '1.0.0',
       type: 'plugin',
-      scope: 'platform',
+      scope: 'project',
       namespace: 'sys',
       objects: [],
       apps: [setupApp],

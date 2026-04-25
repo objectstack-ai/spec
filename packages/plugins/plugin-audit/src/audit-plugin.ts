@@ -22,7 +22,8 @@ export class AuditPlugin implements Plugin {
       name: 'Audit',
       version: '1.0.0',
       type: 'plugin',
-      scope: 'platform',
+      scope: 'system',
+      defaultDatasource: 'cloud',
       namespace: 'sys',
       objects: [SysAuditLog],
     });

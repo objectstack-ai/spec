@@ -15,7 +15,7 @@ export default defineStack({
     namespace: 'setup',
     version: '3.3.1',
     type: 'plugin',
-    scope: 'platform',
+    scope: 'project',
     name: 'Platform Setup Plugin',
     description: 'Owns and composes the platform Setup App with area-based navigation contributed by other plugins',
   },

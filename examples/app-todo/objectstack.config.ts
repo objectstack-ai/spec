@@ -9,6 +9,7 @@ import * as dashboards from './src/dashboards';
 import * as reports from './src/reports';
 import { allFlows } from './src/flows';
 import * as apps from './src/apps';
+import { TodoSeedData } from './src/data';
 import * as translations from './src/translations';
 
 // ─── Action Handler Registration (runtime lifecycle) ────────────────
@@ -36,23 +37,7 @@ export default defineStack({
   },
 
   // Seed Data (top-level, registered as metadata)
-  data: [
-    {
-      object: 'task',
-      mode: 'upsert' as const,
-      externalId: 'subject',
-      records: [
-        { subject: 'Learn ObjectStack', status: 'completed', priority: 'high', category: 'work' },
-        { subject: 'Build a cool app', status: 'in_progress', priority: 'normal', category: 'work', due_date: new Date(Date.now() + 86400000 * 3) },
-        { subject: 'Review PR #102', status: 'completed', priority: 'high', category: 'work' },
-        { subject: 'Write Documentation', status: 'not_started', priority: 'normal', category: 'work', due_date: new Date(Date.now() + 86400000) },
-        { subject: 'Fix Server bug', status: 'waiting', priority: 'urgent', category: 'work' },
-        { subject: 'Buy groceries', status: 'not_started', priority: 'low', category: 'shopping', due_date: new Date() },
-        { subject: 'Schedule dentist appointment', status: 'not_started', priority: 'normal', category: 'health', due_date: new Date(Date.now() + 86400000 * 7) },
-        { subject: 'Pay utility bills', status: 'not_started', priority: 'high', category: 'finance', due_date: new Date(Date.now() + 86400000 * 2) },
-      ]
-    }
-  ],
+  data: TodoSeedData,
 
   // Auto-collected from barrel index files via Object.values()
   objects: Object.values(objects),

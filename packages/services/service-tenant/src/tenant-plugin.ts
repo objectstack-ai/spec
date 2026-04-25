@@ -133,7 +133,7 @@ export function createTenantPlugin(config: TenantPluginConfig = {}): Plugin {
             name: 'Tenant',
             version: '0.2.0',
             type: 'plugin',
-            scope: 'platform',
+            scope: 'cloud',
             namespace: 'sys',
             objects: manifestObjects,
           });

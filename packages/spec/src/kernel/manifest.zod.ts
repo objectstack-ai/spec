@@ -101,13 +101,21 @@ export const ManifestSchema = z.object({
 
   /**
    * Deployment scope of this package.
-   * - `platform`: Provided by the runtime layer (auth, identity, i18n, etc.).
-   *   Never installed per-environment; always globally available.
-   * - `environment`: A business solution (CRM, project management, custom app).
-   *   Installed independently into each environment (Power Apps "solution" model).
+   *
+   * - `cloud`:   Control-plane exclusive (tenant management, credentials, package registry…).
+   *              Never registered into a project kernel; accessible only via `/api/v1/cloud/*`.
+   * - `system`:  Cross-project shared identity (user, org, role, i18n…).
+   *              In a project kernel, objects are transparently proxied to the control-plane DB
+   *              with an automatic `organization_id` filter for org-scoped tables.
+   *              Packages with this scope should also set `defaultDatasource: 'cloud'`.
+   * - `project`: Per-project business objects (CRM, custom apps…).
+   *              Registered normally into the project DB.
+   *
+   * @deprecated `platform` is an alias for `system`; `environment` is an alias for `project`.
+   *             These aliases will be removed in the next major version.
    */
-  scope: z.enum(['platform', 'environment']).default('environment')
-    .describe('Deployment scope: platform (runtime-global) or environment (per-env install)'),
+  scope: z.enum(['cloud', 'system', 'project', 'platform', 'environment']).default('project')
+    .describe('Deployment scope: cloud | system | project (platform/environment are deprecated aliases)'),
 
   /**
    * Human-readable name of the package.
