@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 /**
- * system-objects/security — Security & Permission System Objects
+ * platform-objects/security — Security & Permission Platform Objects
  */
 
 export { SysRole } from './sys-role.object.js';

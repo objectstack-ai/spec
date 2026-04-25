@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 /**
- * system-objects/metadata — Metadata & Platform Object Definitions
+ * platform-objects/metadata — Metadata & Platform Object Definitions
  */
 
 export { SysMetadataObject, SysMetadataObject as SysMetadata } from './sys-metadata.object.js';

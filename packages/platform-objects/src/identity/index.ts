@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 /**
- * system-objects/identity — Identity & Authentication System Objects
+ * platform-objects/identity — Identity & Authentication Platform Objects
  *
  * Canonical ObjectSchema definitions for all authentication-related system objects.
  */

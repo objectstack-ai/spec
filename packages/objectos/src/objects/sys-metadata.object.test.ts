@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { describe, it, expect } from 'vitest';
-import { SysMetadata } from '@objectstack/system-objects/metadata';
+import { SysMetadata } from '@objectstack/platform-objects/metadata';
 
 describe('SysMetadata Object', () => {
   it('should have correct object name', () => {

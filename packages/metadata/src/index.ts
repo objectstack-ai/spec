@@ -23,7 +23,7 @@ export { RemoteLoader } from './loaders/remote-loader.js';
 export { DatabaseLoader, type DatabaseLoaderOptions } from './loaders/database-loader.js';
 
 // Objects
-export { SysMetadataObject, SysMetadataHistoryObject } from '@objectstack/system-objects/metadata';
+export { SysMetadataObject, SysMetadataHistoryObject } from '@objectstack/platform-objects/metadata';
 
 // Routes
 export { registerMetadataHistoryRoutes } from './routes/history-routes.js';

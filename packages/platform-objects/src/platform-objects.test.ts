@@ -71,7 +71,7 @@ const systemObjects = [
   ['SysFlow', SysFlow, 'sys_flow'],
 ] as const;
 
-describe('@objectstack/system-objects', () => {
+describe('@objectstack/platform-objects', () => {
   it.each(systemObjects)('%s uses a canonical sys_ short name', (_exportName, object, name) => {
     expect(object.name).toBe(name);
   });

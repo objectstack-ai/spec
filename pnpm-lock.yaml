@@ -748,12 +748,12 @@ importers:
       '@objectstack/objectos':
         specifier: workspace:*
         version: link:../objectos
+      '@objectstack/platform-objects':
+        specifier: workspace:*
+        version: link:../platform-objects
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../spec
-      '@objectstack/system-objects':
-        specifier: workspace:*
-        version: link:../system-objects
       '@objectstack/types':
         specifier: workspace:*
         version: link:../types
@@ -785,12 +785,12 @@ importers:
 
   packages/objectos:
     dependencies:
+      '@objectstack/platform-objects':
+        specifier: workspace:*
+        version: link:../platform-objects
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../spec
-      '@objectstack/system-objects':
-        specifier: workspace:*
-        version: link:../system-objects
       zod:
         specifier: ^4.3.6
         version: 4.3.6
@@ -826,6 +826,25 @@ importers:
         specifier: workspace:*
         version: link:../types
     devDependencies:
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.2
+      vitest:
+        specifier: ^4.1.4
+        version: 4.1.4(@opentelemetry/api@1.9.0)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.4)(happy-dom@20.9.0)(msw@2.13.4(@types/node@25.6.0)(typescript@6.0.2))(vite@8.0.9(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/platform-objects:
+    dependencies:
+      '@objectstack/spec':
+        specifier: workspace:*
+        version: link:../spec
+    devDependencies:
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.6.0
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.1(jiti@2.6.1)(postcss@8.5.10)(tsx@4.21.0)(typescript@6.0.2)(yaml@2.8.3)
       typescript:
         specifier: ^6.0.2
         version: 6.0.2
@@ -919,12 +938,12 @@ importers:
       '@objectstack/core':
         specifier: workspace:*
         version: link:../../core
+      '@objectstack/platform-objects':
+        specifier: workspace:*
+        version: link:../../platform-objects
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../spec
-      '@objectstack/system-objects':
-        specifier: workspace:*
-        version: link:../../system-objects
     devDependencies:
       '@types/node':
         specifier: ^25.6.0
@@ -941,12 +960,12 @@ importers:
       '@objectstack/core':
         specifier: workspace:*
         version: link:../../core
+      '@objectstack/platform-objects':
+        specifier: workspace:*
+        version: link:../../platform-objects
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../spec
-      '@objectstack/system-objects':
-        specifier: workspace:*
-        version: link:../../system-objects
       better-auth:
         specifier: ^1.6.5
         version: 1.6.5(@opentelemetry/api@1.9.0)(@sveltejs/kit@2.57.1(@opentelemetry/api@1.9.0)(@sveltejs/vite-plugin-svelte@7.0.0(svelte@5.55.3)(vite@8.0.9(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)))(svelte@5.55.3)(typescript@6.0.2)(vite@8.0.9(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)))(better-sqlite3@12.9.0)(next@16.2.4(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(svelte@5.55.3)(vitest@4.1.4)
@@ -1096,12 +1115,12 @@ importers:
       '@objectstack/core':
         specifier: workspace:*
         version: link:../../core
+      '@objectstack/platform-objects':
+        specifier: workspace:*
+        version: link:../../platform-objects
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../spec
-      '@objectstack/system-objects':
-        specifier: workspace:*
-        version: link:../../system-objects
     devDependencies:
       '@types/node':
         specifier: ^25.6.0
@@ -1382,12 +1401,12 @@ importers:
       '@objectstack/core':
         specifier: workspace:*
         version: link:../../core
+      '@objectstack/platform-objects':
+        specifier: workspace:*
+        version: link:../../platform-objects
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../spec
-      '@objectstack/system-objects':
-        specifier: workspace:*
-        version: link:../../system-objects
     devDependencies:
       '@types/node':
         specifier: ^25.6.0
@@ -1426,12 +1445,12 @@ importers:
       '@objectstack/driver-turso':
         specifier: workspace:^
         version: link:../../plugins/driver-turso
+      '@objectstack/platform-objects':
+        specifier: workspace:^
+        version: link:../../platform-objects
       '@objectstack/spec':
         specifier: workspace:^
         version: link:../../spec
-      '@objectstack/system-objects':
-        specifier: workspace:^
-        version: link:../../system-objects
     devDependencies:
       '@types/node':
         specifier: ^22.10.5
@@ -1464,25 +1483,6 @@ importers:
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
-      typescript:
-        specifier: ^6.0.2
-        version: 6.0.2
-      vitest:
-        specifier: ^4.1.4
-        version: 4.1.4(@opentelemetry/api@1.9.0)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.4)(happy-dom@20.9.0)(msw@2.13.4(@types/node@25.6.0)(typescript@6.0.2))(vite@8.0.9(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
-
-  packages/system-objects:
-    dependencies:
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../spec
-    devDependencies:
-      '@types/node':
-        specifier: ^25.6.0
-        version: 25.6.0
-      tsup:
-        specifier: ^8.5.0
-        version: 8.5.1(jiti@2.6.1)(postcss@8.5.10)(tsx@4.21.0)(typescript@6.0.2)(yaml@2.8.3)
       typescript:
         specifier: ^6.0.2
         version: 6.0.2

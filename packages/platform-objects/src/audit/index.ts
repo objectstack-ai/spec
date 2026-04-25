@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 /**
- * system-objects/audit — Audit & Realtime System Objects
+ * platform-objects/audit — Audit & Realtime Platform Objects
  */
 
 export { SysAuditLog } from './sys-audit-log.object.js';

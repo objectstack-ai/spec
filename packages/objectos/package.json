@@ -32,7 +32,7 @@
   "keywords": [
     "objectstack",
     "objectos",
-    "system-objects",
+    "platform-objects",
     "metadata"
   ],
   "author": "ObjectStack",
@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",
-    "@objectstack/system-objects": "workspace:*",
+    "@objectstack/platform-objects": "workspace:*",
     "zod": "^4.3.6"
   },
   "engines": {

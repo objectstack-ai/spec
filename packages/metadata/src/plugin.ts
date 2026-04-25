@@ -7,7 +7,7 @@ import { NodeMetadataManager } from './node-metadata-manager.js';
 import { MemoryLoader } from './loaders/memory-loader.js';
 import { DEFAULT_METADATA_TYPE_REGISTRY } from '@objectstack/spec/kernel';
 import type { MetadataPluginConfig } from '@objectstack/spec/kernel';
-import { SysMetadataObject, SysMetadataHistoryObject } from '@objectstack/system-objects/metadata';
+import { SysMetadataObject, SysMetadataHistoryObject } from '@objectstack/platform-objects/metadata';
 import { SystemObjects } from '@objectstack/objectos';
 
 // Map from ObjectStackDefinition field name to MetadataType name

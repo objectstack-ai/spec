@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 /**
- * system-objects/tenant — Multi-Tenant & Project Management System Objects
+ * platform-objects/tenant — Multi-Tenant & Project Management Platform Objects
  */
 
 export * from './sys-project.object.js';
