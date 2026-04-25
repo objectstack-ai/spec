@@ -11,7 +11,6 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * Belongs to `service-feed` package per "protocol + service ownership" pattern.
  */
 export const RecordSubscription = ObjectSchema.create({
-  namespace: 'sys',
   name: 'record_subscription',
   label: 'Record Subscription',
   pluralLabel: 'Record Subscriptions',

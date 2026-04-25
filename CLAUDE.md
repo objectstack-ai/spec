@@ -57,7 +57,7 @@ Mission: Build the "Post-SaaS Operating System" — an open-core, local-first ec
     - Benchmark against industry leaders (Salesforce, ServiceNow, Kubernetes) for structural decisions.
     - Philosophy: "Data as Code", Idempotency, and Immutable Infrastructure are the defaults.
 6. **Long-Term Architecture:** Do NOT use simplified or temporary workarounds. Always adopt sustainable, well-architected solutions.
-7. **Short Object Names Are Canonical:** Always write **short** object names (e.g. `account`, `task`) in user code, examples, queries, REST URLs, formulas, hooks, and lookups. **Never** type FQN (`{namespace}__name`, e.g. `crm__account`) in user-facing code, docs, or AI-generated output. **Never** set `tableName` on an object schema — the field has been removed; the physical table name is always derived from the short name. FQN is an internal-only mechanic used by the registry for cross-package disambiguation, marketplace publishing, and customization `baseName` references.
+7. **Object Name = Table Name:** The object `name` is the canonical identifier used everywhere — API paths, ObjectQL queries, REST URLs, SDK calls, and the physical database table. There is no namespace prefix mechanism; if a module needs a prefix, it is embedded directly in the `name` (e.g. `name: 'sys_user'`, `name: 'ai_conversations'`). **Never** set `namespace` on an object schema — the field is deprecated and ignored. **Never** set `tableName` — the physical table name always equals the object `name`.
 
 ---
 

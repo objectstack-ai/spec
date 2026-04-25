@@ -11,8 +11,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysAccount = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'account',
+  name: 'sys_account',
   label: 'Account',
   pluralLabel: 'Accounts',
   icon: 'link',

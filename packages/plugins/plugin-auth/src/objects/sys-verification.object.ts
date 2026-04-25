@@ -11,8 +11,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysVerification = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'verification',
+  name: 'sys_verification',
   label: 'Verification',
   pluralLabel: 'Verifications',
   icon: 'shield-check',

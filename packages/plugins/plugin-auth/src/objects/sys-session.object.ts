@@ -15,8 +15,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysSession = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'session',
+  name: 'sys_session',
   label: 'Session',
   pluralLabel: 'Sessions',
   icon: 'key',

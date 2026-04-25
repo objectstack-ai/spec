@@ -308,21 +308,11 @@ const ObjectSchemaBase = z.object({
   icon: z.string().optional().describe('Icon name (Lucide/Material) for UI representation'),
   
   /**
-   * Namespace & Domain Classification
-   *
-   * Groups objects into logical domains for routing, permissions, package
-   * provenance, and marketplace identification. System objects use `'sys'`;
-   * business packages use their own namespace.
-   *
-   * Namespace is metadata only — it does NOT alter the physical table name.
-   * The physical table is always derived from the object's short `name`.
-   *
-   * Namespace must be a single lowercase word (no underscores or hyphens).
-   *
-   * @example namespace: 'sys', name: 'user'    → table `user`
-   * @example namespace: 'crm', name: 'account' → table `account`
+   * @deprecated Namespace is no longer used. Embed any prefix directly in the
+   * object `name` (e.g. `name: 'sys_user'`). This field is accepted for
+   * backwards compatibility but is ignored by the runtime.
    */
-  namespace: z.string().regex(/^[a-z][a-z0-9]*$/).optional().describe('Logical domain namespace — single lowercase word (e.g. "sys", "crm"). Used for routing, permissions, and package provenance. Does not affect physical table name.'),
+  namespace: z.string().regex(/^[a-z][a-z0-9]*$/).optional().describe('Deprecated — ignored by the runtime. Embed prefix in name instead (e.g. name: "sys_user").'),
 
   /**
    * Taxonomy & Organization

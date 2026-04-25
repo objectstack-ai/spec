@@ -23,8 +23,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysPackageInstallation = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'package_installation',
+  name: 'sys_package_installation',
   label: 'Package Installation',
   pluralLabel: 'Package Installations',
   icon: 'package',

@@ -12,8 +12,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysPermissionSet = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'permission_set',
+  name: 'sys_permission_set',
   label: 'Permission Set',
   pluralLabel: 'Permission Sets',
   icon: 'lock',

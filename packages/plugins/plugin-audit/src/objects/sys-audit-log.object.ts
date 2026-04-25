@@ -14,8 +14,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysAuditLog = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'audit_log',
+  name: 'sys_audit_log',
   label: 'Audit Log',
   pluralLabel: 'Audit Logs',
   icon: 'scroll-text',

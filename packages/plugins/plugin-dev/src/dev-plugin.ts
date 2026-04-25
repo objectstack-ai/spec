@@ -1,6 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { Plugin, PluginContext, createMemoryCache, createMemoryQueue, createMemoryJob, createMemoryI18n } from '@objectstack/core';
+import { SystemObjectName } from '@objectstack/spec/system';
 
 /**
  * All 17 core kernel service names as defined in CoreServiceName.
@@ -722,7 +723,7 @@ export class DevPlugin implements Plugin {
       if (!dataEngine) return;
 
       // Check if admin already exists
-      const existing = await dataEngine.find('user', {
+      const existing = await dataEngine.find(SystemObjectName.USER, {
         filter: { email: 'admin@dev.local' },
         limit: 1,
       }).catch(() => null);
@@ -732,7 +733,7 @@ export class DevPlugin implements Plugin {
         return;
       }
 
-      await dataEngine.insert('user', {
+      await dataEngine.insert(SystemObjectName.USER, {
         data: {
           name: 'Admin',
           email: 'admin@dev.local',

@@ -21,8 +21,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysPackage = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'package',
+  name: 'sys_package',
   label: 'Package',
   pluralLabel: 'Packages',
   icon: 'package',

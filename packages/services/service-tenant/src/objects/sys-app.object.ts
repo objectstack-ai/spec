@@ -23,8 +23,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysApp = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'app',
+  name: 'sys_app',
   label: 'App',
   pluralLabel: 'Apps',
   icon: 'layout-grid',

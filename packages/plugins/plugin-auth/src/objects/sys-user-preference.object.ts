@@ -17,8 +17,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysUserPreference = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'user_preference',
+  name: 'sys_user_preference',
   label: 'User Preference',
   pluralLabel: 'User Preferences',
   icon: 'settings',

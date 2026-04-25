@@ -132,7 +132,6 @@ const { Field } = Data;
 export default defineStack({
   manifest: {
     id: 'com.example.todo',
-    namespace: 'todo',
     version: '1.0.0',
     type: 'app',
     name: 'Todo Manager',
@@ -258,7 +257,6 @@ Every stack needs a `manifest` to identify itself in the ecosystem:
 ```typescript
 manifest: {
   id: 'com.example.crm',        // Reverse domain unique ID
-  namespace: 'crm',             // 2-20 chars, lowercase, prefixes objects
   version: '1.0.0',             // Semver
   type: 'app',                  // app | plugin | driver | module | ...
   name: 'Acme CRM',             // Human-readable display name
@@ -266,9 +264,7 @@ manifest: {
 }
 ```
 
-**Namespace scoping:** Objects become `{namespace}__{name}` (double underscore)
-in multi-app environments. Platform-reserved namespaces (`base`, `system`)
-skip prefixing.
+**Object naming:** The object `name` is the canonical identifier and equals the physical table name. If you want a domain prefix, embed it directly in the name (e.g. `name: 'crm_account'`). There is no automatic namespace prefixing.
 
 ---
 
@@ -473,13 +469,13 @@ export default defineStack({
     new ObjectQLPlugin(),
     new DriverPlugin(new SqlDriver({ ... })),
     new AuthPlugin({ secret: process.env.AUTH_SECRET }),
-    new AppPlugin(CrmApp),     // contributes objects under namespace 'crm' (account, lead, ...)
-    new AppPlugin(TodoApp),    // contributes objects under namespace 'todo' (task, ...)
+    new AppPlugin(CrmApp),     // contributes objects: crm_account, crm_lead, ...
+    new AppPlugin(TodoApp),    // contributes objects: task, ...
   ],
 });
 ```
 
-Each app declares a `namespace` for package provenance, but you reference its objects by their short name (`account`, `task`) everywhere — in queries, hooks, formulas, REST URLs, and physical tables. Namespace only surfaces (as the FQN `crm__account`) when two packages happen to contribute the same short name, which the registry warns about at load time.
+Each app registers its objects by their canonical `name`. Object names are globally unique and equal the physical table name — use them directly in queries, hooks, formulas, and REST URLs.
 
 ---
 
@@ -627,7 +623,6 @@ import * as objects from './src/objects';
 export default defineStack({
   manifest: {
     id: 'com.example.todo',
-    namespace: 'todo',
     version: '1.0.0',
     type: 'app',
     name: 'Todo Manager',

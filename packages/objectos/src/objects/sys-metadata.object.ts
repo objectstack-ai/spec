@@ -17,8 +17,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * register it alongside `@objectstack/metadata` without coordinating ownership.
  */
 export const SysMetadata = ObjectSchema.create({
-  name: 'metadata',
-  namespace: 'sys',
+  name: 'sys_metadata',
   label: 'Metadata Record',
   pluralLabel: 'Metadata Records',
   description: 'Generic metadata envelope for package management and version control',

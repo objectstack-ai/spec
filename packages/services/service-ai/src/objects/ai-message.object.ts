@@ -11,7 +11,6 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace ai
  */
 export const AiMessageObject = ObjectSchema.create({
-  namespace: 'ai',
   name: 'ai_messages',
   label: 'AI Message',
   pluralLabel: 'AI Messages',

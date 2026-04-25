@@ -11,7 +11,6 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * Belongs to `service-feed` package per "protocol + service ownership" pattern.
  */
 export const FeedReaction = ObjectSchema.create({
-  namespace: 'sys',
   name: 'feed_reaction',
   label: 'Feed Reaction',
   pluralLabel: 'Feed Reactions',

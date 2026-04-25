@@ -14,8 +14,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysApiKey = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'api_key',
+  name: 'sys_api_key',
   label: 'API Key',
   pluralLabel: 'API Keys',
   icon: 'key-round',

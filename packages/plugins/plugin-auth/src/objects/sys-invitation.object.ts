@@ -11,8 +11,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysInvitation = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'invitation',
+  name: 'sys_invitation',
   label: 'Invitation',
   pluralLabel: 'Invitations',
   icon: 'mail',

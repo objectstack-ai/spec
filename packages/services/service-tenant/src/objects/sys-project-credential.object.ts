@@ -16,8 +16,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysProjectCredential = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'project_credential',
+  name: 'sys_project_credential',
   label: 'Project Credential',
   pluralLabel: 'Project Credentials',
   icon: 'key',

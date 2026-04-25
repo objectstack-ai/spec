@@ -19,8 +19,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysTenantDatabase = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'tenant_database',
+  name: 'sys_tenant_database',
   label: 'Tenant Database',
   pluralLabel: 'Tenant Databases',
   icon: 'database',

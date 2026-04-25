@@ -11,8 +11,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysTwoFactor = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'two_factor',
+  name: 'sys_two_factor',
   label: 'Two Factor',
   pluralLabel: 'Two Factor Credentials',
   icon: 'smartphone',

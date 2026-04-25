@@ -11,8 +11,7 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
  * @namespace sys
  */
 export const SysTeamMember = ObjectSchema.create({
-  namespace: 'sys',
-  name: 'team_member',
+  name: 'sys_team_member',
   label: 'Team Member',
   pluralLabel: 'Team Members',
   icon: 'user-plus',
