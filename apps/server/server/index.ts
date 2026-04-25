@@ -72,8 +72,8 @@ async function bootKernel(): Promise<BootResult> {
 
     await kernel.bootstrap();
 
-    const envRegistry = (kernel as any).getService('env-registry') as EnvironmentDriverRegistry;
-    const kernelManager = (kernel as any).getService('kernel-manager') as KernelManager;
+    const envRegistry = await (kernel as any).getServiceAsync('env-registry') as EnvironmentDriverRegistry;
+    const kernelManager = await (kernel as any).getServiceAsync('kernel-manager') as KernelManager;
 
     return { kernel, kernelManager, envRegistry };
 }
