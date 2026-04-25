@@ -35,6 +35,7 @@
     "@objectstack/hono": "workspace:*",
     "@objectstack/metadata": "workspace:*",
     "@objectstack/objectql": "workspace:*",
+    "@objectstack/platform-objects": "workspace:*",
     "@objectstack/plugin-audit": "workspace:*",
     "@objectstack/plugin-auth": "workspace:*",
     "@objectstack/plugin-msw": "workspace:*",

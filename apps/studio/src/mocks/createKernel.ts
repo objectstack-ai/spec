@@ -11,15 +11,14 @@ import { MetadataPlugin } from '@objectstack/metadata';
 import { AIServicePlugin } from '@objectstack/service-ai';
 import { FeedServicePlugin } from '@objectstack/service-feed';
 
-// System object definitions — resolved via Vite aliases to plugin source (no runtime deps)
 import {
     SysUser, SysSession, SysAccount, SysVerification,
     SysOrganization, SysMember, SysInvitation,
     SysTeam, SysTeamMember,
     SysApiKey, SysTwoFactor,
-} from '@objectstack/plugin-auth/objects';
-import { SysRole, SysPermissionSet } from '@objectstack/plugin-security/objects';
-import { SysAuditLog } from '@objectstack/plugin-audit/objects';
+} from '@objectstack/platform-objects/identity';
+import { SysRole, SysPermissionSet } from '@objectstack/platform-objects/security';
+import { SysAuditLog } from '@objectstack/platform-objects/audit';
 
 /** All system objects from auth, security, and audit plugins */
 const SYSTEM_OBJECTS = [

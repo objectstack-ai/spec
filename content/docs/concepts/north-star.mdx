@@ -528,7 +528,7 @@ without explicit project-level buy-in.
 
 - <AlertTriangle className="inline" /> **JSON is not an authoring form.** Phase 1 authors produce metadata via TypeScript and the CLI. If you find yourself editing JSON payloads directly in `sys_metadata`, you are patching around a missing CLI affordance.
 - <AlertTriangle className="inline" /> **TS is not a wire form.** ObjectOS runtimes never consume `.ts` files directly. The only runtime inputs are a compiled `dist/objectstack.json` or the control plane's Artifact API response (also JSON).
-- <AlertTriangle className="inline" /> **No bypassing Zod for TS <-> JSON conversion.** Any hand-rolled serializer will diverge from the schema on the Nth protocol bump and silently corrupt data. `z.toJSONSchema()` + `schema.parse()` **is** the contract.
+- <AlertTriangle className="inline" /> **No bypassing Zod for TS-to-JSON conversion.** Any hand-rolled serializer will diverge from the schema on the Nth protocol bump and silently corrupt data. `z.toJSONSchema()` + `schema.parse()` **is** the contract.
 
 ### Prior anti-patterns (still in force)
 

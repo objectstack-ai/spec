@@ -229,6 +229,9 @@ importers:
       '@objectstack/objectql':
         specifier: workspace:*
         version: link:../../packages/objectql
+      '@objectstack/platform-objects':
+        specifier: workspace:*
+        version: link:../../packages/platform-objects
       '@objectstack/plugin-audit':
         specifier: workspace:*
         version: link:../../packages/plugins/plugin-audit
