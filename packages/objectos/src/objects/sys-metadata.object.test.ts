@@ -5,11 +5,11 @@ import { SysMetadata } from './sys-metadata.object';
 
 describe('SysMetadata Object', () => {
   it('should have correct object name', () => {
-    expect(SysMetadata.name).toBe('metadata');
+    expect(SysMetadata.name).toBe('sys_metadata');
   });
 
-  it('should have sys namespace', () => {
-    expect(SysMetadata.namespace).toBe('sys');
+  it('should not have a separate namespace field', () => {
+    expect((SysMetadata as any).namespace).toBeUndefined();
   });
 
   it('should have required fields', () => {
