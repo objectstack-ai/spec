@@ -16,7 +16,9 @@ import {
   SysProject,
   SysProjectCredential,
   SysProjectMember,
+  SysApp,
 } from './objects';
+import { AppCatalogService } from './services/app-catalog.service.js';
 
 /**
  * Tenant Plugin Configuration
@@ -120,6 +122,10 @@ export function createTenantPlugin(config: TenantPluginConfig = {}): Plugin {
           SysPackage,
           SysPackageVersion,
           SysPackageInstallation,
+          // Org-scoped app catalog (mirrored from each project kernel via
+          // AppCatalogService hooks — avoids per-project DB fan-out for
+          // "all apps in this org" frontend queries).
+          SysApp,
         ];
         if (config.registerLegacyTenantDatabase !== false) {
           // v4.x deprecation shim — opt out via `registerLegacyTenantDatabase: false`.
@@ -140,6 +146,16 @@ export function createTenantPlugin(config: TenantPluginConfig = {}): Plugin {
           ctx.logger.info('[TenantPlugin] System objects registered via manifest service', {
             objects: manifestObjects.map((o: any) => `${o?.namespace ?? 'sys'}__${o?.name}`),
           });
+
+          // Install the org-scoped app catalog sync service. It listens for
+          // `app:registered` / `app:unregistered` hooks fired by each
+          // project kernel's AppPlugin and mirrors them into `sys_app` via
+          // the kernel-registered `driver.cloud` (ControlPlaneProxyDriver).
+          const appCatalog = new AppCatalogService();
+          (anyCtx.kernel ?? anyCtx)?.registerService?.('app-catalog', appCatalog, {
+            lifecycle: 'SINGLETON',
+          });
+          appCatalog.install(ctx);
         } catch (err: any) {
           // Without the manifest service we cannot register schemas — fail
           // loudly because every downstream control-plane write would

@@ -13,3 +13,6 @@ export * from './sys-tenant-database.object';
 export * from './sys-package.object';
 export * from './sys-package-version.object';
 export * from './sys-package-installation.object';
+
+// Org-scoped app catalog (mirrors per-project app metadata to control plane).
+export * from './sys-app.object';

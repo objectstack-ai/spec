@@ -174,9 +174,61 @@ export class DefaultProjectKernelFactory implements ProjectKernelFactory {
     await kernel.use(new DriverPlugin(proxyDriver, { registerAsDefault: false, datasourceName: 'cloud' }));
 
     for (const p of basePlugins) await kernel.use(p);
-    for (const b of bundles) await kernel.use(new AppPlugin(b));
+    const projectName = (project as any).name ?? (project as any).hostname;
+    for (const b of bundles) {
+      const sys = b?.manifest || b;
+      const packageId = sys?.packageId ?? sys?.package_id ?? b?.packageId;
+      await kernel.use(new AppPlugin(b, {
+        projectId,
+        organizationId: orgId,
+        projectName,
+        packageId,
+        source: packageId ? 'package' : 'user',
+      }));
+    }
 
     await kernel.bootstrap();
+
+    // Self-heal the org-scoped sys_app catalog: drop rows for this project
+    // whose app name is no longer present in the freshly booted kernel.
+    // Tolerates missed `app:unregistered` events (crashes, force-restarts).
+    // Uses the org-aware `proxyDriver` so the deletes stay tenant-safe.
+    try {
+      const currentNames = new Set(
+        bundles
+          .map((b: any) => {
+            const sys = b?.manifest || b;
+            return sys?.name ?? sys?.id;
+          })
+          .filter((n: any): n is string => typeof n === 'string' && n.length > 0),
+      );
+      const existing = await proxyDriver.find('sys_app', {
+        where: { project_id: projectId },
+        limit: 10_000,
+      } as any);
+      const rows: Array<{ name?: string }> = Array.isArray(existing)
+        ? existing
+        : (existing as any)?.value ?? [];
+      const stale = rows.filter((r) => r?.name && !currentNames.has(r.name));
+      const deleteMany = (proxyDriver as any).deleteMany;
+      if (stale.length && typeof deleteMany === 'function') {
+        for (const row of stale) {
+          await deleteMany.call(proxyDriver, 'sys_app', {
+            where: { project_id: projectId, name: row.name },
+          });
+        }
+        this.logger.info?.('[ProjectKernelFactory] sys_app catalog reconciled', {
+          projectId,
+          removed: stale.length,
+        });
+      }
+    } catch (err: any) {
+      this.logger.warn?.('[ProjectKernelFactory] sys_app reconciliation skipped', {
+        projectId,
+        error: err?.message,
+      });
+    }
+
     this.logger.info?.('[ProjectKernelFactory] kernel ready', {
       projectId,
       driver: project.database_driver,

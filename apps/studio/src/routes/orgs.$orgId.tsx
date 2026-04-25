@@ -2,7 +2,7 @@
 
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { ArrowLeft, Clock, Mail, MoreVertical, Trash2, UserPlus, Users, X } from 'lucide-react';
+import { ArrowLeft, Clock, Layers, Mail, MoreVertical, Trash2, UserPlus, Users, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -36,6 +36,7 @@ import {
   useOrganizationMembers,
   useOrganizationInvitations,
 } from '@/hooks/useOrganizationMembers';
+import { useOrgApps } from '@/hooks/useOrgApps';
 
 export const Route = createFileRoute('/orgs/$orgId')({
   component: OrgDetailPage,
@@ -60,6 +61,8 @@ function OrgDetailPage() {
     loading: loadingInvitations,
     cancelInvitation,
   } = useOrganizationInvitations(orgId);
+
+  const { apps, loading: loadingApps } = useOrgApps(orgId);
 
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -196,7 +199,7 @@ function OrgDetailPage() {
 
           {/* Tabs for Members and Invitations */}
           <Tabs defaultValue="members" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="members">
                 <Users className="mr-2 h-4 w-4" />
                 Members ({members.length})
@@ -204,6 +207,10 @@ function OrgDetailPage() {
               <TabsTrigger value="invitations">
                 <Mail className="mr-2 h-4 w-4" />
                 Invitations ({pendingInvitations.length})
+              </TabsTrigger>
+              <TabsTrigger value="apps">
+                <Layers className="mr-2 h-4 w-4" />
+                Apps ({apps.length})
               </TabsTrigger>
             </TabsList>
 
@@ -357,6 +364,49 @@ function OrgDetailPage() {
                           >
                             <X className="h-4 w-4" />
                           </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Apps Tab */}
+            <TabsContent value="apps" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Apps</CardTitle>
+                  <CardDescription>
+                    All apps across projects in this organization
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {loadingApps && (
+                    <p className="text-xs text-muted-foreground">Loading apps...</p>
+                  )}
+                  {!loadingApps && apps.length === 0 && (
+                    <div className="text-center py-8">
+                      <Layers className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                      <p className="mt-4 text-sm text-muted-foreground">
+                        No apps yet. Install a package or create one in a project.
+                      </p>
+                    </div>
+                  )}
+                  {!loadingApps && apps.length > 0 && (
+                    <div className="divide-y">
+                      {apps.map((a) => (
+                        <div
+                          key={`${a.project_id}:${a.name}`}
+                          className="flex items-center justify-between py-3"
+                        >
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">{a.label || a.name}</div>
+                            <div className="text-xs text-muted-foreground">{a.name}</div>
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {a.project_name || a.project_id}
+                          </Badge>
                         </div>
                       ))}
                     </div>

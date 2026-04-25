@@ -5,6 +5,22 @@ import { SeedLoaderService } from './seed-loader.js';
 import type { IMetadataService, II18nService } from '@objectstack/spec/contracts';
 
 /**
+ * Optional per-project context attached when AppPlugin is instantiated by the
+ * project kernel factory. Required for the `app:registered` / `app:unregistered`
+ * hooks that drive the org-scoped `sys_app` catalog. Standalone (single-tenant)
+ * usages may omit this — no catalog hooks are emitted in that case.
+ */
+export interface AppPluginProjectContext {
+    projectId: string;
+    organizationId: string;
+    projectName?: string;
+    /** When the app comes from a package installation, the source package id. */
+    packageId?: string;
+    /** Defaults to 'package' when packageId is set, otherwise 'user'. */
+    source?: 'package' | 'user';
+}
+
+/**
  * AppPlugin
  * 
  * Adapts a generic App Bundle (Manifest + Runtime Code) into a Kernel Plugin.
@@ -20,13 +36,15 @@ export class AppPlugin implements Plugin {
     version?: string;
     
     private bundle: any;
+    private projectContext?: AppPluginProjectContext;
 
-    constructor(bundle: any) {
+    constructor(bundle: any, projectContext?: AppPluginProjectContext) {
         this.bundle = bundle;
+        this.projectContext = projectContext;
         // Support both direct manifest (legacy) and Stack Definition (nested manifest)
         const sys = bundle.manifest || bundle;
         const appId = sys.id || sys.name || 'unnamed-app';
-        
+
         this.name = `plugin.app.${appId}`;
         this.version = sys.version;
     }
@@ -114,6 +132,13 @@ export class AppPlugin implements Plugin {
              ctx.logger.debug('No runtime.onEnable function found', { appId });
         }
 
+        // ── Org-Scoped App Catalog Sync ──────────────────────────────────
+        // Emit `app:registered` so AppCatalogService (running on the
+        // control-plane kernel) can mirror this app into `sys_app`. Skipped
+        // for standalone (single-tenant) usages where no project context is
+        // attached.
+        this.emitCatalogEvent(ctx, 'app:registered', sys);
+
         // ── i18n Translation Loading ─────────────────────────────────────
         // Auto-load translation bundles from the app config into the
         // kernel's i18n service, so discovery and handlers stay consistent.
@@ -194,6 +219,52 @@ export class AppPlugin implements Plugin {
                  }
                  ctx.logger.info('[Seeder] Data seeding complete (fallback).');
              }
+        }
+    }
+
+    stop = async (ctx: PluginContext) => {
+        const sys = this.bundle.manifest || this.bundle;
+        this.emitCatalogEvent(ctx, 'app:unregistered', sys);
+    }
+
+    /**
+     * Emit a kernel hook so the control-plane `AppCatalogService` can
+     * upsert / delete the corresponding `sys_app` row. Silently no-ops
+     * when no project context is attached (standalone single-tenant mode)
+     * or when the kernel has no `trigger` API available.
+     */
+    private emitCatalogEvent(ctx: PluginContext, event: 'app:registered' | 'app:unregistered', sys: any): void {
+        if (!this.projectContext) return;
+
+        const trigger = (ctx as any).trigger;
+        if (typeof trigger !== 'function') {
+            ctx.logger.debug('[AppPlugin] kernel has no trigger() — skipping catalog hook', { event });
+            return;
+        }
+
+        const appName = sys.name || sys.id;
+        if (!appName) return;
+
+        const payload = {
+            projectId: this.projectContext.projectId,
+            organizationId: this.projectContext.organizationId,
+            projectName: this.projectContext.projectName,
+            app: {
+                name: appName,
+                label: sys.label,
+                icon: sys.icon,
+                branding: sys.branding,
+                isDefault: sys.isDefault ?? sys.is_default,
+                active: sys.active !== false,
+            },
+            source: this.projectContext.source ?? (this.projectContext.packageId ? 'package' : 'user'),
+            packageId: this.projectContext.packageId,
+        };
+
+        try {
+            trigger.call(ctx, event, payload);
+        } catch (err: any) {
+            ctx.logger.warn('[AppPlugin] catalog hook trigger failed', { event, error: err?.message });
         }
     }
 
