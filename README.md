@@ -190,7 +190,6 @@ os doctor         # Check environment health
 | [`@example/app-todo`](examples/app-todo) | Task management app — objects, views, dashboards, flows | Beginner |
 | [`@example/app-crm`](examples/app-crm) | Enterprise CRM — accounts, contacts, opportunities, leads | Intermediate |
 | [`@objectstack/server`](apps/server) | Production server — multi-app orchestration with plugins | Advanced |
-| [`@example/plugin-bi`](examples/plugin-bi) | BI plugin — analytics objects and reports | Intermediate |
 
 ## Codebase Metrics
 
