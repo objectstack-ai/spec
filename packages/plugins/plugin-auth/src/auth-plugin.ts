@@ -2,8 +2,36 @@
 
 import { Plugin, PluginContext, IHttpServer } from '@objectstack/core';
 import { AuthConfig } from '@objectstack/spec/system';
+import {
+  SysAccount,
+  SysApiKey,
+  SysInvitation,
+  SysMember,
+  SysOrganization,
+  SysSession,
+  SysTeam,
+  SysTeamMember,
+  SysTwoFactor,
+  SysUser,
+  SysUserPreference,
+  SysVerification,
+} from '@objectstack/platform-objects/identity';
 import { AuthManager } from './auth-manager.js';
-import * as objects from './objects/index.js';
+
+const identityObjects = [
+  SysUser,
+  SysSession,
+  SysAccount,
+  SysVerification,
+  SysOrganization,
+  SysMember,
+  SysInvitation,
+  SysTeam,
+  SysTeamMember,
+  SysApiKey,
+  SysTwoFactor,
+  SysUserPreference,
+];
 
 /**
  * Auth Plugin Options
@@ -99,7 +127,7 @@ export class AuthPlugin implements Plugin {
       scope: 'system',
       defaultDatasource: 'cloud',
       namespace: 'sys',
-      objects: Object.values(objects),
+      objects: identityObjects,
     });
 
     // Contribute navigation items to the Setup App (if SetupPlugin is loaded).
@@ -291,6 +319,5 @@ export class AuthPlugin implements Plugin {
     ctx.logger.info(`Auth routes registered: All requests under ${basePath}/* forwarded to better-auth`);
   }
 }
-
 
 

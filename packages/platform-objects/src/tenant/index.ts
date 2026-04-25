@@ -11,6 +11,3 @@ export * from './sys-app.object.js';
 export * from './sys-package.object.js';
 export * from './sys-package-version.object.js';
 export * from './sys-package-installation.object.js';
-
-// v4.x deprecation shim — removed in v5.0
-export * from './sys-tenant-database.object.js';

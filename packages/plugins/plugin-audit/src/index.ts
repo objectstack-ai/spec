@@ -8,6 +8,3 @@
  */
 
 export { AuditPlugin } from './audit-plugin.js';
-
-// System Object Definitions (sys namespace)
-export { SysAuditLog } from './objects/index.js';

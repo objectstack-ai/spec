@@ -3,16 +3,16 @@
 /**
  * @objectstack/objectos
  *
- * ObjectOS - System Runtime Object Definitions
+ * ObjectOS - Runtime metadata object registry
  *
- * This package contains the core system object definitions that form
- * the foundation of the ObjectStack platform. These objects represent
- * the metadata layer itself (objects, views, flows, agents, etc.) as
- * queryable data.
+ * This package contains the runtime registry for ObjectOS metadata-layer
+ * objects. Concrete platform object definitions live in
+ * `@objectstack/platform-objects`.
  *
  * ## Architecture
  * - Protocol Layer: `@objectstack/spec` — Zod schemas (ObjectSchema, ViewSchema)
- * - Runtime Layer: `@objectstack/objectos` — Concrete system objects (SysObject, SysView)
+ * - Platform Object Layer: `@objectstack/platform-objects` — Concrete platform objects
+ * - Runtime Layer: `@objectstack/objectos` — Runtime-facing object registry
  * - Service Layer: `@objectstack/metadata` — Metadata management service
  *
  * ## Usage
@@ -37,5 +37,4 @@
  * @module @objectstack/objectos
  */
 
-export * from './objects';
 export * from './registry';

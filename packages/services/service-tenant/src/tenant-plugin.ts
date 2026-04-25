@@ -3,21 +3,20 @@
 import type { Plugin } from '@objectstack/spec/contracts';
 import type { PluginContext } from '@objectstack/spec/kernel';
 import type { TenantRoutingConfig } from '@objectstack/spec/cloud';
+import {
+  SysApp,
+  SysPackage,
+  SysPackageInstallation,
+  SysPackageVersion,
+  SysProject,
+  SysProjectCredential,
+  SysProjectMember,
+} from '@objectstack/platform-objects/tenant';
 import { TenantContextService } from './tenant-context';
 import {
   createDefaultProjectAdapters,
   type ProjectDatabaseAdapter,
 } from './project-provisioning.js';
-import {
-  SysTenantDatabase,
-  SysProject,
-  SysProjectCredential,
-  SysProjectMember,
-  SysPackage,
-  SysPackageVersion,
-  SysPackageInstallation,
-  SysApp,
-} from './objects';
 import { AppCatalogService } from './services/app-catalog.service.js';
 
 /**
@@ -35,13 +34,6 @@ export interface TenantPluginConfig {
    */
   registerSystemObjects?: boolean;
 
-  /**
-   * Register the v4.x deprecated `sys_tenant_database` shim.
-   * Default: true (for backwards compatibility).
-   *
-   * Set to false in greenfield deployments.
-   */
-  registerLegacyTenantDatabase?: boolean;
 }
 
 /**
@@ -106,10 +98,6 @@ export function createTenantPlugin(config: TenantPluginConfig = {}): Plugin {
           SysPackageInstallation,
           SysApp,
         ];
-        if (config.registerLegacyTenantDatabase !== false) {
-          manifestObjects.push(SysTenantDatabase);
-        }
-
         try {
           const manifestService = ctx.getService<{ register(m: any): void }>('manifest');
           manifestService.register({
@@ -122,7 +110,7 @@ export function createTenantPlugin(config: TenantPluginConfig = {}): Plugin {
             objects: manifestObjects,
           });
           ctx.logger.info('[TenantPlugin] System objects registered via manifest service', {
-            objects: manifestObjects.map((o: any) => `${o?.namespace ?? 'sys'}__${o?.name}`),
+            objects: manifestObjects.map((o: any) => o?.name),
           });
 
           // Install the org-scoped app catalog sync service. It listens for

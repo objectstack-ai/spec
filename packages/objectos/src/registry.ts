@@ -8,7 +8,7 @@ import {
   SysAgent,
   SysTool,
   SysFlow,
-} from './objects';
+} from '@objectstack/platform-objects/metadata';
 
 /**
  * System Object Registry
@@ -94,4 +94,3 @@ export function getSystemObject(name: string): ServiceObject | undefined {
 export function getSystemObjectNames(): string[] {
   return Object.keys(SystemObjects);
 }
-

@@ -6,5 +6,4 @@ export * from './tenant-provisioning.js';
 export * from './project-provisioning.js';
 export * from './turso-platform-client.js';
 export * from './tenant-schema-initializer.js';
-export * from './objects/index.js';
 export * from './services/app-catalog.service.js';

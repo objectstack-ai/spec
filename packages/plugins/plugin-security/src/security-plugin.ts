@@ -2,10 +2,10 @@
 
 import { Plugin, PluginContext } from '@objectstack/core';
 import type { PermissionSet, RowLevelSecurityPolicy } from '@objectstack/spec/security';
+import { SysPermissionSet, SysRole } from '@objectstack/platform-objects/security';
 import { PermissionEvaluator } from './permission-evaluator.js';
 import { RLSCompiler } from './rls-compiler.js';
 import { FieldMasker } from './field-masker.js';
-import * as objects from './objects/index.js';
 
 /**
  * SecurityPlugin
@@ -46,7 +46,7 @@ export class SecurityPlugin implements Plugin {
       scope: 'system',
       defaultDatasource: 'cloud',
       namespace: 'sys',
-      objects: Object.values(objects),
+      objects: [SysRole, SysPermissionSet],
     });
 
     // Contribute navigation items to the Setup App (if SetupPlugin is loaded).

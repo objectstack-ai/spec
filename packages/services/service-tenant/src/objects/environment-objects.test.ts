@@ -16,7 +16,7 @@ import {
   SysPackage,
   SysPackageVersion,
   SysPackageInstallation,
-} from './index';
+} from '@objectstack/platform-objects/tenant';
 
 describe('control-plane project objects', () => {
   it('registers all project objects with canonical sys_ short names', () => {

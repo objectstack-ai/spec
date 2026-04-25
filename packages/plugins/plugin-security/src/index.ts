@@ -11,6 +11,3 @@ export { SecurityPlugin } from './security-plugin.js';
 export { PermissionEvaluator } from './permission-evaluator.js';
 export { RLSCompiler } from './rls-compiler.js';
 export { FieldMasker } from './field-masker.js';
-
-// System Object Definitions (sys namespace)
-export { SysRole, SysPermissionSet } from './objects/index.js';

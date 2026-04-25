@@ -25,7 +25,6 @@ import {
   SysProject,
   SysProjectCredential,
   SysProjectMember,
-  SysTenantDatabase,
 } from './tenant/index.js';
 import {
   SysAgent,
@@ -61,7 +60,6 @@ const systemObjects = [
   ['SysPackage', SysPackage, 'sys_package'],
   ['SysPackageVersion', SysPackageVersion, 'sys_package_version'],
   ['SysPackageInstallation', SysPackageInstallation, 'sys_package_installation'],
-  ['SysTenantDatabase', SysTenantDatabase, 'sys_tenant_database'],
   ['SysMetadata', SysMetadata, 'sys_metadata'],
   ['SysMetadataHistoryObject', SysMetadataHistoryObject, 'sys_metadata_history'],
   ['SysObject', SysObject, 'sys_object'],

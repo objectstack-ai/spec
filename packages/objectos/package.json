@@ -1,7 +1,7 @@
 {
   "name": "@objectstack/objectos",
   "version": "0.1.0",
-  "description": "ObjectOS - System Runtime Object Definitions",
+  "description": "ObjectOS runtime metadata object registry",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,11 +10,6 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
-    },
-    "./objects": {
-      "types": "./dist/objects/index.d.ts",
-      "import": "./dist/objects/index.mjs",
-      "require": "./dist/objects/index.js"
     }
   },
   "files": [

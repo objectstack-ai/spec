@@ -9,10 +9,7 @@ import {
   SysPackageVersion,
   SysPackageInstallation,
   SysApp,
-} from './src/objects';
-
-// SysTenantDatabase is a v4.x deprecation shim and is excluded here.
-// It is conditionally added at runtime via TenantPluginConfig.registerLegacyTenantDatabase.
+} from '@objectstack/platform-objects/tenant';
 
 export default defineStack({
   manifest: {

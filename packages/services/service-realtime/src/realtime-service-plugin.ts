@@ -1,9 +1,9 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import type { Plugin, PluginContext } from '@objectstack/core';
+import { SysPresence } from '@objectstack/platform-objects/audit';
 import { InMemoryRealtimeAdapter } from './in-memory-realtime-adapter.js';
 import type { InMemoryRealtimeAdapterOptions } from './in-memory-realtime-adapter.js';
-import { SysPresence } from './objects/index.js';
 
 /**
  * Configuration options for the RealtimeServicePlugin.
