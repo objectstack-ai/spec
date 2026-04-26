@@ -246,6 +246,46 @@ export class AuthPlugin implements Plugin {
       }
     });
 
+    // Device flow routes — registered before the better-auth wildcard so they
+    // are handled locally without being forwarded to better-auth.
+    rawApp.post(`${basePath}/device/request`, (c: any) => {
+      try {
+        const serverUrl = this.options.baseUrl || 'http://localhost:3000';
+        const result = this.authManager!.createDeviceCode(serverUrl);
+        return c.json({ success: true, data: result });
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        return c.json({ success: false, error: { code: 'device_request_error', message: err.message } }, 500);
+      }
+    });
+
+    rawApp.get(`${basePath}/device/token`, (c: any) => {
+      try {
+        const code = c.req.query('code');
+        if (!code) return c.json({ success: false, error: { code: 'missing_code', message: 'code query param required' } }, 400);
+        const result = this.authManager!.pollDeviceCode(code);
+        return c.json({ success: true, data: result });
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        return c.json({ success: false, error: { code: 'device_token_error', message: err.message } }, 500);
+      }
+    });
+
+    rawApp.post(`${basePath}/device/approve`, async (c: any) => {
+      try {
+        const body = await c.req.json();
+        const { code, token } = body ?? {};
+        if (!code || !token) {
+          return c.json({ success: false, error: { code: 'missing_params', message: 'code and token are required' } }, 400);
+        }
+        const result = await this.authManager!.approveDeviceCode(code, token);
+        return c.json({ success: result.success, error: result.error ? { code: 'approve_error', message: result.error } : undefined });
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        return c.json({ success: false, error: { code: 'device_approve_error', message: err.message } }, 500);
+      }
+    });
+
     // Register wildcard route to forward all auth requests to better-auth.
     // better-auth is configured with basePath matching our route prefix, so we
     // forward the original request directly — no path rewriting needed.

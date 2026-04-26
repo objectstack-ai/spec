@@ -2,7 +2,8 @@
 
 import { Command, Flags } from '@oclif/core';
 import { printHeader, printSuccess, printError } from '../../utils/format.js';
-import { deleteAuthConfig } from '../../utils/auth-config.js';
+import { deleteAuthConfig, readAuthConfig } from '../../utils/auth-config.js';
+import { ObjectStackClient } from '@objectstack/client';
 
 export default class AuthLogout extends Command {
   static override description = 'Clear stored authentication credentials';
@@ -23,6 +24,17 @@ export default class AuthLogout extends Command {
     try {
       if (!flags.json) {
         printHeader('ObjectStack Logout');
+      }
+
+      // Revoke server-side session before deleting local credentials
+      try {
+        const config = await readAuthConfig();
+        if (config?.token && config?.url) {
+          const client = new ObjectStackClient({ baseUrl: config.url, token: config.token });
+          await client.auth.logout();
+        }
+      } catch {
+        // Best-effort: continue even if server revocation fails
       }
 
       await deleteAuthConfig();

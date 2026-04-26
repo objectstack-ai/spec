@@ -29,33 +29,38 @@ export const AuthEndpointPaths = {
   signInEmail: '/sign-in/email',
   signUpEmail: '/sign-up/email',
   signOut: '/sign-out',
-  
+
   // Session Management
   getSession: '/get-session',
-  
+
   // Password Management
   forgetPassword: '/forget-password',
   resetPassword: '/reset-password',
-  
+
   // Email Verification
   sendVerificationEmail: '/send-verification-email',
   verifyEmail: '/verify-email',
-  
+
   // OAuth (dynamic based on provider)
   // authorize: '/authorize/:provider'
   // callback: '/callback/:provider'
-  
+
   // 2FA (when enabled)
   twoFactorEnable: '/two-factor/enable',
   twoFactorVerify: '/two-factor/verify',
-  
+
   // Passkeys (when enabled)
   passkeyRegister: '/passkey/register',
   passkeyAuthenticate: '/passkey/authenticate',
-  
+
   // Magic Links (when enabled)
   magicLinkSend: '/magic-link/send',
   magicLinkVerify: '/magic-link/verify',
+
+  // Device Flow (CLI browser-based login)
+  deviceRequest: '/device/request',
+  deviceToken: '/device/token',
+  deviceApprove: '/device/approve',
 } as const;
 
 /**
@@ -219,3 +224,43 @@ export type AuthProviderInfo = z.infer<typeof AuthProviderInfoSchema>;
 export type EmailPasswordConfigPublic = z.infer<typeof EmailPasswordConfigPublicSchema>;
 export type AuthFeaturesConfig = z.infer<typeof AuthFeaturesConfigSchema>;
 export type GetAuthConfigResponse = z.infer<typeof GetAuthConfigResponseSchema>;
+
+// ==========================================
+// Device Flow (CLI Browser-Based Login)
+// ==========================================
+
+/**
+ * Response from POST /api/v1/auth/device/request
+ * The CLI displays verificationUrl and polls deviceToken with the code.
+ */
+export const DeviceRequestResponseSchema = lazySchema(() => z.object({
+  code: z.string().describe('Short-lived device code used for polling'),
+  verificationUrl: z.string().url().describe('URL the user should open in a browser'),
+  expiresAt: z.string().datetime().describe('ISO timestamp when the code expires'),
+  interval: z.number().default(2).describe('Recommended polling interval in seconds'),
+}));
+
+/**
+ * Response from GET /api/v1/auth/device/token?code=…
+ * Returns pending until the user approves, then returns the token.
+ */
+export const DeviceTokenResponseSchema = lazySchema(() => z.discriminatedUnion('status', [
+  z.object({
+    status: z.literal('pending'),
+  }),
+  z.object({
+    status: z.literal('approved'),
+    token: z.string().describe('Bearer token to store in credentials file'),
+    user: z.object({
+      id: z.string(),
+      email: z.string(),
+      name: z.string().optional(),
+    }),
+  }),
+  z.object({
+    status: z.literal('expired'),
+  }),
+]));
+
+export type DeviceRequestResponse = z.infer<typeof DeviceRequestResponseSchema>;
+export type DeviceTokenResponse = z.infer<typeof DeviceTokenResponseSchema>;
