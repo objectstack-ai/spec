@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { useSession } from '@/hooks/useSession';
-import { CheckCircle2, Monitor, AlertCircle } from 'lucide-react';
+import { CheckCircle2, GalleryVerticalEnd } from 'lucide-react';
 
 export const Route = createFileRoute('/auth/device')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -17,6 +17,22 @@ export const Route = createFileRoute('/auth/device')({
   }),
   component: DeviceAuthPage,
 });
+
+function PageShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex min-h-svh w-full flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
+      <div className="flex w-full max-w-sm flex-col gap-6">
+        <a href="#" className="flex items-center gap-2 self-center font-medium">
+          <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <GalleryVerticalEnd className="size-4" />
+          </div>
+          ObjectStack
+        </a>
+        <div className="flex flex-col gap-6">{children}</div>
+      </div>
+    </div>
+  );
+}
 
 function DeviceAuthPage() {
   const { code } = Route.useSearch();
@@ -32,31 +48,28 @@ function DeviceAuthPage() {
 
   if (!code) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="w-full max-w-md">
+      <PageShell>
+        <Card>
           <CardHeader className="text-center">
-            <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-2" />
             <CardTitle>Invalid Request</CardTitle>
-            <CardDescription>No device code provided.</CardDescription>
+            <CardDescription>No device code provided. Please re-run the CLI command.</CardDescription>
           </CardHeader>
         </Card>
-      </div>
+      </PageShell>
     );
   }
 
   if (approved) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="w-full max-w-md">
+      <PageShell>
+        <Card>
           <CardHeader className="text-center">
-            <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-2" />
-            <CardTitle>Login Approved</CardTitle>
-            <CardDescription>
-              You can close this tab. The CLI has been authenticated successfully.
-            </CardDescription>
+            <CheckCircle2 className="h-10 w-10 text-green-500 mx-auto mb-2" />
+            <CardTitle>CLI Authorized</CardTitle>
+            <CardDescription>You can close this tab.</CardDescription>
           </CardHeader>
         </Card>
-      </div>
+      </PageShell>
     );
   }
 
@@ -103,10 +116,9 @@ function DeviceAuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+    <PageShell>
+      <Card>
         <CardHeader className="text-center">
-          <Monitor className="h-10 w-10 text-primary mx-auto mb-2" />
           <CardTitle>CLI Login Request</CardTitle>
           <CardDescription>
             {user
@@ -115,7 +127,7 @@ function DeviceAuthPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="bg-muted rounded-md px-4 py-2 text-center">
+          <div className="rounded-md border bg-background px-4 py-3 text-center">
             <p className="text-xs text-muted-foreground mb-1">Device Code</p>
             <p className="font-mono font-semibold tracking-widest text-lg">{code}</p>
           </div>
@@ -158,17 +170,19 @@ function DeviceAuthPage() {
               <Button onClick={handleApprove} className="w-full" disabled={submitting}>
                 {submitting ? 'Approving…' : 'Approve CLI Access'}
               </Button>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => navigate({ to: '/' })}
-              >
-                Cancel
-              </Button>
+              <div className="text-center">
+                <button
+                  type="button"
+                  className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+                  onClick={() => navigate({ to: '/' })}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }
