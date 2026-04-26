@@ -46,7 +46,9 @@ import {
     AppPlugin,
 } from '@objectstack/runtime';
 import { createControlPlanePlugins } from './server/control-plane-preset.js';
-import { createSingleProjectPlugin, createStudioRuntimeConfigPlugin } from './server/single-project-plugin.js';
+import { createSingleProjectPlugin } from './server/single-project-plugin.js';
+import { createStudioRuntimeConfigPlugin, createTemplatesRoutePlugin } from './server/multi-project-plugins.js';
+import { listTemplates } from './server/templates/registry.js';
 import { templateRegistry } from './server/templates/registry.js';
 
 type IDataDriver = Contracts.IDataDriver;
@@ -208,18 +210,30 @@ const multiProjectPluginProxy: any = {
     version: '0.0.0',
     _impl: null as any,
     async init(ctx: any) {
-        const { driver: controlDriver } = await controlDriverPromise;
-        const { MultiProjectPlugin: MPlugin } = await import('@objectstack/runtime');
-        this._impl = new MPlugin({
-            controlDriver,
-            basePlugins,
-            appBundles,
-            templates: templateRegistry,
-            maxSize: Number(process.env.OBJECTSTACK_KERNEL_CACHE_SIZE ?? 32),
-            ttlMs: Number(process.env.OBJECTSTACK_KERNEL_TTL_MS ?? 15 * 60 * 1000),
-            cacheTTLMs: Number(process.env.OBJECTSTACK_ENV_CACHE_TTL_MS ?? 5 * 60 * 1000),
-        });
-        if (this._impl.init) await this._impl.init(ctx);
+        try {
+            const { driver: controlDriver } = await controlDriverPromise;
+            const { MultiProjectPlugin: MPlugin } = await import('@objectstack/runtime');
+            this._impl = new MPlugin({
+                controlDriver,
+                basePlugins,
+                appBundles,
+                templates: templateRegistry,
+                maxSize: Number(process.env.OBJECTSTACK_KERNEL_CACHE_SIZE ?? 32),
+                ttlMs: Number(process.env.OBJECTSTACK_KERNEL_TTL_MS ?? 15 * 60 * 1000),
+                cacheTTLMs: Number(process.env.OBJECTSTACK_ENV_CACHE_TTL_MS ?? 5 * 60 * 1000),
+            });
+            if (this._impl.init) await this._impl.init(ctx);
+        } catch (err: any) {
+            // Surface init failures explicitly. Without this, a Turso connection
+            // error or service-registration crash silently leaves the kernel
+            // running with no `template-seeder`, surfacing as `/cloud/templates`
+            // returning `{ templates: [], total: 0 }` on Vercel/play.objectstack.ai.
+            // eslint-disable-next-line no-console
+            console.error('[multiProjectPluginProxy] init failed:', err?.stack ?? err?.message ?? err);
+            // Do NOT rethrow: a partial init (e.g. driver registered but
+            // service registration failed) is still better than crashing the
+            // entire control plane. The logged error is the only diagnostic.
+        }
     },
     async start(ctx: any) {
         if (this._impl?.start) await this._impl.start(ctx);
@@ -248,6 +262,11 @@ const config = isLocalMode
             }),
             multiProjectPluginProxy,
             createStudioRuntimeConfigPlugin(),
+            // Static /cloud/templates handler — registered on http.server
+            // before DispatcherPlugin so it wins. The dispatcher's seeder-
+            // based path is kept as a fallback for environments that bypass
+            // this layer (e.g. tests using the dispatcher directly).
+            createTemplatesRoutePlugin(listTemplates()),
         ],
         api: {
             enableProjectScoping: true,

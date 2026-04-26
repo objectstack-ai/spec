@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- `apps/server`: `GET /api/v1/cloud/templates` now returns the full template registry (`blank`, `crm`, `todo`) on Vercel / play.objectstack.ai. Root cause: the dispatcher resolved templates through a `template-seeder` service registered by `MultiProjectPlugin`, and on Vercel cold starts that service registration could be missed by the request handler — the dispatcher then silently returned `{ templates: [], total: 0 }`. Added a `createTemplatesRoutePlugin` that registers `/cloud/templates` directly on `http.server` from a static, module-scope `listTemplates()` snapshot, registered before `DispatcherPlugin`. Local single-project mode is unchanged.
+- `packages/runtime/http-dispatcher.ts`: `/cloud/templates` fallback now logs the resolution error via `console.error` instead of swallowing it silently, so the underlying cause is visible in production logs.
+- `apps/server/objectstack.config.ts`: `multiProjectPluginProxy.init` now wraps the inner init in try/catch and logs failures, preventing one-off init errors from silently leaving the kernel without `template-seeder` / `kernel-manager`.
 - `apps/server`: Multi-project / cloud mode now also serves `GET /api/v1/studio/runtime-config` (returns `{ singleProject: false }`) via a new `createStudioRuntimeConfigPlugin`. Eliminates the 404 the Studio SPA logged on first load when `OBJECTSTACK_MULTI_PROJECT=true` (the default for root `pnpm dev`). Single-project mode is unchanged.
 
 ### Added

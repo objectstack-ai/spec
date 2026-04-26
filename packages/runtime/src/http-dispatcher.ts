@@ -1488,7 +1488,14 @@ export class HttpDispatcher {
                     const seeder: any = await this.resolveService('template-seeder');
                     const templates = seeder?.listTemplates?.() ?? [];
                     return { handled: true, response: this.success({ templates, total: templates.length }) };
-                } catch {
+                } catch (err: any) {
+                    // Don't silently mask — log the real reason. Empty templates
+                    // here usually means MultiProjectPlugin failed to register
+                    // `template-seeder` (e.g. control-driver init error).
+                    try {
+                        // eslint-disable-next-line no-console
+                        console.error('[HttpDispatcher] /cloud/templates: failed to resolve template-seeder:', err?.message ?? err);
+                    } catch { /* noop */ }
                     return { handled: true, response: this.success({ templates: [], total: 0 }) };
                 }
             }
