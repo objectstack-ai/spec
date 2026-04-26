@@ -1,0 +1,148 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+import { Command, Flags, Args } from '@oclif/core';
+import path from 'node:path';
+import fs from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { printError, printStep, printKV } from '../../utils/format.js';
+import { createApiClient, requireAuth } from '../../utils/api-client.js';
+import { formatOutput } from '../../utils/output-formatter.js';
+
+/**
+ * `os projects bind` — bind a locally-compiled artifact to an existing
+ * multi-project server project.
+ *
+ * Equivalent to `PATCH /api/v1/cloud/projects/<id>` with
+ * `metadata.artifact_path = <absolute-path>`. The server's
+ * AppBundleResolver picks up the path on the next per-project kernel
+ * boot, registering the bundle's objects, views, and seed data.
+ *
+ * Use `--build` to compile `objectstack.config.ts` first so the artifact
+ * reflects the latest source.
+ */
+export default class ProjectsBind extends Command {
+  static override description = 'Bind a local objectstack artifact to an existing project';
+
+  static override examples = [
+    '$ os projects bind <project-id> --artifact ./dist/objectstack.json',
+    '$ os projects bind <project-id> --artifact ./dist/objectstack.json --build',
+    '$ os projects bind <project-id> --reseed',
+  ];
+
+  static override args = {
+    projectId: Args.string({
+      description: 'Target project id (UUID)',
+      required: true,
+    }),
+  };
+
+  static override flags = {
+    url: Flags.string({ char: 'u', description: 'Server URL', env: 'OBJECTSTACK_URL' }),
+    token: Flags.string({ char: 't', description: 'Authentication token', env: 'OBJECTSTACK_TOKEN' }),
+    artifact: Flags.string({
+      description: 'Path to a compiled objectstack.json artifact (default: ./dist/objectstack.json)',
+    }),
+    build: Flags.boolean({
+      description: 'Run `objectstack compile` before binding',
+      default: false,
+    }),
+    reseed: Flags.boolean({
+      description: 'After binding, also re-run schema sync + bundle seeding via /cloud/projects/:id/reseed',
+      default: false,
+    }),
+    format: Flags.string({
+      char: 'f',
+      description: 'Output format',
+      options: ['json', 'table', 'yaml'],
+      default: 'table',
+    }),
+  };
+
+  async run(): Promise<void> {
+    const { args, flags } = await this.parse(ProjectsBind);
+
+    try {
+      const artifactRel = flags.artifact ?? './dist/objectstack.json';
+      const artifactAbs = path.isAbsolute(artifactRel)
+        ? artifactRel
+        : path.resolve(process.cwd(), artifactRel);
+
+      if (flags.build) {
+        printStep('Compiling objectstack.config.ts → ' + artifactAbs);
+        const binPath = process.argv[1];
+        const r = spawnSync(
+          process.execPath,
+          [binPath, 'compile', '--output', artifactAbs],
+          { stdio: 'inherit', env: { ...process.env, NODE_ENV: 'development' } },
+        );
+        if (r.status !== 0) {
+          printError('Compile failed — fix errors above before binding');
+          this.exit(1);
+        }
+      }
+
+      try {
+        await fs.access(artifactAbs);
+      } catch {
+        printError(`Artifact not found: ${artifactAbs}`);
+        if (!flags.build) {
+          console.error('  Hint: pass --build to compile first, or check the path with --artifact.');
+        }
+        this.exit(1);
+      }
+
+      const { client, token } = await createApiClient({ url: flags.url, token: flags.token });
+      requireAuth(token);
+
+      // Fetch existing metadata so we don't blow it away.
+      const current = await client.projects.get(args.projectId);
+      const existingMeta: Record<string, unknown> = (current?.project?.metadata && typeof current.project.metadata === 'object')
+        ? { ...current.project.metadata as Record<string, unknown> }
+        : {};
+      // Drop the prior bind error so the UI doesn't show a stale failure.
+      delete existingMeta.artifactBindError;
+      existingMeta.artifact_path = artifactAbs;
+
+      printKV('Project', args.projectId, '🎯');
+      printKV('Artifact', artifactAbs, '📦');
+
+      const res = await client.projects.update(args.projectId, {
+        metadata: existingMeta,
+      });
+
+      if (flags.reseed) {
+        printStep('Reseeding bundle (POST /cloud/projects/:id/reseed)…');
+        try {
+          // Best-effort: server may not expose a reseed endpoint yet.
+          const reseed = await (client as any).fetch?.(
+            `${(client as any).baseUrl}/api/v1/cloud/projects/${encodeURIComponent(args.projectId)}/reseed`,
+            { method: 'POST' },
+          );
+          if (reseed && typeof reseed.ok === 'boolean' && !reseed.ok) {
+            console.error('  ⚠ reseed endpoint returned ' + reseed.status + ' — bundle will be applied on next kernel boot.');
+          }
+        } catch (e: any) {
+          console.error('  ⚠ reseed failed: ' + (e?.message ?? e) + ' — bundle will be applied on next kernel boot.');
+        }
+      }
+
+      if (flags.format === 'json') {
+        formatOutput(res, 'json');
+      } else if (flags.format === 'yaml') {
+        formatOutput(res, 'yaml');
+      } else {
+        console.log(`\n✓ Project bound to artifact`);
+        console.log(`  ${args.projectId} → ${artifactAbs}`);
+        console.log(`  The next request to this project will load the new bundle.`);
+        console.log('');
+      }
+    } catch (error: any) {
+      if (flags.format === 'json') {
+        console.log(JSON.stringify({ success: false, error: error.message }, null, 2));
+        this.exit(1);
+      }
+      printError(error.message || String(error));
+      this.exit(1);
+    }
+  }
+}

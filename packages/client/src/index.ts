@@ -649,6 +649,7 @@ export class ObjectStackClient {
       storage_limit_mb?: number;
       clone_from_project_id?: string;
       template_id?: string;
+      metadata?: Record<string, unknown>;
     }) => {
       const res = await this.fetch(`${this.baseUrl}/api/v1/cloud/projects`, {
         method: 'POST',
@@ -986,14 +987,19 @@ export class ObjectStackClient {
         const route = this.getRoute('auth');
         const res = await this.fetch(`${this.baseUrl}${route}/sign-in/email`, {
             method: 'POST',
+            headers: { Origin: this.baseUrl },
             body: JSON.stringify(request)
         });
-        const data = await res.json();
+        const raw = await res.json();
+        // Normalize: better-auth returns `{ token, user }` at top level,
+        // but our SessionResponse shape wraps them in `data`.
+        const data = raw && (raw.data ?? (raw.token || raw.user ? { token: raw.token, user: raw.user } : undefined));
+        const normalized = data ? { ...raw, data } : raw;
         // Auto-set token if present in response
-        if (data.data?.token) {
-            this.token = data.data.token;
+        if (normalized.data?.token) {
+            this.token = normalized.data.token;
         }
-        return data;
+        return normalized;
     },
     
     /**
@@ -1004,7 +1010,7 @@ export class ObjectStackClient {
         const route = this.getRoute('auth');
         await this.fetch(`${this.baseUrl}${route}/sign-out`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', Origin: this.baseUrl },
             body: '{}',
         });
         this.token = undefined;
@@ -1016,7 +1022,9 @@ export class ObjectStackClient {
      */
     me: async (): Promise<SessionResponse> => {
         const route = this.getRoute('auth');
-        const res = await this.fetch(`${this.baseUrl}${route}/get-session`);
+        const res = await this.fetch(`${this.baseUrl}${route}/get-session`, {
+            headers: { Origin: this.baseUrl },
+        });
         return res.json();
     },
 
@@ -1028,13 +1036,16 @@ export class ObjectStackClient {
       const route = this.getRoute('auth');
       const res = await this.fetch(`${this.baseUrl}${route}/sign-up/email`, {
         method: 'POST',
+        headers: { Origin: this.baseUrl },
         body: JSON.stringify(request)
       });
-      const data = await res.json();
-      if (data.data?.token) {
-        this.token = data.data.token;
+      const raw = await res.json();
+      const data = raw && (raw.data ?? (raw.token || raw.user ? { token: raw.token, user: raw.user } : undefined));
+      const normalized = data ? { ...raw, data } : raw;
+      if (normalized.data?.token) {
+        this.token = normalized.data.token;
       }
-      return data;
+      return normalized;
     },
 
     /**

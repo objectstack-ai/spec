@@ -21,6 +21,7 @@ export default class ProjectsCreate extends Command {
     '$ os projects create --org 00000000-0000-0000-0000-000000000000 --name Staging',
     '$ os projects create --org $ORG --name Dev --plan free',
     '$ os projects create --org $ORG --name "Clone" --clone-from <source-id> --no-activate',
+    '$ os projects create --org $ORG --name CRM --artifact ./examples/app-crm/dist/objectstack.json',
   ];
 
   static override flags = {
@@ -30,6 +31,10 @@ export default class ProjectsCreate extends Command {
     name: Flags.string({ description: 'Display name', required: true }),
     plan: Flags.string({ description: 'Billing plan', default: 'free' }),
     driver: Flags.string({ description: 'Data-plane driver id' }),
+    template: Flags.string({ description: 'Built-in template id (e.g. crm, todo, blank)' }),
+    artifact: Flags.string({
+      description: 'Path to a locally-compiled objectstack.json artifact to bind into this project',
+    }),
     'clone-from': Flags.string({ description: 'Clone schema from an existing project id' }),
     activate: Flags.boolean({
       description: 'Activate the new project for subsequent CLI calls',
@@ -51,12 +56,33 @@ export default class ProjectsCreate extends Command {
       const { client, token } = await createApiClient({ url: flags.url, token: flags.token });
       requireAuth(token);
 
+      // Resolve the artifact to an absolute path so the server can read it
+      // regardless of its CWD. Bail early if the file is missing — better
+      // to fail before provisioning than leave a half-bound project.
+      let metadata: Record<string, unknown> | undefined;
+      if (flags.artifact) {
+        const path = await import('node:path');
+        const fs = await import('node:fs/promises');
+        const abs = path.isAbsolute(flags.artifact)
+          ? flags.artifact
+          : path.resolve(process.cwd(), flags.artifact);
+        try {
+          await fs.access(abs);
+        } catch {
+          printError(`Artifact not found: ${abs}`);
+          this.exit(1);
+        }
+        metadata = { artifact_path: abs };
+      }
+
       const res = await client.projects.create({
         organization_id: flags.org,
         display_name: flags.name,
         plan: flags.plan,
         driver: flags.driver,
+        template_id: flags.template,
         clone_from_project_id: flags['clone-from'],
+        ...(metadata ? { metadata } : {}),
       });
 
       if (flags.activate && res?.project?.id) {
