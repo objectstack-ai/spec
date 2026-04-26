@@ -1,6 +1,6 @@
 # ObjectStack - Road Map
 
-> **Last Updated:** 2026-04-26 (Phase 1 foundation: M1 + D4 + D5 + D7 landed)
+> **Last Updated:** 2026-04-26 (Phase 1 foundation: M1 + D1 + D4 + D5 + D7 landed)
 > **Authoritative Spec:** [content/docs/concepts/north-star.mdx](content/docs/concepts/north-star.mdx) - §7 Alignment Check is the single source of truth for Built / Drift / Missing.
 > This file is the **actionable checklist** derived from that ledger. When north-star §7 changes, update this file too.
 
@@ -49,32 +49,13 @@ Code that exists and matches the intended architecture. Do not regress these.
 | JSON-payload metadata column (`sys_metadata.metadata` textarea) | [packages/metadata/src/objects/sys-metadata.object.ts](packages/metadata/src/objects/sys-metadata.object.ts) |
 | CLI `publish` - local JSON -> remote server wire (endpoint shape still wrong, see D2) | [packages/cli/src/commands/publish.ts](packages/cli/src/commands/publish.ts) |
 | **M1** Project Artifact envelope schema (`schemaVersion / projectId / commitId / checksum / metadata / functions / manifest`) | [packages/spec/src/system/project-artifact.zod.ts](packages/spec/src/system/project-artifact.zod.ts) |
+| **D1** ObjectOS metadata DB bridge removed - `MetadataPlugin` no longer registers `sys_metadata` / `sys_metadata_history` or auto-bridges ObjectQL to `DatabaseLoader` | [packages/metadata/src/plugin.ts](packages/metadata/src/plugin.ts) |
 
 ---
 
 ## 🟡 Drift (Needs Cleanup)
 
 Existing code that contradicts the intended Phase 1 architecture. Fix these before building new surface area that depends on them.
-
-### D1 - 🟡 MetadataPlugin maintains a DB bridge in ObjectOS (Biggest Drift)
-
-**Priority: P0.** The primary startup read has been partially fixed — `local-file` mode (M1.x) lets ObjectOS boot from `dist/objectstack.json` without touching any database. However, [packages/metadata/src/plugin.ts](packages/metadata/src/plugin.ts) still:
-
-1. Registers `SysMetadataObject` and `SysMetadataHistoryObject` into the **ObjectOS** manifest — these tables belong only in `apps/cloud` (control plane).
-2. Bridges ObjectQL to a `DatabaseLoader` via `setDataEngine()` after startup — subsequent `metadata.register()` writes persist metadata to `sys_metadata` in the project DB, and `metadata.list()` / `get()` aggregate from it.
-
-Under Phase 1 the project DB contains **business rows only**. Metadata lives in the control plane and is delivered to ObjectOS as an immutable artifact. The DB bridge breaks that boundary and undermines the `commitId` + `checksum` immutability guarantee — `sys_metadata` rows in the project DB may diverge from the published artifact.
-
-**What is already done:**
-- `local-file` artifact mode — ObjectOS boots from `dist/objectstack.json` without any DB read (M1.x). ✅
-
-**Remaining fix path:**
-1. Remove `SysMetadataObject` / `SysMetadataHistoryObject` registration from `MetadataPlugin.init()` — these tables belong in `apps/cloud` only.
-2. Remove the `setDataEngine()` / `DatabaseLoader` bridge from `MetadataPlugin.start()` — ObjectOS metadata is read-only (artifact → kernel); history and versioning are control-plane concerns.
-3. Implement the Artifact API endpoint (M3) and swap `MetadataPlugin`'s source to HTTP fetch (M4).
-4. Confirm `sys_metadata` is absent from the project DB schema after the D8 split into `apps/cloud` + `apps/server`.
-
-**Depends on:** M3, M4. **Prerequisite for:** D8 clean split.
 
 ### D2 - `objectstack publish` uses legacy `/api/v1/packages` endpoint
 
@@ -204,7 +185,7 @@ Tests: [packages/spec/src/system/project-artifact.test.ts](packages/spec/src/sys
 - [ ] Data migration script for existing installations.
 - [ ] Keep project DBs for business rows only.
 
-**Prerequisite for:** M3, D1 fix, D3.
+**Prerequisite for:** M3, D3.
 
 ### M3 - Project Artifact API endpoint
 
@@ -214,16 +195,16 @@ Tests: [packages/spec/src/system/project-artifact.test.ts](packages/spec/src/sys
 - [ ] Response includes `commitId` and `checksum`.
 - [ ] Reserve response shape for future `{ url, expiresAt, checksum }` indirection, but do not build S3 yet.
 
-**Prerequisite for:** M4, D1 fix.
+**Prerequisite for:** M4.
 
 ### M4 - ObjectOS artifact loader
 
-- [ ] Swap `MetadataPlugin` data source: project-DB reads -> HTTP fetch against Artifact API.
+- [ ] Add `MetadataPlugin` production source: HTTP fetch against Artifact API.
 - [ ] Validate artifact with Zod before hydrating kernel.
 - [ ] Local artifact cache with durability across control-plane outages.
 - [ ] Cache key by `projectId` + `commitId`/`checksum`.
 
-**Resolves:** D1.
+**Completes:** production ObjectOS artifact source.
 
 ### M5 - Project publish endpoint
 
@@ -306,7 +287,7 @@ M1 Artifact format v0
 ├── M1.x Runtime Inputs 边界化 (Artifact + Deployment Config 分离)
 └── M2 Metadata migration to control plane
     ├── M3 Project Artifact API
-    │   └── M4 ObjectOS artifact loader -> resolves D1
+    │   └── M4 ObjectOS artifact loader
     └── M5 Project publish endpoint -> resolves D2
         └── M6 Studio metadata/artifact viewer
 
@@ -327,4 +308,4 @@ D8 split apps/cloud + apps/server(after M3/M4 make ObjectOS standalone)
 | [.github/copilot-instructions.md](.github/copilot-instructions.md) | Mirror of CLAUDE.md for Copilot |
 | [packages/cli/src/commands/compile.ts](packages/cli/src/commands/compile.ts) | TS -> JSON compile (Built anchor) |
 | [packages/cli/src/commands/publish.ts](packages/cli/src/commands/publish.ts) | Publish command (Drift D2 target) |
-| [packages/metadata/src/plugin.ts](packages/metadata/src/plugin.ts) | MetadataPlugin (Drift D1 target) |
+| [packages/metadata/src/plugin.ts](packages/metadata/src/plugin.ts) | MetadataPlugin (artifact/local-file metadata loader; D1 resolved anchor) |

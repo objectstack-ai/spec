@@ -169,9 +169,10 @@ data rows.
 
 **Status:** Multi-project kernel + hostname routing built. `local-file` artifact
 boot (M1.x) implemented — ObjectOS can boot from `dist/objectstack.json` without
-any DB read. Remaining drift: `MetadataPlugin` still bridges ObjectQL to a
-`DatabaseLoader` after startup, persisting metadata to and reading from the
-project DB. This is D1. See [packages/runtime/src/project-kernel-factory.ts](packages/runtime/src/project-kernel-factory.ts)
+any DB read. D1 is resolved: `MetadataPlugin` no longer registers
+`sys_metadata` / `sys_metadata_history` into the ObjectOS manifest and no longer
+auto-bridges ObjectQL to `DatabaseLoader` after startup. See
+[packages/runtime/src/project-kernel-factory.ts](packages/runtime/src/project-kernel-factory.ts)
 and [packages/metadata/src/plugin.ts](packages/metadata/src/plugin.ts).
 
 ## 4. Core Entity Hierarchy
@@ -201,7 +202,7 @@ Organization                            <- control plane
 | :----- | :--------------- | :----- |
 | Organization | Control plane `sys_organization` | Built |
 | Project | Control plane `sys_project` (hostname binding) | Built |
-| Metadata State | Control-plane metadata payloads + project revision (`commit_id`, checksum), scoped by `organization_id` + `project_id` | Partially fixed: startup read now artifact-based (M1.x); `DatabaseLoader` bridge still persists metadata to project DB post-startup (D1) |
+| Metadata State | Control-plane metadata payloads + project revision (`commit_id`, checksum), scoped by `organization_id` + `project_id` | ObjectOS DB bridge removed (D1); control-plane migration still tracked by M2 |
 | Artifact | `GET /api/v1/apps/:projectId/artifact` response | To build |
 | Business DB | Per-project dedicated DB (Turso / SQL / memory) | Built (driver provisioning), but currently shares space with metadata |
 | Branch / Release | Future control-plane entities | Deferred |
@@ -326,7 +327,7 @@ identity would require federated auth, which is out of scope.
 - Per-project kernel factory: [packages/runtime/src/project-kernel-factory.ts](packages/runtime/src/project-kernel-factory.ts)
 - HTTP dispatch: [packages/runtime/src/http-dispatcher.ts](packages/runtime/src/http-dispatcher.ts)
 - Org-scoped proxy: [packages/runtime/src/control-plane-proxy-driver.ts](packages/runtime/src/control-plane-proxy-driver.ts)
-- Metadata loading (startup read fixed for `local-file` mode; DB bridge still persists to project DB post-startup — D1): [packages/metadata/src/plugin.ts](packages/metadata/src/plugin.ts)
+- Metadata loading (artifact/local-file backed; no automatic ObjectQL -> `DatabaseLoader` bridge in ObjectOS): [packages/metadata/src/plugin.ts](packages/metadata/src/plugin.ts)
 - App catalog sync: [packages/services/service-tenant/src/services/app-catalog.service.ts](packages/services/service-tenant/src/services/app-catalog.service.ts)
 
 ## 6. Key Lifecycles
@@ -457,23 +458,12 @@ reduce Drift, and advance Missing.
 - **TS -> JSON compile pipeline.** `objectstack compile` validates a local TS stack against `ObjectStackDefinitionSchema` and writes `dist/objectstack.json` - [packages/cli/src/commands/compile.ts](packages/cli/src/commands/compile.ts).
 - **Zod -> JSON Schema publishing pipeline.** The bridge that makes TS/JSON interchangeable - [packages/spec/scripts/build-schemas.ts](packages/spec/scripts/build-schemas.ts).
 - **Scaffolded TS file tree.** `create-objectstack` emits a `defineStack()` entry point plus split-out `src/objects/*.ts`, `src/views/*.ts` etc. - [packages/create-objectstack/src/index.ts](packages/create-objectstack/src/index.ts).
+- **ObjectOS metadata DB bridge removed.** `MetadataPlugin` no longer registers `sys_metadata` / `sys_metadata_history` into the ObjectOS manifest and no longer auto-connects ObjectQL to a `DatabaseLoader`; runtime metadata is hydrated from files or artifacts only - [packages/metadata/src/plugin.ts](packages/metadata/src/plugin.ts).
 - **JSON-payload metadata storage.** `sys_metadata.metadata` column is already a textarea-shaped JSON payload column - [packages/metadata/src/objects/sys-metadata.object.ts](packages/metadata/src/objects/sys-metadata.object.ts). (The *location* of the table still needs to move to the control plane - see Drift.)
 - **CLI `publish` link.** The end-to-end "local JSON -> remote server" wire is alive, even though the endpoint shape is wrong - [packages/cli/src/commands/publish.ts](packages/cli/src/commands/publish.ts).
 
 ### <AlertTriangle className="inline" /> Drift (Needs Cleanup)
 
-- **Biggest drift: `MetadataPlugin` maintains a DB bridge in ObjectOS.**
-  The primary startup read has been partially fixed — `local-file` mode (M1.x)
-  lets ObjectOS boot from `dist/objectstack.json` without any DB read. However,
-  [packages/metadata/src/plugin.ts](packages/metadata/src/plugin.ts) still
-  registers `sys_metadata`/`sys_metadata_history` tables into the ObjectOS
-  manifest and bridges ObjectQL to a `DatabaseLoader` after startup. This means
-  subsequent `metadata.register()` writes persist to `sys_metadata` in the
-  project DB, and `metadata.list()` / `get()` aggregate from it. Under Phase 1,
-  the project DB must contain **business rows only** — metadata lives in the
-  control plane, delivered via the Artifact API as an immutable artifact. The DB
-  bridge breaks the `commitId` / `checksum` immutability guarantee: project DB
-  rows may silently diverge from the published artifact.
 - **`env_id` should be removed from metadata storage.** In Phase 1 metadata is
   scoped by `organization_id` + `project_id`; deployment target differences are
   runtime/deployment configuration, not metadata row partitioning. Branch-like
@@ -502,13 +492,11 @@ reduce Drift, and advance Missing.
 
 ### <Globe className="inline" /> Missing (Not Started)
 
-- **Artifact format v0** - Zod schema for `{ schemaVersion, projectId, commitId, checksum, metadata, functions, manifest }`.
 - **Metadata migration to control plane** - move user metadata out of project DBs into the control-plane DB, scoped by `organization_id` + `project_id`.
 - **Project Artifact API** - `GET /api/v1/apps/:projectId/artifact` assembles the current project metadata + inlined function code into a single consumable blob, with content hash/ETag for cache validation.
-- **ObjectOS artifact loader** - swap `MetadataPlugin`'s data source from project-DB reads to HTTP fetch against the Artifact API; add local artifact cache with durability across control-plane outages.
+- **ObjectOS Artifact API loader** - add the production HTTP fetch source for `MetadataPlugin` and local artifact cache durability across control-plane outages.
 - **Project publish endpoint** - `POST /api/v1/apps/:projectId/metadata` receives compiled JSON, validates with Zod, writes the current project metadata state, and returns `commitId` + checksum.
 - **Studio metadata/artifact viewer** - browse published metadata, artifact envelope, commit id, checksum, publish history, logs, and runtime health. No metadata editing.
-- **`objectstack dev` offline boot path** - `from-local-file` kernel boot. ObjectOS reads `dist/objectstack.json` (or an in-memory TS definition) and runs fully without a control-plane connection.
 - **UI auto-generation** - artifact schemas -> Amis/React components without hand-wiring.
 
 ## 8. Non-Goals and Anti-Patterns

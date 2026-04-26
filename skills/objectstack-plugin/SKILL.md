@@ -332,6 +332,33 @@ describe('AuditPlugin', () => {
 
 ---
 
+## MetadataPlugin Runtime Boundary
+
+`MetadataPlugin` is the `IMetadataService` provider for ObjectOS, but runtime
+metadata is read-only and artifact/file backed:
+
+- Do **not** register `sys_metadata` or `sys_metadata_history` from an ObjectOS
+  runtime plugin. Those persistence tables belong to the control plane.
+- Do **not** call `MetadataManager.setDataEngine()` automatically from
+  `MetadataPlugin.start()`. Project databases must contain business rows only.
+- Use `artifactSource: { mode: 'local-file', path: './dist/objectstack.json' }`
+  for local artifact boot; production should use the Artifact API loader once
+  wired.
+- `DatabaseLoader`, `setDatabaseDriver()`, and `setDataEngine()` remain valid for
+  control-plane services that explicitly own metadata revisions, history, or
+  overlays.
+
+```typescript
+import { MetadataPlugin } from '@objectstack/metadata';
+
+await kernel.use(new MetadataPlugin({
+  watch: false,
+  artifactSource: { mode: 'local-file', path: './dist/objectstack.json' },
+}));
+```
+
+---
+
 ## Health Monitoring (ObjectKernel Only)
 
 ```typescript

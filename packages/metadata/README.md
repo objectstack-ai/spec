@@ -2,7 +2,7 @@
 
 > **Metadata Loading, Persistence & Customization Layer for ObjectStack.**
 
-`@objectstack/metadata` is the central service responsible for loading, validating, persisting and watching all metadata definitions (Objects, Views, Flows, Apps, Agents, etc.) in the ObjectStack platform.
+`@objectstack/metadata` is the central service responsible for loading, validating, optionally persisting, and watching all metadata definitions (Objects, Views, Flows, Apps, Agents, etc.) in the ObjectStack platform.
 
 It implements the **`IMetadataService`** contract from `@objectstack/spec` and acts as the single source of truth that all other packages depend on.
 
@@ -40,17 +40,22 @@ It implements the **`IMetadataService`** contract from `@objectstack/spec` and a
 
 ## Core Concepts
 
-### 1. Metadata Sources (Three-Scope Model)
+### 1. Metadata Sources (Runtime Boundary)
 
-ObjectStack adopts a three-scope layered model for metadata:
+ObjectStack separates ObjectOS runtime reads from control-plane metadata
+persistence:
 
-| Scope      | Storage      | Mutability   | Description                                |
-|:-----------|:-------------|:-------------|:-------------------------------------------|
-| `system`   | Filesystem   | Read-only    | Defined in code, shipped with packages      |
-| `platform` | Database     | Admin-editable | Created/modified by admins via UI          |
-| `user`     | Database     | User-editable  | Personal customizations per user           |
+| Runtime context | Storage | Mutability | Description |
+|:----------------|:--------|:-----------|:------------|
+| ObjectOS local/dev | Filesystem or local artifact | Read-only at boot | `MetadataPlugin` scans files or hydrates from `dist/objectstack.json`. |
+| ObjectOS production | Artifact API response | Read-only at boot | Metadata is immutable for a `commitId` / `checksum`; project DB stores business rows only. |
+| Control plane / tooling | `DatabaseLoader` when explicitly configured | Writable | Stores project metadata revisions, overlays, and history outside the ObjectOS project DB. |
 
-Resolution order: **system** ← merge(**platform**) ← merge(**user**).
+`MetadataPlugin` does **not** automatically bridge ObjectQL to
+`DatabaseLoader`, and it does not register `sys_metadata` /
+`sys_metadata_history` into the ObjectOS manifest. Database-backed metadata
+persistence remains available through `MetadataManager.setDatabaseDriver()` or
+`setDataEngine()` for control-plane services that opt in explicitly.
 
 ### 2. Loaders
 
@@ -110,7 +115,9 @@ Integrates with the ObjectStack kernel plugin system:
 
 - Registers as the primary `IMetadataService` provider
 - Auto-loads all metadata types from the filesystem on startup (sorted by `loadOrder`)
+- Can hydrate runtime metadata from a local project artifact (`dist/objectstack.json`)
 - Supports YAML, JSON, TypeScript, and JavaScript metadata formats
+- Keeps ObjectOS metadata read-only; database persistence is not auto-enabled
 
 ## Metadata Types
 
@@ -194,11 +201,24 @@ manager.watchService('object', (event) => {
 ```typescript
 import { MetadataPlugin } from '@objectstack/metadata/node';
 
-const plugin = MetadataPlugin({
+const plugin = new MetadataPlugin({
   rootDir: './src',
   watch: process.env.NODE_ENV === 'development',
 });
 // Register with ObjectStack kernel
+kernel.use(plugin);
+```
+
+### With Local Artifact Boot
+
+```typescript
+import { MetadataPlugin } from '@objectstack/metadata/node';
+
+const plugin = new MetadataPlugin({
+  watch: false,
+  artifactSource: { mode: 'local-file', path: './dist/objectstack.json' },
+});
+
 kernel.use(plugin);
 ```
 

@@ -248,6 +248,31 @@ To disable (advanced — e.g., objects provided by another plugin):
 export default defineStack({ ... }, { strict: false });
 ```
 
+### Compile Artifact and Runtime Metadata Boundary
+
+ObjectOS runtime metadata must come from source files during local development or
+from a compiled artifact. Do not configure a project runtime to read or write
+metadata through its business database.
+
+```bash
+objectstack compile
+# -> dist/objectstack.json
+
+OBJECTSTACK_ARTIFACT_PATH=./dist/objectstack.json objectstack dev
+```
+
+Runtime rule of thumb:
+
+| Context | Metadata source | Database role |
+|:--------|:----------------|:--------------|
+| Local dev | TS files or `dist/objectstack.json` | Business rows only |
+| Production ObjectOS | Artifact API response | Business rows only |
+| Control plane | Published JSON in metadata storage | Project revisions, history, overlays |
+
+When generating `objectstack.config.ts`, keep object names short and
+`snake_case`; never set `tableName`, and do not add `sys_metadata` objects to a
+project runtime manifest.
+
 ---
 
 ## Manifest Reference

@@ -522,6 +522,27 @@ describe('MetadataPlugin', () => {
     expect(ctx.registerService).toHaveBeenCalledWith('metadata', expect.anything());
   });
 
+  it('should not register metadata persistence tables in the ObjectOS manifest', async () => {
+    const { MetadataPlugin } = await import('./plugin.js');
+    const plugin = new MetadataPlugin({ rootDir: '/tmp/test', watch: false });
+
+    const manifestService = { register: vi.fn() };
+    const ctx = createMockPluginContext();
+    ctx.getService = vi.fn().mockImplementation((serviceName: string) => {
+      if (serviceName === 'manifest') return manifestService;
+      throw new Error(`Service ${serviceName} not found`);
+    });
+
+    await plugin.init(ctx);
+
+    const registeredObjects = manifestService.register.mock.calls
+      .flatMap(([manifest]) => manifest.objects ?? [])
+      .map((object) => object.name);
+    expect(registeredObjects).not.toContain('sys_metadata');
+    expect(registeredObjects).not.toContain('sys_metadata_history');
+    expect(registeredObjects).toContain('sys_object');
+  });
+
   it('should call start and attempt to load metadata types', async () => {
     const { MetadataPlugin } = await import('./plugin.js');
     const plugin = new MetadataPlugin({ rootDir: '/tmp/test', watch: false });
@@ -534,7 +555,7 @@ describe('MetadataPlugin', () => {
     expect(ctx.logger.info).toHaveBeenCalled();
   });
 
-  it('should bridge ObjectQL engine to MetadataManager in start()', async () => {
+  it('should not bridge ObjectQL engine to MetadataManager in start()', async () => {
     const { MetadataPlugin } = await import('./plugin.js');
     const plugin = new MetadataPlugin({ rootDir: '/tmp/test', watch: false });
 
@@ -548,17 +569,17 @@ describe('MetadataPlugin', () => {
     await plugin.init(ctx);
     await plugin.start(ctx);
 
-    // Verify setDataEngine was called on the manager with ObjectQL
+    // ObjectOS metadata is artifact/file backed. Database persistence is an
+    // explicit MetadataManager concern, not an automatic runtime bridge.
     const manager = (plugin as any).manager;
-    expect(manager.setDataEngine).toHaveBeenCalledWith(mockObjectQL, undefined, undefined);
+    expect(manager.setDataEngine).not.toHaveBeenCalled();
   });
 
-  it('should bridge ObjectQL AFTER filesystem metadata loading', async () => {
+  it('should load filesystem metadata without enabling database persistence', async () => {
     const { MetadataPlugin } = await import('./plugin.js');
     const plugin = new MetadataPlugin({ rootDir: '/tmp/test', watch: false });
 
     const callOrder: string[] = [];
-    const mockObjectQL = { name: 'objectql', find: vi.fn(), create: vi.fn() };
 
     const manager = (plugin as any).manager;
     manager.loadMany = vi.fn().mockImplementation(async () => {
@@ -571,17 +592,14 @@ describe('MetadataPlugin', () => {
 
     const ctx = createMockPluginContext();
     ctx.getService = vi.fn().mockImplementation((serviceName: string) => {
-      if (serviceName === 'objectql') return mockObjectQL;
       throw new Error(`Service ${serviceName} not found`);
     });
 
     await plugin.init(ctx);
     await plugin.start(ctx);
 
-    // setDataEngine must be called after all loadMany calls
-    const lastLoad = callOrder.lastIndexOf('loadMany');
-    const engineIdx = callOrder.indexOf('setDataEngine');
-    expect(engineIdx).toBeGreaterThan(lastLoad);
+    expect(callOrder).toContain('loadMany');
+    expect(callOrder).not.toContain('setDataEngine');
   });
 
   it('should not fail when no ObjectQL service is available', async () => {

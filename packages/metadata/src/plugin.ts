@@ -10,8 +10,6 @@ import type { MetadataPluginConfig } from '@objectstack/spec/kernel';
 import {
     SysAgent,
     SysFlow,
-    SysMetadataObject,
-    SysMetadataHistoryObject,
     SysObject,
     SysTool,
     SysView,
@@ -52,9 +50,9 @@ export interface MetadataPluginOptions {
     rootDir?: string;
     watch?: boolean;
     config?: Partial<MetadataPluginConfig>;
-    /** Organization ID for multi-tenant metadata isolation (passed to DatabaseLoader). */
+    /** Organization ID for metadata-scoped consumers; MetadataPlugin itself does not persist runtime metadata. */
     organizationId?: string;
-    /** Environment ID — undefined = platform-global, set = env-scoped metadata. */
+    /** Project/environment ID used by local artifact envelopes and metadata-scoped consumers. */
     environmentId?: string;
     /**
      * When set, MetadataPlugin loads metadata from an artifact instead of scanning
@@ -106,17 +104,6 @@ export class MetadataPlugin implements Plugin {
         try {
             const manifestService = ctx.getService<{ register(m: any): void }>('manifest');
 
-            // Register the metadata envelope tables
-            manifestService.register({
-                id: 'com.objectstack.metadata',
-                name: 'Metadata',
-                version: '1.0.0',
-                type: 'plugin',
-                scope: 'system',
-                defaultDatasource: 'cloud',
-                objects: [SysMetadataObject, SysMetadataHistoryObject],
-            });
-
             // Register the queryable metadata-layer platform objects.
             manifestService.register({
                 id: 'com.objectstack.metadata-objects',
@@ -129,7 +116,6 @@ export class MetadataPlugin implements Plugin {
             });
 
             ctx.logger.info('Registered system metadata objects', {
-                metadata: ['sys_metadata', 'sys_metadata_history'],
                 queryable: queryableMetadataObjects.map((object) => object.name),
             });
         } catch {
@@ -138,7 +124,7 @@ export class MetadataPlugin implements Plugin {
 
         ctx.logger.info('MetadataPlugin providing metadata service (primary mode)', {
             mode: this.options.artifactSource?.mode ?? 'file-system',
-            features: ['watch', 'persistence', 'multi-format', 'query', 'overlay', 'type-registry']
+            features: ['watch', 'multi-format', 'query', 'overlay', 'type-registry']
         });
     }
 
@@ -153,17 +139,6 @@ export class MetadataPlugin implements Plugin {
             await this._loadFromFileSystem(ctx);
         } else {
             await this._loadFromFileSystem(ctx);
-        }
-
-        // Bridge ObjectQL data engine to MetadataManager.
-        try {
-            const ql = ctx.getService<any>('objectql');
-            if (ql) {
-                ctx.logger.info('[MetadataPlugin] Bridging ObjectQL engine to MetadataManager');
-                this.manager.setDataEngine(ql, this.options.organizationId, this.options.environmentId);
-            }
-        } catch {
-            ctx.logger.debug('[MetadataPlugin] ObjectQL not available — database persistence disabled');
         }
 
         // Bridge realtime service from kernel service registry to MetadataManager.
