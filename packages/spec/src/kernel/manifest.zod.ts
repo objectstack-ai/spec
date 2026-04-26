@@ -110,12 +110,9 @@ export const ManifestSchema = z.object({
    *              Packages with this scope should also set `defaultDatasource: 'cloud'`.
    * - `project`: Per-project business objects (CRM, custom apps…).
    *              Registered normally into the project DB.
-   *
-   * @deprecated `platform` is an alias for `system`; `environment` is an alias for `project`.
-   *             These aliases will be removed in the next major version.
    */
-  scope: z.enum(['cloud', 'system', 'project', 'platform', 'environment']).default('project')
-    .describe('Deployment scope: cloud | system | project (platform/environment are deprecated aliases)'),
+  scope: z.enum(['cloud', 'system', 'project']).default('project')
+    .describe('Deployment scope: cloud | system | project'),
 
   /**
    * Human-readable name of the package.

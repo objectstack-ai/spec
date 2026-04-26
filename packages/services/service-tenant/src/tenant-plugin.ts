@@ -3,21 +3,13 @@
 import type { Plugin } from '@objectstack/spec/contracts';
 import type { PluginContext } from '@objectstack/spec/kernel';
 import type { TenantRoutingConfig } from '@objectstack/spec/cloud';
-import {
-  SysApp,
-  SysPackage,
-  SysPackageInstallation,
-  SysPackageVersion,
-  SysProject,
-  SysProjectCredential,
-  SysProjectMember,
-} from '@objectstack/platform-objects/tenant';
 import { TenantContextService } from './tenant-context';
 import {
   createDefaultProjectAdapters,
   type ProjectDatabaseAdapter,
 } from './project-provisioning.js';
 import { AppCatalogService } from './services/app-catalog.service.js';
+import { tenantObjects, tenantServiceManifestHeader } from './manifest.js';
 
 /**
  * Tenant Plugin Configuration
@@ -89,24 +81,11 @@ export function createTenantPlugin(config: TenantPluginConfig = {}): Plugin {
       }
 
       if (config.registerSystemObjects !== false) {
-        const manifestObjects: any[] = [
-          SysProject,
-          SysProjectCredential,
-          SysProjectMember,
-          SysPackage,
-          SysPackageVersion,
-          SysPackageInstallation,
-          SysApp,
-        ];
+        const manifestObjects: any[] = [...tenantObjects];
         try {
           const manifestService = ctx.getService<{ register(m: any): void }>('manifest');
           manifestService.register({
-            id: 'com.objectstack.service-tenant',
-            name: 'Tenant Service',
-            version: '0.2.0',
-            type: 'plugin',
-            scope: 'cloud',
-            namespace: 'sys',
+            ...tenantServiceManifestHeader,
             objects: manifestObjects,
           });
           ctx.logger.info('[TenantPlugin] System objects registered via manifest service', {

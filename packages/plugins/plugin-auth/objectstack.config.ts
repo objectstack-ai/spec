@@ -1,25 +1,17 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { defineStack } from '@objectstack/spec';
-import * as objects from './src/objects';
+import { authIdentityObjects, authPluginManifestHeader } from './src/manifest';
 
 /**
  * ObjectStack Configuration for plugin-auth
- * 
+ *
  * This configuration defines the authentication and identity kernel objects
- * for the ObjectStack platform.
+ * for the ObjectStack platform. The manifest header and objects list are
+ * imported from a single canonical source (`src/manifest.ts`) so the
+ * compile-time and runtime registration paths cannot drift (D7).
  */
 export default defineStack({
-  manifest: {
-    id: 'com.objectstack.plugin-auth',
-    namespace: 'sys',
-    version: '3.0.1',
-    type: 'plugin',
-    scope: 'system',
-    defaultDatasource: 'cloud',
-    name: 'Authentication & Identity Plugin',
-    description: 'Core authentication objects for ObjectStack (User, Session, Account, Verification)',
-  },
-
-  objects: Object.values(objects),
+  manifest: authPluginManifestHeader,
+  objects: authIdentityObjects,
 });

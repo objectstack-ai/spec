@@ -24,6 +24,7 @@
     "migration",
     "notification",
     "object-storage",
+    "project-artifact",
     "provisioning",
     "registry-config",
     "search-engine",

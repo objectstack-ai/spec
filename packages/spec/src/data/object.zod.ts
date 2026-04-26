@@ -306,13 +306,6 @@ const ObjectSchemaBase = z.object({
   pluralLabel: z.string().optional().describe('Human readable plural label (e.g. "Accounts")'),
   description: z.string().optional().describe('Developer documentation / description'),
   icon: z.string().optional().describe('Icon name (Lucide/Material) for UI representation'),
-  
-  /**
-   * @deprecated Namespace is no longer used. Embed any prefix directly in the
-   * object `name` (e.g. `name: 'sys_user'`). This field is accepted for
-   * backwards compatibility but is ignored by the runtime.
-   */
-  namespace: z.string().regex(/^[a-z][a-z0-9]*$/).optional().describe('Deprecated — ignored by the runtime. Embed prefix in name instead (e.g. name: "sys_user").'),
 
   /**
    * Taxonomy & Organization

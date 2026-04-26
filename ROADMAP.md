@@ -1,6 +1,6 @@
 # ObjectStack - Road Map
 
-> **Last Updated:** 2026-04-26
+> **Last Updated:** 2026-04-26 (Phase 1 foundation: M1 + D4 + D5 + D7 landed)
 > **Authoritative Spec:** [content/docs/concepts/north-star.mdx](content/docs/concepts/north-star.mdx) - §7 Alignment Check is the single source of truth for Built / Drift / Missing.
 > This file is the **actionable checklist** derived from that ledger. When north-star §7 changes, update this file too.
 
@@ -48,6 +48,7 @@ Code that exists and matches the intended architecture. Do not regress these.
 | Scaffolded TS file tree (`create-objectstack` -> `defineStack()` + split `src/objects/*.ts`) | [packages/create-objectstack/src/index.ts](packages/create-objectstack/src/index.ts) |
 | JSON-payload metadata column (`sys_metadata.metadata` textarea) | [packages/metadata/src/objects/sys-metadata.object.ts](packages/metadata/src/objects/sys-metadata.object.ts) |
 | CLI `publish` - local JSON -> remote server wire (endpoint shape still wrong, see D2) | [packages/cli/src/commands/publish.ts](packages/cli/src/commands/publish.ts) |
+| **M1** Project Artifact envelope schema (`schemaVersion / projectId / commitId / checksum / metadata / functions / manifest`) | [packages/spec/src/system/project-artifact.zod.ts](packages/spec/src/system/project-artifact.zod.ts) |
 
 ---
 
@@ -105,21 +106,37 @@ Known anchors to scrub:
 - [packages/objectql/src/protocol.ts](packages/objectql/src/protocol.ts)
 - [packages/client/src/index.ts](packages/client/src/index.ts)
 
-### D4 - `namespace` residue
+### D4 - ✅ `namespace` residue (resolved 2026-04-26)
 
-Deprecated in favor of embedding prefix in object `name`, but leftovers remain. Identity must be single-sourced on `name`.
+Object identity is now single-sourced on `name`. The deprecated `namespace`
+field has been removed from `ObjectSchemaBase` ([packages/spec/src/data/object.zod.ts](packages/spec/src/data/object.zod.ts))
+and the schema strips the key from any legacy input. Package-level namespace
+(used by the registry for FQN computation, marketplace publishing, and
+DatasourceRoutingRule) is intentionally retained — it is a separate mechanic.
 
-### D5 - Plugin `scope` enum bloat
+### D5 - ✅ Plugin `scope` enum trimmed (resolved 2026-04-26)
 
-Grew to 5 values (`cloud` / `system` / `project` / `platform` / `environment`) with the last two marked as deprecated aliases. Break cleanly; do not carry aliases forward.
+`ManifestSchema.scope` is now a clean three-value enum (`'cloud' | 'system' | 'project'`).
+The deprecated `'platform'` and `'environment'` aliases have been removed
+([packages/spec/src/kernel/manifest.zod.ts](packages/spec/src/kernel/manifest.zod.ts)).
 
 ### D6 - Half-wired abstractions
 
 `ScopedServiceManager` and `SharedProjectPlugin` were added but their integration into the request path is incomplete. Either finish them or remove them.
 
-### D7 - Plugin-config churn
+### D7 - ✅ Plugin-config churn converged (resolved 2026-04-26)
 
-Commit `a4f5eb51`: large reorganization moving object registration between files without obvious feature value. Should converge on one canonical home.
+Each plugin's manifest header + objects list now lives in a single canonical
+`src/manifest.ts` per plugin. Both `objectstack.config.ts` (compile-time) and
+the plugin's runtime `manifest.register()` import from that file, eliminating
+the empty-`./src/objects/` divergence that previously caused `plugin-auth` and
+`plugin-security` to ship empty object lists from compile while their runtimes
+registered the real schemas.
+
+Anchors:
+- [packages/plugins/plugin-auth/src/manifest.ts](packages/plugins/plugin-auth/src/manifest.ts)
+- [packages/plugins/plugin-security/src/manifest.ts](packages/plugins/plugin-security/src/manifest.ts)
+- [packages/services/service-tenant/src/manifest.ts](packages/services/service-tenant/src/manifest.ts)
 
 ### D8 - `apps/server` is a hybrid (Control Plane + ObjectOS in one process)
 
@@ -155,12 +172,16 @@ Commit `a4f5eb51`: large reorganization moving object registration between files
 
 Ordered by dependency. Items higher in the list unblock those below them.
 
-### M1 - Artifact format v0
+### M1 - ✅ Artifact format v0 (resolved 2026-04-26)
 
-- [ ] Add a Zod schema for the artifact envelope.
-- [ ] Minimum envelope: `schemaVersion`, `projectId`, `commitId`, `checksum`, `metadata`, `functions`, `manifest`.
-- [ ] Specify function-code packaging and plugin/driver requirement declaration.
-- [ ] Decide which fields are required now and which are reserved for future S3 indirection.
+- [x] Add a Zod schema for the artifact envelope.
+- [x] Minimum envelope: `schemaVersion`, `projectId`, `commitId`, `checksum`, `metadata`, `functions`, `manifest`.
+- [x] Specify function-code packaging (`ProjectArtifactFunctionSchema`: name + language + inlined `code` + optional source/hash) and plugin/driver requirement declaration (`ProjectArtifactManifestSchema`: plugins, drivers, engine).
+- [x] Required: schemaVersion / projectId / commitId / checksum / metadata / manifest. Optional: builtAt / builtWith / payloadRef.
+- [x] Reserved `payloadRef` for future S3 indirection (`{ url, expiresAt, checksum }`).
+
+Code anchor: [packages/spec/src/system/project-artifact.zod.ts](packages/spec/src/system/project-artifact.zod.ts).
+Tests: [packages/spec/src/system/project-artifact.test.ts](packages/spec/src/system/project-artifact.test.ts).
 
 **Prerequisite for:** M3, M4.
 

@@ -56,6 +56,7 @@ export * from './registry-config.zod';
 export * from './provisioning.zod';
 export * from './deploy-bundle.zod';
 export * from './app-install.zod';
+export * from './project-artifact.zod';
 
 // Constants
 export * from './constants';

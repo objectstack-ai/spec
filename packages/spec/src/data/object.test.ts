@@ -743,89 +743,41 @@ describe('ObjectSchema.create()', () => {
 });
 
 // ============================================================================
-// Namespace & Auto-Derivation
+// Namespace removal (D4) — Object identity is single-sourced on `name`.
 // ============================================================================
 
-describe('ObjectSchema namespace', () => {
-  it('should accept namespace property', () => {
+describe('ObjectSchema name-as-identity', () => {
+  it('does not surface a namespace property on parsed objects', () => {
     const result = ObjectSchema.safeParse({
-      namespace: 'sys',
-      name: 'user',
+      name: 'sys_user',
       fields: {},
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.namespace).toBe('sys');
+      expect((result.data as Record<string, unknown>).namespace).toBeUndefined();
     }
   });
 
-  it('should accept object without namespace (optional)', () => {
+  it('strips legacy `namespace` keys from input (deprecated, dropped in D4)', () => {
     const result = ObjectSchema.safeParse({
-      name: 'account',
+      namespace: 'sys',
+      name: 'user',
       fields: {},
-    });
+    } as Record<string, unknown>);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.namespace).toBeUndefined();
+      expect((result.data as Record<string, unknown>).namespace).toBeUndefined();
     }
   });
 
-  it('should reject invalid namespace format (must be lowercase alpha)', () => {
-    const result = ObjectSchema.safeParse({
-      namespace: 'Sys',
-      name: 'user',
-      fields: {},
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject namespace with underscores', () => {
-    const result = ObjectSchema.safeParse({
-      namespace: 'my_ns',
-      name: 'user',
-      fields: {},
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject namespace with hyphens', () => {
-    const result = ObjectSchema.safeParse({
-      namespace: 'my-ns',
-      name: 'user',
-      fields: {},
-    });
-    expect(result.success).toBe(false);
-  });
-});
-
-describe('ObjectSchema.create() namespace handling', () => {
-  it('should accept namespace without setting any tableName field', () => {
+  it('accepts prefix-embedded names without any tableName field', () => {
     const obj = ObjectSchema.create({
-      namespace: 'sys',
-      name: 'user',
+      name: 'sys_user',
       fields: {},
     });
-    expect(obj.namespace).toBe('sys');
-    expect(obj.name).toBe('user');
-    expect((obj as any).tableName).toBeUndefined();
-  });
-
-  it('should accept multi-word names with namespace', () => {
-    const obj = ObjectSchema.create({
-      namespace: 'sys',
-      name: 'audit_log',
-      fields: {},
-    });
-    expect(obj.name).toBe('audit_log');
-  });
-
-  it('should accept object without namespace', () => {
-    const obj = ObjectSchema.create({
-      name: 'account',
-      fields: {},
-    });
-    expect(obj.name).toBe('account');
-    expect(obj.namespace).toBeUndefined();
+    expect(obj.name).toBe('sys_user');
+    expect((obj as Record<string, unknown>).tableName).toBeUndefined();
+    expect((obj as Record<string, unknown>).namespace).toBeUndefined();
   });
 });
 
