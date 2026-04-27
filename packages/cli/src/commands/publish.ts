@@ -15,7 +15,7 @@ export default class Publish extends Command {
     server: Flags.string({
       char: 's',
       description: 'Server URL',
-      env: 'OBJECTSTACK_SERVER_URL',
+      env: 'OBJECTSTACK_CLOUD_URL',
       default: 'http://localhost:3000',
     }),
     token: Flags.string({

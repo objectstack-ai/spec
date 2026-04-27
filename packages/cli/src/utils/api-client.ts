@@ -8,7 +8,7 @@ import { readAuthConfig } from './auth-config.js';
  */
 export interface ApiClientOptions {
   /**
-   * Server URL (defaults to OBJECTSTACK_URL env var or http://localhost:3000)
+   * Server URL (defaults to OBJECTSTACK_CLOUD_URL env var or http://localhost:3000)
    */
   url?: string;
   /**
@@ -41,13 +41,13 @@ export interface ApiClientResult {
  *
  * Resolves configuration in this priority order:
  * 1. Explicit options passed to the function
- * 2. Environment variables (OBJECTSTACK_URL, OBJECTSTACK_TOKEN)
- * 3. Stored credentials from `os auth login`
+ * 2. Environment variables (OBJECTSTACK_CLOUD_URL, OBJECTSTACK_TOKEN)
+ * 3. Stored credentials from `os login`
  * 4. Defaults (http://localhost:3000)
  */
 export async function createApiClient(options: ApiClientOptions = {}): Promise<ApiClientResult> {
   // Resolve server URL (without applying defaults yet)
-  let baseUrl = options.url || process.env.OBJECTSTACK_URL;
+  let baseUrl = options.url || process.env.OBJECTSTACK_CLOUD_URL;
 
   // Resolve authentication token
   let token = options.token || process.env.OBJECTSTACK_TOKEN;
@@ -95,7 +95,7 @@ export async function createApiClient(options: ApiClientOptions = {}): Promise<A
 export function requireAuth(token?: string): void {
   if (!token) {
     throw new Error(
-      'Authentication required. Please run `os auth login` or set OBJECTSTACK_TOKEN environment variable.'
+      'Authentication required. Please run `os login` or set OBJECTSTACK_TOKEN environment variable.'
     );
   }
 }

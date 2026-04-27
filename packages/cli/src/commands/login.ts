@@ -77,10 +77,10 @@ export default class AuthLogin extends Command {
   static override description = 'Authenticate and store session credentials';
 
   static override examples = [
-    '$ os auth login',
-    '$ os auth login --url https://api.example.com',
-    '$ os auth login --email user@example.com --password mypassword',
-    '$ os auth login --no-browser',
+    '$ os login',
+    '$ os login --url https://api.example.com',
+    '$ os login --email user@example.com --password mypassword',
+    '$ os login --no-browser',
   ];
 
   static override flags = {
@@ -88,7 +88,7 @@ export default class AuthLogin extends Command {
       char: 'u',
       description: 'Server URL',
       default: 'http://localhost:3000',
-      env: 'OBJECTSTACK_URL',
+      env: 'OBJECTSTACK_CLOUD_URL',
     }),
     email: Flags.string({
       char: 'e',
@@ -126,7 +126,7 @@ export default class AuthLogin extends Command {
             } else {
               printSuccess(`Already logged in as ${existing.email || existing.userId}`);
               console.log('');
-              console.log('  Run `os auth logout` first to switch accounts, or use --force to re-authenticate.');
+              console.log('  Run `os logout` first to switch accounts, or use --force to re-authenticate.');
               console.log('');
             }
             return;
@@ -235,7 +235,7 @@ export default class AuthLogin extends Command {
     const { code, verificationUrl, expiresAt, interval = 2 } = deviceData ?? {};
 
     if (!code || !verificationUrl) {
-      throw new Error('Server did not return a device code. Try `os auth login --email <email> --password <password>` instead.');
+      throw new Error('Server did not return a device code. Try `os login --email <email> --password <password>` instead.');
     }
 
     if (jsonOutput) {
@@ -293,7 +293,7 @@ export default class AuthLogin extends Command {
       }
 
       if (pollData?.status === 'expired') {
-        throw new Error('Login timed out. Please run `os auth login` again.');
+        throw new Error('Login timed out. Please run `os login` again.');
       }
 
       if (!jsonOutput) {
@@ -302,6 +302,6 @@ export default class AuthLogin extends Command {
       }
     }
 
-    throw new Error('Login timed out. Please run `os auth login` again.');
+    throw new Error('Login timed out. Please run `os login` again.');
   }
 }

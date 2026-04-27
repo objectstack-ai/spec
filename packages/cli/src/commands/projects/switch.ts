@@ -27,7 +27,7 @@ export default class ProjectsSwitch extends Command {
   };
 
   static override flags = {
-    url: Flags.string({ char: 'u', description: 'Server URL', env: 'OBJECTSTACK_URL' }),
+    url: Flags.string({ char: 'u', description: 'Server URL', env: 'OBJECTSTACK_CLOUD_URL' }),
     token: Flags.string({ char: 't', description: 'Authentication token', env: 'OBJECTSTACK_TOKEN' }),
     remote: Flags.boolean({
       description: 'Also call /activate on the server (updates the session row)',

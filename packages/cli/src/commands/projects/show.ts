@@ -24,7 +24,7 @@ export default class ProjectsShow extends Command {
   };
 
   static override flags = {
-    url: Flags.string({ char: 'u', description: 'Server URL', env: 'OBJECTSTACK_URL' }),
+    url: Flags.string({ char: 'u', description: 'Server URL', env: 'OBJECTSTACK_CLOUD_URL' }),
     token: Flags.string({ char: 't', description: 'Authentication token', env: 'OBJECTSTACK_TOKEN' }),
     format: Flags.string({
       char: 'f',

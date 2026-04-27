@@ -28,7 +28,7 @@ export default class MetaGet extends Command {
     url: Flags.string({
       char: 'u',
       description: 'Server URL',
-      env: 'OBJECTSTACK_URL',
+      env: 'OBJECTSTACK_CLOUD_URL',
     }),
     token: Flags.string({
       char: 't',
