@@ -48,6 +48,7 @@ function isEnvExemptPath(pathname: string): boolean {
     pathname.startsWith('/register') ||
     pathname.startsWith('/orgs') ||
     pathname.startsWith('/projects') ||
+    pathname.startsWith('/auth/') ||
     pathname === '/api-console' ||
     pathname.startsWith('/api-console/')
   );

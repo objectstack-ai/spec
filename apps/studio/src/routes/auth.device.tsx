@@ -1,12 +1,9 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Navigate, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useClient } from '@objectstack/client-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { useSession } from '@/hooks/useSession';
 import { CheckCircle2, GalleryVerticalEnd } from 'lucide-react';
@@ -36,12 +33,9 @@ function PageShell({ children }: { children: React.ReactNode }) {
 
 function DeviceAuthPage() {
   const { code } = Route.useSearch();
-  const { user, refresh } = useSession();
-  const client = useClient() as any;
+  const { user, loading } = useSession();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [approved, setApproved] = useState(false);
   const [error, setError] = useState('');
@@ -59,6 +53,22 @@ function DeviceAuthPage() {
     );
   }
 
+  if (loading) {
+    return (
+      <PageShell>
+        <Card>
+          <CardHeader className="text-center">
+            <CardDescription>Loading…</CardDescription>
+          </CardHeader>
+        </Card>
+      </PageShell>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" search={{ redirect: `/auth/device?code=${encodeURIComponent(code)}` }} />;
+  }
+
   if (approved) {
     return (
       <PageShell>
@@ -73,25 +83,10 @@ function DeviceAuthPage() {
     );
   }
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSubmitting(true);
-    try {
-      await client.auth.login({ type: 'email', email, password });
-      await refresh();
-    } catch (err: any) {
-      setError(err?.message ?? 'Login failed');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   const handleApprove = async () => {
     setError('');
     setSubmitting(true);
     try {
-      // Get the current session token from better-auth cookie/session
       const sessionRes = await fetch('/api/v1/auth/get-session', { credentials: 'include' });
       const sessionData = await sessionRes.json() as any;
       const token = sessionData?.session?.token;
@@ -120,11 +115,7 @@ function DeviceAuthPage() {
       <Card>
         <CardHeader className="text-center">
           <CardTitle>CLI Login Request</CardTitle>
-          <CardDescription>
-            {user
-              ? `Approve CLI access for ${user.email}`
-              : 'Sign in to approve the CLI login request'}
-          </CardDescription>
+          <CardDescription>Approve CLI access for {user.email}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-md border bg-background px-4 py-3 text-center">
@@ -132,55 +123,24 @@ function DeviceAuthPage() {
             <p className="font-mono font-semibold tracking-widest text-lg">{code}</p>
           </div>
 
-          {!user ? (
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  autoFocus
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              {error && <p className="text-sm text-destructive">{error}</p>}
-              <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting ? 'Signing in…' : 'Sign In'}
-              </Button>
-            </form>
-          ) : (
-            <div className="space-y-4">
-              <p className="text-sm text-center text-muted-foreground">
-                Logged in as <span className="font-medium text-foreground">{user.email}</span>
-              </p>
-              {error && <p className="text-sm text-destructive text-center">{error}</p>}
-              <Button onClick={handleApprove} className="w-full" disabled={submitting}>
-                {submitting ? 'Approving…' : 'Approve CLI Access'}
-              </Button>
-              <div className="text-center">
-                <button
-                  type="button"
-                  className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-                  onClick={() => navigate({ to: '/' })}
-                >
-                  Cancel
-                </button>
-              </div>
+          <div className="space-y-4">
+            <p className="text-sm text-center text-muted-foreground">
+              Logged in as <span className="font-medium text-foreground">{user.email}</span>
+            </p>
+            {error && <p className="text-sm text-destructive text-center">{error}</p>}
+            <Button onClick={handleApprove} className="w-full" disabled={submitting}>
+              {submitting ? 'Approving…' : 'Approve CLI Access'}
+            </Button>
+            <div className="text-center">
+              <button
+                type="button"
+                className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+                onClick={() => navigate({ to: '/' })}
+              >
+                Cancel
+              </button>
             </div>
-          )}
+          </div>
         </CardContent>
       </Card>
     </PageShell>

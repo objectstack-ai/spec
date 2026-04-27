@@ -14,11 +14,20 @@ import { SocialSignInButtons } from '@/components/auth/social-sign-in-buttons';
 import { GalleryVerticalEnd } from 'lucide-react';
 
 export const Route = createFileRoute('/login')({
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } => {
+    const r = search.redirect;
+    return typeof r === 'string' ? { redirect: r } : {};
+  },
   component: LoginPage,
 });
 
+function isSafeRedirect(target: string | undefined): target is string {
+  return !!target && target.startsWith('/') && !target.startsWith('//');
+}
+
 function LoginPage() {
   const navigate = useNavigate();
+  const { redirect } = Route.useSearch();
   const client = useClient() as any;
   const { session, user, refresh } = useSession();
   const { projects, loading: projectsLoading } = useProjects();
@@ -28,6 +37,11 @@ function LoginPage() {
 
   useEffect(() => {
     if (!user) return;
+    if (isSafeRedirect(redirect)) {
+      const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+      window.location.assign(base + redirect);
+      return;
+    }
     if (!session?.activeOrganizationId) {
       navigate({ to: '/orgs' });
       return;
@@ -48,7 +62,7 @@ function LoginPage() {
     } else {
       navigate({ to: '/projects' });
     }
-  }, [user, session, projects, projectsLoading, navigate]);
+  }, [user, session, projects, projectsLoading, navigate, redirect]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
