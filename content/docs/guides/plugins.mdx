@@ -276,57 +276,36 @@ The `plugins` array accepts multiple formats:
 
 ---
 
-## Managing Plugins with CLI
+## Managing Plugins
 
-### List Plugins
+Runtime plugins are declared directly in `objectstack.config.ts` under the
+`plugins` (or `devPlugins`) array. Edit the file to add, remove, or reorder
+plugins — there is no dedicated CLI subcommand for this in v1.
 
-View all plugins configured in your project:
+```typescript
+import { defineStack } from '@objectstack/spec';
+import authPlugin from '@objectstack/plugin-auth';
 
-```bash
-# List all plugins
-os plugin list
-
-# With JSON output
-os plugin list --json
-
-# From a specific config file
-os plugin list path/to/objectstack.config.ts
+export default defineStack({
+  manifest: { /* ... */ },
+  plugins: [
+    authPlugin({ providers: ['github'] }),
+    // add more plugins here
+  ],
+  devPlugins: [
+    // dev-only plugins (loaded by `os dev` / `os serve --dev`)
+  ],
+});
 ```
 
-### Plugin Information
-
-Get detailed information about a specific plugin:
+Install the npm package alongside the config edit:
 
 ```bash
-os plugin info auth
-os plugin info @objectstack/plugin-auth
+pnpm add @objectstack/plugin-auth
 ```
 
-### Add a Plugin
-
-Add a plugin to your configuration file:
-
-```bash
-# Add a production plugin
-os plugin add @objectstack/plugin-auth
-
-# Add a dev-only plugin
-os plugin add @objectstack/plugin-msw --dev
-```
-
-This command:
-1. Adds an import statement to your config file
-2. Inserts the plugin into the `plugins` (or `devPlugins`) array
-3. Reminds you to install the npm package
-
-### Remove a Plugin
-
-Remove a plugin from your configuration:
-
-```bash
-os plugin remove @objectstack/plugin-auth
-os plugin rm auth  # 'rm' alias also works
-```
+When you run `os dev` or `os serve`, the kernel discovers and loads every
+plugin listed in the config — no separate registration step needed.
 
 ---
 
@@ -602,10 +581,9 @@ export default defineStack({
 });
 ```
 
-Or use the CLI to add it:
+Or install the package and add it to the `plugins` array yourself:
 
 ```bash
-os plugin add @acme/plugin-marketplace
 pnpm add @acme/plugin-marketplace
 ```
 
@@ -730,25 +708,6 @@ plugin-my-feature/
 - Domain directories: `snake_case`
 - File suffixes: `.object.ts`, `.view.ts`, `.flow.ts`, `.service.ts`, etc.
 - Entry point: `index.ts` in every module
-
----
-
-## CLI Plugin Commands Reference
-
-| Command | Alias | Description |
-|:--------|:------|:------------|
-| `os plugin list [config]` | `os plugin ls` | List all configured plugins |
-| `os plugin info <name> [config]` | — | Show detailed plugin information |
-| `os plugin add <package>` | — | Add a plugin to config |
-| `os plugin remove <name>` | `os plugin rm` | Remove a plugin from config |
-
-### Options
-
-| Option | Commands | Description |
-|:-------|:---------|:------------|
-| `--json` | `list` | Output as JSON |
-| `--dev` | `add` | Add as a dev-only plugin |
-| `-c, --config <path>` | `add`, `remove` | Specify config file path |
 
 ---
 

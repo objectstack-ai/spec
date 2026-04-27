@@ -6,7 +6,7 @@ import { z } from 'zod';
  * # Package Artifact Format Protocol
  *
  * Defines the standard structure of a package artifact (.tgz) produced by
- * `os plugin build`. The marketplace uses these schemas to validate, store,
+ * the build pipeline. The marketplace uses these schemas to validate, store,
  * and distribute package artifacts.
  *
  * ## Artifact Internal Structure

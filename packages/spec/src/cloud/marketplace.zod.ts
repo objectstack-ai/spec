@@ -20,10 +20,10 @@ import { z } from 'zod';
  * 
  * ## Developer Publishing Flow
  * ```
- * 1. Develop   → Build plugin locally using ObjectStack CLI
- * 2. Validate  → Run `os plugin validate` (schema + security checks)
- * 3. Build     → Run `os plugin build` (bundle + sign)
- * 4. Submit    → Run `os plugin publish` (submit to marketplace)
+ * 1. Develop   → Build the project locally using ObjectStack CLI
+ * 2. Validate  → Run `os validate` (schema + security checks)
+ * 3. Build     → Run `os build` (compile to dist/objectstack.json)
+ * 4. Submit    → Run `os projects bind <id> --artifact dist/objectstack.json`
  * 5. Review    → Platform conducts automated + manual review
  * 6. Publish   → Approved listing goes live on marketplace
  * ```

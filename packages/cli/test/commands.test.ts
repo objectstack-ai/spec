@@ -13,7 +13,6 @@ import Lint from '../src/commands/lint';
 import Diff from '../src/commands/diff';
 import Explain from '../src/commands/explain';
 import Studio from '../src/commands/studio';
-import V2ToV3 from '../src/commands/codemod/v2-to-v3';
 
 describe('CLI Commands (oclif)', () => {
   it('should have compile command', () => {
@@ -71,9 +70,5 @@ describe('CLI Commands (oclif)', () => {
 
   it('should have studio command', () => {
     expect(Studio.description).toContain('Studio');
-  });
-
-  it('should have codemod v2-to-v3 command', () => {
-    expect(V2ToV3.description).toContain('v2');
   });
 });
