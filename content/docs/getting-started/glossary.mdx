@@ -89,7 +89,7 @@ A field defined in the Data Protocol schema that does not exist physically in th
 The fundamental unit of data modeling in ObjectStack. Roughly equivalent to a "Table" in SQL or a "Collection" in NoSQL. An Object definition includes Fields, Actions, Triggers, and Permissions.
 
 ### Driver
-An adapter plugin (Driver Protocol) that allows the Data Layer to communicate with a specific underlying storage engine.
+An adapter plugin in the Data Protocol runtime stack that allows the Data Layer to communicate with a specific underlying storage engine.
 * *Example:* `@objectstack/driver-postgres`, `@objectstack/driver-mongodb`, `@objectstack/driver-sqlite`.
 
 ### AST (Abstract Syntax Tree)
@@ -122,16 +122,16 @@ A map within the UI Runtime that links a string identifier (e.g., `"chart.bar"`)
 ## Governance
 
 ### Space (Workspace)
-A logical isolation unit (Hub Protocol) for multi-tenancy. A single ObjectStack instance can host multiple Spaces. Data is physically segregated by tenant isolation strategies.
+A logical isolation unit in the Cloud Protocol for multi-tenancy. A single ObjectStack instance can host multiple Spaces. Data is physically segregated by tenant isolation strategies.
 
 ### FLS (Field-Level Security)
-A granular permission model (Permission Protocol) where access control is applied to individual fields (columns), not just the whole object (row).
+A granular permission model (Security Protocol) where access control is applied to individual fields (columns), not just the whole object (row).
 
 ### OWD (Organization-Wide Defaults)
-The default sharing level (Permission Protocol) for records in an object. Determines the baseline access level before sharing rules are applied.
+The default sharing level (Security Protocol) for records in an object. Determines the baseline access level before sharing rules are applied.
 
 ### Territory
-A hierarchical access control model (Permission Protocol) that grants data access based on geographic or organizational boundaries.
+A hierarchical access control model (Security Protocol) that grants data access based on geographic or organizational boundaries.
 
 ### TCK (Technology Compatibility Kit)
 A suite of tests that validates if a Driver or Renderer complies with the official ObjectStack Protocol. If a new driver passes the TCK, it is certified as compatible.

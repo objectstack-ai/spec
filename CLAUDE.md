@@ -8,6 +8,10 @@
 
 ---
 
+## Important
+
+not make big edits of more than ~20000 bytes or so. If it fails, break one edit down to multiple smaller ones.
+
 ## Quick Reference — Build & Test Commands
 
 ```bash

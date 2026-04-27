@@ -37,7 +37,7 @@ The architecture is built on foundational protocols that work together as a unif
   />
   <Card
     icon={<Cloud />}
-    title="Hub Protocol"
+    title="Cloud Protocol"
     description="Management: Multi-tenancy, Marketplace, Licensing."
   />
 </Cards>
@@ -56,7 +56,7 @@ ObjectStack enforces **Separation of Concerns** through protocol boundaries:
 └───────────────────────────┬───────────────────────────────┘
                             │ Interface
 ┌───────────────────────────┴───────────────────────────────┐
-│     System Protocol & Automation Protocol & Hub Protocol  │
+│    System Protocol & Automation Protocol & Cloud Protocol │
 │  Auth, Permissions, Orchestration, Multi-tenancy          │
 │  "Who/What can do what, when, and where?"                  │
 └───────────────────────────┬───────────────────────────────┘
@@ -589,7 +589,7 @@ View Protocol (uses Object, Query)
 ### System Layer (ObjectOS)
 
 ```
-Driver Protocol (Database Abstraction)
+Data Driver Contracts (Database Abstraction)
     ↓
 Datasource Protocol (Connection Config)
     ↓

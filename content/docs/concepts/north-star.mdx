@@ -132,11 +132,13 @@ single well-known HTTP endpoint returns everything ObjectOS needs to boot a
 project.
 
 ```
-GET /api/v1/apps/:projectId/artifact
+GET /api/v1/cloud/projects/:projectId/artifact
 -> { schemaVersion, projectId, commitId, checksum, metadata, functions, manifest }
 ```
 
-**Today:** not yet built. Metadata still loads from project DBs.
+**Today:** the Artifact API endpoint is not yet built. Local artifacts can already
+be bound to projects through `sys_project.metadata.artifact_path` and resolved
+when a project kernel boots.
 **Phase 1 target:** the control plane assembles the current project artifact
 from control-plane metadata payloads scoped by `organization_id` + `project_id`.
 **Future:** the same endpoint can return a redirect or signed URL pointing at an
@@ -203,7 +205,7 @@ Organization                            <- control plane
 | Organization | Control plane `sys_organization` | Built |
 | Project | Control plane `sys_project` (hostname binding) | Built |
 | Metadata State | Control-plane metadata payloads + project revision (`commit_id`, checksum), scoped by `organization_id` + `project_id` | ObjectOS DB bridge removed (D1); control-plane migration still tracked by M2 |
-| Artifact | `GET /api/v1/apps/:projectId/artifact` response | To build |
+| Artifact | `GET /api/v1/cloud/projects/:projectId/artifact` response | To build |
 | Business DB | Per-project dedicated DB (Turso / SQL / memory) | Built (driver provisioning), but currently shares space with metadata |
 | Branch / Release | Future control-plane entities | Deferred |
 
@@ -268,7 +270,7 @@ carries everything that leaves the control plane for runtime boot.
 │   - revisioned by commit_id + checksum                      │
 │                                                             │
 │ Artifact API:                                               │
-│   GET /api/v1/apps/:projectId/artifact                      │
+│   GET /api/v1/cloud/projects/:projectId/artifact            │
 │   today : assembles live from control-plane DB              │
 │   future: returns S3 redirect / signed URL                  │
 │                                                             │
@@ -427,7 +429,7 @@ Control plane receives request -> EnvironmentDriverRegistry resolves
 KernelManager looks up ObjectKernel for projectId
   ↓
 If kernel has no artifact loaded:
-    GET /api/v1/apps/:projectId/artifact
+    GET /api/v1/cloud/projects/:projectId/artifact
     -> hydrate metadata + function code into kernel
     -> cache artifact locally (survives control-plane downtime)
   ↓
