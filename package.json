@@ -19,7 +19,8 @@
     "release": "pnpm run build && changeset publish",
     "docs:dev": "pnpm --filter @objectstack/docs dev",
     "docs:build": "pnpm --filter @objectstack/docs build",
-    "docs:start": "pnpm --filter @objectstack/docs start"
+    "docs:start": "pnpm --filter @objectstack/docs start",
+    "os": "node packages/cli/bin/run.js"
   },
   "keywords": [
     "objectstack",
