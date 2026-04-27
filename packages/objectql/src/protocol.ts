@@ -263,7 +263,8 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         // entries (the previous fallback-only logic meant project metadata
         // was never surfaced whenever system-bridged items populated the
         // registry). Deduplicate against whatever the registry returned.
-        try {
+        // Skip on project kernels — sys_metadata is control-plane only.
+        if (this.environmentId === undefined) try {
             const whereClause: Record<string, unknown> = {
                 type: request.type,
                 state: 'active',
@@ -367,8 +368,10 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
             }
         }
 
-        // Fallback to database if not in registry
-        if (item === undefined) {
+        // Fallback to database if not in registry.
+        // Skip on project kernels — sys_metadata is control-plane only;
+        // project kernels source metadata from the artifact via MetadataService below.
+        if (item === undefined && this.environmentId === undefined) {
             try {
                 const scopedWhere: Record<string, unknown> = {
                     type: request.type,
