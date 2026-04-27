@@ -13,13 +13,6 @@ import Lint from '../src/commands/lint';
 import Diff from '../src/commands/diff';
 import Explain from '../src/commands/explain';
 import Studio from '../src/commands/studio';
-import PluginList from '../src/commands/plugin/list';
-import PluginInfo from '../src/commands/plugin/info';
-import PluginAdd from '../src/commands/plugin/add';
-import PluginRemove from '../src/commands/plugin/remove';
-import PluginBuild from '../src/commands/plugin/build';
-import PluginValidate from '../src/commands/plugin/validate';
-import PluginPublish from '../src/commands/plugin/publish';
 import V2ToV3 from '../src/commands/codemod/v2-to-v3';
 
 describe('CLI Commands (oclif)', () => {
@@ -82,47 +75,5 @@ describe('CLI Commands (oclif)', () => {
 
   it('should have codemod v2-to-v3 command', () => {
     expect(V2ToV3.description).toContain('v2');
-  });
-
-  describe('Plugin subcommands', () => {
-    it('should have plugin list command', () => {
-      expect(PluginList.description).toContain('List');
-    });
-
-    it('should have plugin info command', () => {
-      expect(PluginInfo.description).toContain('information');
-    });
-
-    it('should have plugin add command', () => {
-      expect(PluginAdd.description).toContain('Add');
-    });
-
-    it('should have plugin remove command', () => {
-      expect(PluginRemove.description).toContain('Remove');
-    });
-
-    it('should have plugin remove alias', () => {
-      expect(PluginRemove.aliases).toContain('plugin rm');
-    });
-
-    it('should have plugin list alias', () => {
-      expect(PluginList.aliases).toContain('plugin ls');
-    });
-
-    it('should have plugin build command', () => {
-      expect(PluginBuild.description).toContain('Build');
-    });
-
-    it('should have plugin build alias', () => {
-      expect(PluginBuild.aliases).toContain('plugin pack');
-    });
-
-    it('should have plugin validate command', () => {
-      expect(PluginValidate.description).toContain('Validate');
-    });
-
-    it('should have plugin publish command', () => {
-      expect(PluginPublish.description).toContain('Publish');
-    });
   });
 });

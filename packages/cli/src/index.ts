@@ -17,12 +17,6 @@ export { default as StartCommand } from './commands/start.js';
 export { default as TestCommand } from './commands/test.js';
 export { default as DoctorCommand } from './commands/doctor.js';
 
-// ─── Plugin topic subcommands ───────────────────────────────────────
-export { default as PluginListCommand } from './commands/plugin/list.js';
-export { default as PluginInfoCommand } from './commands/plugin/info.js';
-export { default as PluginAddCommand } from './commands/plugin/add.js';
-export { default as PluginRemoveCommand } from './commands/plugin/remove.js';
-
 // ─── Projects topic subcommands ─────────────────────────────────────
 export { default as ProjectsListCommand } from './commands/projects/list.js';
 export { default as ProjectsShowCommand } from './commands/projects/show.js';

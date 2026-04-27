@@ -63,12 +63,7 @@ Available generate types: `object`, `view`, `action`, `flow`, `agent`, `dashboar
 
 ### Plugin Management
 
-| Command | Description |
-|---------|-------------|
-| `os plugin list [config]` | List plugins defined in configuration (alias: `os plugin ls`) |
-| `os plugin info <name> [config]` | Show detailed plugin information |
-| `os plugin add <package>` | Add a plugin import and entry to config |
-| `os plugin remove <name>` | Remove a plugin from config (alias: `os plugin rm`) |
+Runtime plugins (declared in `objectstack.config.ts` `plugins`) are loaded automatically by `os serve` / `os dev`. There is no `os plugin` command group in v1; project-level dependency management and marketplace distribution will arrive with the Cloud Projects model. To distribute a build today, use `os build` (or `os compile`) and bind the artifact via `os projects bind <id> --artifact dist/objectstack.json`.
 
 ### Quality
 
@@ -144,18 +139,9 @@ export default defineStack({
 
 - `-d, --dir <directory>` — Override target directory
 
-### `os plugin list`
+### `os plugins` (oclif)
 
-- `--json` — Output as JSON
-
-### `os plugin add`
-
-- `-d, --dev` — Add as a dev-only plugin
-- `-c, --config <path>` — Configuration file path
-
-### `os plugin remove`
-
-- `-c, --config <path>` — Configuration file path
+`os plugins install`, `os plugins uninstall`, `os plugins update`, and friends come from `@oclif/plugin-plugins`. They install third-party CLI extensions (oclif plugins), not runtime plugins for an ObjectStack project. See [oclif's plugin docs](https://oclif.io/docs/plugins) for the full surface.
 
 ### `os info`
 
@@ -237,10 +223,10 @@ os init                          # 1. Create project
 os generate object customer      # 2. Add a Customer object
 os generate object order         # 3. Add an Order object  
 os generate view customer        # 4. Add a list view
-os plugin add @objectstack/plugin-auth  # 5. Add auth plugin
-os validate                      # 6. Validate everything
-os dev                           # 7. Start dev server
-os compile                       # 8. Build for production
+os validate                      # 5. Validate everything
+os dev                           # 6. Start dev server
+os compile                       # 7. Build for production
+os projects bind <id> --artifact dist/objectstack.json  # 8. Bind to a Cloud Project
 ```
 
 ## Architecture
@@ -255,11 +241,12 @@ os compile                       # 8. Build for production
 │   ├── compile.ts              # os compile
 │   ├── validate.ts             # os validate
 │   ├── generate.ts             # os generate (alias: g)
-│   ├── plugin/                 # os plugin <subcommand>
+│   ├── projects/               # os projects <subcommand>
 │   │   ├── list.ts
-│   │   ├── info.ts
-│   │   ├── add.ts
-│   │   └── remove.ts
+│   │   ├── show.ts
+│   │   ├── create.ts
+│   │   ├── switch.ts
+│   │   └── bind.ts
 │   ├── codemod/                # os codemod <subcommand>
 │   │   └── v2-to-v3.ts
 │   └── ...
