@@ -1,8 +1,8 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { Command, Flags } from '@oclif/core';
-import { printHeader, printSuccess, printError, printKV } from '../../utils/format.js';
-import { writeAuthConfig, readAuthConfig } from '../../utils/auth-config.js';
+import { printHeader, printSuccess, printError, printKV } from '../utils/format.js';
+import { writeAuthConfig, readAuthConfig } from '../utils/auth-config.js';
 import { ObjectStackClient } from '@objectstack/client';
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';

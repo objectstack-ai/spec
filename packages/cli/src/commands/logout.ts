@@ -1,8 +1,8 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { Command, Flags } from '@oclif/core';
-import { printHeader, printSuccess, printError } from '../../utils/format.js';
-import { deleteAuthConfig, readAuthConfig } from '../../utils/auth-config.js';
+import { printHeader, printSuccess, printError } from '../utils/format.js';
+import { deleteAuthConfig, readAuthConfig } from '../utils/auth-config.js';
 import { ObjectStackClient } from '@objectstack/client';
 
 export default class AuthLogout extends Command {

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import AuthLogin from '../src/commands/auth/login';
-import AuthLogout from '../src/commands/auth/logout';
-import AuthWhoami from '../src/commands/auth/whoami';
+import AuthLogin from '../src/commands/login';
+import AuthLogout from '../src/commands/logout';
+import AuthWhoami from '../src/commands/whoami';
 import DataQuery from '../src/commands/data/query';
 import DataGet from '../src/commands/data/get';
 import DataCreate from '../src/commands/data/create';
@@ -147,7 +147,7 @@ describe('Remote API Commands (oclif)', () => {
   });
 
   describe('Command Conventions', () => {
-    it('all remote commands should support --url flag with OBJECTSTACK_URL env var', () => {
+    it('all remote commands should support --url flag with OBJECTSTACK_CLOUD_URL env var', () => {
       const commands = [
         AuthLogin, AuthWhoami,
         DataQuery, DataGet, DataCreate, DataUpdate, DataDelete,
@@ -156,7 +156,7 @@ describe('Remote API Commands (oclif)', () => {
 
       commands.forEach(cmd => {
         expect(cmd.flags).toHaveProperty('url');
-        expect(cmd.flags.url).toHaveProperty('env', 'OBJECTSTACK_URL');
+        expect(cmd.flags.url).toHaveProperty('env', 'OBJECTSTACK_CLOUD_URL');
       });
     });
 

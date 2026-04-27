@@ -1,9 +1,9 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { Command, Flags } from '@oclif/core';
-import { printHeader, printError, printKV } from '../../utils/format.js';
-import { createApiClient, requireAuth } from '../../utils/api-client.js';
-import { formatOutput } from '../../utils/output-formatter.js';
+import { printHeader, printError, printKV } from '../utils/format.js';
+import { createApiClient, requireAuth } from '../utils/api-client.js';
+import { formatOutput } from '../utils/output-formatter.js';
 
 export default class AuthWhoami extends Command {
   static override description = 'Show current session information';

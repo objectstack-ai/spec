@@ -28,10 +28,10 @@ describe('API Client Utilities', () => {
     });
 
     it('should use environment variables if no options provided', async () => {
-      const originalUrl = process.env.OBJECTSTACK_URL;
+      const originalUrl = process.env.OBJECTSTACK_CLOUD_URL;
       const originalToken = process.env.OBJECTSTACK_TOKEN;
 
-      process.env.OBJECTSTACK_URL = 'https://env.example.com';
+      process.env.OBJECTSTACK_CLOUD_URL = 'https://env.example.com';
       process.env.OBJECTSTACK_TOKEN = 'env-token';
 
       const { client, token } = await createApiClient({});
@@ -40,7 +40,7 @@ describe('API Client Utilities', () => {
       expect(token).toBe('env-token');
 
       // Restore
-      process.env.OBJECTSTACK_URL = originalUrl;
+      process.env.OBJECTSTACK_CLOUD_URL = originalUrl;
       process.env.OBJECTSTACK_TOKEN = originalToken;
     });
   });
