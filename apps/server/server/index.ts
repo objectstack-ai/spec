@@ -11,13 +11,12 @@
  */
 
 import { createHonoApp } from '@objectstack/hono';
-import { createOriginMatcher, hasWildcardPattern } from '@objectstack/plugin-hono-server';
+import { createOriginMatcher, hasWildcardPattern, HonoHttpServer } from '@objectstack/plugin-hono-server';
 import { getRequestListener } from '@hono/node-server';
 import { ObjectKernel, createRestApiPlugin, createDispatcherPlugin, KernelManager } from '@objectstack/runtime';
 import type { EnvironmentDriverRegistry } from '@objectstack/runtime';
-import { Hono } from 'hono';
+import type { Hono } from 'hono';
 import stackConfig from '../objectstack.config.js';
-import { listTemplates } from './templates/registry.js';
 
 // ---------------------------------------------------------------------------
 // Runtime shape returned by ensureBoot()
@@ -41,6 +40,20 @@ let _bootPromise: Promise<BootResult> | null = null;
 
 async function bootKernel(): Promise<BootResult> {
     const kernel = new ObjectKernel();
+
+    // 0. Register an `http.server` (IHttpServer) adapter BEFORE plugins so
+    //    that any plugin's start() hook can resolve `ctx.getService('http.server')`
+    //    and register routes on it. This is the official ObjectStack
+    //    protocol for plugin-supplied HTTP routes (see IHttpServer in
+    //    @objectstack/spec/contracts and HonoServerPlugin's reference
+    //    implementation). The Vercel entrypoint cannot use HonoServerPlugin
+    //    itself because we don't want plugin-hono-server to call listen() —
+    //    Vercel hands us a request directly. Reusing the same adapter class
+    //    keeps route-registration semantics identical between local
+    //    (`objectstack dev`) and serverless deployments.
+    const httpServer = new HonoHttpServer();
+    kernel.registerService('http.server', httpServer);
+    kernel.registerService('http-server', httpServer); // alias for backward compatibility
 
     // 1. Config plugins (control-plane preset + MultiProjectPlugin)
     for (const plugin of stackConfig.plugins ?? []) {
@@ -107,51 +120,24 @@ async function ensureBoot(): Promise<BootResult> {
 // Hono app factory
 // ---------------------------------------------------------------------------
 
-function envFlag(name: string): boolean {
-    return ['1', 'true', 'yes', 'on'].includes((process.env[name] ?? '').trim().toLowerCase());
-}
-
 async function ensureApp(): Promise<Hono> {
     if (_app) return _app;
 
     const { kernel } = await ensureBoot();
-    // envRegistry / kernelManager are resolved by HttpDispatcher from the
-    // kernel's service registry (MultiProjectPlugin registered them during
-    // bootKernel), so they do NOT need to be passed explicitly here.
+
+    // Plugins have already registered their routes onto the IHttpServer
+    // (HonoHttpServer) we created in bootKernel(). Pull out its underlying
+    // Hono so those plugin routes are matched FIRST, then mount the
+    // dispatcher app underneath via `outer.route('/', inner)` — Hono uses
+    // registration-order priority, so the plugin routes win the match
+    // against the dispatcher's catch-all `/api/v1/*` handler.
+    const httpServer = kernel.getService<HonoHttpServer>('http.server');
+    const outer = httpServer.getRawApp();
+
     const inner = createHonoApp({ kernel, prefix: '/api/v1' });
+    outer.route('/', inner);
 
-    // Vercel entrypoint does NOT load plugin-hono-server, so the
-    // `http.server` service is never registered. The route plugins in
-    // `multi-project-plugins.ts` early-return when that service is
-    // missing, leaving `/studio/runtime-config` and `/cloud/templates`
-    // unmounted (404 / empty list).
-    //
-    // We can't simply call `inner.get(...)` after createHonoApp() because
-    // it has already registered an `app.all('${prefix}/*')` dispatcher
-    // catch-all that wins on registration order. Instead wrap `inner` in
-    // an outer Hono whose own routes are matched first, then fall
-    // through to `inner.fetch()` for everything else.
-    if (envFlag('OBJECTSTACK_MULTI_PROJECT')) {
-        const templatesPayload = listTemplates().map(({ id, label, description, category }) => ({
-            id,
-            label,
-            description,
-            category,
-        }));
-        const outer = new Hono();
-        outer.get('/api/v1/studio/runtime-config', (c) =>
-            c.json({ singleProject: false }));
-        outer.get('/api/v1/cloud/templates', (c) =>
-            c.json({
-                success: true,
-                data: { templates: templatesPayload, total: templatesPayload.length },
-            }));
-        outer.all('*', (c) => inner.fetch(c.req.raw));
-        _app = outer;
-    } else {
-        _app = inner;
-    }
-
+    _app = outer;
     return _app;
 }
 
@@ -353,15 +339,17 @@ export default getRequestListener(async (request, env) => {
         const contentTypeStr = Array.isArray(contentType) ? contentType[0] : contentType;
         const body = extractBody(incoming, method, contentTypeStr);
         if (body != null) {
-            return await app.fetch(
+            const response = await app.fetch(
                 new Request(url, { method, headers: request.headers, body }),
             );
+            return withCorsHeaders(response, request);
         }
     }
 
-    return await app.fetch(
+    const response = await app.fetch(
         new Request(url, { method, headers: request.headers }),
     );
+    return withCorsHeaders(response, request);
 });
 
 export const config = {
