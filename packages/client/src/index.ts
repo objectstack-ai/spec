@@ -963,25 +963,21 @@ export class ObjectStackClient {
     },
 
     /**
-     * Cascade-delete an organization: tears down every project owned by the
-     * org (including each project's physical database), then drops the
-     * organization itself (members + invitations are removed by better-auth's
-     * organization plugin, or the row is deleted directly if the plugin is
-     * not loaded).
+     * Delete an organization via better-auth's organization plugin.
      *
-     * DELETE /api/v1/cloud/organizations/:id
+     * POST /api/v1/auth/organization/delete
+     *
+     * better-auth removes the organization row, all members, and all
+     * pending invitations. Project teardown (per-project DBs, etc.) is
+     * handled server-side by hooks attached to the organization plugin.
      */
     delete: async (organizationId: string) => {
-      const res = await this.fetch(
-        `${this.baseUrl}/api/v1/cloud/organizations/${encodeURIComponent(organizationId)}`,
-        { method: 'DELETE' },
-      );
-      return this.unwrapResponse<{
-        deleted: boolean;
-        organizationId: string;
-        deletedProjects: number;
-        warnings: string[];
-      }>(res);
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/organization/delete`, {
+        method: 'POST',
+        body: JSON.stringify({ organizationId }),
+      });
+      return res.json();
     },
   };
 

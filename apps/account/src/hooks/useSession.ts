@@ -249,12 +249,13 @@ export function useCreateOrganization() {
 }
 
 /**
- * Hook: cascade-delete an organization.
+ * Hook: delete an organization via better-auth.
  *
  * Wraps `client.organizations.delete(id)` (which hits
- * `DELETE /api/v1/cloud/organizations/:id`). The server tears down every
- * project owned by the organization (including each project's physical
- * database) before dropping the org row itself.
+ * `POST /api/v1/auth/organization/delete`). better-auth removes the
+ * organization, its members and pending invitations; server-side hooks
+ * (attached to the organization plugin) tear down any projects /
+ * per-project databases that belonged to the org.
  *
  * On success the local session + organization list are refreshed so the
  * deleted org disappears from the switcher and `activeOrganizationId`
