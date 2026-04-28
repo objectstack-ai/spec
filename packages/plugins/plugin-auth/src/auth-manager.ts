@@ -1,6 +1,5 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { randomBytes } from 'node:crypto';
 import type { Auth, BetterAuthOptions } from 'better-auth';
 // better-auth value imports (betterAuth + plugins) are deferred via dynamic
 // import() in getOrCreateAuth() / buildPluginList() so that disabled plugins
@@ -21,6 +20,7 @@ import {
   buildOrganizationPluginSchema,
   buildTwoFactorPluginSchema,
   buildOidcProviderPluginSchema,
+  buildDeviceAuthorizationPluginSchema,
 } from './auth-schema-config.js';
 
 /**
@@ -307,6 +307,23 @@ export class AuthManager {
       }));
     }
 
+    // Device Authorization Grant (RFC 8628) — for CLI / TV-style devices.
+    // Exposes the standard `/device/{code,token,approve,deny}` endpoints
+    // and persists pending requests in `sys_device_code`.
+    //
+    // The verification URI points at the account portal page that lets a
+    // signed-in user approve or deny a pending CLI login. The page reads
+    // the `user_code` query parameter that better-auth appends to
+    // `verification_uri_complete`.
+    if (pluginConfig?.deviceAuthorization) {
+      const { deviceAuthorization } = await import('better-auth/plugins/device-authorization');
+      const baseUrl = (this.config.baseUrl ?? '').replace(/\/$/, '');
+      plugins.push(deviceAuthorization({
+        verificationUri: `${baseUrl}/_account/auth/device`,
+        schema: buildDeviceAuthorizationPluginSchema(),
+      }));
+    }
+
     return plugins;
   }
 
@@ -436,88 +453,13 @@ export class AuthManager {
 
   // ---------------------------------------------------------------------------
   // Device Flow (CLI browser-based login)
+  //
+  // The device authorization flow (RFC 8628) is now handled entirely by
+  // better-auth's `device-authorization` plugin. Endpoints are exposed at
+  // `${basePath}/device/{code,token,approve,deny}` and persisted in
+  // `sys_device_code`. Enable via `plugins.deviceAuthorization: true` in
+  // AuthPluginConfig.
   // ---------------------------------------------------------------------------
-
-  private deviceCodes = new Map<string, {
-    verificationUrl: string;
-    expiresAt: Date;
-    status: 'pending' | 'approved' | 'expired';
-    token?: string;
-    user?: { id: string; email: string; name?: string };
-  }>();
-
-  /**
-   * Create a new device code for CLI browser-based login.
-   * Returns the code, a verification URL, and expiry info.
-   */
-  createDeviceCode(baseUrl: string): { code: string; verificationUrl: string; expiresAt: string; interval: number } {
-    const code = `${randomBytes(3).toString('hex').toUpperCase()}-${randomBytes(3).toString('hex').toUpperCase()}`;
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
-    const cleanBase = (baseUrl || this.config.baseUrl || 'http://localhost:3000').replace(/\/$/, '');
-    const verificationUrl = `${cleanBase}/_studio/auth/device?code=${code}`;
-
-    this.deviceCodes.set(code, { verificationUrl, expiresAt, status: 'pending' });
-
-    // Schedule expiry cleanup
-    setTimeout(() => {
-      const entry = this.deviceCodes.get(code);
-      if (entry && entry.status === 'pending') {
-        entry.status = 'expired';
-      }
-    }, 5 * 60 * 1000);
-
-    return { code, verificationUrl, expiresAt: expiresAt.toISOString(), interval: 2 };
-  }
-
-  /**
-   * Poll the device code status.
-   * Returns `{ status: 'pending' }`, `{ status: 'approved', token, user }`, or `{ status: 'expired' }`.
-   */
-  pollDeviceCode(code: string): { status: 'pending' } | { status: 'approved'; token: string; user: { id: string; email: string; name?: string } } | { status: 'expired' } {
-    const entry = this.deviceCodes.get(code);
-    if (!entry || new Date() > entry.expiresAt) {
-      if (entry) entry.status = 'expired';
-      return { status: 'expired' };
-    }
-    if (entry.status === 'approved' && entry.token && entry.user) {
-      // Clean up after first successful poll
-      this.deviceCodes.delete(code);
-      return { status: 'approved', token: entry.token, user: entry.user };
-    }
-    return { status: entry.status === 'expired' ? 'expired' : 'pending' };
-  }
-
-  /**
-   * Approve a device code after the user has authenticated in the browser.
-   * Called by the `/auth/device/approve` route with the user's session token.
-   */
-  async approveDeviceCode(code: string, sessionToken: string): Promise<{ success: boolean; error?: string }> {
-    const entry = this.deviceCodes.get(code);
-    if (!entry) return { success: false, error: 'Invalid device code' };
-    if (new Date() > entry.expiresAt || entry.status !== 'pending') {
-      return { success: false, error: 'Device code expired or already used' };
-    }
-
-    // Verify the session token to extract user info
-    const auth = await this.getOrCreateAuth();
-    try {
-      const sessionRes = await auth.api.getSession({
-        headers: new Headers({ authorization: `Bearer ${sessionToken}` }),
-      });
-      if (!sessionRes?.user) return { success: false, error: 'Invalid session' };
-
-      entry.status = 'approved';
-      entry.token = sessionToken;
-      entry.user = {
-        id: sessionRes.user.id,
-        email: sessionRes.user.email,
-        name: (sessionRes.user as any).name,
-      };
-      return { success: true };
-    } catch {
-      return { success: false, error: 'Session verification failed' };
-    }
-  }
 
   getPublicConfig() {
     // Extract social providers info (without sensitive data)
@@ -576,6 +518,7 @@ export class AuthManager {
       magicLink: pluginConfig.magicLink ?? false,
       organization: pluginConfig.organization ?? false,
       oidcProvider: pluginConfig.oidcProvider ?? false,
+      deviceAuthorization: pluginConfig.deviceAuthorization ?? false,
     };
 
     return {

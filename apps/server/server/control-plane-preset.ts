@@ -150,7 +150,7 @@ export function createControlPlanePlugins(cfg: ControlPlanePresetConfig): any[] 
       return new AuthPlugin({
         secret: cfg.authSecret,
         baseUrl: cfg.baseUrl,
-        plugins: (cfg.authPlugins ?? { organization: true, oidcProvider: true }) as any,
+        plugins: (cfg.authPlugins ?? { organization: true, oidcProvider: true, deviceAuthorization: true }) as any,
         socialProviders: Object.keys(socialProviders).length > 0 ? socialProviders : undefined,
         advanced: process.env.OBJECTSTACK_COOKIE_DOMAIN
           ? ({

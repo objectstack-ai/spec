@@ -22,6 +22,7 @@ export { SysTeamMember } from './sys-team-member.object.js';
 // ── Additional Auth Objects ────────────────────────────────────────────────
 export { SysApiKey } from './sys-api-key.object.js';
 export { SysTwoFactor } from './sys-two-factor.object.js';
+export { SysDeviceCode } from './sys-device-code.object.js';
 export { SysUserPreference } from './sys-user-preference.object.js';
 
 // ── OIDC Provider Objects ──────────────────────────────────────────────────

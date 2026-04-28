@@ -37,6 +37,23 @@ export const AuthPluginConfigSchema = lazySchema(() => z.object({
   oidcProvider: z.boolean().default(false).describe(
     'Enable the OpenID Connect provider plugin (acts as an OIDC IdP)',
   ),
+  /**
+   * Enable better-auth's `device-authorization` plugin so that CLIs and
+   * other input-constrained devices can sign in via the standard
+   * RFC 8628 OAuth 2.0 Device Authorization Grant.
+   *
+   * Endpoints exposed under the auth route:
+   *   - `POST /device/code`     — request device & user codes
+   *   - `POST /device/token`    — poll for the issued session token
+   *   - `GET  /device`          — verify a user code (status check)
+   *   - `POST /device/approve`  — browser-side approve (signed-in user)
+   *   - `POST /device/deny`     — browser-side deny (signed-in user)
+   *
+   * Persists pending requests in the `sys_device_code` table.
+   */
+  deviceAuthorization: z.boolean().default(false).describe(
+    'Enable RFC 8628 Device Authorization Grant (CLI / TV-style login)',
+  ),
 }));
 
 /**

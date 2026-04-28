@@ -10,7 +10,7 @@ import { CheckCircle2, GalleryVerticalEnd } from 'lucide-react';
 
 export const Route = createFileRoute('/auth/device')({
   validateSearch: (search: Record<string, unknown>) => ({
-    code: (search.code as string) ?? '',
+    user_code: (search.user_code as string) ?? (search.code as string) ?? '',
   }),
   component: DeviceAuthPage,
 });
@@ -32,12 +32,14 @@ function PageShell({ children }: { children: React.ReactNode }) {
 }
 
 function DeviceAuthPage() {
-  const { code } = Route.useSearch();
+  const { user_code: code } = Route.useSearch();
   const { user, loading } = useSession();
   const navigate = useNavigate();
 
   const [submitting, setSubmitting] = useState(false);
+  const [denying, setDenying] = useState(false);
   const [approved, setApproved] = useState(false);
+  const [denied, setDenied] = useState(false);
   const [error, setError] = useState('');
 
   if (!code) {
@@ -46,7 +48,7 @@ function DeviceAuthPage() {
         <Card>
           <CardHeader className="text-center">
             <CardTitle>Invalid Request</CardTitle>
-            <CardDescription>No device code provided. Please re-run the CLI command.</CardDescription>
+            <CardDescription>No user code provided. Please re-run the CLI command.</CardDescription>
           </CardHeader>
         </Card>
       </PageShell>
@@ -66,7 +68,7 @@ function DeviceAuthPage() {
   }
 
   if (!user) {
-    return <Navigate to="/login" search={{ redirect: `/auth/device?code=${encodeURIComponent(code)}` }} />;
+    return <Navigate to="/login" search={{ redirect: `/auth/device?user_code=${encodeURIComponent(code)}` }} />;
   }
 
   if (approved) {
@@ -83,23 +85,33 @@ function DeviceAuthPage() {
     );
   }
 
+  if (denied) {
+    return (
+      <PageShell>
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle>Request Denied</CardTitle>
+            <CardDescription>The CLI login request has been denied.</CardDescription>
+          </CardHeader>
+        </Card>
+      </PageShell>
+    );
+  }
+
   const handleApprove = async () => {
     setError('');
     setSubmitting(true);
     try {
-      const sessionRes = await fetch('/api/v1/auth/get-session', { credentials: 'include' });
-      const sessionData = await sessionRes.json() as any;
-      const token = sessionData?.session?.token;
-      if (!token) throw new Error('No active session');
-
       const res = await fetch('/api/v1/auth/device/approve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ code, token }),
+        body: JSON.stringify({ userCode: code }),
       });
-      const data = await res.json() as any;
-      if (!data.success) throw new Error(data.error?.message ?? 'Approval failed');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as any)?.message ?? (data as any)?.error?.message ?? 'Approval failed');
+      }
 
       setApproved(true);
       toast({ title: 'CLI login approved', description: 'The CLI has been authenticated.' });
@@ -107,6 +119,24 @@ function DeviceAuthPage() {
       setError(err?.message ?? 'Approval failed');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDeny = async () => {
+    setError('');
+    setDenying(true);
+    try {
+      await fetch('/api/v1/auth/device/deny', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ userCode: code }),
+      });
+      setDenied(true);
+    } catch (err: any) {
+      setError(err?.message ?? 'Deny failed');
+    } finally {
+      setDenying(false);
     }
   };
 
@@ -119,7 +149,7 @@ function DeviceAuthPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-md border bg-background px-4 py-3 text-center">
-            <p className="text-xs text-muted-foreground mb-1">Device Code</p>
+            <p className="text-xs text-muted-foreground mb-1">User Code</p>
             <p className="font-mono font-semibold tracking-widest text-lg">{code}</p>
           </div>
 
@@ -128,8 +158,11 @@ function DeviceAuthPage() {
               Logged in as <span className="font-medium text-foreground">{user.email}</span>
             </p>
             {error && <p className="text-sm text-destructive text-center">{error}</p>}
-            <Button onClick={handleApprove} className="w-full" disabled={submitting}>
+            <Button onClick={handleApprove} className="w-full" disabled={submitting || denying}>
               {submitting ? 'Approving…' : 'Approve CLI Access'}
+            </Button>
+            <Button onClick={handleDeny} variant="outline" className="w-full" disabled={submitting || denying}>
+              {denying ? 'Denying…' : 'Deny'}
             </Button>
             <div className="text-center">
               <button

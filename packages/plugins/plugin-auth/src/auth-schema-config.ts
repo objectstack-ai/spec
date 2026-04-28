@@ -383,6 +383,40 @@ export const AUTH_OAUTH_CONSENT_SCHEMA = {
   },
 } as const;
 
+// ---------------------------------------------------------------------------
+// Device Authorization plugin – deviceCode table
+// ---------------------------------------------------------------------------
+
+/**
+ * better-auth `device-authorization` plugin `deviceCode` model mapping.
+ *
+ * Implements RFC 8628 (OAuth 2.0 Device Authorization Grant). Stores
+ * pending device-flow requests issued via `POST /device/code`, polled at
+ * `POST /device/token`, and approved/denied via `POST /device/{approve,deny}`.
+ *
+ * | camelCase (better-auth) | snake_case (ObjectStack) |
+ * |:------------------------|:-------------------------|
+ * | deviceCode              | device_code              |
+ * | userCode                | user_code                |
+ * | userId                  | user_id                  |
+ * | expiresAt               | expires_at               |
+ * | lastPolledAt            | last_polled_at           |
+ * | pollingInterval         | polling_interval         |
+ * | clientId                | client_id                |
+ */
+export const AUTH_DEVICE_CODE_SCHEMA = {
+  modelName: SystemObjectName.DEVICE_CODE, // 'sys_device_code'
+  fields: {
+    deviceCode: 'device_code',
+    userCode: 'user_code',
+    userId: 'user_id',
+    expiresAt: 'expires_at',
+    lastPolledAt: 'last_polled_at',
+    pollingInterval: 'polling_interval',
+    clientId: 'client_id',
+  },
+} as const;
+
 /**
  * Builds the `schema` option for better-auth's `twoFactor()` plugin.
  *
@@ -443,5 +477,24 @@ export function buildOidcProviderPluginSchema() {
     oauthApplication: AUTH_OAUTH_APPLICATION_SCHEMA,
     oauthAccessToken: AUTH_OAUTH_ACCESS_TOKEN_SCHEMA,
     oauthConsent: AUTH_OAUTH_CONSENT_SCHEMA,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Helper: build device-authorization plugin schema option
+// ---------------------------------------------------------------------------
+
+/**
+ * Builds the `schema` option for better-auth's `deviceAuthorization()` plugin.
+ *
+ * The plugin manages a single `deviceCode` table tracking pending RFC 8628
+ * device-flow requests. This helper returns the snake_case mappings that
+ * point the plugin at ObjectStack's `sys_device_code` object.
+ *
+ * @returns An object suitable for `deviceAuthorization({ schema: … })`
+ */
+export function buildDeviceAuthorizationPluginSchema() {
+  return {
+    deviceCode: AUTH_DEVICE_CODE_SCHEMA,
   };
 }

@@ -223,27 +223,42 @@ export default class AuthLogin extends Command {
     noBrowser: boolean,
     jsonOutput?: boolean,
   ): Promise<void> {
-    // Request a device code from the server
-    const res = await globalThis.fetch(`${url}/api/v1/auth/device/request`, {
+    const clientId = process.env.OBJECTSTACK_CLI_CLIENT_ID || 'objectstack-cli';
+
+    // RFC 8628 §3.1 — Device Authorization Request
+    const res = await globalThis.fetch(`${url}/api/v1/auth/device/code`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: '{}',
+      body: JSON.stringify({ client_id: clientId, scope: 'openid profile email' }),
     });
-    if (!res.ok) throw new Error(`Device request failed: ${res.status}`);
-    const resJson = await res.json() as any;
-    const deviceData = resJson?.data ?? resJson;
-    const { code, verificationUrl, expiresAt, interval = 2 } = deviceData ?? {};
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(`Device request failed (${res.status}): ${(err as any)?.error_description || (err as any)?.message || res.statusText}`);
+    }
+    const deviceData = await res.json() as any;
+    const {
+      device_code,
+      user_code,
+      verification_uri,
+      verification_uri_complete,
+      expires_in,
+      interval = 5,
+    } = deviceData ?? {};
 
-    if (!code || !verificationUrl) {
-      throw new Error('Server did not return a device code. Try `os login --email <email> --password <password>` instead.');
+    if (!device_code || !user_code || !verification_uri) {
+      throw new Error('Server did not return RFC 8628 device authorization fields. Try `os login --email <email> --password <password>` instead.');
     }
 
+    const verificationUrl = verification_uri_complete || `${verification_uri}?user_code=${encodeURIComponent(user_code)}`;
+
     if (jsonOutput) {
-      console.log(JSON.stringify({ code, verificationUrl, expiresAt }));
+      console.log(JSON.stringify({ device_code, user_code, verification_uri, verification_uri_complete, expires_in }));
     } else {
-      console.log('  Open the following URL to log in:');
+      console.log('  To authorize this CLI, visit:');
       console.log('');
       console.log(`  ${verificationUrl}`);
+      console.log('');
+      console.log(`  User code: ${user_code}`);
       console.log('');
     }
 
@@ -253,27 +268,50 @@ export default class AuthLogin extends Command {
       console.log('');
     }
 
-    // Poll for approval
-    const pollMs = interval * 1000;
-    const expiryTime = new Date(expiresAt).getTime();
+    // RFC 8628 §3.4 — Device Access Token Request (poll)
+    let pollMs = (interval || 5) * 1000;
+    const expiryTime = Date.now() + (expires_in || 600) * 1000;
     let spinner = 0;
     const spinChars = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 
     while (Date.now() < expiryTime) {
       await new Promise(r => setTimeout(r, pollMs));
 
-      const pollRes = await globalThis.fetch(`${url}/api/v1/auth/device/token?code=${encodeURIComponent(code)}`);
+      const pollRes = await globalThis.fetch(`${url}/api/v1/auth/device/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+          device_code,
+          client_id: clientId,
+        }),
+      });
       const pollJson = await pollRes.json() as any;
-      const pollData = pollJson?.data ?? pollJson;
 
-      if (pollData?.status === 'approved') {
-        const { token, user } = pollData;
+      if (pollRes.ok && pollJson?.access_token) {
+        const accessToken = pollJson.access_token as string;
+
+        // Resolve user info via the issued bearer token. The device-token
+        // response intentionally omits user details (per RFC 8628), so we
+        // call /get-session to populate the local credentials cache.
+        let user: { id?: string; email?: string } | undefined;
+        try {
+          const sessionRes = await globalThis.fetch(`${url}/api/v1/auth/get-session`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          if (sessionRes.ok) {
+            const sessionData = await sessionRes.json() as any;
+            user = sessionData?.user ?? sessionData?.data?.user;
+          }
+        } catch {
+          // Session lookup is best-effort
+        }
 
         if (!jsonOutput) process.stdout.write('\r\x1b[K'); // clear spinner line
 
         await writeAuthConfig({
           url,
-          token,
+          token: accessToken,
           email: user?.email,
           userId: user?.id,
           createdAt: new Date().toISOString(),
@@ -292,8 +330,20 @@ export default class AuthLogin extends Command {
         return;
       }
 
-      if (pollData?.status === 'expired') {
-        throw new Error('Login timed out. Please run `os login` again.');
+      // Standard RFC 8628 error codes
+      const errCode = pollJson?.error;
+      if (errCode === 'authorization_pending') {
+        // Keep polling
+      } else if (errCode === 'slow_down') {
+        pollMs += 5000;
+      } else if (errCode === 'expired_token' || errCode === 'access_denied' || errCode === 'invalid_grant') {
+        throw new Error(
+          errCode === 'access_denied'
+            ? 'Login denied by user.'
+            : 'Login timed out or device code is no longer valid. Please run `os login` again.',
+        );
+      } else if (!pollRes.ok) {
+        throw new Error(`Polling failed (${pollRes.status}): ${pollJson?.error_description || pollJson?.message || pollRes.statusText}`);
       }
 
       if (!jsonOutput) {

@@ -48,6 +48,8 @@ export const SystemObjectName = {
   OAUTH_ACCESS_TOKEN: 'sys_oauth_access_token',
   /** Authentication: recorded user consent for a given OAuth client + scopes */
   OAUTH_CONSENT: 'sys_oauth_consent',
+  /** Authentication: pending device-authorization (RFC 8628) request */
+  DEVICE_CODE: 'sys_device_code',
   /** Authentication: user preferences (theme, locale, etc.) */
   USER_PREFERENCE: 'sys_user_preference',
   /** Security: role definition for RBAC */

@@ -11,6 +11,7 @@
 import {
   SysAccount,
   SysApiKey,
+  SysDeviceCode,
   SysInvitation,
   SysMember,
   SysOauthAccessToken,
@@ -46,6 +47,7 @@ export const authIdentityObjects: any[] = [
   SysOauthApplication,
   SysOauthAccessToken,
   SysOauthConsent,
+  SysDeviceCode,
 ];
 
 /** Manifest header shared by compile-time config and runtime registration. */
