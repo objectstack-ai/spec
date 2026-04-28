@@ -533,6 +533,45 @@ export function buildOrganizationPluginSchema() {
 }
 
 // ---------------------------------------------------------------------------
+// JWT plugin – jwks table
+// ---------------------------------------------------------------------------
+
+/**
+ * better-auth `jwt` plugin `jwks` model mapping.
+ *
+ * The JWT plugin maintains a small set of rotating asymmetric key pairs
+ * used to sign and verify issued JWTs (id_tokens for OIDC, JWT access
+ * tokens). It is required by the `@better-auth/oauth-provider` plugin.
+ *
+ * | camelCase (better-auth) | snake_case (ObjectStack) |
+ * |:------------------------|:-------------------------|
+ * | publicKey               | public_key               |
+ * | privateKey              | private_key              |
+ * | createdAt               | created_at               |
+ * | expiresAt               | expires_at               |
+ */
+export const AUTH_JWKS_SCHEMA = {
+  modelName: SystemObjectName.JWKS, // 'sys_jwks'
+  fields: {
+    publicKey: 'public_key',
+    privateKey: 'private_key',
+    createdAt: 'created_at',
+    expiresAt: 'expires_at',
+  },
+} as const;
+
+/**
+ * Builds the `schema` option for better-auth's `jwt()` plugin.
+ *
+ * @returns An object suitable for `jwt({ schema: … })`
+ */
+export function buildJwtPluginSchema() {
+  return {
+    jwks: AUTH_JWKS_SCHEMA,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Helper: build OAuth provider plugin schema option
 // ---------------------------------------------------------------------------
 

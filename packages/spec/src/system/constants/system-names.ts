@@ -52,6 +52,8 @@ export const SystemObjectName = {
   OAUTH_CONSENT: 'sys_oauth_consent',
   /** Authentication: pending device-authorization (RFC 8628) request */
   DEVICE_CODE: 'sys_device_code',
+  /** Authentication: JWKS key pair used to sign OIDC ID tokens / JWT access tokens */
+  JWKS: 'sys_jwks',
   /** Authentication: user preferences (theme, locale, etc.) */
   USER_PREFERENCE: 'sys_user_preference',
   /** Security: role definition for RBAC */

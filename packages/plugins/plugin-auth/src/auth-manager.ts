@@ -21,6 +21,7 @@ import {
   buildTwoFactorPluginSchema,
   buildOauthProviderPluginSchema,
   buildDeviceAuthorizationPluginSchema,
+  buildJwtPluginSchema,
 } from './auth-schema-config.js';
 
 /**
@@ -303,6 +304,13 @@ export class AuthManager {
     // models — see `buildOauthProviderPluginSchema()` for the snake_case
     // mappings to ObjectStack's `sys_oauth_*` tables.
     if (pluginConfig?.oidcProvider) {
+      // The new @better-auth/oauth-provider package requires the `jwt`
+      // plugin (used to sign id_tokens / JWT access tokens). Register it
+      // automatically — it is otherwise an internal implementation detail
+      // and forcing every consumer to opt in would be poor DX.
+      const { jwt } = await import('better-auth/plugins');
+      plugins.push(jwt({ schema: buildJwtPluginSchema() }));
+
       const { oauthProvider } = await import('@better-auth/oauth-provider');
       const baseUrl = (this.config.baseUrl ?? '').replace(/\/$/, '');
       plugins.push(oauthProvider({

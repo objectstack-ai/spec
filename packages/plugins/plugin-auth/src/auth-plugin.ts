@@ -317,7 +317,43 @@ export class AuthPlugin implements Plugin {
       }
     });
 
+    // OIDC / OAuth 2.0 Authorization Server Metadata (RFC 8414) and
+    // OpenID Connect Discovery 1.0 require the well-known documents to be
+    // served from the **root** of the issuer URL — not under our auth
+    // basePath. `@better-auth/oauth-provider` ships dedicated helpers for
+    // this case (`oauthProviderAuthServerMetadata` /
+    // `oauthProviderOpenIdConfigMetadata`) which we mount here so external
+    // OIDC clients can discover the IdP at the canonical paths.
+    if (this.options.plugins?.oidcProvider) {
+      void this.registerOidcDiscoveryRoutes(rawApp, ctx).catch((error) => {
+        ctx.logger.error('Failed to register OIDC discovery routes', error as Error);
+      });
+    }
+
     ctx.logger.info(`Auth routes registered: All requests under ${basePath}/* forwarded to better-auth`);
+  }
+
+  /**
+   * Mount the OIDC / OAuth 2.0 well-known discovery documents at the root
+   * URL. Required by RFC 8414 §3 and OpenID Connect Discovery 1.0 §4 — the
+   * documents must live at `/.well-known/{oauth-authorization-server,openid-configuration}`
+   * relative to the issuer, not under the auth basePath.
+   */
+  private async registerOidcDiscoveryRoutes(rawApp: any, ctx: PluginContext): Promise<void> {
+    const auth = await this.authManager!.getAuthInstance();
+    const { oauthProviderAuthServerMetadata, oauthProviderOpenIdConfigMetadata } = await import(
+      '@better-auth/oauth-provider'
+    );
+
+    const authServerHandler = oauthProviderAuthServerMetadata(auth as any);
+    const openidConfigHandler = oauthProviderOpenIdConfigMetadata(auth as any);
+
+    rawApp.get('/.well-known/oauth-authorization-server', (c: any) => authServerHandler(c.req.raw));
+    rawApp.get('/.well-known/openid-configuration', (c: any) => openidConfigHandler(c.req.raw));
+
+    ctx.logger.info(
+      'OIDC discovery endpoints mounted at /.well-known/{oauth-authorization-server,openid-configuration}',
+    );
   }
 }
 

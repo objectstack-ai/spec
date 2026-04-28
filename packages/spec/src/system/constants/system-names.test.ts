@@ -26,6 +26,8 @@ describe('SystemObjectName', () => {
     expect(SystemObjectName.OAUTH_ACCESS_TOKEN).toBe('sys_oauth_access_token');
     expect(SystemObjectName.OAUTH_REFRESH_TOKEN).toBe('sys_oauth_refresh_token');
     expect(SystemObjectName.OAUTH_CONSENT).toBe('sys_oauth_consent');
+    expect(SystemObjectName.DEVICE_CODE).toBe('sys_device_code');
+    expect(SystemObjectName.JWKS).toBe('sys_jwks');
     expect(SystemObjectName.USER_PREFERENCE).toBe('sys_user_preference');
     expect(SystemObjectName.ROLE).toBe('sys_role');
     expect(SystemObjectName.PERMISSION_SET).toBe('sys_permission_set');

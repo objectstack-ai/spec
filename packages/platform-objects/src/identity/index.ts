@@ -30,3 +30,4 @@ export { SysOauthApplication } from './sys-oauth-application.object.js';
 export { SysOauthAccessToken } from './sys-oauth-access-token.object.js';
 export { SysOauthRefreshToken } from './sys-oauth-refresh-token.object.js';
 export { SysOauthConsent } from './sys-oauth-consent.object.js';
+export { SysJwks } from './sys-jwks.object.js';
