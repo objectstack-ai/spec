@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { Building2, Check, Plus, Settings } from 'lucide-react';
+import { Building2, Check, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +23,7 @@ function OrgsListPage() {
       if (id !== activeId) {
         await setActiveOrganization(id);
       }
-      navigate({ to: '/account' });
+      navigate({ to: '/orgs/$orgId', params: { orgId: id } });
     } catch (err) {
       toast({
         title: 'Failed to switch organization',
@@ -103,18 +103,6 @@ function OrgsListPage() {
                         </code>
                       )}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate({ to: '/orgs/$orgId', params: { orgId: org.id } });
-                      }}
-                      aria-label="Organization settings"
-                    >
-                      <Settings className="h-4 w-4" />
-                    </Button>
                   </div>
                 </Card>
               );

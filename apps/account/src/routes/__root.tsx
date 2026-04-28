@@ -59,16 +59,18 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
     return <div className="flex min-h-screen w-full">{children}</div>;
   }
 
-  // Authenticated layout: full-height Sidebar + SidebarInset (TopBar + main).
+  // Authenticated layout: TopBar across the top, Sidebar + main below.
   return (
-    <SidebarProvider>
-      <AccountSidebar />
-      <SidebarInset className="flex h-svh min-w-0 flex-col overflow-hidden">
-        <TopBar />
-        <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background">
-          {children}
-        </main>
-      </SidebarInset>
+    <SidebarProvider className="flex h-svh w-full flex-col">
+      <TopBar />
+      <div className="flex min-h-0 flex-1 w-full">
+        <AccountSidebar />
+        <SidebarInset className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background">
+            {children}
+          </main>
+        </SidebarInset>
+      </div>
     </SidebarProvider>
   );
 }

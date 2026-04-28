@@ -59,7 +59,7 @@ export function AccountSidebar() {
   const normalised = pathname === '/account' ? '/account/profile' : pathname;
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="h-full">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Account</SidebarGroupLabel>
