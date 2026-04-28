@@ -1441,6 +1441,9 @@ importers:
       '@objectstack/spec':
         specifier: workspace:^
         version: link:../../spec
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@types/node':
         specifier: ^22.10.5

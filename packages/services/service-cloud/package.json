@@ -35,7 +35,8 @@
     "@objectstack/service-package": "workspace:^",
     "@objectstack/driver-sql": "workspace:^",
     "@objectstack/driver-turso": "workspace:^",
-    "@objectstack/driver-memory": "workspace:^"
+    "@objectstack/driver-memory": "workspace:^",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",

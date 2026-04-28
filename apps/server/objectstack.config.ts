@@ -13,257 +13,43 @@
  *                            cloud (multi-project) plugin stack but backs
  *                            it with two SQLite files (`control.db` for
  *                            the control plane, `proj_local.db` for the
- *                            single project's business data). Studio +
- *                            Auth fully operational. Aliases: `local`,
- *                            `single-project`.
- *
- *   - `cloud`              — multi-project, control-plane connected. See
- *                            @objectstack/service-cloud for details.
+ *                            single project's business data).
+ *                            Aliases: `local`, `single-project`.
+ *   - `cloud`              — multi-project, control-plane connected.
  *                            Alias: `multi-project`.
+ *   - `standalone`         — runtime-only (ObjectQL + REST + Driver).
  *
- *   - `standalone`         — runtime-only (ObjectQL + REST + Driver). No
- *                            authentication, no Studio, no control plane.
- *                            For embedding in other frameworks or running
- *                            an internal-only data API.
- *
- * The legacy flag `OBJECTSTACK_MULTI_PROJECT=true` is still honoured as a
- * deprecated alias for `OBJECTSTACK_MODE=cloud` and will be removed in a
- * future major release.
- *
- * ### Common env vars
- *
- *   AUTH_SECRET               — JWT signing secret (≥32 chars)
- *   NEXT_PUBLIC_BASE_URL      — public origin used by better-auth
- *   OBJECTSTACK_PROJECT_ID    — local project id (default: `proj_local`)
- *   OBJECTSTACK_ARTIFACT_PATH — compiled artifact (default: ./dist/objectstack.json)
- *
- * ### Project / Standalone DB
- *
- *   OBJECTSTACK_DATABASE_URL        — overrides default file SQLite path
- *   OBJECTSTACK_DATABASE_AUTH_TOKEN — auth token for libSQL/Turso URLs
- *   OBJECTSTACK_DATABASE_DRIVER     — driver name: sqlite | memory | turso
- *   TURSO_DATABASE_URL / TURSO_AUTH_TOKEN — fallback aliases
+ * All boot orchestration now lives in @objectstack/service-cloud.
+ * This file only supplies the apps/server-specific knobs (templates,
+ * app bundle resolution).
  */
 
 import { resolve as resolvePath, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mkdirSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
-import { createCloudStack } from '@objectstack/service-cloud';
-import { createSingleProjectPlugin } from './server/single-project-plugin.js';
-import { templateRegistry } from './server/templates/registry.js';
+import { createBootStack } from '@objectstack/service-cloud';
 import { createFsAppBundleResolver } from './server/fs-app-bundle-resolver.js';
-
-function envFlag(name: string): boolean {
-    return ['1', 'true', 'yes', 'on'].includes((process.env[name] ?? '').trim().toLowerCase());
-}
-
-type Mode = 'project' | 'cloud' | 'standalone';
-
-/**
- * Resolve the deployment mode from environment.
- *
- * Default changed from `standalone` (legacy) to `project` (current). The
- * legacy `standalone` semantics — single-project local dev with full
- * Auth + Studio — moved under `project`. The new `standalone` value
- * means runtime-only (no Auth, no Studio).
- */
-function resolveMode(): Mode {
-    const raw = process.env.OBJECTSTACK_MODE?.trim().toLowerCase();
-    if (raw === 'cloud' || raw === 'multi-project') return 'cloud';
-    if (raw === 'standalone') return 'standalone';
-    if (raw === 'project' || raw === 'local' || raw === 'single-project') return 'project';
-    if (raw && raw.length > 0) {
-        // eslint-disable-next-line no-console
-        console.warn(`[objectstack] Unknown OBJECTSTACK_MODE=${raw}; falling back to "project".`);
-    }
-    if (envFlag('OBJECTSTACK_MULTI_PROJECT')) {
-        // eslint-disable-next-line no-console
-        console.warn(
-            '[objectstack] OBJECTSTACK_MULTI_PROJECT is deprecated. Use `OBJECTSTACK_MODE=cloud` instead.',
-        );
-        return 'cloud';
-    }
-    return 'project';
-}
-
-const mode = resolveMode();
-
-const authSecret = process.env.AUTH_SECRET
-    ?? 'dev-secret-please-change-in-production-min-32-chars';
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL
-        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-        : undefined)
-    ?? (process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : undefined)
-    ?? `http://localhost:${process.env.PORT ?? 3000}`;
+import { templateRegistry } from './server/templates/registry.js';
 
 const serverDir = dirname(fileURLToPath(import.meta.url));
-const localProjectId = process.env.OBJECTSTACK_PROJECT_ID ?? 'proj_local';
+const dataDir = resolvePath(serverDir, '.objectstack/data');
 const localArtifactPath = process.env.OBJECTSTACK_ARTIFACT_PATH
     ?? resolvePath(serverDir, 'dist/objectstack.json');
 
-// ── PROJECT MODE ─────────────────────────────────────────────────────────────
-//
-// Reuses `createCloudStack()` with two local SQLite files. The frontend
-// detects single-project mode via the `singleProject: true` payload from
-// `single-project-plugin`; everything else (auth, control plane,
-// kernel resolution, REST routing) follows the cloud code path.
-
-async function createProjectStack() {
-    const dataDir = resolvePath(serverDir, '.objectstack/data');
-    mkdirSync(dataDir, { recursive: true });
-
-    const controlDbUrl = `file:${resolvePath(dataDir, 'control.db')}`;
-    const projectDbUrl = `file:${resolvePath(dataDir, 'proj_local.db')}`;
-
-    const stack = await createCloudStack({
-        authSecret,
-        baseUrl,
-        controlDriverUrl: controlDbUrl,
+const config = await createBootStack({
+    project: {
+        dataDir,
+        artifactPath: localArtifactPath,
         appBundles: createFsAppBundleResolver(),
-        // Project-mode per-project plugins. The control plane (created by
-        // `createCloudStack`'s preset) is the sole owner of identity,
-        // authentication, security, audit, tenant catalogs, and packages —
-        // their tables live in `control.db`. Each per-project kernel only
-        // registers the engines needed to materialize that project's
-        // **business data** schemas + records.
-        basePlugins: async ({ projectId }: { projectId: string }) => {
-            const { ObjectQLPlugin } = await import('@objectstack/objectql');
-            const { MetadataPlugin } = await import('@objectstack/metadata');
-            const { AppPlugin } = await import('@objectstack/runtime');
-
-            let artifactBundle: any = null;
-            try {
-                const raw = await readFile(localArtifactPath, 'utf8');
-                const parsed = JSON.parse(raw);
-                artifactBundle = (parsed?.schemaVersion != null && parsed?.metadata !== undefined)
-                    ? parsed.metadata
-                    : parsed;
-            } catch {
-                // First boot before `objectstack build` — AppPlugin skipped.
-            }
-
-            const plugins: any[] = [
-                new ObjectQLPlugin({ environmentId: projectId }),
-                new MetadataPlugin({
-                    watch: false,
-                    environmentId: projectId,
-                    artifactSource: { mode: 'local-file', path: localArtifactPath },
-                }),
-            ];
-            if (artifactBundle) plugins.push(new AppPlugin(artifactBundle));
-            return plugins;
-        },
-    });
-
-    // The cloud preset registers a `studio/runtime-config` route returning
-    // `{ singleProject: false }`. Hono is first-match-wins, so we drop that
-    // plugin and substitute our own which seeds local identity AND emits
-    // `{ singleProject: true, … }`.
-    const filtered = stack.plugins.filter(
-        (p: any) => p?.name !== 'com.objectstack.studio.runtime-config',
-    );
-    filtered.push(
-        createSingleProjectPlugin({
-            projectId: localProjectId,
-            projectDatabaseUrl: projectDbUrl,
-            projectDatabaseDriver: 'sqlite',
-        }),
-    );
-
-    return {
-        plugins: filtered,
-        api: stack.api,
-    };
-}
-
-// ── STANDALONE MODE ──────────────────────────────────────────────────────────
-//
-// Runtime-only: ObjectQL + Driver + REST. No Auth, no Studio, no control
-// plane. Designed for embedding ObjectStack in other frameworks or
-// internal back-end services.
-
-async function buildRuntimeOnlyConfig() {
-    const { ObjectQLPlugin } = await import('@objectstack/objectql');
-    const { MetadataPlugin } = await import('@objectstack/metadata');
-    const { DriverPlugin, AppPlugin } = await import('@objectstack/runtime');
-
-    const dbUrl = process.env.OBJECTSTACK_DATABASE_URL?.trim()
-        || process.env.TURSO_DATABASE_URL?.trim()
-        || `file:${resolvePath(serverDir, '.objectstack/data/standalone.db')}`;
-    const dbAuthToken = process.env.OBJECTSTACK_DATABASE_AUTH_TOKEN?.trim()
-        || process.env.TURSO_AUTH_TOKEN?.trim();
-    const dbDriver = process.env.OBJECTSTACK_DATABASE_DRIVER?.trim()
-        || (/^(libsql|https?):\/\//i.test(dbUrl) ? 'turso' : 'sqlite');
-
-    let driverPlugin: any;
-    if (dbDriver === 'memory' || dbUrl.startsWith('memory://')) {
-        const { InMemoryDriver: MemoryDriver } = await import('@objectstack/driver-memory');
-        driverPlugin = new DriverPlugin(new MemoryDriver());
-    } else if (dbDriver === 'turso' || /^(libsql|https?):\/\//i.test(dbUrl)) {
-        const { TursoDriver } = await import('@objectstack/driver-turso');
-        driverPlugin = new DriverPlugin(
-            new TursoDriver({ url: dbUrl, authToken: dbAuthToken }) as any,
-        );
-    } else {
-        const { SqlDriver } = await import('@objectstack/driver-sql');
-        const filename = dbUrl.replace(/^file:(\/\/)?/, '');
-        mkdirSync(resolvePath(filename, '..'), { recursive: true });
-        driverPlugin = new DriverPlugin(
-            new SqlDriver({
-                client: 'better-sqlite3',
-                connection: { filename },
-                useNullAsDefault: true,
-            }),
-        );
-    }
-
-    let artifactBundle: any = null;
-    try {
-        const raw = await readFile(localArtifactPath, 'utf8');
-        const parsed = JSON.parse(raw);
-        artifactBundle = (parsed?.schemaVersion != null && parsed?.metadata !== undefined)
-            ? parsed.metadata
-            : parsed;
-    } catch {
-        // No artifact yet — AppPlugin skipped.
-    }
-
-    const plugins: any[] = [
-        driverPlugin,
-        new MetadataPlugin({
-            watch: false,
-            environmentId: localProjectId,
-            artifactSource: { mode: 'local-file', path: localArtifactPath },
-        }),
-        new ObjectQLPlugin({ environmentId: localProjectId }),
-    ];
-    if (artifactBundle) plugins.push(new AppPlugin(artifactBundle));
-
-    return {
-        plugins,
-        api: {
-            enableProjectScoping: false,
-            projectResolution: 'none' as const,
-        },
-    };
-}
-
-// ── Export ──────────────────────────────────────────────────────────────────
-
-const config =
-    mode === 'cloud'
-        ? await createCloudStack({
-            authSecret,
-            baseUrl,
-            templates: templateRegistry,
-            appBundles: createFsAppBundleResolver(),
-        })
-    : mode === 'standalone'
-        ? await buildRuntimeOnlyConfig()
-    : await createProjectStack();
+    },
+    cloud: {
+        templates: templateRegistry,
+        appBundles: createFsAppBundleResolver(),
+    },
+    standalone: {
+        artifactPath: localArtifactPath,
+        databaseUrl: process.env.OBJECTSTACK_DATABASE_URL
+            ?? `file:${resolvePath(dataDir, 'standalone.db')}`,
+    },
+});
 
 export default config;

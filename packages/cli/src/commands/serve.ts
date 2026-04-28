@@ -7,7 +7,7 @@ import net from 'net';
 import chalk from 'chalk';
 import { bundleRequire } from 'bundle-require';
 import { loadConfig } from '../utils/config.js';
-import { isHostConfig } from '../utils/plugin-detection.js';
+import { isHostConfig, shouldBootWithLibrary } from '../utils/plugin-detection.js';
 import {
   printHeader,
   printKV,
@@ -169,10 +169,33 @@ export default class Serve extends Command {
         ? { mod: await import(absolutePath.startsWith('/') ? `file://${absolutePath}` : absolutePath) }
         : await bundleRequire({ filepath: absolutePath });
 
-      const config = mod.default || mod;
+      let config = mod.default || mod;
 
       if (!config) {
         throw new Error(`No default export found in ${args.config}`);
+      }
+
+      // If the user's config is a bare defineStack() and OBJECTSTACK_MODE is
+      // set (or config.bootMode is set), build the full project/cloud/
+      // standalone stack via @objectstack/service-cloud.
+      if (shouldBootWithLibrary(config)) {
+        try {
+          const cloudModName = '@objectstack/service-cloud';
+          const cloudMod: any = await import(cloudModName);
+          const bootResult = await cloudMod.createBootStack({
+            mode: config.bootMode,
+            project: config.project,
+            cloud: config.cloud,
+            standalone: config.standalone,
+          });
+          config = bootResult as any;
+        } catch (err) {
+          console.error(
+            'OBJECTSTACK_MODE is set but @objectstack/service-cloud is not installed.',
+            'Install it with: pnpm add @objectstack/service-cloud',
+          );
+          throw err;
+        }
       }
 
       // ── Resolve plugin tiers ──────────────────────────────────────

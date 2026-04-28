@@ -57,3 +57,40 @@ export {
     createStudioRuntimeConfigPlugin,
     createTemplatesRoutePlugin,
 } from './multi-project-plugins.js';
+
+// ── Boot-mode orchestration ───────────────────────────────────────────────────
+export {
+    resolveMode,
+    resolveAuthSecret,
+    resolveBaseUrl,
+    BootEnvSchema,
+} from './boot-env.js';
+export type { BootMode, BootEnv } from './boot-env.js';
+
+export { createProjectStack, ProjectStackConfigSchema } from './project-stack.js';
+export type { ProjectStackConfig, ProjectStackResult } from './project-stack.js';
+
+export { createStandaloneStack, StandaloneStackConfigSchema } from './standalone-stack.js';
+export type { StandaloneStackConfig, StandaloneStackResult } from './standalone-stack.js';
+
+export { createBootStack, BootStackConfigSchema } from './boot-stack.js';
+export type { BootStackConfig, BootStackResult } from './boot-stack.js';
+
+// ── Local identity seeding ────────────────────────────────────────────────────
+export {
+    ensureLocalIdentity,
+    LOCAL_ORG_ID,
+    LOCAL_PROJECT_ID,
+} from './local-identity.js';
+export type { LocalIdentityOptions } from './local-identity.js';
+
+// ── Single-project plugin ─────────────────────────────────────────────────────
+export {
+    createSingleProjectPlugin,
+    DEFAULT_LOCAL_ORG_ID,
+    DEFAULT_LOCAL_PROJECT_ID,
+} from './single-project-plugin.js';
+export type { SingleProjectPluginOptions } from './single-project-plugin.js';
+
+// ── Filesystem app bundle resolver ────────────────────────────────────────────
+export { createFsAppBundleResolver } from './fs-bundle-resolver.js';
