@@ -537,6 +537,9 @@ importers:
 
   examples/app-crm:
     dependencies:
+      '@objectstack/service-cloud':
+        specifier: workspace:*
+        version: link:../../packages/services/service-cloud
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec

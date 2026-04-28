@@ -18,7 +18,8 @@
     "test": "objectstack test"
   },
   "dependencies": {
-    "@objectstack/spec": "workspace:*"
+    "@objectstack/spec": "workspace:*",
+    "@objectstack/service-cloud": "workspace:*"
   },
   "devDependencies": {
     "@objectstack/cli": "workspace:*",

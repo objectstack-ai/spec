@@ -177,11 +177,40 @@ export default class Serve extends Command {
 
       // If the user's config is a bare defineStack() and OBJECTSTACK_MODE is
       // set (or config.bootMode is set), build the full project/cloud/
-      // standalone stack via @objectstack/service-cloud.
+      // standalone stack via @objectstack/service-cloud. The package is
+      // resolved by walking up node_modules from the user's cwd, so it
+      // picks up the consumer's installation regardless of where the CLI
+      // itself lives.
       if (shouldBootWithLibrary(config)) {
         try {
-          const cloudModName = '@objectstack/service-cloud';
-          const cloudMod: any = await import(cloudModName);
+          const { pathToFileURL } = await import('node:url');
+          let dir = process.cwd();
+          let cloudPkgDir: string | null = null;
+          // Walk upward from cwd looking for node_modules/@objectstack/service-cloud
+          while (true) {
+            const candidate = path.join(dir, 'node_modules', '@objectstack', 'service-cloud');
+            if (fs.existsSync(path.join(candidate, 'package.json'))) {
+              cloudPkgDir = candidate;
+              break;
+            }
+            const parent = path.dirname(dir);
+            if (parent === dir) break;
+            dir = parent;
+          }
+          if (!cloudPkgDir) {
+            throw new Error('@objectstack/service-cloud not found in any node_modules from cwd upward');
+          }
+          const pkg = JSON.parse(
+            fs.readFileSync(path.join(cloudPkgDir, 'package.json'), 'utf8'),
+          );
+          const entry =
+            pkg.exports?.['.']?.import ??
+            pkg.exports?.['.']?.default ??
+            pkg.module ??
+            pkg.main ??
+            'dist/index.js';
+          const cloudEntry = path.join(cloudPkgDir, entry);
+          const cloudMod: any = await import(pathToFileURL(cloudEntry).href);
           const bootResult = await cloudMod.createBootStack({
             mode: config.bootMode,
             project: config.project,
@@ -191,7 +220,7 @@ export default class Serve extends Command {
           config = bootResult as any;
         } catch (err) {
           console.error(
-            'OBJECTSTACK_MODE is set but @objectstack/service-cloud is not installed.',
+            'OBJECTSTACK_MODE is set but @objectstack/service-cloud cannot be loaded.',
             'Install it with: pnpm add @objectstack/service-cloud',
           );
           throw err;
