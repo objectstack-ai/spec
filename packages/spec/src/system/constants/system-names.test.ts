@@ -22,6 +22,9 @@ describe('SystemObjectName', () => {
     expect(SystemObjectName.TEAM_MEMBER).toBe('sys_team_member');
     expect(SystemObjectName.API_KEY).toBe('sys_api_key');
     expect(SystemObjectName.TWO_FACTOR).toBe('sys_two_factor');
+    expect(SystemObjectName.OAUTH_APPLICATION).toBe('sys_oauth_application');
+    expect(SystemObjectName.OAUTH_ACCESS_TOKEN).toBe('sys_oauth_access_token');
+    expect(SystemObjectName.OAUTH_CONSENT).toBe('sys_oauth_consent');
     expect(SystemObjectName.USER_PREFERENCE).toBe('sys_user_preference');
     expect(SystemObjectName.ROLE).toBe('sys_role');
     expect(SystemObjectName.PERMISSION_SET).toBe('sys_permission_set');

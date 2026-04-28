@@ -20,6 +20,7 @@ import {
   AUTH_VERIFICATION_CONFIG,
   buildOrganizationPluginSchema,
   buildTwoFactorPluginSchema,
+  buildOidcProviderPluginSchema,
 } from './auth-schema-config.js';
 
 /**
@@ -291,6 +292,21 @@ export class AuthManager {
       }));
     }
 
+    // OIDC Provider — turn this server into an OpenID Connect Identity
+    // Provider so external apps can SSO via ObjectStack. Adds the
+    // `/oauth2/{authorize,token,userinfo,register,consent,endsession}` and
+    // `/.well-known/openid-configuration` endpoints under the auth route.
+    if (pluginConfig?.oidcProvider) {
+      const { oidcProvider } = await import('better-auth/plugins/oidc-provider');
+      const baseUrl = (this.config.baseUrl ?? '').replace(/\/$/, '');
+      plugins.push(oidcProvider({
+        // Account SPA renders both pages — see apps/account.
+        loginPage: `${baseUrl}/_account/login`,
+        consentPage: `${baseUrl}/_account/oauth/consent`,
+        schema: buildOidcProviderPluginSchema(),
+      }));
+    }
+
     return plugins;
   }
 
@@ -559,6 +575,7 @@ export class AuthManager {
       passkeys: pluginConfig.passkeys ?? false,
       magicLink: pluginConfig.magicLink ?? false,
       organization: pluginConfig.organization ?? false,
+      oidcProvider: pluginConfig.oidcProvider ?? false,
     };
 
     return {

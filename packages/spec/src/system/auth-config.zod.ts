@@ -22,6 +22,21 @@ export const AuthPluginConfigSchema = lazySchema(() => z.object({
   twoFactor: z.boolean().default(false).describe('Enable 2FA'),
   passkeys: z.boolean().default(false).describe('Enable Passkey support'),
   magicLink: z.boolean().default(false).describe('Enable Magic Link login'),
+  /**
+   * Enable better-auth's `oidc-provider` plugin so that ObjectStack itself
+   * acts as an OpenID Connect Identity Provider for downstream applications.
+   *
+   * When enabled, the server exposes the standard OIDC endpoints under the
+   * configured auth route (e.g. `/api/v1/auth/.well-known/openid-configuration`,
+   * `/oauth2/authorize`, `/oauth2/token`, `/oauth2/userinfo`,
+   * `/oauth2/register`, `/oauth2/consent`, `/oauth2/endsession`). Three new
+   * data-plane tables (`sys_oauth_application`, `sys_oauth_access_token`,
+   * `sys_oauth_consent`) back the registered OAuth clients, issued tokens,
+   * and recorded user consents.
+   */
+  oidcProvider: z.boolean().default(false).describe(
+    'Enable the OpenID Connect provider plugin (acts as an OIDC IdP)',
+  ),
 }));
 
 /**

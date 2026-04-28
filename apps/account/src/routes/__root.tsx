@@ -30,6 +30,10 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const pub = isPublic(location.pathname);
+  // OAuth consent screen renders fullscreen without sidebar/topbar chrome
+  // — it's a flow page, not part of the account portal proper. Still
+  // requires authentication.
+  const fullscreenAuthed = location.pathname.startsWith('/oauth/');
 
   useEffect(() => {
     if (loading) return;
@@ -54,8 +58,9 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
     return null;
   }
 
-  // Public routes (login/register/etc.) render fullscreen without chrome.
-  if (pub) {
+  // Public routes (login/register/etc.) and authed flow pages (/oauth/*)
+  // render fullscreen without chrome.
+  if (pub || fullscreenAuthed) {
     return <div className="flex min-h-screen w-full">{children}</div>;
   }
 

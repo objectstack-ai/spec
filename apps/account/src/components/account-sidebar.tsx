@@ -3,7 +3,7 @@
 /**
  * AccountSidebar — global left navigation for the Account portal.
  *
- * Two semantic groups:
+ * Three semantic groups:
  *
  *   Account
  *   ├─ Profile
@@ -16,6 +16,9 @@
  *   ├─ General         (/organizations/:id/general — only when an org is active)
  *   └─ Members         (/organizations/:id/members — only when an org is active)
  *
+ *   Developer
+ *   └─ OAuth Apps      (/account/oauth-applications)
+ *
  * The active org's name is intentionally NOT used as a group label —
  * the top-bar OrganizationSwitcher already shows it prominently. When
  * collapsed to icon-only the labels hide automatically.
@@ -24,6 +27,7 @@
 import { Link, useLocation } from '@tanstack/react-router';
 import {
   Building2,
+  KeyRound,
   Monitor,
   PanelLeft,
   Settings,
@@ -53,6 +57,7 @@ interface NavItem {
     | '/account/security'
     | '/account/sessions'
     | '/account/two-factor'
+    | '/account/oauth-applications'
     | '/organizations';
   label: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -105,8 +110,6 @@ export function AccountSidebar() {
 
         <SidebarSeparator />
 
-        <SidebarSeparator />
-
         <SidebarGroup>
           <SidebarGroupLabel>Organization</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -151,6 +154,28 @@ export function AccountSidebar() {
                   </SidebarMenuItem>
                 </>
               )}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Developer</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname.startsWith('/account/oauth-applications')}
+                  tooltip="OAuth Apps"
+                >
+                  <Link to="/account/oauth-applications">
+                    <KeyRound className="size-4" />
+                    <span>OAuth Apps</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

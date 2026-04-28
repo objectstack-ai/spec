@@ -20,6 +20,7 @@ import { Route as OrganizationsIndexRouteImport } from './routes/organizations.i
 import { Route as AccountIndexRouteImport } from './routes/account.index'
 import { Route as OrganizationsNewRouteImport } from './routes/organizations.new'
 import { Route as OrganizationsOrgIdRouteImport } from './routes/organizations.$orgId'
+import { Route as OauthConsentRouteImport } from './routes/oauth.consent'
 import { Route as AuthDeviceRouteImport } from './routes/auth.device'
 import { Route as AccountTwoFactorRouteImport } from './routes/account.two-factor'
 import { Route as AccountSessionsRouteImport } from './routes/account.sessions'
@@ -27,8 +28,11 @@ import { Route as AccountSecurityRouteImport } from './routes/account.security'
 import { Route as AccountProfileRouteImport } from './routes/account.profile'
 import { Route as AcceptInvitationInvitationIdRouteImport } from './routes/accept-invitation.$invitationId'
 import { Route as OrganizationsOrgIdIndexRouteImport } from './routes/organizations.$orgId.index'
+import { Route as AccountOauthApplicationsIndexRouteImport } from './routes/account.oauth-applications.index'
 import { Route as OrganizationsOrgIdMembersRouteImport } from './routes/organizations.$orgId.members'
 import { Route as OrganizationsOrgIdGeneralRouteImport } from './routes/organizations.$orgId.general'
+import { Route as AccountOauthApplicationsNewRouteImport } from './routes/account.oauth-applications.new'
+import { Route as AccountOauthApplicationsClientIdRouteImport } from './routes/account.oauth-applications.$clientId'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -85,6 +89,11 @@ const OrganizationsOrgIdRoute = OrganizationsOrgIdRouteImport.update({
   path: '/organizations/$orgId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OauthConsentRoute = OauthConsentRouteImport.update({
+  id: '/oauth/consent',
+  path: '/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthDeviceRoute = AuthDeviceRouteImport.update({
   id: '/auth/device',
   path: '/auth/device',
@@ -121,6 +130,12 @@ const OrganizationsOrgIdIndexRoute = OrganizationsOrgIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => OrganizationsOrgIdRoute,
 } as any)
+const AccountOauthApplicationsIndexRoute =
+  AccountOauthApplicationsIndexRouteImport.update({
+    id: '/oauth-applications/',
+    path: '/oauth-applications/',
+    getParentRoute: () => AccountRoute,
+  } as any)
 const OrganizationsOrgIdMembersRoute =
   OrganizationsOrgIdMembersRouteImport.update({
     id: '/members',
@@ -132,6 +147,18 @@ const OrganizationsOrgIdGeneralRoute =
     id: '/general',
     path: '/general',
     getParentRoute: () => OrganizationsOrgIdRoute,
+  } as any)
+const AccountOauthApplicationsNewRoute =
+  AccountOauthApplicationsNewRouteImport.update({
+    id: '/oauth-applications/new',
+    path: '/oauth-applications/new',
+    getParentRoute: () => AccountRoute,
+  } as any)
+const AccountOauthApplicationsClientIdRoute =
+  AccountOauthApplicationsClientIdRouteImport.update({
+    id: '/oauth-applications/$clientId',
+    path: '/oauth-applications/$clientId',
+    getParentRoute: () => AccountRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -148,12 +175,16 @@ export interface FileRoutesByFullPath {
   '/account/sessions': typeof AccountSessionsRoute
   '/account/two-factor': typeof AccountTwoFactorRoute
   '/auth/device': typeof AuthDeviceRoute
+  '/oauth/consent': typeof OauthConsentRoute
   '/organizations/$orgId': typeof OrganizationsOrgIdRouteWithChildren
   '/organizations/new': typeof OrganizationsNewRoute
   '/account/': typeof AccountIndexRoute
   '/organizations/': typeof OrganizationsIndexRoute
+  '/account/oauth-applications/$clientId': typeof AccountOauthApplicationsClientIdRoute
+  '/account/oauth-applications/new': typeof AccountOauthApplicationsNewRoute
   '/organizations/$orgId/general': typeof OrganizationsOrgIdGeneralRoute
   '/organizations/$orgId/members': typeof OrganizationsOrgIdMembersRoute
+  '/account/oauth-applications/': typeof AccountOauthApplicationsIndexRoute
   '/organizations/$orgId/': typeof OrganizationsOrgIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -169,11 +200,15 @@ export interface FileRoutesByTo {
   '/account/sessions': typeof AccountSessionsRoute
   '/account/two-factor': typeof AccountTwoFactorRoute
   '/auth/device': typeof AuthDeviceRoute
+  '/oauth/consent': typeof OauthConsentRoute
   '/organizations/new': typeof OrganizationsNewRoute
   '/account': typeof AccountIndexRoute
   '/organizations': typeof OrganizationsIndexRoute
+  '/account/oauth-applications/$clientId': typeof AccountOauthApplicationsClientIdRoute
+  '/account/oauth-applications/new': typeof AccountOauthApplicationsNewRoute
   '/organizations/$orgId/general': typeof OrganizationsOrgIdGeneralRoute
   '/organizations/$orgId/members': typeof OrganizationsOrgIdMembersRoute
+  '/account/oauth-applications': typeof AccountOauthApplicationsIndexRoute
   '/organizations/$orgId': typeof OrganizationsOrgIdIndexRoute
 }
 export interface FileRoutesById {
@@ -191,12 +226,16 @@ export interface FileRoutesById {
   '/account/sessions': typeof AccountSessionsRoute
   '/account/two-factor': typeof AccountTwoFactorRoute
   '/auth/device': typeof AuthDeviceRoute
+  '/oauth/consent': typeof OauthConsentRoute
   '/organizations/$orgId': typeof OrganizationsOrgIdRouteWithChildren
   '/organizations/new': typeof OrganizationsNewRoute
   '/account/': typeof AccountIndexRoute
   '/organizations/': typeof OrganizationsIndexRoute
+  '/account/oauth-applications/$clientId': typeof AccountOauthApplicationsClientIdRoute
+  '/account/oauth-applications/new': typeof AccountOauthApplicationsNewRoute
   '/organizations/$orgId/general': typeof OrganizationsOrgIdGeneralRoute
   '/organizations/$orgId/members': typeof OrganizationsOrgIdMembersRoute
+  '/account/oauth-applications/': typeof AccountOauthApplicationsIndexRoute
   '/organizations/$orgId/': typeof OrganizationsOrgIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -215,12 +254,16 @@ export interface FileRouteTypes {
     | '/account/sessions'
     | '/account/two-factor'
     | '/auth/device'
+    | '/oauth/consent'
     | '/organizations/$orgId'
     | '/organizations/new'
     | '/account/'
     | '/organizations/'
+    | '/account/oauth-applications/$clientId'
+    | '/account/oauth-applications/new'
     | '/organizations/$orgId/general'
     | '/organizations/$orgId/members'
+    | '/account/oauth-applications/'
     | '/organizations/$orgId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -236,11 +279,15 @@ export interface FileRouteTypes {
     | '/account/sessions'
     | '/account/two-factor'
     | '/auth/device'
+    | '/oauth/consent'
     | '/organizations/new'
     | '/account'
     | '/organizations'
+    | '/account/oauth-applications/$clientId'
+    | '/account/oauth-applications/new'
     | '/organizations/$orgId/general'
     | '/organizations/$orgId/members'
+    | '/account/oauth-applications'
     | '/organizations/$orgId'
   id:
     | '__root__'
@@ -257,12 +304,16 @@ export interface FileRouteTypes {
     | '/account/sessions'
     | '/account/two-factor'
     | '/auth/device'
+    | '/oauth/consent'
     | '/organizations/$orgId'
     | '/organizations/new'
     | '/account/'
     | '/organizations/'
+    | '/account/oauth-applications/$clientId'
+    | '/account/oauth-applications/new'
     | '/organizations/$orgId/general'
     | '/organizations/$orgId/members'
+    | '/account/oauth-applications/'
     | '/organizations/$orgId/'
   fileRoutesById: FileRoutesById
 }
@@ -276,6 +327,7 @@ export interface RootRouteChildren {
   VerifyEmailRoute: typeof VerifyEmailRoute
   AcceptInvitationInvitationIdRoute: typeof AcceptInvitationInvitationIdRoute
   AuthDeviceRoute: typeof AuthDeviceRoute
+  OauthConsentRoute: typeof OauthConsentRoute
   OrganizationsOrgIdRoute: typeof OrganizationsOrgIdRouteWithChildren
   OrganizationsNewRoute: typeof OrganizationsNewRoute
   OrganizationsIndexRoute: typeof OrganizationsIndexRoute
@@ -360,6 +412,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizationsOrgIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/oauth/consent': {
+      id: '/oauth/consent'
+      path: '/oauth/consent'
+      fullPath: '/oauth/consent'
+      preLoaderRoute: typeof OauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/device': {
       id: '/auth/device'
       path: '/auth/device'
@@ -409,6 +468,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizationsOrgIdIndexRouteImport
       parentRoute: typeof OrganizationsOrgIdRoute
     }
+    '/account/oauth-applications/': {
+      id: '/account/oauth-applications/'
+      path: '/oauth-applications'
+      fullPath: '/account/oauth-applications/'
+      preLoaderRoute: typeof AccountOauthApplicationsIndexRouteImport
+      parentRoute: typeof AccountRoute
+    }
     '/organizations/$orgId/members': {
       id: '/organizations/$orgId/members'
       path: '/members'
@@ -423,6 +489,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizationsOrgIdGeneralRouteImport
       parentRoute: typeof OrganizationsOrgIdRoute
     }
+    '/account/oauth-applications/new': {
+      id: '/account/oauth-applications/new'
+      path: '/oauth-applications/new'
+      fullPath: '/account/oauth-applications/new'
+      preLoaderRoute: typeof AccountOauthApplicationsNewRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/oauth-applications/$clientId': {
+      id: '/account/oauth-applications/$clientId'
+      path: '/oauth-applications/$clientId'
+      fullPath: '/account/oauth-applications/$clientId'
+      preLoaderRoute: typeof AccountOauthApplicationsClientIdRouteImport
+      parentRoute: typeof AccountRoute
+    }
   }
 }
 
@@ -432,6 +512,9 @@ interface AccountRouteChildren {
   AccountSessionsRoute: typeof AccountSessionsRoute
   AccountTwoFactorRoute: typeof AccountTwoFactorRoute
   AccountIndexRoute: typeof AccountIndexRoute
+  AccountOauthApplicationsClientIdRoute: typeof AccountOauthApplicationsClientIdRoute
+  AccountOauthApplicationsNewRoute: typeof AccountOauthApplicationsNewRoute
+  AccountOauthApplicationsIndexRoute: typeof AccountOauthApplicationsIndexRoute
 }
 
 const AccountRouteChildren: AccountRouteChildren = {
@@ -440,6 +523,9 @@ const AccountRouteChildren: AccountRouteChildren = {
   AccountSessionsRoute: AccountSessionsRoute,
   AccountTwoFactorRoute: AccountTwoFactorRoute,
   AccountIndexRoute: AccountIndexRoute,
+  AccountOauthApplicationsClientIdRoute: AccountOauthApplicationsClientIdRoute,
+  AccountOauthApplicationsNewRoute: AccountOauthApplicationsNewRoute,
+  AccountOauthApplicationsIndexRoute: AccountOauthApplicationsIndexRoute,
 }
 
 const AccountRouteWithChildren =
@@ -470,6 +556,7 @@ const rootRouteChildren: RootRouteChildren = {
   VerifyEmailRoute: VerifyEmailRoute,
   AcceptInvitationInvitationIdRoute: AcceptInvitationInvitationIdRoute,
   AuthDeviceRoute: AuthDeviceRoute,
+  OauthConsentRoute: OauthConsentRoute,
   OrganizationsOrgIdRoute: OrganizationsOrgIdRouteWithChildren,
   OrganizationsNewRoute: OrganizationsNewRoute,
   OrganizationsIndexRoute: OrganizationsIndexRoute,

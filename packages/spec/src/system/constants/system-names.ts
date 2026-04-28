@@ -42,6 +42,12 @@ export const SystemObjectName = {
   API_KEY: 'sys_api_key',
   /** Authentication: two-factor authentication credentials */
   TWO_FACTOR: 'sys_two_factor',
+  /** Authentication: registered OAuth/OIDC client application (when this server acts as an IdP) */
+  OAUTH_APPLICATION: 'sys_oauth_application',
+  /** Authentication: issued OAuth/OIDC access + refresh token pair */
+  OAUTH_ACCESS_TOKEN: 'sys_oauth_access_token',
+  /** Authentication: recorded user consent for a given OAuth client + scopes */
+  OAUTH_CONSENT: 'sys_oauth_consent',
   /** Authentication: user preferences (theme, locale, etc.) */
   USER_PREFERENCE: 'sys_user_preference',
   /** Security: role definition for RBAC */

@@ -1001,6 +1001,114 @@ export class ObjectStackClient {
   };
 
   /**
+   * OAuth / OpenID Connect Provider — admin endpoints exposed by better-auth's
+   * `oidc-provider` plugin (when enabled on the server). Lets users register
+   * their own OAuth client applications, list them, and revoke them.
+   *
+   * All endpoints are mounted under the auth route, e.g. `/api/v1/auth/oauth2/*`.
+   */
+  oauth = {
+    applications: {
+      /**
+       * Register a new OAuth client application.
+       * POST /api/v1/auth/oauth2/register
+       *
+       * Returns the freshly-issued `client_id` and `client_secret`.
+       * The secret is only returned at creation time — store it securely.
+       */
+      register: async (req: {
+        client_name: string;
+        redirect_uris: string[];
+        token_endpoint_auth_method?: 'none' | 'client_secret_basic' | 'client_secret_post';
+        grant_types?: string[];
+        response_types?: string[];
+        client_uri?: string;
+        logo_uri?: string;
+        scope?: string;
+        contacts?: string[];
+        tos_uri?: string;
+        policy_uri?: string;
+        metadata?: Record<string, unknown>;
+      }) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/oauth2/register`, {
+          method: 'POST',
+          body: JSON.stringify(req),
+        });
+        return res.json();
+      },
+
+      /**
+       * Get a single OAuth application by its `client_id`.
+       * GET /api/v1/auth/oauth2/client/:id
+       */
+      get: async (clientId: string) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(
+          `${this.baseUrl}${route}/oauth2/client/${encodeURIComponent(clientId)}`,
+        );
+        return res.json();
+      },
+
+      /**
+       * List OAuth applications visible to the current user.
+       *
+       * better-auth doesn't expose a list endpoint yet — we query the
+       * underlying `sys_oauth_application` table via the data API. In
+       * production deployments, row-level security on this system table
+       * should restrict rows to those owned by the current user; in
+       * single-project / local mode every authenticated user sees the
+       * full list.
+       */
+      list: async () => {
+        const route = this.getRoute('data');
+        const params = new URLSearchParams({ sort: '-created_at' });
+        const res = await this.fetch(
+          `${this.baseUrl}${route}/sys_oauth_application?${params.toString()}`,
+        );
+        const data = await res.json();
+        const items =
+          data?.records ??
+          data?.items ??
+          data?.data?.records ??
+          data?.data?.items ??
+          [];
+        return { applications: items as Array<Record<string, any>> };
+      },
+
+      /**
+       * Delete an OAuth application by its row id (not client_id).
+       *
+       * Tokens and consents referencing the client cascade-delete via the
+       * better-auth schema's `onDelete: cascade` foreign keys.
+       */
+      delete: async (id: string) => {
+        const route = this.getRoute('data');
+        const res = await this.fetch(
+          `${this.baseUrl}${route}/sys_oauth_application/${encodeURIComponent(id)}`,
+          { method: 'DELETE' },
+        );
+        return res.json();
+      },
+    },
+
+    /**
+     * Submit the user's decision to a pending consent request.
+     * POST /api/v1/auth/oauth2/consent
+     *
+     * Called by the consent screen after the user accepts or denies.
+     */
+    consent: async (req: { accept: boolean; consent_code?: string }) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/oauth2/consent`, {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
+      return res.json();
+    },
+  };
+
+  /**
    * Update the active project id used for subsequent requests.
    * Pass `undefined` to clear (falls back to the session default).
    */

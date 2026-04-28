@@ -13,6 +13,9 @@ import {
   SysApiKey,
   SysInvitation,
   SysMember,
+  SysOauthAccessToken,
+  SysOauthApplication,
+  SysOauthConsent,
   SysOrganization,
   SysSession,
   SysTeam,
@@ -27,7 +30,7 @@ export const AUTH_PLUGIN_ID = 'com.objectstack.plugin-auth';
 export const AUTH_PLUGIN_VERSION = '3.0.1';
 
 /** Identity objects owned by plugin-auth. */
-export const authIdentityObjects = [
+export const authIdentityObjects: any[] = [
   SysUser,
   SysSession,
   SysAccount,
@@ -40,6 +43,9 @@ export const authIdentityObjects = [
   SysApiKey,
   SysTwoFactor,
   SysUserPreference,
+  SysOauthApplication,
+  SysOauthAccessToken,
+  SysOauthConsent,
 ];
 
 /** Manifest header shared by compile-time config and runtime registration. */

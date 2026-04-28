@@ -297,6 +297,92 @@ export const AUTH_TWO_FACTOR_USER_FIELDS = {
   twoFactorEnabled: 'two_factor_enabled',
 } as const;
 
+// ---------------------------------------------------------------------------
+// OIDC Provider plugin – oauthApplication table
+// ---------------------------------------------------------------------------
+
+/**
+ * better-auth OIDC Provider plugin `oauthApplication` model mapping.
+ *
+ * | camelCase (better-auth) | snake_case (ObjectStack) |
+ * |:------------------------|:-------------------------|
+ * | clientId                | client_id                |
+ * | clientSecret            | client_secret            |
+ * | redirectUrls            | redirect_urls            |
+ * | userId                  | user_id                  |
+ * | createdAt               | created_at               |
+ * | updatedAt               | updated_at               |
+ */
+export const AUTH_OAUTH_APPLICATION_SCHEMA = {
+  modelName: SystemObjectName.OAUTH_APPLICATION, // 'sys_oauth_application'
+  fields: {
+    clientId: 'client_id',
+    clientSecret: 'client_secret',
+    redirectUrls: 'redirect_urls',
+    userId: 'user_id',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  },
+} as const;
+
+// ---------------------------------------------------------------------------
+// OIDC Provider plugin – oauthAccessToken table
+// ---------------------------------------------------------------------------
+
+/**
+ * better-auth OIDC Provider plugin `oauthAccessToken` model mapping.
+ *
+ * | camelCase (better-auth)    | snake_case (ObjectStack)     |
+ * |:---------------------------|:-----------------------------|
+ * | accessToken                | access_token                 |
+ * | refreshToken               | refresh_token                |
+ * | accessTokenExpiresAt       | access_token_expires_at      |
+ * | refreshTokenExpiresAt      | refresh_token_expires_at     |
+ * | clientId                   | client_id                    |
+ * | userId                     | user_id                      |
+ * | createdAt                  | created_at                   |
+ * | updatedAt                  | updated_at                   |
+ */
+export const AUTH_OAUTH_ACCESS_TOKEN_SCHEMA = {
+  modelName: SystemObjectName.OAUTH_ACCESS_TOKEN, // 'sys_oauth_access_token'
+  fields: {
+    accessToken: 'access_token',
+    refreshToken: 'refresh_token',
+    accessTokenExpiresAt: 'access_token_expires_at',
+    refreshTokenExpiresAt: 'refresh_token_expires_at',
+    clientId: 'client_id',
+    userId: 'user_id',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  },
+} as const;
+
+// ---------------------------------------------------------------------------
+// OIDC Provider plugin – oauthConsent table
+// ---------------------------------------------------------------------------
+
+/**
+ * better-auth OIDC Provider plugin `oauthConsent` model mapping.
+ *
+ * | camelCase (better-auth) | snake_case (ObjectStack) |
+ * |:------------------------|:-------------------------|
+ * | clientId                | client_id                |
+ * | userId                  | user_id                  |
+ * | consentGiven            | consent_given            |
+ * | createdAt               | created_at               |
+ * | updatedAt               | updated_at               |
+ */
+export const AUTH_OAUTH_CONSENT_SCHEMA = {
+  modelName: SystemObjectName.OAUTH_CONSENT, // 'sys_oauth_consent'
+  fields: {
+    clientId: 'client_id',
+    userId: 'user_id',
+    consentGiven: 'consent_given',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  },
+} as const;
+
 /**
  * Builds the `schema` option for better-auth's `twoFactor()` plugin.
  *
@@ -335,5 +421,27 @@ export function buildOrganizationPluginSchema() {
     session: {
       fields: AUTH_ORG_SESSION_FIELDS,
     },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Helper: build OIDC provider plugin schema option
+// ---------------------------------------------------------------------------
+
+/**
+ * Builds the `schema` option for better-auth's `oidcProvider()` plugin.
+ *
+ * The OIDC provider plugin manages three tables: `oauthApplication` (registered
+ * client apps), `oauthAccessToken` (issued access/refresh token pairs), and
+ * `oauthConsent` (recorded user consents). This helper assembles the
+ * snake_case + sys_oauth_* mappings declared above.
+ *
+ * @returns An object suitable for `oidcProvider({ schema: … })`
+ */
+export function buildOidcProviderPluginSchema() {
+  return {
+    oauthApplication: AUTH_OAUTH_APPLICATION_SCHEMA,
+    oauthAccessToken: AUTH_OAUTH_ACCESS_TOKEN_SCHEMA,
+    oauthConsent: AUTH_OAUTH_CONSENT_SCHEMA,
   };
 }
