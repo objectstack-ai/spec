@@ -85,22 +85,20 @@ export async function createCloudStack(config: CloudStackConfig): Promise<{
         process.env.OBJECTSTACK_DATABASE_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN || controlDriverAuthToken,
     );
 
-    // Default base plugins (cloud per-project kernel)
+    // Default base plugins (per-project kernel — business data only).
+    //
+    // Identity, authentication, security, audit, and tenant catalogs are owned
+    // exclusively by the control-plane kernel (see control-plane-preset.ts).
+    // Their tables live in the control DB and must NOT be duplicated per project.
+    // Each per-project kernel only registers the engines needed to materialise
+    // that project's business-data schemas and records.
     const resolvedBasePlugins: BasePluginsFactory = basePlugins ?? (async ({ projectId, project }) => {
         const { ObjectQLPlugin } = await import('@objectstack/objectql');
         const { MetadataPlugin } = await import('@objectstack/metadata');
-        const { createTenantPlugin } = await import('@objectstack/service-tenant');
-        const { AuthPlugin } = await import('@objectstack/plugin-auth');
-        const { SecurityPlugin } = await import('@objectstack/plugin-security');
-        const { AuditPlugin } = await import('@objectstack/plugin-audit');
         const orgId = project.organization_id;
         return [
             new ObjectQLPlugin({ environmentId: projectId }),
             new MetadataPlugin({ watch: false, environmentId: projectId, organizationId: orgId }),
-            createTenantPlugin({ registerSystemObjects: true }),
-            new AuthPlugin({ secret: authSecret, baseUrl }),
-            new SecurityPlugin(),
-            new AuditPlugin(),
         ];
     });
 

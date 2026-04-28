@@ -124,17 +124,15 @@ async function createProjectStack() {
         baseUrl,
         controlDriverUrl: controlDbUrl,
         appBundles: createFsAppBundleResolver(),
-        // Project-mode per-project plugins. Identical to the cloud default
-        // except for the AppPlugin tail — we eagerly load the local
-        // artifact bundle (if present) so the single project picks up
-        // schema definitions without needing a control-plane app row.
+        // Project-mode per-project plugins. The control plane (created by
+        // `createCloudStack`'s preset) is the sole owner of identity,
+        // authentication, security, audit, tenant catalogs, and packages —
+        // their tables live in `control.db`. Each per-project kernel only
+        // registers the engines needed to materialize that project's
+        // **business data** schemas + records.
         basePlugins: async ({ projectId }: { projectId: string }) => {
             const { ObjectQLPlugin } = await import('@objectstack/objectql');
             const { MetadataPlugin } = await import('@objectstack/metadata');
-            const { createTenantPlugin } = await import('@objectstack/service-tenant');
-            const { AuthPlugin } = await import('@objectstack/plugin-auth');
-            const { SecurityPlugin } = await import('@objectstack/plugin-security');
-            const { AuditPlugin } = await import('@objectstack/plugin-audit');
             const { AppPlugin } = await import('@objectstack/runtime');
 
             let artifactBundle: any = null;
@@ -155,10 +153,6 @@ async function createProjectStack() {
                     environmentId: projectId,
                     artifactSource: { mode: 'local-file', path: localArtifactPath },
                 }),
-                createTenantPlugin({ registerSystemObjects: true }),
-                new AuthPlugin({ secret: authSecret, baseUrl }),
-                new SecurityPlugin(),
-                new AuditPlugin(),
             ];
             if (artifactBundle) plugins.push(new AppPlugin(artifactBundle));
             return plugins;
