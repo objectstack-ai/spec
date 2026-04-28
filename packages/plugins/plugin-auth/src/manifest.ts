@@ -17,6 +17,7 @@ import {
   SysOauthAccessToken,
   SysOauthApplication,
   SysOauthConsent,
+  SysOauthRefreshToken,
   SysOrganization,
   SysSession,
   SysTeam,
@@ -46,6 +47,7 @@ export const authIdentityObjects: any[] = [
   SysUserPreference,
   SysOauthApplication,
   SysOauthAccessToken,
+  SysOauthRefreshToken,
   SysOauthConsent,
   SysDeviceCode,
 ];

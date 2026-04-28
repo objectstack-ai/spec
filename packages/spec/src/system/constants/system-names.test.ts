@@ -24,6 +24,7 @@ describe('SystemObjectName', () => {
     expect(SystemObjectName.TWO_FACTOR).toBe('sys_two_factor');
     expect(SystemObjectName.OAUTH_APPLICATION).toBe('sys_oauth_application');
     expect(SystemObjectName.OAUTH_ACCESS_TOKEN).toBe('sys_oauth_access_token');
+    expect(SystemObjectName.OAUTH_REFRESH_TOKEN).toBe('sys_oauth_refresh_token');
     expect(SystemObjectName.OAUTH_CONSENT).toBe('sys_oauth_consent');
     expect(SystemObjectName.USER_PREFERENCE).toBe('sys_user_preference');
     expect(SystemObjectName.ROLE).toBe('sys_role');

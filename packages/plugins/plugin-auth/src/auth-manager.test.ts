@@ -842,6 +842,8 @@ describe('AuthManager', () => {
         passkeys: false,
         magicLink: false,
         organization: true,
+        oidcProvider: false,
+        deviceAuthorization: false,
       });
     });
 

@@ -29,10 +29,13 @@ export const AuthPluginConfigSchema = lazySchema(() => z.object({
    * When enabled, the server exposes the standard OIDC endpoints under the
    * configured auth route (e.g. `/api/v1/auth/.well-known/openid-configuration`,
    * `/oauth2/authorize`, `/oauth2/token`, `/oauth2/userinfo`,
-   * `/oauth2/register`, `/oauth2/consent`, `/oauth2/endsession`). Three new
+   * `/oauth2/register`, `/oauth2/consent`, `/oauth2/endsession`). Four
    * data-plane tables (`sys_oauth_application`, `sys_oauth_access_token`,
-   * `sys_oauth_consent`) back the registered OAuth clients, issued tokens,
-   * and recorded user consents.
+   * `sys_oauth_refresh_token`, `sys_oauth_consent`) back the registered
+   * OAuth clients, issued tokens, and recorded user consents.
+   *
+   * Backed by `@better-auth/oauth-provider` (the standalone replacement for
+   * the deprecated `better-auth/plugins/oidc-provider` plugin).
    */
   oidcProvider: z.boolean().default(false).describe(
     'Enable the OpenID Connect provider plugin (acts as an OIDC IdP)',

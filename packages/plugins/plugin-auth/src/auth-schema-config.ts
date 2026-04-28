@@ -298,77 +298,151 @@ export const AUTH_TWO_FACTOR_USER_FIELDS = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// OIDC Provider plugin – oauthApplication table
+// OAuth Provider plugin – oauthClient table
 // ---------------------------------------------------------------------------
 
 /**
- * better-auth OIDC Provider plugin `oauthApplication` model mapping.
+ * `@better-auth/oauth-provider` plugin `oauthClient` model mapping.
  *
- * | camelCase (better-auth) | snake_case (ObjectStack) |
- * |:------------------------|:-------------------------|
- * | clientId                | client_id                |
- * | clientSecret            | client_secret            |
- * | redirectUrls            | redirect_urls            |
- * | userId                  | user_id                  |
- * | createdAt               | created_at               |
- * | updatedAt               | updated_at               |
+ * The model name (`oauthClient`) is mapped to the existing
+ * `sys_oauth_application` table to preserve data continuity from the
+ * deprecated `oidc-provider` plugin.
+ *
+ * | camelCase (better-auth)    | snake_case (ObjectStack)        |
+ * |:---------------------------|:--------------------------------|
+ * | clientId                   | client_id                       |
+ * | clientSecret               | client_secret                   |
+ * | skipConsent                | skip_consent                    |
+ * | enableEndSession           | enable_end_session              |
+ * | subjectType                | subject_type                    |
+ * | userId                     | user_id                         |
+ * | createdAt                  | created_at                      |
+ * | updatedAt                  | updated_at                      |
+ * | redirectUris               | redirect_uris                   |
+ * | postLogoutRedirectUris     | post_logout_redirect_uris       |
+ * | tokenEndpointAuthMethod    | token_endpoint_auth_method      |
+ * | grantTypes                 | grant_types                     |
+ * | responseTypes              | response_types                  |
+ * | requirePKCE                | require_pkce                    |
+ * | softwareId                 | software_id                     |
+ * | softwareVersion            | software_version                |
+ * | softwareStatement          | software_statement              |
+ * | referenceId                | reference_id                    |
  */
-export const AUTH_OAUTH_APPLICATION_SCHEMA = {
+export const AUTH_OAUTH_CLIENT_SCHEMA = {
   modelName: SystemObjectName.OAUTH_APPLICATION, // 'sys_oauth_application'
   fields: {
     clientId: 'client_id',
     clientSecret: 'client_secret',
-    redirectUrls: 'redirect_urls',
+    skipConsent: 'skip_consent',
+    enableEndSession: 'enable_end_session',
+    subjectType: 'subject_type',
     userId: 'user_id',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
+    redirectUris: 'redirect_uris',
+    postLogoutRedirectUris: 'post_logout_redirect_uris',
+    tokenEndpointAuthMethod: 'token_endpoint_auth_method',
+    grantTypes: 'grant_types',
+    responseTypes: 'response_types',
+    requirePKCE: 'require_pkce',
+    softwareId: 'software_id',
+    softwareVersion: 'software_version',
+    softwareStatement: 'software_statement',
+    referenceId: 'reference_id',
   },
 } as const;
 
+/**
+ * @deprecated Use {@link AUTH_OAUTH_CLIENT_SCHEMA}. Retained as an alias for
+ * historical imports; the new package renamed `oauthApplication` → `oauthClient`.
+ */
+export const AUTH_OAUTH_APPLICATION_SCHEMA = AUTH_OAUTH_CLIENT_SCHEMA;
+
 // ---------------------------------------------------------------------------
-// OIDC Provider plugin – oauthAccessToken table
+// OAuth Provider plugin – oauthAccessToken table
 // ---------------------------------------------------------------------------
 
 /**
- * better-auth OIDC Provider plugin `oauthAccessToken` model mapping.
+ * `@better-auth/oauth-provider` plugin `oauthAccessToken` model mapping.
  *
- * | camelCase (better-auth)    | snake_case (ObjectStack)     |
- * |:---------------------------|:-----------------------------|
- * | accessToken                | access_token                 |
- * | refreshToken               | refresh_token                |
- * | accessTokenExpiresAt       | access_token_expires_at      |
- * | refreshTokenExpiresAt      | refresh_token_expires_at     |
- * | clientId                   | client_id                    |
- * | userId                     | user_id                      |
- * | createdAt                  | created_at                   |
- * | updatedAt                  | updated_at                   |
+ * In the new package, access tokens and refresh tokens are stored in
+ * **separate** models. `oauthAccessToken` no longer carries a refresh token;
+ * see {@link AUTH_OAUTH_REFRESH_TOKEN_SCHEMA} for the companion model.
+ *
+ * | camelCase (better-auth) | snake_case (ObjectStack) |
+ * |:------------------------|:-------------------------|
+ * | clientId                | client_id                |
+ * | sessionId               | session_id               |
+ * | userId                  | user_id                  |
+ * | referenceId             | reference_id             |
+ * | refreshId               | refresh_id               |
+ * | expiresAt               | expires_at               |
+ * | createdAt               | created_at               |
  */
 export const AUTH_OAUTH_ACCESS_TOKEN_SCHEMA = {
   modelName: SystemObjectName.OAUTH_ACCESS_TOKEN, // 'sys_oauth_access_token'
   fields: {
-    accessToken: 'access_token',
-    refreshToken: 'refresh_token',
-    accessTokenExpiresAt: 'access_token_expires_at',
-    refreshTokenExpiresAt: 'refresh_token_expires_at',
     clientId: 'client_id',
+    sessionId: 'session_id',
     userId: 'user_id',
+    referenceId: 'reference_id',
+    refreshId: 'refresh_id',
+    expiresAt: 'expires_at',
     createdAt: 'created_at',
-    updatedAt: 'updated_at',
   },
 } as const;
 
 // ---------------------------------------------------------------------------
-// OIDC Provider plugin – oauthConsent table
+// OAuth Provider plugin – oauthRefreshToken table
 // ---------------------------------------------------------------------------
 
 /**
- * better-auth OIDC Provider plugin `oauthConsent` model mapping.
+ * `@better-auth/oauth-provider` plugin `oauthRefreshToken` model mapping.
+ *
+ * Refresh tokens are linked to a session (via `session_id`) and to the
+ * issuing client. Each access token rotation produces a new refresh-token
+ * row.
+ *
+ * | camelCase (better-auth) | snake_case (ObjectStack) |
+ * |:------------------------|:-------------------------|
+ * | clientId                | client_id                |
+ * | sessionId               | session_id               |
+ * | userId                  | user_id                  |
+ * | referenceId             | reference_id             |
+ * | expiresAt               | expires_at               |
+ * | createdAt               | created_at               |
+ * | authTime                | auth_time                |
+ */
+export const AUTH_OAUTH_REFRESH_TOKEN_SCHEMA = {
+  modelName: SystemObjectName.OAUTH_REFRESH_TOKEN, // 'sys_oauth_refresh_token'
+  fields: {
+    clientId: 'client_id',
+    sessionId: 'session_id',
+    userId: 'user_id',
+    referenceId: 'reference_id',
+    expiresAt: 'expires_at',
+    createdAt: 'created_at',
+    authTime: 'auth_time',
+  },
+} as const;
+
+// ---------------------------------------------------------------------------
+// OAuth Provider plugin – oauthConsent table
+// ---------------------------------------------------------------------------
+
+/**
+ * `@better-auth/oauth-provider` plugin `oauthConsent` model mapping.
+ *
+ * The new package dropped the boolean `consentGiven` flag — the presence of
+ * a row implies consent was given for the listed scopes. A new
+ * `referenceId` column was added for client-supplied correlation.
  *
  * | camelCase (better-auth) | snake_case (ObjectStack) |
  * |:------------------------|:-------------------------|
  * | clientId                | client_id                |
  * | userId                  | user_id                  |
- * | consentGiven            | consent_given            |
+ * | referenceId             | reference_id             |
  * | createdAt               | created_at               |
  * | updatedAt               | updated_at               |
  */
@@ -377,7 +451,7 @@ export const AUTH_OAUTH_CONSENT_SCHEMA = {
   fields: {
     clientId: 'client_id',
     userId: 'user_id',
-    consentGiven: 'consent_given',
+    referenceId: 'reference_id',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
   },
@@ -459,26 +533,36 @@ export function buildOrganizationPluginSchema() {
 }
 
 // ---------------------------------------------------------------------------
-// Helper: build OIDC provider plugin schema option
+// Helper: build OAuth provider plugin schema option
 // ---------------------------------------------------------------------------
 
 /**
- * Builds the `schema` option for better-auth's `oidcProvider()` plugin.
+ * Builds the `schema` option for `@better-auth/oauth-provider`'s
+ * `oauthProvider()` plugin.
  *
- * The OIDC provider plugin manages three tables: `oauthApplication` (registered
- * client apps), `oauthAccessToken` (issued access/refresh token pairs), and
- * `oauthConsent` (recorded user consents). This helper assembles the
- * snake_case + sys_oauth_* mappings declared above.
+ * The plugin manages four tables: `oauthClient` (registered client apps —
+ * mapped to ObjectStack's `sys_oauth_application` table for backwards
+ * compatibility), `oauthAccessToken` (issued access tokens),
+ * `oauthRefreshToken` (issued refresh tokens, linked to a session), and
+ * `oauthConsent` (recorded user consents).
  *
- * @returns An object suitable for `oidcProvider({ schema: … })`
+ * @returns An object suitable for `oauthProvider({ schema: … })`
  */
-export function buildOidcProviderPluginSchema() {
+export function buildOauthProviderPluginSchema() {
   return {
-    oauthApplication: AUTH_OAUTH_APPLICATION_SCHEMA,
+    oauthClient: AUTH_OAUTH_CLIENT_SCHEMA,
     oauthAccessToken: AUTH_OAUTH_ACCESS_TOKEN_SCHEMA,
+    oauthRefreshToken: AUTH_OAUTH_REFRESH_TOKEN_SCHEMA,
     oauthConsent: AUTH_OAUTH_CONSENT_SCHEMA,
   };
 }
+
+/**
+ * @deprecated Use {@link buildOauthProviderPluginSchema}. Retained as an
+ * alias for callers that imported the previous name during the migration
+ * from the deprecated `better-auth/plugins/oidc-provider` plugin.
+ */
+export const buildOidcProviderPluginSchema = buildOauthProviderPluginSchema;
 
 // ---------------------------------------------------------------------------
 // Helper: build device-authorization plugin schema option

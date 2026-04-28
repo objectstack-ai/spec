@@ -44,8 +44,10 @@ export const SystemObjectName = {
   TWO_FACTOR: 'sys_two_factor',
   /** Authentication: registered OAuth/OIDC client application (when this server acts as an IdP) */
   OAUTH_APPLICATION: 'sys_oauth_application',
-  /** Authentication: issued OAuth/OIDC access + refresh token pair */
+  /** Authentication: issued OAuth/OIDC access token */
   OAUTH_ACCESS_TOKEN: 'sys_oauth_access_token',
+  /** Authentication: issued OAuth/OIDC refresh token (linked to a session) */
+  OAUTH_REFRESH_TOKEN: 'sys_oauth_refresh_token',
   /** Authentication: recorded user consent for a given OAuth client + scopes */
   OAUTH_CONSENT: 'sys_oauth_consent',
   /** Authentication: pending device-authorization (RFC 8628) request */

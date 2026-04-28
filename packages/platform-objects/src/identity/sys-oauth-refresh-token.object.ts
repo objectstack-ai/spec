@@ -3,25 +3,24 @@
 import { ObjectSchema, Field } from '@objectstack/spec/data';
 
 /**
- * sys_oauth_access_token — Issued OAuth/OIDC opaque access token
+ * sys_oauth_refresh_token — Issued OAuth/OIDC refresh token
  *
- * Backed by `@better-auth/oauth-provider`'s `oauthAccessToken` model. One
- * row per opaque access token issuance. Tokens are short-lived; expired
- * rows can be safely pruned.
+ * Backed by `@better-auth/oauth-provider`'s `oauthRefreshToken` model.
+ * Refresh tokens are issued for the `offline_access` scope and are bound
+ * to a specific session (`session_id`) and client (`client_id`).
  *
- * Refresh tokens have been split into a sibling table — see
- * {@link SysOauthRefreshToken}. The optional `refresh_id` column links an
- * access token back to the refresh-token row that minted it.
+ * Each access-token rotation produces a new refresh-token row; revoked
+ * tokens are kept (with `revoked` set) for audit purposes until pruned.
  *
  * @namespace sys
  */
-export const SysOauthAccessToken = ObjectSchema.create({
-  name: 'sys_oauth_access_token',
-  label: 'OAuth Access Token',
-  pluralLabel: 'OAuth Access Tokens',
-  icon: 'ticket',
+export const SysOauthRefreshToken = ObjectSchema.create({
+  name: 'sys_oauth_refresh_token',
+  label: 'OAuth Refresh Token',
+  pluralLabel: 'OAuth Refresh Tokens',
+  icon: 'refresh-cw',
   isSystem: true,
-  description: 'Opaque OAuth access tokens issued to client applications',
+  description: 'Opaque OAuth refresh tokens (linked to a session)',
   compactLayout: ['client_id', 'user_id', 'expires_at'],
 
   fields: {
@@ -35,7 +34,7 @@ export const SysOauthAccessToken = ObjectSchema.create({
       label: 'Token',
       required: true,
       maxLength: 1024,
-      description: 'Opaque access token value',
+      description: 'Opaque refresh token value',
     }),
 
     client_id: Field.text({
@@ -52,14 +51,8 @@ export const SysOauthAccessToken = ObjectSchema.create({
 
     user_id: Field.text({
       label: 'User ID',
-      required: false,
+      required: true,
       description: 'Foreign key to sys_user.id',
-    }),
-
-    refresh_id: Field.text({
-      label: 'Refresh Token ID',
-      required: false,
-      description: 'Foreign key to sys_oauth_refresh_token.id',
     }),
 
     reference_id: Field.text({
@@ -85,6 +78,18 @@ export const SysOauthAccessToken = ObjectSchema.create({
       defaultValue: 'NOW()',
       readonly: true,
     }),
+
+    revoked: Field.datetime({
+      label: 'Revoked At',
+      required: false,
+      description: 'Timestamp at which this refresh token was revoked',
+    }),
+
+    auth_time: Field.datetime({
+      label: 'Auth Time',
+      required: false,
+      description: 'When the user originally authenticated for this token chain',
+    }),
   },
 
   indexes: [
@@ -92,7 +97,6 @@ export const SysOauthAccessToken = ObjectSchema.create({
     { fields: ['client_id'] },
     { fields: ['session_id'] },
     { fields: ['user_id'] },
-    { fields: ['refresh_id'] },
   ],
 
   enable: {

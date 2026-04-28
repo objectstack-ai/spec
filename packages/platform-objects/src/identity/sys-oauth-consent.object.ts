@@ -5,10 +5,14 @@ import { ObjectSchema, Field } from '@objectstack/spec/data';
 /**
  * sys_oauth_consent — Recorded user consent for an OAuth client + scopes
  *
- * Backed by better-auth's `oidc-provider` plugin. When a user consents to a
- * client requesting a particular set of scopes, the decision is persisted
- * here so future authorization requests for the same client+scopes can skip
- * the consent screen.
+ * Backed by `@better-auth/oauth-provider`'s `oauthConsent` model. When a
+ * user consents to a client requesting a particular set of scopes, the
+ * decision is persisted here so future authorization requests for the same
+ * client+scopes can skip the consent screen.
+ *
+ * The presence of a row implies consent was given for the listed scopes —
+ * the previous boolean `consent_given` flag was removed in the migration
+ * from `better-auth/plugins/oidc-provider` to `@better-auth/oauth-provider`.
  *
  * @namespace sys
  */
@@ -19,7 +23,7 @@ export const SysOauthConsent = ObjectSchema.create({
   icon: 'shield-check',
   isSystem: true,
   description: 'User consent records for OAuth client applications',
-  compactLayout: ['client_id', 'user_id', 'consent_given'],
+  compactLayout: ['client_id', 'user_id', 'scopes'],
 
   fields: {
     id: Field.text({
@@ -36,20 +40,21 @@ export const SysOauthConsent = ObjectSchema.create({
 
     user_id: Field.text({
       label: 'User ID',
-      required: true,
+      required: false,
       description: 'Foreign key to sys_user.id',
     }),
 
-    scopes: Field.text({
-      label: 'Scopes',
+    reference_id: Field.text({
+      label: 'Reference ID',
       required: false,
-      maxLength: 1024,
+      maxLength: 255,
+      description: 'Caller-supplied correlation identifier',
     }),
 
-    consent_given: Field.boolean({
-      label: 'Consent Given',
+    scopes: Field.textarea({
+      label: 'Scopes',
       required: true,
-      defaultValue: false,
+      description: 'JSON-serialized list of scopes the user consented to',
     }),
 
     created_at: Field.datetime({

@@ -21,10 +21,11 @@
     "info": "objectstack info"
   },
   "dependencies": {
+    "@better-auth/oauth-provider": "^1.6.9",
     "@objectstack/core": "workspace:*",
-    "@objectstack/spec": "workspace:*",
     "@objectstack/platform-objects": "workspace:*",
-    "better-auth": "^1.6.5"
+    "@objectstack/spec": "workspace:*",
+    "better-auth": "^1.6.9"
   },
   "devDependencies": {
     "@objectstack/cli": "workspace:*",

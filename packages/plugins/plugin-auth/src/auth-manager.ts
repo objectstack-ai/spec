@@ -19,7 +19,7 @@ import {
   AUTH_VERIFICATION_CONFIG,
   buildOrganizationPluginSchema,
   buildTwoFactorPluginSchema,
-  buildOidcProviderPluginSchema,
+  buildOauthProviderPluginSchema,
   buildDeviceAuthorizationPluginSchema,
 } from './auth-schema-config.js';
 
@@ -292,18 +292,24 @@ export class AuthManager {
       }));
     }
 
-    // OIDC Provider — turn this server into an OpenID Connect Identity
+    // OAuth/OIDC Provider — turn this server into an OpenID Connect Identity
     // Provider so external apps can SSO via ObjectStack. Adds the
     // `/oauth2/{authorize,token,userinfo,register,consent,endsession}` and
     // `/.well-known/openid-configuration` endpoints under the auth route.
+    //
+    // Migrated from the deprecated `better-auth/plugins/oidc-provider` to the
+    // standalone `@better-auth/oauth-provider` package. The new plugin uses
+    // `oauthClient`, `oauthAccessToken`, `oauthRefreshToken`, and `oauthConsent`
+    // models — see `buildOauthProviderPluginSchema()` for the snake_case
+    // mappings to ObjectStack's `sys_oauth_*` tables.
     if (pluginConfig?.oidcProvider) {
-      const { oidcProvider } = await import('better-auth/plugins/oidc-provider');
+      const { oauthProvider } = await import('@better-auth/oauth-provider');
       const baseUrl = (this.config.baseUrl ?? '').replace(/\/$/, '');
-      plugins.push(oidcProvider({
+      plugins.push(oauthProvider({
         // Account SPA renders both pages — see apps/account.
         loginPage: `${baseUrl}/_account/login`,
         consentPage: `${baseUrl}/_account/oauth/consent`,
-        schema: buildOidcProviderPluginSchema(),
+        schema: buildOauthProviderPluginSchema(),
       }));
     }
 
