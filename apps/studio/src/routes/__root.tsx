@@ -14,6 +14,7 @@ import { builtInPlugins } from '../plugins/built-in';
 import { useObjectStackClient } from '../hooks/useObjectStackClient';
 import { SessionProvider, useSession } from '../hooks/useSession';
 import { config } from '@/lib/config';
+import { gotoAccountLogin } from '@/lib/auth-redirect';
 
 /** Routes that don't require authentication. */
 const PUBLIC_ROUTES = new Set(['/login', '/register', '/forgot-password', '/auth/device']);
@@ -88,9 +89,11 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
     if (config.skipAuth) return;
     if (loading) return;
     if (!user && !isPublic) {
-      navigate({ to: '/login' });
+      // Use the raw browser path (includes the `/_studio` base) so
+      // Account can bounce the user back to the exact same Studio URL.
+      gotoAccountLogin(window.location.pathname + window.location.search);
     }
-  }, [user, loading, isPublic, navigate]);
+  }, [user, loading, isPublic, location.pathname, location.searchStr]);
 
   if (loading && !user) {
     return (

@@ -24,6 +24,20 @@ function isSafeRedirect(target: string | undefined): target is string {
   return !!target && target.startsWith('/') && !target.startsWith('//');
 }
 
+/**
+ * Resolve a redirect target to an absolute path on the current origin.
+ *
+ * - Paths beginning with `/_` (e.g. `/_studio/...`, `/_account/...`) are
+ *   already absolute SPA mounts — return them verbatim.
+ * - Otherwise the target is an Account-internal SPA path (`/account`,
+ *   `/orgs/...`) and gets prefixed with the Account SPA base URL.
+ */
+function resolveRedirect(target: string): string {
+  if (target.startsWith('/_')) return target;
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+  return base + target;
+}
+
 function LoginPage() {
   const navigate = useNavigate();
   const { redirect } = Route.useSearch();
@@ -36,8 +50,7 @@ function LoginPage() {
   useEffect(() => {
     if (!user) return;
     if (isSafeRedirect(redirect)) {
-      const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-      window.location.assign(base + redirect);
+      window.location.assign(resolveRedirect(redirect));
       return;
     }
     if (!session?.activeOrganizationId) {
@@ -121,7 +134,11 @@ function LoginPage() {
                   </Button>
                   <p className="text-center text-sm text-muted-foreground">
                     Don&apos;t have an account?{' '}
-                    <Link to="/register" className="underline underline-offset-4 hover:text-primary">
+                    <Link
+                      to="/register"
+                      search={redirect ? { redirect } : undefined}
+                      className="underline underline-offset-4 hover:text-primary"
+                    >
                       Sign up
                     </Link>
                   </p>

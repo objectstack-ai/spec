@@ -19,6 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/hooks/useSession';
 import { config } from '@/lib/config';
+import { gotoAccount, gotoAccountLogin } from '@/lib/auth-redirect';
 
 function initials(name?: string, email?: string): string {
   const src = (name || email || '?').trim();
@@ -43,7 +44,7 @@ export function UserMenu() {
         variant="outline"
         size="sm"
         className="h-8"
-        onClick={() => navigate({ to: '/login' })}
+        onClick={() => gotoAccountLogin()}
       >
         Sign in
       </Button>
@@ -54,7 +55,7 @@ export function UserMenu() {
     try {
       await logout();
     } finally {
-      navigate({ to: '/login' });
+      gotoAccountLogin('/');
     }
   };
 
@@ -86,7 +87,7 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         {!config.singleProject && (
           <>
-            <DropdownMenuItem onSelect={() => navigate({ to: '/orgs' })}>
+            <DropdownMenuItem onSelect={() => gotoAccount('/orgs')}>
               <Building2 className="mr-2 h-3.5 w-3.5" />
               Organizations
             </DropdownMenuItem>
@@ -96,7 +97,7 @@ export function UserMenu() {
             </DropdownMenuItem>
           </>
         )}
-        <DropdownMenuItem disabled>
+        <DropdownMenuItem onSelect={() => gotoAccount('/account')}>
           <UserIcon className="mr-2 h-3.5 w-3.5" />
           Account settings
         </DropdownMenuItem>
