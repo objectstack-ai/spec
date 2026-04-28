@@ -19,9 +19,9 @@ set -euo pipefail
 echo "[build-vercel] Starting server build..."
 
 # 1. Build the project with turbo (from monorepo root)
-# This builds both server and studio
+# This builds server, studio, and the account portal.
 cd ../..
-pnpm turbo run build --filter=@objectstack/server --filter=@objectstack/studio
+pnpm turbo run build --filter=@objectstack/server --filter=@objectstack/studio --filter=@objectstack/account
 cd apps/server
 
 # 1b. Compile objectstack.config.ts → dist/objectstack.json (the metadata artifact).
@@ -55,6 +55,17 @@ if [ -d "../studio/dist" ]; then
   echo "[build-vercel]   ✓ Copied studio dist to public/_studio/"
 else
   echo "[build-vercel]   ⚠ Studio dist not found (skipped)"
+fi
+
+# 3b. Copy the account portal dist to public/_account/ — same pattern as
+# studio. The account SPA is always built with base: '/_account/'.
+echo "[build-vercel] Copying account dist to public/_account/..."
+mkdir -p public/_account
+if [ -d "../account/dist" ]; then
+  cp -r ../account/dist/. public/_account/
+  echo "[build-vercel]   ✓ Copied account dist to public/_account/"
+else
+  echo "[build-vercel]   ⚠ Account dist not found (skipped)"
 fi
 
 # 4. Install external dependencies in api/node_modules/ (no symlinks)

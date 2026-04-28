@@ -33,11 +33,11 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
     if (!user && !pub) {
       navigate({
         to: '/login',
-        search: { redirect: location.pathname + location.search },
+        search: { redirect: location.pathname + location.searchStr },
         replace: true,
       });
     }
-  }, [user, loading, pub, navigate, location.pathname, location.search]);
+  }, [user, loading, pub, navigate, location.pathname, location.searchStr]);
 
   if (loading && !user) {
     return (

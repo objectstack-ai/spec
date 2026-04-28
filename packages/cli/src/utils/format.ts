@@ -185,6 +185,7 @@ export interface ServerReadyOptions {
   pluginNames?: string[];
   uiEnabled?: boolean;
   studioPath?: string;
+  accountPath?: string;
 }
 
 export function printServerReady(opts: ServerReadyOptions) {
@@ -195,6 +196,9 @@ export function printServerReady(opts: ServerReadyOptions) {
   console.log(chalk.cyan('  ➜') + chalk.bold('  API:     ') + chalk.cyan(base + '/'));
   if (opts.uiEnabled && opts.studioPath) {
     console.log(chalk.cyan('  ➜') + chalk.bold('  Studio:  ') + chalk.cyan(base + opts.studioPath + '/'));
+  }
+  if (opts.uiEnabled && opts.accountPath) {
+    console.log(chalk.cyan('  ➜') + chalk.bold('  Account: ') + chalk.cyan(base + opts.accountPath + '/'));
   }
   console.log('');
   console.log(chalk.dim(`  Config:  ${opts.configFile}`));

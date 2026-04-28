@@ -23,6 +23,12 @@ import {
   hasStudioDist,
   createStudioStaticPlugin,
 } from '../utils/studio.js';
+import {
+  ACCOUNT_PATH,
+  resolveAccountPath,
+  hasAccountDist,
+  createAccountStaticPlugin,
+} from '../utils/account.js';
 import dotenvFlow from 'dotenv-flow';
 
 // Helper to find available port
@@ -435,6 +441,21 @@ export default class Serve extends Command {
         } else {
           console.warn(chalk.yellow(`  ⚠ Studio dist not found — run "pnpm --filter @objectstack/studio build" first`));
         }
+
+        // ── Account portal ─────────────────────────────────────────
+        // The account portal sits next to Studio under `/_account/` and
+        // follows the same enable rules — it's a self-service surface
+        // for end-users (login, organizations, profile, sessions).
+        const accountPath = resolveAccountPath();
+        if (!accountPath) {
+          console.warn(chalk.yellow(`  ⚠ @objectstack/account not found — skipping Account UI`));
+        } else if (hasAccountDist(accountPath)) {
+          const accountDistPath = path.join(accountPath, 'dist');
+          await kernel.use(createAccountStaticPlugin(accountDistPath, { isDev }));
+          trackPlugin('AccountUI');
+        } else {
+          console.warn(chalk.yellow(`  ⚠ Account dist not found — run "pnpm --filter @objectstack/account build" first`));
+        }
       }
 
       // Boot the runtime
@@ -453,6 +474,7 @@ export default class Serve extends Command {
         pluginNames: loadedPlugins,
         uiEnabled: enableUI,
         studioPath: STUDIO_PATH,
+        accountPath: ACCOUNT_PATH,
       });
 
       // Kernel already registers SIGINT/SIGTERM handlers during bootstrap.
