@@ -17,9 +17,14 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrgsIndexRouteImport } from './routes/orgs.index'
+import { Route as AccountIndexRouteImport } from './routes/account.index'
 import { Route as OrgsNewRouteImport } from './routes/orgs.new'
 import { Route as OrgsOrgIdRouteImport } from './routes/orgs.$orgId'
 import { Route as AuthDeviceRouteImport } from './routes/auth.device'
+import { Route as AccountTwoFactorRouteImport } from './routes/account.two-factor'
+import { Route as AccountSessionsRouteImport } from './routes/account.sessions'
+import { Route as AccountSecurityRouteImport } from './routes/account.security'
+import { Route as AccountProfileRouteImport } from './routes/account.profile'
 import { Route as AcceptInvitationInvitationIdRouteImport } from './routes/accept-invitation.$invitationId'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
@@ -62,6 +67,11 @@ const OrgsIndexRoute = OrgsIndexRouteImport.update({
   path: '/orgs/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountIndexRoute = AccountIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AccountRoute,
+} as any)
 const OrgsNewRoute = OrgsNewRouteImport.update({
   id: '/orgs/new',
   path: '/orgs/new',
@@ -77,6 +87,26 @@ const AuthDeviceRoute = AuthDeviceRouteImport.update({
   path: '/auth/device',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountTwoFactorRoute = AccountTwoFactorRouteImport.update({
+  id: '/two-factor',
+  path: '/two-factor',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountSessionsRoute = AccountSessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountSecurityRoute = AccountSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountProfileRoute = AccountProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AccountRoute,
+} as any)
 const AcceptInvitationInvitationIdRoute =
   AcceptInvitationInvitationIdRouteImport.update({
     id: '/accept-invitation/$invitationId',
@@ -86,45 +116,59 @@ const AcceptInvitationInvitationIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
+  '/account': typeof AccountRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
   '/accept-invitation/$invitationId': typeof AcceptInvitationInvitationIdRoute
+  '/account/profile': typeof AccountProfileRoute
+  '/account/security': typeof AccountSecurityRoute
+  '/account/sessions': typeof AccountSessionsRoute
+  '/account/two-factor': typeof AccountTwoFactorRoute
   '/auth/device': typeof AuthDeviceRoute
   '/orgs/$orgId': typeof OrgsOrgIdRoute
   '/orgs/new': typeof OrgsNewRoute
+  '/account/': typeof AccountIndexRoute
   '/orgs/': typeof OrgsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
   '/accept-invitation/$invitationId': typeof AcceptInvitationInvitationIdRoute
+  '/account/profile': typeof AccountProfileRoute
+  '/account/security': typeof AccountSecurityRoute
+  '/account/sessions': typeof AccountSessionsRoute
+  '/account/two-factor': typeof AccountTwoFactorRoute
   '/auth/device': typeof AuthDeviceRoute
   '/orgs/$orgId': typeof OrgsOrgIdRoute
   '/orgs/new': typeof OrgsNewRoute
+  '/account': typeof AccountIndexRoute
   '/orgs': typeof OrgsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
+  '/account': typeof AccountRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
   '/accept-invitation/$invitationId': typeof AcceptInvitationInvitationIdRoute
+  '/account/profile': typeof AccountProfileRoute
+  '/account/security': typeof AccountSecurityRoute
+  '/account/sessions': typeof AccountSessionsRoute
+  '/account/two-factor': typeof AccountTwoFactorRoute
   '/auth/device': typeof AuthDeviceRoute
   '/orgs/$orgId': typeof OrgsOrgIdRoute
   '/orgs/new': typeof OrgsNewRoute
+  '/account/': typeof AccountIndexRoute
   '/orgs/': typeof OrgsIndexRoute
 }
 export interface FileRouteTypes {
@@ -138,23 +182,32 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/verify-email'
     | '/accept-invitation/$invitationId'
+    | '/account/profile'
+    | '/account/security'
+    | '/account/sessions'
+    | '/account/two-factor'
     | '/auth/device'
     | '/orgs/$orgId'
     | '/orgs/new'
+    | '/account/'
     | '/orgs/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/account'
     | '/forgot-password'
     | '/login'
     | '/register'
     | '/reset-password'
     | '/verify-email'
     | '/accept-invitation/$invitationId'
+    | '/account/profile'
+    | '/account/security'
+    | '/account/sessions'
+    | '/account/two-factor'
     | '/auth/device'
     | '/orgs/$orgId'
     | '/orgs/new'
+    | '/account'
     | '/orgs'
   id:
     | '__root__'
@@ -166,15 +219,20 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/verify-email'
     | '/accept-invitation/$invitationId'
+    | '/account/profile'
+    | '/account/security'
+    | '/account/sessions'
+    | '/account/two-factor'
     | '/auth/device'
     | '/orgs/$orgId'
     | '/orgs/new'
+    | '/account/'
     | '/orgs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AccountRoute: typeof AccountRoute
+  AccountRoute: typeof AccountRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
@@ -245,6 +303,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrgsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account/': {
+      id: '/account/'
+      path: '/'
+      fullPath: '/account/'
+      preLoaderRoute: typeof AccountIndexRouteImport
+      parentRoute: typeof AccountRoute
+    }
     '/orgs/new': {
       id: '/orgs/new'
       path: '/orgs/new'
@@ -266,6 +331,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthDeviceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account/two-factor': {
+      id: '/account/two-factor'
+      path: '/two-factor'
+      fullPath: '/account/two-factor'
+      preLoaderRoute: typeof AccountTwoFactorRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/sessions': {
+      id: '/account/sessions'
+      path: '/sessions'
+      fullPath: '/account/sessions'
+      preLoaderRoute: typeof AccountSessionsRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/security': {
+      id: '/account/security'
+      path: '/security'
+      fullPath: '/account/security'
+      preLoaderRoute: typeof AccountSecurityRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/profile': {
+      id: '/account/profile'
+      path: '/profile'
+      fullPath: '/account/profile'
+      preLoaderRoute: typeof AccountProfileRouteImport
+      parentRoute: typeof AccountRoute
+    }
     '/accept-invitation/$invitationId': {
       id: '/accept-invitation/$invitationId'
       path: '/accept-invitation/$invitationId'
@@ -276,9 +369,28 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AccountRouteChildren {
+  AccountProfileRoute: typeof AccountProfileRoute
+  AccountSecurityRoute: typeof AccountSecurityRoute
+  AccountSessionsRoute: typeof AccountSessionsRoute
+  AccountTwoFactorRoute: typeof AccountTwoFactorRoute
+  AccountIndexRoute: typeof AccountIndexRoute
+}
+
+const AccountRouteChildren: AccountRouteChildren = {
+  AccountProfileRoute: AccountProfileRoute,
+  AccountSecurityRoute: AccountSecurityRoute,
+  AccountSessionsRoute: AccountSessionsRoute,
+  AccountTwoFactorRoute: AccountTwoFactorRoute,
+  AccountIndexRoute: AccountIndexRoute,
+}
+
+const AccountRouteWithChildren =
+  AccountRoute._addFileChildren(AccountRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AccountRoute: AccountRoute,
+  AccountRoute: AccountRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,

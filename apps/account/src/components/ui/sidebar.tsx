@@ -182,7 +182,7 @@ const Sidebar = React.forwardRef<
       return (
         <div
           className={cn(
-            "bg-sidebar text-sidebar-foreground flex h-full w-[--sidebar-width] flex-col",
+            "bg-sidebar text-sidebar-foreground flex h-full w-[var(--sidebar-width)] flex-col",
             className
           )}
           ref={ref}
@@ -199,7 +199,7 @@ const Sidebar = React.forwardRef<
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
-            className="bg-sidebar text-sidebar-foreground w-[--sidebar-width] p-0 [&>button]:hidden"
+            className="bg-sidebar text-sidebar-foreground w-[var(--sidebar-width)] p-0 [&>button]:hidden"
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -217,9 +217,9 @@ const Sidebar = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "bg-sidebar text-sidebar-foreground hidden md:flex h-svh w-[--sidebar-width] shrink-0 flex-col border-r transition-[width] duration-200 ease-linear overflow-hidden",
+          "bg-sidebar text-sidebar-foreground hidden md:flex h-svh w-[var(--sidebar-width)] shrink-0 flex-col border-r transition-[width] duration-200 ease-linear overflow-hidden",
           state === "collapsed" && collapsible === "offcanvas" && "w-0 border-0",
-          state === "collapsed" && collapsible === "icon" && "w-[--sidebar-width-icon]",
+          state === "collapsed" && collapsible === "icon" && "w-[var(--sidebar-width-icon)]",
           className
         )}
         data-state={state}
@@ -652,7 +652,7 @@ const SidebarMenuSkeleton = React.forwardRef<
         />
       )}
       <Skeleton
-        className="h-4 flex-1 max-w-[--skeleton-width]"
+        className="h-4 flex-1 max-w-[var(--skeleton-width)]"
         data-sidebar="menu-skeleton-text"
         style={
           {

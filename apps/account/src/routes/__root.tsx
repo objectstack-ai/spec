@@ -1,10 +1,13 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
-import { createRootRoute, Navigate, Outlet, useLocation, useNavigate } from '@tanstack/react-router';
+import { createRootRoute, Outlet, useLocation, useNavigate } from '@tanstack/react-router';
 import { useEffect, useMemo } from 'react';
 import { ObjectStackProvider } from '@objectstack/client-react';
 import { ObjectStackClient } from '@objectstack/client';
 import { Toaster } from '@/components/ui/toaster';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { TopBar } from '@/components/top-bar';
+import { AccountSidebar } from '@/components/account-sidebar';
 import { SessionProvider, useSession } from '@/hooks/useSession';
 import { getApiBaseUrl } from '@/lib/config';
 
@@ -51,7 +54,25 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
     return null;
   }
 
-  return <>{children}</>;
+  // Public routes (login/register/etc.) render fullscreen without chrome.
+  if (pub) {
+    return <div className="flex min-h-screen w-full">{children}</div>;
+  }
+
+  // Authenticated layout: TopBar + Sidebar + main content.
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full flex-col">
+        <TopBar />
+        <div className="flex w-full flex-1 overflow-hidden">
+          <AccountSidebar />
+          <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-background">
+            {children}
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
+  );
 }
 
 function RootComponent() {
