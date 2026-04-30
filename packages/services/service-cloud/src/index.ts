@@ -58,6 +58,9 @@ export {
     createTemplatesRoutePlugin,
 } from './multi-project-plugins.js';
 
+// ── Cloud Artifact API (M3) ───────────────────────────────────────────────────
+export { createCloudArtifactApiPlugin } from './cloud-artifact-api-plugin.js';
+
 // ── Boot-mode orchestration ───────────────────────────────────────────────────
 export {
     resolveMode,

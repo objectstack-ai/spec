@@ -19,6 +19,7 @@ import type { ProjectTemplate } from './multi-project-plugin.js';
 import { MultiProjectPlugin } from './multi-project-plugin.js';
 import { createControlPlanePlugins } from './control-plane-preset.js';
 import { createStudioRuntimeConfigPlugin, createTemplatesRoutePlugin } from './multi-project-plugins.js';
+import { createCloudArtifactApiPlugin } from './cloud-artifact-api-plugin.js';
 
 type IDataDriver = Contracts.IDataDriver;
 
@@ -151,6 +152,7 @@ export async function createCloudStack(config: CloudStackConfig): Promise<{
         multiProjectPluginProxy,
         createStudioRuntimeConfigPlugin({ apiPrefix }),
         createTemplatesRoutePlugin(templateList, { apiPrefix }),
+        createCloudArtifactApiPlugin({ controlDriverPromise, apiPrefix }),
     ];
 
     return {

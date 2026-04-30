@@ -21,6 +21,7 @@ import { createFsAppBundleResolver } from './server/fs-app-bundle-resolver.js';
 import { templateRegistry } from './server/templates/registry.js';
 
 const config = await createBootStack({
+    mode: 'cloud',
     cloud: {
         templates: templateRegistry,
         appBundles: createFsAppBundleResolver(),

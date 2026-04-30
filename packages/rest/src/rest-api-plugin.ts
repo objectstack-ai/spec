@@ -65,6 +65,18 @@ export function createRestApiPlugin(config: RestApiPluginConfig = {}): Plugin {
                 // Single-kernel deployment — fall back to the control protocol
             }
 
+            // Optional — only present in runtime mode. When available,
+            // RestServer will resolve hostname → projectId on unscoped
+            // routes so a remote runtime node can dispatch every request
+            // to the matching per-project kernel without requiring callers
+            // to know the projectId.
+            let envRegistry: any;
+            try {
+                envRegistry = ctx.getService<any>('env-registry');
+            } catch (e) {
+                // Not running in runtime/multi-project mode — fine.
+            }
+
             if (!server) {
                 ctx.logger.warn(`RestApiPlugin: HTTP Server service '${serverService}' not found. REST routes skipped.`);
                 return;
@@ -78,7 +90,7 @@ export function createRestApiPlugin(config: RestApiPluginConfig = {}): Plugin {
             ctx.logger.info('Hydrating REST API from Protocol...');
             
             try {
-                const restServer = new RestServer(server, protocol, config.api as any, kernelManager);
+                const restServer = new RestServer(server, protocol, config.api as any, kernelManager, envRegistry);
                 restServer.registerRoutes();
 
                 ctx.logger.info('REST API successfully registered');

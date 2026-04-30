@@ -108,30 +108,45 @@ type NormalizedRestServerConfig = {
  * 
  * restServer.registerRoutes();
  */
+/**
+ * Minimal env registry shape consumed by the REST server for hostname →
+ * projectId resolution on unscoped routes. Mirrors the surface of
+ * `EnvironmentDriverRegistry` defined in `@objectstack/service-cloud`.
+ */
+export interface RestEnvRegistry {
+    resolveByHostname(hostname: string): Promise<{ projectId: string } | null | undefined>;
+}
+
 export class RestServer {
     private protocol: ObjectStackProtocol;
     private config: NormalizedRestServerConfig;
     private routeManager: RouteManager;
     private kernelManager?: RestKernelManager;
+    private envRegistry?: RestEnvRegistry;
 
     constructor(
         server: IHttpServer,
         protocol: ObjectStackProtocol,
         config: RestServerConfig = {},
         kernelManager?: RestKernelManager,
+        envRegistry?: RestEnvRegistry,
     ) {
         this.protocol = protocol;
         this.config = this.normalizeConfig(config);
         this.routeManager = new RouteManager(server);
         this.kernelManager = kernelManager;
+        this.envRegistry = envRegistry;
     }
 
     /**
      * Resolve the protocol for a given request. When `projectId` is present
      * and a KernelManager is wired, fetch the per-project kernel's
      * `protocol` service so metadata / data / UI reads hit the project's
-     * own registry and datastore. Otherwise fall back to the control-kernel
-     * protocol captured at boot.
+     * own registry and datastore. When `projectId` is absent on an
+     * unscoped route but an `envRegistry` is wired (runtime mode),
+     * resolve the hostname to a projectId and load the matching kernel.
+     * Otherwise fall back to the control-kernel protocol captured at
+     * boot.
      *
      * Special case: `projectId === 'platform'` is a reserved virtual id used
      * by Studio to address the control plane through the regular project
@@ -141,10 +156,44 @@ export class RestServer {
      * (and any other client) speak a single, uniform URL family without
      * duplicating route logic for the platform surface.
      */
-    private async resolveProtocol(projectId?: string): Promise<ObjectStackProtocol> {
-        if (!projectId || projectId === 'platform' || !this.kernelManager) return this.protocol;
+    private async resolveProtocol(projectId?: string, req?: any): Promise<ObjectStackProtocol> {
+        if (projectId === 'platform') return this.protocol;
+        if (!projectId && req && this.envRegistry && this.kernelManager) {
+            const host = this.extractHostname(req);
+            if (host) {
+                try {
+                    const result = await this.envRegistry.resolveByHostname(host);
+                    if (result?.projectId) {
+                        projectId = result.projectId;
+                    }
+                } catch {
+                    // fall through to default protocol
+                }
+            }
+        }
+        if (!projectId || !this.kernelManager) return this.protocol;
         const kernel = await this.kernelManager.getOrCreate(projectId);
         return kernel.getServiceAsync<ObjectStackProtocol>('protocol');
+    }
+
+    /**
+     * Pull the request hostname (without port) from a Node-style `req` or
+     * a Fetch-style request wrapper. Returns undefined when no Host header
+     * is available.
+     */
+    private extractHostname(req: any): string | undefined {
+        const headers = req?.headers;
+        let host: string | undefined;
+        if (headers) {
+            if (typeof headers.get === 'function') {
+                host = headers.get('host') ?? undefined;
+            } else {
+                host = headers.host ?? headers.Host;
+            }
+        }
+        if (!host && typeof req?.hostname === 'string') host = req.hostname;
+        if (!host) return undefined;
+        return String(host).split(':')[0].toLowerCase();
     }
     
     /**
@@ -373,7 +422,7 @@ export class RestServer {
                 handler: async (req: any, res: any) => {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
-                        const p = await this.resolveProtocol(projectId);
+                        const p = await this.resolveProtocol(projectId, req);
                         const types = await p.getMetaTypes();
                         res.json(types);
                     } catch (error: any) {
@@ -397,7 +446,7 @@ export class RestServer {
                     try {
                         const packageId = req.query?.package || undefined;
                         const projectId = isScoped ? req.params?.projectId : undefined;
-                        const p = await this.resolveProtocol(projectId);
+                        const p = await this.resolveProtocol(projectId, req);
                         const items = await p.getMetaItems({
                             type: req.params.type,
                             packageId,
@@ -424,7 +473,7 @@ export class RestServer {
                 handler: async (req: any, res: any) => {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
-                        const p = await this.resolveProtocol(projectId);
+                        const p = await this.resolveProtocol(projectId, req);
                         // Check if cached version is available
                         if (metadata.enableCache && p.getMetaItemCached) {
                             const cacheRequest = {
@@ -494,7 +543,7 @@ export class RestServer {
             handler: async (req: any, res: any) => {
                 try {
                     const projectId = isScoped ? req.params?.projectId : undefined;
-                    const p = await this.resolveProtocol(projectId);
+                    const p = await this.resolveProtocol(projectId, req);
                     if (!p.saveMetaItem) {
                         res.status(501).json({ error: 'Save operation not supported by protocol implementation' });
                         return;
@@ -533,7 +582,7 @@ export class RestServer {
             handler: async (req: any, res: any) => {
                 try {
                     const projectId = isScoped ? req.params?.projectId : undefined;
-                    const p = await this.resolveProtocol(projectId);
+                    const p = await this.resolveProtocol(projectId, req);
                     if (p.getUiView) {
                         const view = await p.getUiView({
                             object: req.params.object,
@@ -574,7 +623,7 @@ export class RestServer {
                 handler: async (req: any, res: any) => {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
-                        const p = await this.resolveProtocol(projectId);
+                        const p = await this.resolveProtocol(projectId, req);
                         const result = await p.findData({
                             object: req.params.object,
                             query: req.query,
@@ -601,7 +650,7 @@ export class RestServer {
                 handler: async (req: any, res: any) => {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
-                        const p = await this.resolveProtocol(projectId);
+                        const p = await this.resolveProtocol(projectId, req);
                         const { select, expand } = req.query || {};
                         const result = await p.getData({
                             object: req.params.object,
@@ -631,7 +680,7 @@ export class RestServer {
                 handler: async (req: any, res: any) => {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
-                        const p = await this.resolveProtocol(projectId);
+                        const p = await this.resolveProtocol(projectId, req);
                         const result = await p.createData({
                             object: req.params.object,
                             data: req.body,
@@ -658,7 +707,7 @@ export class RestServer {
                 handler: async (req: any, res: any) => {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
-                        const p = await this.resolveProtocol(projectId);
+                        const p = await this.resolveProtocol(projectId, req);
                         const result = await p.updateData({
                             object: req.params.object,
                             id: req.params.id,
@@ -686,7 +735,7 @@ export class RestServer {
                 handler: async (req: any, res: any) => {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
-                        const p = await this.resolveProtocol(projectId);
+                        const p = await this.resolveProtocol(projectId, req);
                         const result = await p.deleteData({
                             object: req.params.object,
                             id: req.params.id,
@@ -724,7 +773,7 @@ export class RestServer {
                 handler: async (req: any, res: any) => {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
-                        const p = await this.resolveProtocol(projectId);
+                        const p = await this.resolveProtocol(projectId, req);
                         const result = await p.batchData!({
                             object: req.params.object,
                             request: req.body,
@@ -751,7 +800,7 @@ export class RestServer {
                 handler: async (req: any, res: any) => {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
-                        const p = await this.resolveProtocol(projectId);
+                        const p = await this.resolveProtocol(projectId, req);
                         const result = await p.createManyData!({
                             object: req.params.object,
                             records: req.body || [],
@@ -778,7 +827,7 @@ export class RestServer {
                 handler: async (req: any, res: any) => {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
-                        const p = await this.resolveProtocol(projectId);
+                        const p = await this.resolveProtocol(projectId, req);
                         const result = await p.updateManyData!({
                             object: req.params.object,
                             ...req.body,
@@ -805,7 +854,7 @@ export class RestServer {
                 handler: async (req: any, res: any) => {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
-                        const p = await this.resolveProtocol(projectId);
+                        const p = await this.resolveProtocol(projectId, req);
                         const result = await p.deleteManyData!({
                             object: req.params.object,
                             ...req.body,
