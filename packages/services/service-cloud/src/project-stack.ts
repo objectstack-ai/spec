@@ -25,6 +25,7 @@ import { createCloudStack } from './cloud-stack.js';
 import { createSingleProjectPlugin } from './single-project-plugin.js';
 import { resolveAuthSecret, resolveBaseUrl } from './boot-env.js';
 import type { AppBundleResolver } from './project-kernel-factory.js';
+import { createObjectOSStack } from './objectos-stack.js';
 
 export const ProjectStackConfigSchema = z.object({
     /** Auth secret (defaults to env / dev fallback). */
@@ -41,6 +42,16 @@ export const ProjectStackConfigSchema = z.object({
     appBundles: z.custom<AppBundleResolver>().optional(),
     /** API prefix (passed through to the cloud preset). */
     apiPrefix: z.string().optional(),
+    /**
+     * Control-plane base URL. When set (or `OBJECTSTACK_CONTROL_PLANE_URL`
+     * is exported), the project stack runs in **ObjectOS Cloud Runtime**
+     * mode: no local control-plane database, projects are resolved by
+     * hostname against the control plane and per-project kernels are
+     * booted from artifacts pulled over HTTP.
+     */
+    controlPlaneUrl: z.string().optional(),
+    /** Optional bearer token for the control-plane API. */
+    controlPlaneApiKey: z.string().optional(),
 });
 
 export type ProjectStackConfig = z.input<typeof ProjectStackConfigSchema>;
@@ -57,6 +68,18 @@ export interface ProjectStackResult {
  */
 export async function createProjectStack(config?: ProjectStackConfig): Promise<ProjectStackResult> {
     const cfg = ProjectStackConfigSchema.parse(config ?? {});
+
+    // ── ObjectOS Cloud Runtime branch ─────────────────────────────────────
+    // When a control-plane URL is configured, skip the local control DB and
+    // boot every project from a remote-fetched artifact. See objectos-stack.ts.
+    const controlPlaneUrl = cfg.controlPlaneUrl ?? process.env.OBJECTSTACK_CONTROL_PLANE_URL;
+    if (controlPlaneUrl) {
+        return createObjectOSStack({
+            controlPlaneUrl,
+            controlPlaneApiKey: cfg.controlPlaneApiKey ?? process.env.OBJECTSTACK_CONTROL_PLANE_API_KEY,
+            apiPrefix: cfg.apiPrefix,
+        }) as Promise<ProjectStackResult>;
+    }
 
     const cwd = process.cwd();
     const projectId = cfg.projectId ?? process.env.OBJECTSTACK_PROJECT_ID ?? 'proj_local';

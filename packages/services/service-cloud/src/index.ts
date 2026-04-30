@@ -94,3 +94,21 @@ export type { SingleProjectPluginOptions } from './single-project-plugin.js';
 
 // ── Filesystem app bundle resolver ────────────────────────────────────────────
 export { createFsAppBundleResolver } from './fs-bundle-resolver.js';
+
+// ── ObjectOS Cloud Runtime (artifact API mode) ────────────────────────────────
+export { ArtifactApiClient } from './artifact-api-client.js';
+export type {
+    ArtifactApiClientConfig,
+    ProjectArtifactResponse,
+    ProjectRuntimeConfig,
+    ResolvedHostname,
+} from './artifact-api-client.js';
+
+export { ArtifactEnvironmentRegistry } from './artifact-environment-registry.js';
+export type { ArtifactEnvironmentRegistryConfig } from './artifact-environment-registry.js';
+
+export { ArtifactKernelFactory } from './artifact-kernel-factory.js';
+export type { ArtifactKernelFactoryConfig } from './artifact-kernel-factory.js';
+
+export { createObjectOSStack } from './objectos-stack.js';
+export type { ObjectOSStackConfig, ObjectOSStackResult } from './objectos-stack.js';

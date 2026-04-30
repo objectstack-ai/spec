@@ -39,6 +39,8 @@ const config = await createBootStack({
         dataDir,
         artifactPath: localArtifactPath,
         appBundles: createFsAppBundleResolver(),
+        controlPlaneUrl: process.env.OBJECTSTACK_CONTROL_PLANE_URL,
+        controlPlaneApiKey: process.env.OBJECTSTACK_CONTROL_PLANE_API_KEY,
     },
     standalone: {
         artifactPath: localArtifactPath,
