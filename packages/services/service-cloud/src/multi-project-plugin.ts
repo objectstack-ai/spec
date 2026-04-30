@@ -206,10 +206,118 @@ export class MultiProjectPlugin implements Plugin {
             cacheTTLMs: this.config.cacheTTLMs,
         });
 
+        // Wrap the user-supplied resolver so bundles also come from packages
+        // installed into the project via the marketplace UI. The marketplace
+        // writes rows into `sys_package_installation`; for each row we look up
+        // the corresponding manifest in the host kernel's SchemaRegistry and
+        // reuse it as a project-scoped AppPlugin bundle.
+        const userResolver = this.config.appBundles;
+        const controlDriver = this.config.controlDriver;
+        const hostKernel: any = ctx.kernel;
+
+        /**
+         * Pull installed-package bundles for `projectId` from the control
+         * plane. Returns one bundle per installed manifest_id whose package is
+         * present in the host kernel's package registry.
+         */
+        const resolveInstalledBundles = async (projectId: string): Promise<any[]> => {
+            try {
+                const findRows = async (table: string, where: any) => {
+                    const r: any = await (controlDriver as any).find(table, { where, limit: 1000 });
+                    if (Array.isArray(r)) return r;
+                    if (r && Array.isArray(r.value)) return r.value;
+                    return [];
+                };
+                const installs = await findRows('sys_package_installation', {
+                    project_id: projectId,
+                });
+                if (installs.length === 0) return [];
+
+                // Optionally consult the host kernel's in-memory package
+                // registry as a fallback when sys_package_version.manifest_json
+                // is missing (e.g. seeded data without snapshot).
+                const qlService: any = (() => {
+                    try { return hostKernel?.getService?.('objectql'); } catch { return null; }
+                })();
+                const pkgRegistry = qlService?.registry;
+                const allHostPackages: any[] = pkgRegistry?.getAllPackages?.() ?? [];
+
+                const out: any[] = [];
+                for (const inst of installs) {
+                    if (inst.enabled === false || inst.enabled === 0) continue;
+                    if (!inst?.package_version_id && !inst?.package_id) continue;
+
+                    // 1) Try manifest_json snapshot from sys_package_version
+                    let manifest: any = null;
+                    let manifestId: string | undefined;
+                    if (inst.package_version_id) {
+                        const verRows = await findRows('sys_package_version', { id: inst.package_version_id });
+                        const verRow = verRows[0];
+                        if (verRow?.manifest_json) {
+                            try {
+                                manifest = typeof verRow.manifest_json === 'string'
+                                    ? JSON.parse(verRow.manifest_json)
+                                    : verRow.manifest_json;
+                            } catch { /* invalid JSON — fall through */ }
+                        }
+                    }
+
+                    // Resolve manifest_id (for fallback lookup + bundle metadata)
+                    if (inst.package_id) {
+                        const pkgRows = await findRows('sys_package', { id: inst.package_id });
+                        manifestId = pkgRows[0]?.manifest_id;
+                    }
+
+                    // 2) Fallback: in-memory host registry by manifest_id
+                    if (!manifest && manifestId) {
+                        const entry = allHostPackages.find(
+                            (p: any) => (p?.manifest?.id ?? p?.id ?? p?.manifest?.name) === manifestId,
+                        );
+                        manifest = entry?.manifest ?? entry;
+                    }
+
+                    if (!manifest) {
+                        console.warn(
+                            `[MultiProjectPlugin] No manifest available for install (manifest_id='${manifestId}', version_id='${inst.package_version_id}')`,
+                        );
+                        continue;
+                    }
+                    out.push({ manifest, packageId: manifestId ?? manifest?.id });
+                }
+                return out;
+            } catch (err: any) {
+                console.error(
+                    `[MultiProjectPlugin] Failed to resolve installed bundles for '${projectId}':`,
+                    err?.stack ?? err?.message ?? err,
+                );
+                return [];
+            }
+        };
+
+        const wrappedResolver: AppBundleResolver = {
+            async resolve(project) {
+                const baseBundles = userResolver ? await userResolver.resolve(project) : [];
+                const installedBundles = await resolveInstalledBundles(project.id);
+
+                // Dedupe by manifest id — file-based bundles take precedence
+                // over installed bundles when both reference the same id.
+                const seen = new Set<string>();
+                const merged: any[] = [];
+                for (const b of [...baseBundles, ...installedBundles]) {
+                    const sys = b?.manifest || b;
+                    const key = sys?.id ?? sys?.name ?? Math.random().toString();
+                    if (seen.has(key)) continue;
+                    seen.add(key);
+                    merged.push(b);
+                }
+                return merged;
+            },
+        };
+
         const factory = new DefaultProjectKernelFactory({
             controlPlaneDriver: this.config.controlDriver,
             basePlugins: this.config.basePlugins,
-            appBundles: this.config.appBundles,
+            appBundles: wrappedResolver,
             envRegistry,
             encryptor: this.config.encryptor,
         });

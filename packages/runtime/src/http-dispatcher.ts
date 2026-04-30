@@ -1344,6 +1344,86 @@ export class HttpDispatcher {
         const CRED = 'sys_project_credential';
         const MEM = 'sys_project_member';
         const PKG_INSTALL = 'sys_package_installation';
+        const PKG = 'sys_package';
+        const PKG_VERSION = 'sys_package_version';
+
+        /**
+         * Upsert a `sys_package` row keyed by `manifest_id`. Auto-publishes the
+         * package metadata from the in-memory registry the first time a project
+         * tries to install it. Returns the row id (UUID).
+         */
+        const ensureSysPackage = async (
+            manifestId: string,
+            ownerOrgId: string,
+            createdBy: string,
+            manifest?: any,
+        ): Promise<string> => {
+            const existing = await ql.findOne(PKG, { where: { manifest_id: manifestId } } as any) as any;
+            if (existing?.id) return existing.id;
+            const id = randomUUID();
+            const nowIso = new Date().toISOString();
+            await ql.insert(PKG, {
+                id,
+                manifest_id: manifestId,
+                owner_org_id: ownerOrgId,
+                display_name: manifest?.name ?? manifestId,
+                description: manifest?.description ?? null,
+                visibility: 'private',
+                created_by: createdBy,
+                created_at: nowIso,
+                updated_at: nowIso,
+            });
+            return id;
+        };
+
+        /**
+         * Upsert a `sys_package_version` row keyed by (package_id, version).
+         * Auto-publishes a version snapshot the first time it is referenced.
+         * Returns the row id (UUID).
+         */
+        const ensureSysPackageVersion = async (
+            packageId: string,
+            version: string,
+            createdBy: string,
+            manifest?: any,
+        ): Promise<string> => {
+            const existing = await ql.findOne(PKG_VERSION, {
+                where: { package_id: packageId, version },
+            } as any) as any;
+            if (existing?.id) return existing.id;
+            const id = randomUUID();
+            const nowIso = new Date().toISOString();
+            await ql.insert(PKG_VERSION, {
+                id,
+                package_id: packageId,
+                version,
+                status: 'published',
+                manifest_json: manifest ? JSON.stringify(manifest) : null,
+                is_pre_release: false,
+                published_at: nowIso,
+                published_by: createdBy,
+                created_by: createdBy,
+                created_at: nowIso,
+                updated_at: nowIso,
+            });
+            return id;
+        };
+
+        /**
+         * Resolve a per-project install record by the user-facing manifest id
+         * (e.g. `com.objectstack.audit`). The schema stores `package_id` as a
+         * sys_package UUID, so we must join through sys_package first.
+         */
+        const findInstallByManifestId = async (
+            envId: string,
+            manifestId: string,
+        ): Promise<any | null> => {
+            const pkgRow = await ql.findOne(PKG, { where: { manifest_id: manifestId } } as any) as any;
+            if (!pkgRow?.id) return null;
+            return await ql.findOne(PKG_INSTALL, {
+                where: { project_id: envId, package_id: pkgRow.id },
+            } as any);
+        };
 
         // Enumerate registered ObjectQL drivers. Driver services are registered
         // by `DriverPlugin` under the key `driver.<driver.name>` where
@@ -2186,7 +2266,36 @@ export class HttpDispatcher {
                 const envId = decodeURIComponent(parts[1]);
                 let rows = await ql.find(PKG_INSTALL, { where: { project_id: envId } } as any);
                 if (rows && (rows as any).value) rows = (rows as any).value;
-                const packages = Array.isArray(rows) ? rows : [];
+                const installs = Array.isArray(rows) ? rows : [];
+
+                // Denormalize: translate package_id (UUID) → manifest_id (string)
+                // and package_version_id (UUID) → version string. Studio joins
+                // these against the in-memory registry which uses manifest ids.
+                const packages = await Promise.all(
+                    installs.map(async (r: any) => {
+                        let manifestId: string | null = null;
+                        let versionStr: string | null = null;
+                        try {
+                            if (r.package_id) {
+                                const pkg = await ql.findOne(PKG, { where: { id: r.package_id } } as any) as any;
+                                manifestId = pkg?.manifest_id ?? null;
+                            }
+                            if (r.package_version_id) {
+                                const ver = await ql.findOne(PKG_VERSION, { where: { id: r.package_version_id } } as any) as any;
+                                versionStr = ver?.version ?? null;
+                            }
+                        } catch {
+                            // best-effort enrichment
+                        }
+                        return {
+                            ...r,
+                            // Surface user-facing identifiers expected by client SDK
+                            packageId: manifestId,
+                            package_id: manifestId ?? r.package_id,
+                            version: versionStr ?? r.version ?? null,
+                        };
+                    }),
+                );
                 return { handled: true, response: this.success({ packages, total: packages.length }) };
             }
 
@@ -2196,29 +2305,72 @@ export class HttpDispatcher {
                 const { packageId, version, settings, enableOnInstall } = body ?? {};
                 if (!packageId) return { handled: true, response: this.error('packageId is required', 400) };
 
+                // Resolve manifest from the host kernel's package registry
+                const qlSvc = await this.getObjectQLService();
+                const pkgRegistry = (qlSvc as any)?.registry;
+                const allPkgs = pkgRegistry?.getAllPackages?.() ?? [];
+                const manifestEntry = allPkgs.find((p: any) => (p?.manifest?.id ?? p?.id) === packageId);
+                const manifest = manifestEntry?.manifest ?? manifestEntry;
+                if (!manifest) {
+                    return { handled: true, response: this.error(`Package '${packageId}' is not registered on this server`, 404) };
+                }
+
                 // Prevent installing cloud/system-scope packages per-project
-                const allPkgs = this.kernel.packages?.getAll?.() ?? [];
-                const manifest = allPkgs.find((p: any) => (p.manifest?.id ?? p.id) === packageId)?.manifest ?? allPkgs.find((p: any) => (p.manifest?.id ?? p.id) === packageId);
                 const CLOUD_SCOPES = new Set(['cloud', 'system', 'platform']);
                 if (CLOUD_SCOPES.has(manifest?.scope)) {
                     return { handled: true, response: this.error(`Package '${packageId}' has scope=${manifest.scope} and cannot be installed per-project`, 403) };
                 }
+
+                // Look up project to get organization_id (owner) and resolve session user
+                const projectRow = await findOne(ENV, { id: envId }) as any;
+                if (!projectRow) {
+                    return { handled: true, response: this.error(`Project '${envId}' not found`, 404) };
+                }
+                const ownerOrgId = projectRow.organization_id ?? 'system';
+
+                let userId = 'system';
+                try {
+                    const authService: any = await this.getService(CoreServiceName.enum.auth);
+                    const sessionData = await authService?.api?.getSession?.({
+                        headers: _context?.request?.headers,
+                    });
+                    userId = sessionData?.user?.id ?? sessionData?.session?.userId ?? 'system';
+                } catch {
+                    // Fall through with 'system'
+                }
+
+                const resolvedVersion = version ?? manifest?.version ?? '1.0.0';
+
+                // Reject duplicate installs for the same package in the same project
+                const dup = await ql.findOne(PKG_INSTALL, {
+                    where: { project_id: envId, package_id: packageId },
+                } as any) as any;
+                if (dup?.id) {
+                    return { handled: true, response: this.error(`Package '${packageId}' is already installed in this project`, 409) };
+                }
+
+                // Upsert sys_package + sys_package_version, then create the install record
+                const sysPackageId = await ensureSysPackage(packageId, ownerOrgId, userId, manifest);
+                const sysPackageVersionId = await ensureSysPackageVersion(sysPackageId, resolvedVersion, userId, manifest);
 
                 const nowIso = new Date().toISOString();
                 const recordId = randomUUID();
                 await ql.insert(PKG_INSTALL, {
                     id: recordId,
                     project_id: envId,
-                    package_id: packageId,
-                    version: version ?? manifest?.version ?? '1.0.0',
+                    package_id: sysPackageId,
+                    package_version_id: sysPackageVersionId,
                     status: 'installed',
                     enabled: enableOnInstall !== false,
                     installed_at: nowIso,
+                    installed_by: userId,
                     updated_at: nowIso,
                     settings: settings ? JSON.stringify(settings) : null,
-                    upgrade_history: '[]',
                 });
                 const record = await ql.findOne(PKG_INSTALL, { where: { id: recordId } } as any);
+                // Invalidate the project kernel cache so the freshly-installed
+                // package gets loaded on next request.
+                try { await this.kernelManager?.evict(envId); } catch { /* best effort */ }
                 return { handled: true, response: this.success({ package: record }) };
             }
 
@@ -2236,12 +2388,17 @@ export class HttpDispatcher {
             if (parts.length === 4 && parts[0] === 'projects' && parts[2] === 'packages' && m === 'DELETE') {
                 const envId = decodeURIComponent(parts[1]);
                 const pkgId = decodeURIComponent(parts[3]);
-                const record = await ql.findOne(PKG_INSTALL, { where: { project_id: envId, package_id: pkgId } } as any) as any;
+                const record = await findInstallByManifestId(envId, pkgId) as any;
                 if (!record) return { handled: true, response: this.error(`Package '${pkgId}' is not installed in this project`, 404) };
-                if (['cloud', 'system', 'platform'].includes(record.scope)) {
-                    return { handled: true, response: this.error(`Package '${pkgId}' with scope=${record.scope} cannot be uninstalled`, 403) };
+                // Re-derive scope from the in-memory registry manifest, since
+                // sys_package_installation no longer carries `scope` directly.
+                const allPkgs0 = this.kernel.packages?.getAll?.() ?? [];
+                const m0 = allPkgs0.find((p: any) => (p.manifest?.id ?? p.id) === pkgId)?.manifest;
+                if (m0?.scope && ['cloud', 'system', 'platform'].includes(m0.scope)) {
+                    return { handled: true, response: this.error(`Package '${pkgId}' with scope=${m0.scope} cannot be uninstalled`, 403) };
                 }
                 await ql.delete(PKG_INSTALL, { where: { id: record.id } } as any);
+                try { await this.kernelManager?.evict(envId); } catch { /* best effort */ }
                 return { handled: true, response: this.success({ id: record.id, success: true }) };
             }
 
@@ -2249,11 +2406,12 @@ export class HttpDispatcher {
             if (parts.length === 5 && parts[0] === 'projects' && parts[2] === 'packages' && parts[4] === 'enable' && m === 'PATCH') {
                 const envId = decodeURIComponent(parts[1]);
                 const pkgId = decodeURIComponent(parts[3]);
-                const record = await ql.findOne(PKG_INSTALL, { where: { project_id: envId, package_id: pkgId } } as any) as any;
+                const record = await findInstallByManifestId(envId, pkgId) as any;
                 if (!record) return { handled: true, response: this.error(`Package '${pkgId}' is not installed in this project`, 404) };
                 const nowIso = new Date().toISOString();
                 await ql.update(PKG_INSTALL, { enabled: true, status: 'installed', updated_at: nowIso }, { where: { id: record.id } } as any);
                 const updated = await ql.findOne(PKG_INSTALL, { where: { id: record.id } } as any);
+                try { await this.kernelManager?.evict(envId); } catch { /* best effort */ }
                 return { handled: true, response: this.success({ package: updated }) };
             }
 
@@ -2261,14 +2419,17 @@ export class HttpDispatcher {
             if (parts.length === 5 && parts[0] === 'projects' && parts[2] === 'packages' && parts[4] === 'disable' && m === 'PATCH') {
                 const envId = decodeURIComponent(parts[1]);
                 const pkgId = decodeURIComponent(parts[3]);
-                const record = await ql.findOne(PKG_INSTALL, { where: { project_id: envId, package_id: pkgId } } as any) as any;
+                const record = await findInstallByManifestId(envId, pkgId) as any;
                 if (!record) return { handled: true, response: this.error(`Package '${pkgId}' is not installed in this project`, 404) };
-                if (['cloud', 'system', 'platform'].includes(record.scope)) {
-                    return { handled: true, response: this.error(`Package '${pkgId}' with scope=${record.scope} cannot be disabled`, 403) };
+                const allPkgs1 = this.kernel.packages?.getAll?.() ?? [];
+                const m1 = allPkgs1.find((p: any) => (p.manifest?.id ?? p.id) === pkgId)?.manifest;
+                if (m1?.scope && ['cloud', 'system', 'platform'].includes(m1.scope)) {
+                    return { handled: true, response: this.error(`Package '${pkgId}' with scope=${m1.scope} cannot be disabled`, 403) };
                 }
                 const nowIso = new Date().toISOString();
                 await ql.update(PKG_INSTALL, { enabled: false, status: 'disabled', updated_at: nowIso }, { where: { id: record.id } } as any);
                 const updated = await ql.findOne(PKG_INSTALL, { where: { id: record.id } } as any);
+                try { await this.kernelManager?.evict(envId); } catch { /* best effort */ }
                 return { handled: true, response: this.success({ package: updated }) };
             }
 
@@ -2276,22 +2437,34 @@ export class HttpDispatcher {
             if (parts.length === 5 && parts[0] === 'projects' && parts[2] === 'packages' && parts[4] === 'upgrade' && m === 'POST') {
                 const envId = decodeURIComponent(parts[1]);
                 const pkgId = decodeURIComponent(parts[3]);
-                const record = await ql.findOne(PKG_INSTALL, { where: { project_id: envId, package_id: pkgId } } as any) as any;
+                const record = await findInstallByManifestId(envId, pkgId) as any;
                 if (!record) return { handled: true, response: this.error(`Package '${pkgId}' is not installed in this project`, 404) };
                 const { targetVersion } = body ?? {};
                 const allPkgs2 = this.kernel.packages?.getAll?.() ?? [];
-                const manifest2 = allPkgs2.find((p: any) => (p.manifest?.id ?? p.id) === pkgId)?.manifest ?? allPkgs2.find((p: any) => (p.manifest?.id ?? p.id) === pkgId);
-                const newVersion = targetVersion ?? manifest2?.version ?? record.version;
+                const manifest2 = allPkgs2.find((p: any) => (p.manifest?.id ?? p.id) === pkgId)?.manifest;
+                const currentVer = await ql.findOne(PKG_VERSION, { where: { id: record.package_version_id } } as any) as any;
+                const newVersion = targetVersion ?? manifest2?.version ?? currentVer?.version ?? '1.0.0';
+                if (newVersion === currentVer?.version) {
+                    return { handled: true, response: this.success({ package: record, message: 'Already at target version' }) };
+                }
+                // Resolve user for `created_by` audit columns
+                let userId = 'system';
+                try {
+                    const authService: any = await this.getService(CoreServiceName.enum.auth);
+                    const sessionData = await authService?.api?.getSession?.({
+                        headers: _context?.request?.headers,
+                    });
+                    userId = sessionData?.user?.id ?? 'system';
+                } catch { /* fall through */ }
+                const newVersionId = await ensureSysPackageVersion(record.package_id, newVersion, userId, manifest2);
                 const nowIso = new Date().toISOString();
-                const history = (() => { try { return JSON.parse(record.upgrade_history || '[]'); } catch { return []; } })();
-                history.push({ fromVersion: record.version, toVersion: newVersion, upgradedAt: nowIso, status: 'success' });
                 await ql.update(PKG_INSTALL, {
-                    version: newVersion,
+                    package_version_id: newVersionId,
                     status: 'installed',
                     updated_at: nowIso,
-                    upgrade_history: JSON.stringify(history),
                 }, { where: { id: record.id } } as any);
                 const updated = await ql.findOne(PKG_INSTALL, { where: { id: record.id } } as any);
+                try { await this.kernelManager?.evict(envId); } catch { /* best effort */ }
                 return { handled: true, response: this.success({ package: updated }) };
             }
 
