@@ -192,9 +192,6 @@ importers:
       '@objectstack/plugin-security':
         specifier: workspace:*
         version: link:../../packages/plugins/plugin-security
-      '@objectstack/plugin-setup':
-        specifier: workspace:*
-        version: link:../../packages/plugins/plugin-setup
       '@objectstack/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
@@ -353,9 +350,6 @@ importers:
       '@objectstack/plugin-security':
         specifier: workspace:*
         version: link:../../packages/plugins/plugin-security
-      '@objectstack/plugin-setup':
-        specifier: workspace:*
-        version: link:../../packages/plugins/plugin-setup
       '@objectstack/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
@@ -462,9 +456,6 @@ importers:
       '@objectstack/plugin-security':
         specifier: workspace:*
         version: link:../../packages/plugins/plugin-security
-      '@objectstack/plugin-setup':
-        specifier: workspace:*
-        version: link:../../packages/plugins/plugin-setup
       '@objectstack/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
@@ -817,9 +808,6 @@ importers:
       '@objectstack/plugin-security':
         specifier: workspace:*
         version: link:../plugins/plugin-security
-      '@objectstack/plugin-setup':
-        specifier: workspace:*
-        version: link:../plugins/plugin-setup
       '@objectstack/rest':
         specifier: workspace:*
         version: link:../rest
@@ -1209,9 +1197,6 @@ importers:
       '@objectstack/plugin-security':
         specifier: workspace:*
         version: link:../plugin-security
-      '@objectstack/plugin-setup':
-        specifier: workspace:*
-        version: link:../plugin-setup
       '@objectstack/rest':
         specifier: workspace:*
         version: link:../../rest
@@ -1334,25 +1319,6 @@ importers:
         specifier: ^4.1.4
         version: 4.1.4(@opentelemetry/api@1.9.0)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.4)(happy-dom@20.9.0)(msw@2.13.4(@types/node@25.6.0)(typescript@6.0.3))(vite@8.0.9(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
 
-  packages/plugins/plugin-setup:
-    dependencies:
-      '@objectstack/core':
-        specifier: workspace:*
-        version: link:../../core
-      '@objectstack/spec':
-        specifier: workspace:*
-        version: link:../../spec
-    devDependencies:
-      '@types/node':
-        specifier: ^25.6.0
-        version: 25.6.0
-      typescript:
-        specifier: ^6.0.3
-        version: 6.0.3
-      vitest:
-        specifier: ^4.1.4
-        version: 4.1.4(@opentelemetry/api@1.9.0)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.4)(happy-dom@20.9.0)(msw@2.13.4(@types/node@25.6.0)(typescript@6.0.3))(vite@8.0.9(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
-
   packages/rest:
     dependencies:
       '@objectstack/core':
@@ -1442,6 +1408,9 @@ importers:
         specifier: ^6.0.168
         version: 6.0.168(zod@4.3.6)
     devDependencies:
+      '@objectstack/platform-objects':
+        specifier: workspace:*
+        version: link:../../platform-objects
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0

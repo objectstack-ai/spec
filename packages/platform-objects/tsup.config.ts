@@ -10,6 +10,7 @@ export default defineConfig({
     'audit/index': 'src/audit/index.ts',
     'tenant/index': 'src/tenant/index.ts',
     'metadata/index': 'src/metadata/index.ts',
+    'apps/index': 'src/apps/index.ts',
   },
   format: ['cjs', 'esm'],
   dts: true,

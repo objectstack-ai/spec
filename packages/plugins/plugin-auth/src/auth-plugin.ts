@@ -2,6 +2,7 @@
 
 import { Plugin, PluginContext, IHttpServer } from '@objectstack/core';
 import { AuthConfig } from '@objectstack/spec/system';
+import { SETUP_APP } from '@objectstack/platform-objects/apps';
 import { AuthManager } from './auth-manager.js';
 import {
   authIdentityObjects,
@@ -97,28 +98,12 @@ export class AuthPlugin implements Plugin {
     ctx.getService<{ register(m: any): void }>('manifest').register({
       ...authPluginManifestHeader,
       objects: authIdentityObjects,
+      // The platform Setup App is a static metadata artifact (lives in
+      // @objectstack/platform-objects/apps). plugin-auth is the natural
+      // owner of its registration since it loads first among the trio
+      // (auth + security + audit) that supplies the underlying objects.
+      apps: [SETUP_APP],
     });
-
-    // Contribute navigation items to the Setup App (if SetupPlugin is loaded).
-    // Uses try/catch so AuthPlugin works independently of SetupPlugin.
-    try {
-      const setupNav = ctx.getService<{ contribute(c: any): void }>('setupNav');
-      if (setupNav) {
-        setupNav.contribute({
-          areaId: 'area_administration',
-          items: [
-            { id: 'nav_users', type: 'object', label: 'Users', objectName: 'sys_user', icon: 'users', order: 10 },
-            { id: 'nav_organizations', type: 'object', label: 'Organizations', objectName: 'sys_organization', icon: 'building-2', order: 20 },
-            { id: 'nav_teams', type: 'object', label: 'Teams', objectName: 'sys_team', icon: 'users-round', order: 30 },
-            { id: 'nav_api_keys', type: 'object', label: 'API Keys', objectName: 'sys_api_key', icon: 'key', order: 40 },
-            { id: 'nav_sessions', type: 'object', label: 'Sessions', objectName: 'sys_session', icon: 'monitor', order: 50 },
-          ],
-        });
-        ctx.logger.info('Auth navigation items contributed to Setup App');
-      }
-    } catch {
-      // SetupPlugin not loaded — skip silently
-    }
 
     ctx.logger.info('Auth Plugin initialized successfully');
   }

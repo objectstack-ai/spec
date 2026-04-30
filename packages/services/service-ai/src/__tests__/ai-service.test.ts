@@ -818,21 +818,17 @@ describe('AIServicePlugin', () => {
     expect(ctx.replaceService).toHaveBeenCalledWith('ai', expect.any(Object));
   });
 
-  it('should contribute Setup navigation labels as plain strings', async () => {
-    const plugin = new AIServicePlugin();
-    const ctx = createMockContext();
-    const contribute = vi.fn();
-    ctx.registerService('setupNav', { contribute });
-
-    await plugin.init(ctx);
-
-    expect(contribute).toHaveBeenCalledWith({
-      areaId: 'area_ai',
-      items: [
-        expect.objectContaining({ id: 'nav_ai_conversations', label: 'Conversations' }),
-        expect.objectContaining({ id: 'nav_ai_messages', label: 'Messages' }),
-      ],
-    });
+  it('exposes AI navigation entries via the static platform Setup App', async () => {
+    // Setup nav items that used to be contributed dynamically by AIServicePlugin
+    // are now part of the static SETUP_APP definition shipped by
+    // @objectstack/platform-objects/apps. Verify the entries we own are
+    // present so the Studio Setup App still shows the AI section.
+    const { SETUP_APP } = await import('@objectstack/platform-objects/apps');
+    const aiArea = SETUP_APP.areas?.find((a: any) => a.id === 'area_ai');
+    expect(aiArea).toBeDefined();
+    const ids = (aiArea?.navigation ?? []).map((n: any) => n.id);
+    expect(ids).toContain('nav_ai_conversations');
+    expect(ids).toContain('nav_ai_messages');
   });
 
   it('should clean up on destroy', async () => {

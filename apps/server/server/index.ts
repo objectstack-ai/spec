@@ -55,23 +55,14 @@ async function bootKernel(): Promise<BootResult> {
     kernel.registerService('http.server', httpServer);
     kernel.registerService('http-server', httpServer); // alias for backward compatibility
 
-    // 1. Config plugins (control-plane preset + MultiProjectPlugin)
+    // 1. Config plugins (control-plane preset + MultiProjectPlugin + Auth/Security/Audit).
+    //    AuthPlugin registers the platform Setup App via its manifest
+    //    (definition lives in @objectstack/platform-objects/apps).
     for (const plugin of stackConfig.plugins ?? []) {
         await kernel.use(plugin as any);
     }
 
-    // 2. Optional SetupPlugin — provides the Studio's setup app. Same as
-    //    the CLI's auto-register path; kept here so the serverless bundle
-    //    is independently bootable.
-    try {
-        const setupPkg = '@objectstack/plugin-setup';
-        const { SetupPlugin } = await import(/* webpackIgnore: true */ setupPkg);
-        await kernel.use(new SetupPlugin());
-    } catch {
-        // optional
-    }
-
-    // 3. REST API + Dispatcher — consume the scoping config from stackConfig.api
+    // 2. REST API + Dispatcher — consume the scoping config from stackConfig.api
     const api = (stackConfig as any).api ?? {};
     try {
         await kernel.use(

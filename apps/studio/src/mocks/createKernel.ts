@@ -4,7 +4,6 @@ import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
 import { ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { MSWPlugin } from '@objectstack/plugin-msw';
-import { SetupPlugin } from '@objectstack/plugin-setup';
 import { AutomationServicePlugin } from '@objectstack/service-automation';
 import { AnalyticsServicePlugin } from '@objectstack/service-analytics';
 import { MetadataPlugin } from '@objectstack/metadata';
@@ -19,6 +18,7 @@ import {
 } from '@objectstack/platform-objects/identity';
 import { SysRole, SysPermissionSet } from '@objectstack/platform-objects/security';
 import { SysAuditLog } from '@objectstack/platform-objects/audit';
+import { SETUP_APP } from '@objectstack/platform-objects/apps';
 
 /** All system objects from auth, security, and audit plugins */
 const SYSTEM_OBJECTS = [
@@ -58,7 +58,9 @@ export async function createKernel(options: KernelOptions) {
     // Register the driver
     await kernel.use(new DriverPlugin(driver, 'memory'));
     
-    // Register system objects (auth, security, audit) as a built-in system package
+    // Register system objects (auth, security, audit) as a built-in system package.
+    // The Setup App (admin nav metadata) ships in the same package since the
+    // referenced sys_* objects all live here.
     const systemConfig = {
         name: 'system',
         manifest: {
@@ -69,6 +71,7 @@ export async function createKernel(options: KernelOptions) {
             namespace: 'sys',
         },
         objects: SYSTEM_OBJECTS,
+        apps: [SETUP_APP],
     };
     console.log('[KernelFactory] Loading system objects:', SYSTEM_OBJECTS.length);
     await kernel.use(new AppPlugin(systemConfig));
@@ -80,9 +83,6 @@ export async function createKernel(options: KernelOptions) {
     }
 
     // Register services and plugins
-    // SetupPlugin must load BEFORE other plugins that contribute navigation items
-    // so that the setupNav service is available during their init() phase
-    await kernel.use(new SetupPlugin());
     await kernel.use(new FeedServicePlugin());
     await kernel.use(new MetadataPlugin({ watch: false }));
     await kernel.use(new AIServicePlugin());

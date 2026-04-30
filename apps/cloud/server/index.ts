@@ -55,26 +55,15 @@ async function bootKernel(): Promise<BootResult> {
     kernel.registerService('http.server', httpServer);
     kernel.registerService('http-server', httpServer); // alias for backward compatibility
 
-    // 1. SetupPlugin — must be registered BEFORE the control-plane preset
-    //    so that AuthPlugin / SecurityPlugin / AuditPlugin can resolve the
-    //    `setupNav` service during their own `init()` and contribute their
-    //    Setup-App navigation items. Without this ordering the deployed
-    //    `/api/v1/meta/app` would return a Setup app with empty `areas`
-    //    (no menu rendered in Studio).
-    try {
-        const setupPkg = '@objectstack/plugin-setup';
-        const { SetupPlugin } = await import(/* webpackIgnore: true */ setupPkg);
-        await kernel.use(new SetupPlugin());
-    } catch {
-        // optional
-    }
-
-    // 2. Config plugins (control-plane preset + MultiProjectPlugin + Auth/Security/Audit)
+    // 1. Config plugins (control-plane preset + MultiProjectPlugin + Auth/Security/Audit).
+    //    AuthPlugin registers the platform Setup App via its manifest
+    //    (definition lives in @objectstack/platform-objects/apps), so no
+    //    separate setup plugin is needed.
     for (const plugin of stackConfig.plugins ?? []) {
         await kernel.use(plugin as any);
     }
 
-    // 3. REST API + Dispatcher — consume the scoping config from stackConfig.api
+    // 2. REST API + Dispatcher — consume the scoping config from stackConfig.api
     const api = (stackConfig as any).api ?? {};
     try {
         await kernel.use(

@@ -12,6 +12,7 @@
  *   @objectstack/platform-objects/audit     — audit-log, presence
  *   @objectstack/platform-objects/tenant    — project, app, package, ...
  *   @objectstack/platform-objects/metadata  — sys_metadata, sys_object, sys_view, ...
+ *   @objectstack/platform-objects/apps      — built-in platform Apps (Setup, ...)
  */
 
 export * from './identity/index.js';
@@ -19,3 +20,4 @@ export * from './security/index.js';
 export * from './audit/index.js';
 export * from './tenant/index.js';
 export * from './metadata/index.js';
+export * from './apps/index.js';

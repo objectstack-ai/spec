@@ -336,23 +336,7 @@ export default class Serve extends Command {
         }
       }
 
-      // 5. Auto-register SetupPlugin BEFORE config plugins so that other
-      // plugins (e.g. AuthPlugin) can call setupNav.contribute() during init.
-      const hasSetupPlugin = plugins.some(
-        (p: any) => p.name === 'com.objectstack.setup' || p.constructor?.name === 'SetupPlugin'
-      );
-      if (!hasSetupPlugin) {
-        try {
-          const setupPkg = '@objectstack/plugin-setup';
-          const { SetupPlugin } = await import(/* webpackIgnore: true */ setupPkg);
-          await kernel.use(new SetupPlugin());
-          trackPlugin('Setup');
-        } catch {
-          // @objectstack/plugin-setup not installed — setup app unavailable
-        }
-      }
-
-      // 5a. Auto-register Studio single-project signal in dev mode.
+      // 5. Auto-register Studio single-project signal in dev mode.
       //
       // `objectstack dev` runs a vanilla user stack (e.g. examples/app-crm)
       // as a single project — there is no apps/cloud control plane and no
