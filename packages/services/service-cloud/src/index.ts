@@ -67,8 +67,13 @@ export {
 } from './boot-env.js';
 export type { BootMode, BootEnv } from './boot-env.js';
 
-export { createProjectStack, ProjectStackConfigSchema, DEFAULT_CLOUD_URL } from './project-stack.js';
-export type { ProjectStackConfig, ProjectStackResult } from './project-stack.js';
+export { createRuntimeStack, RuntimeStackConfigSchema, DEFAULT_CLOUD_URL } from './runtime-stack.js';
+export type { RuntimeStackConfig, RuntimeStackResult } from './runtime-stack.js';
+
+/** @deprecated Use `createRuntimeStack`. */
+export { createProjectStack, ProjectStackConfigSchema } from './runtime-stack.js';
+/** @deprecated Use `RuntimeStackConfig`/`RuntimeStackResult`. */
+export type { ProjectStackConfig, ProjectStackResult } from './runtime-stack.js';
 
 export { createStandaloneStack, StandaloneStackConfigSchema } from './standalone-stack.js';
 export type { StandaloneStackConfig, StandaloneStackResult } from './standalone-stack.js';

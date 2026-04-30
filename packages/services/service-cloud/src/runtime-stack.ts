@@ -4,9 +4,12 @@
  * Runtime-mode stack factory.
  *
  * Default behavior — boots a "runtime node" connected to ObjectStack
- * Cloud (`https://cloud.objectstack.ai`). The node fetches per-project
- * artifacts over HTTP and routes incoming requests to the matching
- * project kernel; no local control-plane database is provisioned.
+ * Cloud at `http://localhost:4000` (the local `apps/cloud` instance —
+ * start it before the runtime). For the hosted control plane, set
+ * `OBJECTSTACK_CLOUD_URL=https://cloud.objectstack.ai`. The node
+ * fetches per-project artifacts over HTTP and routes incoming requests
+ * to the matching project kernel; no local control-plane database is
+ * provisioned.
  *
  * Local opt-out — set `OBJECTSTACK_CLOUD_URL=local` (or
  * `cloudUrl: 'local'`) to fall back to the legacy single-control-plane
@@ -33,12 +36,18 @@ import type { AppBundleResolver } from './project-kernel-factory.js';
 import { createObjectOSStack } from './objectos-stack.js';
 
 /**
- * Default ObjectStack Cloud base URL used when neither `cloudUrl` nor
- * `OBJECTSTACK_CLOUD_URL` is set. Override via the env var or
- * `RuntimeStackConfig.cloudUrl`. Set to `local` to disable cloud routing
- * and boot from a local `control.db` instead.
+ * Default ObjectStack Cloud base URL — the local `apps/cloud` instance
+ * running on port 4000. Override via `OBJECTSTACK_CLOUD_URL` (or
+ * `RuntimeStackConfig.cloudUrl`) to point at a remote control plane
+ * (e.g. `https://cloud.objectstack.ai`). Set to `local` to disable
+ * cloud routing entirely and boot from a local `control.db` instead.
+ *
+ * Why a local default? Runtime nodes are designed to be paired with a
+ * control plane. Defaulting to `localhost:4000` lets contributors run
+ * `apps/cloud` (the open-source control plane) and `apps/server` (the
+ * runtime) side-by-side with zero env config — the natural dev loop.
  */
-export const DEFAULT_CLOUD_URL = 'https://cloud.objectstack.ai';
+export const DEFAULT_CLOUD_URL = 'http://localhost:4000';
 
 export const RuntimeStackConfigSchema = z.object({
     /** Auth secret (defaults to env / dev fallback). Local-mode only. */
@@ -56,8 +65,9 @@ export const RuntimeStackConfigSchema = z.object({
     /** API prefix (passed through to the cloud preset). */
     apiPrefix: z.string().optional(),
     /**
-     * ObjectStack Cloud base URL. Defaults to `https://cloud.objectstack.ai`
-     * (override via the `OBJECTSTACK_CLOUD_URL` env var or this field).
+     * ObjectStack Cloud base URL. Defaults to `http://localhost:4000`
+     * (the local `apps/cloud` dev instance). For the hosted control
+     * plane, set `OBJECTSTACK_CLOUD_URL=https://cloud.objectstack.ai`.
      *
      * When non-empty (the default), the runtime stack runs as a
      * **cloud-connected runtime node**: no local control-plane database,

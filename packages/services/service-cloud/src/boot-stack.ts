@@ -13,7 +13,7 @@
 import { z } from 'zod';
 import { resolveMode, resolveAuthSecret, resolveBaseUrl } from './boot-env.js';
 import type { BootMode } from './boot-env.js';
-import { createProjectStack, ProjectStackConfigSchema } from './project-stack.js';
+import { createRuntimeStack, RuntimeStackConfigSchema } from './runtime-stack.js';
 import { createStandaloneStack, StandaloneStackConfigSchema } from './standalone-stack.js';
 import { createCloudStack } from './cloud-stack.js';
 import type { CloudStackConfig } from './cloud-stack.js';
@@ -35,9 +35,14 @@ const CloudStackConfigSchema = z.object({
 
 export const BootStackConfigSchema = z.object({
     /** Explicit mode override. When unset, resolves from env. */
-    mode: z.enum(['project', 'cloud', 'standalone']).optional(),
-    /** Project-mode options (used when mode resolves to `project`). */
-    project: ProjectStackConfigSchema.optional(),
+    mode: z.enum(['runtime', 'cloud', 'standalone', 'project']).optional(),
+    /** Runtime-mode options (used when mode resolves to `runtime`). */
+    runtime: RuntimeStackConfigSchema.optional(),
+    /**
+     * @deprecated Use `runtime`. Kept for back-compat with hosts that
+     * already pass `project: { … }` to `createBootStack()`.
+     */
+    project: RuntimeStackConfigSchema.optional(),
     /** Cloud-mode options (used when mode resolves to `cloud`). */
     cloud: CloudStackConfigSchema.optional(),
     /** Standalone-mode options (used when mode resolves to `standalone`). */
@@ -57,11 +62,18 @@ export interface BootStackResult {
  * Selection precedence:
  *   1. `config.mode` (explicit override)
  *   2. `OBJECTSTACK_MODE` environment variable
- *   3. Default: `'project'`
+ *   3. Default: `'standalone'`
+ *
+ * Note: `'project'` is accepted as a deprecated alias for `'runtime'`
+ * (renamed v4.x to better describe the mode's role: a runtime node
+ * connected to ObjectStack Cloud).
  */
 export async function createBootStack(config?: BootStackConfig): Promise<BootStackResult> {
     const cfg = BootStackConfigSchema.parse(config ?? {});
-    const mode: BootMode = cfg.mode ?? resolveMode();
+    const explicitMode: BootMode | undefined = cfg.mode
+        ? (cfg.mode === 'project' ? 'runtime' : cfg.mode as BootMode)
+        : undefined;
+    const mode: BootMode = explicitMode ?? resolveMode();
 
     if (mode === 'cloud') {
         const cloudCfg = cfg.cloud ?? {};
@@ -84,5 +96,6 @@ export async function createBootStack(config?: BootStackConfig): Promise<BootSta
         return createStandaloneStack(cfg.standalone);
     }
 
-    return createProjectStack(cfg.project);
+    // runtime (also reached via deprecated `mode: 'project'`)
+    return createRuntimeStack(cfg.runtime ?? cfg.project);
 }

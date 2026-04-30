@@ -175,17 +175,17 @@ export default class Serve extends Command {
         throw new Error(`No default export found in ${args.config}`);
       }
 
-      // Project mode is the canonical OS dev workflow. Every bare
+      // Standalone is the default OS dev workflow. Every bare
       // `defineStack()` is booted via `@objectstack/service-cloud`'s
-      // `createBootStack()` (project / cloud / standalone are selected
-      // by `OBJECTSTACK_MODE`, default `project`). Set
+      // `createBootStack()` (runtime / cloud / standalone selected by
+      // `OBJECTSTACK_MODE`, default `standalone`). Set
       // `OBJECTSTACK_MODE=off` to fall back to the legacy lightweight
       // assembler.
       if (shouldBootWithLibrary(config)) {
         const { createBootStack } = await import('@objectstack/service-cloud');
         const bootResult = await createBootStack({
           mode: config.bootMode,
-          project: config.project,
+          runtime: config.runtime ?? config.project,
           cloud: config.cloud,
           standalone: config.standalone,
         });

@@ -9,7 +9,7 @@
  * dispatcher can resolve hostnames and route every request to the
  * matching project kernel built from a remote-fetched artifact.
  *
- * Invoked by `createProjectStack()` whenever `OBJECTSTACK_CONTROL_PLANE_URL`
+ * Invoked by `createRuntimeStack()` whenever `OBJECTSTACK_CLOUD_URL`
  * (or `config.controlPlaneUrl`) is set. The same plugin shape is returned
  * as `createCloudStack()` so host configs can swap stacks transparently.
  */

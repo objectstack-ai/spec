@@ -34,9 +34,11 @@ export function isHostConfig(config: any): boolean {
  * `@objectstack/service-cloud/boot-env`.
  */
 const RECOGNISED_MODES = new Set([
-  'project',
+  'runtime',
   'cloud',
   'standalone',
+  // Deprecated aliases (kept for back-compat — emit a console warning at boot).
+  'project',
   'local',
   'single-project',
   'multi-project',
@@ -47,7 +49,7 @@ export function shouldBootWithLibrary(config: any): boolean {
   const mode = process.env.OBJECTSTACK_MODE?.trim().toLowerCase();
   if (mode === 'off' || mode === 'none' || mode === 'legacy') return false;
   if (mode && !RECOGNISED_MODES.has(mode)) {
-    console.warn(`[objectstack] Unknown OBJECTSTACK_MODE=${mode}; falling back to project mode.`);
+    console.warn(`[objectstack] Unknown OBJECTSTACK_MODE=${mode}; falling back to standalone mode.`);
   }
   if (config?.bootMode === 'off') return false;
   return true;
