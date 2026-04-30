@@ -17,23 +17,24 @@ import { AlertTriangle, Cloud, Cpu, Globe, Layers, Terminal } from 'lucide-react
 ObjectStack is a **metadata-driven Post-SaaS Operating System**. Users author
 data shape, business logic, and UI as **declarative metadata** in a local
 TypeScript workspace. The platform compiles that metadata into JSON artifacts,
-stores them in the control plane, and serves running applications from those
-artifacts - no glue code, no hand-written CRUD, no separate frontend/backend
-codebases.
+publishes each artifact as an immutable Project Version in the control plane,
+and serves running applications from the Project's current Version - no glue
+code, no hand-written CRUD, no separate frontend/backend codebases.
 
 Phase 1 is deliberately **code-first**:
 
 - The local TypeScript workspace is the only metadata authoring surface.
-- The CLI compiles and publishes metadata to the control plane.
-- Studio is a hosted control-plane dashboard and metadata/artifact viewer. It
-  does **not** modify user metadata in Phase 1.
-- ObjectOS runtimes are stateless consumers of compiled artifacts.
+- The CLI compiles metadata and publishes a new Project Version to the control plane.
+- Studio is a hosted control-plane dashboard for project configuration, version
+  history, artifact inspection, logs, and health. It does **not** modify user
+  metadata in Phase 1.
+- ObjectOS runtimes are stateless consumers of the Project's current Version artifact.
 
 Five non-negotiable tenets:
 
 - **Data as Code** - objects, fields, functions, views, flows are all metadata artifacts
-- **Centralized Metadata, Stateless Runtime** - metadata is the single source of truth in the control plane; ObjectOS runtimes pull compiled artifacts and serve them
-- **TS-Authored, JSON-Stored** - TypeScript is the authoring form (type safety, IDE intelligence, AI-assisted editing); JSON is the wire and storage form (DB payload, Artifact API response body). Zod schemas are the only bridge between the two.
+- **Versioned Artifacts, Stateless Runtime** - every publish creates an immutable Project Version; ObjectOS runtimes pull the current Version artifact and serve it
+- **TS-Authored, JSON-Stored** - TypeScript is the authoring form (type safety, IDE intelligence, AI-assisted editing); JSON is the wire and storage form (Project Version artifact payload, Artifact API response body, local artifact cache). Zod schemas are the only bridge between the two.
 - **Local-First** - every project can run against local drivers; cloud is an enhancement, not a dependency
 - **Open Core** - the runtime and protocols are MIT-licensed; only hosted cloud features are proprietary
 
@@ -41,16 +42,17 @@ Five non-negotiable tenets:
 
 ObjectStack's first production shape is **code-first metadata deployment**:
 developers author a TypeScript metadata tree locally, compile it to JSON, publish
-it to the control plane, inspect it in Studio, and run it through ObjectOS.
+it as an immutable Project Version in the control plane, inspect the version and
+artifact in Studio, and run the Project's current Version through ObjectOS.
 
-Branching, visual metadata editing, pull/merge workflows, and immutable release
-tags are future phases. The Phase 1 goal is smaller and more important: make the
-artifact boundary real.
+Branching, visual metadata editing, and pull/merge workflows are future phases.
+The Phase 1 goal is smaller and more important: make the artifact boundary real
+and make every publish a durable, rollback-capable Version.
 
 <Cards>
-  <Card icon={<Terminal />} title="Local Workspace + CLI" description="TS-authored project tree. `compile` turns it into JSON; `publish` uploads the current project metadata state." />
-  <Card icon={<Cloud />} title="Studio Dashboard" description="Create orgs and projects. Browse metadata, artifacts, publish history, logs, and health. Phase 1 is read-only for user metadata." />
-  <Card icon={<Globe />} title="Artifact API" description="Control-plane endpoint that returns a project's current compiled artifact. HTTP today, S3-backed tomorrow." />
+  <Card icon={<Terminal />} title="Local Workspace + CLI" description="TS-authored project tree. `compile` turns it into JSON; `publish` creates an immutable Project Version." />
+  <Card icon={<Cloud />} title="Studio Dashboard" description="Create orgs and projects. Inspect versions, artifacts, publish history, logs, and health. Phase 1 is read-only for user metadata." />
+  <Card icon={<Globe />} title="Artifact API" description="Control-plane endpoint that returns a project's current Version artifact. HTTP today, S3-backed tomorrow." />
   <Card icon={<Cpu />} title="ObjectOS Runtime" description="Stateless artifact consumer. Pulls once, caches, serves API + UI, and survives control-plane outages." />
 </Cards>
 
@@ -60,19 +62,21 @@ artifact boundary real.
 | Hosted project            | Project             |
 | Working tree              | Local TS file tree (`objectstack.config.ts` + `src/objects/*.ts` + ... ) |
 | Build                     | `objectstack compile` - validates TS, writes `dist/objectstack.json` |
-| Deploy                    | `objectstack publish` - uploads compiled JSON to the control plane for one project |
-| Dashboard                 | Studio - project management, artifact inspection, metadata browsing, logs, health |
-| Runtime boot              | ObjectOS pulls artifact -> hydrates kernel -> serves app |
-| Metadata storage          | Control-plane JSON payloads, validated by Zod |
+| Deploy                    | `objectstack publish` - creates a new immutable Project Version for one project |
+| Dashboard                 | Studio - project management, version history, artifact inspection, logs, health |
+| Runtime boot              | ObjectOS pulls current Version artifact -> hydrates kernel -> serves app |
+| Artifact storage          | Project Version artifact JSON or payload reference, validated by Zod |
+| Metadata projection       | Optional derived indexes / summaries; full metadata browsing is not required for Phase 1 |
 | Business rows             | Per-project business DB, never the control-plane DB |
 | Project URL               | Project hostname    |
 
 The deliberate simplification is that Phase 1 has **one writer** for user
 metadata: the CLI publishing from the local TypeScript workspace. Studio can show
-metadata and artifacts, but it cannot edit them. This keeps the core loop tight:
+version history, artifact payloads, and runtime state, but it cannot edit
+metadata. This keeps the core loop tight:
 
 ```
-TS authoring -> compile -> publish -> control-plane artifact -> ObjectOS runtime
+TS authoring -> compile -> publish Project Version -> current artifact -> ObjectOS runtime
 ```
 
 ## 3. Primary Surfaces
@@ -94,16 +98,18 @@ format, not the human authoring format.
 **Core commands:**
 - `objectstack dev` - boots a local ObjectOS against the local TS tree, fully offline (no control-plane call)
 - `objectstack compile` - validates TS against `ObjectStackDefinitionSchema` and emits `dist/objectstack.json`. See [packages/cli/src/commands/compile.ts](packages/cli/src/commands/compile.ts).
-- `objectstack publish` - POSTs the compiled JSON to the control plane for the current project. Today routes to `/api/v1/packages` (legacy) - see [packages/cli/src/commands/publish.ts](packages/cli/src/commands/publish.ts); it must evolve to `POST /api/v1/apps/:projectId/metadata` (Drift in §7).
+- `objectstack publish` - POSTs the compiled JSON to the control plane for the current project, creating a new immutable Project Version. Today routes to `/api/v1/packages` (legacy) - see [packages/cli/src/commands/publish.ts](packages/cli/src/commands/publish.ts); it must evolve to a project publish endpoint that returns `versionId`, `versionNumber`, `commitId`, and `checksum` (Drift in §7).
 
 **Relationship to Studio:** the CLI is the Phase 1 metadata writer. Studio is a
-reader for metadata, artifacts, publish history, runtime health, logs, and usage
-signals. Bidirectional CLI/Studio editing is intentionally deferred.
+reader for project configuration, Project Versions, artifacts, publish history,
+runtime health, logs, and usage signals. Bidirectional CLI/Studio editing is
+intentionally deferred.
 
-**Revision model:** every successful publish creates a project metadata revision
-(`commit_id`) and a content checksum. In Phase 1 these identify artifact state
-and power ETag/cache validation. They are not yet a collaborative merge or
-bidirectional write protocol.
+**Version model:** every successful publish creates an immutable Project Version
+with `versionId`, `versionNumber`, `commitId`, and a content checksum. A Project
+has a current Version pointer that controls what ObjectOS serves. Rollback is a
+pointer change, not artifact mutation. These identifiers are not yet a
+collaborative merge or bidirectional write protocol.
 
 ### <Cloud className="inline" /> Studio Dashboard
 
@@ -113,17 +119,18 @@ metadata authoring surface.
 **Responsibilities:**
 - Org / member / billing management
 - Project lifecycle (create, configure, delete)
-- Project metadata browser (Objects / Fields / Functions / Views / Flows / Agents)
-- Artifact inspector (schema version, checksum, commit id, publish time, payload preview)
+- Project version history (current version, latest version, rollback/promote state)
+- Artifact inspector (schema version, version id, checksum, commit id, publish time, payload preview)
 - API console, logs, usage metrics, runtime health
 - Publish history and diagnostics
 
 **Explicit Phase 1 boundary:** Studio does not edit user metadata. Visual
-metadata editors, Studio writes, and collaborative conflict handling belong to a
-future phase after the artifact-based runtime path is stable.
+metadata editors, metadata browsing as a primary product surface, Studio writes,
+and collaborative conflict handling belong to a future phase after the
+versioned-artifact runtime path is stable.
 
-**Status:** ~70% built for org/project/member UI. Metadata/artifact viewer and
-runtime observability need to be added. See [apps/studio/src/routes/](apps/studio/src/routes/).
+**Status:** ~70% built for org/project/member UI. Version history, artifact
+viewer, and runtime observability need to be added. See [apps/studio/src/routes/](apps/studio/src/routes/).
 
 ### <Globe className="inline" /> Control Plane Artifact API
 
@@ -133,20 +140,21 @@ project.
 
 ```
 GET /api/v1/cloud/projects/:projectId/artifact
--> { schemaVersion, projectId, commitId, checksum, metadata, functions, manifest }
+-> { schemaVersion, projectId, versionId, commitId, checksum, metadata, functions, manifest }
 ```
 
 **Today:** the Artifact API endpoint is not yet built. Local artifacts can already
 be bound to projects through `sys_project.metadata.artifact_path` and resolved
 when a project kernel boots.
-**Phase 1 target:** the control plane assembles the current project artifact
-from control-plane metadata payloads scoped by `organization_id` + `project_id`.
+**Phase 1 target:** the control plane returns the Project's current Version
+artifact. A pinned endpoint can later return a specific immutable version:
+`GET /api/v1/cloud/projects/:projectId/versions/:versionId/artifact`.
 **Future:** the same endpoint can return a redirect or signed URL pointing at an
 S3 object. The interface is stable; the backend swaps.
 
 **Responsibilities:**
-- Serve the current project's metadata + inlined function code as a single consumable blob
-- Expose `commitId`, content hash, and ETag so runtimes can detect drift and decide when to refetch
+- Serve the current Version's metadata + inlined function code as a single consumable blob
+- Expose `versionId`, `commitId`, content hash, and ETag so runtimes can detect drift and decide when to refetch
 - Leave room in the response shape for future `{ url, expiresAt, checksum }` indirection
 - Be cacheable at the CDN edge (future; read-heavy by design)
 
@@ -187,27 +195,27 @@ Organization                            <- control plane
   ├── Members (with roles)
   ├── Billing
   └── Project                           <- control plane; binds primary hostname
-        ├── Metadata State              <- control plane
-        │    ├── commit_id
-        │    ├── checksum
-        │    └── Metadata records
-        │         Objects / Fields / Functions / Views / Flows / Agents
-        │         (rows scoped by organization_id + project_id)
-        ├── Artifact                     <- control-plane response shape
-        │    └── Current compiled JSON document for the project
-        └── Business DB                 <- per-project, independent
-             └── Rows of user objects (customer, order, ...)
-             !! Does NOT store metadata.
+      ├── Current Version Pointer       <- current_version_id
+      ├── Project Versions              <- immutable publish history
+      │   ├── version_id / version_number
+      │   ├── commit_id / checksum
+      │   └── Artifact JSON or payloadRef
+      ├── Artifact API                  <- control-plane response shape
+      │   └── Current Version compiled JSON document
+      └── Business DB                   <- per-project, independent
+          └── Rows of user objects (customer, order, ...)
+          !! Does NOT store metadata.
 ```
 
 | Entity | Location / Table | Status |
 | :----- | :--------------- | :----- |
 | Organization | Control plane `sys_organization` | Built |
 | Project | Control plane `sys_project` (hostname binding) | Built |
-| Metadata State | Control-plane metadata payloads + project revision (`commit_id`, checksum), scoped by `organization_id` + `project_id` | ObjectOS DB bridge removed (D1); control-plane migration still tracked by M2 |
-| Artifact | `GET /api/v1/cloud/projects/:projectId/artifact` response | To build |
+| Project Version | Control-plane immutable artifact release (`version_id`, `version_number`, `commit_id`, checksum, artifact JSON or payload reference) | To build |
+| Current Version Pointer | `sys_project.current_version_id` (target shape) controls the version ObjectOS serves | To build |
+| Artifact | `GET /api/v1/cloud/projects/:projectId/artifact` response for the current Version | To build |
 | Business DB | Per-project dedicated DB (Turso / SQL / memory) | Built (driver provisioning), but currently shares space with metadata |
-| Branch / Release | Future control-plane entities | Deferred |
+| Branch | Future control-plane entity that points to a version and owns runnable branch config | Deferred |
 
 See [packages/services/service-tenant/src/objects/sys-project.object.ts](packages/services/service-tenant/src/objects/sys-project.object.ts)
 for the current Project schema.
@@ -221,16 +229,22 @@ strict:
   `src/*` files locally. The thing humans and AI agents interact with is typed
   TypeScript backed by Zod schemas.
 - **Storage / wire form - JSON.** Everything that hits a disk or a network -
-  the `sys_metadata.metadata` column, the Artifact API response body, the local
-  artifact cache - is JSON. It is small, portable, and has no dependency on the
-  TypeScript compiler.
+  the Project Version artifact payload, the Artifact API response body, the
+  local artifact cache, and any future object-storage payload reference - is
+  JSON. It is small, portable, and has no dependency on the TypeScript compiler.
 
 The bridge between the two is **Zod**, nothing else:
 
 - CLI `compile` validates the local TS tree against `ObjectStackDefinitionSchema.safeParse` and emits JSON.
-- The control plane validates incoming JSON with the same Zod schemas before writing to `sys_metadata`.
+- The control plane validates incoming JSON with the same Zod schemas before creating a Project Version.
 - ObjectOS validates the artifact with Zod on load.
 - JSON Schema (published via `z.toJSONSchema()` in [packages/spec/scripts/build-schemas.ts](packages/spec/scripts/build-schemas.ts)) powers IDE validation and CLI error messages.
+
+If Studio later needs rich metadata browsing, diffing, or visual editing, the
+control plane can project a Project Version's artifact into `sys_metadata`
+records scoped by `organization_id` + `project_id` + `version_id`. That
+projection is derived state, not required for the version-first Phase 1 runtime
+path.
 
 Any serializer that bypasses Zod is an anti-pattern - see §8. The Zod schema
 **is** the protocol.
@@ -246,7 +260,7 @@ carries everything that leaves the control plane for runtime boot.
 ```
 ┌─ Local Workspace ──────────┐         ┌─ Studio (UI) ─────────┐
 │ objectstack.config.ts (TS) │         │ Project dashboard     │
-│ src/objects/*.ts      (TS) │         │ Metadata browser      │
+│ src/objects/*.ts      (TS) │         │ Version history       │
 │ src/views/*.ts        (TS) │         │ Artifact inspector    │
 │                            │         │ Logs / health         │
 │ objectstack compile        │         │                       │
@@ -263,16 +277,17 @@ carries everything that leaves the control plane for runtime boot.
 │   sys_organization · sys_project · sys_user · sys_app       │
 │   Auth · Billing · Audit                                    │
 │                                                             │
-│ User metadata (all projects):                               │
-│   Objects / Fields / Functions / Views / Flows / Agents     │
-│   - JSON payload in sys_metadata.metadata                   │
-│   - scoped by organization_id + project_id                  │
-│   - revisioned by commit_id + checksum                      │
+│ Project Versions (all projects):                           │
+│   Immutable publish artifacts                               │
+│   - artifact JSON or payloadRef                             │
+│   - version_id / version_number / commit_id / checksum      │
+│   - current_version_id pointer on sys_project               │
+│   - extracted summaries / indexes for Studio views          │
 │                                                             │
 │ Artifact API:                                               │
 │   GET /api/v1/cloud/projects/:projectId/artifact            │
-│   today : assembles live from control-plane DB              │
-│   future: returns S3 redirect / signed URL                  │
+│   today : returns current Version artifact                  │
+│   future: pinned version endpoint + S3 redirect / signed URL│
 │                                                             │
 │ Hostname routing: host -> project                           │
 └──────────────────────────┬──────────────────────────────────┘
@@ -293,10 +308,11 @@ carries everything that leaves the control plane for runtime boot.
 └─────────────────────────────────────────────────────────────┘
 ```
 
-The **immutability of the artifact** is not a separate layer in Phase 1. The
-current project artifact is mutable because each publish creates a new current
-state. `commitId` and `checksum` identify exactly which bytes a runtime loaded.
-Freezing a state into an immutable Release/Tag is deferred.
+The **immutability of the artifact** is a Phase 1 product boundary. Each publish
+creates a new Project Version; the Project's current Version pointer decides
+what production ObjectOS serves. `versionId`, `commitId`, and `checksum`
+identify exactly which bytes a runtime loaded. Rollback and promotion mutate
+pointers, never Version payloads.
 
 **Two vertices, two apps, one framework.** The Control Plane vertex and the
 ObjectOS Runtime vertex are both realized as ObjectStack-framework apps booted
@@ -343,8 +359,8 @@ objectstack dev                         # boot ObjectOS from local TS - no contr
   ... iterate: edit src/objects/*.ts, Fast Refresh ...
 objectstack compile                     # validate TS -> emit dist/objectstack.json
 objectstack login                       # obtain auth token for the target control plane
-objectstack publish                     # POST JSON to project metadata state
-                                        # returns commitId + checksum
+objectstack publish                     # POST JSON, create Project Version
+                                        # returns versionId + commitId + checksum
 ```
 
 Two things to notice:
@@ -352,9 +368,10 @@ Two things to notice:
 1. **`objectstack dev` is fully offline.** The local ObjectOS reads the TS tree
    (or the compiled `dist/objectstack.json`) directly. It does not hit the
    Artifact API, and it does not need login/network.
-2. **`publish` creates a project metadata revision.** In Phase 1 the local TS
-   workspace is the only metadata writer, so `commitId` is primarily a revision,
-   audit, and cache-validation identifier.
+2. **`publish` creates an immutable Project Version.** In Phase 1 the local TS
+    workspace is the only metadata writer, so `versionId`, `commitId`, and
+    checksum are primarily release-history, audit, rollback, and
+    cache-validation identifiers.
 
 ### 6.1 Onboarding
 
@@ -371,28 +388,31 @@ signup -> create org -> create project
 ```
 developer runs objectstack publish
   -> control plane validates JSON with Zod
-  -> writes metadata payloads scoped by organization_id + project_id
-  -> records commitId + checksum
-  -> Studio shows metadata, artifact envelope, publish history, and validation state
-  -> ObjectOS pulls the current project artifact on next boot/refetch
+  -> creates immutable Project Version with artifact JSON or payloadRef
+  -> records versionId, versionNumber, commitId, and checksum
+  -> advances project current_version_id (auto-promote in Phase 1)
+  -> Studio shows current version, artifact envelope, publish history, and validation state
+  -> ObjectOS pulls the current Version artifact on next boot/refetch
 ```
 
-Studio is intentionally a viewer here. If a user sees bad metadata in Studio,
-the fix is to edit the local TS files and publish again.
+Studio is intentionally a viewer and release console here. If a user sees bad
+metadata in an artifact, the fix is to edit the local TS files and publish a new
+Version, or roll back the Project's current Version pointer to a known-good
+Version.
 
 ### 6.3 Runtime Inputs
 
-ObjectOS 的运行时输入分两类，**缺一不可**。把两类混在一起就破坏了 §2「Centralized Metadata, Stateless Runtime」与 §8「ObjectOS 只通过 Artifact API 接触控制面」的边界。
+ObjectOS 的运行时输入分两类，**缺一不可**。把两类混在一起就破坏了 §2「Versioned Artifacts, Stateless Runtime」与 §8「ObjectOS 只通过 Artifact API 接触控制面」的边界。
 
 **A. Artifact**（不可变、可缓存、随 metadata 变更而变更）
 
 `ProjectArtifactSchema` envelope，定义在 [packages/spec/src/cloud/project-artifact.zod.ts](packages/spec/src/cloud/project-artifact.zod.ts)：
 
 ```
-{ schemaVersion, projectId, commitId, checksum, metadata, functions, manifest, builtAt, builtWith, payloadRef? }
+{ schemaVersion, projectId, versionId?, commitId, checksum, metadata, functions, manifest, builtAt, builtWith, payloadRef? }
 ```
 
-`metadata` 字段承载声明性元数据（objects、views、flows、agents 等），`functions` 内联可执行源码，`manifest` 声明插件 / driver / engine 要求。Envelope 在外面包一层 `commitId` / `checksum`，让 ObjectOS 能做完整性校验、ETag 校验和缓存失效。`payloadRef` 为未来 S3 / signed URL 旁路保留，不需要 envelope 破坏性升级。
+`metadata` 字段承载声明性元数据（objects、views、flows、agents 等），`functions` 内联可执行源码，`manifest` 声明插件 / driver / engine 要求。Envelope 在外面包一层 `versionId` / `commitId` / `checksum`，让 ObjectOS 能做完整性校验、ETag 校验和缓存失效。`payloadRef` 为未来 S3 / signed URL 旁路保留，不需要 envelope 破坏性升级。
 
 **B. Deployment Config**（可变、不进 artifact、与元数据正交）
 
@@ -424,14 +444,15 @@ ObjectOS 启动时必须从外部注入：
 ```
 GET https://proj.app/api/v1/data/customer
   ↓
-Control plane receives request -> EnvironmentDriverRegistry resolves
+ObjectOS gateway receives request -> EnvironmentDriverRegistry resolves
   hostname -> projectId
   ↓
 KernelManager looks up ObjectKernel for projectId
   ↓
 If kernel has no artifact loaded:
     GET /api/v1/cloud/projects/:projectId/artifact
-    -> hydrate metadata + function code into kernel
+  -> returns current Version artifact
+  -> hydrate metadata + function code into kernel
     -> cache artifact locally (survives control-plane downtime)
   ↓
 REST plugin auto-generates `customer` handler from artifact schema
@@ -446,9 +467,9 @@ Subsequent requests reuse the cached artifact. Cache invalidation strategy
 
 ## 7. Alignment Check
 
-Honest state of the platform as of 2026-04-26, **re-classified under the Phase
-1 code-first model**. Every future architectural decision should preserve Built,
-reduce Drift, and advance Missing.
+Honest state of the platform as of 2026-04-30, **re-classified under the Phase
+1 code-first, version-first model**. Every future architectural decision should
+preserve Built, reduce Drift, and advance Missing.
 
 ### <Layers className="inline" /> Built (Aligned)
 
@@ -462,7 +483,7 @@ reduce Drift, and advance Missing.
 - **Zod -> JSON Schema publishing pipeline.** The bridge that makes TS/JSON interchangeable - [packages/spec/scripts/build-schemas.ts](packages/spec/scripts/build-schemas.ts).
 - **Scaffolded TS file tree.** `create-objectstack` emits a `defineStack()` entry point plus split-out `src/objects/*.ts`, `src/views/*.ts` etc. - [packages/create-objectstack/src/index.ts](packages/create-objectstack/src/index.ts).
 - **ObjectOS metadata DB bridge removed.** `MetadataPlugin` no longer registers `sys_metadata` / `sys_metadata_history` into the ObjectOS manifest and no longer auto-connects ObjectQL to a `DatabaseLoader`; runtime metadata is hydrated from files or artifacts only - [packages/metadata/src/plugin.ts](packages/metadata/src/plugin.ts).
-- **JSON-payload metadata storage.** `sys_metadata.metadata` column is already a textarea-shaped JSON payload column - [packages/metadata/src/objects/sys-metadata.object.ts](packages/metadata/src/objects/sys-metadata.object.ts). (The *location* of the table still needs to move to the control plane - see Drift.)
+- **JSON-payload storage primitive.** `sys_metadata.metadata` proves the platform can persist JSON payloads in metadata objects - [packages/metadata/src/objects/sys-metadata.object.ts](packages/metadata/src/objects/sys-metadata.object.ts). In the version-first model, user metadata browsing can be a projection from Project Version artifacts rather than the primary storage path.
 - **Project artifact envelope schema (M1).** `ProjectArtifactSchema` v0 exists with `schemaVersion`, `projectId`, `commitId`, `checksum`, `metadata`, `functions`, `manifest`, and reserved `payloadRef` - [packages/spec/src/cloud/project-artifact.zod.ts](packages/spec/src/cloud/project-artifact.zod.ts).
 - **Project artifact path binding.** Multi-project provisioning accepts `metadata.artifact_path`, and `os projects create --artifact` / `os projects bind --artifact` wire local compiled bundles into existing projects - [packages/cli/src/commands/projects/create.ts](packages/cli/src/commands/projects/create.ts), [packages/cli/src/commands/projects/bind.ts](packages/cli/src/commands/projects/bind.ts).
 - **Live kernel bundle resolver.** Project kernels read `sys_project.metadata.artifact_path` / `artifact_paths[]`, with `OBJECTSTACK_PROJECT_ARTIFACTS` and `OBJECTSTACK_PROJECT_ARTIFACT_ROOT` overrides for local development - [apps/server/server/fs-app-bundle-resolver.ts](apps/server/server/fs-app-bundle-resolver.ts).
@@ -473,17 +494,19 @@ reduce Drift, and advance Missing.
 
 ### <AlertTriangle className="inline" /> Drift (Needs Cleanup)
 
-- **`env_id` should be removed from metadata storage.** In Phase 1 metadata is
-  scoped by `organization_id` + `project_id`; deployment target differences are
-  runtime/deployment configuration, not metadata row partitioning. Branch-like
-  variants are deferred rather than modeled through `env_id`.
+- **`env_id` should not become the version or branch partition key.** In Phase 1
+  the primary user artifact state is a Project Version owned by `project_id`;
+  deployment target differences are runtime/deployment configuration, not
+  metadata row partitioning. Future branches need their own first-class model
+  rather than reusing `env_id`.
 - **Half-wired abstractions**: `ScopedServiceManager` and `SharedProjectPlugin`
   were added but their integration into the request path is incomplete. Either
   finish them or remove.
 - **`objectstack publish` uses the legacy `/api/v1/packages` endpoint.** Today
   it POSTs a "package" payload ([packages/cli/src/commands/publish.ts](packages/cli/src/commands/publish.ts))
-  which is not the Phase 1 project metadata endpoint. It needs to become
-  `POST /api/v1/apps/:projectId/metadata`.
+  which is not the Phase 1 project publish endpoint. It needs to create an
+  immutable Project Version and return `versionId`, `versionNumber`, `commitId`,
+  and checksum.
 - **`ProjectKernelFactory` 直连控制面 DB 读 `sys_project` / `sys_project_credential`，绕过 Artifact API。**
   [packages/runtime/src/project-kernel-factory.ts](packages/runtime/src/project-kernel-factory.ts)
   在 boot 时直接查控制面表拿业务 DB 坐标和凭据，破坏了 §8「ObjectOS 只通过
@@ -492,11 +515,12 @@ reduce Drift, and advance Missing.
 
 ### <Globe className="inline" /> Missing (Not Started)
 
-- **Metadata migration to control plane** - move user metadata out of project DBs into the control-plane DB, scoped by `organization_id` + `project_id`.
-- **Project Artifact API** - `GET /api/v1/cloud/projects/:projectId/artifact` assembles the current project metadata + inlined function code into a single consumable blob, with content hash/ETag for cache validation.
+- **Project Version storage** - persist every publish as an immutable Project Version with artifact JSON or `payloadRef`, `versionId`, `versionNumber`, `commitId`, checksum, publish metadata, and summary indexes.
+- **Current Version pointer** - add a project-level pointer that decides which Version ObjectOS serves; rollback/promote should update this pointer without mutating Version rows.
+- **Project Artifact API** - `GET /api/v1/cloud/projects/:projectId/artifact` returns the current Version artifact as a single consumable blob, with content hash/ETag for cache validation; a pinned version endpoint can return a specific immutable Version.
 - **ObjectOS Artifact API loader** - add the production HTTP fetch source for `MetadataPlugin` and local artifact cache durability across control-plane outages.
-- **Project publish endpoint** - `POST /api/v1/apps/:projectId/metadata` receives compiled JSON, validates with Zod, writes the current project metadata state, and returns `commitId` + checksum.
-- **Studio metadata/artifact viewer** - browse published metadata, artifact envelope, commit id, checksum, publish history, logs, and runtime health. No metadata editing.
+- **Project publish endpoint** - receives compiled JSON, validates with Zod, creates a Project Version, advances `current_version_id` in the simple auto-promote path, and returns `versionId`, `versionNumber`, `commitId`, and checksum.
+- **Studio version/artifact viewer** - browse current version, publish history, artifact envelope, version id, commit id, checksum, logs, and runtime health. No metadata editing.
 - **UI auto-generation** - artifact schemas -> Amis/React components without hand-wiring.
 
 ## 8. Non-Goals and Anti-Patterns
@@ -506,12 +530,12 @@ without explicit project-level buy-in.
 
 ### Phase 1 non-goals
 
-- <AlertTriangle className="inline" /> **No branches in this round.** `sys_branch`, `branch_id`, branch hostnames, branch diff/merge, and branch-scoped publish endpoints are deferred.
-- <AlertTriangle className="inline" /> **Studio does not edit user metadata in this round.** It is a dashboard, metadata viewer, artifact inspector, and observability surface.
+- <AlertTriangle className="inline" /> **No branches in this round.** `sys_branch`, `branch_id`, branch hostnames, branch diff/merge, branch DB forks, and branch-scoped publish endpoints are deferred. Versioning comes first; branches later become named runnable pointers to versions.
+- <AlertTriangle className="inline" /> **Studio does not edit user metadata in this round.** It is a dashboard, version history, artifact inspector, and observability surface.
 - <AlertTriangle className="inline" /> **No bidirectional CLI/Studio write model.** The local TS workspace is the only Phase 1 metadata authoring source.
 - <AlertTriangle className="inline" /> **No `objectstack pull` in this round.** Reverse-hydrating JSON back into TS is deferred until Studio or other control-plane writers exist.
-- <AlertTriangle className="inline" /> **No merge/conflict UX in this round.** `commitId` identifies revisions and artifacts; it is not yet a collaborative merge protocol.
-- <AlertTriangle className="inline" /> **No versioning / Tag / Release entity in this round.** Freezing an artifact into an immutable release is deferred.
+- <AlertTriangle className="inline" /> **No merge/conflict UX in this round.** `versionId` and `commitId` identify versions and artifacts; they are not yet a collaborative merge protocol.
+- <AlertTriangle className="inline" /> **No multi-environment release train in this round.** Phase 1 supports one current Version per Project. Staged promotion across dev/staging/prod and branch-specific releases are deferred.
 - <AlertTriangle className="inline" /> **No S3 in this round.** The Artifact API's backend is the control-plane DB today. Design the response shape to accommodate a future `{ url, expiresAt, checksum }` indirection without building the S3 path now.
 
 ### Architectural boundaries
@@ -522,7 +546,7 @@ without explicit project-level buy-in.
 
 ### Representation-form boundaries
 
-- <AlertTriangle className="inline" /> **JSON is not an authoring form.** Phase 1 authors produce metadata via TypeScript and the CLI. If you find yourself editing JSON payloads directly in `sys_metadata`, you are patching around a missing CLI affordance.
+- <AlertTriangle className="inline" /> **JSON is not an authoring form.** Phase 1 authors produce metadata via TypeScript and the CLI. If you find yourself editing Project Version JSON directly in the control plane, you are patching around a missing CLI affordance.
 - <AlertTriangle className="inline" /> **TS is not a wire form.** ObjectOS runtimes never consume `.ts` files directly. The only runtime inputs are a compiled `dist/objectstack.json` or the control plane's Artifact API response (also JSON).
 - <AlertTriangle className="inline" /> **No bypassing Zod for TS-to-JSON conversion.** Any hand-rolled serializer will diverge from the schema on the Nth protocol bump and silently corrupt data. `z.toJSONSchema()` + `schema.parse()` **is** the contract.
 
@@ -560,16 +584,17 @@ design docs before building.
 6. **Future Studio editing.** When Studio becomes a metadata authoring surface,
    should it write through a control-plane REST API only? How does it preserve
    round-trip expectations with TS-authored projects?
-7. **Future branch model.** When branches ship, does the current project
-   metadata state simply become `main`, with partition key evolving from
-   `(organization_id, project_id)` to `(organization_id, project_id, branch_id)`?
+7. **Future branch model.** When branches ship, should each branch be a named
+    runnable pointer to a Project Version with its own hostname, business DB
+    reference, and deployment config? How should branch creation fork or clone
+    data from the source Version?
 8. **Future `objectstack pull` fidelity.** Is a lossless JSON -> TS emitter
    feasible for everything users might write in `defineStack()`? If authors use
    TS-only expressions, helper imports, or generics, the pull step either loses
    information or must constrain the authoring surface.
-9. **Future Release / Tag implementation.** Freezing a project state into an
-   immutable tag - is it a full metadata copy (simple, space-heavy) or a
-   reference + immutability flag (space-efficient, more plumbing)?
+9. **Project Version promotion semantics.** Does `publish` always auto-promote
+    the new Version to `current_version_id`, or should the control plane support
+    staged versions where publish and promote are separate operations?
 
 ---
 
