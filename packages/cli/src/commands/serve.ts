@@ -64,7 +64,7 @@ export default class Serve extends Command {
   };
 
   static override flags = {
-    port: Flags.string({ char: 'p', description: 'Server port', default: '3000' }),
+    port: Flags.string({ char: 'p', description: 'Server port', default: process.env.PORT ?? '3000' }),
     dev: Flags.boolean({ description: 'Run in development mode (load devPlugins)' }),
     ui: Flags.boolean({ description: 'Enable Studio UI at /_studio/ (default: true)', default: true, allowNo: true }),
     server: Flags.boolean({ description: 'Start HTTP server plugin', default: true, allowNo: true }),

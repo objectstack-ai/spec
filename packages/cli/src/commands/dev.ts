@@ -18,6 +18,7 @@ export default class Dev extends Command {
     watch: Flags.boolean({ char: 'w', description: 'Enable watch mode (default)', default: true }),
     ui: Flags.boolean({ description: 'Enable Studio UI at /_studio/' }),
     verbose: Flags.boolean({ char: 'v', description: 'Verbose output' }),
+    port: Flags.string({ char: 'p', description: 'Server port (overrides $PORT)' }),
     compile: Flags.boolean({
       description: 'Compile objectstack.config.ts to dist/objectstack.json before starting (auto if artifact missing)',
       default: false,
@@ -67,6 +68,7 @@ export default class Dev extends Command {
       printKV('Project ID', localEnv.OBJECTSTACK_PROJECT_ID!, '🎯');
       printKV('Artifact', path.relative(process.cwd(), localEnv.OBJECTSTACK_ARTIFACT_PATH!), '📦');
 
+      const port = flags.port ?? process.env.PORT;
       const binPath = process.argv[1];
       spawn(
         process.execPath,
@@ -74,6 +76,7 @@ export default class Dev extends Command {
           binPath,
           'serve',
           '--dev',
+          ...(port ? ['--port', port] : []),
           ...(flags.ui ? ['--ui'] : []),
           ...(flags.verbose ? ['--verbose'] : []),
         ],

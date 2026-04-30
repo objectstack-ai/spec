@@ -4,10 +4,16 @@
  * createObjectOSStack
  *
  * ObjectOS pure-runtime stack — no control-plane database, no auth /
- * security / audit / tenant plugins. The host kernel only registers the
- * `env-registry` and `kernel-manager` services so the runtime's HTTP
- * dispatcher can resolve hostnames and route every request to the
- * matching project kernel built from a remote-fetched artifact.
+ * security / audit / tenant plugins. The host kernel registers:
+ *
+ *   - A minimal engine triplet (ObjectQL + in-memory DriverPlugin +
+ *     MetadataPlugin) so CLI auto-injected plugins (Setup, Studio,
+ *     Dispatcher, REST) and the runtime can boot. The host kernel itself
+ *     never reads or writes business data — every record query is routed
+ *     to a per-project kernel built from a remote artifact.
+ *   - The `env-registry` and `kernel-manager` services, so the runtime's
+ *     HTTP dispatcher can resolve hostnames and dispatch every request
+ *     to the matching project kernel.
  *
  * Invoked by `createRuntimeStack()` whenever `OBJECTSTACK_CLOUD_URL`
  * (or `config.controlPlaneUrl`) is set. The same plugin shape is returned
@@ -41,6 +47,58 @@ export interface ObjectOSStackConfig {
 export interface ObjectOSStackResult {
     plugins: any[];
     api: { enableProjectScoping: true; projectResolution: 'auto' };
+}
+
+/**
+ * Lazy-loaded host engine plugins. Mirrors the head of
+ * `createControlPlanePlugins()` — ObjectQL + Driver + Metadata — but with
+ * a transient in-memory driver instead of SQLite/Turso since the host
+ * kernel never persists anything.
+ */
+async function createHostEnginePlugins(): Promise<Plugin[]> {
+    const { ObjectQLPlugin } = await import('@objectstack/objectql');
+    const { InMemoryDriver } = await import('@objectstack/driver-memory');
+    const { DriverPlugin } = await import('@objectstack/runtime');
+    const { MetadataPlugin } = await import('@objectstack/metadata');
+
+    const driver = new InMemoryDriver();
+    const driverName = 'memory';
+
+    const oqlRef: { ql: any } = { ql: null };
+    const objectql: Plugin = {
+        name: 'com.objectstack.engine.objectql',
+        version: '0.0.0',
+        async init(ctx: PluginContext) {
+            const plugin = new ObjectQLPlugin();
+            oqlRef.ql = (plugin as any).ql ?? plugin;
+            (this as any)._inner = plugin;
+            if ((plugin as any).init) await (plugin as any).init(ctx);
+        },
+    };
+
+    const datasourceMapping: Plugin = {
+        name: 'objectos-host-datasource-mapping',
+        version: '0.0.0',
+        async init() {
+            const ql = oqlRef.ql;
+            if (ql?.setDatasourceMapping) {
+                ql.setDatasourceMapping([
+                    { default: true, datasource: `com.objectstack.driver.${driverName}` },
+                ]);
+            }
+        },
+    };
+
+    const driverPlugin = new DriverPlugin(driver as any, driverName);
+
+    const metadata = new MetadataPlugin({
+        watch: false,
+        // The host kernel is a routing shell. It doesn't own metadata —
+        // every per-project kernel registers its own.
+        registerSystemObjects: false,
+    });
+
+    return [objectql, datasourceMapping, driverPlugin as unknown as Plugin, metadata as unknown as Plugin];
 }
 
 /**
@@ -116,8 +174,10 @@ export async function createObjectOSStack(config: ObjectOSStackConfig): Promise<
         artifactCacheTtlMs: Number(process.env.OBJECTSTACK_ARTIFACT_CACHE_TTL_MS ?? config.artifactCacheTtlMs ?? 5 * 60 * 1000),
     };
 
+    const enginePlugins = await createHostEnginePlugins();
+
     return {
-        plugins: [new ObjectOSProjectPlugin(merged)],
+        plugins: [...enginePlugins, new ObjectOSProjectPlugin(merged)],
         api: {
             enableProjectScoping: true,
             projectResolution: 'auto',
