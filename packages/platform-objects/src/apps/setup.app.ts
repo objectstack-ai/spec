@@ -76,7 +76,8 @@ export const SETUP_APP: App = {
       description:
         'Datasources, integrations, jobs, logs, and environment configuration',
       navigation: [
-        { id: 'nav_audit_logs', type: 'object', label: 'Audit Logs', objectName: 'sys_audit_log', icon: 'scroll-text', order: 10 },
+        { id: 'nav_sessions', type: 'object', label: 'Sessions', objectName: 'sys_session', icon: 'monitor', order: 10 },
+        { id: 'nav_audit_logs', type: 'object', label: 'Audit Logs', objectName: 'sys_audit_log', icon: 'scroll-text', order: 20 },
       ],
     },
   ].filter((a) => a.navigation.length > 0),
