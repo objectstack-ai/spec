@@ -14,7 +14,6 @@ import { z } from 'zod';
 import { resolveMode, resolveAuthSecret, resolveBaseUrl } from './boot-env.js';
 import type { BootMode } from './boot-env.js';
 import { createRuntimeStack, RuntimeStackConfigSchema } from './runtime-stack.js';
-import { createStandaloneStack, StandaloneStackConfigSchema } from './standalone-stack.js';
 import { createCloudStack } from './cloud-stack.js';
 import type { CloudStackConfig } from './cloud-stack.js';
 import type { ProjectTemplate } from './multi-project-plugin.js';
@@ -35,7 +34,7 @@ const CloudStackConfigSchema = z.object({
 
 export const BootStackConfigSchema = z.object({
     /** Explicit mode override. When unset, resolves from env. */
-    mode: z.enum(['runtime', 'cloud', 'standalone', 'project']).optional(),
+    mode: z.enum(['runtime', 'cloud', 'project']).optional(),
     /** Runtime-mode options (used when mode resolves to `runtime`). */
     runtime: RuntimeStackConfigSchema.optional(),
     /**
@@ -45,8 +44,6 @@ export const BootStackConfigSchema = z.object({
     project: RuntimeStackConfigSchema.optional(),
     /** Cloud-mode options (used when mode resolves to `cloud`). */
     cloud: CloudStackConfigSchema.optional(),
-    /** Standalone-mode options (used when mode resolves to `standalone`). */
-    standalone: StandaloneStackConfigSchema.optional(),
 });
 
 export type BootStackConfig = z.input<typeof BootStackConfigSchema>;
@@ -90,10 +87,6 @@ export async function createBootStack(config?: BootStackConfig): Promise<BootSta
             apiPrefix: cloudCfg.apiPrefix,
         };
         return createCloudStack(merged);
-    }
-
-    if (mode === 'standalone') {
-        return createStandaloneStack(cfg.standalone);
     }
 
     // runtime (also reached via deprecated `mode: 'project'`)

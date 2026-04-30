@@ -29,6 +29,8 @@
     "@objectstack/driver-memory": "workspace:*",
     "@objectstack/driver-sql": "workspace:*",
     "@objectstack/driver-turso": "workspace:*",
+    "@objectstack/metadata": "workspace:*",
+    "@objectstack/objectql": "workspace:*",
     "typescript": "^6.0.3",
     "vitest": "^4.1.4"
   },

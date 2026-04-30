@@ -39,7 +39,8 @@ export async function createStandaloneStack(config?: StandaloneStackConfig): Pro
 
     const { ObjectQLPlugin } = await import('@objectstack/objectql');
     const { MetadataPlugin } = await import('@objectstack/metadata');
-    const { DriverPlugin, AppPlugin } = await import('@objectstack/runtime');
+    const { DriverPlugin } = await import('./driver-plugin.js');
+    const { AppPlugin } = await import('./app-plugin.js');
 
     const cwd = process.cwd();
     const projectId = cfg.projectId ?? process.env.OBJECTSTACK_PROJECT_ID ?? 'proj_local';

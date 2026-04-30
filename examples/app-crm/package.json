@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",
-    "@objectstack/service-cloud": "workspace:*"
+    "@objectstack/runtime": "workspace:*"
   },
   "devDependencies": {
     "@objectstack/cli": "workspace:*",

@@ -628,9 +628,9 @@ importers:
 
   examples/app-crm:
     dependencies:
-      '@objectstack/service-cloud':
+      '@objectstack/runtime':
         specifier: workspace:*
-        version: link:../../packages/services/service-cloud
+        version: link:../../packages/runtime
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../../packages/spec
@@ -1393,6 +1393,12 @@ importers:
       '@objectstack/driver-turso':
         specifier: workspace:*
         version: link:../plugins/driver-turso
+      '@objectstack/metadata':
+        specifier: workspace:*
+        version: link:../metadata
+      '@objectstack/objectql':
+        specifier: workspace:*
+        version: link:../objectql
       typescript:
         specifier: ^6.0.3
         version: 6.0.3

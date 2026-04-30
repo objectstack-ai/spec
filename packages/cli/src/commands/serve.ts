@@ -175,21 +175,24 @@ export default class Serve extends Command {
         throw new Error(`No default export found in ${args.config}`);
       }
 
-      // Standalone is the default OS dev workflow. Every bare
-      // `defineStack()` is booted via `@objectstack/service-cloud`'s
-      // `createBootStack()` (runtime / cloud / standalone selected by
-      // `OBJECTSTACK_MODE`, default `standalone`). Set
-      // `OBJECTSTACK_MODE=off` to fall back to the legacy lightweight
-      // assembler.
+      // Boot-mode dispatch: standalone goes directly through
+      // `@objectstack/runtime` (no cloud dependencies). runtime/cloud
+      // modes go through `@objectstack/service-cloud`.
       if (shouldBootWithLibrary(config)) {
-        const { createBootStack } = await import('@objectstack/service-cloud');
-        const bootResult = await createBootStack({
-          mode: config.bootMode,
-          runtime: config.runtime ?? config.project,
-          cloud: config.cloud,
-          standalone: config.standalone,
-        });
-        config = bootResult as any;
+        const resolvedMode = config.bootMode ?? process.env.OBJECTSTACK_MODE ?? 'standalone';
+        if (resolvedMode === 'standalone') {
+          const { createStandaloneStack } = await import('@objectstack/runtime');
+          const bootResult = await createStandaloneStack(config.standalone);
+          config = bootResult as any;
+        } else {
+          const { createBootStack } = await import('@objectstack/service-cloud');
+          const bootResult = await createBootStack({
+            mode: config.bootMode,
+            runtime: config.runtime ?? config.project,
+            cloud: config.cloud,
+          });
+          config = bootResult as any;
+        }
       }
 
       // ── Resolve plugin tiers ──────────────────────────────────────

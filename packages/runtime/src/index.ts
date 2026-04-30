@@ -7,6 +7,10 @@ export { ObjectKernel } from '@objectstack/core';
 export { Runtime } from './runtime.js';
 export type { RuntimeConfig } from './runtime.js';
 
+// Export Standalone Stack
+export { createStandaloneStack } from './standalone-stack.js';
+export type { StandaloneStackConfig, StandaloneStackResult } from './standalone-stack.js';
+
 // Export Plugins
 export { DriverPlugin } from './driver-plugin.js';
 export { AppPlugin } from './app-plugin.js';

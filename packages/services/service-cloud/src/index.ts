@@ -78,8 +78,6 @@ export { createProjectStack, ProjectStackConfigSchema } from './runtime-stack.js
 /** @deprecated Use `RuntimeStackConfig`/`RuntimeStackResult`. */
 export type { ProjectStackConfig, ProjectStackResult } from './runtime-stack.js';
 
-export { createStandaloneStack, StandaloneStackConfigSchema } from './standalone-stack.js';
-export type { StandaloneStackConfig, StandaloneStackResult } from './standalone-stack.js';
 
 export { createBootStack, BootStackConfigSchema } from './boot-stack.js';
 export type { BootStackConfig, BootStackResult } from './boot-stack.js';
