@@ -1,0 +1,49 @@
+{
+  "name": "@objectstack/cloud",
+  "version": "4.0.4",
+  "license": "Apache-2.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "objectstack dev",
+    "build": "tsup",
+    "start": "objectstack serve dist/objectstack.config.js --prebuilt",
+    "doctor": "objectstack doctor",
+    "typecheck": "tsc --noEmit",
+    "test": "objectstack test",
+    "clean": "rm -rf dist node_modules"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.14",
+    "@libsql/client": "^0.17.2",
+    "@objectstack/driver-memory": "workspace:*",
+    "@objectstack/driver-sql": "workspace:*",
+    "@objectstack/driver-turso": "workspace:*",
+    "@objectstack/hono": "workspace:*",
+    "@objectstack/metadata": "workspace:*",
+    "@objectstack/objectql": "workspace:*",
+    "@objectstack/plugin-audit": "workspace:*",
+    "@objectstack/plugin-auth": "workspace:*",
+    "@objectstack/plugin-hono-server": "workspace:*",
+    "@objectstack/plugin-security": "workspace:*",
+    "@objectstack/plugin-setup": "workspace:*",
+    "@objectstack/runtime": "workspace:*",
+    "@objectstack/service-ai": "workspace:*",
+    "@objectstack/service-analytics": "workspace:*",
+    "@objectstack/service-automation": "workspace:*",
+    "@objectstack/service-feed": "workspace:*",
+    "@objectstack/service-cloud": "workspace:*",
+    "@objectstack/service-package": "workspace:*",
+    "@objectstack/service-tenant": "workspace:*",
+    "@objectstack/spec": "workspace:*",
+    "hono": "^4.12.14"
+  },
+  "devDependencies": {
+    "@objectstack/cli": "workspace:*",
+    "esbuild": "^0.28.0",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
+  }
+}

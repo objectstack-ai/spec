@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 /**
- * ObjectStack Server — Host Configuration
+ * ObjectStack Server — Host Configuration (local)
  *
  * Booted by `objectstack dev` / `objectstack serve` (see `package.json`).
  *
@@ -15,12 +15,12 @@
  *                            the control plane, `proj_local.db` for the
  *                            single project's business data).
  *                            Aliases: `local`, `single-project`.
- *   - `cloud`              — multi-project, control-plane connected.
- *                            Alias: `multi-project`.
  *   - `standalone`         — runtime-only (ObjectQL + REST + Driver).
  *
+ * The `cloud` (multi-project, hosted) mode lives in `apps/cloud`.
+ *
  * All boot orchestration now lives in @objectstack/service-cloud.
- * This file only supplies the apps/server-specific knobs (templates,
+ * This file only supplies the apps/server-specific knobs (filesystem
  * app bundle resolution).
  */
 
@@ -28,7 +28,6 @@ import { resolve as resolvePath, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createBootStack } from '@objectstack/service-cloud';
 import { createFsAppBundleResolver } from './server/fs-app-bundle-resolver.js';
-import { templateRegistry } from './server/templates/registry.js';
 
 const serverDir = dirname(fileURLToPath(import.meta.url));
 const dataDir = resolvePath(serverDir, '.objectstack/data');
@@ -39,10 +38,6 @@ const config = await createBootStack({
     project: {
         dataDir,
         artifactPath: localArtifactPath,
-        appBundles: createFsAppBundleResolver(),
-    },
-    cloud: {
-        templates: templateRegistry,
         appBundles: createFsAppBundleResolver(),
     },
     standalone: {
