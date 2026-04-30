@@ -43,9 +43,10 @@ export const SETUP_APP: App = {
         { id: 'nav_organizations', type: 'object', label: 'Organizations', objectName: 'sys_organization', icon: 'building-2', order: 20 },
         { id: 'nav_teams', type: 'object', label: 'Teams', objectName: 'sys_team', icon: 'users-round', order: 30 },
         { id: 'nav_api_keys', type: 'object', label: 'API Keys', objectName: 'sys_api_key', icon: 'key', order: 40 },
-        { id: 'nav_sessions', type: 'object', label: 'Sessions', objectName: 'sys_session', icon: 'monitor', order: 50 },
-        { id: 'nav_roles', type: 'object', label: 'Roles', objectName: 'sys_role', icon: 'shield-check', order: 60 },
-        { id: 'nav_permission_sets', type: 'object', label: 'Permission Sets', objectName: 'sys_permission_set', icon: 'lock', order: 70 },
+        { id: 'nav_roles', type: 'object', label: 'Roles', objectName: 'sys_role', icon: 'shield-check', order: 50 },
+        { id: 'nav_permission_sets', type: 'object', label: 'Permission Sets', objectName: 'sys_permission_set', icon: 'lock', order: 60 },
+        { id: 'nav_oauth_apps', type: 'object', label: 'OAuth Apps', objectName: 'sys_oauth_application', icon: 'app-window', order: 70 },
+        { id: 'nav_jwks', type: 'object', label: 'Signing Keys', objectName: 'sys_jwks', icon: 'key-round', order: 80 },
       ],
     },
     {
@@ -54,8 +55,18 @@ export const SETUP_APP: App = {
       icon: 'layers',
       order: 20,
       description:
-        'Objects, fields, layouts, automation, and extensibility settings',
-      navigation: [],
+        'Objects, views, flows, apps, packages, and extensibility settings',
+      navigation: [
+        { id: 'nav_objects', type: 'object', label: 'Objects', objectName: 'sys_object', icon: 'database', order: 10 },
+        { id: 'nav_views', type: 'object', label: 'Views', objectName: 'sys_view', icon: 'table', order: 20 },
+        { id: 'nav_flows', type: 'object', label: 'Flows', objectName: 'sys_flow', icon: 'workflow', order: 30 },
+        { id: 'nav_agents', type: 'object', label: 'AI Agents', objectName: 'sys_agent', icon: 'bot', order: 40 },
+        { id: 'nav_tools', type: 'object', label: 'AI Tools', objectName: 'sys_tool', icon: 'wrench', order: 50 },
+        { id: 'nav_apps', type: 'object', label: 'Apps', objectName: 'sys_app', icon: 'layout-grid', order: 60 },
+        { id: 'nav_packages', type: 'object', label: 'Packages', objectName: 'sys_package', icon: 'package', order: 70 },
+        { id: 'nav_package_installations', type: 'object', label: 'Installations', objectName: 'sys_package_installation', icon: 'package-check', order: 80 },
+        { id: 'nav_metadata', type: 'object', label: 'All Metadata', objectName: 'sys_metadata', icon: 'file-cog', order: 90 },
+      ],
     },
     {
       id: 'area_system',
@@ -66,18 +77,6 @@ export const SETUP_APP: App = {
         'Datasources, integrations, jobs, logs, and environment configuration',
       navigation: [
         { id: 'nav_audit_logs', type: 'object', label: 'Audit Logs', objectName: 'sys_audit_log', icon: 'scroll-text', order: 10 },
-      ],
-    },
-    {
-      id: 'area_ai',
-      label: 'AI',
-      icon: 'brain',
-      order: 40,
-      description:
-        'AI agents, model registry, RAG pipelines, and intelligence settings',
-      navigation: [
-        { id: 'nav_ai_conversations', type: 'object', label: 'Conversations', objectName: 'ai_conversations', icon: 'message-square', order: 10 },
-        { id: 'nav_ai_messages', type: 'object', label: 'Messages', objectName: 'ai_messages', icon: 'messages-square', order: 20 },
       ],
     },
   ].filter((a) => a.navigation.length > 0),
