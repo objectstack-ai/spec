@@ -4,5 +4,4 @@
  * App Definitions Barrel
  */
 export { CrmApp } from './crm.app';
-export { CrmAppModern } from './crm_modern.app';
 
