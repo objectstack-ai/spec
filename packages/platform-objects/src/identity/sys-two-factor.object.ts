@@ -39,8 +39,8 @@ export const SysTwoFactor = ObjectSchema.create({
       readonly: true,
     }),
     
-    user_id: Field.text({
-      label: 'User ID',
+    user_id: Field.lookup('sys_user', {
+      label: 'User',
       required: true,
     }),
     

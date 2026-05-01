@@ -25,8 +25,8 @@ export const AiMessageObject = ObjectSchema.create({
       readonly: true,
     }),
 
-    conversation_id: Field.text({
-      label: 'Conversation ID',
+    conversation_id: Field.lookup('ai_conversations', {
+      label: 'Conversation',
       required: true,
       description: 'Foreign key to ai_conversations',
     }),

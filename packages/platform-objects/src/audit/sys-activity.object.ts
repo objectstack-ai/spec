@@ -77,8 +77,8 @@ export const SysActivity = ObjectSchema.create({
     }),
 
     // ── Actor ───────────────────────────────────────────────────
-    actor_id: Field.text({
-      label: 'Actor ID',
+    actor_id: Field.lookup('sys_user', {
+      label: 'Actor',
       required: false,
       readonly: true,
       searchable: true,
@@ -136,7 +136,7 @@ export const SysActivity = ObjectSchema.create({
     }),
 
     // ── Context ──────────────────────────────────────────────────
-    project_id: Field.text({
+    project_id: Field.lookup('sys_project', {
       label: 'Project',
       required: false,
       readonly: true,

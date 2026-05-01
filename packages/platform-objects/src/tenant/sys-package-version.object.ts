@@ -53,10 +53,10 @@ export const SysPackageVersion = ObjectSchema.create({
       description: 'Last update timestamp (ISO-8601). Only modified while status is draft.',
     }),
 
-    package_id: Field.text({
-      label: 'Package ID',
+    package_id: Field.lookup('sys_package', {
+      label: 'Package',
       required: true,
-      description: 'Foreign key to sys_package (UUID of the parent package).',
+      description: 'Foreign key to sys_package (the parent package).',
     }),
 
     version: Field.text({
@@ -127,16 +127,16 @@ export const SysPackageVersion = ObjectSchema.create({
       description: 'Timestamp when this version was published. Null while status is draft.',
     }),
 
-    published_by: Field.text({
+    published_by: Field.lookup('sys_user', {
       label: 'Published By',
       required: false,
-      description: 'User ID who published this version. Set on the draft → published transition.',
+      description: 'User who published this version. Set on the draft → published transition.',
     }),
 
-    created_by: Field.text({
+    created_by: Field.lookup('sys_user', {
       label: 'Created By',
       required: true,
-      description: 'User ID that created this version row.',
+      description: 'User that created this version row.',
     }),
   },
 

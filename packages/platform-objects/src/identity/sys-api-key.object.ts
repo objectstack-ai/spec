@@ -43,7 +43,7 @@ export const SysApiKey = ObjectSchema.create({
       group: 'Identity',
     }),
 
-    user_id: Field.text({
+    user_id: Field.lookup('sys_user', {
       label: 'Owner',
       required: true,
       description: 'User who owns this API key',

@@ -33,13 +33,13 @@ export const SysTeamMember = ObjectSchema.create({
       readonly: true,
     }),
     
-    team_id: Field.text({
-      label: 'Team ID',
+    team_id: Field.lookup('sys_team', {
+      label: 'Team',
       required: true,
     }),
     
-    user_id: Field.text({
-      label: 'User ID',
+    user_id: Field.lookup('sys_user', {
+      label: 'User',
       required: true,
     }),
   },

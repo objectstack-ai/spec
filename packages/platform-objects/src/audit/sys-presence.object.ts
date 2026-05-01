@@ -43,14 +43,14 @@ export const SysPresence = ObjectSchema.create({
       readonly: true,
     }),
 
-    user_id: Field.text({
-      label: 'User ID',
+    user_id: Field.lookup('sys_user', {
+      label: 'User',
       required: true,
       searchable: true,
     }),
 
-    session_id: Field.text({
-      label: 'Session ID',
+    session_id: Field.lookup('sys_session', {
+      label: 'Session',
       required: true,
     }),
 

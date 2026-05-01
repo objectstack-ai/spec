@@ -45,10 +45,9 @@ export const SysUserPreference = ObjectSchema.create({
       readonly: true,
     }),
 
-    user_id: Field.text({
-      label: 'User ID',
+    user_id: Field.lookup('sys_user', {
+      label: 'User',
       required: true,
-      maxLength: 255,
       description: 'Owner user of this preference',
     }),
 

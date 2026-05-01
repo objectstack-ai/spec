@@ -27,7 +27,7 @@ export const SysSession = ObjectSchema.create({
 
   fields: {
     // ── Session owner & expiry ──────────────────────────────────
-    user_id: Field.text({
+    user_id: Field.lookup('sys_user', {
       label: 'User',
       required: true,
       searchable: true,
@@ -41,13 +41,13 @@ export const SysSession = ObjectSchema.create({
     }),
 
     // ── Active context (multi-org/team) ──────────────────────────
-    active_organization_id: Field.text({
+    active_organization_id: Field.lookup('sys_organization', {
       label: 'Active Organization',
       required: false,
       group: 'Context',
     }),
 
-    active_team_id: Field.text({
+    active_team_id: Field.lookup('sys_team', {
       label: 'Active Team',
       required: false,
       group: 'Context',

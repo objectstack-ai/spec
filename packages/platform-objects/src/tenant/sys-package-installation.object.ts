@@ -54,26 +54,26 @@ export const SysPackageInstallation = ObjectSchema.create({
       description: 'Last update timestamp — changes on upgrade, rollback, enable/disable (ISO-8601).',
     }),
 
-    project_id: Field.text({
-      label: 'Project ID',
+    project_id: Field.lookup('sys_project', {
+      label: 'Project',
       required: true,
-      description: 'Foreign key to sys_project (UUID). The project that owns this installation.',
+      description: 'Foreign key to sys_project. The project that owns this installation.',
     }),
 
-    package_version_id: Field.text({
-      label: 'Package Version ID',
+    package_version_id: Field.lookup('sys_package_version', {
+      label: 'Package Version',
       required: true,
       description:
-        'Foreign key to sys_package_version (UUID). The specific, immutable release snapshot ' +
+        'Foreign key to sys_package_version. The specific, immutable release snapshot ' +
         'currently installed in this project. Upgrading = swapping this field to a newer ' +
-        'version UUID. Rollback = swapping to an older version UUID.',
+        'version. Rollback = swapping to an older version.',
     }),
 
-    package_id: Field.text({
-      label: 'Package ID',
+    package_id: Field.lookup('sys_package', {
+      label: 'Package',
       required: true,
       description:
-        'Foreign key to sys_package (UUID). Denormalized from the linked package_version row ' +
+        'Foreign key to sys_package. Denormalized from the linked package_version row ' +
         'at install time to enforce the UNIQUE (project_id, package_id) constraint without a JOIN.',
     }),
 
@@ -115,10 +115,10 @@ export const SysPackageInstallation = ObjectSchema.create({
       description: 'Timestamp when this installation was first created (ISO-8601).',
     }),
 
-    installed_by: Field.text({
+    installed_by: Field.lookup('sys_user', {
       label: 'Installed By',
       required: false,
-      description: 'User ID who performed the initial install. Null for system-automated installs.',
+      description: 'User who performed the initial install. Null for system-automated installs.',
     }),
 
     error_message: Field.textarea({

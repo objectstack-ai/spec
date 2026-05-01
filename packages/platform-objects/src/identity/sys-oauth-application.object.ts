@@ -219,8 +219,8 @@ export const SysOauthApplication = ObjectSchema.create({
     }),
 
     // ── Ownership / system ───────────────────────────────────────
-    user_id: Field.text({
-      label: 'Owner User ID',
+    user_id: Field.lookup('sys_user', {
+      label: 'Owner User',
       required: false,
       description: 'User who registered this application',
       group: 'System',

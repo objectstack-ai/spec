@@ -51,8 +51,8 @@ export const SysAccount = ObjectSchema.create({
       description: "User's ID in the provider's system",
     }),
     
-    user_id: Field.text({
-      label: 'User ID',
+    user_id: Field.lookup('sys_user', {
+      label: 'User',
       required: true,
       description: 'Link to user table',
     }),

@@ -46,14 +46,14 @@ export const SysProjectMember = ObjectSchema.create({
       description: 'Last update timestamp.',
     }),
 
-    project_id: Field.text({
-      label: 'Project ID',
+    project_id: Field.lookup('sys_project', {
+      label: 'Project',
       required: true,
       description: 'Foreign key to sys_project.',
     }),
 
-    user_id: Field.text({
-      label: 'User ID',
+    user_id: Field.lookup('sys_user', {
+      label: 'User',
       required: true,
       description: 'Foreign key to sys_user.',
     }),
@@ -71,10 +71,10 @@ export const SysProjectMember = ObjectSchema.create({
       ],
     }),
 
-    invited_by: Field.text({
+    invited_by: Field.lookup('sys_user', {
       label: 'Invited By',
       required: true,
-      description: 'User ID that granted this membership.',
+      description: 'User that granted this membership.',
     }),
   },
 

@@ -47,8 +47,8 @@ export const SysProject = ObjectSchema.create({
       description: 'Last update timestamp.',
     }),
 
-    organization_id: Field.text({
-      label: 'Organization ID',
+    organization_id: Field.lookup('sys_organization', {
+      label: 'Organization',
       required: true,
       description: 'Foreign key to sys_organization.',
     }),
@@ -103,10 +103,10 @@ export const SysProject = ObjectSchema.create({
       ],
     }),
 
-    created_by: Field.text({
+    created_by: Field.lookup('sys_user', {
       label: 'Created By',
       required: true,
-      description: 'User ID that created the project.',
+      description: 'User that created the project.',
     }),
 
     database_url: Field.url({

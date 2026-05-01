@@ -33,8 +33,8 @@ export const SysInvitation = ObjectSchema.create({
       readonly: true,
     }),
     
-    organization_id: Field.text({
-      label: 'Organization ID',
+    organization_id: Field.lookup('sys_organization', {
+      label: 'Organization',
       required: true,
     }),
     
@@ -57,10 +57,10 @@ export const SysInvitation = ObjectSchema.create({
       defaultValue: 'pending',
     }),
     
-    inviter_id: Field.text({
-      label: 'Inviter ID',
+    inviter_id: Field.lookup('sys_user', {
+      label: 'Inviter',
       required: true,
-      description: 'User ID of the person who sent the invitation',
+      description: 'User who sent the invitation',
     }),
     
     expires_at: Field.datetime({
@@ -68,8 +68,8 @@ export const SysInvitation = ObjectSchema.create({
       required: true,
     }),
     
-    team_id: Field.text({
-      label: 'Team ID',
+    team_id: Field.lookup('sys_team', {
+      label: 'Team',
       required: false,
       description: 'Optional team to assign upon acceptance',
     }),

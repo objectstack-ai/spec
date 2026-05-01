@@ -191,9 +191,8 @@ export const SysObject = ObjectSchema.create({
     }),
 
     // Package Management
-    package_id: Field.text({
-      label: 'Package ID',
-      maxLength: 255,
+    package_id: Field.lookup('sys_package', {
+      label: 'Package',
     }),
 
     managed_by: Field.select({
@@ -206,9 +205,9 @@ export const SysObject = ObjectSchema.create({
     }),
 
     // Audit
-    created_by: Field.text({ label: 'Created By', maxLength: 255 }),
+    created_by: Field.lookup('sys_user', { label: 'Created By' }),
     created_at: Field.datetime({ label: 'Created At' }),
-    updated_by: Field.text({ label: 'Updated By', maxLength: 255 }),
+    updated_by: Field.lookup('sys_user', { label: 'Updated By' }),
     updated_at: Field.datetime({ label: 'Updated At' }),
   },
 

@@ -33,11 +33,10 @@ export const SysMetadataHistoryObject = ObjectSchema.create({
     }),
 
     /** Foreign key to sys_metadata.id */
-    metadata_id: Field.text({
-      label: 'Metadata ID',
+    metadata_id: Field.lookup('sys_metadata', {
+      label: 'Metadata',
       required: true,
       readonly: true,
-      maxLength: 255,
     }),
 
     /** Machine name (denormalized for easier querying) */
@@ -105,12 +104,11 @@ export const SysMetadataHistoryObject = ObjectSchema.create({
     }),
 
     /** Organization ID for multi-tenant isolation */
-    organization_id: Field.text({
-      label: 'Organization ID',
+    organization_id: Field.lookup('sys_organization', {
+      label: 'Organization',
       required: false,
       readonly: true,
-      maxLength: 255,
-      description: 'Organization identifier for multi-tenant isolation.',
+      description: 'Organization for multi-tenant isolation.',
     }),
 
     /** Environment ID — null = platform-global, set = env-scoped */
@@ -123,11 +121,10 @@ export const SysMetadataHistoryObject = ObjectSchema.create({
     }),
 
     /** User who made this change */
-    recorded_by: Field.text({
+    recorded_by: Field.lookup('sys_user', {
       label: 'Recorded By',
       required: false,
       readonly: true,
-      maxLength: 255,
     }),
 
     /** When was this version recorded */

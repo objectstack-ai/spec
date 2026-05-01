@@ -26,8 +26,8 @@ export const FeedReaction = ObjectSchema.create({
       readonly: true,
     }),
 
-    feed_item_id: Field.text({
-      label: 'Feed Item ID',
+    feed_item_id: Field.lookup('feed_item', {
+      label: 'Feed Item',
       required: true,
     }),
 
@@ -37,8 +37,8 @@ export const FeedReaction = ObjectSchema.create({
       description: 'Emoji character or shortcode (e.g., "👍", ":thumbsup:")',
     }),
 
-    user_id: Field.text({
-      label: 'User ID',
+    user_id: Field.lookup('sys_user', {
+      label: 'User',
       required: true,
     }),
 

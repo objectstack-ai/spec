@@ -44,20 +44,20 @@ export const SysOauthAccessToken = ObjectSchema.create({
       description: 'Foreign key to sys_oauth_application.client_id',
     }),
 
-    session_id: Field.text({
-      label: 'Session ID',
+    session_id: Field.lookup('sys_session', {
+      label: 'Session',
       required: false,
       description: 'Foreign key to sys_session.id',
     }),
 
-    user_id: Field.text({
-      label: 'User ID',
+    user_id: Field.lookup('sys_user', {
+      label: 'User',
       required: false,
       description: 'Foreign key to sys_user.id',
     }),
 
-    refresh_id: Field.text({
-      label: 'Refresh Token ID',
+    refresh_id: Field.lookup('sys_oauth_refresh_token', {
+      label: 'Refresh Token',
       required: false,
       description: 'Foreign key to sys_oauth_refresh_token.id',
     }),

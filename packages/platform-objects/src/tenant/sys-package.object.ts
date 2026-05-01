@@ -62,10 +62,10 @@ export const SysPackage = ObjectSchema.create({
         'Immutable once set. Used as the stable public key for dependency declarations.',
     }),
 
-    owner_org_id: Field.text({
-      label: 'Owner Organization ID',
+    owner_org_id: Field.lookup('sys_organization', {
+      label: 'Owner Organization',
       required: true,
-      description: 'Organization ID that owns and publishes this package.',
+      description: 'Organization that owns and publishes this package.',
     }),
 
     display_name: Field.text({
@@ -133,10 +133,10 @@ export const SysPackage = ObjectSchema.create({
       description: 'SPDX license identifier (e.g. MIT, Apache-2.0, proprietary).',
     }),
 
-    created_by: Field.text({
+    created_by: Field.lookup('sys_user', {
       label: 'Created By',
       required: true,
-      description: 'User ID that registered this package in the Control Plane.',
+      description: 'User that registered this package in the Control Plane.',
     }),
   },
 

@@ -66,10 +66,9 @@ export const SysMetadataObject = ObjectSchema.create({
      * FK → sys_package_version (UUID). Set for metadata that belongs to a specific
      * package release snapshot. NULL = platform-built-in or environment override.
      */
-    package_version_id: Field.text({
-      label: 'Package Version ID',
+    package_version_id: Field.lookup('sys_package_version', {
+      label: 'Package Version',
       required: false,
-      maxLength: 255,
       description:
         'Foreign key to sys_package_version (UUID). Null = platform-built-in or env-level override.',
     }),
@@ -123,11 +122,10 @@ export const SysMetadataObject = ObjectSchema.create({
     }),
 
     /** Organization ID for multi-tenant isolation */
-    organization_id: Field.text({
-      label: 'Organization ID',
+    organization_id: Field.lookup('sys_organization', {
+      label: 'Organization',
       required: false,
-      maxLength: 255,
-      description: 'Organization identifier for multi-tenant isolation.',
+      description: 'Organization for multi-tenant isolation.',
     }),
 
     /** Environment ID — null = platform-global, set = env-scoped */
@@ -166,11 +164,10 @@ export const SysMetadataObject = ObjectSchema.create({
     }),
 
     /** Audit fields */
-    created_by: Field.text({
+    created_by: Field.lookup('sys_user', {
       label: 'Created By',
       required: false,
       readonly: true,
-      maxLength: 255,
     }),
 
     created_at: Field.datetime({
@@ -179,10 +176,9 @@ export const SysMetadataObject = ObjectSchema.create({
       readonly: true,
     }),
 
-    updated_by: Field.text({
+    updated_by: Field.lookup('sys_user', {
       label: 'Updated By',
       required: false,
-      maxLength: 255,
     }),
 
     updated_at: Field.datetime({

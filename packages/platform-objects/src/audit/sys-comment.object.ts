@@ -47,7 +47,7 @@ export const SysComment = ObjectSchema.create({
       group: 'Thread',
     }),
 
-    parent_id: Field.text({
+    parent_id: Field.lookup('sys_comment', {
       label: 'Parent Comment',
       required: false,
       description: 'Optional parent comment for nested replies',
@@ -62,8 +62,8 @@ export const SysComment = ObjectSchema.create({
     }),
 
     // ── Author ───────────────────────────────────────────────────
-    author_id: Field.text({
-      label: 'Author ID',
+    author_id: Field.lookup('sys_user', {
+      label: 'Author',
       required: true,
       searchable: true,
       group: 'Author',

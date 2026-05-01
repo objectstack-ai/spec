@@ -33,13 +33,13 @@ export const SysMember = ObjectSchema.create({
       readonly: true,
     }),
     
-    organization_id: Field.text({
-      label: 'Organization ID',
+    organization_id: Field.lookup('sys_organization', {
+      label: 'Organization',
       required: true,
     }),
     
-    user_id: Field.text({
-      label: 'User ID',
+    user_id: Field.lookup('sys_user', {
+      label: 'User',
       required: true,
     }),
     

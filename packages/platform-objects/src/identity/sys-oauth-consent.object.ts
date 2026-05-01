@@ -38,8 +38,8 @@ export const SysOauthConsent = ObjectSchema.create({
       description: 'Foreign key to sys_oauth_application.client_id',
     }),
 
-    user_id: Field.text({
-      label: 'User ID',
+    user_id: Field.lookup('sys_user', {
+      label: 'User',
       required: false,
       description: 'Foreign key to sys_user.id',
     }),

@@ -31,7 +31,7 @@ export const SysTeam = ObjectSchema.create({
       group: 'Identity',
     }),
 
-    organization_id: Field.text({
+    organization_id: Field.lookup('sys_organization', {
       label: 'Organization',
       required: true,
       description: 'Parent organization for this team',

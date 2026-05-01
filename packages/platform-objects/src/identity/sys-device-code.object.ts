@@ -63,8 +63,8 @@ export const SysDeviceCode = ObjectSchema.create({
     }),
 
     /** Owning user — populated when the request is approved. */
-    user_id: Field.text({
-      label: 'User ID',
+    user_id: Field.lookup('sys_user', {
+      label: 'User',
       required: false,
       description: 'User who approved the device authorization',
     }),

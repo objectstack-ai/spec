@@ -102,8 +102,8 @@ export const FeedItem = ObjectSchema.create({
       description: 'Array of emoji reaction objects (JSON)',
     }),
 
-    parent_id: Field.text({
-      label: 'Parent Feed Item ID',
+    parent_id: Field.lookup('feed_item', {
+      label: 'Parent Feed Item',
       description: 'For threaded replies',
     }),
 

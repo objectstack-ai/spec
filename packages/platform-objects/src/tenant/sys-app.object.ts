@@ -54,18 +54,18 @@ export const SysApp = ObjectSchema.create({
       description: 'Last update timestamp (ISO-8601).',
     }),
 
-    organization_id: Field.text({
-      label: 'Organization ID',
+    organization_id: Field.lookup('sys_organization', {
+      label: 'Organization',
       required: true,
       description:
-        'Foreign key to sys_organization (UUID). Drives tenant isolation — ' +
+        'Foreign key to sys_organization. Drives tenant isolation — ' +
         'ControlPlaneProxyDriver auto-injects this filter on all reads.',
     }),
 
-    project_id: Field.text({
-      label: 'Project ID',
+    project_id: Field.lookup('sys_project', {
+      label: 'Project',
       required: true,
-      description: 'Foreign key to sys_project (UUID). The project this app lives in.',
+      description: 'Foreign key to sys_project. The project this app lives in.',
     }),
 
     project_name: Field.text({
@@ -126,11 +126,11 @@ export const SysApp = ObjectSchema.create({
       ],
     }),
 
-    package_id: Field.text({
-      label: 'Package ID',
+    package_id: Field.lookup('sys_package', {
+      label: 'Package',
       required: false,
       description:
-        'Foreign key to sys_package (UUID) when source = package. Null for user-created apps.',
+        'Foreign key to sys_package when source = package. Null for user-created apps.',
     }),
   },
 

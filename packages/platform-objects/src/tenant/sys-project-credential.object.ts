@@ -47,8 +47,8 @@ export const SysProjectCredential = ObjectSchema.create({
       description: 'Last update timestamp.',
     }),
 
-    project_id: Field.text({
-      label: 'Project ID',
+    project_id: Field.lookup('sys_project', {
+      label: 'Project',
       required: true,
       description: 'Foreign key to sys_project.',
     }),

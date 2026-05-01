@@ -46,7 +46,7 @@ export const SysAuditLog = ObjectSchema.create({
       },
     ),
 
-    user_id: Field.text({
+    user_id: Field.lookup('sys_user', {
       label: 'Actor',
       required: false,
       readonly: true,
@@ -109,7 +109,7 @@ export const SysAuditLog = ObjectSchema.create({
     }),
 
     // ── Context ──────────────────────────────────────────────────
-    tenant_id: Field.text({
+    tenant_id: Field.lookup('sys_organization', {
       label: 'Tenant',
       required: false,
       readonly: true,
