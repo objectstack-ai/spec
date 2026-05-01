@@ -1819,14 +1819,14 @@ export class HttpDispatcher {
                         // `metadata.artifact_path` (path to a compiled
                         // ObjectStack bundle JSON) and we delegate to the same
                         // seeder pipeline that templates use. Resolved relative
-                        // to OBJECTSTACK_PROJECT_ARTIFACT_ROOT (or process.cwd
+                        // to OS_PROJECT_ARTIFACT_ROOT (or process.cwd
                         // if unset).
                         const artifactPathRaw = (baseMetadata as any).artifact_path;
                         if (typeof artifactPathRaw === 'string' && artifactPathRaw.length > 0) {
                             try {
                                 const fs = await import('node:fs/promises');
                                 const path = await import('node:path');
-                                const root = process.env.OBJECTSTACK_PROJECT_ARTIFACT_ROOT
+                                const root = process.env.OS_PROJECT_ARTIFACT_ROOT
                                     ?? process.cwd();
                                 const resolved = path.isAbsolute(artifactPathRaw)
                                     ? artifactPathRaw

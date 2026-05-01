@@ -5,7 +5,7 @@
  *
  * Requires TURSO_ORG_NAME and TURSO_API_TOKEN — loaded from .env.local if present.
  *
- * Run: pnpm --filter @objectstack/server test:provisioning
+ * Run: pnpm --filter @objectstack/objectos test:provisioning
  */
 
 import { readFileSync } from 'node:fs';

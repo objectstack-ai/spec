@@ -320,10 +320,10 @@ pointers, never Version payloads.
 ObjectOS Runtime vertex are both realized as ObjectStack-framework apps booted
 from their own `objectstack.config.ts`. They share the same `ObjectKernel`,
 spec, and adapter stack - they differ **only in the plugin manifest they
-register**. Today [apps/server/objectstack.config.ts](apps/server/objectstack.config.ts)
+register**. Today [apps/objectos/objectstack.config.ts](apps/objectos/objectstack.config.ts)
 is a hybrid that loads both manifests in one process; the target shape is two apps:
 
-| Plugin | `apps/cloud` (Control Plane) | `apps/server` (ObjectOS) |
+| Plugin | `apps/cloud` (Control Plane) | `apps/objectos` (ObjectOS) |
 |:---|:---:|:---:|
 | `createControlPlanePlugins(...)` (ObjectQL on control DB + driver + system-project + sys_* metadata) | Yes | - |
 | `MultiProjectPlugin` (`env-registry`, `kernel-manager`, `template-seeder`) | Yes | - |
@@ -342,7 +342,7 @@ identity would require federated auth, which is out of scope.
 
 **Key code anchors:**
 - Control-plane app (target): [apps/cloud/objectstack.config.ts](apps/cloud/objectstack.config.ts) (D8 complete)
-- ObjectOS app (target): [apps/server/objectstack.config.ts](apps/server/objectstack.config.ts) (currently hybrid; will be reduced to ObjectOS manifest)
+- ObjectOS app (target): [apps/objectos/objectstack.config.ts](apps/objectos/objectstack.config.ts) (currently hybrid; will be reduced to ObjectOS manifest)
 - Hostname -> project resolver: [packages/runtime/src/environment-registry.ts](packages/runtime/src/environment-registry.ts)
 - Per-project kernel factory: [packages/runtime/src/project-kernel-factory.ts](packages/runtime/src/project-kernel-factory.ts)
 - HTTP dispatch: [packages/runtime/src/http-dispatcher.ts](packages/runtime/src/http-dispatcher.ts)
@@ -429,12 +429,12 @@ ObjectOS 启动时必须从外部注入：
 
 | Env | 用途 | 备注 |
 |:---|:---|:---|
-| `OBJECTSTACK_PROJECT_ID` | 项目身份 | 本地可固定为 `proj_local` |
-| `OBJECTSTACK_DATABASE_URL` | 业务 DB URL | 例：`file:./.data/app.db` |
-| `OBJECTSTACK_DATABASE_DRIVER` | 业务 DB driver | `turso` / `sqlite` / `memory` |
-| `OBJECTSTACK_ARTIFACT_PATH` | 本地 artifact 路径 | 默认 `./dist/objectstack.json`；填了即跳过 Artifact API |
-| `OBJECTSTACK_MODE` | 部署模式 | `standalone`（默认）/ `cloud`；`cloud` 时 `OBJECTSTACK_DATABASE_URL` 解释为控制面 DB URL |
-| `OBJECTSTACK_MULTI_PROJECT` | 多项目开关（已废弃） | 旧别名：`=true` 等价 `OBJECTSTACK_MODE=cloud`，将于下个 major 移除 |
+| `OS_PROJECT_ID` | 项目身份 | 本地可固定为 `proj_local` |
+| `OS_DATABASE_URL` | 业务 DB URL | 例：`file:./.data/app.db` |
+| `OS_DATABASE_DRIVER` | 业务 DB driver | `turso` / `sqlite` / `memory` |
+| `OS_ARTIFACT_PATH` | 本地 artifact 路径 | 默认 `./dist/objectstack.json`；填了即跳过 Artifact API |
+| `OS_MODE` | 部署模式 | `standalone`（默认）/ `cloud`；`cloud` 时 `OS_DATABASE_URL` 解释为控制面 DB URL |
+| `OS_MULTI_PROJECT` | 多项目开关（已废弃） | 旧别名：`=true` 等价 `OS_MODE=cloud`，将于下个 major 移除 |
 | `AUTH_SECRET` | 进程级密钥 | |
 
 本地模式可以用磁盘 `dist/objectstack.json` 直接喂内核（用 `commitId: 'local-dev'` 之类的占位 envelope），不需要控制面在场。
@@ -488,7 +488,7 @@ preserve Built, reduce Drift, and advance Missing.
 - **JSON-payload storage primitive.** `sys_metadata.metadata` proves the platform can persist JSON payloads in metadata objects - [packages/metadata/src/objects/sys-metadata.object.ts](packages/metadata/src/objects/sys-metadata.object.ts). In the version-first model, user metadata browsing can be a projection from Project Version artifacts rather than the primary storage path.
 - **Project artifact envelope schema (M1).** `ProjectArtifactSchema` v0 exists with `schemaVersion`, `projectId`, `commitId`, `checksum`, `metadata`, `functions`, `manifest`, and reserved `payloadRef` - [packages/spec/src/cloud/project-artifact.zod.ts](packages/spec/src/cloud/project-artifact.zod.ts).
 - **Project artifact path binding.** Multi-project provisioning accepts `metadata.artifact_path`, and `os projects create --artifact` / `os projects bind --artifact` wire local compiled bundles into existing projects - [packages/cli/src/commands/projects/create.ts](packages/cli/src/commands/projects/create.ts), [packages/cli/src/commands/projects/bind.ts](packages/cli/src/commands/projects/bind.ts).
-- **Live kernel bundle resolver.** Project kernels read `sys_project.metadata.artifact_path` / `artifact_paths[]`, with `OBJECTSTACK_PROJECT_ARTIFACTS` and `OBJECTSTACK_PROJECT_ARTIFACT_ROOT` overrides for local development - [apps/server/server/fs-app-bundle-resolver.ts](apps/server/server/fs-app-bundle-resolver.ts).
+- **Live kernel bundle resolver.** Project kernels read `sys_project.metadata.artifact_path` / `artifact_paths[]`, with `OS_PROJECT_ARTIFACTS` and `OS_PROJECT_ARTIFACT_ROOT` overrides for local development - [apps/objectos/server/fs-app-bundle-resolver.ts](apps/objectos/server/fs-app-bundle-resolver.ts).
 - **Object identity is single-sourced on `name`.** `ObjectSchemaBase.namespace` has been removed; package namespace remains internal registry metadata, not an object identity field - [packages/spec/src/data/object.zod.ts](packages/spec/src/data/object.zod.ts).
 - **Manifest scope enum trimmed.** `ManifestSchema.scope` accepts only `cloud`, `system`, and `project` - [packages/spec/src/kernel/manifest.zod.ts](packages/spec/src/kernel/manifest.zod.ts).
 - **Canonical package manifest files.** Plugin/service packages now share a single `src/manifest.ts` between compile-time config and runtime registration, reducing object-list drift.
@@ -496,7 +496,7 @@ preserve Built, reduce Drift, and advance Missing.
 - **`env_id` → `project_id` migration (M2).** All metadata tables (`sys_metadata`, `sys_metadata_history`, `sys_object`, `sys_view`, `sys_flow`, `sys_agent`, `sys_tool`) have been updated to use `project_id` as the partition key. Idempotent migration helper shipped at `@objectstack/metadata/migrations` - [packages/metadata/src/migrations/migrate-env-id-to-project-id.ts](packages/metadata/src/migrations/migrate-env-id-to-project-id.ts). `DatabaseLoader` filters by `project_id` - [packages/metadata/src/loaders/database-loader.ts](packages/metadata/src/loaders/database-loader.ts).
 - **Artifact API endpoints (M3 + D2).** `GET /api/v1/cloud/projects/:id/artifact` returns the current artifact assembled from `sys_project.metadata.artifact_path`. `POST /api/v1/cloud/projects/:id/metadata` receives compiled JSON, persists it under `<artifactRoot>/<projectId>/artifact.json`, and updates the project metadata pointer — [packages/services/service-cloud/src/cloud-artifact-api-plugin.ts](packages/services/service-cloud/src/cloud-artifact-api-plugin.ts). `GET /api/v1/cloud/resolve-hostname` resolves a hostname to a project id.
 - **CLI `publish` routes to project publish endpoint (D2).** `objectstack publish` now POSTs to `/api/v1/cloud/projects/:id/metadata`, accepts `--project` and `--server` flags, and returns `versionId`, `commitId`, and `checksum` — [packages/cli/src/commands/publish.ts](packages/cli/src/commands/publish.ts).
-- **`apps/server` uses ObjectOS runtime mode (M4).** `apps/server/objectstack.config.ts` boots via `createBootStack({ runtime: { cloudUrl: ... } })`, separating the ObjectOS runtime from the control plane — [apps/server/objectstack.config.ts](apps/server/objectstack.config.ts).
+- **`apps/objectos` uses ObjectOS runtime mode (M4).** `apps/objectos/objectstack.config.ts` boots via `createBootStack({ runtime: { cloudUrl: ... } })`, separating the ObjectOS runtime from the control plane — [apps/objectos/objectstack.config.ts](apps/objectos/objectstack.config.ts).
 - **`apps/cloud` is an independent control plane (D8).** `apps/cloud/objectstack.config.ts` boots via `createBootStack({ mode: 'cloud', ... })`, running the control plane independently without the ObjectOS runtime manifest — [apps/cloud/objectstack.config.ts](apps/cloud/objectstack.config.ts).
 
 ### <AlertTriangle className="inline" /> Drift (Needs Cleanup)
@@ -565,7 +565,7 @@ design docs before building.
    Business DB coordinates and credentials are **Deployment Config**, never
    part of the Artifact. See §6.3 Runtime Inputs. Cloud mode sources them from
    control-plane `sys_project` / `sys_project_credential` + process env;
-   local single-project mode sources them from flat `OBJECTSTACK_*` env vars.
+   local single-project mode sources them from flat `OS_*` env vars.
 3. **Artifact cache invalidation.** Control-plane push notification?
    Periodic polling from ObjectOS? HTTP ETag on every request? Each has
    latency / chattiness / outage-resilience trade-offs.

@@ -1,8 +1,8 @@
 # ADR-0004: Cloud Control Plane + Per-Project Kernels
 
 **Status**: Superseded (2026-04-23) — the physical split between `apps/cloud`
-and `apps/server` was reversed. The control-plane and data-plane plugin
-groups now live in a single unified `apps/server` process, differentiated by
+and `apps/objectos` was reversed. The control-plane and data-plane plugin
+groups now live in a single unified `apps/objectos` process, differentiated by
 the plugin pack loaded at boot (`createControlPlanePlugins()` + multi-project
 bootstrap). All other primitives — `KernelManager`, per-project kernels,
 `sys_project.hostname` routing, `DefaultProjectKernelFactory` — remain
@@ -11,13 +11,13 @@ unchanged.
 **Date**: 2026-04-22
 **Deciders**: ObjectStack Protocol Architects
 **Builds on**: [ADR-0002](./0002-environment-database-isolation.md) (environment-per-database), [ADR-0003](./0003-package-as-first-class-citizen.md) (package as first-class citizen)
-**Consumers**: `apps/server`, `@objectstack/runtime`, `@objectstack/service-tenant`, Studio project management UI
+**Consumers**: `apps/objectos`, `@objectstack/runtime`, `@objectstack/service-tenant`, Studio project management UI
 
 ---
 
 ## Context
 
-After ADR-0002 and ADR-0003 landed, a single `apps/server` process owned three concerns simultaneously:
+After ADR-0002 and ADR-0003 landed, a single `apps/objectos` process owned three concerns simultaneously:
 
 1. The **control plane**: `sys_project`, `sys_database_credential`, `sys_project_member`, billing, package registry.
 2. The **data plane**: every project's ObjectQL traffic (`/api/v1/data/*`, `/api/v1/meta/*`, `/api/v1/ui/*`, `/api/v1/ai/*`).
@@ -50,14 +50,14 @@ Two deployable applications:
 | App            | Role                           | Owns                                                                       | Kernel model          |
 |----------------|--------------------------------|----------------------------------------------------------------------------|-----------------------|
 | `apps/cloud`   | Control plane                  | `sys_project`, `sys_database_credential`, `sys_project_member`, `sys_package*`, auth, billing | **Single** shared kernel |
-| `apps/server`  | Data plane (dual-mode)         | `/api/v1/data/*`, `/api/v1/meta/*`, `/api/v1/ui/*`, `/api/v1/ai/*`         | Single kernel *or* per-project kernels |
+| `apps/objectos`  | Data plane (dual-mode)         | `/api/v1/data/*`, `/api/v1/meta/*`, `/api/v1/ui/*`, `/api/v1/ai/*`         | Single kernel *or* per-project kernels |
 
 `apps/cloud` always runs as a single kernel — the control plane has one tenant (the platform itself).
 
-`apps/server` runs in one of two modes, selected at boot by `OBJECTSTACK_RUNTIME_MODE`:
+`apps/objectos` runs in one of two modes, selected at boot by `OS_RUNTIME_MODE`:
 
 - **`self-hosted` (default)** — behaves exactly like pre-ADR-0004. One kernel, full plugin set from `objectstack.config.ts`, datasource mapped via env vars. No control plane dependency.
-- **`cloud`** — hostname → project routing. A `KernelManager` lazily boots a dedicated `ObjectKernel` per project, pulling project/credential/package metadata from `apps/cloud` via `OBJECTSTACK_CONTROL_PLANE_URL`.
+- **`cloud`** — hostname → project routing. A `KernelManager` lazily boots a dedicated `ObjectKernel` per project, pulling project/credential/package metadata from `apps/cloud` via `OS_CONTROL_PLANE_URL`.
 
 ### 2. `KernelManager` + `ProjectKernelFactory` (new in `@objectstack/runtime`)
 
@@ -97,8 +97,8 @@ Custom domains and multi-hostname binding (ACME certificates, `sys_domain` table
 ### Positive
 
 - **Plugin and metadata isolation is physical.** A misbehaving project's `AppPlugin` cannot corrupt another project's schema registry or event bus.
-- **Self-hosted stays simple.** A single `OBJECTSTACK_DATABASE_URL` env var is still enough to run a full ObjectStack backend; no sys plugins are required.
-- **Control plane and data plane scale independently.** `apps/cloud` can run on a single node (low traffic, heavy consistency); `apps/server` in cloud mode can scale horizontally behind hostname-based load balancing.
+- **Self-hosted stays simple.** A single `OS_DATABASE_URL` env var is still enough to run a full ObjectStack backend; no sys plugins are required.
+- **Control plane and data plane scale independently.** `apps/cloud` can run on a single node (low traffic, heavy consistency); `apps/objectos` in cloud mode can scale horizontally behind hostname-based load balancing.
 - **Credential rotation never restarts the control plane.** Rotating `sys_database_credential` just invalidates the affected project's cached kernel; everything else keeps running.
 - **Hostname routing is observable.** Studio shows the bound hostname; operators can verify routing with a single `curl -H 'Host: …'`.
 
@@ -106,12 +106,12 @@ Custom domains and multi-hostname binding (ACME certificates, `sys_domain` table
 
 - **First request to a cold project pays the kernel bootstrap cost** (typically 50–200 ms; dominated by driver handshake). Mitigated by LRU caching and optional warm-up hooks.
 - **Memory scales with active-project count.** A 512 MB container comfortably holds ~100 active kernels with the default plugin set; operators must tune `KernelManager.maxSize` for their workload.
-- **Two deploy targets to track.** CI now publishes `apps/cloud` and `apps/server` separately; self-hosters who don't need a control plane can ignore `apps/cloud` but must still pin to a matching version for cloud-mode upgrades.
+- **Two deploy targets to track.** CI now publishes `apps/cloud` and `apps/objectos` separately; self-hosters who don't need a control plane can ignore `apps/cloud` but must still pin to a matching version for cloud-mode upgrades.
 
 ### Migration
 
-- Existing self-hosted deployments keep working unchanged. `OBJECTSTACK_RUNTIME_MODE` defaults to `self-hosted`; no env var changes required.
-- Pre-ADR-0004 cloud-style deployments (single `apps/server` with sys plugins) should split into `apps/cloud` + `apps/server` cloud-mode by Phase 2 of the rollout. A one-shot script that migrates existing `sys_project` rows out of the shared DB is bundled under `packages/services/service-tenant/migrations/`.
+- Existing self-hosted deployments keep working unchanged. `OS_RUNTIME_MODE` defaults to `self-hosted`; no env var changes required.
+- Pre-ADR-0004 cloud-style deployments (single `apps/objectos` with sys plugins) should split into `apps/cloud` + `apps/objectos` cloud-mode by Phase 2 of the rollout. A one-shot script that migrates existing `sys_project` rows out of the shared DB is bundled under `packages/services/service-tenant/migrations/`.
 
 ---
 
@@ -126,5 +126,5 @@ Custom domains and multi-hostname binding (ACME certificates, `sys_domain` table
 ## References
 
 - Plan: `apps-server-sleepy-newell` (the plan this ADR crystallizes).
-- Code: `packages/runtime/src/kernel-manager.ts`, `packages/runtime/src/project-kernel-factory.ts`, `packages/runtime/src/http-dispatcher.ts`, `apps/server/server/bootstrap.ts`, `apps/cloud/objectstack.config.ts`.
+- Code: `packages/runtime/src/kernel-manager.ts`, `packages/runtime/src/project-kernel-factory.ts`, `packages/runtime/src/http-dispatcher.ts`, `apps/objectos/server/bootstrap.ts`, `apps/cloud/objectstack.config.ts`.
 - Related guide: [Cloud vs Self-Hosted deployment](../../content/docs/guides/cloud-deployment.mdx).

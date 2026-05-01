@@ -49,7 +49,7 @@ const PKG_TYPE_ICONS: Record<string, LucideIcon> = {
 interface PackageSwitcherProps {
   packages: InstalledPackage[];
   selectedPackage: InstalledPackage | null;
-  onSelectPackage: (pkg: InstalledPackage) => void;
+  onSelectPackage: (pkg: InstalledPackage | null) => void;
 }
 
 export function PackageSwitcher({
@@ -75,7 +75,7 @@ export function PackageSwitcher({
               {selectedPackage.manifest?.name || selectedPackage.manifest?.id}
             </span>
           ) : (
-            <span className="text-muted-foreground">Select package</span>
+            <span>全部 (All packages)</span>
           )}
           <ChevronsUpDown className="h-3.5 w-3.5 opacity-60" />
         </Button>
@@ -88,6 +88,27 @@ export function PackageSwitcher({
         <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
           Installed Packages
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onSelect={(e) => {
+            e.preventDefault();
+            onSelectPackage(null);
+          }}
+          className="gap-2 py-2"
+        >
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-primary/10 text-primary">
+            <Sparkles className="h-3.5 w-3.5" />
+          </div>
+          <div className="flex flex-1 flex-col leading-tight">
+            <span className="text-sm font-medium">全部</span>
+            <span className="text-xs text-muted-foreground">
+              Show metadata from all packages
+            </span>
+          </div>
+          {selectedPackage === null && (
+            <Check className="h-4 w-4 text-primary" />
+          )}
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         {packages.map((pkg) => {
           const Icon = PKG_TYPE_ICONS[pkg.manifest?.type] || Package;

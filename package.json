@@ -6,9 +6,9 @@
   "scripts": {
     "build": "turbo run build --filter=!@objectstack/docs",
     "dev": "pnpm --filter @objectstack/objectos dev",
-    "dev:cloud": "OBJECTSTACK_MODE=cloud pnpm --filter @objectstack/cloud dev",
+    "dev:cloud": "OS_MODE=cloud pnpm --filter @objectstack/cloud dev",
     "start": "pnpm --filter @objectstack/objectos start",
-    "dev:crm": "pnpm --filter @example/app-crm build && OBJECTSTACK_PROJECT_ID=proj_crm pnpm --filter @example/app-crm dev",
+    "dev:crm": "pnpm --filter @example/app-crm build && OS_PROJECT_ID=proj_crm pnpm --filter @example/app-crm dev",
     "studio:start": "pnpm --filter @objectstack/studio start",
     "test": "turbo run test",
     "test:e2e": "turbo run test:e2e",

@@ -37,8 +37,8 @@ export default class ProjectsBind extends Command {
   };
 
   static override flags = {
-    url: Flags.string({ char: 'u', description: 'Server URL', env: 'OBJECTSTACK_CLOUD_URL' }),
-    token: Flags.string({ char: 't', description: 'Authentication token', env: 'OBJECTSTACK_TOKEN' }),
+    url: Flags.string({ char: 'u', description: 'Server URL', env: 'OS_CLOUD_URL' }),
+    token: Flags.string({ char: 't', description: 'Authentication token', env: 'OS_TOKEN' }),
     artifact: Flags.string({
       description: 'Path to a compiled objectstack.json artifact (default: ./dist/objectstack.json)',
     }),

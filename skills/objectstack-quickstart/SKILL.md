@@ -258,7 +258,7 @@ metadata through its business database.
 objectstack compile
 # -> dist/objectstack.json
 
-OBJECTSTACK_ARTIFACT_PATH=./dist/objectstack.json objectstack dev
+OS_ARTIFACT_PATH=./dist/objectstack.json objectstack dev
 ```
 
 Runtime rule of thumb:

@@ -6,8 +6,8 @@ set -euo pipefail
 # Vercel's project root is `apps/cloud` (where vercel.json lives), so the
 # final `public/` and `api/` directories MUST end up inside this directory
 # — not inside any sibling app. Earlier this script was copy-pasted from
-# apps/server and still cd'd into apps/server, which produced
-# apps/server/public/ — Vercel then failed with:
+# apps/objectos and still cd'd into apps/objectos, which produced
+# apps/objectos/public/ — Vercel then failed with:
 #   Error: No Output Directory named "public" found
 #
 # Pattern:

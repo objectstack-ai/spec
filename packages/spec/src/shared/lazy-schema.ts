@@ -15,11 +15,11 @@ import type { z } from 'zod';
  * underlying ZodType, so `z.infer<typeof X>` and `.parse()` callers do not
  * need to change.
  *
- * Emergency rollback: set `OBJECTSTACK_EAGER_SCHEMAS=1` to evaluate the
+ * Emergency rollback: set `OS_EAGER_SCHEMAS=1` to evaluate the
  * factory immediately and bypass the Proxy entirely.
  */
 export function lazySchema<T extends z.ZodTypeAny>(factory: () => T): T {
-  if (typeof process !== 'undefined' && process.env?.OBJECTSTACK_EAGER_SCHEMAS === '1') {
+  if (typeof process !== 'undefined' && process.env?.OS_EAGER_SCHEMAS === '1') {
     return factory();
   }
 

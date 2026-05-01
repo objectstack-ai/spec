@@ -14,12 +14,12 @@
  *         "artifact_paths": ["./pkg-a/dist/objectstack.json", "./pkg-b/dist/objectstack.json"]
  *     }
  *
- * Paths are resolved relative to `OBJECTSTACK_PROJECT_ARTIFACT_ROOT`
+ * Paths are resolved relative to `OS_PROJECT_ARTIFACT_ROOT`
  * (defaults to `process.cwd()`). Absolute paths are honored as-is.
  *
  * For pure dev convenience, an env-var override is also supported:
  *
- *     OBJECTSTACK_PROJECT_ARTIFACTS=proj_crm:/abs/path/crm.json,proj_todo:/abs/path/todo.json
+ *     OS_PROJECT_ARTIFACTS=proj_crm:/abs/path/crm.json,proj_todo:/abs/path/todo.json
  *
  * Entries listed there override `metadata.artifact_path` for that
  * project id, so a developer can rebind without rewriting the DB row.
@@ -32,8 +32,8 @@ import { readFile } from 'node:fs/promises';
 import { resolve as resolvePath, isAbsolute } from 'node:path';
 import type { AppBundleResolver } from './project-kernel-factory.js';
 
-const ENV_MAP_VAR = 'OBJECTSTACK_PROJECT_ARTIFACTS';
-const ARTIFACT_ROOT_VAR = 'OBJECTSTACK_PROJECT_ARTIFACT_ROOT';
+const ENV_MAP_VAR = 'OS_PROJECT_ARTIFACTS';
+const ARTIFACT_ROOT_VAR = 'OS_PROJECT_ARTIFACT_ROOT';
 
 function parseEnvMap(raw: string | undefined): Map<string, string[]> {
     const map = new Map<string, string[]>();

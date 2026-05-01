@@ -3,7 +3,7 @@
 // Force eager Zod construction so lazySchema() Proxies resolve immediately —
 // JSON Schema generation walks `_def` recursively and needs real schemas, not
 // lazy stubs. See packages/spec/src/shared/lazy-schema.ts.
-process.env.OBJECTSTACK_EAGER_SCHEMAS = '1';
+process.env.OS_EAGER_SCHEMAS = '1';
 
 import fs from 'fs';
 import path from 'path';

@@ -179,7 +179,7 @@ export default class Serve extends Command {
       // `@objectstack/runtime` (no cloud dependencies). runtime/cloud
       // modes go through `@objectstack/service-cloud`.
       if (shouldBootWithLibrary(config)) {
-        const resolvedMode = config.bootMode ?? process.env.OBJECTSTACK_MODE ?? 'standalone';
+        const resolvedMode = config.bootMode ?? process.env.OS_MODE ?? 'standalone';
         if (resolvedMode === 'standalone') {
           const { createStandaloneStack } = await import('@objectstack/runtime');
           const bootResult = await createStandaloneStack(config.standalone);
@@ -275,7 +275,7 @@ export default class Serve extends Command {
             || p.constructor?.name === 'I18nServicePlugin'
       );
       // Check the top-level config AND any nested AppPlugin bundles in the
-      // `plugins` array — host/aggregator configs (e.g. apps/server) don't
+      // `plugins` array — host/aggregator configs (e.g. apps/objectos) don't
       // define translations themselves but compose multiple `new AppPlugin(...)`
       // entries, each carrying its own translations.
       const pluginBundleHasTranslations = (bundle: any): boolean => {
@@ -360,8 +360,8 @@ export default class Serve extends Command {
           const cloudPkg = '@objectstack/service-cloud';
           const { createSingleProjectPlugin } = await import(/* webpackIgnore: true */ cloudPkg);
           await kernel.use(createSingleProjectPlugin({
-            projectId: process.env.OBJECTSTACK_PROJECT_ID ?? 'proj_local',
-            orgId: process.env.OBJECTSTACK_ORG_ID ?? 'org_local',
+            projectId: process.env.OS_PROJECT_ID ?? 'proj_local',
+            orgId: process.env.OS_ORG_ID ?? 'org_local',
             orgName: 'Local',
           }));
           trackPlugin('SingleProject');
@@ -388,14 +388,14 @@ export default class Serve extends Command {
           // In dev, fall back to a stable local secret so users don't have
           // to set AUTH_SECRET just to try the login/register flow.
           const secret = process.env.AUTH_SECRET
-            ?? process.env.OBJECTSTACK_AUTH_SECRET
+            ?? process.env.OS_AUTH_SECRET
             ?? (isDev ? 'dev-only-insecure-secret-change-me-in-production' : undefined);
 
           if (!secret) {
             console.warn(chalk.yellow('  ⚠ AuthPlugin skipped — set AUTH_SECRET to enable authentication in production'));
           } else {
             const baseUrl = process.env.AUTH_BASE_URL
-              ?? process.env.OBJECTSTACK_BASE_URL
+              ?? process.env.OS_BASE_URL
               ?? `http://localhost:${port}`;
 
             const socialProviders: Record<string, { clientId: string; clientSecret: string }> = {};

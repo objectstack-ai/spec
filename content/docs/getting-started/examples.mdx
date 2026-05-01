@@ -28,7 +28,7 @@ The monorepo includes 3 ready-to-run examples that progressively demonstrate Obj
 </Cards>
 
 <Callout type="info">
-  **Looking for the production server example?** It has been moved to [`apps/server/`](../../apps/server/) — see the [Server documentation](../../apps/server/README.md) for multi-app orchestration and deployment.
+  **Looking for the production server example?** It has been moved to [`apps/objectos/`](../../apps/objectos/) — see the [Server documentation](../../apps/objectos/README.md) for multi-app orchestration and deployment.
 </Callout>
 
 ---
@@ -275,10 +275,10 @@ new AppPlugin(BiPlugin)  // Load into host
 
 ## Multi-App Composition Pattern
 
-The production server at [`apps/server/`](../../apps/server/) demonstrates the **Platform Server** pattern: one host loading multiple apps and plugins. This is how you'd run ObjectStack in production with multiple teams' apps.
+The production server at [`apps/objectos/`](../../apps/objectos/) demonstrates the **Platform Server** pattern: one host loading multiple apps and plugins. This is how you'd run ObjectStack in production with multiple teams' apps.
 
 ```typescript
-// apps/server/objectstack.config.ts
+// apps/objectos/objectstack.config.ts
 import { defineStack } from '@objectstack/spec';
 import { AppPlugin, DriverPlugin } from '@objectstack/runtime';
 import { ObjectQLPlugin } from '@objectstack/objectql';
@@ -318,7 +318,7 @@ If two packages contribute objects with the same short name, the registry logs a
 ### Run It
 
 ```bash
-cd apps/server
+cd apps/objectos
 pnpm dev        # Loads all 3 apps on one server
 ```
 

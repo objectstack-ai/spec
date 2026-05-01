@@ -22,8 +22,8 @@ export default class ProjectsList extends Command {
   ];
 
   static override flags = {
-    url: Flags.string({ char: 'u', description: 'Server URL', env: 'OBJECTSTACK_CLOUD_URL' }),
-    token: Flags.string({ char: 't', description: 'Authentication token', env: 'OBJECTSTACK_TOKEN' }),
+    url: Flags.string({ char: 'u', description: 'Server URL', env: 'OS_CLOUD_URL' }),
+    token: Flags.string({ char: 't', description: 'Authentication token', env: 'OS_TOKEN' }),
     org: Flags.string({ description: 'Filter by organization id' }),
     status: Flags.string({ description: 'Filter by project status (active|provisioning|failed|…)' }),
     format: Flags.string({

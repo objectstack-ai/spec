@@ -12,16 +12,16 @@
  * (no org/project picker — platform metadata only).
  *
  * Override via env:
- *   - `OBJECTSTACK_CLOUD_URL=http://localhost:4000`         — connect to a
+ *   - `OS_CLOUD_URL=http://localhost:4000`         — connect to a
  *     locally-running `apps/cloud` (multi-project control plane).
- *   - `OBJECTSTACK_CLOUD_URL=https://cloud.objectstack.ai`  — hosted
+ *   - `OS_CLOUD_URL=https://cloud.objectstack.ai`  — hosted
  *     control plane.
- *   - `OBJECTSTACK_MODE=cloud`                              — boot the
+ *   - `OS_MODE=cloud`                              — boot the
  *     multi-project control plane in this very process (lives in
  *     `apps/cloud`).
  *
  * All boot orchestration lives in `@objectstack/service-cloud`. This file
- * only supplies the apps/server-specific knobs (filesystem app bundle
+ * only supplies the apps/objectos-specific knobs (filesystem app bundle
  * resolution).
  */
 
@@ -32,7 +32,7 @@ import { createFsAppBundleResolver } from './server/fs-app-bundle-resolver.js';
 
 const serverDir = dirname(fileURLToPath(import.meta.url));
 const dataDir = resolvePath(serverDir, '.objectstack/data');
-const localArtifactPath = process.env.OBJECTSTACK_ARTIFACT_PATH
+const localArtifactPath = process.env.OS_ARTIFACT_PATH
     ?? resolvePath(serverDir, 'dist/objectstack.json');
 
 const config = await createBootStack({
@@ -46,12 +46,12 @@ const config = await createBootStack({
         // org/project picker — platform metadata only).
         //
         // Override with:
-        //   - `OBJECTSTACK_CLOUD_URL=http://localhost:4000` to connect to
+        //   - `OS_CLOUD_URL=http://localhost:4000` to connect to
         //     a locally-running `apps/cloud` (multi-project control plane)
-        //   - `OBJECTSTACK_CLOUD_URL=https://cloud.objectstack.ai` for the
+        //   - `OS_CLOUD_URL=https://cloud.objectstack.ai` for the
         //     hosted control plane
-        cloudUrl: process.env.OBJECTSTACK_CLOUD_URL ?? 'local',
-        cloudApiKey: process.env.OBJECTSTACK_CLOUD_API_KEY,
+        cloudUrl: process.env.OS_CLOUD_URL ?? 'local',
+        cloudApiKey: process.env.OS_CLOUD_API_KEY,
     },
 });
 

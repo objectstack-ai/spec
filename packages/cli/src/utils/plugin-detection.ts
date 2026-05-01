@@ -27,7 +27,7 @@ export function isHostConfig(config: any): boolean {
  *
  * Skips library boot when:
  *   1. The config is a host config (already has instantiated plugins).
- *   2. `OBJECTSTACK_MODE=off` is explicitly set (escape hatch for the
+ *   2. `OS_MODE=off` is explicitly set (escape hatch for the
  *      legacy lightweight assembler).
  *
  * Recognised mode aliases match `resolveMode()` in
@@ -46,10 +46,10 @@ const RECOGNISED_MODES = new Set([
 
 export function shouldBootWithLibrary(config: any): boolean {
   if (isHostConfig(config)) return false;
-  const mode = process.env.OBJECTSTACK_MODE?.trim().toLowerCase();
+  const mode = process.env.OS_MODE?.trim().toLowerCase();
   if (mode === 'off' || mode === 'none' || mode === 'legacy') return false;
   if (mode && !RECOGNISED_MODES.has(mode)) {
-    console.warn(`[objectstack] Unknown OBJECTSTACK_MODE=${mode}; falling back to standalone mode.`);
+    console.warn(`[objectstack] Unknown OS_MODE=${mode}; falling back to standalone mode.`);
   }
   if (config?.bootMode === 'off') return false;
   return true;

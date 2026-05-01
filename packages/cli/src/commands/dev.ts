@@ -37,7 +37,7 @@ export default class Dev extends Command {
     if (packageName === 'all' && fs.existsSync(configPath)) {
       printKV('Config', configPath, '📂');
 
-      const artifactPath = process.env.OBJECTSTACK_ARTIFACT_PATH
+      const artifactPath = process.env.OS_ARTIFACT_PATH
         ?? path.resolve(process.cwd(), 'dist/objectstack.json');
 
       // Auto-compile when artifact is missing or --compile is explicitly requested.
@@ -62,11 +62,11 @@ export default class Dev extends Command {
         ...process.env,
         NODE_ENV: 'development',
         // Defaults for local mode — user's .env / existing env takes precedence.
-        OBJECTSTACK_PROJECT_ID: process.env.OBJECTSTACK_PROJECT_ID ?? 'proj_local',
-        OBJECTSTACK_ARTIFACT_PATH: process.env.OBJECTSTACK_ARTIFACT_PATH ?? artifactPath,
+        OS_PROJECT_ID: process.env.OS_PROJECT_ID ?? 'proj_local',
+        OS_ARTIFACT_PATH: process.env.OS_ARTIFACT_PATH ?? artifactPath,
       };
-      printKV('Project ID', localEnv.OBJECTSTACK_PROJECT_ID!, '🎯');
-      printKV('Artifact', path.relative(process.cwd(), localEnv.OBJECTSTACK_ARTIFACT_PATH!), '📦');
+      printKV('Project ID', localEnv.OS_PROJECT_ID!, '🎯');
+      printKV('Artifact', path.relative(process.cwd(), localEnv.OS_ARTIFACT_PATH!), '📦');
 
       const port = flags.port ?? process.env.PORT;
       const binPath = process.argv[1];

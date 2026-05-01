@@ -11,7 +11,7 @@
  * This config is **cloud-only** — multi-project, control-plane connected,
  * with the Studio template registry and filesystem-backed app bundle
  * resolver wired in. Local single-project / standalone modes live in
- * `apps/server`. All boot orchestration lives in
+ * `apps/objectos`. All boot orchestration lives in
  * `@objectstack/service-cloud`; this file only supplies the
  * apps/cloud-specific knobs (templates, app bundle resolution).
  */

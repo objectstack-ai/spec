@@ -17,7 +17,7 @@
  * obtained via `ensureApp()` and driven with synthetic `Request` objects.
  * This keeps the test fast enough to run on every commit.
  *
- *   pnpm --filter @objectstack/server test:e2e
+ *   pnpm --filter @objectstack/objectos test:e2e
  */
 
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -68,20 +68,20 @@ function expect(actual: any) {
 
 // ---------------------------------------------------------------------------
 // Env setup must happen BEFORE importing the server — objectstack.config.ts
-// reads OBJECTSTACK_DATABASE_URL when selecting the control-plane driver.
+// reads OS_DATABASE_URL when selecting the control-plane driver.
 // ---------------------------------------------------------------------------
 
 const workdir = mkdtempSync(join(tmpdir(), 'objectstack-e2e-'));
 const controlDb = join(workdir, 'control.db');
 
-process.env.OBJECTSTACK_MODE = 'cloud';
-process.env.OBJECTSTACK_DATABASE_URL = `file:${controlDb}`;
+process.env.OS_MODE = 'cloud';
+process.env.OS_DATABASE_URL = `file:${controlDb}`;
 process.env.AUTH_SECRET = 'e2e-test-secret-must-be-at-least-32-characters-long-xxxx';
 process.env.PORT = '0';
 // Keep kernel LRU small so an eviction test could be added later without
 // needing to reconfigure. Doesn't affect the current assertions.
-process.env.OBJECTSTACK_KERNEL_CACHE_SIZE = '8';
-process.env.OBJECTSTACK_ENV_CACHE_TTL_MS = '60000';
+process.env.OS_KERNEL_CACHE_SIZE = '8';
+process.env.OS_ENV_CACHE_TTL_MS = '60000';
 
 // Defer import until env is set.
 const { ensureApp } = await import('../server/index.js');

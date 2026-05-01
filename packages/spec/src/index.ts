@@ -45,7 +45,7 @@
 // `export * as Namespace from './sub'` is NOT tree-shakeable in Node ESM —
 // every subdomain (16 of them, ~400 Zod schema closures) is force-evaluated
 // on the first `import` of `@objectstack/spec`, even when consumers only
-// touch one namespace. This caused ~1.2GB RSS bloat in `@objectstack/server`.
+// touch one namespace. This caused ~1.2GB RSS bloat in `@objectstack/objectos`.
 //
 // Use subpath imports instead:
 //   import * as Data from '@objectstack/spec/data';

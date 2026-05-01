@@ -20,7 +20,7 @@ export default class Start extends Command {
 
     printHeader('Production Mode');
 
-    const artifactPath = process.env.OBJECTSTACK_ARTIFACT_PATH
+    const artifactPath = process.env.OS_ARTIFACT_PATH
       ?? path.resolve(process.cwd(), 'dist/objectstack.json');
 
     if (!fs.existsSync(artifactPath)) {
@@ -35,12 +35,12 @@ export default class Start extends Command {
     const localEnv: NodeJS.ProcessEnv = {
       ...process.env,
       NODE_ENV: 'production',
-      OBJECTSTACK_PROJECT_ID: process.env.OBJECTSTACK_PROJECT_ID ?? 'proj_local',
-      OBJECTSTACK_ARTIFACT_PATH: process.env.OBJECTSTACK_ARTIFACT_PATH ?? artifactPath,
+      OS_PROJECT_ID: process.env.OS_PROJECT_ID ?? 'proj_local',
+      OS_ARTIFACT_PATH: process.env.OS_ARTIFACT_PATH ?? artifactPath,
       ...(flags.port ? { PORT: String(flags.port) } : {}),
     };
 
-    printKV('Project ID', localEnv.OBJECTSTACK_PROJECT_ID!, '🎯');
+    printKV('Project ID', localEnv.OS_PROJECT_ID!, '🎯');
 
     const binPath = process.argv[1];
     spawn(

@@ -43,20 +43,20 @@ export async function createStandaloneStack(config?: StandaloneStackConfig): Pro
     const { AppPlugin } = await import('./app-plugin.js');
 
     const cwd = process.cwd();
-    const projectId = cfg.projectId ?? process.env.OBJECTSTACK_PROJECT_ID ?? 'proj_local';
+    const projectId = cfg.projectId ?? process.env.OS_PROJECT_ID ?? 'proj_local';
     const artifactPath = cfg.artifactPath
-        ?? process.env.OBJECTSTACK_ARTIFACT_PATH
+        ?? process.env.OS_ARTIFACT_PATH
         ?? resolvePath(cwd, 'dist/objectstack.json');
 
     const dbUrl = cfg.databaseUrl
-        ?? process.env.OBJECTSTACK_DATABASE_URL?.trim()
+        ?? process.env.OS_DATABASE_URL?.trim()
         ?? process.env.TURSO_DATABASE_URL?.trim()
         ?? `file:${resolvePath(cwd, '.objectstack/data/standalone.db')}`;
     const dbAuthToken = cfg.databaseAuthToken
-        ?? process.env.OBJECTSTACK_DATABASE_AUTH_TOKEN?.trim()
+        ?? process.env.OS_DATABASE_AUTH_TOKEN?.trim()
         ?? process.env.TURSO_AUTH_TOKEN?.trim();
     const dbDriver = cfg.databaseDriver
-        ?? process.env.OBJECTSTACK_DATABASE_DRIVER?.trim()
+        ?? process.env.OS_DATABASE_DRIVER?.trim()
         ?? (/^(libsql|https?):\/\//i.test(dbUrl) ? 'turso' : 'sqlite');
 
     let driverPlugin: any;

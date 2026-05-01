@@ -15,18 +15,18 @@
 import { z } from 'zod';
 
 export const BootEnvSchema = z.object({
-    OBJECTSTACK_MODE: z.string().optional(),
-    OBJECTSTACK_MULTI_PROJECT: z.string().optional(),
+    OS_MODE: z.string().optional(),
+    OS_MULTI_PROJECT: z.string().optional(),
     AUTH_SECRET: z.string().optional(),
     NEXT_PUBLIC_BASE_URL: z.string().optional(),
     VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
     VERCEL_URL: z.string().optional(),
     PORT: z.coerce.number().optional(),
-    OBJECTSTACK_PROJECT_ID: z.string().optional(),
-    OBJECTSTACK_ARTIFACT_PATH: z.string().optional(),
-    OBJECTSTACK_DATABASE_URL: z.string().optional(),
-    OBJECTSTACK_DATABASE_AUTH_TOKEN: z.string().optional(),
-    OBJECTSTACK_DATABASE_DRIVER: z.string().optional(),
+    OS_PROJECT_ID: z.string().optional(),
+    OS_ARTIFACT_PATH: z.string().optional(),
+    OS_DATABASE_URL: z.string().optional(),
+    OS_DATABASE_AUTH_TOKEN: z.string().optional(),
+    OS_DATABASE_DRIVER: z.string().optional(),
     TURSO_DATABASE_URL: z.string().optional(),
     TURSO_AUTH_TOKEN: z.string().optional(),
 });
@@ -55,8 +55,8 @@ function pickEnv(env?: Record<string, string | undefined>): Record<string, strin
  *
  * Falls back to `'standalone'` when unset; logs a warning and falls back
  * to `'standalone'` when the value is unrecognised. The legacy
- * `OBJECTSTACK_MULTI_PROJECT=true` flag is still honoured (with a
- * deprecation warning) when `OBJECTSTACK_MODE` is unset.
+ * `OS_MULTI_PROJECT=true` flag is still honoured (with a
+ * deprecation warning) when `OS_MODE` is unset.
  *
  * The `project` value continues to be accepted as a deprecated alias for
  * `runtime` — that mode was renamed in the v4.x series to better reflect
@@ -65,25 +65,25 @@ function pickEnv(env?: Record<string, string | undefined>): Record<string, strin
  */
 export function resolveMode(env?: Record<string, string | undefined>): BootMode {
     const e = pickEnv(env);
-    const raw = e.OBJECTSTACK_MODE?.trim().toLowerCase();
+    const raw = e.OS_MODE?.trim().toLowerCase();
     if (raw === 'cloud' || raw === 'multi-project') return 'cloud';
     if (raw === 'standalone') return 'standalone';
     if (raw === 'runtime') return 'runtime';
     if (raw === 'project' || raw === 'local' || raw === 'single-project') {
         // eslint-disable-next-line no-console
         console.warn(
-            `[objectstack] OBJECTSTACK_MODE=${raw} is a deprecated alias for "runtime"; please update your config.`,
+            `[objectstack] OS_MODE=${raw} is a deprecated alias for "runtime"; please update your config.`,
         );
         return 'runtime';
     }
     if (raw && raw.length > 0) {
         // eslint-disable-next-line no-console
-        console.warn(`[objectstack] Unknown OBJECTSTACK_MODE=${raw}; falling back to "standalone".`);
+        console.warn(`[objectstack] Unknown OS_MODE=${raw}; falling back to "standalone".`);
     }
-    if (envFlag(e.OBJECTSTACK_MULTI_PROJECT)) {
+    if (envFlag(e.OS_MULTI_PROJECT)) {
         // eslint-disable-next-line no-console
         console.warn(
-            '[objectstack] OBJECTSTACK_MULTI_PROJECT is deprecated. Use `OBJECTSTACK_MODE=cloud` instead.',
+            '[objectstack] OS_MULTI_PROJECT is deprecated. Use `OS_MODE=cloud` instead.',
         );
         return 'cloud';
     }

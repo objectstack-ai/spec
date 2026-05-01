@@ -1,5 +1,5 @@
 # Paths here are evaluated relative to the build context (repo root).
-# Keep image slim by excluding every workspace member that apps/server
+# Keep image slim by excluding every workspace member that apps/objectos
 # does not depend on + anything that gets regenerated during build.
 
 # ─── Node / pnpm caches ──────────────────────────────────────────────
@@ -35,7 +35,7 @@
 **/.objectstack
 **/data
 
-# ─── Workspace members not needed by apps/server at runtime ─────────
+# ─── Workspace members not needed by apps/objectos at runtime ─────────
 apps/studio
 apps/docs
 content/docs

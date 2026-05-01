@@ -32,12 +32,12 @@ export default class DataUpdate extends Command {
     url: Flags.string({
       char: 'u',
       description: 'Server URL',
-      env: 'OBJECTSTACK_CLOUD_URL',
+      env: 'OS_CLOUD_URL',
     }),
     token: Flags.string({
       char: 't',
       description: 'Authentication token',
-      env: 'OBJECTSTACK_TOKEN',
+      env: 'OS_TOKEN',
     }),
     data: Flags.string({
       char: 'd',

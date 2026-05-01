@@ -152,11 +152,11 @@ export function createControlPlanePlugins(cfg: ControlPlanePresetConfig): any[] 
         baseUrl: cfg.baseUrl,
         plugins: (cfg.authPlugins ?? { organization: true, oidcProvider: true, deviceAuthorization: true }) as any,
         socialProviders: Object.keys(socialProviders).length > 0 ? socialProviders : undefined,
-        advanced: process.env.OBJECTSTACK_COOKIE_DOMAIN
+        advanced: process.env.OS_COOKIE_DOMAIN
           ? ({
               crossSubDomainCookies: {
                 enabled: true,
-                domain: process.env.OBJECTSTACK_COOKIE_DOMAIN,
+                domain: process.env.OS_COOKIE_DOMAIN,
               },
               useSecureCookies: process.env.NODE_ENV === 'production',
             } as any)

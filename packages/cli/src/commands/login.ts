@@ -88,7 +88,7 @@ export default class AuthLogin extends Command {
       char: 'u',
       description: 'Server URL',
       default: 'http://localhost:3000',
-      env: 'OBJECTSTACK_CLOUD_URL',
+      env: 'OS_CLOUD_URL',
     }),
     email: Flags.string({
       char: 'e',
@@ -223,7 +223,7 @@ export default class AuthLogin extends Command {
     noBrowser: boolean,
     jsonOutput?: boolean,
   ): Promise<void> {
-    const clientId = process.env.OBJECTSTACK_CLI_CLIENT_ID || 'objectstack-cli';
+    const clientId = process.env.OS_CLI_CLIENT_ID || 'objectstack-cli';
 
     // RFC 8628 §3.1 — Device Authorization Request
     const res = await globalThis.fetch(`${url}/api/v1/auth/device/code`, {

@@ -16,19 +16,19 @@ export default class Publish extends Command {
     server: Flags.string({
       char: 's',
       description: 'ObjectStack Cloud control-plane URL',
-      env: 'OBJECTSTACK_CLOUD_URL',
+      env: 'OS_CLOUD_URL',
       default: 'http://localhost:4000',
     }),
     project: Flags.string({
       char: 'p',
       description: 'Project ID (required)',
-      env: 'OBJECTSTACK_PROJECT_ID',
+      env: 'OS_PROJECT_ID',
       required: true,
     }),
     token: Flags.string({
       char: 't',
       description: 'API key for ObjectStack Cloud',
-      env: 'OBJECTSTACK_CLOUD_API_KEY',
+      env: 'OS_CLOUD_API_KEY',
     }),
   };
 

@@ -4,8 +4,8 @@
  * Top-level boot-mode orchestrator.
  *
  * Dispatches to the appropriate stack factory based on the resolved
- * `OBJECTSTACK_MODE` (or an explicit `mode` override). The same config
- * object is accepted by every host (apps/server, CLI's `serve`,
+ * `OS_MODE` (or an explicit `mode` override). The same config
+ * object is accepted by every host (apps/objectos, CLI's `serve`,
  * embedding frameworks) — branches not relevant to the resolved mode
  * are ignored.
  */
@@ -58,7 +58,7 @@ export interface BootStackResult {
  *
  * Selection precedence:
  *   1. `config.mode` (explicit override)
- *   2. `OBJECTSTACK_MODE` environment variable
+ *   2. `OS_MODE` environment variable
  *   3. Default: `'standalone'`
  *
  * Note: `'project'` is accepted as a deprecated alias for `'runtime'`

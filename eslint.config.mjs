@@ -6,7 +6,7 @@
 // Node ESM. The 16 namespace re-exports previously in
 // `packages/spec/src/index.ts` force-evaluated ~400 Zod schema closures on the
 // first `import { Data } from '@objectstack/spec'`, ballooning RSS by ~1.2GB
-// in `@objectstack/server`. Those root barrels are gone — this rule prevents
+// in `@objectstack/objectos`. Those root barrels are gone — this rule prevents
 // them coming back via consumer imports.
 //
 // To enable: `pnpm add -DW eslint` then `pnpm exec eslint .`

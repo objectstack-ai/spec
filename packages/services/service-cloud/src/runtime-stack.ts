@@ -6,12 +6,12 @@
  * Default behavior — boots a "runtime node" connected to ObjectStack
  * Cloud at `http://localhost:4000` (the local `apps/cloud` instance —
  * start it before the runtime). For the hosted control plane, set
- * `OBJECTSTACK_CLOUD_URL=https://cloud.objectstack.ai`. The node
+ * `OS_CLOUD_URL=https://cloud.objectstack.ai`. The node
  * fetches per-project artifacts over HTTP and routes incoming requests
  * to the matching project kernel; no local control-plane database is
  * provisioned.
  *
- * Local opt-out — set `OBJECTSTACK_CLOUD_URL=local` (or
+ * Local opt-out — set `OS_CLOUD_URL=local` (or
  * `cloudUrl: 'local'`) to fall back to the legacy single-control-plane
  * shape, which mirrors `createCloudStack()` with two SQLite files
  * (`control.db` for the control plane and `<project_id>.db` for the
@@ -37,14 +37,14 @@ import { createObjectOSStack } from './objectos-stack.js';
 
 /**
  * Default ObjectStack Cloud base URL — the local `apps/cloud` instance
- * running on port 4000. Override via `OBJECTSTACK_CLOUD_URL` (or
+ * running on port 4000. Override via `OS_CLOUD_URL` (or
  * `RuntimeStackConfig.cloudUrl`) to point at a remote control plane
  * (e.g. `https://cloud.objectstack.ai`). Set to `local` to disable
  * cloud routing entirely and boot from a local `control.db` instead.
  *
  * Why a local default? Runtime nodes are designed to be paired with a
  * control plane. Defaulting to `localhost:4000` lets contributors run
- * `apps/cloud` (the open-source control plane) and `apps/server` (the
+ * `apps/cloud` (the open-source control plane) and `apps/objectos` (the
  * runtime) side-by-side with zero env config — the natural dev loop.
  */
 export const DEFAULT_CLOUD_URL = 'http://localhost:4000';
@@ -67,7 +67,7 @@ export const RuntimeStackConfigSchema = z.object({
     /**
      * ObjectStack Cloud base URL. Defaults to `http://localhost:4000`
      * (the local `apps/cloud` dev instance). For the hosted control
-     * plane, set `OBJECTSTACK_CLOUD_URL=https://cloud.objectstack.ai`.
+     * plane, set `OS_CLOUD_URL=https://cloud.objectstack.ai`.
      *
      * When non-empty (the default), the runtime stack runs as a
      * **cloud-connected runtime node**: no local control-plane database,
@@ -76,11 +76,11 @@ export const RuntimeStackConfigSchema = z.object({
      *
      * To run the legacy local-control-plane mode (single SQLite
      * `control.db` shared with one `proj_local.db`) instead, set the env
-     * var to the sentinel value `local` (`OBJECTSTACK_CLOUD_URL=local`)
+     * var to the sentinel value `local` (`OS_CLOUD_URL=local`)
      * or pass `cloudUrl: 'local'`.
      */
     cloudUrl: z.string().optional(),
-    /** Bearer token for the ObjectStack Cloud API (defaults to `OBJECTSTACK_CLOUD_API_KEY`). */
+    /** Bearer token for the ObjectStack Cloud API (defaults to `OS_CLOUD_API_KEY`). */
     cloudApiKey: z.string().optional(),
 });
 
@@ -104,23 +104,23 @@ export async function createRuntimeStack(config?: RuntimeStackConfig): Promise<R
     // (https://cloud.objectstack.ai) — no local control-plane DB, projects
     // are resolved by hostname against the cloud API and kernels are
     // booted from remote-fetched artifacts. To opt out and use the legacy
-    // single-control-DB local mode, set OBJECTSTACK_CLOUD_URL=local
+    // single-control-DB local mode, set OS_CLOUD_URL=local
     // (or `cloudUrl: 'local'`). See objectos-stack.ts.
-    const rawCloudUrl = cfg.cloudUrl ?? process.env.OBJECTSTACK_CLOUD_URL ?? DEFAULT_CLOUD_URL;
+    const rawCloudUrl = cfg.cloudUrl ?? process.env.OS_CLOUD_URL ?? DEFAULT_CLOUD_URL;
     const cloudUrl = rawCloudUrl.trim();
     const localOptOut = cloudUrl === '' || cloudUrl.toLowerCase() === 'local' || cloudUrl.toLowerCase() === 'off';
     if (!localOptOut) {
         return createObjectOSStack({
             controlPlaneUrl: cloudUrl,
-            controlPlaneApiKey: cfg.cloudApiKey ?? process.env.OBJECTSTACK_CLOUD_API_KEY,
+            controlPlaneApiKey: cfg.cloudApiKey ?? process.env.OS_CLOUD_API_KEY,
             apiPrefix: cfg.apiPrefix,
         }) as Promise<RuntimeStackResult>;
     }
 
     const cwd = process.cwd();
-    const projectId = cfg.projectId ?? process.env.OBJECTSTACK_PROJECT_ID ?? 'proj_local';
+    const projectId = cfg.projectId ?? process.env.OS_PROJECT_ID ?? 'proj_local';
     const artifactPath = cfg.artifactPath
-        ?? process.env.OBJECTSTACK_ARTIFACT_PATH
+        ?? process.env.OS_ARTIFACT_PATH
         ?? resolvePath(cwd, 'dist/objectstack.json');
     const dataDir = cfg.dataDir ?? resolvePath(cwd, '.objectstack/data');
     mkdirSync(dataDir, { recursive: true });

@@ -28,12 +28,12 @@ export default class DataQuery extends Command {
     url: Flags.string({
       char: 'u',
       description: 'Server URL',
-      env: 'OBJECTSTACK_CLOUD_URL',
+      env: 'OS_CLOUD_URL',
     }),
     token: Flags.string({
       char: 't',
       description: 'Authentication token',
-      env: 'OBJECTSTACK_TOKEN',
+      env: 'OS_TOKEN',
     }),
     filter: Flags.string({
       description: 'Filter criteria as JSON object',

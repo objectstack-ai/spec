@@ -171,9 +171,9 @@ Tests: [packages/spec/src/system/project-artifact.test.ts](packages/spec/src/sys
 明确 ObjectOS 启动输入 = **Artifact**（不可变、可缓存的元数据信封）+ **Deployment Config**（业务 DB 坐标、凭据、项目身份、密钥；不进 artifact）。详见 [north-star.mdx §6.3](content/docs/concepts/north-star.mdx)。
 
 - [x] north-star.mdx §6.3 增补 Runtime Inputs 节（含本地单 project env 表 + 反模式说明）
-- [x] 实现本地 standalone / cloud env 路径：`OBJECTSTACK_MODE` (旧 `OBJECTSTACK_MULTI_PROJECT`) / `OBJECTSTACK_PROJECT_ID` / `OBJECTSTACK_DATABASE_URL` / `OBJECTSTACK_DATABASE_DRIVER` / `OBJECTSTACK_ARTIFACT_PATH`（默认 `./dist/objectstack.json`）/ `AUTH_SECRET`
+- [x] 实现本地 standalone / cloud env 路径：`OS_MODE` (旧 `OS_MULTI_PROJECT`) / `OS_PROJECT_ID` / `OS_DATABASE_URL` / `OS_DATABASE_DRIVER` / `OS_ARTIFACT_PATH`（默认 `./dist/objectstack.json`）/ `AUTH_SECRET`
 - [x] 修复 Drift：`ProjectKernelFactory` 不再直连控制面 DB 读 `sys_project` / `sys_project_credential`，改走 Artifact API + Deployment Config 注入（`localProject` 分支）
-- [x] [apps/objectos/objectstack.config.ts](apps/objectos/objectstack.config.ts) 的 env 命名收敛到 `OBJECTSTACK_*` 前缀，`isLocalMode` 分流本地/云端路径
+- [x] [apps/objectos/objectstack.config.ts](apps/objectos/objectstack.config.ts) 的 env 命名收敛到 `OS_*` 前缀，`isLocalMode` 分流本地/云端路径
 
 **Resolves:** Open Question §9.2（已解决）+ 新增 Drift（`ProjectKernelFactory` 绕过 Artifact API）。
 

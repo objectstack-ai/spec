@@ -138,7 +138,7 @@ export function createHonoApp(options: ObjectStackHonoOptions): Hono {
       // use a matcher function — Hono's cors() middleware does exact-string matching only and
       // treats '*' in patterns as a literal character, so passing wildcard strings straight
       // through would silently drop the Access-Control-Allow-Origin header on every real
-      // request (preflight can still succeed via apps/server's short-circuit, but the
+      // request (preflight can still succeed via apps/objectos's short-circuit, but the
       // subsequent POST/GET would be blocked by the browser).
       //
       // This mirrors `plugin-hono-server`'s CORS wiring and uses the shared pattern matcher

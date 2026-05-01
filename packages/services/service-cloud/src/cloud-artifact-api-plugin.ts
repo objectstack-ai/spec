@@ -198,8 +198,8 @@ function buildRuntimeBlock(project: SysProjectRow, cred: SysCredentialRow | null
 
 export function createCloudArtifactApiPlugin(options: CloudArtifactApiPluginOptions): any {
     const prefix = options.apiPrefix ?? '/api/v1';
-    const artifactRoot = options.artifactRoot ?? process.env.OBJECTSTACK_PROJECT_ARTIFACT_ROOT ?? process.cwd();
-    const requiredKey = options.apiKey ?? process.env.OBJECTSTACK_CLOUD_API_KEY;
+    const artifactRoot = options.artifactRoot ?? process.env.OS_PROJECT_ARTIFACT_ROOT ?? process.cwd();
+    const requiredKey = options.apiKey ?? process.env.OS_CLOUD_API_KEY;
 
     return {
         name: 'com.objectstack.cloud.artifact-api',

@@ -147,7 +147,7 @@ describe('Remote API Commands (oclif)', () => {
   });
 
   describe('Command Conventions', () => {
-    it('all remote commands should support --url flag with OBJECTSTACK_CLOUD_URL env var', () => {
+    it('all remote commands should support --url flag with OS_CLOUD_URL env var', () => {
       const commands = [
         AuthLogin, AuthWhoami,
         DataQuery, DataGet, DataCreate, DataUpdate, DataDelete,
@@ -156,11 +156,11 @@ describe('Remote API Commands (oclif)', () => {
 
       commands.forEach(cmd => {
         expect(cmd.flags).toHaveProperty('url');
-        expect(cmd.flags.url).toHaveProperty('env', 'OBJECTSTACK_CLOUD_URL');
+        expect(cmd.flags.url).toHaveProperty('env', 'OS_CLOUD_URL');
       });
     });
 
-    it('authenticated commands should support --token flag with OBJECTSTACK_TOKEN env var', () => {
+    it('authenticated commands should support --token flag with OS_TOKEN env var', () => {
       const commands = [
         AuthWhoami,
         DataQuery, DataGet, DataCreate, DataUpdate, DataDelete,
@@ -169,7 +169,7 @@ describe('Remote API Commands (oclif)', () => {
 
       commands.forEach(cmd => {
         expect(cmd.flags).toHaveProperty('token');
-        expect(cmd.flags.token).toHaveProperty('env', 'OBJECTSTACK_TOKEN');
+        expect(cmd.flags.token).toHaveProperty('env', 'OS_TOKEN');
       });
     });
 

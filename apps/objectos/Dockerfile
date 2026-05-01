@@ -3,14 +3,14 @@
 # ObjectStack Server — production container image
 # --------------------------------------------------
 # Build with the **repository root** as the build context so the entire pnpm
-# workspace (packages, examples, apps/server itself) is available to the
+# workspace (packages, examples, apps/objectos itself) is available to the
 # builder stage. Example:
 #
-#   docker build -f apps/server/Dockerfile -t objectstack/server:dev .
-#   fly deploy --dockerfile apps/server/Dockerfile
+#   docker build -f apps/objectos/Dockerfile -t objectstack/objectos:dev .
+#   fly deploy --dockerfile apps/objectos/Dockerfile
 #
 # At runtime the container reads project config from env vars (see
-# apps/server/README.md for the full list) and optionally mounts a
+# apps/objectos/README.md for the full list) and optionally mounts a
 # persistent volume at /data for the local-SQLite control plane.
 
 # ──────────────────────────────────────────────────────────────────────────
@@ -35,13 +35,13 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json tsup.config.ts .
 # Studio / docs are excluded to keep the image slim (see .dockerignore).
 COPY packages ./packages
 COPY examples ./examples
-COPY apps/server ./apps/server
+COPY apps/objectos ./apps/objectos
 
 RUN pnpm install --frozen-lockfile --prod=false
 
-# Build upstream packages that apps/server depends on via workspace: protocol.
+# Build upstream packages that apps/objectos depends on via workspace: protocol.
 # `...` expands to "package + all transitive deps in the workspace".
-RUN pnpm --filter '@objectstack/server...' build || true
+RUN pnpm --filter '@objectstack/objectos...' build || true
 
 
 # ──────────────────────────────────────────────────────────────────────────
@@ -69,10 +69,10 @@ VOLUME ["/data"]
 
 # The container talks to the control plane (local SQLite at /data or remote
 # libSQL/Turso) via env. Override in fly.toml / `docker run -e …`.
-ENV OBJECTSTACK_DATABASE_URL=file:/data/control.db
+ENV OS_DATABASE_URL=file:/data/control.db
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
     CMD wget -qO- "http://127.0.0.1:${PORT}/api/v1/health" >/dev/null 2>&1 || exit 1
 
-WORKDIR /app/apps/server
+WORKDIR /app/apps/objectos
 CMD ["pnpm", "start"]

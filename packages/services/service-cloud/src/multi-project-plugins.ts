@@ -4,7 +4,7 @@
  * Multi-Project / Cloud auxiliary route plugins.
  *
  * Counterpart to `single-project-plugin.ts`. These plugins are registered
- * only when the server runs in cloud mode (`OBJECTSTACK_MODE=cloud`,
+ * only when the server runs in cloud mode (`OS_MODE=cloud`,
  * e.g. the Vercel deployment behind play.objectstack.ai). They expose two
  * Studio-facing endpoints:
  *

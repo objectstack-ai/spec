@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build script for Vercel deployment of @objectstack/server.
+# Build script for Vercel deployment of @objectstack/objectos.
 #
 # Follows the Vercel deployment pattern:
 #   - api/[[...route]].js is committed to the repo (Vercel detects it pre-build)
@@ -21,8 +21,8 @@ echo "[build-vercel] Starting server build..."
 # 1. Build the project with turbo (from monorepo root)
 # This builds server, studio, and the account portal.
 cd ../..
-pnpm turbo run build --filter=@objectstack/server --filter=@objectstack/studio --filter=@objectstack/account
-cd apps/server
+pnpm turbo run build --filter=@objectstack/objectos --filter=@objectstack/studio --filter=@objectstack/account
+cd apps/objectos
 
 # 1b. Compile objectstack.config.ts → dist/objectstack.json (the metadata artifact).
 # MetadataPlugin reads this file at startup in local mode. Without it the kernel
@@ -37,7 +37,7 @@ node scripts/bundle-api.mjs
 # 2b. Copy the artifact into api/dist/ so Vercel includes it in the function
 # deployment package. The function runs with CWD=/var/task and resolves the
 # artifact relative to its own directory (api/), so api/dist/objectstack.json
-# maps to /var/task/apps/server/api/dist/objectstack.json at runtime.
+# maps to /var/task/apps/objectos/api/dist/objectstack.json at runtime.
 echo "[build-vercel] Copying artifact into api/dist/..."
 mkdir -p api/dist
 cp dist/objectstack.json api/dist/objectstack.json

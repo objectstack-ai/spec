@@ -43,16 +43,16 @@ describe('lazySchema', () => {
     expect(schema.parse('ab')).toBe('AB');
   });
 
-  it('respects OBJECTSTACK_EAGER_SCHEMAS=1', () => {
-    const prev = process.env.OBJECTSTACK_EAGER_SCHEMAS;
-    process.env.OBJECTSTACK_EAGER_SCHEMAS = '1';
+  it('respects OS_EAGER_SCHEMAS=1', () => {
+    const prev = process.env.OS_EAGER_SCHEMAS;
+    process.env.OS_EAGER_SCHEMAS = '1';
     try {
       const factory = vi.fn(() => z.object({ x: z.number() }));
       lazySchema(factory);
       expect(factory).toHaveBeenCalledTimes(1);
     } finally {
-      if (prev === undefined) delete process.env.OBJECTSTACK_EAGER_SCHEMAS;
-      else process.env.OBJECTSTACK_EAGER_SCHEMAS = prev;
+      if (prev === undefined) delete process.env.OS_EAGER_SCHEMAS;
+      else process.env.OS_EAGER_SCHEMAS = prev;
     }
   });
 });

@@ -12,7 +12,7 @@ Welcome to the ObjectStack examples catalog! This directory contains carefully c
 |-------|----------|-------------|
 | 🟢 **Beginner** | [App Todo](#app-todo), [Plugin BI](#plugin-bi) | Start here - simple, focused examples |
 | 🟡 **Intermediate** | [App CRM](#app-crm) | Real-world enterprise application |
-| 🔴 **Advanced** | [Server](../apps/server/) | Server hosting & plugin orchestration |
+| 🔴 **Advanced** | [Server](../apps/objectos/) | Server hosting & plugin orchestration |
 
 ### By Protocol Category
 
@@ -20,9 +20,9 @@ Welcome to the ObjectStack examples catalog! This directory contains carefully c
 |----------|----------|--------|
 | **Data (ObjectQL)** | [App CRM](./app-crm/), [App Todo](./app-todo/) | ✅ Complete |
 | **UI (ObjectUI)** | [App CRM](./app-crm/), [App Todo](./app-todo/) | ✅ Complete |
-| **System (ObjectOS)** | [Server](../apps/server/), [App CRM](./app-crm/) | ✅ Complete |
+| **System (ObjectOS)** | [Server](../apps/objectos/), [App CRM](./app-crm/) | ✅ Complete |
 | **Automation** | [App CRM](./app-crm/), [App Todo](./app-todo/) | ✅ Complete |
-| **API** | [Server](../apps/server/) | ✅ Complete |
+| **API** | [Server](../apps/objectos/) | ✅ Complete |
 | **BI / Analytics** | [Plugin BI](./plugin-bi/) | 🔴 Stub |
 | **Hub & Marketplace** | _Coming soon_ | 🔴 Planned |
 
@@ -147,7 +147,7 @@ pnpm build
 
 ---
 
-**Note:** The production server example has been moved to [`apps/server/`](../apps/server/) — see the [Server documentation](../apps/server/README.md) for details on server hosting, plugin orchestration, and deployment.
+**Note:** The production server example has been moved to [`apps/objectos/`](../apps/objectos/) — see the [Server documentation](../apps/objectos/README.md) for details on server hosting, plugin orchestration, and deployment.
 
 ---
 
@@ -211,9 +211,9 @@ pnpm typecheck
 | Protocol | Example | Location |
 |----------|---------|----------|
 | Manifest | ✅ Complete | All examples with `objectstack.config.ts` |
-| Plugin System | ✅ Complete | [Server](../apps/server/) |
-| Preview Mode | ✅ Complete | [Server](../apps/server/) — `OS_MODE=preview` |
-| Datasources | 🟡 Partial | [Server](../apps/server/) |
+| Plugin System | ✅ Complete | [Server](../apps/objectos/) |
+| Preview Mode | ✅ Complete | [Server](../apps/objectos/) — `OS_MODE=preview` |
+| Datasources | 🟡 Partial | [Server](../apps/objectos/) |
 | I18n / Translations | ✅ Complete | [Todo Translations](./app-todo/src/translations/), [CRM Translations](./app-crm/src/translations/) |
 | Job Scheduling | 🔴 Missing | _Planned_ |
 | Metrics | 🔴 Missing | _Planned_ |
@@ -243,7 +243,7 @@ pnpm typecheck
 ### API Protocol
 | Protocol | Example | Location |
 |----------|---------|----------|
-| REST Server | ✅ Complete | [Server](../apps/server/) |
+| REST Server | ✅ Complete | [Server](../apps/objectos/) |
 | Custom APIs | ✅ Complete | [CRM APIs](./app-crm/src/apis/) |
 | GraphQL | 🔴 Missing | _Planned_ |
 | WebSocket/Realtime | 🔴 Missing | _Planned_ |
@@ -289,7 +289,7 @@ pnpm build
 1. Complete Path 1
 2. Study all [CRM Objects](./app-crm/src/objects/) - Master field types and relationships
 3. Review [CRM Flows](./app-crm/src/flows/) - Understand automation patterns
-4. Explore [Server](../apps/server/) - Server and plugin orchestration
+4. Explore [Server](../apps/objectos/) - Server and plugin orchestration
 
 ---
 

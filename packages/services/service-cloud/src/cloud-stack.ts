@@ -5,7 +5,7 @@
  *
  * The single public API for cloud (multi-project) mode. Builds the ordered
  * plugin list and API config that `objectstack.config.ts` needs when
- * `OBJECTSTACK_MODE=cloud`.
+ * `OS_MODE=cloud`.
  *
  * Usage:
  *   import { createCloudStack } from '@objectstack/service-cloud';
@@ -82,8 +82,8 @@ export async function createCloudStack(config: CloudStackConfig): Promise<{
     } = config;
 
     const controlDriverPromise = buildControlDriver(
-        (process.env.OBJECTSTACK_DATABASE_URL || process.env.TURSO_DATABASE_URL)?.trim() || controlDriverUrl,
-        process.env.OBJECTSTACK_DATABASE_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN || controlDriverAuthToken,
+        (process.env.OS_DATABASE_URL || process.env.TURSO_DATABASE_URL)?.trim() || controlDriverUrl,
+        process.env.OS_DATABASE_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN || controlDriverAuthToken,
     );
 
     // Default base plugins (per-project kernel — business data only).
@@ -121,9 +121,9 @@ export async function createCloudStack(config: CloudStackConfig): Promise<{
                     basePlugins: resolvedBasePlugins,
                     appBundles,
                     templates,
-                    maxSize: Number(process.env.OBJECTSTACK_KERNEL_CACHE_SIZE ?? kernelCacheSize ?? 32),
-                    ttlMs: Number(process.env.OBJECTSTACK_KERNEL_TTL_MS ?? kernelTtlMs ?? 15 * 60 * 1000),
-                    cacheTTLMs: Number(process.env.OBJECTSTACK_ENV_CACHE_TTL_MS ?? envCacheTtlMs ?? 5 * 60 * 1000),
+                    maxSize: Number(process.env.OS_KERNEL_CACHE_SIZE ?? kernelCacheSize ?? 32),
+                    ttlMs: Number(process.env.OS_KERNEL_TTL_MS ?? kernelTtlMs ?? 15 * 60 * 1000),
+                    cacheTTLMs: Number(process.env.OS_ENV_CACHE_TTL_MS ?? envCacheTtlMs ?? 5 * 60 * 1000),
                 });
                 if (this._impl.init) await this._impl.init(ctx);
             } catch (err: any) {

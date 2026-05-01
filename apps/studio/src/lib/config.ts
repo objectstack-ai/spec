@@ -43,8 +43,8 @@ export interface ConsoleConfig {
    * /login → /organizations → /projects funnel, and route `/` straight to the
    * default project workspace. Driven by a server-injected flag (see
    * `initRuntimeConfig`), which in turn reflects the server's
-   * `OBJECTSTACK_MODE` environment variable (or the deprecated
-   * `OBJECTSTACK_MULTI_PROJECT` legacy alias).
+   * `OS_MODE` environment variable (or the deprecated
+   * `OS_MULTI_PROJECT` legacy alias).
    */
   singleProject: boolean;
 

@@ -61,8 +61,8 @@ export interface BasePluginsFactory {
  * Static project config for local / offline mode (M1.x).
  * When present, `DefaultProjectKernelFactory` skips all control-plane
  * queries and boots directly from these values + the artifact file.
- * Corresponds to env vars: `OBJECTSTACK_PROJECT_ID`, `OBJECTSTACK_DATABASE_URL`,
- * `OBJECTSTACK_DATABASE_DRIVER`.
+ * Corresponds to env vars: `OS_PROJECT_ID`, `OS_DATABASE_URL`,
+ * `OS_DATABASE_DRIVER`.
  */
 export interface LocalProjectConfig {
   projectId: string;

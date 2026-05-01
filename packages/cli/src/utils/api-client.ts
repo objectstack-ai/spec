@@ -8,11 +8,11 @@ import { readAuthConfig } from './auth-config.js';
  */
 export interface ApiClientOptions {
   /**
-   * Server URL (defaults to OBJECTSTACK_CLOUD_URL env var or http://localhost:3000)
+   * Server URL (defaults to OS_CLOUD_URL env var or http://localhost:3000)
    */
   url?: string;
   /**
-   * Authentication token (defaults to stored credentials or OBJECTSTACK_TOKEN env var)
+   * Authentication token (defaults to stored credentials or OS_TOKEN env var)
    */
   token?: string;
   /**
@@ -41,19 +41,19 @@ export interface ApiClientResult {
  *
  * Resolves configuration in this priority order:
  * 1. Explicit options passed to the function
- * 2. Environment variables (OBJECTSTACK_CLOUD_URL, OBJECTSTACK_TOKEN)
+ * 2. Environment variables (OS_CLOUD_URL, OS_TOKEN)
  * 3. Stored credentials from `os login`
  * 4. Defaults (http://localhost:3000)
  */
 export async function createApiClient(options: ApiClientOptions = {}): Promise<ApiClientResult> {
   // Resolve server URL (without applying defaults yet)
-  let baseUrl = options.url || process.env.OBJECTSTACK_CLOUD_URL;
+  let baseUrl = options.url || process.env.OS_CLOUD_URL;
 
   // Resolve authentication token
-  let token = options.token || process.env.OBJECTSTACK_TOKEN;
+  let token = options.token || process.env.OS_TOKEN;
 
   // Resolve active project id (explicit > env > stored credentials)
-  let projectId = options.projectId || process.env.OBJECTSTACK_PROJECT_ID;
+  let projectId = options.projectId || process.env.OS_PROJECT_ID;
 
   // If URL or token is missing, try to load from stored credentials
   if (!baseUrl || !token || !projectId) {
@@ -95,7 +95,7 @@ export async function createApiClient(options: ApiClientOptions = {}): Promise<A
 export function requireAuth(token?: string): void {
   if (!token) {
     throw new Error(
-      'Authentication required. Please run `os login` or set OBJECTSTACK_TOKEN environment variable.'
+      'Authentication required. Please run `os login` or set OS_TOKEN environment variable.'
     );
   }
 }

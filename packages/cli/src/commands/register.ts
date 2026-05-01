@@ -73,7 +73,7 @@ export default class AuthRegister extends Command {
       char: 'u',
       description: 'Server URL',
       default: 'http://localhost:3000',
-      env: 'OBJECTSTACK_CLOUD_URL',
+      env: 'OS_CLOUD_URL',
     }),
     email: Flags.string({
       char: 'e',

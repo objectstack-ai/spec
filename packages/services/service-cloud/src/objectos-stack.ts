@@ -15,7 +15,7 @@
  *     HTTP dispatcher can resolve hostnames and dispatch every request
  *     to the matching project kernel.
  *
- * Invoked by `createRuntimeStack()` whenever `OBJECTSTACK_CLOUD_URL`
+ * Invoked by `createRuntimeStack()` whenever `OS_CLOUD_URL`
  * (or `config.controlPlaneUrl`) is set. The same plugin shape is returned
  * as `createCloudStack()` so host configs can swap stacks transparently.
  */
@@ -186,10 +186,10 @@ export async function createObjectOSStack(config: ObjectOSStackConfig): Promise<
     }
     const merged: ObjectOSStackConfig = {
         ...config,
-        kernelCacheSize: Number(process.env.OBJECTSTACK_KERNEL_CACHE_SIZE ?? config.kernelCacheSize ?? 32),
-        kernelTtlMs: Number(process.env.OBJECTSTACK_KERNEL_TTL_MS ?? config.kernelTtlMs ?? 15 * 60 * 1000),
-        envCacheTtlMs: Number(process.env.OBJECTSTACK_ENV_CACHE_TTL_MS ?? config.envCacheTtlMs ?? 5 * 60 * 1000),
-        artifactCacheTtlMs: Number(process.env.OBJECTSTACK_ARTIFACT_CACHE_TTL_MS ?? config.artifactCacheTtlMs ?? 5 * 60 * 1000),
+        kernelCacheSize: Number(process.env.OS_KERNEL_CACHE_SIZE ?? config.kernelCacheSize ?? 32),
+        kernelTtlMs: Number(process.env.OS_KERNEL_TTL_MS ?? config.kernelTtlMs ?? 15 * 60 * 1000),
+        envCacheTtlMs: Number(process.env.OS_ENV_CACHE_TTL_MS ?? config.envCacheTtlMs ?? 5 * 60 * 1000),
+        artifactCacheTtlMs: Number(process.env.OS_ARTIFACT_CACHE_TTL_MS ?? config.artifactCacheTtlMs ?? 5 * 60 * 1000),
     };
 
     const enginePlugins = await createHostEnginePlugins();

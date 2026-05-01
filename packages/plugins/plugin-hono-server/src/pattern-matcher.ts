@@ -12,7 +12,7 @@
  * These helpers are shared between the Hono plugin's CORS middleware and
  * consumers that need to apply CORS headers outside the Hono request
  * pipeline (e.g., the Vercel serverless entrypoint's preflight
- * short-circuit in `apps/server`). Keeping a single implementation
+ * short-circuit in `apps/objectos`). Keeping a single implementation
  * ensures both paths stay consistent — divergence caused bug where
  * wildcard `CORS_ORIGIN` values worked locally but produced browser
  * CORS errors on Vercel.
