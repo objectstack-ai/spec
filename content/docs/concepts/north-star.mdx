@@ -143,9 +143,11 @@ GET /api/v1/cloud/projects/:projectId/artifact
 -> { schemaVersion, projectId, versionId, commitId, checksum, metadata, functions, manifest }
 ```
 
-**Today:** the Artifact API endpoint is not yet built. Local artifacts can already
-be bound to projects through `sys_project.metadata.artifact_path` and resolved
-when a project kernel boots.
+**Today (M3 built):** `GET /api/v1/cloud/projects/:projectId/artifact` is live — assembles the artifact from `sys_project.metadata.artifact_path` / `artifact_paths[]`, merges metadata bundles, and returns the `ProjectArtifact` envelope with `commitId` and `checksum`. `GET /api/v1/cloud/resolve-hostname` resolves a hostname to a project id. See [packages/services/service-cloud/src/cloud-artifact-api-plugin.ts](packages/services/service-cloud/src/cloud-artifact-api-plugin.ts).
+**Phase 1 next step:** wire proper Project Versions so the endpoint returns `versionId` / `versionNumber` and ObjectOS can use them for ETag cache invalidation.
+**Future:** the same endpoint can return a redirect or signed URL pointing at an
+S3 object. The interface is stable; the backend swaps.
+
 **Phase 1 target:** the control plane returns the Project's current Version
 artifact. A pinned endpoint can later return a specific immutable version:
 `GET /api/v1/cloud/projects/:projectId/versions/:versionId/artifact`.
@@ -158,7 +160,7 @@ S3 object. The interface is stable; the backend swaps.
 - Leave room in the response shape for future `{ url, expiresAt, checksum }` indirection
 - Be cacheable at the CDN edge (future; read-heavy by design)
 
-**Status:** Not yet built. This is the biggest Missing item under §7.
+**Status:** M3 + D2 built. Core endpoint live; Project Versions (immutable `versionId` / `versionNumber`) are the next step (M5).
 
 ### <Cpu className="inline" /> ObjectOS Runtime
 
@@ -339,7 +341,7 @@ a request to either vertex must resolve the same user/org/role. Splitting
 identity would require federated auth, which is out of scope.
 
 **Key code anchors:**
-- Control-plane app (target): `apps/cloud/objectstack.config.ts` (not yet created - see ROADMAP D8)
+- Control-plane app (target): [apps/cloud/objectstack.config.ts](apps/cloud/objectstack.config.ts) (D8 complete)
 - ObjectOS app (target): [apps/server/objectstack.config.ts](apps/server/objectstack.config.ts) (currently hybrid; will be reduced to ObjectOS manifest)
 - Hostname -> project resolver: [packages/runtime/src/environment-registry.ts](packages/runtime/src/environment-registry.ts)
 - Per-project kernel factory: [packages/runtime/src/project-kernel-factory.ts](packages/runtime/src/project-kernel-factory.ts)
@@ -467,7 +469,7 @@ Subsequent requests reuse the cached artifact. Cache invalidation strategy
 
 ## 7. Alignment Check
 
-Honest state of the platform as of 2026-04-30, **re-classified under the Phase
+Honest state of the platform as of 2026-05-01, **re-classified under the Phase
 1 code-first, version-first model**. Every future architectural decision should
 preserve Built, reduce Drift, and advance Missing.
 
@@ -491,22 +493,17 @@ preserve Built, reduce Drift, and advance Missing.
 - **Manifest scope enum trimmed.** `ManifestSchema.scope` accepts only `cloud`, `system`, and `project` - [packages/spec/src/kernel/manifest.zod.ts](packages/spec/src/kernel/manifest.zod.ts).
 - **Canonical package manifest files.** Plugin/service packages now share a single `src/manifest.ts` between compile-time config and runtime registration, reducing object-list drift.
 - **CLI `publish` link.** The end-to-end "local JSON -> remote server" wire is alive, even though the endpoint shape is wrong - [packages/cli/src/commands/publish.ts](packages/cli/src/commands/publish.ts).
+- **`env_id` → `project_id` migration (M2).** All metadata tables (`sys_metadata`, `sys_metadata_history`, `sys_object`, `sys_view`, `sys_flow`, `sys_agent`, `sys_tool`) have been updated to use `project_id` as the partition key. Idempotent migration helper shipped at `@objectstack/metadata/migrations` - [packages/metadata/src/migrations/migrate-env-id-to-project-id.ts](packages/metadata/src/migrations/migrate-env-id-to-project-id.ts). `DatabaseLoader` filters by `project_id` - [packages/metadata/src/loaders/database-loader.ts](packages/metadata/src/loaders/database-loader.ts).
+- **Artifact API endpoints (M3 + D2).** `GET /api/v1/cloud/projects/:id/artifact` returns the current artifact assembled from `sys_project.metadata.artifact_path`. `POST /api/v1/cloud/projects/:id/metadata` receives compiled JSON, persists it under `<artifactRoot>/<projectId>/artifact.json`, and updates the project metadata pointer — [packages/services/service-cloud/src/cloud-artifact-api-plugin.ts](packages/services/service-cloud/src/cloud-artifact-api-plugin.ts). `GET /api/v1/cloud/resolve-hostname` resolves a hostname to a project id.
+- **CLI `publish` routes to project publish endpoint (D2).** `objectstack publish` now POSTs to `/api/v1/cloud/projects/:id/metadata`, accepts `--project` and `--server` flags, and returns `versionId`, `commitId`, and `checksum` — [packages/cli/src/commands/publish.ts](packages/cli/src/commands/publish.ts).
+- **`apps/server` uses ObjectOS runtime mode (M4).** `apps/server/objectstack.config.ts` boots via `createBootStack({ runtime: { cloudUrl: ... } })`, separating the ObjectOS runtime from the control plane — [apps/server/objectstack.config.ts](apps/server/objectstack.config.ts).
+- **`apps/cloud` is an independent control plane (D8).** `apps/cloud/objectstack.config.ts` boots via `createBootStack({ mode: 'cloud', ... })`, running the control plane independently without the ObjectOS runtime manifest — [apps/cloud/objectstack.config.ts](apps/cloud/objectstack.config.ts).
 
 ### <AlertTriangle className="inline" /> Drift (Needs Cleanup)
 
-- **`env_id` should not become the version or branch partition key.** In Phase 1
-  the primary user artifact state is a Project Version owned by `project_id`;
-  deployment target differences are runtime/deployment configuration, not
-  metadata row partitioning. Future branches need their own first-class model
-  rather than reusing `env_id`.
 - **Half-wired abstractions**: `ScopedServiceManager` and `SharedProjectPlugin`
   were added but their integration into the request path is incomplete. Either
   finish them or remove.
-- **`objectstack publish` uses the legacy `/api/v1/packages` endpoint.** Today
-  it POSTs a "package" payload ([packages/cli/src/commands/publish.ts](packages/cli/src/commands/publish.ts))
-  which is not the Phase 1 project publish endpoint. It needs to create an
-  immutable Project Version and return `versionId`, `versionNumber`, `commitId`,
-  and checksum.
 - **`ProjectKernelFactory` 直连控制面 DB 读 `sys_project` / `sys_project_credential`，绕过 Artifact API。**
   [packages/runtime/src/project-kernel-factory.ts](packages/runtime/src/project-kernel-factory.ts)
   在 boot 时直接查控制面表拿业务 DB 坐标和凭据，破坏了 §8「ObjectOS 只通过
@@ -517,9 +514,6 @@ preserve Built, reduce Drift, and advance Missing.
 
 - **Project Version storage** - persist every publish as an immutable Project Version with artifact JSON or `payloadRef`, `versionId`, `versionNumber`, `commitId`, checksum, publish metadata, and summary indexes.
 - **Current Version pointer** - add a project-level pointer that decides which Version ObjectOS serves; rollback/promote should update this pointer without mutating Version rows.
-- **Project Artifact API** - `GET /api/v1/cloud/projects/:projectId/artifact` returns the current Version artifact as a single consumable blob, with content hash/ETag for cache validation; a pinned version endpoint can return a specific immutable Version.
-- **ObjectOS Artifact API loader** - add the production HTTP fetch source for `MetadataPlugin` and local artifact cache durability across control-plane outages.
-- **Project publish endpoint** - receives compiled JSON, validates with Zod, creates a Project Version, advances `current_version_id` in the simple auto-promote path, and returns `versionId`, `versionNumber`, `commitId`, and checksum.
 - **Studio version/artifact viewer** - browse current version, publish history, artifact envelope, version id, commit id, checksum, logs, and runtime health. No metadata editing.
 - **UI auto-generation** - artifact schemas -> Amis/React components without hand-wiring.
 
