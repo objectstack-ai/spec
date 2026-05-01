@@ -20,9 +20,7 @@ import { isPlatformProject } from '@/lib/platform-project';
  */
 export function useEnvAwarePackages(envId: string | undefined) {
   const isPlatform = isPlatformProject(envId);
-  const { packages: globalPkgs } = usePackages({
-    scope: isPlatform ? 'platform' : 'project',
-  });
+  const { packages: globalPkgs } = usePackages();
   const { packages: installedRecords } = useProjectPackages(envId);
 
   const [selectedPackage, setSelectedPackage] = useState<InstalledPackage | null>(null);

@@ -10,8 +10,9 @@
  * - Right segment: Global search placeholder, mode badge, ThemeToggle, UserMenu
  */
 
-import { Link, useLocation, useParams } from '@tanstack/react-router';
-import { useMemo } from 'react';
+import { Link, useLocation, useNavigate, useParams } from '@tanstack/react-router';
+import { useCallback, useMemo } from 'react';
+import type { InstalledPackage } from '@objectstack/spec/kernel';
 import { Separator } from '@/components/ui/separator';
 import {
   Breadcrumb,
@@ -28,9 +29,11 @@ import { Boxes, Cpu, Search } from 'lucide-react';
 import { config } from '@/lib/config';
 import { ProjectSwitcher } from '@/components/project-switcher';
 import { OrganizationSwitcher } from '@/components/organization-switcher';
+import { PackageSwitcher } from '@/components/package-switcher';
 import { UserMenu } from '@/components/user-menu';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useActiveOrganizationId } from '@/hooks/useSession';
+import { useEnvAwarePackages } from '@/hooks/useProjectAwarePackages';
 
 const META_TYPE_LABELS: Record<string, string> = {
   action: 'Actions',
@@ -75,6 +78,7 @@ function SlashDivider() {
 
 export function TopBar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const activeOrgId = useActiveOrganizationId();
   const params = useParams({ strict: false }) as {
     package?: string;
@@ -83,6 +87,38 @@ export function TopBar() {
     type?: string;
     orgId?: string;
   };
+
+  // Load packages installed in the current project so users can switch
+  // between them from the top-bar (e.g. while viewing metadata).
+  const { packages } = useEnvAwarePackages(params.projectId);
+
+  // Resolve the current package from the URL segment. Match either the
+  // full reverse-domain id (e.g. com.example.crm) or the last segment (crm).
+  const selectedPackage = useMemo<InstalledPackage | null>(() => {
+    if (!params.package || !packages.length) return null;
+    return (
+      packages.find(
+        (p) =>
+          p.manifest?.id === params.package ||
+          p.manifest?.id?.split('.').pop() === params.package,
+      ) ?? null
+    );
+  }, [packages, params.package]);
+
+  const handleSelectPackage = useCallback(
+    (pkg: InstalledPackage) => {
+      const nextId = pkg.manifest?.id;
+      if (!nextId || !params.projectId) return;
+      // Switching package invalidates the current metadata path (the same
+      // type/name may not exist in the target package), so land on the
+      // package overview.
+      navigate({
+        to: '/projects/$projectId/$package',
+        params: { projectId: params.projectId, package: nextId },
+      });
+    },
+    [navigate, params.projectId],
+  );
 
   // Infer view type from pathname
   const viewType = useMemo(() => {
@@ -182,6 +218,16 @@ export function TopBar() {
           {!config.singleProject && <OrganizationSwitcher />}
           {(!config.singleProject && activeOrgId) && <SlashDivider />}
           {!config.singleProject && <ProjectSwitcher />}
+          {params.projectId && params.package && (
+            <>
+              <SlashDivider />
+              <PackageSwitcher
+                packages={packages}
+                selectedPackage={selectedPackage}
+                onSelectPackage={handleSelectPackage}
+              />
+            </>
+          )}
         </div>
         {/* Mobile: Show only current page breadcrumb */}
         <div className="sm:hidden min-w-0 flex-1">
