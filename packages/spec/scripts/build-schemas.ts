@@ -149,6 +149,11 @@ let count = 0;
 let skippedCount = 0;
 let errorCount = 0;
 
+// Track all generated schemas in memory so the bundled $defs can be assembled
+// without re-reading the just-written JSON files (CI filesystems occasionally
+// surface stale/ENOENT entries between write and immediate read).
+const generatedSchemas = new Map<string, Record<string, unknown>>();
+
 // Error messages for schema types that inherently cannot be represented in JSON Schema.
 // These are expected warnings, not build-breaking errors.
 const KNOWN_UNSUPPORTED_PATTERNS = [
@@ -198,6 +203,7 @@ for (const [namespaceName, namespaceExports] of Object.entries(Protocol)) {
           const filePath = path.join(categoryDir, fileName);
 
           writeFileWithRetry(filePath, JSON.stringify(jsonSchema, null, 2));
+          generatedSchemas.set(`${categorySlug}/${schemaName}`, jsonSchema as Record<string, unknown>);
           console.log(`  ✓ ${namespaceName.toLowerCase()}/${fileName}`);
           count++;
         } catch (error) {
@@ -243,16 +249,10 @@ const bundledSchema: Record<string, unknown> = {
 
 const defs = bundledSchema.$defs as Record<string, unknown>;
 
-// Walk generated schema files and collect into $defs
-for (const category of fs.readdirSync(OUT_DIR)) {
-  const categoryPath = path.join(OUT_DIR, category);
-  if (!fs.statSync(categoryPath).isDirectory()) continue;
-
-  for (const file of fs.readdirSync(categoryPath).filter(f => f.endsWith('.json'))) {
-    const schema = JSON.parse(fs.readFileSync(path.join(categoryPath, file), 'utf-8'));
-    const defKey = `${category}/${file.replace('.json', '')}`;
-    defs[defKey] = schema;
-  }
+// Assemble bundled $defs from the in-memory map populated during generation.
+// (Avoid re-reading the json-schema/ tree to dodge CI filesystem races.)
+for (const [defKey, schema] of generatedSchemas) {
+  defs[defKey] = schema;
 }
 
 const bundledPath = path.join(OUT_DIR, 'objectstack.json');
