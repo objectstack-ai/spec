@@ -8,22 +8,19 @@ const hmrConfig = process.env.VITE_HMR_PORT
   : undefined;
 
 // Resolve @object-ui/* to the workspace `src/` folders in the sibling
-// objectui checkout. This is required because the published rolldown
-// bundles inline their own private ComponentRegistry instance per plugin —
-// breaking cross-plugin component lookup (e.g. plugin-list cannot find
-// `object-grid` registered by plugin-grid). Pointing at source ensures a
-// single shared @object-ui/core ComponentRegistry instance.
+// objectui checkout when present. This is required for local development
+// because the published rolldown bundles inline their own private
+// ComponentRegistry instance per plugin — breaking cross-plugin component
+// lookup (e.g. plugin-list cannot find `object-grid` registered by
+// plugin-grid). Pointing at source ensures a single shared
+// @object-ui/core ComponentRegistry instance.
 //
-// Mirrors the official `examples/console-starter/vite.config.ts` template.
+// In CI / fork-ready builds where the sibling checkout is not available,
+// we fall back to the published @object-ui/* packages from node_modules
+// (matches the official `examples/console-starter` template behaviour).
 const OBJECTUI_ROOT = path.resolve(__dirname, '../../../objectui');
 const OBJECTUI_PACKAGES_DIR = path.resolve(OBJECTUI_ROOT, 'packages');
-
-if (!fs.existsSync(OBJECTUI_PACKAGES_DIR)) {
-  throw new Error(
-    `[apps/dashboard] Sibling objectui checkout not found at ${OBJECTUI_ROOT}. ` +
-      `Clone https://github.com/objectstack-ai/objectui next to the framework repo.`,
-  );
-}
+const useObjectUiSource = fs.existsSync(OBJECTUI_PACKAGES_DIR);
 
 const objectUiPackages = [
   'app-shell',
@@ -52,12 +49,14 @@ const objectUiPackages = [
   'types',
 ];
 
-const workspaceAliases: Record<string, string> = Object.fromEntries(
-  objectUiPackages.map((name) => [
-    `@object-ui/${name}`,
-    path.resolve(OBJECTUI_PACKAGES_DIR, name, 'src'),
-  ]),
-);
+const workspaceAliases: Record<string, string> = useObjectUiSource
+  ? Object.fromEntries(
+      objectUiPackages.map((name) => [
+        `@object-ui/${name}`,
+        path.resolve(OBJECTUI_PACKAGES_DIR, name, 'src'),
+      ]),
+    )
+  : {};
 
 export default defineConfig({
   base: process.env.VITE_BASE || '/_dashboard/',
@@ -76,7 +75,9 @@ export default defineConfig({
     hmr: hmrConfig,
     fs: {
       // Allow vite to read sources outside the project root (sibling objectui).
-      allow: [path.resolve(__dirname, '../..'), OBJECTUI_ROOT],
+      allow: useObjectUiSource
+        ? [path.resolve(__dirname, '../..'), OBJECTUI_ROOT]
+        : [path.resolve(__dirname, '../..')],
     },
     proxy: {
       '/api': {

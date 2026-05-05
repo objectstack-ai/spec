@@ -21,7 +21,7 @@ import { join } from 'node:path';
 import { createCloudArtifactApiPlugin } from '../src/cloud-artifact-api-plugin.js';
 
 interface Route {
-    method: 'GET';
+    method: 'GET' | 'POST';
     path: string;
     handler: (req: any, res: any) => any;
 }
@@ -31,7 +31,10 @@ class FakeHttpServer {
     get(path: string, handler: (req: any, res: any) => any) {
         this.routes.push({ method: 'GET', path, handler });
     }
-    async invoke(method: 'GET', urlPath: string, opts: { params?: Record<string, string>; query?: Record<string, string>; headers?: Record<string, string> } = {}) {
+    post(path: string, handler: (req: any, res: any) => any) {
+        this.routes.push({ method: 'POST', path, handler });
+    }
+    async invoke(method: 'GET' | 'POST', urlPath: string, opts: { params?: Record<string, string>; query?: Record<string, string>; headers?: Record<string, string>; body?: any } = {}) {
         const route = this.routes.find((r) => r.method === method && pathMatches(r.path, urlPath));
         if (!route) return { status: 404, body: { error: 'no route' } };
         const params = extractParams(route.path, urlPath);
