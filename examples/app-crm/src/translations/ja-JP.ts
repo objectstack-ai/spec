@@ -143,6 +143,13 @@ export const jaJP: TranslationData = {
     crm_enterprise: {
       label: 'エンタープライズ CRM',
       description: '営業・サービス・マーケティング向け顧客関係管理システム',
+      navigation: {
+        group_sales: { label: '営業' },
+        group_service: { label: 'サービス' },
+        group_marketing: { label: 'マーケティング' },
+        group_products: { label: '製品' },
+        group_analytics: { label: '分析' },
+      },
     },
   },
 

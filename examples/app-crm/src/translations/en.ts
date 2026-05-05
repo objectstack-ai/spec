@@ -144,6 +144,13 @@ export const en: TranslationData = {
     crm_enterprise: {
       label: 'Enterprise CRM',
       description: 'Customer relationship management for sales, service, and marketing',
+      navigation: {
+        group_sales: { label: 'Sales' },
+        group_service: { label: 'Service' },
+        group_marketing: { label: 'Marketing' },
+        group_products: { label: 'Products' },
+        group_analytics: { label: 'Analytics' },
+      },
     },
   },
 

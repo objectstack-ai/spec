@@ -84,6 +84,9 @@ export const TranslationDataSchema = lazySchema(() => z.object({
   apps: z.record(z.string(), z.object({
     label: z.string().describe('Translated app label'),
     description: z.string().optional().describe('Translated app description'),
+    navigation: z.record(z.string(), z.object({
+      label: z.string().describe('Translated navigation group label'),
+    })).optional().describe('Navigation group translations keyed by group ID'),
   })).optional().describe('App translations keyed by app name'),
 
   /** UI Messages */

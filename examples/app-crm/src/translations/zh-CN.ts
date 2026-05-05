@@ -316,6 +316,13 @@ export const zhCN: TranslationData = {
     crm_enterprise: {
       label: '企业 CRM',
       description: '涵盖销售、服务和市场营销的客户关系管理系统',
+      navigation: {
+        group_sales: { label: '销售' },
+        group_service: { label: '服务' },
+        group_marketing: { label: '营销' },
+        group_products: { label: '产品' },
+        group_analytics: { label: '数据分析' },
+      },
     },
   },
 
