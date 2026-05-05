@@ -18,18 +18,7 @@ import '@object-ui/plugin-report';
 
 import './index.css';
 import { App } from './App';
-
-async function loadLanguage(lang: string): Promise<Record<string, unknown>> {
-  try {
-    const serverUrl = import.meta.env.VITE_SERVER_URL || '';
-    const res = await fetch(`${serverUrl}/api/v1/i18n/translations/${lang}`);
-    if (!res.ok) return {};
-    const json = await res.json();
-    return json?.data?.translations ?? json ?? {};
-  } catch {
-    return {};
-  }
-}
+import { loadLanguage } from './loadLanguage';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

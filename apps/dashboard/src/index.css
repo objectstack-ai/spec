@@ -121,3 +121,20 @@
     color: hsl(var(--foreground));
   }
 }
+
+/*
+ * Compatibility shim: @object-ui/* packages are built with Tailwind v3 and
+ * emit important utilities using the legacy `!` prefix (e.g. `!flex-col`).
+ * Tailwind v4 expects the suffix syntax (`flex-col!`) and silently drops the
+ * v3 form, leaving the SidebarProvider wrapper as `flex-direction: row` and
+ * pushing the dashboard main content off-screen. Re-declare the handful of
+ * legacy classes we depend on until the upstream packages migrate.
+ */
+@layer utilities {
+  .\!flex-col {
+    flex-direction: column !important;
+  }
+  .\!m-0 {
+    margin: 0 !important;
+  }
+}
