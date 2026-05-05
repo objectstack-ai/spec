@@ -39,7 +39,7 @@
     "topicSeparator": " "
   },
   "dependencies": {
-    "@ai-sdk/gateway": "^3.0.105",
+    "@ai-sdk/gateway": "^3.0.110",
     "@objectstack/client": "workspace:*",
     "@objectstack/core": "workspace:*",
     "@objectstack/driver-memory": "workspace:^",
@@ -53,20 +53,20 @@
     "@objectstack/service-ai": "workspace:*",
     "@objectstack/service-cloud": "workspace:*",
     "@objectstack/spec": "workspace:*",
-    "@oclif/core": "^4.10.6",
+    "@oclif/core": "^4.11.0",
     "bundle-require": "^5.1.0",
     "chalk": "^5.6.2",
     "dotenv-flow": "^4.1.0",
     "tsx": "^4.21.0",
-    "yaml": "^2.4.1",
-    "zod": "^4.4.1"
+    "yaml": "^2.8.4",
+    "zod": "^4.4.3"
   },
   "peerDependencies": {
     "@objectstack/core": "workspace:^"
   },
   "devDependencies": {
-    "@oclif/plugin-help": "^6.2.45",
-    "@oclif/plugin-plugins": "^5.4.62",
+    "@oclif/plugin-help": "^6.2.46",
+    "@oclif/plugin-plugins": "^5.4.63",
     "@types/node": "^25.6.0",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",

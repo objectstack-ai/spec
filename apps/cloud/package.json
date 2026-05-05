@@ -30,18 +30,18 @@
     "@objectstack/service-ai": "workspace:*",
     "@objectstack/service-analytics": "workspace:*",
     "@objectstack/service-automation": "workspace:*",
-    "@objectstack/service-feed": "workspace:*",
     "@objectstack/service-cloud": "workspace:*",
+    "@objectstack/service-feed": "workspace:*",
     "@objectstack/service-package": "workspace:*",
     "@objectstack/service-tenant": "workspace:*",
     "@objectstack/spec": "workspace:*",
-    "hono": "^4.12.16"
+    "hono": "^4.12.17"
   },
   "devDependencies": {
     "@objectstack/cli": "workspace:*",
     "esbuild": "^0.28.0",
     "ts-node": "^10.9.2",
-    "tsup": "^8.0.0",
+    "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
   }

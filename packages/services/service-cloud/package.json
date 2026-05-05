@@ -23,24 +23,24 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@objectstack/spec": "workspace:^",
     "@objectstack/core": "workspace:^",
-    "@objectstack/runtime": "workspace:^",
-    "@objectstack/objectql": "workspace:^",
-    "@objectstack/metadata": "workspace:^",
-    "@objectstack/service-tenant": "workspace:^",
-    "@objectstack/plugin-auth": "workspace:^",
-    "@objectstack/plugin-security": "workspace:^",
-    "@objectstack/plugin-audit": "workspace:^",
-    "@objectstack/service-package": "workspace:^",
+    "@objectstack/driver-memory": "workspace:^",
     "@objectstack/driver-sql": "workspace:^",
     "@objectstack/driver-turso": "workspace:^",
-    "@objectstack/driver-memory": "workspace:^",
-    "zod": "^4.4.1"
+    "@objectstack/metadata": "workspace:^",
+    "@objectstack/objectql": "workspace:^",
+    "@objectstack/plugin-audit": "workspace:^",
+    "@objectstack/plugin-auth": "workspace:^",
+    "@objectstack/plugin-security": "workspace:^",
+    "@objectstack/runtime": "workspace:^",
+    "@objectstack/service-package": "workspace:^",
+    "@objectstack/service-tenant": "workspace:^",
+    "@objectstack/spec": "workspace:^",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/node": "^22.10.5",
-    "tsup": "^8.3.5",
+    "@types/node": "^22.19.17",
+    "tsup": "^8.5.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.5"
   },

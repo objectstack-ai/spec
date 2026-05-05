@@ -20,9 +20,9 @@
   },
   "dependencies": {
     "@objectstack/core": "workspace:*",
+    "@objectstack/service-package": "workspace:*",
     "@objectstack/spec": "workspace:*",
-    "zod": "^4.4.1",
-    "@objectstack/service-package": "workspace:*"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "typescript": "^6.0.3",
