@@ -1,0 +1,44 @@
+{
+  "name": "@objectstack/dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "ObjectStack Dashboard - opinionated, fork-ready console built on @object-ui/app-shell with the full plugin set wired up.",
+  "license": "Apache-2.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@object-ui/app-shell": "^3.3.1",
+    "@object-ui/auth": "^3.3.1",
+    "@object-ui/components": "^3.3.1",
+    "@object-ui/i18n": "^3.3.1",
+    "@object-ui/plugin-calendar": "^3.3.1",
+    "@object-ui/plugin-charts": "^3.3.1",
+    "@object-ui/plugin-chatbot": "^3.3.1",
+    "@object-ui/plugin-dashboard": "^3.3.1",
+    "@object-ui/plugin-detail": "^3.3.1",
+    "@object-ui/plugin-form": "^3.3.1",
+    "@object-ui/plugin-grid": "^3.3.1",
+    "@object-ui/plugin-kanban": "^3.3.1",
+    "@object-ui/plugin-list": "^3.3.1",
+    "@object-ui/plugin-report": "^3.3.1",
+    "@object-ui/plugin-view": "^3.3.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-router-dom": "^7.14.2",
+    "sonner": "^2.0.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.4",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "tailwindcss": "^4.2.4",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.10"
+  }
+}
