@@ -154,7 +154,7 @@ export const LeadDetailPage: Page = {
                       items: [
                         {
                           label: 'Tasks',
-                          icon: 'tasks',
+                          icon: 'list-checks',
                           collapsed: false,
                           children: [
                             {

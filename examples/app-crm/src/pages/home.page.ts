@@ -135,7 +135,7 @@ export const SalesHomePage: Page = {
               },
               {
                 label: 'My Tasks',
-                icon: 'tasks',
+                icon: 'list-checks',
                 children: [
                   {
                     type: 'page:section',

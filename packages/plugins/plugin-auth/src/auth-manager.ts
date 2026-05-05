@@ -530,7 +530,7 @@ export class AuthManager {
       twoFactor: pluginConfig.twoFactor ?? false,
       passkeys: pluginConfig.passkeys ?? false,
       magicLink: pluginConfig.magicLink ?? false,
-      organization: pluginConfig.organization ?? false,
+      organization: pluginConfig.organization ?? true,
       oidcProvider: pluginConfig.oidcProvider ?? false,
       deviceAuthorization: pluginConfig.deviceAuthorization ?? false,
     };

@@ -18,7 +18,7 @@ export const AuthProviderConfigSchema = lazySchema(() => z.object({
 }));
 
 export const AuthPluginConfigSchema = lazySchema(() => z.object({
-  organization: z.boolean().default(false).describe('Enable Organization/Teams support'),
+  organization: z.boolean().default(true).describe('Enable Organization/Teams support (frontend AuthProvider expects this enabled)'),
   twoFactor: z.boolean().default(false).describe('Enable 2FA'),
   passkeys: z.boolean().default(false).describe('Enable Passkey support'),
   magicLink: z.boolean().default(false).describe('Enable Magic Link login'),

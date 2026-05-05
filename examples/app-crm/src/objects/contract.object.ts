@@ -10,7 +10,7 @@ export const Contract = ObjectSchema.create({
   name: 'contract',
   label: 'Contract',
   pluralLabel: 'Contracts',
-  icon: 'file-signature',
+  icon: 'file-pen-line',
   description: 'Legal contracts and agreements',
   titleFormat: '{contract_number} - {account.name}',
   compactLayout: ['contract_number', 'account', 'status', 'start_date', 'end_date'],
