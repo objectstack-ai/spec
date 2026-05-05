@@ -334,7 +334,7 @@ export const SeedLoaderRequestSchema = lazySchema(() => z.object({
   datasets: z.array(DatasetSchema).min(1).describe('Datasets to load'),
 
   /** Loader configuration */
-  config: z.preprocess((val) => val ?? {}, SeedLoaderConfigSchema).describe('Loader configuration'),
+  config: SeedLoaderConfigSchema.default(() => SeedLoaderConfigSchema.parse({})).describe('Loader configuration'),
 }).describe('Seed loader request with datasets and configuration'));
 
 export type SeedLoaderRequest = z.infer<typeof SeedLoaderRequestSchema>;
