@@ -348,4 +348,22 @@ export const zhCN: TranslationData = {
     close_date_required: '商机必须填写预计成交日期',
     discount_limit: '折扣不能超过40%',
   },
+
+  dashboards: {
+    sales_dashboard: {
+      label: '销售业绩',
+      description: '管道分析、赢率趋势及销售代表绩效',
+      actions: {
+        create_opportunity: { label: '新建商机' },
+        '/reports/forecast': { label: '预测' },
+        export_dashboard_pdf: { label: '导出' },
+      },
+      widgets: {
+        total_pipeline: { title: '管道总额', description: '所有进行中商机金额合计' },
+        closed_won_qtd: { title: '本季度已成交', description: '本季度已赢得的收入' },
+        open_opportunities: { title: '进行中商机', description: '正在推进的活跃商机' },
+        avg_deal_size: { title: '平均订单金额', description: '本季度已成交商机的平均金额' },
+      },
+    },
+  },
 };
