@@ -30,7 +30,7 @@ export const CrmOverviewDashboard: Dashboard = {
     actions: [
       { label: 'New Deal',   icon: 'Plus',     actionType: 'modal', actionUrl: 'create_opportunity' },
       { label: 'New Lead',   icon: 'Sparkles', actionType: 'modal', actionUrl: 'create_lead' },
-      { label: 'Reports',    icon: 'BarChart3', actionType: 'url',  actionUrl: '/reports' },
+      { label: 'Reports',    icon: 'bar-chart', actionType: 'url',  actionUrl: '/reports' },
     ],
   },
 
@@ -128,7 +128,7 @@ export const CrmOverviewDashboard: Dashboard = {
       actionIcon: 'ArrowUpRight',
       layout: { x: 9, y: 0, w: 3, h: 2 },
       options: {
-        icon: 'BarChart3',
+        icon: 'bar-chart',
         format: '$0,0',
         prefix: '$',
         trend: { value: 1.2, direction: 'up', label: 'vs last month' },

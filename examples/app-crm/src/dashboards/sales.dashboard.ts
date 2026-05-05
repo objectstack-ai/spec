@@ -133,7 +133,7 @@ export const SalesDashboard: Dashboard = {
       actionIcon: 'ArrowUpRight',
       layout: { x: 9, y: 0, w: 3, h: 2 },
       options: {
-        icon: 'BarChart3',
+        icon: 'bar-chart',
         format: '$0,0',
         prefix: '$',
         trend: { value: 4.3, direction: 'up', label: 'vs last quarter' },

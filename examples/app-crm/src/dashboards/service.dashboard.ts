@@ -25,7 +25,7 @@ export const ServiceDashboard: Dashboard = {
     actions: [
       { label: 'New Case',     icon: 'Plus',     actionType: 'modal',  actionUrl: 'create_case' },
       { label: 'My Queue',     icon: 'Inbox',    actionType: 'url',    actionUrl: '/objects/case?owner=current_user' },
-      { label: 'SLA Report',   icon: 'BarChart3', actionType: 'url',   actionUrl: '/reports/sla' },
+      { label: 'SLA Report',   icon: 'bar-chart', actionType: 'url',   actionUrl: '/reports/sla' },
     ],
   },
 

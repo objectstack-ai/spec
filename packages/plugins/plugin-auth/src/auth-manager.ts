@@ -212,8 +212,22 @@ export class AuthManager {
    * so that `createAdapterFactory` transforms them automatically.
    */
   private async buildPluginList(): Promise<any[]> {
-    const pluginConfig = this.config.plugins;
+    const pluginConfig: Partial<AuthPluginConfig> = this.config.plugins ?? {};
     const plugins: any[] = [];
+
+    // Defaults — kept in sync with `AuthPluginConfigSchema` in
+    // @objectstack/spec/system/auth-config.zod.ts. The frontend AuthProvider
+    // (in @object-ui/app-shell) calls `/api/v1/auth/organization/list` on
+    // every load; making the org plugin opt-out (default true) avoids
+    // 404s and the noisy "Failed to load organizations" warning.
+    const enabled = {
+      organization: pluginConfig.organization ?? true,
+      twoFactor: pluginConfig.twoFactor ?? false,
+      passkeys: pluginConfig.passkeys ?? false,
+      magicLink: pluginConfig.magicLink ?? false,
+      oidcProvider: pluginConfig.oidcProvider ?? false,
+      deviceAuthorization: pluginConfig.deviceAuthorization ?? false,
+    };
 
     // bearer() — ALWAYS enabled.
     //
@@ -232,7 +246,7 @@ export class AuthManager {
     const { bearer } = await import('better-auth/plugins/bearer');
     plugins.push(bearer());
 
-    if (pluginConfig?.organization) {
+    if (enabled.organization) {
       const { organization } = await import('better-auth/plugins/organization');
       plugins.push(organization({
         schema: buildOrganizationPluginSchema(),
@@ -252,14 +266,14 @@ export class AuthManager {
       }));
     }
 
-    if (pluginConfig?.twoFactor) {
+    if (enabled.twoFactor) {
       const { twoFactor } = await import('better-auth/plugins/two-factor');
       plugins.push(twoFactor({
         schema: buildTwoFactorPluginSchema(),
       }));
     }
 
-    if (pluginConfig?.magicLink) {
+    if (enabled.magicLink) {
       const { magicLink } = await import('better-auth/plugins/magic-link');
       // magic-link reuses the `verification` table — no extra schema mapping needed.
       // The sendMagicLink callback must be provided by the application at a higher level.
@@ -303,7 +317,7 @@ export class AuthManager {
     // `oauthClient`, `oauthAccessToken`, `oauthRefreshToken`, and `oauthConsent`
     // models — see `buildOauthProviderPluginSchema()` for the snake_case
     // mappings to ObjectStack's `sys_oauth_*` tables.
-    if (pluginConfig?.oidcProvider) {
+    if (enabled.oidcProvider) {
       // The new @better-auth/oauth-provider package requires the `jwt`
       // plugin (used to sign id_tokens / JWT access tokens). Register it
       // automatically — it is otherwise an internal implementation detail
@@ -329,7 +343,7 @@ export class AuthManager {
     // signed-in user approve or deny a pending CLI login. The page reads
     // the `user_code` query parameter that better-auth appends to
     // `verification_uri_complete`.
-    if (pluginConfig?.deviceAuthorization) {
+    if (enabled.deviceAuthorization) {
       const { deviceAuthorization } = await import('better-auth/plugins/device-authorization');
       const baseUrl = (this.config.baseUrl ?? '').replace(/\/$/, '');
       plugins.push(deviceAuthorization({
