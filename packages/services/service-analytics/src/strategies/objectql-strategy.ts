@@ -151,6 +151,8 @@ export class ObjectQLStrategy implements AnalyticsStrategy {
       case 'lt': return { $lt: values[0] };
       case 'lte': return { $lte: values[0] };
       case 'contains': return { $regex: values[0] };
+      case 'in': return { $in: values };
+      case 'notIn': return { $nin: values };
       default: return values[0];
     }
   }

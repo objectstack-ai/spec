@@ -367,7 +367,7 @@ describe('AnalyticsQuerySchema', () => {
   });
 
   it('should accept all valid filter operators', () => {
-    const operators = ['equals', 'notEquals', 'contains', 'notContains', 'gt', 'gte', 'lt', 'lte', 'set', 'notSet', 'inDateRange'];
+    const operators = ['equals', 'notEquals', 'contains', 'notContains', 'gt', 'gte', 'lt', 'lte', 'in', 'notIn', 'set', 'notSet', 'inDateRange'];
     for (const op of operators) {
       expect(() => AnalyticsQuerySchema.parse({
         measures: ['m.count'],

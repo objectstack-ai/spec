@@ -140,7 +140,7 @@ export const AnalyticsQuerySchema = lazySchema(() => z.object({
   
   filters: z.array(z.object({
     member: z.string().describe('Dimension or Measure'),
-    operator: z.enum(['equals', 'notEquals', 'contains', 'notContains', 'gt', 'gte', 'lt', 'lte', 'set', 'notSet', 'inDateRange']),
+    operator: z.enum(['equals', 'notEquals', 'contains', 'notContains', 'gt', 'gte', 'lt', 'lte', 'in', 'notIn', 'set', 'notSet', 'inDateRange']),
     values: z.array(z.string()).optional(),
   })).optional(),
   

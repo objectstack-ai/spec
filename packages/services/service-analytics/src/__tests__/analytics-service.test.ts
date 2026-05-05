@@ -466,4 +466,96 @@ describe('AnalyticsService', () => {
     expect(customStrategy.execute).toHaveBeenCalled();
     expect(result.rows[0]).toEqual({ custom: true });
   });
+
+  it('should auto-infer a minimal cube when query references an unregistered cube', async () => {
+    // Simulates a dashboard widget firing { object: "case", aggregate: "count" }
+    // when no Cube has been declared for "case" — used to crash with
+    // "Cannot read properties of undefined (reading 'sql')".
+    const executeAggregate = vi.fn().mockResolvedValue([{ 'case.count': 7 }]);
+    const service = new AnalyticsService({
+      logger: silentLogger,
+      queryCapabilities: () => ({ nativeSql: false, objectqlAggregate: true, inMemory: false }),
+      executeAggregate,
+    });
+
+    const query: AnalyticsQuery = {
+      cube: 'case',
+      measures: ['case.count'],
+      filters: [{ member: 'case.is_closed', operator: 'equals', values: ['false'] }],
+    };
+
+    const result = await service.query(query);
+    expect(executeAggregate).toHaveBeenCalledWith('case', expect.objectContaining({
+      aggregations: expect.arrayContaining([
+        expect.objectContaining({ method: 'count', alias: 'case.count' }),
+      ]),
+    }));
+    expect(result.rows).toBeDefined();
+    expect(service.cubeRegistry.has('case')).toBe(true);
+  });
+
+  it('should auto-infer measures from suffix conventions (_sum, _avg, _max)', async () => {
+    const executeAggregate = vi.fn().mockResolvedValue([]);
+    const service = new AnalyticsService({
+      logger: silentLogger,
+      queryCapabilities: () => ({ nativeSql: false, objectqlAggregate: true, inMemory: false }),
+      executeAggregate,
+    });
+
+    await service.query({
+      cube: 'case',
+      measures: ['case.resolution_time_hours_avg', 'case.amount_sum', 'case.score_max'],
+    });
+
+    expect(executeAggregate).toHaveBeenCalledWith('case', expect.objectContaining({
+      aggregations: expect.arrayContaining([
+        expect.objectContaining({ method: 'avg', field: 'resolution_time_hours' }),
+        expect.objectContaining({ method: 'sum', field: 'amount' }),
+        expect.objectContaining({ method: 'max', field: 'score' }),
+      ]),
+    }));
+  });
+
+  it('should augment a registered cube with suffix-inferred measures referenced by the query', async () => {
+    const executeAggregate = vi.fn().mockResolvedValue([]);
+    const service = new AnalyticsService({
+      logger: silentLogger,
+      queryCapabilities: () => ({ nativeSql: false, objectqlAggregate: true, inMemory: false }),
+      executeAggregate,
+    });
+    service.cubeRegistry.register(ordersCube);
+
+    await service.query({
+      cube: 'orders',
+      measures: ['orders.total_sum'],
+    });
+
+    expect(executeAggregate).toHaveBeenCalledWith('orders', expect.objectContaining({
+      aggregations: expect.arrayContaining([
+        expect.objectContaining({ method: 'sum', field: 'total', alias: 'orders.total_sum' }),
+      ]),
+    }));
+  });
+
+  it('should normalize Mongo-style object filters into the array form', async () => {
+    const executeAggregate = vi.fn().mockResolvedValue([]);
+    const service = new AnalyticsService({
+      logger: silentLogger,
+      queryCapabilities: () => ({ nativeSql: false, objectqlAggregate: true, inMemory: false }),
+      executeAggregate,
+    });
+
+    await service.query({
+      cube: 'opportunity',
+      measures: ['amount_sum'],
+      // Mongo-style object filter — what the dashboard plugin actually sends.
+      filters: { stage: { $nin: ['closed_won', 'closed_lost'] }, status: 'open' } as any,
+    });
+
+    const [, opts] = executeAggregate.mock.calls[0];
+    const filterObj = opts.filter || {};
+    expect(JSON.stringify(filterObj)).toContain('closed_won');
+    expect(JSON.stringify(filterObj)).toContain('closed_lost');
+    expect(JSON.stringify(filterObj)).toContain('open');
+  });
 });

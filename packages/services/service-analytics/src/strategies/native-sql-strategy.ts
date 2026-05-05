@@ -150,6 +150,12 @@ export class NativeSQLStrategy implements AnalyticsStrategy {
     if (operator === 'set') return `${col} IS NOT NULL`;
     if (operator === 'notSet') return `${col} IS NULL`;
 
+    if (operator === 'in' || operator === 'notIn') {
+      if (!values || values.length === 0) return null;
+      const placeholders = values.map(v => { params.push(v); return `$${params.length}`; }).join(', ');
+      return `${col} ${operator === 'in' ? 'IN' : 'NOT IN'} (${placeholders})`;
+    }
+
     const sqlOp = opMap[operator];
     if (!sqlOp || !values || values.length === 0) return null;
 
