@@ -571,12 +571,20 @@ export default class Serve extends Command {
       const enableUI = flags.ui && tierEnabled('ui');
 
       if (enableUI) {
+        // Pre-detect Dashboard availability so we can demote Studio's root
+        // redirect when Dashboard is going to claim `/`.
+        const dashboardPath = resolveDashboardPath();
+        const dashboardWillMount = !!(dashboardPath && hasDashboardDist(dashboardPath));
+
         const studioPath = resolveStudioPath();
         if (!studioPath) {
           console.warn(chalk.yellow(`  ⚠ @objectstack/studio not found — skipping UI`));
         } else if (hasStudioDist(studioPath)) {
           const distPath = path.join(studioPath, 'dist');
-          await kernel.use(createStudioStaticPlugin(distPath, { isDev }));
+          await kernel.use(createStudioStaticPlugin(distPath, {
+            isDev,
+            rootRedirect: !dashboardWillMount,
+          }));
           trackPlugin('StudioUI');
         } else {
           console.warn(chalk.yellow(`  ⚠ Studio dist not found — run "pnpm --filter @objectstack/studio build" first`));
@@ -599,13 +607,12 @@ export default class Serve extends Command {
 
         // ── Dashboard portal ────────────────────────────────────────
         // The opinionated, fork-ready console (`@objectstack/dashboard`)
-        // mounts under `/_dashboard/` exactly like Studio/Account. It is
-        // optional — we only mount it when the package resolves and a
-        // pre-built `dist/` is present, so consumers without dashboard
-        // installed don't pay any cost.
-        const dashboardPath = resolveDashboardPath();
+        // mounts under `/_dashboard/` exactly like Studio/Account. When
+        // present, it owns root `/` redirect (preferred default UI). It
+        // is optional — we only mount it when the package resolves and
+        // a pre-built `dist/` is present.
         if (dashboardPath) {
-          if (hasDashboardDist(dashboardPath)) {
+          if (dashboardWillMount) {
             const dashboardDistPath = path.join(dashboardPath, 'dist');
             await kernel.use(createDashboardStaticPlugin(dashboardDistPath, { isDev }));
             trackPlugin('DashboardUI');

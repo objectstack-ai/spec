@@ -1,38 +1,84 @@
 /**
  * ObjectStack Dashboard — fork-ready console template.
  *
- * This file owns the routing tree — fork and edit it. The building blocks
- * imported from @object-ui/app-shell (ConsoleShell, AuthenticatedRoute,
- * RootRedirect, Default* pages) encapsulate the provider stack and auth guard
- * so you only write JSX.
- *
- * Common customisations:
- *   - add routes: drop a <Route path="/billing" ... /> inside <Routes>
- *   - swap auth: replace <DefaultLoginPage /> with your own component
- *   - skip orgs: <AuthenticatedRoute requireOrganization={false}>
+ * Auth UI lives in the Account SPA at `/_account/*`. This file owns the
+ * console routing tree only — sign-in / sign-up / forgot-password URLs are
+ * shimmed to hard-redirect to Account, and the AuthGuard fallback bounces
+ * unauthenticated visitors there too (preserving `?redirect=...`).
  */
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from '@object-ui/auth';
+import type { ReactNode } from 'react';
+import { AuthProvider, AuthGuard } from '@object-ui/auth';
 import { Toaster } from 'sonner';
 import {
   ConsoleShell,
   ConnectedShell,
-  AuthenticatedRoute,
+  RequireOrganization,
   RootRedirect,
   SystemRedirect,
-  DefaultLoginPage,
-  DefaultRegisterPage,
-  DefaultForgotPasswordPage,
+  LoadingFallback,
   DefaultHomeLayout,
   DefaultHomePage,
   DefaultOrganizationsLayout,
   DefaultOrganizationsPage,
   DefaultAppContent,
 } from '@object-ui/app-shell';
+import { AccountLoginRedirect } from './components/AccountLoginRedirect';
+import {
+  gotoAccountLogin,
+  gotoAccountRegister,
+  gotoAccountForgotPassword,
+} from './lib/auth-redirect';
+import { useEffect } from 'react';
 
 const AUTH_URL = `${import.meta.env.VITE_SERVER_URL || ''}/api/v1/auth`;
 const BASENAME = (import.meta.env.BASE_URL || '/').replace(/\/$/, '') || '/';
+
+/**
+ * ProtectedRoute — replaces app-shell's AuthenticatedRoute. Same composition
+ * (AuthGuard + ConnectedShell + optional RequireOrganization) but with an
+ * external-redirect fallback instead of `<Navigate to="/login" />`.
+ */
+function ProtectedRoute({
+  children,
+  requireOrganization = true,
+}: {
+  children: ReactNode;
+  requireOrganization?: boolean;
+}) {
+  return (
+    <AuthGuard fallback={<AccountLoginRedirect />} loadingFallback={<LoadingFallback />}>
+      <ConnectedShell>
+        {requireOrganization ? <RequireOrganization>{children}</RequireOrganization> : children}
+      </ConnectedShell>
+    </AuthGuard>
+  );
+}
+
+/** Redirect-only route shim: `/login` → Account, preserving any `?redirect=`. */
+function LoginRedirect() {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    gotoAccountLogin(params.get('redirect') ?? undefined);
+  }, []);
+  return <LoadingFallback />;
+}
+
+function RegisterRedirect() {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    gotoAccountRegister(params.get('redirect') ?? undefined);
+  }, []);
+  return <LoadingFallback />;
+}
+
+function ForgotPasswordRedirect() {
+  useEffect(() => {
+    gotoAccountForgotPassword();
+  }, []);
+  return <LoadingFallback />;
+}
 
 export function App() {
   return (
@@ -41,24 +87,24 @@ export function App() {
       <BrowserRouter basename={BASENAME}>
         <ConsoleShell>
           <Routes>
-            <Route path="/login" element={<DefaultLoginPage />} />
-            <Route path="/register" element={<DefaultRegisterPage />} />
-            <Route path="/forgot-password" element={<DefaultForgotPasswordPage />} />
+            <Route path="/login" element={<LoginRedirect />} />
+            <Route path="/register" element={<RegisterRedirect />} />
+            <Route path="/forgot-password" element={<ForgotPasswordRedirect />} />
             <Route path="/home" element={
-              <AuthenticatedRoute>
+              <ProtectedRoute>
                 <DefaultHomeLayout><DefaultHomePage /></DefaultHomeLayout>
-              </AuthenticatedRoute>
+              </ProtectedRoute>
             } />
             <Route path="/organizations" element={
-              <AuthenticatedRoute requireOrganization={false}>
+              <ProtectedRoute requireOrganization={false}>
                 <DefaultOrganizationsLayout><DefaultOrganizationsPage /></DefaultOrganizationsLayout>
-              </AuthenticatedRoute>
+              </ProtectedRoute>
             } />
             <Route path="/system/*" element={<SystemRedirect />} />
             <Route path="/apps/:appName/*" element={
-              <AuthenticatedRoute>
+              <ProtectedRoute>
                 <DefaultAppContent />
-              </AuthenticatedRoute>
+              </ProtectedRoute>
             } />
             <Route path="/" element={<ConnectedShell><RootRedirect /></ConnectedShell>} />
             <Route path="*" element={<Navigate to="/" replace />} />

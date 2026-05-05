@@ -119,6 +119,13 @@ export function createDashboardStaticPlugin(distPath: string, options?: { isDev?
 
       const readIndexHtml = () => fs.readFileSync(indexPath, 'utf-8');
 
+      // In dev mode, the Dashboard is the default UI surface — root `/`
+      // redirects here. Mirrors the convention Studio used to own; we now
+      // prefer Dashboard because it is the opinionated end-user console.
+      if (options?.isDev) {
+        app.get('/', (c: any) => c.redirect(`${DASHBOARD_PATH}/`));
+      }
+
       // Redirect bare path to trailing-slash (SPA convention)
       app.get(DASHBOARD_PATH, (c: any) => c.redirect(`${DASHBOARD_PATH}/`));
 
