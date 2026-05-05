@@ -91,6 +91,27 @@ export const TranslationDataSchema = lazySchema(() => z.object({
   
   /** Validation Error Messages */
   validationMessages: z.record(z.string(), z.string()).optional().describe('Translatable validation error messages keyed by rule name (e.g., {"discount_limit": "折扣不能超过40%"})'),
+
+  /**
+   * Dashboard translations keyed by dashboard name.
+   * Convention (auto-resolved by ObjectUI's `useObjectLabel`):
+   *   dashboards.<name>.label
+   *   dashboards.<name>.description
+   *   dashboards.<name>.actions.<actionUrl>.label
+   *   dashboards.<name>.widgets.<widgetId>.title
+   *   dashboards.<name>.widgets.<widgetId>.description
+   */
+  dashboards: z.record(z.string(), z.object({
+    label: z.string().optional().describe('Translated dashboard title'),
+    description: z.string().optional().describe('Translated dashboard description'),
+    actions: z.record(z.string(), z.object({
+      label: z.string().optional().describe('Translated header action label'),
+    })).optional().describe('Header action label translations keyed by action url/key'),
+    widgets: z.record(z.string(), z.object({
+      title: z.string().optional().describe('Translated widget title'),
+      description: z.string().optional().describe('Translated widget description'),
+    })).optional().describe('Widget translations keyed by widget id'),
+  })).optional().describe('Dashboard translations keyed by dashboard name'),
 }).describe('Translation data for objects, apps, and UI messages'));
 
 export type TranslationData = z.infer<typeof TranslationDataSchema>;
