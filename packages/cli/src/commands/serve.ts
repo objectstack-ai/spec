@@ -29,6 +29,12 @@ import {
   hasAccountDist,
   createAccountStaticPlugin,
 } from '../utils/account.js';
+import {
+  DASHBOARD_PATH,
+  resolveDashboardPath,
+  hasDashboardDist,
+  createDashboardStaticPlugin,
+} from '../utils/dashboard.js';
 import dotenvFlow from 'dotenv-flow';
 
 // Helper to find available port
@@ -590,6 +596,23 @@ export default class Serve extends Command {
         } else {
           console.warn(chalk.yellow(`  ⚠ Account dist not found — run "pnpm --filter @objectstack/account build" first`));
         }
+
+        // ── Dashboard portal ────────────────────────────────────────
+        // The opinionated, fork-ready console (`@objectstack/dashboard`)
+        // mounts under `/_dashboard/` exactly like Studio/Account. It is
+        // optional — we only mount it when the package resolves and a
+        // pre-built `dist/` is present, so consumers without dashboard
+        // installed don't pay any cost.
+        const dashboardPath = resolveDashboardPath();
+        if (dashboardPath) {
+          if (hasDashboardDist(dashboardPath)) {
+            const dashboardDistPath = path.join(dashboardPath, 'dist');
+            await kernel.use(createDashboardStaticPlugin(dashboardDistPath, { isDev }));
+            trackPlugin('DashboardUI');
+          } else {
+            console.warn(chalk.yellow(`  ⚠ Dashboard dist not found — run "pnpm --filter @objectstack/dashboard build" first`));
+          }
+        }
       }
 
       // Boot the runtime
@@ -609,6 +632,7 @@ export default class Serve extends Command {
         uiEnabled: enableUI,
         studioPath: STUDIO_PATH,
         accountPath: ACCOUNT_PATH,
+        dashboardPath: loadedPlugins.includes('DashboardUI') ? DASHBOARD_PATH : undefined,
       });
 
       // Kernel already registers SIGINT/SIGTERM handlers during bootstrap.

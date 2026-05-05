@@ -186,6 +186,7 @@ export interface ServerReadyOptions {
   uiEnabled?: boolean;
   studioPath?: string;
   accountPath?: string;
+  dashboardPath?: string;
 }
 
 export function printServerReady(opts: ServerReadyOptions) {
@@ -193,12 +194,15 @@ export function printServerReady(opts: ServerReadyOptions) {
   console.log('');
   console.log(chalk.bold.green('  ✓ Server is ready'));
   console.log('');
-  console.log(chalk.cyan('  ➜') + chalk.bold('  API:     ') + chalk.cyan(base + '/'));
+  console.log(chalk.cyan('  ➜') + chalk.bold('  API:       ') + chalk.cyan(base + '/'));
   if (opts.uiEnabled && opts.studioPath) {
-    console.log(chalk.cyan('  ➜') + chalk.bold('  Studio:  ') + chalk.cyan(base + opts.studioPath + '/'));
+    console.log(chalk.cyan('  ➜') + chalk.bold('  Studio:    ') + chalk.cyan(base + opts.studioPath + '/'));
   }
   if (opts.uiEnabled && opts.accountPath) {
-    console.log(chalk.cyan('  ➜') + chalk.bold('  Account: ') + chalk.cyan(base + opts.accountPath + '/'));
+    console.log(chalk.cyan('  ➜') + chalk.bold('  Account:   ') + chalk.cyan(base + opts.accountPath + '/'));
+  }
+  if (opts.uiEnabled && opts.dashboardPath) {
+    console.log(chalk.cyan('  ➜') + chalk.bold('  Dashboard: ') + chalk.cyan(base + opts.dashboardPath + '/'));
   }
   console.log('');
   console.log(chalk.dim(`  Config:  ${opts.configFile}`));
