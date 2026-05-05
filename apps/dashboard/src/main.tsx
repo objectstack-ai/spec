@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { I18nProvider } from '@object-ui/i18n';
-import './index.css';
-import { App } from './App';
 
+// Plugin side-effect imports — each plugin's module body calls
+// ComponentRegistry.register(...). These MUST be evaluated before <App />
+// renders so SchemaRenderer can find every `type:` it encounters.
 import '@object-ui/plugin-grid';
 import '@object-ui/plugin-kanban';
 import '@object-ui/plugin-calendar';
@@ -14,6 +15,9 @@ import '@object-ui/plugin-view';
 import '@object-ui/plugin-form';
 import '@object-ui/plugin-dashboard';
 import '@object-ui/plugin-report';
+
+import './index.css';
+import { App } from './App';
 
 async function loadLanguage(lang: string): Promise<Record<string, unknown>> {
   try {

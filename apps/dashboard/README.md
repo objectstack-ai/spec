@@ -23,6 +23,29 @@ By default the dev server proxies `/api` and `/.well-known` to
 listens. Override the upstream server with `VITE_SERVER_URL` in
 `.env.development` if you point the console at a remote ObjectStack instance.
 
+> Pair it with the CRM example server: `pnpm dev:crm` (port 3001) and launch
+> with `VITE_SERVER_URL=http://localhost:3001 VITE_PROXY_TARGET=http://localhost:3001 pnpm dev:dashboard`.
+
+### Workspace alias requirement
+
+`vite.config.ts` aliases every `@object-ui/*` import to the **source** folders
+in the sibling [`objectui`](https://github.com/objectstack-ai/objectui) checkout
+(`../../../objectui/packages/<name>/src`). This is required: the published
+`@object-ui/plugin-*` rolldown bundles inline their own private
+`ComponentRegistry` instance per package, which breaks cross-plugin component
+lookup (e.g. `plugin-list` cannot find `object-grid` registered by
+`plugin-grid`). Building from source guarantees a single shared
+`ComponentRegistry` singleton — the same trick used by the upstream
+`examples/console-starter` template.
+
+Make sure you have `objectui` cloned next to this repo:
+
+```
+GitHub/
+├── framework/        # this repo
+└── objectui/         # https://github.com/objectstack-ai/objectui
+```
+
 ## Customise
 
 `src/App.tsx` owns the routing tree — fork and edit it. The building blocks
