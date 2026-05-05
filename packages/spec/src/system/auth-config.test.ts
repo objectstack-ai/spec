@@ -45,7 +45,7 @@ describe('AuthPluginConfigSchema', () => {
   it('should apply defaults for all fields', () => {
     const config = AuthPluginConfigSchema.parse({});
 
-    expect(config.organization).toBe(false);
+    expect(config.organization).toBe(true);
     expect(config.twoFactor).toBe(false);
     expect(config.passkeys).toBe(false);
     expect(config.magicLink).toBe(false);

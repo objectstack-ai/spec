@@ -314,7 +314,7 @@ describe('AuthManager', () => {
       await manager.getAuthInstance();
       warnSpy.mockRestore();
 
-      expect(capturedConfig.plugins.map((p: any) => p.id)).toEqual(['bearer']);
+      expect(capturedConfig.plugins.map((p: any) => p.id)).toEqual(['bearer', 'organization']);
     });
 
     it('should register organization plugin with schema mapping when enabled', async () => {
