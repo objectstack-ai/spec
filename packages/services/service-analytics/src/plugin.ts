@@ -8,6 +8,18 @@ import type { AnalyticsServiceConfig } from './analytics-service.js';
 import type { DriverCapabilities } from './strategies/types.js';
 
 /**
+ * Minimal IDataEngine surface required for the auto-bridge.
+ * ObjectQL exposes `aggregate(object, { where, groupBy, aggregations: [{ function, field, alias }] })`.
+ */
+interface DataEngineLike {
+  aggregate(object: string, options: {
+    where?: Record<string, unknown>;
+    groupBy?: string[];
+    aggregations?: Array<{ function: string; field: string; alias: string }>;
+  }): Promise<unknown[]>;
+}
+
+/**
  * Configuration for AnalyticsServicePlugin.
  */
 export interface AnalyticsServicePluginOptions {
@@ -88,14 +100,75 @@ export class AnalyticsServicePlugin implements Plugin {
       // No existing service — that's fine
     }
 
+    // Auto-bridge: when caller did not supply executeAggregate, look up the
+    // kernel's IDataEngine (registered as 'data' by ObjectQLPlugin) lazily and
+    // translate AnalyticsStrategy's `{method, filter}` shape into the engine's
+    // `{function, where}` shape. This lets users write
+    //   `new AnalyticsServicePlugin({ cubes })`
+    // without re-implementing the bridge in every app.
+    let executeAggregate = this.options.executeAggregate;
+    let autoBridged = false;
+    if (!executeAggregate) {
+      const tryGetDataEngine = (): DataEngineLike | undefined => {
+        try {
+          const svc = ctx.getService<DataEngineLike>('data');
+          return svc && typeof svc.aggregate === 'function' ? svc : undefined;
+        } catch {
+          return undefined;
+        }
+      };
+      // Probe now (warn if missing) but resolve at call time so plugin order
+      // does not matter as long as 'data' exists by the time a query runs.
+      if (!tryGetDataEngine()) {
+        ctx.logger.warn(
+          '[Analytics] No "data" service registered yet at init; ' +
+          'will retry per-query. Register ObjectQLPlugin or pass executeAggregate.',
+        );
+      }
+      executeAggregate = async (objectName, { groupBy, aggregations, filter }) => {
+        const engine = tryGetDataEngine();
+        if (!engine) {
+          throw new Error(
+            '[Analytics] Cannot execute aggregate: no IDataEngine ("data") service is registered. ' +
+            'Add ObjectQLPlugin to the kernel or supply AnalyticsServicePlugin({ executeAggregate }).',
+          );
+        }
+        const rows = await engine.aggregate(objectName, {
+          where: filter,
+          groupBy,
+          aggregations: aggregations?.map((a) => ({
+            function: a.method,
+            field: a.field,
+            alias: a.alias,
+          })),
+        });
+        return rows as Record<string, unknown>[];
+      };
+      autoBridged = true;
+    }
+
+    // Default capabilities: when we have an aggregate bridge, advertise
+    // ObjectQL support so ObjectQLStrategy is selected. Callers can still
+    // override via options.queryCapabilities.
+    const queryCapabilities = this.options.queryCapabilities
+      ?? (() => ({
+        nativeSql: !!this.options.executeRawSql,
+        objectqlAggregate: !!executeAggregate,
+        inMemory: false,
+      }));
+
     const config: AnalyticsServiceConfig = {
       cubes: this.options.cubes,
       logger: ctx.logger,
-      queryCapabilities: this.options.queryCapabilities,
+      queryCapabilities,
       executeRawSql: this.options.executeRawSql,
-      executeAggregate: this.options.executeAggregate,
+      executeAggregate,
       fallbackService,
     };
+
+    if (autoBridged) {
+      ctx.logger.info('[Analytics] Auto-bridged executeAggregate → "data" service (IDataEngine)');
+    }
 
     this.service = new AnalyticsService(config);
 

@@ -8,6 +8,8 @@ import {
   LogicNodesPlugin,
   HttpConnectorPlugin,
 } from '@objectstack/service-automation';
+import { AnalyticsServicePlugin } from '@objectstack/service-analytics';
+import * as cubes from './src/cubes';
 
 // ─── Barrel Imports (one per metadata type) ─────────────────────────
 import * as objects from './src/objects';
@@ -75,6 +77,7 @@ export default defineStack({
     new LogicNodesPlugin(),
     new HttpConnectorPlugin(),
     new ScreenNodesPlugin(),
+    new AnalyticsServicePlugin({ cubes: Object.values(cubes) }),
   ],
 
   // Auto-collected from barrel index files via Object.values()
