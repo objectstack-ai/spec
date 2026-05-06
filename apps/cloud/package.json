@@ -36,7 +36,7 @@
     "@objectstack/service-package": "workspace:*",
     "@objectstack/service-tenant": "workspace:*",
     "@objectstack/spec": "workspace:*",
-    "hono": "^4.12.17"
+    "hono": "^4.12.18"
   },
   "devDependencies": {
     "@objectstack/cli": "workspace:*",
