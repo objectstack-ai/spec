@@ -27,7 +27,7 @@
     "@ai-sdk/google": "^3.0.67",
     "@ai-sdk/openai": "^3.0.61",
     "@ai-sdk/react": "^3.0.177",
-    "@hono/node-server": "^1.19.14",
+    "@hono/node-server": "^2.0.1",
     "@objectstack/client": "workspace:*",
     "@objectstack/client-react": "workspace:*",
     "@objectstack/driver-memory": "workspace:*",
