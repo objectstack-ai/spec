@@ -47,6 +47,21 @@ export interface BindHooksOptions {
    */
   bodyRunner?: (hook: Hook) => HookHandler | undefined;
 
+  /**
+   * When true, treat unresolved hooks (body present but no runner, or handler
+   * string with no implementation) as fatal errors instead of warnings. Used
+   * by production runtimes to fail fast on misconfiguration. Defaults false.
+   */
+  strict?: boolean;
+
+  /**
+   * When true, emit a deprecation warning for every hook that still relies
+   * on a `handler` ref string instead of the metadata-only `body`. Used by
+   * the CLI (compile time) and runtime (boot time) to nudge users away from
+   * the legacy `.mjs` runtime bundle path. Defaults false.
+   */
+  warnLegacyHandler?: boolean;
+
   /** Logger; defaults to a silent no-op. */
   logger?: {
     debug: (msg: string, meta?: any) => void;
@@ -128,12 +143,23 @@ export function bindHooksToEngine(
             ? `unknown function '${hook.handler}'`
             : 'no handler';
         result.errors.push({ hook: hook.name, reason });
+        if (opts.strict) {
+          throw new Error(`[hook-binder] strict: cannot bind hook '${hook.name}': ${reason}`);
+        }
         logger.warn('[hook-binder] skipping hook with unresolved handler', {
           hook: hook.name,
           handler: hook.handler,
           hasBody: Boolean((hook as any).body),
         });
         continue;
+      }
+
+      if (opts.warnLegacyHandler && !(hook as any).body && typeof hook.handler === 'string') {
+        logger.warn('[hook-binder] DEPRECATED: hook uses legacy handler ref without body', {
+          hook: hook.name,
+          handler: hook.handler,
+          hint: 'Move the handler source into Hook.body so the artifact stays metadata-only and the .mjs runtime bundle can be dropped.',
+        });
       }
 
       const wrapped = wrapDeclarativeHook(hook, resolved, { logger });

@@ -210,6 +210,16 @@ export class ObjectQL implements IDataEngine {
     this.hostContext = hostContext;
     // Use provided logger or create a new one
     this.logger = hostContext.logger || createLogger({ level: 'info', format: 'pretty' });
+    // Pick up production hardening switches from env so deployers can
+    // enforce strict-body without code changes:
+    //   OBJECTQL_STRICT_HOOKS=1 → unresolved hooks throw at bind time
+    //   OBJECTQL_WARN_LEGACY_HANDLER=1 → log a deprecation per legacy bind
+    if (process?.env?.OBJECTQL_STRICT_HOOKS === '1') {
+      (this as any)._strictHookBinding = true;
+    }
+    if (process?.env?.OBJECTQL_WARN_LEGACY_HANDLER === '1') {
+      (this as any)._warnLegacyHandler = true;
+    }
     this.logger.info('ObjectQL Engine Instance Created');
   }
 
@@ -370,14 +380,18 @@ export class ObjectQL implements IDataEngine {
     packageId?: string;
     functions?: Record<string, HookHandler>;
     bodyRunner?: any;
+    strict?: boolean;
+    warnLegacyHandler?: boolean;
   }): void {
     const merged = { ...(opts ?? {}), logger: this.logger } as any;
-    // If caller didn't supply a bodyRunner but the engine has a default
-    // installed (via `setDefaultBodyRunner`), use it so script bodies still
-    // execute. This matters for binding paths that don't know about the
-    // runtime sandbox (e.g. ObjectQLPlugin's metadata-service sync).
     if (!merged.bodyRunner && (this as any)._defaultBodyRunner) {
       merged.bodyRunner = (this as any)._defaultBodyRunner;
+    }
+    if (merged.strict === undefined && (this as any)._strictHookBinding) {
+      merged.strict = true;
+    }
+    if (merged.warnLegacyHandler === undefined && (this as any)._warnLegacyHandler) {
+      merged.warnLegacyHandler = true;
     }
     bindHooksToEngine(this, hooks, merged);
   }
@@ -390,6 +404,20 @@ export class ObjectQL implements IDataEngine {
    */
   setDefaultBodyRunner(runner: any): void {
     (this as any)._defaultBodyRunner = runner;
+  }
+
+  /**
+   * Toggle strict hook-binding mode for this engine. When enabled, every
+   * subsequent `bindHooks` call rejects on the first unresolved hook
+   * instead of silently warning. Production runtimes should enable this.
+   */
+  setStrictHookBinding(strict: boolean): void {
+    (this as any)._strictHookBinding = strict;
+  }
+
+  /** Toggle deprecation warnings for hooks still using legacy `handler` ref. */
+  setWarnLegacyHandler(warn: boolean): void {
+    (this as any)._warnLegacyHandler = warn;
   }
 
   public async triggerHooks(event: string, context: HookContext) {
