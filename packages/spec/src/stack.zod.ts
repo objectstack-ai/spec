@@ -306,6 +306,28 @@ export const ObjectStackDefinitionSchema = lazySchema(() => z.object({
    * Useful for loading dev-tools, mock data generators, or referencing local sibling packages for debugging.
    */
   devPlugins: z.array(z.union([ManifestSchema, z.string()])).optional().describe('Plugins to load only in development (CLI dev command)'),
+
+  /**
+   * Compiled Runtime Bundle Reference
+   *
+   * Path (relative to the JSON artifact) to a sibling ESM module emitted
+   * by `objectstack build`. The module exports `{ functions: Record<string, Function> }`
+   * containing every inline `Hook.handler` (and top-level `functions` map
+   * entry) that was lowered to a string ref during compilation.
+   *
+   * Runtimes (StandaloneStack, multi-tenant artifact-bind path) MUST
+   * dynamic-import this file on boot and merge `module.functions` into
+   * `bundle.functions` before `bindHooks(...)` runs — otherwise every
+   * declarative hook will fail to resolve its handler.
+   *
+   * The two-product layout (JSON + ESM) is the canonical build artifact
+   * shape for the platform. Authoring tools (`defineStack`, Studio
+   * inline editor) must NOT set this field directly; it is populated
+   * exclusively by the compiler.
+   *
+   * @example "./objectstack-runtime.7a70cd6576d17ff6.mjs"
+   */
+  runtimeModule: z.string().optional().describe('Path (relative to the artifact JSON) of the compiled runtime ESM bundle. Set by `objectstack build`; do not author by hand.'),
 }));
 
 export type ObjectStackDefinition = z.infer<typeof ObjectStackDefinitionSchema>;

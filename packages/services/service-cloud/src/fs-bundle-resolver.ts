@@ -30,6 +30,7 @@
 
 import { readFile } from 'node:fs/promises';
 import { resolve as resolvePath, isAbsolute } from 'node:path';
+import { loadArtifactBundle } from './load-artifact-bundle.js';
 import type { AppBundleResolver } from './project-kernel-factory.js';
 
 const ENV_MAP_VAR = 'OS_PROJECT_ARTIFACTS';
@@ -73,19 +74,9 @@ export function createFsAppBundleResolver(): AppBundleResolver {
     async function loadOne(path: string): Promise<any | null> {
         const abs = isAbsolute(path) ? path : resolvePath(root, path);
         if (cache.has(abs)) return cache.get(abs);
-        try {
-            const raw = await readFile(abs, 'utf-8');
-            const parsed = JSON.parse(raw);
-            cache.set(abs, parsed);
-            return parsed;
-        } catch (err: any) {
-            // eslint-disable-next-line no-console
-            console.warn(
-                `[FsAppBundleResolver] Failed to load artifact '${abs}': ${err?.message ?? err}`,
-            );
-            cache.set(abs, null);
-            return null;
-        }
+        const bundle = await loadArtifactBundle(abs, { tag: '[FsAppBundleResolver]' });
+        cache.set(abs, bundle);
+        return bundle;
     }
 
     return {

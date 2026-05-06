@@ -27,7 +27,6 @@
 
 import { resolve as resolvePath } from 'node:path';
 import { mkdirSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
 import { z } from 'zod';
 import { createCloudStack } from './cloud-stack.js';
 import { createSingleProjectPlugin } from './single-project-plugin.js';
@@ -141,17 +140,12 @@ export async function createRuntimeStack(config?: RuntimeStackConfig): Promise<R
             const { ObjectQLPlugin } = await import('@objectstack/objectql');
             const { MetadataPlugin } = await import('@objectstack/metadata');
             const { AppPlugin } = await import('@objectstack/runtime');
+            const { loadArtifactBundle } = await import('./load-artifact-bundle.js');
 
-            let artifactBundle: any = null;
-            try {
-                const raw = await readFile(artifactPath, 'utf8');
-                const parsed = JSON.parse(raw);
-                artifactBundle = (parsed?.schemaVersion != null && parsed?.metadata !== undefined)
-                    ? parsed.metadata
-                    : parsed;
-            } catch {
-                // First boot before `objectstack build` — AppPlugin skipped.
-            }
+            const artifactBundle = await loadArtifactBundle(artifactPath, {
+                tag: '[runtime-stack:basePlugins]',
+                unwrapEnvelope: true,
+            });
 
             const plugins: any[] = [
                 new ObjectQLPlugin({ projectId: pid }),

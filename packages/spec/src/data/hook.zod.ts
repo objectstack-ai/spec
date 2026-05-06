@@ -65,9 +65,22 @@ export const HookSchema = lazySchema(() => z.object({
 
   /**
    * Handler Logic
-   * Reference to a registered function in the plugin system OR a direct function (runtime only).
+   *
+   * Two accepted shapes:
+   *
+   *   - **Inline function** (authoring): `handler: async (ctx) => { ... }`.
+   *     Convenient in `defineStack({ hooks: [...] })` source files.
+   *   - **String reference** (build artifact / Studio): `handler: 'my_fn'`.
+   *     Resolved at runtime against the bundle's `functions` map +
+   *     anything `engine.registerFunction(name, fn)` added.
+   *
+   * `objectstack build` automatically lowers inline functions to the
+   * string form (using `Hook.name` as the ref) and emits the originals
+   * into a sibling `objectstack-runtime.<hash>.mjs` referenced by the
+   * top-level `runtimeModule` field. The JSON artifact therefore only
+   * ever contains the string form.
    */
-  handler: z.union([z.string(), z.function()]).optional().describe('Handler function name (string) or inline function reference'),
+  handler: z.union([z.string(), z.function()]).optional().describe('Handler function name (string, post-build) or inline function (pre-build)'),
 
   /**
    * Execution Order
