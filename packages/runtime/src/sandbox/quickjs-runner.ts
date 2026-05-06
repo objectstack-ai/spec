@@ -257,6 +257,14 @@ export class QuickJSScriptRunner implements ScriptRunner {
       vm.setProp(ctxObj, 'object', obH);
       obH.dispose();
     }
+    if (typeof ctx.recordId === 'string') {
+      const idH = vm.newString(ctx.recordId);
+      vm.setProp(ctxObj, 'recordId', idH);
+      idH.dispose();
+    }
+    if (ctx.record !== undefined) {
+      setObjectJson(vm, ctxObj, 'record', ctx.record);
+    }
     if (ctx.result !== undefined) {
       setObjectJson(vm, ctxObj, 'result', ctx.result);
     }

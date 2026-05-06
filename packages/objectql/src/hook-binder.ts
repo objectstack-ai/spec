@@ -24,6 +24,7 @@
 import type { Hook } from '@objectstack/spec/data';
 import type { ObjectQL, HookHandler } from './engine.js';
 import { wrapDeclarativeHook } from './hook-wrappers.js';
+import type { HookMetricsRecorder } from './hook-metrics.js';
 
 export interface BindHooksOptions {
   /** Owning package / app id — used for `unregisterHooksByPackage`. */
@@ -61,6 +62,9 @@ export interface BindHooksOptions {
    * the legacy `.mjs` runtime bundle path. Defaults false.
    */
   warnLegacyHandler?: boolean;
+
+  /** Per-hook execution metrics sink. Defaults to no-op. */
+  metrics?: HookMetricsRecorder;
 
   /** Logger; defaults to a silent no-op. */
   logger?: {
@@ -162,7 +166,7 @@ export function bindHooksToEngine(
         });
       }
 
-      const wrapped = wrapDeclarativeHook(hook, resolved, { logger });
+      const wrapped = wrapDeclarativeHook(hook, resolved, { logger, metrics: opts.metrics });
       const objects = normalizeObjects(hook.object);
       const events = Array.isArray(hook.events) ? hook.events : [];
 

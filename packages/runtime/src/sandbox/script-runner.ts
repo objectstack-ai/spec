@@ -69,6 +69,18 @@ export interface ScriptContext {
   event?: string;
   /** The object the hook/action targets — surfaces from `HookContext.object`. */
   object?: string;
+  /**
+   * Action only: the record id passed in the action invocation URL
+   * (`POST /api/v1/actions/:object/:action/:recordId`). Hooks always have
+   * the record on `input` so this stays undefined for them.
+   */
+  recordId?: string;
+  /**
+   * Action only: the record loaded by the dispatcher before the action ran
+   * (when the dispatcher pre-fetches it). May be undefined for actions
+   * declared with `requiresRecord: false` or when no `recordId` was supplied.
+   */
+  record?: unknown;
   /** Engine-side `result` (only set for after* hooks). */
   result?: unknown;
   api?: unknown;

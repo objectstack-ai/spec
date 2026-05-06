@@ -120,6 +120,48 @@ test('seed data from bundle is queryable (Acme Corporation)', async () => {
     assert(!!hit, `expected seed row "Acme Corporation" in records, got ${JSON.stringify(records.map(r => r?.name))}`);
 });
 
+test('action body — mark_primary flips contact.is_primary via QuickJS sandbox', async () => {
+    // Pick a seeded contact whose is_primary is currently false. The CRM
+    // contact_integrity hook makes ad-hoc inserts fragile, so we operate
+    // on existing seed data and assert the action body's mutation lands.
+    const list = await call('/api/v1/data/contact?limit=50', { method: 'GET' });
+    assert(list.status === 200, `contact list: expected 200, got ${list.status} ${JSON.stringify(list.body)}`);
+    const records: any[] = list.body?.records ?? [];
+    const target = records.find(r => r?.is_primary === false || r?.is_primary == null);
+    assert(!!target?.id, `no seeded contact with is_primary=false found: ${JSON.stringify(records.map(r => ({ id: r?.id, p: r?.is_primary })))}`);
+
+    // Invoke the action whose body lives in metadata only.
+    // Use the project-scoped URL form to make the routing explicit.
+    const invoke = await call(`/api/v1/projects/proj_local/actions/contact/mark_primary/${target.id}`, { method: 'POST', body: {} });
+    assert(
+        invoke.status === 200,
+        `action invoke: expected 200, got ${invoke.status} ${JSON.stringify(invoke.body)}`,
+    );
+    const findOkPayload = (v: any, depth = 0): any => {
+        if (!v || typeof v !== 'object' || depth > 5) return null;
+        if (v.ok === true || v.is_primary === true) return v;
+        if (v.data) {
+            const d = findOkPayload(v.data, depth + 1);
+            if (d) return d;
+        }
+        if (v.result) return findOkPayload(v.result, depth + 1);
+        return null;
+    };
+    const ret = findOkPayload(invoke.body);
+    assert(
+        ret,
+        `action body did not return success payload: ${JSON.stringify(invoke.body)}`,
+    );
+
+    // Confirm the database mutation happened (sandbox -> ctx.api.update).
+    const after = await call(`/api/v1/data/contact/${target.id}`, { method: 'GET' });
+    assert(after.status === 200, `contact get: expected 200, got ${after.status} ${JSON.stringify(after.body)}`);
+    assert(
+        after.body?.record?.is_primary === true,
+        `expected contact.is_primary=true after action, got ${JSON.stringify(after.body?.record)}`,
+    );
+});
+
 let exitCode = 0;
 for (const t of tests) {
     try {

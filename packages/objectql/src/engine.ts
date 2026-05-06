@@ -382,6 +382,7 @@ export class ObjectQL implements IDataEngine {
     bodyRunner?: any;
     strict?: boolean;
     warnLegacyHandler?: boolean;
+    metrics?: any;
   }): void {
     const merged = { ...(opts ?? {}), logger: this.logger } as any;
     if (!merged.bodyRunner && (this as any)._defaultBodyRunner) {
@@ -392,6 +393,9 @@ export class ObjectQL implements IDataEngine {
     }
     if (merged.warnLegacyHandler === undefined && (this as any)._warnLegacyHandler) {
       merged.warnLegacyHandler = true;
+    }
+    if (!merged.metrics && (this as any)._hookMetricsRecorder) {
+      merged.metrics = (this as any)._hookMetricsRecorder;
     }
     bindHooksToEngine(this, hooks, merged);
   }
@@ -418,6 +422,21 @@ export class ObjectQL implements IDataEngine {
   /** Toggle deprecation warnings for hooks still using legacy `handler` ref. */
   setWarnLegacyHandler(warn: boolean): void {
     (this as any)._warnLegacyHandler = warn;
+  }
+
+  /**
+   * Install a metrics recorder used by every subsequent `bindHooks` call.
+   * The recorder's methods are invoked per-execution to count outcomes
+   * (success / error / timeout / capability_rejected), skips, and retries.
+   * Defaults to no-op so the engine pays zero cost when nobody is observing.
+   */
+  setHookMetricsRecorder(recorder: any): void {
+    (this as any)._hookMetricsRecorder = recorder;
+  }
+
+  /** Read the engine's installed metrics recorder, if any. */
+  getHookMetricsRecorder(): any {
+    return (this as any)._hookMetricsRecorder;
   }
 
   public async triggerHooks(event: string, context: HookContext) {

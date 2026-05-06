@@ -1,7 +1,14 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { Plugin, PluginContext } from '@objectstack/core';
-import { SeedLoaderService, collectBundleHooks, collectBundleFunctions } from '@objectstack/runtime';
+import {
+    SeedLoaderService,
+    collectBundleHooks,
+    collectBundleFunctions,
+    collectBundleActions,
+    actionBodyRunnerFactory,
+    QuickJSScriptRunner,
+} from '@objectstack/runtime';
 import { SeedLoaderConfigSchema } from '@objectstack/spec/data';
 import {
     DefaultEnvironmentDriverRegistry,
@@ -156,6 +163,52 @@ function createTemplateSeeder(
                     console.error(
                         `[MultiProjectPlugin] bindHooks failed for project ${projectId}:`,
                         err?.message ?? err,
+                    );
+                }
+            }
+        }
+
+        // Wire declarative Action bodies. Symmetric with hooks above:
+        // `engine.registerApp(bundle)` only persists schema metadata — it
+        // does NOT install action handlers. Without this loop, any action
+        // shipped with a metadata `body` (extracted by the CLI from inline
+        // `execute:` arrow functions) would be unreachable through
+        // `POST /api/v1/projects/:projectId/actions/...`.
+        if (typeof engine?.registerAction === 'function') {
+            const actions = collectBundleActions(bundle);
+            if (actions.length > 0) {
+                const actionBodyRunner = actionBodyRunnerFactory(new QuickJSScriptRunner(), {
+                    ql: engine,
+                    appId: projectId,
+                });
+                let registered = 0;
+                for (const action of actions) {
+                    const handler = actionBodyRunner(action);
+                    if (!handler) continue;
+                    const objectKey =
+                        typeof action.object === 'string' && action.object.length > 0
+                            ? action.object
+                            : 'global';
+                    try {
+                        engine.registerAction(
+                            objectKey,
+                            action.name,
+                            handler,
+                            `app:${projectId}`,
+                        );
+                        registered++;
+                    } catch (err: any) {
+                        // eslint-disable-next-line no-console
+                        console.warn(
+                            `[MultiProjectPlugin] registerAction failed for ${objectKey}.${action.name} in project ${projectId}:`,
+                            err?.message ?? err,
+                        );
+                    }
+                }
+                if (registered > 0) {
+                    // eslint-disable-next-line no-console
+                    console.log(
+                        `[MultiProjectPlugin] Bound ${registered} action body(s) for project ${projectId}`,
                     );
                 }
             }

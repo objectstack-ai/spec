@@ -51,7 +51,7 @@ import {
   massUpdateStage,
   escalateCase,
   closeCase,
-  markAsPrimaryContact,
+  // markAsPrimaryContact — migrated to metadata body, see contact.actions.ts
   sendEmail,
   exportToCSV,
   logCall,
@@ -94,8 +94,11 @@ export function registerCrmActionHandlers(engine: {
   engine.registerAction('case', 'closeCase', closeCase);
 
   // ─── Contact Domain ────────────────────────────────────────────────
-  // MarkPrimaryContactAction (type: script)
-  engine.registerAction('contact', 'markAsPrimaryContact', markAsPrimaryContact);
+  // MarkPrimaryContactAction now ships a metadata `body` (see
+  // contact.actions.ts) and is bound by AppPlugin via the action
+  // body-runner. The legacy imperative wiring is retained as a
+  // commented reference for the migration pattern:
+  //   engine.registerAction('contact', 'markAsPrimaryContact', markAsPrimaryContact);
   // SendEmailAction (type: modal) — processes email composer form
   engine.registerAction('contact', 'sendEmail', sendEmail);
 

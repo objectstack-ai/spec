@@ -152,23 +152,51 @@ function applyMutationsToInput(engineCtx: any, result: ScriptResult): void {
   }
 }
 
+function buildEngineRepoFacade(ql: any, objectName: string) {
+  // Minimal repository surface that proxies to the raw engine.
+  // Actions execute as the system user (no user context at HTTP boundary
+  // beyond `actionCtx.user`); ObjectQL's permission middleware will still
+  // gate writes via the engine's standard insert/update path.
+  return {
+    async find(opts?: any) { return ql.find(objectName, opts); },
+    async findOne(opts?: any) {
+      const rows = await ql.find(objectName, opts);
+      return Array.isArray(rows) ? rows[0] ?? null : null;
+    },
+    async count(opts?: any) {
+      if (typeof ql.count === 'function') return ql.count(objectName, opts);
+      const rows = await ql.find(objectName, opts);
+      return Array.isArray(rows) ? rows.length : 0;
+    },
+    async insert(data: any) { return ql.insert(objectName, data); },
+    async update(data: any, opts?: any) { return ql.update(objectName, data, opts); },
+    async upsert(data: any, opts?: any) {
+      if (typeof ql.upsert === 'function') return ql.upsert(objectName, data, opts);
+      return ql.insert(objectName, data);
+    },
+    async delete(opts?: any) { return ql.delete(objectName, opts); },
+  };
+}
+
+function buildSandboxApi(engineCtx: any, ql: any, errLabel: string) {
+  const engineApi = engineCtx?.api;
+  if (engineApi && typeof engineApi.object === 'function') return engineApi;
+  return {
+    object: (objectName: string) => {
+      if (!ql) throw new Error(`ObjectQL engine unavailable to ${errLabel}`);
+      // Prefer the engine's own ScopedContext-based `.object()` when
+      // present; otherwise synthesize a minimal repo facade against the
+      // engine's CRUD primitives (so the body can call .insert/.find/etc).
+      if (typeof ql.object === 'function') {
+        try { return ql.object(objectName); } catch { /* fall through */ }
+      }
+      return buildEngineRepoFacade(ql, objectName);
+    },
+  };
+}
+
 function buildSandboxContext(engineCtx: any, ql: any): ScriptContext {
   const inputSnapshot = unwrapProxyToPlain(engineCtx?.input ?? engineCtx?.doc);
-  // Prefer the engine-provided ScopedContext (has org/user/permissions wired
-  // through `buildHookApi`). Fall back to a minimal ql.object() bridge for
-  // hooks fired outside the engine's normal dispatch path.
-  const engineApi = engineCtx?.api;
-  const api =
-    engineApi && typeof engineApi.object === 'function'
-      ? engineApi
-      : {
-          object: (objectName: string) => {
-            if (!ql || typeof ql.object !== 'function') {
-              throw new Error('ObjectQL engine unavailable to hook body');
-            }
-            return ql.object(objectName);
-          },
-        };
   return {
     input: inputSnapshot,
     previous: unwrapProxyToPlain(engineCtx?.previous ?? engineCtx?.previousDoc),
@@ -177,7 +205,7 @@ function buildSandboxContext(engineCtx: any, ql: any): ScriptContext {
     event: typeof engineCtx?.event === 'string' ? engineCtx.event : undefined,
     object: typeof engineCtx?.object === 'string' ? engineCtx.object : undefined,
     result: engineCtx?.result,
-    api,
+    api: buildSandboxApi(engineCtx, ql, 'hook body'),
     log: engineCtx?.logger,
     crypto: globalThis.crypto,
   };
@@ -188,19 +216,21 @@ function buildActionSandboxContext(actionCtx: any, ql: any): ScriptContext {
   //   { record, params, recordId, user, session, engine, services, ... }
   // The script signature is `(input, ctx)` — input gets `params`, ctx gets
   // the full action context.
+  const recordId =
+    typeof actionCtx?.recordId === 'string'
+      ? actionCtx.recordId
+      : typeof actionCtx?.record?.id === 'string'
+        ? actionCtx.record.id
+        : undefined;
   return {
     input: unwrapProxyToPlain(actionCtx?.params ?? {}),
     previous: undefined,
     user: actionCtx?.user ?? actionCtx?.session?.user,
     session: actionCtx?.session,
-    api: {
-      object: (objectName: string) => {
-        if (!ql || typeof ql.object !== 'function') {
-          throw new Error('ObjectQL engine unavailable to action body');
-        }
-        return ql.object(objectName);
-      },
-    },
+    object: typeof actionCtx?.object === 'string' ? actionCtx.object : undefined,
+    recordId,
+    record: unwrapProxyToPlain(actionCtx?.record),
+    api: buildSandboxApi(actionCtx, ql, 'action body'),
     log: actionCtx?.logger,
     crypto: globalThis.crypto,
   };

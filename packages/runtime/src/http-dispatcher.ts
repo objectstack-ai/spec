@@ -2981,7 +2981,40 @@ export class HttpDispatcher {
         const actionName = parts[1];
         const recordIdFromPath = parts[2];
 
-        const ql: any = await this.getObjectQLService(_context?.projectId);
+        // Resolve project scope so the right project kernel's ObjectQL is
+        // used. For bare URLs the URL prefix already stripped any `/projects/:id`
+        // segment, so fall back to the single-project default if unset.
+        if (!_context.projectId) {
+            const def = this.resolveDefaultProject();
+            if (def?.projectId) _context.projectId = def.projectId;
+        }
+
+        // Replicate the kernel swap that `dispatcher.handle()` does for
+        // data/meta/automation routes. Action routes are registered on the
+        // raw HTTP server and skip the `handle()` chain, so without this
+        // swap `getObjectQLService` would resolve the control-plane kernel
+        // (where the CRM bundle's actions are NOT registered).
+        let projectQl: any = null;
+        if (this.kernelManager && _context.projectId && _context.projectId !== 'platform') {
+            try {
+                const projectKernel: any = await this.kernelManager.getOrCreate(_context.projectId);
+                if (projectKernel) {
+                    this.kernel = projectKernel;
+                    // Resolve the project kernel's own ObjectQL DIRECTLY so we
+                    // bypass the control-plane's scoped factory (which would
+                    // hand back a different instance with no registered
+                    // actions/hooks for this project's bundle).
+                    if (typeof projectKernel.getServiceAsync === 'function') {
+                        projectQl = await projectKernel.getServiceAsync('objectql').catch(() => null);
+                    }
+                }
+            } catch {
+                // fall back to defaultKernel — getObjectQLService will report
+                // "Data engine not available" if no engine is reachable.
+            }
+        }
+
+        const ql: any = projectQl ?? await this.getObjectQLService(_context?.projectId);
         if (!ql || typeof ql.executeAction !== 'function') {
             return { handled: true, response: this.error('Data engine not available', 503) };
         }

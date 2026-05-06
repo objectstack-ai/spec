@@ -16,6 +16,7 @@
 import type { Hook, HookContext } from '@objectstack/spec/data';
 import type { HookHandler } from './engine.js';
 import { compileFormula, evaluateFormula } from './formula.js';
+import { noopHookMetricsRecorder, type HookMetricsRecorder, type HookMetricOutcome } from './hook-metrics.js';
 
 export interface WrapDeclarativeOptions {
   /** Logger for declarative-layer diagnostics (timeouts, retries, swallowed errors). */
@@ -25,6 +26,8 @@ export interface WrapDeclarativeOptions {
     warn: (msg: string, meta?: any) => void;
     error: (msg: string, meta?: any) => void;
   };
+  /** Optional per-execution metrics sink. Defaults to no-op. */
+  metrics?: HookMetricsRecorder;
 }
 
 const noopLogger = {
@@ -56,7 +59,15 @@ export function wrapDeclarativeHook(
   opts: WrapDeclarativeOptions = {},
 ): HookHandler {
   const logger = opts.logger ?? noopLogger;
+  const metrics = opts.metrics ?? noopHookMetricsRecorder;
   const isAfterEvent = meta.events?.some((e) => typeof e === 'string' && e.startsWith('after')) ?? false;
+  const hasBody = Boolean((meta as any).body);
+  const labelFor = (ctx: HookContext) => ({
+    hook: meta.name,
+    object: ctx.object ?? (typeof (meta as any).object === 'string' ? (meta as any).object : undefined),
+    event: ctx.event,
+    body: hasBody,
+  });
 
   // Pre-compile condition once so each invocation is cheap.
   let conditionFn: ((record: any) => boolean) | undefined;
@@ -128,6 +139,7 @@ export function wrapDeclarativeHook(
         if (retryBackoffMs > 0) {
           await new Promise((r) => setTimeout(r, retryBackoffMs * attempt));
         }
+        try { metrics.recordRetry(labelFor(ctx), attempt); } catch { /* noop */ }
         logger.warn('[hook] retrying after failure', {
           hook: meta.name,
           attempt,
@@ -166,35 +178,51 @@ export function wrapDeclarativeHook(
           object: ctx.object,
           event: ctx.event,
         });
+        try { metrics.recordSkip(labelFor(ctx), 'condition'); } catch { /* noop */ }
         return;
       }
     }
 
-    // Normalise ctx.input for declarative hooks. The engine wraps
-    // write payloads as `{ data, options, id? }`, but `HookContextSchema`
-    // and every example hook treats `input` as the flat record. We
-    // temporarily swap `ctx.input` for a Proxy that reads/writes through
-    // to `data` for ordinary fields and to the wrapper for `id`/`options`.
-    // We must mutate ctx in place (not shallow-clone) so that earlier
-    // hooks in the chain that write to `ctx.previous`/`ctx.result` are
-    // visible to this handler too.
     const restore = installFlatInput(ctx);
+    const startedAt = Date.now();
+
+    const recordOutcome = (err?: any) => {
+      const elapsed = Date.now() - startedAt;
+      let outcome: HookMetricOutcome = 'success';
+      if (err) {
+        const msg = String(err?.message ?? err ?? '');
+        if (/timed out after/i.test(msg)) outcome = 'timeout';
+        else if (/capability|cap-rejection|capability_rejected/i.test(msg)) outcome = 'capability_rejected';
+        else outcome = 'error';
+      }
+      try { metrics.recordExecution(labelFor(ctx), outcome, elapsed); } catch { /* noop */ }
+    };
 
     try {
       // 2. Fire-and-forget for declarative async after* hooks
       if (fireAndForget) {
+        try { metrics.recordSkip(labelFor(ctx), 'fire_and_forget'); } catch { /* noop */ }
         // For fire-and-forget we can't keep ctx.input swapped while the
         // engine moves on — copy what we need, restore, and run async.
-        void runWithErrorPolicy(ctx).catch((err) => {
-          logger.error('[hook] async handler error (fire-and-forget)', {
-            hook: meta.name,
-            error: (err as any)?.message,
+        void runWithErrorPolicy(ctx)
+          .then(() => recordOutcome())
+          .catch((err) => {
+            recordOutcome(err);
+            logger.error('[hook] async handler error (fire-and-forget)', {
+              hook: meta.name,
+              error: (err as any)?.message,
+            });
           });
-        });
         return;
       }
 
-      await runWithErrorPolicy(ctx);
+      try {
+        await runWithErrorPolicy(ctx);
+        recordOutcome();
+      } catch (err) {
+        recordOutcome(err);
+        throw err;
+      }
     } finally {
       restore();
     }

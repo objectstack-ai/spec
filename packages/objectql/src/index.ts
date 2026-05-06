@@ -23,6 +23,16 @@ export { bindHooksToEngine } from './hook-binder.js';
 export type { BindHooksOptions, BindHooksResult } from './hook-binder.js';
 export { wrapDeclarativeHook } from './hook-wrappers.js';
 export type { WrapDeclarativeOptions } from './hook-wrappers.js';
+export {
+    InMemoryHookMetricsRecorder,
+    noopHookMetricsRecorder,
+} from './hook-metrics.js';
+export type {
+    HookMetricsRecorder,
+    HookMetricLabel,
+    HookMetricOutcome,
+    HookSkipReason,
+} from './hook-metrics.js';
 
 // Export MetadataFacade
 export { MetadataFacade } from './metadata-facade.js';

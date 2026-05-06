@@ -706,7 +706,9 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
             const registerActionRoutes = (base: string) => {
                 server!.post(`${base}/actions/:object/:action`, async (req: any, res: any) => {
                     try {
-                        const result = await dispatcher.handleActions(`/${req.params.object}/${req.params.action}`, 'POST', req.body, { request: req });
+                        const ctx: any = { request: req };
+                        if (req.params?.projectId) ctx.projectId = req.params.projectId;
+                        const result = await dispatcher.handleActions(`/${req.params.object}/${req.params.action}`, 'POST', req.body, ctx);
                         sendResult(result, res);
                     } catch (err: any) {
                         errorResponse(err, res);
@@ -714,7 +716,9 @@ export function createDispatcherPlugin(config: DispatcherPluginConfig = {}): Plu
                 });
                 server!.post(`${base}/actions/:object/:action/:recordId`, async (req: any, res: any) => {
                     try {
-                        const result = await dispatcher.handleActions(`/${req.params.object}/${req.params.action}/${req.params.recordId}`, 'POST', req.body, { request: req });
+                        const ctx: any = { request: req };
+                        if (req.params?.projectId) ctx.projectId = req.params.projectId;
+                        const result = await dispatcher.handleActions(`/${req.params.object}/${req.params.action}/${req.params.recordId}`, 'POST', req.body, ctx);
                         sendResult(result, res);
                     } catch (err: any) {
                         errorResponse(err, res);
