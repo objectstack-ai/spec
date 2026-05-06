@@ -45,6 +45,72 @@ curl -X POST http://localhost:3000/api/v1/projects/proj_local/data/account \
 
 The bare `/api/v1/data/...` URL is routed to the default project (`proj_local`) by `createSingleProjectPlugin`. Tables are auto-created by the SQL driver on first access; the bundle's seed data (e.g. `Acme Corporation`) is upserted on boot.
 
+#### Hosting multiple compiled bundles
+
+Two bundles can share a single ObjectOS host. Each bundle gets its own
+project kernel; isolation is enforced at the kernel boundary (separate
+SQLite file per project, separate object registry, separate hooks).
+
+There are three binding mechanisms, evaluated in this order at request
+time (first hit wins):
+
+| Priority | Source | Scope | Best for |
+|:---|:---|:---|:---|
+| 1 | `OS_PROJECT_ARTIFACTS` env | per-project, ephemeral | Local dev, CI |
+| 2 | `sys_project.metadata.artifact_path` (DB row) | per-project, persisted | Production, control-plane managed |
+| 3 | `OS_ARTIFACT_PATH` env | shared default for unbound projects | Single-bundle hosts |
+
+**Mode 1 — env-driven (recommended for local multi-bundle):**
+
+```bash
+# Build both bundles once
+pnpm --filter @objectstack/app-crm build
+pnpm --filter @example/app-todo build
+
+cd apps/objectos
+OS_PROJECT_ARTIFACTS="proj_crm:$PWD/../../examples/app-crm/dist/objectstack.json,proj_todo:$PWD/../../examples/app-todo/dist/objectstack.json" \
+  PORT=3000 pnpm start
+
+# Address each project explicitly via scoped URL
+curl -X POST http://localhost:3000/api/v1/projects/proj_crm/data/account \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Acme","website":"https://acme.com","account_number":"abc-9"}'
+
+curl -X POST http://localhost:3000/api/v1/projects/proj_todo/data/todo_task \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"Buy Milk","priority":"high"}'
+
+# Or use the X-Project-Id header on a bare URL — equivalent
+curl -X POST http://localhost:3000/api/v1/data/account \
+  -H 'X-Project-Id: proj_crm' \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Beta","website":"https://beta.io"}'
+```
+
+**Mode 2 — DB-persisted (recommended for production):**
+
+```bash
+# Bind once via CLI; the path is stored in sys_project.metadata.artifact_path
+pnpm exec objectstack projects bind proj_crm \
+  $PWD/examples/app-crm/dist/objectstack.json
+
+# Subsequent boots load the binding from the control plane DB
+pnpm --filter @objectstack/objectos start
+```
+
+**Routing rules:**
+
+- A scoped URL `/api/v1/projects/<id>/...` always targets the named
+  project (assuming it's bound).
+- A bare URL `/api/v1/data/...` resolves a project via this chain:
+  hostname → `X-Project-Id` header → `defaultProjectId` (set by
+  `createSingleProjectPlugin` in single-project mode). Multi-bundle
+  hosts should not rely on the default fallback — always specify the
+  project via URL or header.
+- `OS_ARTIFACT_PATH` is **only** the default fallback for projects with
+  no other binding. In multi-bundle mode, leave it unset so each
+  project picks up its own bundle from `OS_PROJECT_ARTIFACTS` or DB.
+
 ---
 
 ### 2. Local + External Control Plane
@@ -100,7 +166,8 @@ Behavior:
 |:---|:---|:---|
 | `OS_CLOUD_URL` | `local` | `local` = standalone; URL = connect to that control plane |
 | `OS_CLOUD_API_KEY` | — | API key when connecting to a remote control plane |
-| `OS_ARTIFACT_PATH` | `dist/objectstack.json` | Path to the compiled app artifact |
+| `OS_ARTIFACT_PATH` | `dist/objectstack.json` | Path to the compiled app artifact (single-bundle default) |
+| `OS_PROJECT_ARTIFACTS` | — | Comma list of `<projectId>:<path>` pairs for multi-bundle hosting |
 | `OS_MODE` | — | `standalone` (default), `runtime`, `cloud`, or `preview` |
 
 ### Database (Local / Standalone mode)

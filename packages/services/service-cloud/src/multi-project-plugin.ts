@@ -1,7 +1,7 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { Plugin, PluginContext } from '@objectstack/core';
-import { SeedLoaderService } from '@objectstack/runtime';
+import { SeedLoaderService, collectBundleHooks, collectBundleFunctions } from '@objectstack/runtime';
 import { SeedLoaderConfigSchema } from '@objectstack/spec/data';
 import {
     DefaultEnvironmentDriverRegistry,
@@ -134,6 +134,31 @@ function createTemplateSeeder(
 
         if (items.length > 0 && typeof engine?.registerApp === 'function') {
             try { (engine as any).registerApp(bundle); } catch { /* best effort */ }
+        }
+
+        // Wire declarative hooks + their handler functions onto the engine.
+        // `engine.registerApp(bundle)` only registers schema + hook *names*;
+        // the actual handler-binding step (which AppPlugin.onInstall does in
+        // standalone mode) must be replicated here so hooks fire when records
+        // are mutated through this project kernel. Without this, runtime
+        // bundles loaded via `metadata.artifact_path` (cloud mode) silently
+        // skip beforeInsert/afterInsert/etc. handlers.
+        if (typeof engine?.bindHooks === 'function') {
+            const hooks = collectBundleHooks(bundle);
+            const functions = collectBundleFunctions(bundle);
+            if (hooks.length > 0 || Object.keys(functions).length > 0) {
+                try {
+                    engine.bindHooks(hooks, { engine, functions });
+                } catch (err: any) {
+                    // Non-fatal — schema is still registered; only handlers
+                    // are missing. Log loudly so the operator can investigate.
+                    // eslint-disable-next-line no-console
+                    console.error(
+                        `[MultiProjectPlugin] bindHooks failed for project ${projectId}:`,
+                        err?.message ?? err,
+                    );
+                }
+            }
         }
 
         if (items.length > 0 && typeof engine?.syncSchemas === 'function') {

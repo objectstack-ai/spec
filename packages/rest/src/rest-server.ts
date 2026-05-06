@@ -142,11 +142,20 @@ type NormalizedRestServerConfig = {
  */
 /**
  * Minimal env registry shape consumed by the REST server for hostname →
- * projectId resolution on unscoped routes. Mirrors the surface of
- * `EnvironmentDriverRegistry` defined in `@objectstack/service-cloud`.
+ * projectId resolution and `X-Project-Id` header validation on unscoped
+ * routes. Mirrors the surface of `EnvironmentDriverRegistry` defined in
+ * `@objectstack/service-cloud`.
  */
 export interface RestEnvRegistry {
     resolveByHostname(hostname: string): Promise<{ projectId: string } | null | undefined>;
+    /**
+     * Look up a project by id. Returns a truthy value (typically an
+     * `IDataDriver`) when the project exists and is bound, `null` when
+     * unknown. The REST server only uses the truthiness; it does not
+     * touch the driver itself (the actual driver is loaded later via
+     * `KernelManager.getOrCreate(projectId)`).
+     */
+    resolveById?(projectId: string): Promise<unknown | null>;
 }
 
 export class RestServer {
@@ -177,11 +186,15 @@ export class RestServer {
      * Resolve the protocol for a given request. When `projectId` is present
      * and a KernelManager is wired, fetch the per-project kernel's
      * `protocol` service so metadata / data / UI reads hit the project's
-     * own registry and datastore. When `projectId` is absent on an
-     * unscoped route but an `envRegistry` is wired (runtime mode),
-     * resolve the hostname to a projectId and load the matching kernel.
-     * Otherwise fall back to the control-kernel protocol captured at
-     * boot.
+     * own registry and datastore.
+     *
+     * When `projectId` is absent on an unscoped route and an `envRegistry`
+     * is wired (runtime mode), the resolution chain is:
+     *   1. Hostname → projectId (`envRegistry.resolveByHostname`)
+     *   2. `X-Project-Id` header → projectId (`envRegistry.resolveById`)
+     *   3. Default-project fallback (`defaultProjectIdProvider`, set by
+     *      `createSingleProjectPlugin`)
+     *   4. Control-plane protocol captured at boot.
      *
      * Special case: `projectId === 'platform'` is a reserved virtual id used
      * by Studio to address the control plane through the regular project
@@ -194,6 +207,8 @@ export class RestServer {
     private async resolveProtocol(projectId?: string, req?: any): Promise<ObjectStackProtocol> {
         if (projectId === 'platform') return this.protocol;
         if (!projectId && req && this.envRegistry && this.kernelManager) {
+            // 1. Hostname → projectId (multi-tenant deploys map a vanity
+            //    domain to a project row).
             const host = this.extractHostname(req);
             if (host) {
                 try {
@@ -202,14 +217,32 @@ export class RestServer {
                         projectId = result.projectId;
                     }
                 } catch {
-                    // fall through to default protocol
+                    // fall through to next strategy
+                }
+            }
+            // 2. `X-Project-Id` request header → projectId. Lets clients
+            //    explicitly target a project when the URL is unscoped and
+            //    no hostname binding exists (e.g. a single shared origin
+            //    serving multiple compiled bundles via OS_PROJECT_ARTIFACTS).
+            //    We validate the id through the env registry to avoid
+            //    routing to a non-existent kernel.
+            if (!projectId && typeof this.envRegistry.resolveById === 'function') {
+                const headerVal = this.extractProjectIdHeader(req);
+                if (headerVal) {
+                    try {
+                        const driver = await this.envRegistry.resolveById(headerVal);
+                        if (driver) projectId = headerVal;
+                    } catch {
+                        // fall through to default fallback
+                    }
                 }
             }
         }
-        // Single-project default fallback. Registered by
-        // `createSingleProjectPlugin()` so bare `/api/v1/data/...` URLs
-        // (no `/projects/<id>` prefix, no hostname mapping) resolve to
-        // the lone project's kernel rather than the control plane.
+        // 3. Single-project default fallback. Registered by
+        //    `createSingleProjectPlugin()` so bare `/api/v1/data/...` URLs
+        //    (no `/projects/<id>` prefix, no hostname mapping, no header)
+        //    resolve to the lone project's kernel rather than the control
+        //    plane.
         if (!projectId && this.defaultProjectIdProvider) {
             try {
                 const def = this.defaultProjectIdProvider();
@@ -239,6 +272,26 @@ export class RestServer {
         if (!host && typeof req?.hostname === 'string') host = req.hostname;
         if (!host) return undefined;
         return String(host).split(':')[0].toLowerCase();
+    }
+
+    /**
+     * Pull the `X-Project-Id` header from a Node- or Fetch-style request.
+     * Header names are case-insensitive; we probe both casings to cover
+     * adapters that don't normalize headers (e.g. raw Node http).
+     */
+    private extractProjectIdHeader(req: any): string | undefined {
+        const headers = req?.headers;
+        if (!headers) return undefined;
+        let val: unknown;
+        if (typeof headers.get === 'function') {
+            val = headers.get('x-project-id') ?? headers.get('X-Project-Id');
+        } else {
+            val = headers['x-project-id'] ?? headers['X-Project-Id'];
+        }
+        if (Array.isArray(val)) val = val[0];
+        if (typeof val !== 'string') return undefined;
+        const trimmed = val.trim();
+        return trimmed.length > 0 ? trimmed : undefined;
     }
     
     /**
