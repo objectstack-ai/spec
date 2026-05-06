@@ -1,20 +1,26 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
+import { useSession } from '@/hooks/useSession';
 
 export const Route = createFileRoute('/account/two-factor')({
   component: TwoFactorPage,
 });
 
 function TwoFactorPage() {
+  const { user, loading: sessionLoading, refresh } = useSession();
+  // `enabled` mirrors the user's `twoFactorEnabled` flag (added by the
+  // better-auth twoFactor plugin). It starts as `null` until the session
+  // resolves so we never flash a stale "Not enabled" state.
   const [enabled, setEnabled] = useState<boolean | null>(null);
   const [enablePassword, setEnablePassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,6 +29,11 @@ function TwoFactorPage() {
   const [verifying, setVerifying] = useState(false);
   const [disablePassword, setDisablePassword] = useState('');
   const [disabling, setDisabling] = useState(false);
+
+  useEffect(() => {
+    if (sessionLoading) return;
+    setEnabled(Boolean(user?.twoFactorEnabled));
+  }, [sessionLoading, user?.twoFactorEnabled]);
 
   const handleEnable = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +81,8 @@ function TwoFactorPage() {
       setEnabled(true);
       setTotpUri(null);
       setVerifyCode('');
+      // Pull the updated `twoFactorEnabled` flag back into the session.
+      await refresh();
     } catch (err) {
       toast({
         title: 'Invalid code',
@@ -98,6 +111,7 @@ function TwoFactorPage() {
       toast({ title: 'Two-factor authentication disabled' });
       setEnabled(false);
       setDisablePassword('');
+      await refresh();
     } catch (err) {
       toast({
         title: 'Failed to disable 2FA',
@@ -109,7 +123,27 @@ function TwoFactorPage() {
     }
   };
 
+  if (enabled === null) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Two-factor authentication</CardTitle>
+          <CardDescription>Loading status…</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <Skeleton className="h-4 w-48" />
+          <Skeleton className="h-9 w-full" />
+          <Skeleton className="h-9 w-32" />
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (totpUri) {
+    // Render the otpauth:// URI as a QR using a public renderer image.
+    // Using an <img> with the URL keeps the bundle small; the URI is
+    // included verbatim below for users who can't scan.
+    const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(totpUri)}`;
     return (
       <Card>
         <CardHeader>
@@ -119,10 +153,21 @@ function TwoFactorPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded bg-muted p-3 font-mono text-xs break-all">{totpUri}</div>
-          <p className="text-xs text-muted-foreground">
-            Copy this URI into your authenticator app if you cannot scan the QR code.
-          </p>
+          <div className="flex flex-col items-center gap-3">
+            <img
+              src={qrSrc}
+              alt="TOTP QR code"
+              width={200}
+              height={200}
+              className="rounded border bg-white p-2"
+            />
+            <div className="w-full rounded bg-muted p-3 font-mono text-xs break-all">
+              {totpUri}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Copy this URI into your authenticator app if you cannot scan the QR code.
+            </p>
+          </div>
           <Separator />
           <form onSubmit={handleVerifyTotp} className="space-y-3">
             <div className="space-y-1.5">
@@ -132,13 +177,14 @@ function TwoFactorPage() {
                 placeholder="000000"
                 maxLength={6}
                 inputMode="numeric"
+                autoComplete="one-time-code"
                 value={verifyCode}
                 onChange={(e) => setVerifyCode(e.target.value)}
                 required
               />
             </div>
             <div className="flex gap-2">
-              <Button type="submit" disabled={verifying}>
+              <Button type="submit" disabled={verifying || verifyCode.length < 6}>
                 {verifying ? 'Verifying…' : 'Verify and enable'}
               </Button>
               <Button type="button" variant="outline" onClick={() => setTotpUri(null)}>
