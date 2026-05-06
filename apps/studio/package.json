@@ -22,10 +22,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.74",
+    "@ai-sdk/anthropic": "^3.0.75",
     "@ai-sdk/gateway": "^3.0.110",
     "@ai-sdk/google": "^3.0.67",
-    "@ai-sdk/openai": "^3.0.60",
+    "@ai-sdk/openai": "^3.0.61",
     "@ai-sdk/react": "^3.0.177",
     "@hono/node-server": "^1.19.14",
     "@objectstack/client": "workspace:*",
@@ -62,7 +62,7 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-toast": "^1.2.15",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "@tanstack/react-router": "^1.169.1",
+    "@tanstack/react-router": "^1.169.2",
     "ai": "^6.0.175",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
