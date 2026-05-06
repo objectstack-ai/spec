@@ -315,7 +315,7 @@ export const LeadViews = defineView({
       },
       columns: ['first_name', 'last_name', 'company', 'email', 'status', 'rating'],
       filter: [
-        ['owner', '=', '{current_user_id}']
+        { field: 'owner', operator: 'equals', value: '{current_user_id}' },
       ],
       sort: [
         { field: 'rating', order: 'desc' },
@@ -336,8 +336,8 @@ export const LeadViews = defineView({
       },
       columns: ['first_name', 'last_name', 'company', 'email', 'status', 'rating', 'lead_source'],
       filter: [
-        ['rating', '>=', 4],
-        ['status', 'in', ['new', 'contacted']]
+        { field: 'rating', operator: 'greater_than_or_equal', value: 4 },
+        { field: 'status', operator: 'in', value: ['new', 'contacted'] },
       ],
       rowColor: {
         field: 'rating',
