@@ -1790,14 +1790,18 @@ export class HttpDispatcher {
                                 ? adapterErr
                                 : new Error(String(adapterErr));
                         }
-                        const finishedAt = new Date().toISOString();
+                        // Persist `database_url` first (still `provisioning`) so
+                        // kernel-factory / template-seeder can resolve the
+                        // physical DB while seeding runs. Status flips to
+                        // `active` only AFTER seeding completes — clients
+                        // polling `waitForActive` then know the project's
+                        // schema and seed data are queryable.
+                        const seedStartedAt = new Date().toISOString();
                         await ql.update(
                             ENV,
                             {
-                                status: 'active',
                                 database_url: databaseUrl,
-                                provisioned_at: finishedAt,
-                                updated_at: finishedAt,
+                                updated_at: seedStartedAt,
                             },
                             { where: { id: projectId } } as any,
                         );
@@ -1808,8 +1812,8 @@ export class HttpDispatcher {
                             encryption_key_id: 'noop',
                             authorization: 'full_access',
                             status: 'active',
-                            created_at: finishedAt,
-                            updated_at: finishedAt,
+                            created_at: seedStartedAt,
+                            updated_at: seedStartedAt,
                         });
 
                         // Seed template metadata into the newly-provisioned project.
@@ -1899,6 +1903,21 @@ export class HttpDispatcher {
                                 }
                             }
                         }
+
+                        // All seeding + binding completed (or recorded as
+                        // non-fatal errors). Flip the project to `active` so
+                        // request routing + waitForActive observers can see
+                        // the project as ready.
+                        const finishedAt = new Date().toISOString();
+                        await ql.update(
+                            ENV,
+                            {
+                                status: 'active',
+                                provisioned_at: finishedAt,
+                                updated_at: finishedAt,
+                            },
+                            { where: { id: projectId } } as any,
+                        );
                     } catch (err) {
                         const message = err instanceof Error ? err.message : String(err);
                         const failedAt = new Date().toISOString();

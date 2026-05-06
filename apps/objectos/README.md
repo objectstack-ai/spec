@@ -263,3 +263,48 @@ curl -X PATCH http://localhost:3000/api/v1/data/todo_task/<id> \
 # Delete
 curl -X DELETE http://localhost:3000/api/v1/data/todo_task/<id>
 ```
+
+---
+
+## Production-shape verification (cloud + hostname routing)
+
+The full production deployment shape — `apps/cloud` as the control plane,
+`apps/objectos` as a runtime node, vanity hostnames routed by
+`EnvironmentRegistry.resolveByHostname` to per-project kernels — is
+covered end-to-end by an in-process test that exercises the same code
+paths a 2-process deployment would (the only difference is HTTP vs
+in-memory transport between the registry and the control-plane SQL
+driver).
+
+```bash
+# from repo root
+pnpm --filter @objectstack/cloud build
+pnpm --filter @objectstack/cloud test:production-flow
+```
+
+What it verifies (6 steps, all in one process):
+
+1. Boot `apps/cloud` in `OS_MODE=cloud` (control plane + runtime node).
+2. Seed an organization via the control-plane `objectql` engine.
+3. `GET /api/v1/cloud/templates` returns `crm` in the catalog.
+4. `POST /api/v1/cloud/projects` with `template_id=crm` + `hostname=<vanity>`
+   provisions a project. The provisioning workflow:
+   1. Create the project SQLite file (or Turso DB).
+   2. Persist `database_url` so kernel-factory can resolve the DB.
+   3. Run the template seeder — registers metadata, binds hooks,
+      `initObjects` to create physical tables, loads seed data.
+   4. Flip `status` to `active` (so `waitForActive` clients only see
+      the project as ready *after* schema + seed data are queryable).
+5. `POST /api/v1/data/account` with `Host: <vanity>` and `website: bogus`
+   → routed to the project kernel by hostname → CRM hook returns
+   `400 Website must start with http:// or https://`.
+6. `POST /api/v1/data/account` with a valid payload → 2xx, and the
+   `account_number` is uppercased by the `account_protection` hook;
+   subsequent `GET /api/v1/data/account` returns the row through the
+   same hostname-routed kernel.
+
+For a true 2-process verification, run `apps/cloud` and `apps/objectos`
+on separate ports with `OS_CLOUD_URL=http://<cloud-host>:<port>` on the
+runtime node. Browser users add `127.0.0.1 crm.localhost` to `/etc/hosts`
+and visit `http://crm.localhost:<runtime-port>/`. The framework code
+paths exercised are identical to the in-process test above.

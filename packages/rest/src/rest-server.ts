@@ -207,15 +207,11 @@ export class RestServer {
     private async resolveProtocol(projectId?: string, req?: any): Promise<ObjectStackProtocol> {
         if (projectId === 'platform') return this.protocol;
         if (!projectId && req && this.envRegistry && this.kernelManager) {
-            // 1. Hostname → projectId (multi-tenant deploys map a vanity
-            //    domain to a project row).
             const host = this.extractHostname(req);
             if (host) {
                 try {
                     const result = await this.envRegistry.resolveByHostname(host);
-                    if (result?.projectId) {
-                        projectId = result.projectId;
-                    }
+                    if (result?.projectId) projectId = result.projectId;
                 } catch {
                     // fall through to next strategy
                 }
@@ -270,6 +266,15 @@ export class RestServer {
             }
         }
         if (!host && typeof req?.hostname === 'string') host = req.hostname;
+        if (!host && typeof req?.url === 'string') {
+            // Fetch-style requests expose the hostname via `req.url` even
+            // when the (forbidden) `Host` header has been stripped by the
+            // runtime. This branch keeps hostname-routing working when
+            // tests build a `Request` object through `app.fetch(...)`.
+            try {
+                host = new (globalThis as any).URL(req.url).host;
+            } catch { /* ignore */ }
+        }
         if (!host) return undefined;
         return String(host).split(':')[0].toLowerCase();
     }

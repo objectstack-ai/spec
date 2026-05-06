@@ -161,8 +161,42 @@ function createTemplateSeeder(
             }
         }
 
-        if (items.length > 0 && typeof engine?.syncSchemas === 'function') {
-            try { await engine.syncSchemas(); } catch { /* best effort */ }
+        // Ensure physical tables exist for the bundle's objects. We bypass
+        // engine.syncSchemas() (which iterates *all* registered objects
+        // across the kernel — including platform objects whose drivers may
+        // not be wired) and instead drive `initObjects` per-driver for the
+        // bundle's own object set. This is the same code path that
+        // AppPlugin.onInstall takes in standalone mode.
+        const bundleObjectsRaw: any = (bundle as any)?.objects;
+        const bundleObjects: any[] = Array.isArray(bundleObjectsRaw)
+            ? bundleObjectsRaw
+            : (bundleObjectsRaw && typeof bundleObjectsRaw === 'object' ? Object.values(bundleObjectsRaw) : []);
+        if (bundleObjects.length > 0) {
+            const driverGroups = new Map<any, any[]>();
+            for (const obj of bundleObjects) {
+                let driver: any;
+                try { driver = (engine as any).getDriverForObject?.(obj.name) ?? (engine as any).defaultDriver; }
+                catch { driver = (engine as any).defaultDriver; }
+                if (!driver || typeof driver.initObjects !== 'function') continue;
+                if (!driverGroups.has(driver)) driverGroups.set(driver, []);
+                driverGroups.get(driver)!.push(obj);
+            }
+            for (const [driver, objs] of driverGroups) {
+                try {
+                    await driver.initObjects(objs);
+                } catch (err: any) {
+                    // Non-fatal — schema is registered but the physical
+                    // table couldn't be created. Surface so the operator
+                    // can investigate (mismatched datasource binding,
+                    // permission errors, etc.). Subsequent inserts will
+                    // fail with `no such table` from the SQL driver.
+                    // eslint-disable-next-line no-console
+                    console.error(
+                        `[MultiProjectPlugin] initObjects failed for project ${projectId}:`,
+                        err?.message ?? err,
+                    );
+                }
+            }
         }
 
         if (dataSets.length > 0) {
