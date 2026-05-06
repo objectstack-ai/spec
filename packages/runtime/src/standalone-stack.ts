@@ -95,6 +95,37 @@ export async function createStandaloneStack(config?: StandaloneStackConfig): Pro
         console.warn(`[StandaloneStack] artifact load FAILED: path=${artifactPath} error=${err?.message}`);
     }
 
+    // Load the companion runtime ESM bundle (declarative handler code)
+    // produced by `objectstack build`. Without this step every Hook would
+    // boot with `handler === undefined` and silently no-op — see
+    // packages/cli/src/utils/build-runtime.ts for the build side.
+    if (artifactBundle && typeof artifactBundle.runtimeModule === 'string' && artifactBundle.runtimeModule.length > 0) {
+        const ref = artifactBundle.runtimeModule as string;
+        const moduleAbsPath = ref.startsWith('/')
+            ? ref
+            : resolvePath(artifactPath, '..', ref);
+        try {
+            const moduleUrl = `file://${moduleAbsPath}`;
+            const mod: any = await import(moduleUrl);
+            const fns = (mod && (mod.functions ?? mod.default?.functions)) ?? null;
+            if (fns && typeof fns === 'object') {
+                // Merge with any string-keyed functions already on the bundle
+                // (legacy / Studio-injected handlers) without clobbering them.
+                const existing = (artifactBundle.functions && typeof artifactBundle.functions === 'object' && !Array.isArray(artifactBundle.functions))
+                    ? artifactBundle.functions as Record<string, unknown>
+                    : {};
+                artifactBundle.functions = { ...existing, ...fns };
+                console.warn(
+                    `[StandaloneStack] runtime module loaded: ${ref} (${Object.keys(fns).length} handler${Object.keys(fns).length === 1 ? '' : 's'})`,
+                );
+            } else {
+                console.warn(`[StandaloneStack] runtime module ${ref} exported no \`functions\` map`);
+            }
+        } catch (err: any) {
+            console.warn(`[StandaloneStack] runtime module load FAILED: path=${moduleAbsPath} error=${err?.message}`);
+        }
+    }
+
     const plugins: any[] = [
         driverPlugin,
         new MetadataPlugin({

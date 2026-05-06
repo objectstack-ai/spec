@@ -1833,6 +1833,30 @@ export class HttpDispatcher {
                                     : path.resolve(root, artifactPathRaw);
                                 const text = await fs.readFile(resolved, 'utf8');
                                 const bundle = JSON.parse(text);
+                                // If the artifact references a sibling
+                                // runtime ESM (declarative handler bundle
+                                // produced by `objectstack build`), load it
+                                // and merge `module.functions` into the
+                                // bundle so seedBundle can wire them onto
+                                // the engine via bindHooks.
+                                if (typeof bundle?.runtimeModule === 'string' && bundle.runtimeModule.length > 0) {
+                                    try {
+                                        const runtimeAbs = path.isAbsolute(bundle.runtimeModule)
+                                            ? bundle.runtimeModule
+                                            : path.resolve(resolved, '..', bundle.runtimeModule);
+                                        const mod: any = await import(`file://${runtimeAbs}`);
+                                        const fns = (mod && (mod.functions ?? mod.default?.functions)) ?? null;
+                                        if (fns && typeof fns === 'object') {
+                                            const existing = (bundle.functions && typeof bundle.functions === 'object' && !Array.isArray(bundle.functions))
+                                                ? bundle.functions
+                                                : {};
+                                            bundle.functions = { ...existing, ...fns };
+                                        }
+                                    } catch (rtErr) {
+                                        // Surface as part of bindMessage so it ends up in artifactBindError.
+                                        throw new Error(`runtime module load failed: ${rtErr instanceof Error ? rtErr.message : String(rtErr)}`);
+                                    }
+                                }
                                 const seeder: any = await this.resolveService('template-seeder');
                                 if (seeder?.seedBundle) {
                                     await seeder.seedBundle({ projectId, bundle });

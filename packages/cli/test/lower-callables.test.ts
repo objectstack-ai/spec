@@ -1,0 +1,83 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+import { describe, it, expect } from 'vitest';
+import { lowerCallables } from '../src/utils/lower-callables.js';
+
+describe('lowerCallables', () => {
+  it('replaces Hook.handler functions with their hook name and registers the original', () => {
+    const fnA = async () => 'a';
+    const fnB = async () => 'b';
+    const input = {
+      hooks: [
+        { name: 'account_protection', handler: fnA, events: ['beforeInsert'], object: 'account' },
+        { name: 'lead_qualification', handler: fnB, events: ['afterInsert'], object: 'lead' },
+      ],
+    };
+
+    const out = lowerCallables(input);
+
+    expect(out.count).toBe(2);
+    expect(out.functions.account_protection).toBe(fnA);
+    expect(out.functions.lead_qualification).toBe(fnB);
+    expect((out.lowered.hooks as any[])[0].handler).toBe('account_protection');
+    expect((out.lowered.hooks as any[])[1].handler).toBe('lead_qualification');
+    // Original input is not mutated.
+    expect(input.hooks[0].handler).toBe(fnA);
+  });
+
+  it('leaves string handlers untouched', () => {
+    const input = {
+      hooks: [
+        { name: 'preserve_me', handler: 'external_fn', events: ['beforeInsert'], object: 'x' },
+      ],
+    };
+    const out = lowerCallables(input);
+    expect(out.count).toBe(0);
+    expect(Object.keys(out.functions)).toHaveLength(0);
+    expect((out.lowered.hooks as any[])[0].handler).toBe('external_fn');
+  });
+
+  it('lowers top-level functions map and array shapes', () => {
+    const m = () => 1;
+    const a = () => 2;
+    const out = lowerCallables({
+      functions: { my_map_fn: m },
+      hooks: [],
+    });
+    expect(out.count).toBe(1);
+    expect(out.functions.my_map_fn).toBe(m);
+    expect((out.lowered.functions as Record<string, string>).my_map_fn).toBe('my_map_fn');
+
+    const out2 = lowerCallables({
+      functions: [{ name: 'my_arr_fn', handler: a }],
+    });
+    expect(out2.count).toBe(1);
+    expect(out2.functions.my_arr_fn).toBe(a);
+    expect((out2.lowered.functions as any[])[0].handler).toBe('my_arr_fn');
+  });
+
+  it('disambiguates colliding names with a numeric suffix', () => {
+    const f1 = () => 1;
+    const f2 = () => 2;
+    const out = lowerCallables({
+      hooks: [
+        { name: 'dup', handler: f1, events: ['beforeInsert'], object: 'x' },
+      ],
+      functions: { dup: f2 },
+    });
+    expect(out.count).toBe(2);
+    expect(out.functions.dup).toBe(f1);
+    expect(out.functions.dup__2).toBe(f2);
+  });
+
+  it('produces a JSON-serializable lowered shape', () => {
+    const out = lowerCallables({
+      hooks: [
+        { name: 'h', handler: () => 1, events: ['beforeInsert'], object: 'x' },
+      ],
+    });
+    // Round-trip through JSON.stringify must not throw or drop fields.
+    const json = JSON.stringify(out.lowered);
+    expect(JSON.parse(json).hooks[0].handler).toBe('h');
+  });
+});
