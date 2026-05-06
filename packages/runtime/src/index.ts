@@ -26,6 +26,10 @@ export { HttpDispatcher } from './http-dispatcher.js';
 export type { HttpProtocolContext, HttpDispatcherResult } from './http-dispatcher.js';
 export { MiddlewareManager } from './middleware.js';
 
+// Export Artifact Loader
+export { loadArtifactBundle, mergeRuntimeModule } from './load-artifact-bundle.js';
+export type { LoadArtifactBundleOptions } from './load-artifact-bundle.js';
+
 // Re-export from @objectstack/rest
 export {
     RestServer,

@@ -30,7 +30,7 @@
 
 import { readFile } from 'node:fs/promises';
 import { resolve as resolvePath, isAbsolute } from 'node:path';
-import { loadArtifactBundle } from './load-artifact-bundle.js';
+import { loadArtifactBundle } from '@objectstack/runtime';
 import type { AppBundleResolver } from './project-kernel-factory.js';
 
 const ENV_MAP_VAR = 'OS_PROJECT_ARTIFACTS';

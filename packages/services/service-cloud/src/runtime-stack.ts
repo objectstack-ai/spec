@@ -139,8 +139,7 @@ export async function createRuntimeStack(config?: RuntimeStackConfig): Promise<R
         basePlugins: async ({ projectId: pid }: { projectId: string }) => {
             const { ObjectQLPlugin } = await import('@objectstack/objectql');
             const { MetadataPlugin } = await import('@objectstack/metadata');
-            const { AppPlugin } = await import('@objectstack/runtime');
-            const { loadArtifactBundle } = await import('./load-artifact-bundle.js');
+            const { AppPlugin, loadArtifactBundle } = await import('@objectstack/runtime');
 
             const artifactBundle = await loadArtifactBundle(artifactPath, {
                 tag: '[runtime-stack:basePlugins]',
