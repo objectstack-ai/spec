@@ -10,6 +10,7 @@ function mockJson(body: any): Response {
 
 describe('ArtifactEnvironmentRegistry', () => {
     it('resolves a hostname end-to-end through the artifact API', async () => {
+        // Driver dynamic-import warmup can exceed 5s on cold CI runners.
         let fetchCalls: string[] = [];
         const fakeFetch = async (url: string) => {
             fetchCalls.push(url);
@@ -56,7 +57,7 @@ describe('ArtifactEnvironmentRegistry', () => {
         const peek = registry.peekById('proj_demo');
         expect(peek?.project.organization_id).toBe('org_demo');
         expect(peek?.project.database_driver).toBe('memory');
-    });
+    }, 30_000);
 
     it('returns null when hostname cannot be resolved', async () => {
         const fakeFetch = async () => ({ ok: false, status: 404, json: async () => null }) as unknown as Response;
@@ -98,5 +99,5 @@ describe('ArtifactEnvironmentRegistry', () => {
         const peek = registry.peekById('proj_b');
         expect(peek?.project.database_driver).toBe('memory');
         expect(peek?.project.database_url).toBe('memory://fallback');
-    });
+    }, 30_000);
 });
