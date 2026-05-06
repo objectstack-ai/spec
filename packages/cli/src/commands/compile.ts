@@ -95,7 +95,9 @@ export default class Compile extends Command {
 
       // 4b. Bundle handler functions into `<artifactDir>/objectstack-runtime.{hash}.mjs`
       //     and stamp the relative path into the JSON so the runtime can
-      //     dynamic-import it at boot.
+      //     dynamic-import it at boot. `runtimeModule` is part of the
+      //     declared protocol (see ObjectStackDefinitionSchema) so a
+      //     follow-up safeParse of the artifact preserves it.
       let runtimeBundle: { outputFileName: string; hash: string; size: number } | null = null;
       if (lowering.count > 0) {
         if (!flags.json) printStep(`Bundling ${lowering.count} handler${lowering.count === 1 ? '' : 's'}...`);
