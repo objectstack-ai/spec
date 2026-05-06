@@ -38,6 +38,13 @@ export const esES: TranslationData = {
         is_active: { label: 'Activo' },
         last_activity_date: { label: 'Fecha de Última Actividad' },
       },
+      _views: {
+        all_accounts: { label: 'Todas las Cuentas', description: 'Lista maestra de cuentas con ingresos e industria' },
+        account_gallery: { label: 'Galería de Cuentas', description: 'Vista de tarjetas con colores de marca' },
+        account_map: { label: 'Mapa de Cuentas', description: 'Distribución geográfica de cuentas' },
+        enterprise_accounts: { label: 'Cuentas Empresariales', description: 'Cuentas con mayores ingresos anuales' },
+        my_accounts: { label: 'Mis Cuentas', description: 'Cuentas asignadas al usuario actual' },
+      },
     },
 
     contact: {
@@ -64,6 +71,21 @@ export const esES: TranslationData = {
         owner: { label: 'Propietario de Contacto' },
         description: { label: 'Descripción' },
         is_primary: { label: 'Contacto Principal' },
+      },
+      _views: {
+        all_contacts: { label: 'Todos los Contactos' },
+        contact_directory: { label: 'Directorio de Contactos' },
+        primary_contacts: { label: 'Contactos Principales' },
+      },
+      _actions: {
+        mark_primary: {
+          label: 'Marcar como Principal',
+          confirmText: '¿Establecer este contacto como contacto principal de la cuenta?',
+          successMessage: '¡Establecido como contacto principal!',
+        },
+        send_email: {
+          label: 'Enviar Correo',
+        },
       },
     },
 
@@ -94,6 +116,25 @@ export const esES: TranslationData = {
         owner: { label: 'Propietario' },
         is_converted: { label: 'Convertido' },
         description: { label: 'Descripción' },
+      },
+      _views: {
+        all_leads: { label: 'Todos los Prospectos' },
+        kanban_by_status: { label: 'Pipeline de Prospectos' },
+        calendar_by_created: { label: 'Calendario de Prospectos' },
+        gallery_view: { label: 'Galería de Prospectos' },
+        my_leads: { label: 'Mis Prospectos' },
+        high_priority: { label: 'Alta Prioridad' },
+      },
+      _actions: {
+        convert_lead: {
+          label: 'Convertir Prospecto',
+          confirmText: '¿Está seguro de querer convertir este prospecto?',
+          successMessage: '¡Prospecto convertido con éxito!',
+        },
+        create_campaign: {
+          label: 'Agregar a Campaña',
+          successMessage: '¡Prospecto agregado a la campaña!',
+        },
       },
     },
 
@@ -136,6 +177,114 @@ export const esES: TranslationData = {
         description: { label: 'Descripción' },
         next_step: { label: 'Próximo Paso' },
       },
+      _views: {
+        all_opportunities: { label: 'Todas las Oportunidades' },
+        pipeline_kanban: { label: 'Pipeline de Ventas' },
+        close_date_calendar: { label: 'Calendario de Pronóstico' },
+        deal_timeline: { label: 'Línea de Tiempo' },
+        deal_gallery: { label: 'Galería de Negocios' },
+        my_open_deals: { label: 'Mis Negocios Abiertos' },
+      },
+      _actions: {
+        clone_opportunity: {
+          label: 'Clonar Oportunidad',
+          successMessage: '¡Oportunidad clonada con éxito!',
+        },
+        mass_update_stage: {
+          label: 'Actualizar Etapa',
+          successMessage: '¡Etapa de oportunidad actualizada!',
+        },
+      },
+    },
+
+    case: {
+      label: 'Caso',
+      pluralLabel: 'Casos',
+      _views: {
+        all_cases: { label: 'Todos los Casos' },
+        case_workflow: { label: 'Flujo de Servicio' },
+        sla_calendar: { label: 'Calendario SLA' },
+        case_timeline: { label: 'Línea de Tiempo de Casos' },
+        escalated_cases: { label: 'Casos Escalados' },
+      },
+      _actions: {
+        escalate_case: {
+          label: 'Escalar Caso',
+          confirmText: 'Esto enviará el caso al equipo de escalación. ¿Continuar?',
+          successMessage: '¡Caso escalado con éxito!',
+        },
+        close_case: {
+          label: 'Cerrar Caso',
+          confirmText: '¿Está seguro de querer cerrar este caso?',
+          successMessage: '¡Caso cerrado con éxito!',
+        },
+      },
+    },
+
+    contract: {
+      label: 'Contrato',
+      pluralLabel: 'Contratos',
+      _views: {
+        all_contracts: { label: 'Todos los Contratos' },
+        renewal_calendar: { label: 'Calendario de Renovación' },
+        contract_gantt: { label: 'Plazos del Contrato' },
+        contract_timeline: { label: 'Línea de Tiempo' },
+      },
+    },
+
+    product: {
+      label: 'Producto',
+      pluralLabel: 'Productos',
+      _views: {
+        all_products: { label: 'Todos los Productos' },
+        product_catalog: { label: 'Catálogo de Productos' },
+        low_stock: { label: 'Stock Bajo' },
+      },
+    },
+
+    quote: {
+      label: 'Cotización',
+      pluralLabel: 'Cotizaciones',
+      _views: {
+        all_quotes: { label: 'Todas las Cotizaciones' },
+        quote_pipeline: { label: 'Pipeline de Cotizaciones' },
+        quote_calendar: { label: 'Calendario de Cotizaciones' },
+      },
+    },
+
+    task: {
+      label: 'Tarea',
+      pluralLabel: 'Tareas',
+      _views: {
+        all_tasks: { label: 'Todas las Tareas' },
+        task_board: { label: 'Tablero de Tareas' },
+        task_calendar: { label: 'Calendario de Tareas' },
+        task_gantt: { label: 'Plan de Ejecución' },
+        task_timeline: { label: 'Línea de Tiempo' },
+        my_open_tasks: { label: 'Mis Tareas Abiertas' },
+      },
+    },
+
+    campaign: {
+      label: 'Campaña',
+      pluralLabel: 'Campañas',
+      _views: {
+        all_campaigns: { label: 'Todas las Campañas' },
+        campaign_gantt: { label: 'Programación de Campañas' },
+        campaign_calendar: { label: 'Calendario de Campañas' },
+        campaign_timeline: { label: 'Línea de Tiempo de Marketing' },
+      },
+    },
+  },
+
+  globalActions: {
+    log_call: {
+      label: 'Registrar Llamada',
+      successMessage: '¡Llamada registrada con éxito!',
+    },
+    export_csv: {
+      label: 'Exportar CSV',
+      successMessage: '¡Exportación completada!',
     },
   },
 

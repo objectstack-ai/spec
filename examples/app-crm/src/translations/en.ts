@@ -39,6 +39,13 @@ export const en: TranslationData = {
         is_active: { label: 'Active' },
         last_activity_date: { label: 'Last Activity Date' },
       },
+      _views: {
+        all_accounts: { label: 'All Accounts', description: 'Primary account list with revenue & industry summaries' },
+        account_gallery: { label: 'Account Cards', description: 'Branded account cards with brand-color highlights' },
+        account_map: { label: 'Accounts by Location', description: 'Geospatial distribution of accounts' },
+        enterprise_accounts: { label: 'Enterprise Accounts', description: 'Accounts with the highest annual revenue' },
+        my_accounts: { label: 'My Accounts', description: 'Accounts owned by the current user' },
+      },
     },
 
     contact: {
@@ -65,6 +72,21 @@ export const en: TranslationData = {
         owner: { label: 'Contact Owner' },
         description: { label: 'Description' },
         is_primary: { label: 'Primary Contact' },
+      },
+      _views: {
+        all_contacts: { label: 'All Contacts' },
+        contact_directory: { label: 'People Directory' },
+        primary_contacts: { label: 'Primary Contacts' },
+      },
+      _actions: {
+        mark_primary: {
+          label: 'Mark as Primary Contact',
+          confirmText: 'Mark this contact as the primary contact for the account?',
+          successMessage: 'Contact marked as primary!',
+        },
+        send_email: {
+          label: 'Send Email',
+        },
       },
     },
 
@@ -95,6 +117,25 @@ export const en: TranslationData = {
         owner: { label: 'Lead Owner' },
         is_converted: { label: 'Converted' },
         description: { label: 'Description' },
+      },
+      _views: {
+        all_leads: { label: 'All Leads' },
+        kanban_by_status: { label: 'Lead Pipeline' },
+        calendar_by_created: { label: 'Lead Calendar' },
+        gallery_view: { label: 'Lead Cards' },
+        my_leads: { label: 'My Leads' },
+        high_priority: { label: 'High Priority' },
+      },
+      _actions: {
+        convert_lead: {
+          label: 'Convert Lead',
+          confirmText: 'Are you sure you want to convert this lead?',
+          successMessage: 'Lead converted successfully!',
+        },
+        create_campaign: {
+          label: 'Add to Campaign',
+          successMessage: 'Leads added to campaign!',
+        },
       },
     },
 
@@ -137,6 +178,114 @@ export const en: TranslationData = {
         description: { label: 'Description' },
         next_step: { label: 'Next Step' },
       },
+      _views: {
+        all_opportunities: { label: 'All Opportunities' },
+        pipeline_kanban: { label: 'Sales Pipeline' },
+        close_date_calendar: { label: 'Forecast Calendar' },
+        deal_timeline: { label: 'Deal Timeline' },
+        deal_gallery: { label: 'Deal Cards' },
+        my_open_deals: { label: 'My Open Deals' },
+      },
+      _actions: {
+        clone_opportunity: {
+          label: 'Clone Opportunity',
+          successMessage: 'Opportunity cloned successfully!',
+        },
+        mass_update_stage: {
+          label: 'Update Stage',
+          successMessage: 'Opportunities updated successfully!',
+        },
+      },
+    },
+
+    case: {
+      label: 'Case',
+      pluralLabel: 'Cases',
+      _views: {
+        all_cases: { label: 'All Cases' },
+        case_workflow: { label: 'Service Workflow' },
+        sla_calendar: { label: 'SLA Calendar' },
+        case_timeline: { label: 'Case Timeline' },
+        escalated_cases: { label: 'Escalated Cases' },
+      },
+      _actions: {
+        escalate_case: {
+          label: 'Escalate Case',
+          confirmText: 'This will escalate the case to the escalation team. Continue?',
+          successMessage: 'Case escalated successfully!',
+        },
+        close_case: {
+          label: 'Close Case',
+          confirmText: 'Are you sure you want to close this case?',
+          successMessage: 'Case closed successfully!',
+        },
+      },
+    },
+
+    contract: {
+      label: 'Contract',
+      pluralLabel: 'Contracts',
+      _views: {
+        all_contracts: { label: 'All Contracts' },
+        renewal_calendar: { label: 'Renewal Calendar' },
+        contract_gantt: { label: 'Contract Terms' },
+        contract_timeline: { label: 'Contract Timeline' },
+      },
+    },
+
+    product: {
+      label: 'Product',
+      pluralLabel: 'Products',
+      _views: {
+        all_products: { label: 'All Products' },
+        product_catalog: { label: 'Product Catalog' },
+        low_stock: { label: 'Low Stock' },
+      },
+    },
+
+    quote: {
+      label: 'Quote',
+      pluralLabel: 'Quotes',
+      _views: {
+        all_quotes: { label: 'All Quotes' },
+        quote_pipeline: { label: 'Quote Pipeline' },
+        quote_calendar: { label: 'Quote Calendar' },
+      },
+    },
+
+    task: {
+      label: 'Task',
+      pluralLabel: 'Tasks',
+      _views: {
+        all_tasks: { label: 'All Tasks' },
+        task_board: { label: 'Task Board' },
+        task_calendar: { label: 'Task Schedule' },
+        task_gantt: { label: 'Execution Plan' },
+        task_timeline: { label: 'Worklog Timeline' },
+        my_open_tasks: { label: 'My Open Tasks' },
+      },
+    },
+
+    campaign: {
+      label: 'Campaign',
+      pluralLabel: 'Campaigns',
+      _views: {
+        all_campaigns: { label: 'All Campaigns' },
+        campaign_gantt: { label: 'Campaign Schedule' },
+        campaign_calendar: { label: 'Launch Calendar' },
+        campaign_timeline: { label: 'Marketing Timeline' },
+      },
+    },
+  },
+
+  globalActions: {
+    log_call: {
+      label: 'Log a Call',
+      successMessage: 'Call logged successfully!',
+    },
+    export_csv: {
+      label: 'Export to CSV',
+      successMessage: 'Export completed!',
     },
   },
 

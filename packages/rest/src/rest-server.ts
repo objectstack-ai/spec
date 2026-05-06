@@ -251,6 +251,106 @@ export class RestServer {
     }
 
     /**
+     * Resolve the i18n service for the request's project (or control plane
+     * when no project id is in scope). Returns `undefined` when no service is
+     * registered, so callers can short-circuit and skip translation rather
+     * than failing.
+     *
+     * Mirrors `resolveProtocol`'s lookup chain: explicit `projectId` from the
+     * route → kernel-managed `i18n` service. Control-plane / unscoped
+     * requests intentionally return `undefined` because the platform kernel
+     * does not own per-app translation bundles.
+     */
+    private async resolveI18nService(projectId?: string): Promise<any | undefined> {
+        if (!projectId || projectId === 'platform' || !this.kernelManager) return undefined;
+        try {
+            const kernel = await this.kernelManager.getOrCreate(projectId);
+            return await kernel.getServiceAsync<any>('i18n');
+        } catch {
+            return undefined;
+        }
+    }
+
+    /**
+     * Build a `TranslationBundle` (`Record<locale, TranslationData>`) from an
+     * `II18nService` instance. Returns `undefined` when no locales are
+     * registered so callers can avoid translation work.
+     */
+    private buildTranslationBundle(i18n: any): any | undefined {
+        if (!i18n || typeof i18n.getLocales !== 'function' || typeof i18n.getTranslations !== 'function') {
+            return undefined;
+        }
+        const locales: string[] = i18n.getLocales();
+        if (!locales.length) return undefined;
+        const bundle: Record<string, any> = {};
+        for (const locale of locales) {
+            const data = i18n.getTranslations(locale);
+            if (data && typeof data === 'object') bundle[locale] = data;
+        }
+        return Object.keys(bundle).length ? bundle : undefined;
+    }
+
+    /**
+     * Parse the highest-priority locale from an `Accept-Language` header.
+     * Falls back to a `?locale=` query parameter, then to the i18n service's
+     * default locale. Returns `undefined` when no preference is expressed
+     * (callers will then return untranslated metadata).
+     */
+    private extractLocale(req: any, i18n?: any): string | undefined {
+        const headers = req?.headers;
+        let header: string | undefined;
+        if (headers) {
+            header = typeof headers.get === 'function'
+                ? headers.get('accept-language') ?? undefined
+                : headers['accept-language'] ?? headers['Accept-Language'];
+        }
+        if (typeof header === 'string' && header.length > 0) {
+            const top = header.split(',')[0]?.split(';')[0]?.trim();
+            if (top) return top;
+        }
+        const queryLocale = req?.query?.locale;
+        if (typeof queryLocale === 'string' && queryLocale.length > 0) return queryLocale;
+        if (i18n && typeof i18n.getDefaultLocale === 'function') {
+            const def = i18n.getDefaultLocale();
+            if (typeof def === 'string' && def.length > 0) return def;
+        }
+        return undefined;
+    }
+
+    /**
+     * Translate a single metadata document (view or action) when an i18n
+     * service is registered for the request's project and the requested
+     * locale yields a match. Falls through unchanged for unsupported types
+     * or missing translations.
+     */
+    private async translateMetaItem(req: any, type: string, projectId: string | undefined, item: any): Promise<any> {
+        if (!item || typeof item !== 'object') return item;
+        if (type !== 'view' && type !== 'action') return item;
+        const i18n = await this.resolveI18nService(projectId);
+        const bundle = this.buildTranslationBundle(i18n);
+        if (!bundle) return item;
+        const locale = this.extractLocale(req, i18n);
+        if (!locale) return item;
+        const { translateMetadataDocument } = await import('@objectstack/spec/system');
+        return translateMetadataDocument(type, item, bundle, { locale });
+    }
+
+    /**
+     * Translate a list of metadata documents using `translateMetaItem`.
+     */
+    private async translateMetaItems(req: any, type: string, projectId: string | undefined, items: any): Promise<any> {
+        if (!Array.isArray(items)) return items;
+        if (type !== 'view' && type !== 'action') return items;
+        const i18n = await this.resolveI18nService(projectId);
+        const bundle = this.buildTranslationBundle(i18n);
+        if (!bundle) return items;
+        const locale = this.extractLocale(req, i18n);
+        if (!locale) return items;
+        const { translateMetadataDocument } = await import('@objectstack/spec/system');
+        return items.map((item) => translateMetadataDocument(type, item, bundle, { locale }));
+    }
+
+    /**
      * Pull the request hostname (without port) from a Node-style `req` or
      * a Fetch-style request wrapper. Returns undefined when no Host header
      * is available.
@@ -555,7 +655,9 @@ export class RestServer {
                             packageId,
                             ...(projectId ? { projectId } : {}),
                         } as any);
-                        res.json(items);
+                        const translated = await this.translateMetaItems(req, req.params.type, projectId, items);
+                        res.header('Vary', 'Accept-Language');
+                        res.json(translated);
                     } catch (error: any) {
                         logError("[REST] Unhandled error:", error);
                         res.status(404).json({ error: error.message });
@@ -614,7 +716,8 @@ export class RestServer {
                                 res.header('Cache-Control', directives + maxAge);
                             }
 
-                            res.json(result.data);
+                            res.header('Vary', 'Accept-Language');
+                            res.json(await this.translateMetaItem(req, req.params.type, projectId, result.data));
                         } else {
                             // Non-cached version
                             const packageId = req.query?.package || undefined;
@@ -623,7 +726,8 @@ export class RestServer {
                                 name: req.params.name,
                                 packageId,
                             } as any);
-                            res.json(item);
+                            res.header('Vary', 'Accept-Language');
+                            res.json(await this.translateMetaItem(req, req.params.type, projectId, item));
                         }
                     } catch (error: any) {
                         logError("[REST] Unhandled error:", error);

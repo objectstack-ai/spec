@@ -38,6 +38,13 @@ export const zhCN: TranslationData = {
         is_active: { label: '是否活跃' },
         last_activity_date: { label: '最近活动日期' },
       },
+      _views: {
+        all_accounts: { label: '全部客户', description: '客户主列表，包含营收与行业摘要' },
+        account_gallery: { label: '客户卡片', description: '使用品牌色高亮的客户卡片视图' },
+        account_map: { label: '客户地图', description: '客户的地理分布' },
+        enterprise_accounts: { label: '企业客户', description: '年营收最高的大客户' },
+        my_accounts: { label: '我的客户', description: '由当前用户负责的客户' },
+      },
     },
 
     contact: {
@@ -82,6 +89,21 @@ export const zhCN: TranslationData = {
         email_opt_out: { label: '拒绝邮件' },
         avatar: { label: '头像' },
       },
+      _views: {
+        all_contacts: { label: '全部联系人' },
+        contact_directory: { label: '联系人目录' },
+        primary_contacts: { label: '主要联系人' },
+      },
+      _actions: {
+        mark_primary: {
+          label: '设为主要联系人',
+          confirmText: '是否将此联系人设为该客户的主要联系人？',
+          successMessage: '已设为主要联系人！',
+        },
+        send_email: {
+          label: '发送邮件',
+        },
+      },
     },
 
     lead: {
@@ -125,6 +147,25 @@ export const zhCN: TranslationData = {
         is_converted: { label: '已转化' },
         description: { label: '描述' },
       },
+      _views: {
+        all_leads: { label: '全部线索' },
+        kanban_by_status: { label: '线索流水线' },
+        calendar_by_created: { label: '线索日历' },
+        gallery_view: { label: '线索卡片' },
+        my_leads: { label: '我的线索' },
+        high_priority: { label: '高优先级' },
+      },
+      _actions: {
+        convert_lead: {
+          label: '转化线索',
+          confirmText: '确认要转化此线索吗？',
+          successMessage: '线索转化成功！',
+        },
+        create_campaign: {
+          label: '加入营销活动',
+          successMessage: '已将线索加入营销活动！',
+        },
+      },
     },
 
     quote: {
@@ -148,6 +189,11 @@ export const zhCN: TranslationData = {
         expiration_date: { label: '到期日期' },
         description: { label: '描述' },
       },
+      _views: {
+        all_quotes: { label: '全部报价单' },
+        quote_pipeline: { label: '报价流水线' },
+        quote_calendar: { label: '报价日历' },
+      },
     },
 
     contract: {
@@ -167,6 +213,12 @@ export const zhCN: TranslationData = {
         end_date: { label: '结束日期' },
         contract_value: { label: '合同金额' },
         description: { label: '描述' },
+      },
+      _views: {
+        all_contracts: { label: '全部合同' },
+        renewal_calendar: { label: '续约日历' },
+        contract_gantt: { label: '合同条款' },
+        contract_timeline: { label: '合同时间线' },
       },
     },
 
@@ -194,6 +246,25 @@ export const zhCN: TranslationData = {
         type: { label: '类型' },
         owner: { label: '负责人' },
       },
+      _views: {
+        all_cases: { label: '全部工单' },
+        case_workflow: { label: '服务流转' },
+        sla_calendar: { label: 'SLA 日历' },
+        case_timeline: { label: '工单时间线' },
+        escalated_cases: { label: '已升级工单' },
+      },
+      _actions: {
+        escalate_case: {
+          label: '升级工单',
+          confirmText: '此操作会将工单升级到升级处理团队，是否继续？',
+          successMessage: '工单升级成功！',
+        },
+        close_case: {
+          label: '关闭工单',
+          confirmText: '确定要关闭此工单吗？',
+          successMessage: '工单已成功关闭！',
+        },
+      },
     },
 
     task: {
@@ -217,6 +288,14 @@ export const zhCN: TranslationData = {
         due_date: { label: '截止日期' },
         assigned_to: { label: '负责人' },
         related_to: { label: '关联对象' },
+      },
+      _views: {
+        all_tasks: { label: '全部任务' },
+        task_board: { label: '任务看板' },
+        task_calendar: { label: '任务日程' },
+        task_gantt: { label: '执行计划' },
+        task_timeline: { label: '工时时间线' },
+        my_open_tasks: { label: '我的待办任务' },
       },
     },
 
@@ -247,6 +326,12 @@ export const zhCN: TranslationData = {
         expected_revenue: { label: '预期收入' },
         description: { label: '描述' },
       },
+      _views: {
+        all_campaigns: { label: '全部营销活动' },
+        campaign_gantt: { label: '活动排期' },
+        campaign_calendar: { label: '活动日历' },
+        campaign_timeline: { label: '营销时间线' },
+      },
     },
 
     product: {
@@ -267,6 +352,11 @@ export const zhCN: TranslationData = {
         cost: { label: '成本' },
         is_active: { label: '是否启用' },
         description: { label: '描述' },
+      },
+      _views: {
+        all_products: { label: '全部产品' },
+        product_catalog: { label: '产品目录' },
+        low_stock: { label: '低库存' },
       },
     },
 
@@ -309,6 +399,35 @@ export const zhCN: TranslationData = {
         description: { label: '描述' },
         next_step: { label: '下一步' },
       },
+      _views: {
+        all_opportunities: { label: '全部商机' },
+        pipeline_kanban: { label: '销售流水线' },
+        close_date_calendar: { label: '预测日历' },
+        deal_timeline: { label: '商机时间线' },
+        deal_gallery: { label: '商机卡片' },
+        my_open_deals: { label: '我的进行中商机' },
+      },
+      _actions: {
+        clone_opportunity: {
+          label: '克隆商机',
+          successMessage: '商机克隆成功！',
+        },
+        mass_update_stage: {
+          label: '更新阶段',
+          successMessage: '商机阶段已更新！',
+        },
+      },
+    },
+  },
+
+  globalActions: {
+    log_call: {
+      label: '记录通话',
+      successMessage: '通话记录成功！',
+    },
+    export_csv: {
+      label: '导出 CSV',
+      successMessage: '导出完成！',
     },
   },
 

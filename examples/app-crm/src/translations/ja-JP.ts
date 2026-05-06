@@ -38,6 +38,13 @@ export const jaJP: TranslationData = {
         is_active: { label: '有効' },
         last_activity_date: { label: '最終活動日' },
       },
+      _views: {
+        all_accounts: { label: '全取引先', description: '売上と業種を含む取引先の一覧' },
+        account_gallery: { label: '取引先カード', description: 'ブランドカラー付きのカードビュー' },
+        account_map: { label: '取引先マップ', description: '取引先の地理的分布' },
+        enterprise_accounts: { label: 'エンタープライズ取引先', description: '年商最上位の主要顧客' },
+        my_accounts: { label: '私の取引先', description: '自分が所有する取引先' },
+      },
     },
 
     contact: {
@@ -64,6 +71,21 @@ export const jaJP: TranslationData = {
         owner: { label: '所有者' },
         description: { label: '説明' },
         is_primary: { label: '主担当者' },
+      },
+      _views: {
+        all_contacts: { label: '全取引先責任者' },
+        contact_directory: { label: '責任者ディレクトリ' },
+        primary_contacts: { label: '主担当者' },
+      },
+      _actions: {
+        mark_primary: {
+          label: '主担当者に設定',
+          confirmText: 'この責任者を取引先の主担当者に設定しますか？',
+          successMessage: '主担当者に設定しました！',
+        },
+        send_email: {
+          label: 'メール送信',
+        },
       },
     },
 
@@ -94,6 +116,25 @@ export const jaJP: TranslationData = {
         owner: { label: 'リード所有者' },
         is_converted: { label: '取引開始済み' },
         description: { label: '説明' },
+      },
+      _views: {
+        all_leads: { label: '全リード' },
+        kanban_by_status: { label: 'リードパイプライン' },
+        calendar_by_created: { label: 'リードカレンダー' },
+        gallery_view: { label: 'リードカード' },
+        my_leads: { label: '私のリード' },
+        high_priority: { label: '優先度高' },
+      },
+      _actions: {
+        convert_lead: {
+          label: 'リード変換',
+          confirmText: 'このリードを変換してもよろしいですか？',
+          successMessage: 'リードの変換に成功しました！',
+        },
+        create_campaign: {
+          label: 'キャンペーンに追加',
+          successMessage: 'キャンペーンに追加しました！',
+        },
       },
     },
 
@@ -136,6 +177,114 @@ export const jaJP: TranslationData = {
         description: { label: '説明' },
         next_step: { label: '次のステップ' },
       },
+      _views: {
+        all_opportunities: { label: '全商談' },
+        pipeline_kanban: { label: 'セールスパイプライン' },
+        close_date_calendar: { label: '予測カレンダー' },
+        deal_timeline: { label: '商談タイムライン' },
+        deal_gallery: { label: '商談カード' },
+        my_open_deals: { label: '私のオープン商談' },
+      },
+      _actions: {
+        clone_opportunity: {
+          label: '商談を複製',
+          successMessage: '商談を複製しました！',
+        },
+        mass_update_stage: {
+          label: 'ステージ更新',
+          successMessage: '商談ステージを更新しました！',
+        },
+      },
+    },
+
+    case: {
+      label: 'ケース',
+      pluralLabel: 'ケース',
+      _views: {
+        all_cases: { label: '全ケース' },
+        case_workflow: { label: 'サービスフロー' },
+        sla_calendar: { label: 'SLA カレンダー' },
+        case_timeline: { label: 'ケースタイムライン' },
+        escalated_cases: { label: 'エスカレートしたケース' },
+      },
+      _actions: {
+        escalate_case: {
+          label: 'ケースをエスカレート',
+          confirmText: 'このケースをエスカレーションチームへ引き継ぎます。続行しますか？',
+          successMessage: 'ケースをエスカレートしました！',
+        },
+        close_case: {
+          label: 'ケースをクローズ',
+          confirmText: 'このケースをクローズしてもよろしいですか？',
+          successMessage: 'ケースをクローズしました！',
+        },
+      },
+    },
+
+    contract: {
+      label: '契約',
+      pluralLabel: '契約',
+      _views: {
+        all_contracts: { label: '全契約' },
+        renewal_calendar: { label: '更新カレンダー' },
+        contract_gantt: { label: '契約期間' },
+        contract_timeline: { label: '契約タイムライン' },
+      },
+    },
+
+    product: {
+      label: '製品',
+      pluralLabel: '製品',
+      _views: {
+        all_products: { label: '全製品' },
+        product_catalog: { label: '製品カタログ' },
+        low_stock: { label: '低在庫' },
+      },
+    },
+
+    quote: {
+      label: '見積',
+      pluralLabel: '見積',
+      _views: {
+        all_quotes: { label: '全見積' },
+        quote_pipeline: { label: '見積パイプライン' },
+        quote_calendar: { label: '見積カレンダー' },
+      },
+    },
+
+    task: {
+      label: 'タスク',
+      pluralLabel: 'タスク',
+      _views: {
+        all_tasks: { label: '全タスク' },
+        task_board: { label: 'タスクボード' },
+        task_calendar: { label: 'タスクカレンダー' },
+        task_gantt: { label: '実行計画' },
+        task_timeline: { label: '工数タイムライン' },
+        my_open_tasks: { label: '私のオープンタスク' },
+      },
+    },
+
+    campaign: {
+      label: 'キャンペーン',
+      pluralLabel: 'キャンペーン',
+      _views: {
+        all_campaigns: { label: '全キャンペーン' },
+        campaign_gantt: { label: 'キャンペーン日程' },
+        campaign_calendar: { label: 'キャンペーンカレンダー' },
+        campaign_timeline: { label: 'マーケティングタイムライン' },
+      },
+    },
+  },
+
+  globalActions: {
+    log_call: {
+      label: '通話を記録',
+      successMessage: '通話を記録しました！',
+    },
+    export_csv: {
+      label: 'CSV エクスポート',
+      successMessage: 'エクスポートが完了しました！',
     },
   },
 
