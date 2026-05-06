@@ -36,6 +36,7 @@ export interface SessionUser {
   name?: string;
   image?: string | null;
   emailVerified?: boolean;
+  twoFactorEnabled?: boolean;
 }
 
 export interface SessionData {
