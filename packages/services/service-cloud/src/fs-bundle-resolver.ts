@@ -29,7 +29,8 @@
  */
 
 import { readFile } from 'node:fs/promises';
-import { resolve as resolvePath, isAbsolute } from 'node:path';
+import { resolve as resolvePath, isAbsolute, dirname } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { AppBundleResolver } from './project-kernel-factory.js';
 
 const ENV_MAP_VAR = 'OS_PROJECT_ARTIFACTS';
@@ -65,6 +66,41 @@ function extractMetadataPaths(metadata: any): string[] {
     return out;
 }
 
+/**
+ * If the loaded artifact references a sibling runtime ESM (declarative
+ * handler bundle produced by `objectstack build`), dynamic-import it
+ * and merge its `functions` map into the bundle. Without this step
+ * every Hook in the bundle boots with `handler === undefined` and
+ * silently no-ops — see `packages/cli/src/utils/build-runtime.ts` for
+ * the build-side counterpart.
+ *
+ * Mutates `bundle` in place. Failures are logged but non-fatal —
+ * a bundle without runtime functions is still loadable (just inert).
+ */
+async function mergeRuntimeModule(bundle: any, artifactAbsPath: string): Promise<void> {
+    const ref = bundle?.runtimeModule;
+    if (typeof ref !== 'string' || ref.length === 0) return;
+    const moduleAbsPath = isAbsolute(ref) ? ref : resolvePath(dirname(artifactAbsPath), ref);
+    try {
+        const mod: any = await import(pathToFileURL(moduleAbsPath).href);
+        const fns = (mod && (mod.functions ?? mod.default?.functions)) ?? null;
+        if (!fns || typeof fns !== 'object') {
+            // eslint-disable-next-line no-console
+            console.warn(`[FsAppBundleResolver] runtime module '${moduleAbsPath}' exported no \`functions\` map`);
+            return;
+        }
+        const existing = (bundle.functions && typeof bundle.functions === 'object' && !Array.isArray(bundle.functions))
+            ? bundle.functions as Record<string, unknown>
+            : {};
+        bundle.functions = { ...existing, ...fns };
+    } catch (err: any) {
+        // eslint-disable-next-line no-console
+        console.warn(
+            `[FsAppBundleResolver] runtime module load FAILED: path='${moduleAbsPath}' error=${err?.message ?? err}`,
+        );
+    }
+}
+
 export function createFsAppBundleResolver(): AppBundleResolver {
     const envMap = parseEnvMap(process.env[ENV_MAP_VAR]);
     const root = process.env[ARTIFACT_ROOT_VAR] ?? process.cwd();
@@ -76,6 +112,7 @@ export function createFsAppBundleResolver(): AppBundleResolver {
         try {
             const raw = await readFile(abs, 'utf-8');
             const parsed = JSON.parse(raw);
+            await mergeRuntimeModule(parsed, abs);
             cache.set(abs, parsed);
             return parsed;
         } catch (err: any) {
