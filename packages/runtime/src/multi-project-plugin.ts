@@ -38,6 +38,8 @@ import {
 import { KernelManager } from './kernel-manager.js';
 import { SeedLoaderService } from './seed-loader.js';
 import { collectBundleHooks, collectBundleFunctions } from './app-plugin.js';
+import { hookBodyRunnerFactory } from './sandbox/body-runner.js';
+import { QuickJSScriptRunner } from './sandbox/quickjs-runner.js';
 
 type IDataDriver = Contracts.IDataDriver;
 
@@ -219,6 +221,11 @@ function createTemplateSeeder(
                 (engine as any).bindHooks(hooks, {
                     packageId: `project:${projectId}`,
                     functions,
+                    bodyRunner: hookBodyRunnerFactory(new QuickJSScriptRunner(), {
+                        ql: engine,
+                        logger: console as any,
+                        appId: projectId,
+                    }),
                 });
             }
         } catch (err: any) {

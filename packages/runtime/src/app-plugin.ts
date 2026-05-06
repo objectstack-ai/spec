@@ -3,6 +3,8 @@
 import { Plugin, PluginContext } from '@objectstack/core';
 import { SeedLoaderService } from './seed-loader.js';
 import type { IMetadataService, II18nService } from '@objectstack/spec/contracts';
+import { QuickJSScriptRunner } from './sandbox/quickjs-runner.js';
+import { hookBodyRunnerFactory, actionBodyRunnerFactory } from './sandbox/body-runner.js';
 
 /**
  * Optional per-project context attached when AppPlugin is instantiated by the
@@ -162,6 +164,11 @@ export class AppPlugin implements Plugin {
                     ql.bindHooks(hooks, {
                         packageId: `app:${appId}`,
                         functions,
+                        bodyRunner: hookBodyRunnerFactory(new QuickJSScriptRunner(), {
+                            ql,
+                            logger: ctx.logger,
+                            appId,
+                        }),
                     });
                     ctx.logger.info('[AppPlugin] Bound declarative hooks', {
                         appId,
@@ -177,6 +184,52 @@ export class AppPlugin implements Plugin {
             }
         } catch (err: any) {
             ctx.logger.error('[AppPlugin] Failed to bind declarative hooks', err as Error, {
+                appId,
+            });
+        }
+
+        // ── Auto-register declarative Action handlers ───────────────────
+        // Actions with an inline `handler` (or extracted `body`) are wired
+        // to the engine here so HTTP `POST /api/v1/actions/<obj>/<name>`
+        // can invoke them. Actions without a body are left for legacy
+        // imperative `engine.registerAction(...)` registration in user code.
+        try {
+            const actions = collectBundleActions(this.bundle);
+            const actionBodyRunner = actionBodyRunnerFactory(new QuickJSScriptRunner(), {
+                ql,
+                logger: ctx.logger,
+                appId,
+            });
+            let registered = 0;
+            if (actions.length > 0 && typeof ql.registerAction === 'function') {
+                for (const action of actions) {
+                    const handler = actionBodyRunner(action);
+                    if (!handler) continue;
+                    const objectKey =
+                        typeof action.object === 'string' && action.object.length > 0
+                            ? action.object
+                            : 'global';
+                    try {
+                        ql.registerAction(objectKey, action.name, handler, `app:${appId}`);
+                        registered++;
+                    } catch (err: any) {
+                        ctx.logger.warn('[AppPlugin] Failed to register action body', {
+                            appId,
+                            action: action.name,
+                            object: objectKey,
+                            error: err?.message ?? String(err),
+                        });
+                    }
+                }
+            }
+            if (registered > 0) {
+                ctx.logger.info('[AppPlugin] Bound declarative actions', {
+                    appId,
+                    actionCount: registered,
+                });
+            }
+        } catch (err: any) {
+            ctx.logger.error('[AppPlugin] Failed to bind declarative actions', err as Error, {
                 appId,
             });
         }
@@ -419,6 +472,44 @@ export function collectBundleHooks(bundle: any): any[] {
     };
     push(bundle?.hooks);
     push(bundle?.manifest?.hooks);
+    return out;
+}
+
+/**
+ * Collect declarative actions from the bundle. Walks both root-level
+ * `actions[]` and per-object `objects[*].actions[]`, attaching the parent
+ * object name where applicable so `engine.registerAction(object, name, ...)`
+ * sees the correct routing key.
+ *
+ * Each returned record is a shallow copy with `object` set when the action
+ * originated under an object (and not already present on the action itself).
+ */
+export function collectBundleActions(
+    bundle: any,
+): Array<{ name: string; object?: string; body?: unknown; type?: string; [k: string]: unknown }> {
+    const out: any[] = [];
+    const seen = new Set<any>();
+    const push = (arr: any, parentObject?: string) => {
+        if (!Array.isArray(arr)) return;
+        for (const a of arr) {
+            if (!a || typeof a !== 'object' || typeof a.name !== 'string') continue;
+            if (seen.has(a)) continue;
+            seen.add(a);
+            const inferredObject =
+                typeof a.object === 'string' ? a.object
+                : typeof a.objectName === 'string' ? a.objectName
+                : parentObject;
+            out.push(inferredObject ? { ...a, object: inferredObject } : { ...a });
+        }
+    };
+    push(bundle?.actions);
+    push(bundle?.manifest?.actions);
+    if (Array.isArray(bundle?.objects)) {
+        for (const o of bundle.objects) push(o?.actions, o?.name);
+    }
+    if (Array.isArray(bundle?.manifest?.objects)) {
+        for (const o of bundle.manifest.objects) push(o?.actions, o?.name);
+    }
     return out;
 }
 

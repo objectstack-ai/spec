@@ -2,15 +2,26 @@
 
 /**
  * Walk a normalized stack definition and replace every inline `function`
- * value (Hook handlers, top-level `functions` map / array entries) with a
- * stable string reference. The collected `(ref → function)` map is later
- * bundled by esbuild into `dist/objectstack-runtime.{hash}.mjs`, while the
- * lowered, JSON-safe stack ships as `dist/objectstack.json`.
+ * value (Hook handlers, Action handlers, top-level `functions` map / array
+ * entries) with **two** payloads:
  *
- * Without this lowering step, `JSON.stringify` silently drops the function
- * fields and the production server boots with **all declarative hooks
- * disabled** — see plan §1.
+ *   1. A metadata-only `body: { language: 'js', source, capabilities }`
+ *      carved out of the function source via `extractHookBody`. This is
+ *      the cloud-deployable form — pure JSON, runs under the QuickJS
+ *      sandbox in `@objectstack/runtime`.
+ *   2. A back-compat `handler: '<ref>'` string that resolves against the
+ *      sibling `objectstack-runtime.{hash}.mjs` bundle. Older runtimes
+ *      that don't yet honour `body` keep working through this path.
+ *
+ * The collected `(ref → function)` map is later bundled by esbuild into
+ * `dist/objectstack-runtime.{hash}.mjs`, while the lowered, JSON-safe
+ * stack ships as `dist/objectstack.json`. When every hook & action has a
+ * valid `body` the bundle becomes a pure compatibility shim — and once
+ * the spec drops the `handler` field entirely (Phase 3) we can stop
+ * emitting it.
  */
+
+import { extractHookBody } from './extract-hook-body.js';
 
 export interface LoweringResult {
   /** A deep-cloned, JSON-safe copy of the stack with handlers replaced by strings. */
@@ -19,6 +30,10 @@ export interface LoweringResult {
   functions: Record<string, (...args: unknown[]) => unknown>;
   /** Number of inline function handlers replaced. */
   count: number;
+  /** Number of handlers that successfully emitted a metadata-only `body`. */
+  bodyExtracted: number;
+  /** Per-extraction failures (still emit handler ref + bundle, but warn). */
+  bodyExtractionWarnings: Array<{ origin: string; reason: string }>;
 }
 
 type AnyFn = (...args: unknown[]) => unknown;
@@ -42,6 +57,25 @@ function uniqueName(base: string, taken: Set<string>): string {
 export function lowerCallables(input: Record<string, unknown>): LoweringResult {
   const functions: Record<string, AnyFn> = {};
   const taken = new Set<string>();
+  const warnings: Array<{ origin: string; reason: string }> = [];
+  let bodyExtracted = 0;
+
+  // Try to extract a metadata-only body from a callable. Returns null if the
+  // body source contains a forbidden token — the caller still bundles the fn.
+  function tryExtractBody(fn: AnyFn, originLabel: string): {
+    language: 'js';
+    source: string;
+    capabilities: string[];
+  } | null {
+    try {
+      const ext = extractHookBody(fn, originLabel);
+      bodyExtracted += 1;
+      return { language: 'js', source: ext.source, capabilities: ext.capabilities };
+    } catch (err: any) {
+      warnings.push({ origin: originLabel, reason: err?.message ?? String(err) });
+      return null;
+    }
+  }
 
   // Shallow clone the top level — we only mutate the slots we touch.
   const lowered: Record<string, unknown> = { ...input };
@@ -58,10 +92,36 @@ export function lowerCallables(input: Record<string, unknown>): LoweringResult {
         const ref = uniqueName(name, taken);
         taken.add(ref);
         functions[ref] = hook.handler as AnyFn;
+
+        // Extract metadata body unless the user already provided one.
+        if (!hook.body) {
+          const body = tryExtractBody(hook.handler as AnyFn, `hook '${name}'`);
+          if (body) hook.body = body;
+        }
         hook.handler = ref;
       }
       return hook;
     });
+  }
+
+  // 1b. Lower inline action handlers found inside `objects[*].actions[*]`
+  //     and `actions[*]`. We accept either `execute: fn` or `target: fn`.
+  if (Array.isArray(lowered.objects)) {
+    lowered.objects = (lowered.objects as unknown[]).map((rawObj) => {
+      if (!isPlainObject(rawObj)) return rawObj;
+      const obj = { ...rawObj };
+      if (Array.isArray(obj.actions)) {
+        obj.actions = (obj.actions as unknown[]).map((rawAct) =>
+          lowerActionCallable(rawAct, taken, functions, tryExtractBody, `${String(obj.name ?? 'object')}`),
+        );
+      }
+      return obj;
+    });
+  }
+  if (Array.isArray((lowered as any).actions)) {
+    (lowered as any).actions = ((lowered as any).actions as unknown[]).map((rawAct) =>
+      lowerActionCallable(rawAct, taken, functions, tryExtractBody, 'global'),
+    );
   }
 
   // 2. Lower top-level `functions` (map or array of records).
@@ -103,5 +163,49 @@ export function lowerCallables(input: Record<string, unknown>): LoweringResult {
     (lowered as Record<string, unknown>).functions = out;
   }
 
-  return { lowered, functions, count: Object.keys(functions).length };
+  return {
+    lowered,
+    functions,
+    count: Object.keys(functions).length,
+    bodyExtracted,
+    bodyExtractionWarnings: warnings,
+  };
+}
+
+/**
+ * Lower a single action definition: detect callable on `execute` or
+ * `target`, register it, optionally extract a metadata body. Mutates a
+ * shallow clone, never the input.
+ */
+function lowerActionCallable(
+  raw: unknown,
+  taken: Set<string>,
+  functions: Record<string, AnyFn>,
+  tryExtract: (fn: AnyFn, label: string) => { language: 'js'; source: string; capabilities: string[] } | null,
+  ownerLabel: string,
+): unknown {
+  if (!isPlainObject(raw)) return raw;
+  const action = { ...raw };
+  const baseName = typeof action.name === 'string' && action.name.length > 0
+    ? `${ownerLabel}_${action.name}`
+    : `${ownerLabel}_anon_action`;
+  const handlerSlot: 'execute' | 'target' | null =
+    typeof action.execute === 'function'
+      ? 'execute'
+      : typeof action.target === 'function'
+        ? 'target'
+        : null;
+  if (!handlerSlot) return action;
+  const fn = action[handlerSlot] as AnyFn;
+  const ref = uniqueName(baseName, taken);
+  taken.add(ref);
+  functions[ref] = fn;
+  if (!action.body) {
+    const body = tryExtract(fn, `action '${baseName}'`);
+    if (body) action.body = body;
+  }
+  // Keep a string-named target so the legacy executor can still resolve it.
+  action.target = ref;
+  if (handlerSlot === 'execute') delete action.execute;
+  return action;
 }

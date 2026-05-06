@@ -42,6 +42,17 @@ const opportunityValidationHook: Hook = {
     const { event, input } = ctx;
     const previous = ctx.previous;
 
+    const STAGE_PROBABILITY: Record<string, number> = {
+      prospecting: 10,
+      qualification: 25,
+      needs_analysis: 40,
+      proposal: 60,
+      negotiation: 80,
+      closed_won: 100,
+      closed_lost: 0,
+    };
+    const NARRATIVE_FIELDS = new Set(['description', 'next_step', 'notes']);
+
     // Recompute expected_revenue
     const amount =
       typeof input.amount === 'number'

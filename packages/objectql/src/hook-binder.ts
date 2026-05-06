@@ -36,6 +36,17 @@ export interface BindHooksOptions {
    */
   functions?: Record<string, HookHandler>;
 
+  /**
+   * Optional factory that converts a metadata-only `Hook.body` (L1 expression
+   * or L2 sandboxed JS source) into an executable `HookHandler`. The runtime
+   * package wires this up using `QuickJSScriptRunner`; objectql itself stays
+   * sandbox-free so it can run in lightweight environments.
+   *
+   * If `hook.body` is set and this factory is missing, the hook is skipped
+   * with a clear error.
+   */
+  bodyRunner?: (hook: Hook) => HookHandler | undefined;
+
   /** Logger; defaults to a silent no-op. */
   logger?: {
     debug: (msg: string, meta?: any) => void;
@@ -111,15 +122,16 @@ export function bindHooksToEngine(
       const resolved = resolveHandler(engine, hook, opts);
       if (!resolved) {
         result.skipped += 1;
-        result.errors.push({
-          hook: hook.name,
-          reason: typeof hook.handler === 'string'
+        const reason = (hook as any).body
+          ? `hook body present but no bodyRunner supplied to bindHooksToEngine (runtime must wire QuickJSScriptRunner)`
+          : typeof hook.handler === 'string'
             ? `unknown function '${hook.handler}'`
-            : 'no handler',
-        });
+            : 'no handler';
+        result.errors.push({ hook: hook.name, reason });
         logger.warn('[hook-binder] skipping hook with unresolved handler', {
           hook: hook.name,
           handler: hook.handler,
+          hasBody: Boolean((hook as any).body),
         });
         continue;
       }
@@ -173,6 +185,25 @@ function resolveHandler(
   hook: Hook,
   opts: BindHooksOptions,
 ): HookHandler | undefined {
+  // Metadata-only body (L1 expression or L2 sandboxed JS) takes precedence
+  // over the legacy `handler` field. This is the cloud-deployable path —
+  // the body string ships inside the artifact JSON and runs under a
+  // capability-gated sandbox supplied by the runtime.
+  const body = (hook as any).body;
+  if (body && typeof body === 'object') {
+    let runner = opts.bodyRunner;
+    if (typeof runner !== 'function') {
+      const fallback = (engine as any)?._defaultBodyRunner;
+      if (typeof fallback === 'function') runner = fallback;
+    }
+    if (typeof runner !== 'function') {
+      return undefined;
+    }
+    const fn = runner(hook);
+    if (typeof fn === 'function') return fn;
+    return undefined;
+  }
+
   const h = hook.handler;
   if (typeof h === 'function') return h as HookHandler;
   if (typeof h === 'string' && h.length > 0) {

@@ -1,0 +1,127 @@
+---
+title: Hook Body
+description: Hook Body protocol schemas
+---
+
+{/* ⚠️  AUTO-GENERATED — DO NOT EDIT. Run build-docs.ts to regenerate. Hand-written docs go in content/docs/guides/. */}
+
+Capability tokens a script body may request.
+
+The runtime sandbox enforces these — if a body uses a `ctx` API that requires
+
+a capability it did not declare, the call throws at invocation time.
+
+- `api.read`   — `ctx.api.object(...).find / findOne / count / aggregate`
+
+- `api.write`  — `ctx.api.object(...).insert / update / delete`
+
+- `crypto.uuid` — `ctx.crypto.randomUUID()`
+
+- `crypto.hash` — `ctx.crypto.hash(algo, data)`
+
+- `log`        — `ctx.log.info / warn / error`
+
+`http.fetch` is intentionally absent — outbound calls go through Connector
+
+recipes (separate spec) so they remain auditable and replayable.
+
+<Callout type="info">
+**Source:** `packages/spec/src/data/hook-body.zod.ts`
+</Callout>
+
+## TypeScript Usage
+
+```typescript
+import { ExpressionBody, HookBody, HookBodyCapability, ScriptBody } from '@objectstack/spec/data';
+import type { ExpressionBody, HookBody, HookBodyCapability, ScriptBody } from '@objectstack/spec/data';
+
+// Validate data
+const result = ExpressionBody.parse(data);
+```
+
+---
+
+## ExpressionBody
+
+L1 expression body — pure formula, no IO
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **language** | `string` | ✅ |  |
+| **source** | `string` | ✅ | Formula expression source |
+
+
+---
+
+## HookBody
+
+Hook/Action body — expression (L1) or sandboxed JS (L2)
+
+### Union Options
+
+This schema accepts one of the following structures:
+
+#### Option 1
+
+L1 expression body — pure formula, no IO
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **language** | `string` | ✅ |  |
+| **source** | `string` | ✅ | Formula expression source |
+
+---
+
+#### Option 2
+
+L2 sandboxed JS body — runs inside an isolated VM with declared capabilities
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **language** | `string` | ✅ |  |
+| **source** | `string` | ✅ | Function body source |
+| **capabilities** | `Enum<'api.read' \| 'api.write' \| 'crypto.uuid' \| 'crypto.hash' \| 'log'>[]` | ✅ | Granted capability tokens |
+| **timeoutMs** | `integer` | optional | Per-invocation timeout (ms) |
+| **memoryMb** | `integer` | optional | Per-invocation memory cap (MB) |
+
+---
+
+
+---
+
+## HookBodyCapability
+
+### Allowed Values
+
+* `api.read`
+* `api.write`
+* `crypto.uuid`
+* `crypto.hash`
+* `log`
+
+
+---
+
+## ScriptBody
+
+L2 sandboxed JS body — runs inside an isolated VM with declared capabilities
+
+### Properties
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| **language** | `string` | ✅ |  |
+| **source** | `string` | ✅ | Function body source |
+| **capabilities** | `Enum<'api.read' \| 'api.write' \| 'crypto.uuid' \| 'crypto.hash' \| 'log'>[]` | ✅ | Granted capability tokens |
+| **timeoutMs** | `integer` | optional | Per-invocation timeout (ms) |
+| **memoryMb** | `integer` | optional | Per-invocation memory cap (MB) |
+
+
+---
+

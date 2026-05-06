@@ -45,6 +45,16 @@ const contractValidation: Hook = {
     const { event, input } = ctx;
     const previous = ctx.previous;
 
+    function monthsBetween(startISO: string, endISO: string): number {
+      const s = new Date(startISO);
+      const e = new Date(endISO);
+      return (
+        (e.getFullYear() - s.getFullYear()) * 12 +
+        (e.getMonth() - s.getMonth()) +
+        (e.getDate() >= s.getDate() ? 0 : -1)
+      );
+    }
+
     const startDate =
       (typeof input.start_date === 'string' && input.start_date) ||
       (typeof previous?.start_date === 'string' && previous.start_date) ||
@@ -96,6 +106,12 @@ const contractActivation: Hook = {
     if (input.status !== 'activated' || previous?.status === 'activated') return;
     const api = ctx.api as ApiShape | undefined;
     if (!api) return;
+
+    function addDays(iso: string, days: number): string {
+      const d = new Date(iso);
+      d.setDate(d.getDate() + days);
+      return d.toISOString().slice(0, 10);
+    }
 
     const id =
       (typeof input.id === 'string' && input.id) ||

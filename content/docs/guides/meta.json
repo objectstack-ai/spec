@@ -13,6 +13,7 @@
     "plugins",
     "plugin-development",
     "business-logic",
+    "hook-bodies",
     "authentication",
     "auth-sso",
     "security",

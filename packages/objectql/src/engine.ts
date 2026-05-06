@@ -117,6 +117,32 @@ export interface ObjectQLHostContext {
 }
 
 /**
+ * Derive the registry key for a metadata item.
+ *
+ * Most metadata items expose a top-level `name` (or `id`). The `View`
+ * container defined by `@objectstack/spec/ui` is special: it aggregates
+ * `list / form / listViews / formViews` for a single object and is
+ * keyed implicitly by its target object name (see `data.object`).
+ *
+ * Per spec, `ViewSchema` does NOT have a top-level `name` field
+ * (view.zod.ts), so we resolve it from the inner data source. This
+ * matches the server-side metadata API contract (`/api/v1/meta/views/:object`).
+ */
+function resolveMetadataItemName(key: string, item: any): string | undefined {
+  if (!item) return undefined;
+  if (item.name) return item.name;
+  if (item.id) return item.id;
+  if (key === 'views') {
+    return (
+      item?.list?.data?.object ||
+      item?.form?.data?.object ||
+      undefined
+    );
+  }
+  return undefined;
+}
+
+/**
  * ObjectQL Engine
  * 
  * Implements the IDataEngine interface for data persistence.
@@ -343,8 +369,27 @@ export class ObjectQL implements IDataEngine {
   bindHooks(hooks: any[] | undefined, opts?: {
     packageId?: string;
     functions?: Record<string, HookHandler>;
+    bodyRunner?: any;
   }): void {
-    bindHooksToEngine(this, hooks, { ...(opts ?? {}), logger: this.logger });
+    const merged = { ...(opts ?? {}), logger: this.logger } as any;
+    // If caller didn't supply a bodyRunner but the engine has a default
+    // installed (via `setDefaultBodyRunner`), use it so script bodies still
+    // execute. This matters for binding paths that don't know about the
+    // runtime sandbox (e.g. ObjectQLPlugin's metadata-service sync).
+    if (!merged.bodyRunner && (this as any)._defaultBodyRunner) {
+      merged.bodyRunner = (this as any)._defaultBodyRunner;
+    }
+    bindHooksToEngine(this, hooks, merged);
+  }
+
+  /**
+   * Install a default body-runner used when `bindHooks` is called without
+   * an explicit one. The runtime layer sets this once on each per-project
+   * engine so every binding path (template seed, metadata sync, AppPlugin)
+   * can execute hook `body.source` consistently.
+   */
+  setDefaultBodyRunner(runner: any): void {
+    (this as any)._defaultBodyRunner = runner;
   }
 
   public async triggerHooks(event: string, context: HookContext) {
@@ -578,9 +623,12 @@ export class ObjectQL implements IDataEngine {
           if (Array.isArray(items) && items.length > 0) {
               this.logger.debug(`Registering ${key} from manifest`, { id, count: items.length });
               for (const item of items) {
-                  const itemName = item.name || item.id;
+                  const itemName = resolveMetadataItemName(key, item);
                   if (itemName) {
-                      this._registry.registerItem(pluralToSingular(key), item, 'name' as any, id);
+                      const toRegister = item.name === itemName ? item : { ...item, name: itemName };
+                      this._registry.registerItem(pluralToSingular(key), toRegister, 'name' as any, id);
+                  } else {
+                      this.logger.warn(`Skipping ${pluralToSingular(key)} without a derivable name`, { id });
                   }
               }
           }
@@ -708,9 +756,10 @@ export class ObjectQL implements IDataEngine {
           const items = (plugin as any)[key];
           if (Array.isArray(items) && items.length > 0) {
               for (const item of items) {
-                  const itemName = item.name || item.id;
+                  const itemName = resolveMetadataItemName(key, item);
                   if (itemName) {
-                      this._registry.registerItem(pluralToSingular(key), item, 'name' as any, ownerId);
+                      const toRegister = item.name === itemName ? item : { ...item, name: itemName };
+                      this._registry.registerItem(pluralToSingular(key), toRegister, 'name' as any, ownerId);
                   }
               }
           }

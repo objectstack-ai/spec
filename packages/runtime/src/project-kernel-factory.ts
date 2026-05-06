@@ -8,6 +8,8 @@ import { ControlPlaneProxyDriver } from './control-plane-proxy-driver.js';
 import type { ProjectKernelFactory } from './kernel-manager.js';
 import type { EnvironmentDriverRegistry, SecretEncryptor } from './environment-registry.js';
 import { NoopSecretEncryptor } from './environment-registry.js';
+import { hookBodyRunnerFactory } from './sandbox/body-runner.js';
+import { QuickJSScriptRunner } from './sandbox/quickjs-runner.js';
 
 type IDataDriver = Contracts.IDataDriver;
 
@@ -213,6 +215,28 @@ export class DefaultProjectKernelFactory implements ProjectKernelFactory {
     await kernel.use(new DriverPlugin(proxyDriver, { registerAsDefault: false, datasourceName: 'cloud' }));
 
     for (const p of basePlugins) await kernel.use(p);
+
+    // Install a default body-runner on the per-project ObjectQL engine so
+    // every binding path (AppPlugin, metadata-service sync, multi-project
+    // template seeding) can execute L2 hook script bodies without each
+    // call site needing to know about the sandbox runner.
+    try {
+      const ql: any = await kernel.getServiceAsync('objectql').catch(() => null);
+      if (ql && typeof ql.setDefaultBodyRunner === 'function') {
+        
+        
+        ql.setDefaultBodyRunner(
+          hookBodyRunnerFactory(new QuickJSScriptRunner(), {
+            ql,
+            logger: this.logger as any,
+            appId: projectId,
+          }),
+        );
+      }
+    } catch (err: any) {
+      this.logger.warn?.('[ProjectKernelFactory] default body-runner install skipped', { projectId, error: err?.message });
+    }
+
     const projectName = (project as any).name ?? (project as any).hostname;
     for (const b of bundles) {
       const sys = b?.manifest || b;
@@ -298,6 +322,23 @@ export class DefaultProjectKernelFactory implements ProjectKernelFactory {
     const kernel = new ObjectKernel(this.kernelConfig);
     await kernel.use(new DriverPlugin(driver));
     for (const p of basePlugins) await kernel.use(p);
+
+    try {
+      const ql: any = await kernel.getServiceAsync('objectql').catch(() => null);
+      if (ql && typeof ql.setDefaultBodyRunner === 'function') {
+        
+        
+        ql.setDefaultBodyRunner(
+          hookBodyRunnerFactory(new QuickJSScriptRunner(), {
+            ql,
+            logger: this.logger as any,
+            appId: projectId,
+          }),
+        );
+      }
+    } catch (err: any) {
+      this.logger.warn?.('[ProjectKernelFactory] default body-runner install skipped (local)', { projectId, error: err?.message });
+    }
 
     const projectName = syntheticProject.hostname ?? projectId;
     for (const b of bundles) {
