@@ -36,6 +36,7 @@ import {
   User,
   Users,
 } from 'lucide-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import {
   Sidebar,
   SidebarContent,
@@ -64,13 +65,14 @@ interface NavItem {
 }
 
 const ACCOUNT_ITEMS: NavItem[] = [
-  { to: '/account/profile', label: 'Profile', icon: User },
-  { to: '/account/security', label: 'Security', icon: Shield },
-  { to: '/account/sessions', label: 'Sessions', icon: Monitor },
-  { to: '/account/two-factor', label: 'Two-Factor', icon: ShieldCheck },
+  { to: '/account/profile', label: 'profile', icon: User },
+  { to: '/account/security', label: 'security', icon: Shield },
+  { to: '/account/sessions', label: 'sessions', icon: Monitor },
+  { to: '/account/two-factor', label: 'twoFactor', icon: ShieldCheck },
 ];
 
 export function AccountSidebar() {
+  const { t } = useObjectTranslation();
   const { pathname } = useLocation();
   const { organizations } = useOrganizations();
 
@@ -87,7 +89,7 @@ export function AccountSidebar() {
     <Sidebar collapsible="icon" className="h-full">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('sidebar.groups.account')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {ACCOUNT_ITEMS.map((item) => {
@@ -95,10 +97,10 @@ export function AccountSidebar() {
                 const isActive = normalised === item.to || normalised.startsWith(`${item.to}/`);
                 return (
                   <SidebarMenuItem key={item.to}>
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
+                    <SidebarMenuButton asChild isActive={isActive} tooltip={t(`sidebar.items.${item.label}`)}>
                       <Link to={item.to}>
                         <Icon className="size-4" />
-                        <span>{item.label}</span>
+                        <span>{t(`sidebar.items.${item.label}`)}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -111,18 +113,18 @@ export function AccountSidebar() {
         <SidebarSeparator />
 
         <SidebarGroup>
-          <SidebarGroupLabel>Organization</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('sidebar.groups.organization')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname === '/organizations'}
-                  tooltip="Overview"
+                  tooltip={t('sidebar.items.overview')}
                 >
                   <Link to="/organizations">
                     <Building2 className="size-4" />
-                    <span>Overview</span>
+                    <span>{t('sidebar.items.overview')}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -132,11 +134,11 @@ export function AccountSidebar() {
                     <SidebarMenuButton
                       asChild
                       isActive={pathname === `/organizations/${activeOrgId}/general`}
-                      tooltip="General"
+                      tooltip={t('sidebar.items.general')}
                     >
                       <Link to="/organizations/$orgId/general" params={{ orgId: activeOrgId }}>
                         <Settings className="size-4" />
-                        <span>General</span>
+                        <span>{t('sidebar.items.general')}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -144,11 +146,11 @@ export function AccountSidebar() {
                     <SidebarMenuButton
                       asChild
                       isActive={pathname === `/organizations/${activeOrgId}/members`}
-                      tooltip="Members"
+                      tooltip={t('sidebar.items.members')}
                     >
                       <Link to="/organizations/$orgId/members" params={{ orgId: activeOrgId }}>
                         <Users className="size-4" />
-                        <span>Members</span>
+                        <span>{t('sidebar.items.members')}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -161,18 +163,18 @@ export function AccountSidebar() {
         <SidebarSeparator />
 
         <SidebarGroup>
-          <SidebarGroupLabel>Developer</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('sidebar.groups.developer')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname.startsWith('/account/oauth-applications')}
-                  tooltip="OAuth Apps"
+                  tooltip={t('sidebar.items.oauthApps')}
                 >
                   <Link to="/account/oauth-applications">
                     <KeyRound className="size-4" />
-                    <span>OAuth Apps</span>
+                    <span>{t('sidebar.items.oauthApps')}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -192,13 +194,15 @@ export function AccountSidebar() {
 }
 
 function CollapseButton() {
+  const { t } = useObjectTranslation();
   const { state, toggleSidebar } = useSidebar();
   const collapsed = state === 'collapsed';
+  const label = collapsed ? t('sidebar.expand') : t('sidebar.collapse');
   return (
     <SidebarMenuButton
       onClick={toggleSidebar}
-      tooltip={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      tooltip={label}
+      aria-label={label}
     >
       <PanelLeft className="size-4" />
     </SidebarMenuButton>

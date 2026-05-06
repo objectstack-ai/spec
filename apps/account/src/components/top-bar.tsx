@@ -5,12 +5,13 @@
  * route. Mirrors the Studio TopBar layout:
  *
  *   - Left:  brand → mobile sidebar toggle → breadcrumb (inferred from URL)
- *   - Right: theme toggle + UserMenu (avatar dropdown w/ sign-out)
+ *   - Right: locale toggle + theme toggle + UserMenu (avatar dropdown w/ sign-out)
  */
 
 import { Link, useLocation, useParams } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import { UserCircle2 } from 'lucide-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -20,16 +21,17 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { LocaleToggle } from '@/components/locale-toggle';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { UserMenu } from '@/components/user-menu';
 import { OrganizationSwitcher } from '@/components/organization-switcher';
 
-function AccountBrand() {
+function AccountBrand({ label }: { label: string }) {
   return (
     <Link
       to="/account"
       className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground hover:opacity-90"
-      aria-label="Account home"
+      aria-label={label}
     >
       <UserCircle2 className="h-4 w-4" />
     </Link>
@@ -41,33 +43,35 @@ function SlashDivider() {
 }
 
 export function TopBar() {
+  const { t } = useObjectTranslation();
   const location = useLocation();
   const params = useParams({ strict: false }) as { orgId?: string; invitationId?: string };
 
   const breadcrumbs = useMemo<Array<{ label: string }>>(() => {
     const p = location.pathname;
+    const tb = (k: string) => t(`topBar.breadcrumb.${k}`);
     if (p.startsWith('/account')) {
-      const items: Array<{ label: string }> = [{ label: 'Account' }];
-      if (p === '/account/profile') items.push({ label: 'Profile' });
-      else if (p === '/account/security') items.push({ label: 'Security' });
-      else if (p === '/account/sessions') items.push({ label: 'Sessions' });
-      else if (p === '/account/two-factor') items.push({ label: 'Two-Factor' });
+      const items: Array<{ label: string }> = [{ label: tb('account') }];
+      if (p === '/account/profile') items.push({ label: tb('profile') });
+      else if (p === '/account/security') items.push({ label: tb('security') });
+      else if (p === '/account/sessions') items.push({ label: tb('sessions') });
+      else if (p === '/account/two-factor') items.push({ label: tb('twoFactor') });
       return items;
     }
-    if (p === '/organizations/new') return [{ label: 'Organizations' }, { label: 'New' }];
+    if (p === '/organizations/new') return [{ label: tb('organizations') }, { label: tb('new') }];
     if (params.orgId) {
       const tail = p.endsWith('/general')
-        ? 'General'
+        ? tb('general')
         : p.endsWith('/members')
-          ? 'Members'
-          : 'Settings';
-      return [{ label: 'Organizations' }, { label: tail }];
+          ? tb('members')
+          : tb('settings');
+      return [{ label: tb('organizations') }, { label: tail }];
     }
-    if (p === '/organizations' || p.startsWith('/organizations/')) return [{ label: 'Organizations' }];
-    if (p.startsWith('/accept-invitation/')) return [{ label: 'Accept invitation' }];
-    if (p.startsWith('/auth/device')) return [{ label: 'Device authorization' }];
-    return [{ label: 'Account' }];
-  }, [location.pathname, params.orgId]);
+    if (p === '/organizations' || p.startsWith('/organizations/')) return [{ label: tb('organizations') }];
+    if (p.startsWith('/accept-invitation/')) return [{ label: tb('acceptInvitation') }];
+    if (p.startsWith('/auth/device')) return [{ label: tb('deviceAuthorization') }];
+    return [{ label: tb('account') }];
+  }, [location.pathname, params.orgId, t]);
 
   return (
     <header className="flex h-12 shrink-0 items-center justify-between gap-2 border-b px-2 sm:px-4">
@@ -76,9 +80,9 @@ export function TopBar() {
         <div className="sm:hidden">
           <SidebarTrigger className="h-9 w-9" />
         </div>
-        <AccountBrand />
+        <AccountBrand label={t('topBar.accountHome')} />
         <SlashDivider />
-        <span className="hidden text-sm font-medium sm:inline">ObjectStack Account</span>
+        <span className="hidden text-sm font-medium sm:inline">{t('topBar.brand')}</span>
         <div className="hidden items-center gap-1 sm:flex">
           <Separator orientation="vertical" className="mx-2 h-4" />
           <OrganizationSwitcher />
@@ -106,8 +110,11 @@ export function TopBar() {
         </div>
       </div>
 
-      {/* Right: theme + user */}
+      {/* Right: locale + theme + user */}
       <div className="flex items-center gap-1 sm:gap-2">
+        <div className="hidden sm:block">
+          <LocaleToggle />
+        </div>
         <div className="hidden sm:block">
           <ThemeToggle />
         </div>
