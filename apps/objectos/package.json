@@ -13,6 +13,7 @@
     "test": "objectstack test",
     "test:e2e": "tsx test/multi-project-e2e.test.ts",
     "test:provisioning": "tsx test/provisioning.test.ts",
+    "test:crm-bundle": "tsx test/single-project-crm-bundle.test.ts",
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {

@@ -18,6 +18,33 @@ pnpm dev
 
 Best for: local development, quick prototyping, CI.
 
+#### Serving a compiled app bundle locally
+
+Point ObjectOS at a third-party app bundle compiled by `objectstack build` (e.g. `examples/app-crm`). The bundle is a JSON file plus a sibling `objectstack-runtime.<hash>.mjs` that carries the compiled hook handlers; both are loaded automatically.
+
+```bash
+# Build the example app once
+pnpm --filter @objectstack/app-crm build
+
+# Boot ObjectOS pointing at the bundle
+cd apps/objectos
+OS_ARTIFACT_PATH=$PWD/../../examples/app-crm/dist/objectstack.json \
+  PORT=3000 pnpm start
+
+# All three URL shapes resolve to the same project kernel:
+curl -X POST http://localhost:3000/api/v1/data/account \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Acme","website":"bogus"}'
+# → 400 Website must start with http:// or https://  (CRM hook fired)
+
+curl -X POST http://localhost:3000/api/v1/projects/proj_local/data/account \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Acme","website":"https://acme.com","account_number":"abc-9"}'
+# → 200 with record.account_number === "ABC-9"  (uppercase hook fired)
+```
+
+The bare `/api/v1/data/...` URL is routed to the default project (`proj_local`) by `createSingleProjectPlugin`. Tables are auto-created by the SQL driver on first access; the bundle's seed data (e.g. `Acme Corporation`) is upserted on boot.
+
 ---
 
 ### 2. Local + External Control Plane

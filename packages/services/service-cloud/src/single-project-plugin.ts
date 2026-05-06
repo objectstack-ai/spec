@@ -52,12 +52,26 @@ export function createSingleProjectPlugin(options: SingleProjectPluginOptions = 
         name: 'com.objectstack.studio.single-project',
         version: '2.0.0',
 
-        init: async (_ctx: AnyContext) => {
-            // No services registered. Identity seed runs in `start()` once
-            // ObjectQL has finished loading the control-plane schema.
+        init: async (ctx: AnyContext) => {
+            // Publish the local org/project as the runtime "default" so
+            // RestServer / HttpDispatcher can route bare URLs (no
+            // `/projects/<id>` prefix, no hostname mapping) into the lone
+            // project kernel instead of the control plane.
+            try {
+                ctx.registerService?.('default-project', { projectId, orgId });
+            } catch {
+                // registerService unavailable on this kernel shape — the
+                // dispatcher and rest layer will simply skip the fallback.
+            }
         },
 
         start: async (ctx: AnyContext) => {
+            // Re-register in `start` for boot shapes where a service
+            // registry is rebuilt between init and start.
+            try {
+                ctx.registerService?.('default-project', { projectId, orgId });
+            } catch { /* best-effort */ }
+
             // ── 1. Idempotent identity seed ──────────────────────────────
             if (options.projectDatabaseUrl) {
                 let objectql: any;

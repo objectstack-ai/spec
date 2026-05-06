@@ -155,6 +155,7 @@ export class RestServer {
     private routeManager: RouteManager;
     private kernelManager?: RestKernelManager;
     private envRegistry?: RestEnvRegistry;
+    private defaultProjectIdProvider?: () => string | undefined;
 
     constructor(
         server: IHttpServer,
@@ -162,12 +163,14 @@ export class RestServer {
         config: RestServerConfig = {},
         kernelManager?: RestKernelManager,
         envRegistry?: RestEnvRegistry,
+        defaultProjectIdProvider?: () => string | undefined,
     ) {
         this.protocol = protocol;
         this.config = this.normalizeConfig(config);
         this.routeManager = new RouteManager(server);
         this.kernelManager = kernelManager;
         this.envRegistry = envRegistry;
+        this.defaultProjectIdProvider = defaultProjectIdProvider;
     }
 
     /**
@@ -202,6 +205,16 @@ export class RestServer {
                     // fall through to default protocol
                 }
             }
+        }
+        // Single-project default fallback. Registered by
+        // `createSingleProjectPlugin()` so bare `/api/v1/data/...` URLs
+        // (no `/projects/<id>` prefix, no hostname mapping) resolve to
+        // the lone project's kernel rather than the control plane.
+        if (!projectId && this.defaultProjectIdProvider) {
+            try {
+                const def = this.defaultProjectIdProvider();
+                if (def) projectId = def;
+            } catch { /* fall through */ }
         }
         if (!projectId || !this.kernelManager) return this.protocol;
         const kernel = await this.kernelManager.getOrCreate(projectId);

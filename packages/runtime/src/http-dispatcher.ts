@@ -68,6 +68,7 @@ export class HttpDispatcher {
     private kernel: any; // Casting to any to access dynamic props like services, graphql
     private defaultKernel: ObjectKernel;
     private envRegistry?: any; // EnvironmentDriverRegistry
+    private defaultProject?: { projectId: string; orgId?: string };
     private kernelManager?: KernelManager;
     private scopeManager?: import('./project-scope-manager.js').ProjectScopeManager;
     /**
@@ -94,10 +95,6 @@ export class HttpDispatcher {
     constructor(kernel: ObjectKernel, envRegistry?: any, options?: HttpDispatcherOptions) {
         this.kernel = kernel;
         this.defaultKernel = kernel;
-        // Auto-resolve multi-project services from the kernel registry when
-        // the caller didn't pass them explicitly. Lets `MultiProjectPlugin`
-        // wire everything up by just registering services — no dispatcher
-        // constructor threading required.
         const resolveService = (name: string): any => {
             try { return (kernel as any).getService?.(name); } catch { return undefined; }
         };
@@ -105,6 +102,23 @@ export class HttpDispatcher {
         this.enforceMembership = options?.enforceProjectMembership ?? true;
         this.kernelManager = options?.kernelManager ?? resolveService('kernel-manager');
         this.scopeManager = options?.scopeManager ?? resolveService('scope-manager');
+        // Single-project default is resolved lazily on first request — the
+        // plugin that registers it (`createSingleProjectPlugin`) may run
+        // its `init()` after the HttpDispatcher is constructed.
+    }
+
+    private resolveDefaultProject(): { projectId: string; orgId?: string } | undefined {
+        if (this.defaultProject) return this.defaultProject;
+        try {
+            const v = (this.kernel as any).getService?.('default-project');
+            if (v?.projectId) {
+                this.defaultProject = v;
+                return v;
+            }
+        } catch {
+            // service not registered — single-project plugin not in stack
+        }
+        return undefined;
     }
 
     private success(data: any, meta?: any) {
@@ -248,6 +262,10 @@ export class HttpDispatcher {
      * 2. request.headers['x-project-id'] → envRegistry.resolveById(id)
      * 3. session.activeEnvironmentId → envRegistry.resolveById(id)
      * 4. session.activeOrganizationId → find default project → envRegistry.resolveById(id)
+     * 5. single-project default (registered by `createSingleProjectPlugin`)
+     *    → envRegistry.resolveById(defaultProject.projectId). Lets bare
+     *    `/api/v1/data/...` URLs resolve to the lone project in
+     *    `cloudUrl: 'local'` deployments.
      *
      * Skip for paths: /auth, /cloud, /health, /discovery (NOT /meta when scoped,
      * so project-scoped meta routes can resolve their project).
@@ -373,6 +391,20 @@ export class HttpDispatcher {
             } catch (sessionError) {
                 // Session resolution failed, continue without environment context
                 console.debug('[HttpDispatcher] Session resolution failed:', sessionError);
+            }
+
+            // 5. Single-project default fallback. Registered by
+            //    `createSingleProjectPlugin()` in `cloudUrl: 'local'` boot
+            //    shapes (apps/objectos default). Lets bare URLs like
+            //    `/api/v1/data/account` resolve to the lone project.
+            if (this.defaultProject?.projectId || this.resolveDefaultProject()) {
+                const def = this.defaultProject!;
+                const driver = await this.envRegistry.resolveById(def.projectId);
+                if (driver) {
+                    context.projectId = def.projectId;
+                    context.dataDriver = driver;
+                    return;
+                }
             }
         } catch (error) {
             console.error('[HttpDispatcher] Environment resolution failed:', error);

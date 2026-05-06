@@ -77,6 +77,17 @@ export function createRestApiPlugin(config: RestApiPluginConfig = {}): Plugin {
                 // Not running in runtime/multi-project mode — fine.
             }
 
+            // Optional default-project provider — registered by
+            // `createSingleProjectPlugin` in single-project local mode.
+            // Lets RestServer route bare `/api/v1/data/...` URLs into the
+            // lone project's kernel.
+            const defaultProjectIdProvider = (): string | undefined => {
+                try {
+                    const dp: any = ctx.getService('default-project');
+                    return dp?.projectId;
+                } catch { return undefined; }
+            };
+
             if (!server) {
                 ctx.logger.warn(`RestApiPlugin: HTTP Server service '${serverService}' not found. REST routes skipped.`);
                 return;
@@ -90,7 +101,7 @@ export function createRestApiPlugin(config: RestApiPluginConfig = {}): Plugin {
             ctx.logger.info('Hydrating REST API from Protocol...');
             
             try {
-                const restServer = new RestServer(server, protocol, config.api as any, kernelManager, envRegistry);
+                const restServer = new RestServer(server, protocol, config.api as any, kernelManager, envRegistry, defaultProjectIdProvider);
                 restServer.registerRoutes();
 
                 ctx.logger.info('REST API successfully registered');

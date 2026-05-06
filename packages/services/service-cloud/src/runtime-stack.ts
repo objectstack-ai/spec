@@ -149,14 +149,23 @@ export async function createRuntimeStack(config?: RuntimeStackConfig): Promise<R
 
             const plugins: any[] = [
                 new ObjectQLPlugin({ projectId: pid }),
-                new MetadataPlugin({
-                    watch: false,
-                    projectId: pid,
-                    artifactSource: { mode: 'local-file', path: artifactPath },
-                    registerSystemObjects: false,
-                }),
             ];
-            if (artifactBundle) plugins.push(new AppPlugin(artifactBundle));
+            // MetadataPlugin's local-file source would crash on start when
+            // OS_ARTIFACT_PATH is unset and the default file is absent
+            // (e.g. when bundles arrive via OS_PROJECT_ARTIFACTS or the
+            // sys_project.metadata DB row instead). Only wire it when the
+            // artifact actually loaded.
+            if (artifactBundle) {
+                plugins.push(
+                    new MetadataPlugin({
+                        watch: false,
+                        projectId: pid,
+                        artifactSource: { mode: 'local-file', path: artifactPath },
+                        registerSystemObjects: false,
+                    }),
+                    new AppPlugin(artifactBundle),
+                );
+            }
             return plugins;
         },
     });
