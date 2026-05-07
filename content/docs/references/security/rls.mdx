@@ -25,7 +25,7 @@ permissions (CRUD), RLS provides record-level filtering.
 
 - Users only see records from their organization
 
-- `using: "tenant_id = current_user.tenant_id"`
+- `using: "organization_id = current_user.organization_id"`
 
 2. **Ownership-Based Access**
 
@@ -83,7 +83,7 @@ object: 'account',
 
 operation: 'select',
 
-using: 'tenant_id = current_user.tenant_id'
+using: 'organization_id = current_user.organization_id'
 
 \}
 

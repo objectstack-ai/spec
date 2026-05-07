@@ -172,19 +172,53 @@ Behavior:
 
 ### Database (Local / Standalone mode)
 
+ObjectOS in single-project local mode uses **two** databases:
+
+| DB | Purpose | Env var | Default |
+|:---|:---|:---|:---|
+| **Project DB** | Your business data (records served at `/api/v1/data/*`) | `OS_DATABASE_URL` / `OS_DATABASE_DRIVER` | local SQLite at `.objectstack/data/proj_local.db` |
+| **Control DB** | Framework bookkeeping (`sys_organization`, `sys_project`, `sys_user`, …) | `OS_CONTROL_DATABASE_URL` | local SQLite at `.objectstack/data/control.db` |
+
+Other variables:
+
 | Variable | Default | Description |
 |:---|:---|:---|
-| `OS_DATABASE_URL` | `.objectstack/data/app.db` | SQLite file path, `libsql://`, or `http(s)://` |
 | `OS_DATABASE_AUTH_TOKEN` | — | Auth token for libSQL / Turso |
+| `OS_DATABASE_DRIVER` | inferred from URL scheme | Explicit override: `mongodb`, `postgres`, `mysql`, `sqlite`, `turso`, `memory` |
 
-Supported `OS_DATABASE_URL` formats:
+The driver is **inferred from the URL scheme** of `OS_DATABASE_URL`
+(and `OS_CONTROL_DATABASE_URL`). You almost never need to set
+`OS_DATABASE_DRIVER` explicitly.
 
-| Value | Driver |
+| `OS_DATABASE_URL` value | Driver |
 |:---|:---|
-| unset | SQLite — `.objectstack/data/app.db` |
-| `file:<path>` | SQLite at that path |
-| `libsql://host` | libSQL / Turso |
-| `http(s)://host` | libSQL over HTTP (sqld) |
+| unset | SQLite — `.objectstack/data/proj_local.db` |
+| `file:<path>` / `<path>.db` / `<path>.sqlite` | SQLite at that path |
+| `:memory:` | SQLite in-memory |
+| `mongodb://…` / `mongodb+srv://…` | **MongoDB** (`@objectstack/driver-mongodb`) |
+| `postgres://…` / `postgresql://…` | PostgreSQL (`@objectstack/driver-sql`) |
+| `mysql://…` / `mysql2://…` | MySQL (`@objectstack/driver-sql`) |
+| `libsql://…` / `https://*.turso.…` | libSQL / Turso (`@objectstack/driver-turso`) |
+
+Examples:
+
+```bash
+# Project DB on MongoDB (control DB stays on local SQLite)
+OS_DATABASE_URL=mongodb://localhost:27017/objectos pnpm dev
+
+# Project DB on Postgres
+OS_DATABASE_URL=postgres://user:pass@host:5432/myapp pnpm dev
+
+# Pin both DBs explicitly (Postgres for project, Turso for control plane)
+OS_DATABASE_URL=postgres://user:pass@host/myapp \
+OS_CONTROL_DATABASE_URL=libsql://control.turso.io \
+OS_DATABASE_AUTH_TOKEN=$TURSO_TOKEN \
+pnpm dev
+```
+
+For backward compatibility, `OS_DATABASE_URL` is also accepted as a
+fallback for the control DB when neither `OS_CONTROL_DATABASE_URL` nor
+an explicit programmatic value is set.
 
 ### Kernel Tuning
 

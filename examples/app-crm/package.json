@@ -16,7 +16,8 @@
     "build": "objectstack build",
     "typecheck": "tsc --noEmit",
     "test": "objectstack test",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:drivers": "./scripts/run-driver-acceptance.sh"
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",
