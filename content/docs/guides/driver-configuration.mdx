@@ -26,7 +26,7 @@ export default defineStack({
 | Driver | Package | Use Case |
 | :--- | :--- | :--- |
 | **PostgreSQL** | `@objectstack/driver-postgres` | Production, enterprise workloads |
-| **MongoDB** | `@objectstack/driver-mongo` | Document-oriented, flexible schema |
+| **MongoDB** | `@objectstack/driver-mongodb` | Document-oriented, flexible schema |
 | **SQLite** | `@objectstack/driver-sqlite` | Local development, embedded apps |
 | **Memory** | `@objectstack/driver-memory` | Testing, prototyping |
 
@@ -81,18 +81,31 @@ Configuration properties for the MongoDB driver.
 | **maxPoolSize** | `number` | optional | Max Connection Pool Size (default: `10`) |
 | **minPoolSize** | `number` | optional | Min Connection Pool Size (default: `0`) |
 
-**Example:**
+**Example (config):**
 
 ```typescript
+import { MongoDBDriver } from '@objectstack/driver-mongodb';
+
 datasources: {
   default: {
-    driver: 'mongo',
+    driver: 'mongodb',
     url: 'mongodb+srv://admin:secret@cluster.mongodb.net/myapp',
     readPreference: 'nearest',
     maxPoolSize: 50,
   },
 }
 ```
+
+**Example (env-var, recommended for `objectstack dev` / `objectstack serve`):**
+
+```bash
+export OS_DATABASE_DRIVER=mongodb
+export OS_DATABASE_URL=mongodb://localhost:27017/myapp
+pnpm dev
+```
+
+When `OS_DATABASE_DRIVER` is set, the CLI auto-registers `@objectstack/driver-mongodb`
+in place of the default in-memory driver. Recognised aliases: `mongodb`, `mongo`.
 
 ## SQLite
 

@@ -10,6 +10,19 @@ pnpm add @objectstack/driver-mongodb mongodb
 
 ## Configuration
 
+### Option A — Env vars (recommended for `objectstack dev` / `objectstack serve`)
+
+```bash
+export OS_DATABASE_DRIVER=mongodb
+export OS_DATABASE_URL=mongodb://localhost:27017/myapp
+pnpm dev
+```
+
+When `OS_DATABASE_DRIVER` is set, the ObjectStack CLI auto-registers this driver
+in place of the default in-memory driver. Recognised values: `mongodb`, `mongo`.
+
+### Option B — Programmatic via `defineStack`
+
 ```typescript
 import { defineStack } from '@objectstack/spec';
 import { MongoDBDriver } from '@objectstack/driver-mongodb';
