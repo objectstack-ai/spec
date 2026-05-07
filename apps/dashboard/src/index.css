@@ -48,6 +48,19 @@
   --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
   --color-sidebar-border: hsl(var(--sidebar-border));
   --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  /* Data-visualization palette (used by chart plugins) */
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  /* Semantic status tokens (KPI deltas, tags, alerts) */
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
 }
 
 @layer base {
@@ -80,6 +93,19 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Chart palette — modern, distinguishable hues for B2B dashboards */
+    --chart-1: 221 83% 53%;   /* blue   */
+    --chart-2: 173 58% 39%;   /* teal   */
+    --chart-3: 262 83% 58%;   /* violet */
+    --chart-4: 27 96% 61%;    /* orange */
+    --chart-5: 340 75% 55%;   /* rose   */
+
+    /* Semantic status colors */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
   }
 
   .dark {
@@ -110,6 +136,19 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Chart palette — slightly desaturated for dark backgrounds */
+    --chart-1: 217 91% 60%;
+    --chart-2: 173 70% 50%;
+    --chart-3: 262 83% 68%;
+    --chart-4: 27 96% 65%;
+    --chart-5: 340 82% 65%;
+
+    /* Semantic status colors (dark mode) */
+    --success: 142 65% 50%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 0 0% 10%;
   }
 
   * {
