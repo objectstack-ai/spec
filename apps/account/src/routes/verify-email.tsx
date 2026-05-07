@@ -3,6 +3,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useObjectTranslation } from '@object-ui/i18n';
+import { useClient } from '@objectstack/client-react';
 import { GalleryVerticalEnd } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -17,6 +18,7 @@ export const Route = createFileRoute('/verify-email')({
 function VerifyEmailPage() {
   const { t } = useObjectTranslation();
   const { token } = Route.useSearch();
+  const client = useClient() as any;
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
 
@@ -26,23 +28,20 @@ function VerifyEmailPage() {
       setMessage(t('auth.verifyEmail.missingToken'));
       return;
     }
-    fetch(`/api/v1/auth/verify-email?token=${encodeURIComponent(token)}`, {
-      credentials: 'include',
-    })
-      .then(async (res) => {
-        if (res.ok) {
-          setStatus('success');
-        } else {
-          const data = await res.json().catch(() => ({}));
+    let cancelled = false;
+    (async () => {
+      try {
+        await client.auth.verifyEmail({ token });
+        if (!cancelled) setStatus('success');
+      } catch (err) {
+        if (!cancelled) {
           setStatus('error');
-          setMessage((data as any)?.message || t('auth.verifyEmail.verificationFailed', { status: res.status }));
+          setMessage((err as Error).message || t('auth.verifyEmail.errorDescription'));
         }
-      })
-      .catch((err) => {
-        setStatus('error');
-        setMessage(err.message);
-      });
-  }, [token, t]);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [token, t, client]);
 
   return (
     <div className="flex min-h-svh w-full flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">

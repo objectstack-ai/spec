@@ -998,6 +998,254 @@ export class ObjectStackClient {
       });
       return res.json();
     },
+
+    /**
+     * Remove a member from an organization.
+     *
+     * better-auth: POST /organization/remove-member
+     * Body: `{ memberIdOrEmail, organizationId? }` — note the parameter is the
+     * **member id** (the row id from `member` table) or the user's email; it
+     * is *not* the bare `userId`. Server enforces owner/admin permission.
+     */
+    removeMember: async (
+      organizationId: string,
+      params: { memberIdOrEmail: string },
+    ) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/organization/remove-member`, {
+        method: 'POST',
+        body: JSON.stringify({ memberIdOrEmail: params.memberIdOrEmail, organizationId }),
+      });
+      return res.json();
+    },
+
+    /**
+     * Change a member's role in an organization (owner/admin only).
+     *
+     * better-auth: POST /organization/update-member-role
+     * Body: `{ memberId, role, organizationId? }`. The `memberId` is the
+     * `member` table row id (not user id). `role` is one of the configured
+     * organisation roles (default: `owner | admin | member`).
+     */
+    updateMemberRole: async (
+      organizationId: string,
+      params: { memberId: string; role: string },
+    ) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/organization/update-member-role`, {
+        method: 'POST',
+        body: JSON.stringify({ memberId: params.memberId, role: params.role, organizationId }),
+      });
+      return res.json();
+    },
+
+    /**
+     * Look up the calling user's membership row in the given organisation.
+     * Useful for permission checks on the client without having to scan the
+     * full member list.
+     *
+     * better-auth: GET /organization/get-active-member?organizationId=…
+     */
+    getActiveMember: async (organizationId: string) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(
+        `${this.baseUrl}${route}/organization/get-active-member?organizationId=${encodeURIComponent(organizationId)}`,
+      );
+      return res.json();
+    },
+
+    /**
+     * Invitation lifecycle — wraps better-auth's organization-plugin
+     * invitation endpoints. Always go through here instead of writing to
+     * `sys_invitation` via the data API: the better-auth writers handle
+     * status transitions, expiry, dedupe, and the `sendInvitationEmail`
+     * side-effect that the auth-manager wires up.
+     */
+    invitations: {
+      /**
+       * List pending/accepted/canceled invitations for an organization.
+       * Requires owner/admin role on that org.
+       *
+       * better-auth: GET /organization/list-invitations?organizationId=…
+       */
+      list: async (organizationId: string) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(
+          `${this.baseUrl}${route}/organization/list-invitations?organizationId=${encodeURIComponent(organizationId)}`,
+        );
+        const data = await res.json();
+        const invitations = Array.isArray(data) ? data : (data?.data ?? data?.invitations ?? []);
+        return { invitations: invitations as Array<{
+          id: string;
+          email: string;
+          role: string;
+          status: 'pending' | 'accepted' | 'rejected' | 'canceled';
+          organizationId: string;
+          inviterId: string;
+          expiresAt: string;
+          teamId?: string | null;
+        }> };
+      },
+
+      /**
+       * List the **current user's** incoming invitations across every
+       * organisation. Used by the per-user "Invitations" inbox page.
+       *
+       * better-auth: GET /organization/list-user-invitations
+       */
+      listMine: async () => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/organization/list-user-invitations`);
+        const data = await res.json();
+        const invitations = Array.isArray(data) ? data : (data?.data ?? data?.invitations ?? []);
+        return { invitations: invitations as Array<{
+          id: string;
+          email: string;
+          role: string;
+          status: string;
+          organizationId: string;
+          inviterId: string;
+          expiresAt: string;
+        }> };
+      },
+
+      /** better-auth: POST /organization/cancel-invitation */
+      cancel: async (invitationId: string) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/organization/cancel-invitation`, {
+          method: 'POST',
+          body: JSON.stringify({ invitationId }),
+        });
+        return res.json();
+      },
+
+      /** better-auth: POST /organization/accept-invitation */
+      accept: async (invitationId: string) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/organization/accept-invitation`, {
+          method: 'POST',
+          body: JSON.stringify({ invitationId }),
+        });
+        return res.json();
+      },
+
+      /** better-auth: POST /organization/reject-invitation */
+      reject: async (invitationId: string) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/organization/reject-invitation`, {
+          method: 'POST',
+          body: JSON.stringify({ invitationId }),
+        });
+        return res.json();
+      },
+
+      /**
+       * "Resend" an invitation. better-auth has no first-class resend
+       * endpoint, so we implement it as cancel-then-invite: cancel the old
+       * row (so its status flips to `canceled` and audit hooks fire), then
+       * issue a fresh invite. The new invite re-runs `sendInvitationEmail`
+       * on the server, so the recipient gets a brand-new accept URL.
+       *
+       * If `cancel()` fails (e.g. invite already accepted) the error is
+       * re-thrown without re-inviting.
+       */
+      resend: async (
+        invitation: { id?: string; email: string; role?: string; organizationId: string; teamId?: string | null },
+      ) => {
+        if (invitation.id) {
+          try {
+            await this.organizations.invitations.cancel(invitation.id);
+          } catch {
+            // Best-effort: ignore "already canceled / accepted" so the
+            // re-invite still goes out.
+          }
+        }
+        return this.organizations.invite({
+          email: invitation.email,
+          role: invitation.role ?? 'member',
+          organizationId: invitation.organizationId,
+        });
+      },
+    },
+
+    /**
+     * Team management — only available when the organisation plugin is
+     * configured with `teams: { enabled: true }` on the server. Calls return
+     * a 4xx if teams aren't enabled; UI should hide the section in that case.
+     */
+    teams: {
+      /** better-auth: GET /organization/list-teams?organizationId=… */
+      list: async (organizationId: string) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(
+          `${this.baseUrl}${route}/organization/list-teams?organizationId=${encodeURIComponent(organizationId)}`,
+        );
+        const data = await res.json();
+        const teams = Array.isArray(data) ? data : (data?.data ?? data?.teams ?? []);
+        return { teams: teams as Array<{ id: string; name: string; organizationId: string; createdAt?: string }> };
+      },
+
+      /** better-auth: POST /organization/create-team */
+      create: async (req: { name: string; organizationId: string }) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/organization/create-team`, {
+          method: 'POST',
+          body: JSON.stringify(req),
+        });
+        return res.json();
+      },
+
+      /** better-auth: POST /organization/update-team */
+      update: async (params: { teamId: string; data: { name?: string } }) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/organization/update-team`, {
+          method: 'POST',
+          body: JSON.stringify(params),
+        });
+        return res.json();
+      },
+
+      /** better-auth: POST /organization/remove-team */
+      delete: async (params: { teamId: string; organizationId?: string }) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/organization/remove-team`, {
+          method: 'POST',
+          body: JSON.stringify(params),
+        });
+        return res.json();
+      },
+
+      /** better-auth: GET /organization/list-team-members?teamId=… */
+      listMembers: async (teamId: string) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(
+          `${this.baseUrl}${route}/organization/list-team-members?teamId=${encodeURIComponent(teamId)}`,
+        );
+        const data = await res.json();
+        const members = Array.isArray(data) ? data : (data?.data ?? data?.members ?? []);
+        return { members: members as Array<{ id: string; teamId: string; userId: string }> };
+      },
+
+      /** better-auth: POST /organization/add-team-member */
+      addMember: async (params: { teamId: string; userId: string }) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/organization/add-team-member`, {
+          method: 'POST',
+          body: JSON.stringify(params),
+        });
+        return res.json();
+      },
+
+      /** better-auth: POST /organization/remove-team-member */
+      removeMember: async (params: { teamId: string; userId: string }) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/organization/remove-team-member`, {
+          method: 'POST',
+          body: JSON.stringify(params),
+        });
+        return res.json();
+      },
+    },
   };
 
   /**
@@ -1273,7 +1521,307 @@ export class ObjectStackClient {
         this.token = data.data.token;
       }
       return data;
-    }
+    },
+
+    /**
+     * Probe the framework-only `/auth/bootstrap-status` endpoint to determine
+     * whether the very first owner has been provisioned. The Account portal's
+     * `/setup` route uses this to decide whether to render the bootstrap form
+     * or bounce the user straight to `/login`.
+     */
+    bootstrapStatus: async (): Promise<{ hasOwner: boolean }> => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/bootstrap-status`);
+      const data = await res.json();
+      // Endpoint may or may not be wrapped in `{ data }`.
+      const payload = (data?.data ?? data) as { hasOwner?: boolean };
+      return { hasOwner: !!payload?.hasOwner };
+    },
+
+    /**
+     * Update the current user's profile.
+     *
+     * better-auth: POST /update-user — accepts `{ name?, image?, ... }`
+     * (any custom user fields configured on the server). Returns the
+     * updated user.
+     */
+    updateUser: async (data: { name?: string; image?: string | null; [key: string]: unknown }) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/update-user`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    },
+
+    /**
+     * Change the current user's password (email/password accounts only).
+     *
+     * better-auth: POST /change-password.
+     * Set `revokeOtherSessions: true` to invalidate every other session
+     * after the change.
+     */
+    changePassword: async (req: {
+      currentPassword: string;
+      newPassword: string;
+      revokeOtherSessions?: boolean;
+    }) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/change-password`, {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
+      return res.json();
+    },
+
+    /**
+     * Begin a change-email flow. better-auth sends a verification mail to
+     * the new address; the change only takes effect after the user clicks
+     * the link.
+     *
+     * better-auth: POST /change-email — `{ newEmail, callbackURL? }`.
+     */
+    changeEmail: async (req: { newEmail: string; callbackURL?: string }) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/change-email`, {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
+      return res.json();
+    },
+
+    /**
+     * Re-send the email-verification link to the current user (or any
+     * address when called as an admin). better-auth: POST /send-verification-email.
+     */
+    sendVerificationEmail: async (req: { email: string; callbackURL?: string }) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/send-verification-email`, {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
+      return res.json();
+    },
+
+    /**
+     * Verify an email-verification token (the link target).
+     *
+     * better-auth: GET /verify-email?token=…&callbackURL=…
+     */
+    verifyEmail: async (params: { token: string; callbackURL?: string }) => {
+      const route = this.getRoute('auth');
+      const url = new URL(`${this.baseUrl}${route}/verify-email`);
+      url.searchParams.set('token', params.token);
+      if (params.callbackURL) url.searchParams.set('callbackURL', params.callbackURL);
+      const res = await this.fetch(url.toString());
+      return res.json();
+    },
+
+    /**
+     * Permanently delete the current user. better-auth supports two flows:
+     *
+     *   1. With a fresh-session password challenge: POST `{ password }`.
+     *   2. With an emailed deletion-confirmation token: POST `{ token }`,
+     *      typically following an out-of-band confirmation step.
+     *
+     * Server policy decides which is required; pass whichever you have.
+     */
+    deleteUser: async (req: { password?: string; token?: string; callbackURL?: string }) => {
+      const route = this.getRoute('auth');
+      const res = await this.fetch(`${this.baseUrl}${route}/delete-user`, {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
+      // Local cleanup mirrors logout(): drop cached bearer token so the next
+      // call doesn't try to use a credential for a now-deleted user.
+      this.token = undefined;
+      return res.json();
+    },
+
+    /**
+     * Active-session management. Wraps better-auth's session endpoints so
+     * the Account portal's `/account/sessions` page can list every device
+     * the user is signed in from and revoke them individually or in bulk.
+     */
+    sessions: {
+      /** better-auth: GET /list-sessions — returns the current user's sessions. */
+      list: async () => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/list-sessions`);
+        const data = await res.json();
+        const sessions = Array.isArray(data) ? data : (data?.data ?? data?.sessions ?? []);
+        return { sessions: sessions as Array<{
+          id: string;
+          token: string;
+          userId: string;
+          userAgent?: string;
+          ipAddress?: string;
+          createdAt: string;
+          expiresAt: string;
+        }> };
+      },
+
+      /** better-auth: POST /revoke-session — revoke a single session by token. */
+      revoke: async (token: string) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/revoke-session`, {
+          method: 'POST',
+          body: JSON.stringify({ token }),
+        });
+        return res.json();
+      },
+
+      /** better-auth: POST /revoke-other-sessions — keep current, kill the rest. */
+      revokeOthers: async () => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/revoke-other-sessions`, {
+          method: 'POST',
+          body: '{}',
+        });
+        return res.json();
+      },
+
+      /** better-auth: POST /revoke-sessions — kill every session for this user. */
+      revokeAll: async () => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/revoke-sessions`, {
+          method: 'POST',
+          body: '{}',
+        });
+        // Local cleanup — current session is gone too.
+        this.token = undefined;
+        return res.json();
+      },
+    },
+
+    /**
+     * Two-factor authentication (TOTP + backup codes). Requires the
+     * `twoFactor` plugin to be enabled on the server (see
+     * `plugin-auth` config). Endpoints live under `/two-factor/*`.
+     */
+    twoFactor: {
+      /**
+       * Start enrolment. Server returns a TOTP URI (`otpauth://...`) which
+       * the UI renders as a QR code; the user then calls `verifyTotp` to
+       * confirm and finish enabling.
+       */
+      enable: async (req: { password: string }): Promise<{ totpURI?: string; backupCodes?: string[] }> => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/two-factor/enable`, {
+          method: 'POST',
+          body: JSON.stringify(req),
+        });
+        const data = await res.json();
+        return (data?.data ?? data) as { totpURI?: string; backupCodes?: string[] };
+      },
+
+      /**
+       * Confirm a TOTP code — used to finalise enrolment after `enable()`
+       * or to step up an existing 2FA-enabled session. `trustDevice` (when
+       * supported by the server config) suppresses the 2FA challenge on
+       * this browser for the configured trust period.
+       */
+      verifyTotp: async (req: { code: string; trustDevice?: boolean }) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/two-factor/verify-totp`, {
+          method: 'POST',
+          body: JSON.stringify(req),
+        });
+        return res.json();
+      },
+
+      /** Disable 2FA for the current user. Requires the password again. */
+      disable: async (req: { password: string }) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/two-factor/disable`, {
+          method: 'POST',
+          body: JSON.stringify(req),
+        });
+        return res.json();
+      },
+
+      /**
+       * Issue a fresh set of backup codes (invalidating any previous set).
+       * Display them once — the server only stores hashes.
+       */
+      generateBackupCodes: async (req: { password: string }): Promise<{ backupCodes: string[] }> => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/two-factor/generate-backup-codes`, {
+          method: 'POST',
+          body: JSON.stringify(req),
+        });
+        const data = await res.json();
+        return (data?.data ?? data) as { backupCodes: string[] };
+      },
+
+      /**
+       * Verify a 2FA backup code in lieu of a TOTP. Useful as a recovery
+       * affordance when the user has lost their authenticator app.
+       */
+      verifyBackupCode: async (req: { code: string }) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/two-factor/verify-backup-code`, {
+          method: 'POST',
+          body: JSON.stringify(req),
+        });
+        return res.json();
+      },
+    },
+
+    /**
+     * Linked credentials — i.e. the rows in better-auth's `account` table
+     * (one per provider × user). Lets the user see and unlink their social
+     * / OIDC connections from the Account portal.
+     */
+    accounts: {
+      /** better-auth: GET /list-accounts */
+      list: async () => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/list-accounts`);
+        const data = await res.json();
+        const accounts = Array.isArray(data) ? data : (data?.data ?? data?.accounts ?? []);
+        return { accounts: accounts as Array<{
+          id: string;
+          providerId: string;
+          accountId: string;
+          createdAt?: string;
+          updatedAt?: string;
+        }> };
+      },
+
+      /**
+       * Unlink a provider connection.
+       * better-auth: POST /unlink-account — `{ providerId, accountId? }`.
+       * `accountId` is required when the user has more than one account
+       * for the same provider.
+       */
+      unlink: async (req: { providerId: string; accountId?: string }) => {
+        const route = this.getRoute('auth');
+        const res = await this.fetch(`${this.baseUrl}${route}/unlink-account`, {
+          method: 'POST',
+          body: JSON.stringify(req),
+        });
+        return res.json();
+      },
+
+      /**
+       * Link an additional social provider to the current user.
+       * better-auth: POST /link-social — `{ provider, callbackURL }`. The
+       * server returns a redirect URL; the caller should `window.location`
+       * to it (mirroring `signInWithProvider`).
+       */
+      linkSocial: async (req: { provider: string; callbackURL?: string }): Promise<{ url?: string }> => {
+        const route = this.getRoute('auth');
+        const callbackURL = req.callbackURL
+          ?? (typeof window !== 'undefined' ? window.location.href : undefined);
+        const res = await this.fetch(`${this.baseUrl}${route}/link-social`, {
+          method: 'POST',
+          body: JSON.stringify({ provider: req.provider, callbackURL }),
+        });
+        const data = await res.json();
+        return (data?.data ?? data) as { url?: string };
+      },
+    },
   };
 
   /**

@@ -2,13 +2,19 @@
 
 /**
  * React hooks for organization member and invitation management.
- * Built on top of better-auth's organization plugin APIs.
+ *
+ * All network calls go through `client.organizations.*` (better-auth's
+ * organization plugin endpoints). We never read or write `sys_invitation`
+ * via the data API directly: better-auth owns the invitation lifecycle
+ * (status enum, expiry, dedupe, `sendInvitationEmail` side-effect) and
+ * bypassing it produces silently-broken data.
  */
 
 import { useCallback, useEffect, useState } from 'react';
 import { useClient } from '@objectstack/client-react';
 
 export interface OrganizationMember {
+  /** Row id in `sys_member` — pass this to updateMemberRole / removeMember. */
   id: string;
   userId: string;
   organizationId: string;
@@ -30,11 +36,13 @@ export interface OrganizationInvitation {
   status: 'pending' | 'accepted' | 'rejected' | 'expired' | 'canceled';
   inviterId: string;
   expiresAt: string;
-  createdAt: string;
+  createdAt?: string;
+  teamId?: string | null;
 }
 
 /**
- * Hook to manage members of an organization
+ * Members of an organization. Owner/admin gating is enforced server-side
+ * by better-auth; the hook surfaces the raw error so the UI can toast.
  */
 export function useOrganizationMembers(organizationId: string | undefined) {
   const client = useClient() as any;
@@ -44,13 +52,12 @@ export function useOrganizationMembers(organizationId: string | undefined) {
 
   const loadMembers = useCallback(async () => {
     if (!organizationId || !client?.organizations) return;
-    
     setLoading(true);
     setError(null);
     try {
       const res = await client.organizations.listMembers(organizationId);
-      const membersList = res?.members ?? res?.data?.members ?? res ?? [];
-      setMembers(membersList);
+      const list = res?.members ?? res?.data?.members ?? (Array.isArray(res) ? res : []);
+      setMembers(list);
     } catch (err) {
       setError(err as Error);
       setMembers([]);
@@ -68,68 +75,46 @@ export function useOrganizationMembers(organizationId: string | undefined) {
       if (!organizationId || !client?.organizations) {
         throw new Error('Organization ID or client not available');
       }
-
-      const res = await client.organizations.invite({
-        email,
-        role,
-        organizationId,
-      });
-
-      // Reload members after invitation
+      const res = await client.organizations.invite({ email, role, organizationId });
       await loadMembers();
       return res;
     },
-    [client, organizationId, loadMembers]
+    [client, organizationId, loadMembers],
   );
 
+  /**
+   * Remove a member. `memberIdOrEmail` is the **member-row id** (or the
+   * member's email) — better-auth requires the membership identifier, not
+   * the bare userId.
+   */
   const removeMember = useCallback(
-    async (userId: string) => {
-      if (!organizationId || !client?.organizations) {
+    async (memberIdOrEmail: string) => {
+      if (!organizationId || !client?.organizations?.removeMember) {
         throw new Error('Organization ID or client not available');
       }
-
-      // Note: better-auth's organization plugin may not have a direct remove member endpoint
-      // This would typically be done through the data API or a custom endpoint
-      // For now, we'll use a placeholder that would need to be implemented
-      const route = '/api/v1/auth';
-      const res = await client.fetch(`${client.baseUrl}${route}/organization/remove-member`, {
-        method: 'POST',
-        body: JSON.stringify({ organizationId, userId }),
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to remove member');
-      }
-
-      // Reload members after removal
+      const res = await client.organizations.removeMember(organizationId, { memberIdOrEmail });
       await loadMembers();
-      return res.json();
+      return res;
     },
-    [client, organizationId, loadMembers]
+    [client, organizationId, loadMembers],
   );
 
+  /**
+   * Change a member's role. `memberId` is the row id in `sys_member`.
+   */
   const updateMemberRole = useCallback(
-    async (userId: string, newRole: string) => {
-      if (!organizationId || !client?.organizations) {
+    async (memberId: string, newRole: string) => {
+      if (!organizationId || !client?.organizations?.updateMemberRole) {
         throw new Error('Organization ID or client not available');
       }
-
-      // Note: Role update would need to be implemented via better-auth or custom endpoint
-      const route = '/api/v1/auth';
-      const res = await client.fetch(`${client.baseUrl}${route}/organization/update-member-role`, {
-        method: 'POST',
-        body: JSON.stringify({ organizationId, userId, role: newRole }),
+      const res = await client.organizations.updateMemberRole(organizationId, {
+        memberId,
+        role: newRole,
       });
-
-      if (!res.ok) {
-        throw new Error('Failed to update member role');
-      }
-
-      // Reload members after update
       await loadMembers();
-      return res.json();
+      return res;
     },
-    [client, organizationId, loadMembers]
+    [client, organizationId, loadMembers],
   );
 
   return {
@@ -144,7 +129,9 @@ export function useOrganizationMembers(organizationId: string | undefined) {
 }
 
 /**
- * Hook to manage organization invitations
+ * Invitations for a given organization. Always sourced from better-auth's
+ * `/organization/list-invitations` — never from a direct query against the
+ * `sys_invitation` table.
  */
 export function useOrganizationInvitations(organizationId: string | undefined) {
   const client = useClient() as any;
@@ -153,25 +140,13 @@ export function useOrganizationInvitations(organizationId: string | undefined) {
   const [error, setError] = useState<Error | null>(null);
 
   const loadInvitations = useCallback(async () => {
-    if (!organizationId || !client?.organizations) return;
-
+    if (!organizationId || !client?.organizations?.invitations) return;
     setLoading(true);
     setError(null);
     try {
-      // Note: better-auth may not have a direct list invitations endpoint
-      // This would need to query the sys_invitation object via data API
-      const route = '/api/v1/data';
-      const res = await client.fetch(
-        `${client.baseUrl}${route}/sys_invitation?filter=organization_id eq '${organizationId}'&sort=-created_at`
-      );
-      
-      if (!res.ok) {
-        throw new Error('Failed to load invitations');
-      }
-
-      const data = await res.json();
-      const invitationsList = data?.data?.items ?? data?.items ?? [];
-      setInvitations(invitationsList);
+      const res = await client.organizations.invitations.list(organizationId);
+      const list = res?.invitations ?? res?.data?.invitations ?? (Array.isArray(res) ? res : []);
+      setInvitations(list);
     } catch (err) {
       setError(err as Error);
       setInvitations([]);
@@ -186,51 +161,37 @@ export function useOrganizationInvitations(organizationId: string | undefined) {
 
   const cancelInvitation = useCallback(
     async (invitationId: string) => {
-      if (!client) {
+      if (!client?.organizations?.invitations?.cancel) {
         throw new Error('Client not available');
       }
-
-      // Update invitation status to 'canceled'
-      const route = '/api/v1/data';
-      const res = await client.fetch(`${client.baseUrl}${route}/sys_invitation/${invitationId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status: 'canceled' }),
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to cancel invitation');
-      }
-
-      // Reload invitations after cancellation
+      const res = await client.organizations.invitations.cancel(invitationId);
       await loadInvitations();
-      return res.json();
+      return res;
     },
-    [client, loadInvitations]
+    [client, loadInvitations],
   );
 
+  /**
+   * Re-issue an invitation. better-auth has no first-class resend
+   * endpoint, so the SDK implements it as cancel + re-invite. Pass the
+   * full invitation row so we can preserve the role.
+   */
   const resendInvitation = useCallback(
-    async (invitationId: string) => {
-      if (!client) {
+    async (invitation: OrganizationInvitation) => {
+      if (!client?.organizations?.invitations?.resend) {
         throw new Error('Client not available');
       }
-
-      // This would typically create a new invitation with the same email/role
-      // and cancel the old one
-      const route = '/api/v1/auth';
-      const res = await client.fetch(`${client.baseUrl}${route}/organization/resend-invitation`, {
-        method: 'POST',
-        body: JSON.stringify({ invitationId }),
+      const res = await client.organizations.invitations.resend({
+        id: invitation.id,
+        email: invitation.email,
+        role: invitation.role,
+        organizationId: invitation.organizationId,
+        teamId: invitation.teamId ?? null,
       });
-
-      if (!res.ok) {
-        throw new Error('Failed to resend invitation');
-      }
-
-      // Reload invitations after resending
       await loadInvitations();
-      return res.json();
+      return res;
     },
-    [client, loadInvitations]
+    [client, loadInvitations],
   );
 
   return {
@@ -241,4 +202,56 @@ export function useOrganizationInvitations(organizationId: string | undefined) {
     cancelInvitation,
     resendInvitation,
   };
+}
+
+/**
+ * The current user's incoming invitations across every organisation.
+ * Backed by `/organization/list-user-invitations`. Used by the per-user
+ * Invitations inbox page.
+ */
+export function useMyInvitations() {
+  const client = useClient() as any;
+  const [invitations, setInvitations] = useState<OrganizationInvitation[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const reload = useCallback(async () => {
+    if (!client?.organizations?.invitations?.listMine) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await client.organizations.invitations.listMine();
+      const list = res?.invitations ?? res?.data?.invitations ?? (Array.isArray(res) ? res : []);
+      setInvitations(list);
+    } catch (err) {
+      setError(err as Error);
+      setInvitations([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [client]);
+
+  useEffect(() => {
+    reload();
+  }, [reload]);
+
+  const accept = useCallback(
+    async (invitationId: string) => {
+      const res = await client.organizations.invitations.accept(invitationId);
+      await reload();
+      return res;
+    },
+    [client, reload],
+  );
+
+  const reject = useCallback(
+    async (invitationId: string) => {
+      const res = await client.organizations.invitations.reject(invitationId);
+      await reload();
+      return res;
+    },
+    [client, reload],
+  );
+
+  return { invitations, loading, error, reload, accept, reject };
 }

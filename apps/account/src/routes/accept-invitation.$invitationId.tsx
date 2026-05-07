@@ -1,8 +1,9 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useObjectTranslation } from '@object-ui/i18n';
+import { useClient } from '@objectstack/client-react';
 import { GalleryVerticalEnd } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,23 +18,26 @@ function AcceptInvitationPage() {
   const { t } = useObjectTranslation();
   const { invitationId } = Route.useParams();
   const navigate = useNavigate();
-  const { reloadOrganizations } = useSession();
+  const client = useClient() as any;
+  const { user, loading: sessionLoading, reloadOrganizations } = useSession();
   const [accepting, setAccepting] = useState(false);
   const [rejecting, setRejecting] = useState(false);
+
+  // Anonymous users can't accept — bounce to /login with a return URL so
+  // they come back here once authenticated. Without this, the POST below
+  // 401s and the user gets a confusing toast.
+  useEffect(() => {
+    if (sessionLoading) return;
+    if (!user) {
+      const next = `/accept-invitation/${invitationId}`;
+      navigate({ to: '/login', search: { redirect: next } as any, replace: true });
+    }
+  }, [sessionLoading, user, invitationId, navigate]);
 
   const handleAccept = async () => {
     setAccepting(true);
     try {
-      const res = await fetch('/api/v1/auth/organization/accept-invitation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ invitationId }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error((data as any)?.message || `Request failed: ${res.status}`);
-      }
+      await client.organizations.invitations.accept(invitationId);
       await reloadOrganizations().catch(() => {});
       toast({ title: t('acceptInvitation.accepted') });
       navigate({ to: '/organizations' });
@@ -51,16 +55,7 @@ function AcceptInvitationPage() {
   const handleReject = async () => {
     setRejecting(true);
     try {
-      const res = await fetch('/api/v1/auth/organization/reject-invitation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ invitationId }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error((data as any)?.message || `Request failed: ${res.status}`);
-      }
+      await client.organizations.invitations.reject(invitationId);
       toast({ title: t('acceptInvitation.declined') });
       navigate({ to: '/organizations' });
     } catch (err) {

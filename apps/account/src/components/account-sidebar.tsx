@@ -27,7 +27,9 @@
 import { Link, useLocation } from '@tanstack/react-router';
 import {
   Building2,
+  Inbox,
   KeyRound,
+  Link2,
   Monitor,
   PanelLeft,
   Settings,
@@ -35,6 +37,7 @@ import {
   ShieldCheck,
   User,
   Users,
+  Users2,
 } from 'lucide-react';
 import { useObjectTranslation } from '@object-ui/i18n';
 import {
@@ -58,6 +61,8 @@ interface NavItem {
     | '/account/security'
     | '/account/sessions'
     | '/account/two-factor'
+    | '/account/invitations'
+    | '/account/linked-accounts'
     | '/account/oauth-applications'
     | '/organizations';
   label: string;
@@ -69,6 +74,8 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { to: '/account/security', label: 'security', icon: Shield },
   { to: '/account/sessions', label: 'sessions', icon: Monitor },
   { to: '/account/two-factor', label: 'twoFactor', icon: ShieldCheck },
+  { to: '/account/invitations', label: 'invitations', icon: Inbox },
+  { to: '/account/linked-accounts', label: 'linkedAccounts', icon: Link2 },
 ];
 
 export function AccountSidebar() {
@@ -151,6 +158,18 @@ export function AccountSidebar() {
                       <Link to="/organizations/$orgId/members" params={{ orgId: activeOrgId }}>
                         <Users className="size-4" />
                         <span>{t('sidebar.items.members')}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === `/organizations/${activeOrgId}/teams`}
+                      tooltip={t('sidebar.items.teams')}
+                    >
+                      <Link to="/organizations/$orgId/teams" params={{ orgId: activeOrgId }}>
+                        <Users2 className="size-4" />
+                        <span>{t('sidebar.items.teams')}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

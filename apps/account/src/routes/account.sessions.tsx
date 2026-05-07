@@ -4,9 +4,12 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { LogOut, Monitor } from 'lucide-react';
 import { useObjectTranslation } from '@object-ui/i18n';
+import { useClient } from '@objectstack/client-react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
+import { useSession } from '@/hooks/useSession';
 
 export const Route = createFileRoute('/account/sessions')({
   component: SessionsPage,
@@ -23,6 +26,8 @@ interface SessionRecord {
 
 function SessionsPage() {
   const { t } = useObjectTranslation();
+  const client = useClient() as any;
+  const { session: currentSession } = useSession();
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [revoking, setRevoking] = useState<string | null>(null);
@@ -30,10 +35,8 @@ function SessionsPage() {
 
   const loadSessions = async () => {
     try {
-      const res = await fetch('/api/v1/auth/list-sessions', { credentials: 'include' });
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-      const data = await res.json();
-      setSessions((data as any)?.sessions ?? data ?? []);
+      const res = await client.auth.sessions.list();
+      setSessions((res?.sessions ?? []) as SessionRecord[]);
     } catch (err) {
       toast({
         title: t('sessions.loadFailed'),
@@ -47,21 +50,13 @@ function SessionsPage() {
 
   useEffect(() => {
     loadSessions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRevoke = async (token: string) => {
     setRevoking(token);
     try {
-      const res = await fetch('/api/v1/auth/revoke-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ token }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error((data as any)?.message || `Request failed: ${res.status}`);
-      }
+      await client.auth.sessions.revoke(token);
       toast({ title: t('sessions.revoked') });
       await loadSessions();
     } catch (err) {
@@ -78,16 +73,7 @@ function SessionsPage() {
   const handleRevokeOthers = async () => {
     setRevokingOthers(true);
     try {
-      const res = await fetch('/api/v1/auth/revoke-other-sessions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({}),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error((data as any)?.message || `Request failed: ${res.status}`);
-      }
+      await client.auth.sessions.revokeOthers();
       toast({ title: t('sessions.othersRevoked') });
       await loadSessions();
     } catch (err) {
@@ -100,6 +86,8 @@ function SessionsPage() {
       setRevokingOthers(false);
     }
   };
+
+  const currentToken = currentSession?.token;
 
   return (
     <Card>
@@ -123,31 +111,41 @@ function SessionsPage() {
         )}
         {!loading && sessions.length > 0 && (
           <div className="divide-y">
-            {sessions.map((s) => (
-              <div key={s.id} className="flex items-center justify-between py-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <Monitor className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    <span className="truncate text-sm font-medium">
-                      {s.userAgent ?? t('sessions.unknownDevice')}
-                    </span>
+            {sessions.map((s) => {
+              const isCurrent = currentToken && s.token === currentToken;
+              return (
+                <div key={s.id} className="flex items-center justify-between py-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <Monitor className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <span className="truncate text-sm font-medium">
+                        {s.userAgent ?? t('sessions.unknownDevice')}
+                      </span>
+                      {isCurrent && (
+                        <Badge variant="outline" className="border-green-600 text-green-600">
+                          {t('sessions.current')}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="mt-1 space-x-3 text-xs text-muted-foreground">
+                      {s.ipAddress && <span>{s.ipAddress}</span>}
+                      <span>{t('sessions.expires', { date: new Date(s.expiresAt).toLocaleDateString() })}</span>
+                    </div>
                   </div>
-                  <div className="mt-1 space-x-3 text-xs text-muted-foreground">
-                    {s.ipAddress && <span>{s.ipAddress}</span>}
-                    <span>{t('sessions.expires', { date: new Date(s.expiresAt).toLocaleDateString() })}</span>
-                  </div>
+                  {!isCurrent && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRevoke(s.token)}
+                      disabled={revoking === s.token}
+                      className="ml-3 shrink-0"
+                    >
+                      <LogOut className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleRevoke(s.token)}
-                  disabled={revoking === s.token}
-                  className="ml-3 shrink-0"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </CardContent>

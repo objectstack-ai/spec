@@ -3,6 +3,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useObjectTranslation } from '@object-ui/i18n';
+import { useClient } from '@objectstack/client-react';
+import { Copy, KeyRound, RefreshCw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,15 +21,23 @@ export const Route = createFileRoute('/account/two-factor')({
 
 function TwoFactorPage() {
   const { t } = useObjectTranslation();
+  const client = useClient() as any;
   const { user, loading: sessionLoading, refresh } = useSession();
   const [enabled, setEnabled] = useState<boolean | null>(null);
   const [enablePassword, setEnablePassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [totpUri, setTotpUri] = useState<string | null>(null);
+  const [pendingBackupCodes, setPendingBackupCodes] = useState<string[] | null>(null);
+  const [trustDevice, setTrustDevice] = useState(false);
   const [verifyCode, setVerifyCode] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [disablePassword, setDisablePassword] = useState('');
   const [disabling, setDisabling] = useState(false);
+
+  // ── backup codes (only after enrolment) ────────────────────────────
+  const [backupPassword, setBackupPassword] = useState('');
+  const [regenerating, setRegenerating] = useState(false);
+  const [backupCodes, setBackupCodes] = useState<string[] | null>(null);
 
   useEffect(() => {
     if (sessionLoading) return;
@@ -38,18 +48,9 @@ function TwoFactorPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('/api/v1/auth/two-factor/enable', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ password: enablePassword }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error((data as any)?.message || `Request failed: ${res.status}`);
-      }
-      const data = await res.json();
-      setTotpUri((data as any)?.totpURI ?? null);
+      const res = await client.auth.twoFactor.enable({ password: enablePassword });
+      setTotpUri(res?.totpURI ?? null);
+      setPendingBackupCodes(res?.backupCodes ?? null);
       setEnablePassword('');
     } catch (err) {
       toast({
@@ -66,16 +67,7 @@ function TwoFactorPage() {
     e.preventDefault();
     setVerifying(true);
     try {
-      const res = await fetch('/api/v1/auth/two-factor/verify-totp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ code: verifyCode }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error((data as any)?.message || `Request failed: ${res.status}`);
-      }
+      await client.auth.twoFactor.verifyTotp({ code: verifyCode, trustDevice });
       toast({ title: t('twoFactor.enableSuccess') });
       setEnabled(true);
       setTotpUri(null);
@@ -96,19 +88,11 @@ function TwoFactorPage() {
     e.preventDefault();
     setDisabling(true);
     try {
-      const res = await fetch('/api/v1/auth/two-factor/disable', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ password: disablePassword }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error((data as any)?.message || `Request failed: ${res.status}`);
-      }
+      await client.auth.twoFactor.disable({ password: disablePassword });
       toast({ title: t('twoFactor.disableSuccess') });
       setEnabled(false);
       setDisablePassword('');
+      setBackupCodes(null);
       await refresh();
     } catch (err) {
       toast({
@@ -118,6 +102,34 @@ function TwoFactorPage() {
       });
     } finally {
       setDisabling(false);
+    }
+  };
+
+  const handleRegenerateBackupCodes = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRegenerating(true);
+    try {
+      const res = await client.auth.twoFactor.generateBackupCodes({ password: backupPassword });
+      setBackupCodes(res?.backupCodes ?? []);
+      setBackupPassword('');
+      toast({ title: t('twoFactor.backupCodes.regenerated') });
+    } catch (err) {
+      toast({
+        title: t('twoFactor.backupCodes.regenerateFailed'),
+        description: (err as Error).message,
+        variant: 'destructive',
+      });
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
+  const copyBackupCodes = async (codes: string[]) => {
+    try {
+      await navigator.clipboard.writeText(codes.join('\n'));
+      toast({ title: t('twoFactor.backupCodes.copied') });
+    } catch {
+      toast({ title: t('twoFactor.backupCodes.copyFailed'), variant: 'destructive' });
     }
   };
 
@@ -159,6 +171,30 @@ function TwoFactorPage() {
             </div>
             <p className="text-xs text-muted-foreground">{t('twoFactor.uriHint')}</p>
           </div>
+          {pendingBackupCodes && pendingBackupCodes.length > 0 && (
+            <div className="rounded border bg-muted/40 p-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">{t('twoFactor.backupCodes.savedTitle')}</p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyBackupCodes(pendingBackupCodes)}
+                >
+                  <Copy className="mr-1 h-3 w-3" />
+                  {t('twoFactor.backupCodes.copy')}
+                </Button>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t('twoFactor.backupCodes.savedHint')}
+              </p>
+              <div className="mt-2 grid grid-cols-2 gap-1 font-mono text-xs">
+                {pendingBackupCodes.map((c) => (
+                  <span key={c} className="rounded bg-background px-2 py-1">{c}</span>
+                ))}
+              </div>
+            </div>
+          )}
           <Separator />
           <form onSubmit={handleVerifyTotp} className="space-y-3">
             <div className="space-y-1.5">
@@ -174,6 +210,14 @@ function TwoFactorPage() {
                 required
               />
             </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={trustDevice}
+                onChange={(e) => setTrustDevice(e.target.checked)}
+              />
+              {t('twoFactor.trustDevice')}
+            </label>
             <div className="flex gap-2">
               <Button type="submit" disabled={verifying || verifyCode.length < 6}>
                 {verifying ? t('twoFactor.verifying') : t('twoFactor.verify')}
@@ -190,35 +234,90 @@ function TwoFactorPage() {
 
   if (enabled === true) {
     return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <CardTitle className="text-base">{t('twoFactor.title')}</CardTitle>
-            <Badge variant="outline" className="border-green-600 text-green-600">
-              {t('twoFactor.enabled')}
-            </Badge>
-          </div>
-          <CardDescription>{t('twoFactor.enabledDescription')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleDisable} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="disable-password">{t('twoFactor.password')}</Label>
-              <Input
-                id="disable-password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={disablePassword}
-                onChange={(e) => setDisablePassword(e.target.value)}
-              />
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-base">{t('twoFactor.title')}</CardTitle>
+              <Badge variant="outline" className="border-green-600 text-green-600">
+                {t('twoFactor.enabled')}
+              </Badge>
             </div>
-            <Button variant="destructive" type="submit" disabled={disabling}>
-              {disabling ? t('twoFactor.disabling') : t('twoFactor.disable')}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+            <CardDescription>{t('twoFactor.enabledDescription')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleDisable} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="disable-password">{t('twoFactor.password')}</Label>
+                <Input
+                  id="disable-password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={disablePassword}
+                  onChange={(e) => setDisablePassword(e.target.value)}
+                />
+              </div>
+              <Button variant="destructive" type="submit" disabled={disabling}>
+                {disabling ? t('twoFactor.disabling') : t('twoFactor.disable')}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <KeyRound className="h-4 w-4" />
+              {t('twoFactor.backupCodes.title')}
+            </CardTitle>
+            <CardDescription>{t('twoFactor.backupCodes.description')}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <form onSubmit={handleRegenerateBackupCodes} className="space-y-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="backup-password">{t('twoFactor.password')}</Label>
+                <Input
+                  id="backup-password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={backupPassword}
+                  onChange={(e) => setBackupPassword(e.target.value)}
+                />
+              </div>
+              <Button type="submit" variant="outline" disabled={regenerating}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                {regenerating ? t('common.saving') : t('twoFactor.backupCodes.regenerate')}
+              </Button>
+            </form>
+            {backupCodes && backupCodes.length > 0 && (
+              <div className="rounded border bg-muted/40 p-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium">{t('twoFactor.backupCodes.newTitle')}</p>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyBackupCodes(backupCodes)}
+                  >
+                    <Copy className="mr-1 h-3 w-3" />
+                    {t('twoFactor.backupCodes.copy')}
+                  </Button>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t('twoFactor.backupCodes.savedHint')}
+                </p>
+                <div className="mt-2 grid grid-cols-2 gap-1 font-mono text-xs">
+                  {backupCodes.map((c) => (
+                    <span key={c} className="rounded bg-background px-2 py-1">{c}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 

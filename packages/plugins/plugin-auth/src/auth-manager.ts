@@ -250,6 +250,14 @@ export class AuthManager {
       const { organization } = await import('better-auth/plugins/organization');
       plugins.push(organization({
         schema: buildOrganizationPluginSchema(),
+        // Enable the team sub-feature so the framework's `sys_team` /
+        // `sys_team_member` tables (already declared in platform-objects)
+        // are actually wired up to better-auth's CRUD endpoints
+        // (`/organization/{create,update,remove,list}-team[s]` and
+        // `/organization/{add,remove,list}-team-member[s]`). The Account
+        // portal exposes a Teams page; without this flag those endpoints
+        // 404 and the section silently breaks.
+        teams: { enabled: true },
         // No mailer is wired in framework yet — log the accept URL so
         // operators / UI can fall back to copy-paste flows. Replace this
         // with a real mail integration when available.

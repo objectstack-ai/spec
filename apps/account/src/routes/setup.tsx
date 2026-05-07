@@ -4,25 +4,35 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useClient } from '@objectstack/client-react';
 import { useObjectTranslation } from '@object-ui/i18n';
+import { GalleryVerticalEnd, Plus, ShieldCheck, Trash2, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { useSession } from '@/hooks/useSession';
-import { GalleryVerticalEnd, ShieldCheck } from 'lucide-react';
 
 /**
  * First-run setup page.
  *
- * Renders only when `/api/v1/auth/bootstrap-status` reports `hasOwner: false`.
- * Creates the first user via better-auth's standard `sign-up/email` and
- * provisions a default organization for them. Once an owner exists this
- * route becomes inert and `__root` will redirect away.
+ * Renders only when `client.auth.bootstrapStatus()` reports `hasOwner: false`.
+ * Creates the first user via better-auth's standard `sign-up/email`,
+ * provisions a default organization, and (optionally) seeds it with a
+ * batch of teammate invitations. Once an owner exists this route becomes
+ * inert and `__root` will redirect away.
  */
 export const Route = createFileRoute('/setup')({
   component: SetupPage,
 });
+
+interface InviteRow {
+  email: string;
+  role: 'owner' | 'admin' | 'member';
+}
+
+function slugify(input: string): string {
+  return input.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
 
 function SetupPage() {
   const { t } = useObjectTranslation();
@@ -33,24 +43,26 @@ function SetupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [orgName, setOrgName] = useState('');
+  const [orgSlug, setOrgSlug] = useState('');
+  const [slugTouched, setSlugTouched] = useState(false);
+  const [invites, setInvites] = useState<InviteRow[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [bootstrapped, setBootstrapped] = useState<boolean | null>(null);
 
-  // Probe bootstrap-status on mount. If an owner already exists, this page
-  // shouldn't be reachable — bounce back to /login.
+  // Probe bootstrap-status on mount via the SDK. If an owner already exists,
+  // this page shouldn't be reachable — bounce back to /login.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch('/api/v1/auth/bootstrap-status');
-        const data = await res.json() as { hasOwner: boolean };
-        if (!cancelled) setBootstrapped(data.hasOwner);
+        const { hasOwner } = await client.auth.bootstrapStatus();
+        if (!cancelled) setBootstrapped(hasOwner);
       } catch {
         if (!cancelled) setBootstrapped(false);
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [client]);
 
   useEffect(() => {
     if (bootstrapped === true && !user) {
@@ -59,13 +71,21 @@ function SetupPage() {
   }, [bootstrapped, user, navigate]);
 
   useEffect(() => {
-    // Already authenticated — bounce to the platform home. Account SPA has no
-    // "home" of its own; its index just redirects to /login, which would
-    // render a blank flicker for an authed user.
     if (user) {
+      // Already authenticated — hand off to the platform home.
       window.location.assign('/');
     }
   }, [user]);
+
+  // Auto-derive slug from name unless the user has manually edited it.
+  useEffect(() => {
+    if (!slugTouched) setOrgSlug(slugify(orgName));
+  }, [orgName, slugTouched]);
+
+  const addInvite = () => setInvites((rows) => [...rows, { email: '', role: 'member' }]);
+  const removeInvite = (idx: number) => setInvites((rows) => rows.filter((_, i) => i !== idx));
+  const updateInvite = (idx: number, patch: Partial<InviteRow>) =>
+    setInvites((rows) => rows.map((row, i) => (i === idx ? { ...row, ...patch } : row)));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,28 +100,62 @@ function SetupPage() {
 
       // 3. Provision the default organization. better-auth's organization
       //    plugin attaches the calling user as owner automatically.
-      try {
-        const trimmedName = orgName.trim();
-        if (trimmedName) {
-          const slug = trimmedName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-          await fetch('/api/v1/auth/organization/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ name: trimmedName, slug: slug || trimmedName }),
+      const trimmedName = orgName.trim();
+      let createdOrgId: string | undefined;
+      if (trimmedName) {
+        const slug = slugify(orgSlug || trimmedName);
+        try {
+          const created = await client.organizations.create({ name: trimmedName, slug });
+          createdOrgId = (created as any)?.id ?? (created as any)?.data?.id;
+          if (createdOrgId) {
+            // Make the new org active so the next-step invitations land on it.
+            await client.organizations.setActive(createdOrgId).catch(() => {});
+          }
+        } catch (err) {
+          // Non-fatal: user can create an org from the dashboard.
+          console.warn('[setup] organization creation failed', err);
+        }
+      }
+
+      // 4. Fan out teammate invitations through better-auth so the
+      //    `sendInvitationEmail` hook fires (or, in dev, the accept URL is
+      //    logged). Failures are reported but don't abort setup.
+      const validInvites = invites
+        .map((row) => ({ ...row, email: row.email.trim() }))
+        .filter((row) => row.email);
+      if (validInvites.length > 0 && createdOrgId) {
+        let failed = 0;
+        for (const row of validInvites) {
+          try {
+            await client.organizations.invite({
+              email: row.email,
+              role: row.role,
+              organizationId: createdOrgId,
+            });
+          } catch {
+            failed++;
+          }
+        }
+        if (failed > 0) {
+          toast({
+            title: t('auth.setup.invitePartialFailure'),
+            description: t('auth.setup.invitePartialFailureDescription', {
+              failed,
+              total: validInvites.length,
+            }),
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: t('auth.setup.invitesSent', { count: validInvites.length }),
           });
         }
-      } catch {
-        // Non-fatal: user can create an org from the dashboard.
       }
 
       toast({
         title: t('auth.setup.welcomeTitle'),
         description: t('auth.setup.successDescription'),
       });
-      // Hand off to the platform home. The redirect-on-user effect above will
-      // also fire, but doing it here avoids a one-frame flash of the form's
-      // "submitting" state.
       window.location.assign('/');
     } catch (err) {
       toast({
@@ -185,10 +239,69 @@ function SetupPage() {
                   value={orgName}
                   onChange={(e) => setOrgName(e.target.value)}
                 />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="orgSlug">{t('auth.setup.orgSlug')}</Label>
+                <Input
+                  id="orgSlug"
+                  placeholder="acme"
+                  value={orgSlug}
+                  onChange={(e) => { setSlugTouched(true); setOrgSlug(slugify(e.target.value)); }}
+                />
                 <p className="text-xs text-muted-foreground">
-                  {t('auth.setup.orgNameHint')}
+                  {t('auth.setup.orgSlugHint')}
                 </p>
               </div>
+
+              <div className="flex flex-col gap-2 rounded-md border bg-muted/40 p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">{t('auth.setup.inviteTeammates')}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t('auth.setup.inviteTeammatesHint')}
+                    </p>
+                  </div>
+                  <Button type="button" size="sm" variant="outline" onClick={addInvite}>
+                    <Plus className="mr-1 h-3 w-3" />
+                    {t('auth.setup.addInvite')}
+                  </Button>
+                </div>
+                {invites.length === 0 && (
+                  <p className="text-center text-xs text-muted-foreground py-2">
+                    <UserPlus className="mx-auto mb-1 h-4 w-4" />
+                    {t('auth.setup.inviteEmpty')}
+                  </p>
+                )}
+                {invites.map((row, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <Input
+                      type="email"
+                      placeholder="teammate@example.com"
+                      value={row.email}
+                      onChange={(e) => updateInvite(idx, { email: e.target.value })}
+                      className="flex-1"
+                    />
+                    <select
+                      className="h-9 rounded-md border bg-background px-2 text-sm"
+                      value={row.role}
+                      onChange={(e) => updateInvite(idx, { role: e.target.value as InviteRow['role'] })}
+                    >
+                      <option value="member">{t('common.roles.member')}</option>
+                      <option value="admin">{t('common.roles.admin')}</option>
+                      <option value="owner">{t('common.roles.owner')}</option>
+                    </select>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeInvite(idx)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
               <Button type="submit" className="w-full" disabled={submitting}>
                 {submitting ? t('auth.setup.submitting') : t('auth.setup.submit')}
               </Button>
