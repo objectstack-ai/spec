@@ -7,6 +7,7 @@
 
 import { useNavigate } from '@tanstack/react-router';
 import { LogOut, User as UserIcon, Building2 } from 'lucide-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +28,7 @@ function initials(name?: string | null, email?: string | null): string {
 }
 
 export function UserMenu() {
+  const { t } = useObjectTranslation();
   const navigate = useNavigate();
   const { user, loading, logout } = useSession();
 
@@ -42,7 +44,7 @@ export function UserMenu() {
         className="h-8"
         onClick={() => navigate({ to: '/login' })}
       >
-        Sign in
+        {t('userMenu.signIn')}
       </Button>
     );
   }
@@ -60,7 +62,7 @@ export function UserMenu() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
           <Avatar className="h-7 w-7">
-            {user.image ? <AvatarImage src={user.image} alt={user.name ?? user.email ?? 'User'} /> : null}
+            {user.image ? <AvatarImage src={user.image} alt={user.name ?? user.email ?? t('userMenu.user')} /> : null}
             <AvatarFallback className="text-[11px]">
               {initials(user.name, user.email)}
             </AvatarFallback>
@@ -79,16 +81,16 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => navigate({ to: '/account' })}>
           <UserIcon className="mr-2 h-3.5 w-3.5" />
-          Account
+          {t('userMenu.account')}
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => navigate({ to: '/organizations' })}>
           <Building2 className="mr-2 h-3.5 w-3.5" />
-          Organizations
+          {t('userMenu.organizations')}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={handleLogout}>
           <LogOut className="mr-2 h-3.5 w-3.5" />
-          Sign out
+          {t('userMenu.signOut')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,0 +1,68 @@
+{
+  "common": {
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "create": "创建",
+    "loading": "加载中...",
+    "submit": "提交",
+    "confirm": "确认",
+    "back": "返回",
+    "next": "下一步",
+    "yes": "是",
+    "no": "否",
+    "english": "English",
+    "chinese": "中文",
+    "language": "语言",
+    "theme": "主题",
+    "light": "浅色",
+    "dark": "深色",
+    "system": "系统",
+    "toggleTheme": "切换主题"
+  },
+  "topBar": {
+    "accountHome": "账户首页",
+    "brand": "ObjectStack 账户",
+    "breadcrumb": {
+      "account": "账户",
+      "profile": "个人资料",
+      "security": "安全",
+      "sessions": "会话",
+      "twoFactor": "双因素认证",
+      "organizations": "组织",
+      "new": "新建",
+      "general": "常规",
+      "members": "成员",
+      "settings": "设置",
+      "acceptInvitation": "接受邀请",
+      "deviceAuthorization": "设备授权"
+    }
+  },
+  "sidebar": {
+    "groups": {
+      "account": "账户",
+      "organization": "组织",
+      "developer": "开发者"
+    },
+    "items": {
+      "profile": "个人资料",
+      "security": "安全",
+      "sessions": "会话",
+      "twoFactor": "双因素认证",
+      "overview": "概览",
+      "general": "常规",
+      "members": "成员",
+      "oauthApps": "OAuth 应用"
+    },
+    "expand": "展开侧边栏",
+    "collapse": "收起侧边栏"
+  },
+  "userMenu": {
+    "user": "用户",
+    "signIn": "登录",
+    "account": "账户",
+    "organizations": "组织",
+    "signOut": "退出登录"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "loading": "Loading...",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "yes": "Yes",
+    "no": "No",
+    "english": "English",
+    "chinese": "中文",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggleTheme": "Toggle theme"
+  },
+  "topBar": {
+    "accountHome": "Account home",
+    "brand": "ObjectStack Account",
+    "breadcrumb": {
+      "account": "Account",
+      "profile": "Profile",
+      "security": "Security",
+      "sessions": "Sessions",
+      "twoFactor": "Two-Factor",
+      "organizations": "Organizations",
+      "new": "New",
+      "general": "General",
+      "members": "Members",
+      "settings": "Settings",
+      "acceptInvitation": "Accept invitation",
+      "deviceAuthorization": "Device authorization"
+    }
+  },
+  "sidebar": {
+    "groups": {
+      "account": "Account",
+      "organization": "Organization",
+      "developer": "Developer"
+    },
+    "items": {
+      "profile": "Profile",
+      "security": "Security",
+      "sessions": "Sessions",
+      "twoFactor": "Two-Factor",
+      "overview": "Overview",
+      "general": "General",
+      "members": "Members",
+      "oauthApps": "OAuth Apps"
+    },
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar"
+  },
+  "userMenu": {
+    "user": "User",
+    "signIn": "Sign in",
+    "account": "Account",
+    "organizations": "Organizations",
+    "signOut": "Sign out"
+  }
+}

@@ -32,6 +32,9 @@ importers:
 
   apps/account:
     dependencies:
+      '@object-ui/i18n':
+        specifier: ^3.3.2
+        version: 3.3.2(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3)
       '@objectstack/client':
         specifier: workspace:*
         version: link:../../packages/client
