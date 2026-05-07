@@ -1,0 +1,444 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { MongoDBDriver } from './mongodb-driver.js';
+
+describe('MongoDBDriver', () => {
+  let mongod: MongoMemoryServer;
+  let driver: MongoDBDriver;
+
+  beforeAll(async () => {
+    mongod = await MongoMemoryServer.create();
+    const uri = mongod.getUri();
+    driver = new MongoDBDriver({ url: uri, database: 'test_db' });
+    await driver.connect();
+  });
+
+  afterAll(async () => {
+    await driver.disconnect();
+    await mongod.stop();
+  });
+
+  beforeEach(async () => {
+    // Clear test collection between tests
+    const db = driver.getDb();
+    const collections = await db.listCollections().toArray();
+    for (const col of collections) {
+      await db.dropCollection(col.name);
+    }
+  });
+
+  // ===========================================================================
+  // Lifecycle
+  // ===========================================================================
+
+  describe('lifecycle', () => {
+    it('should report healthy', async () => {
+      expect(await driver.checkHealth()).toBe(true);
+    });
+  });
+
+  // ===========================================================================
+  // CRUD Operations
+  // ===========================================================================
+
+  describe('create', () => {
+    it('should create a record with auto-generated id', async () => {
+      const result = await driver.create('task', { title: 'Test task' });
+      expect(result.id).toBeDefined();
+      expect(typeof result.id).toBe('string');
+      expect(result.title).toBe('Test task');
+      expect(result.created_at).toBeDefined();
+      expect(result.updated_at).toBeDefined();
+    });
+
+    it('should create a record with provided id', async () => {
+      const result = await driver.create('task', { id: 'custom-id', title: 'Test' });
+      expect(result.id).toBe('custom-id');
+    });
+
+    it('should never expose _id', async () => {
+      const result = await driver.create('task', { title: 'Test' });
+      expect(result).not.toHaveProperty('_id');
+    });
+  });
+
+  describe('find', () => {
+    beforeEach(async () => {
+      await driver.bulkCreate('task', [
+        { id: '1', title: 'Alpha', priority: 1, status: 'active' },
+        { id: '2', title: 'Beta', priority: 2, status: 'active' },
+        { id: '3', title: 'Gamma', priority: 3, status: 'done' },
+        { id: '4', title: 'Delta', priority: 4, status: 'done' },
+        { id: '5', title: 'Epsilon', priority: 5, status: 'active' },
+      ]);
+    });
+
+    it('should find all records', async () => {
+      const results = await driver.find('task', {});
+      expect(results.length).toBe(5);
+    });
+
+    it('should never expose _id in results', async () => {
+      const results = await driver.find('task', {});
+      for (const r of results) {
+        expect(r).not.toHaveProperty('_id');
+      }
+    });
+
+    it('should filter with where clause', async () => {
+      const results = await driver.find('task', { where: { status: 'active' } });
+      expect(results.length).toBe(3);
+    });
+
+    it('should sort results', async () => {
+      const results = await driver.find('task', {
+        orderBy: [{ field: 'priority', order: 'desc' }],
+      });
+      expect(results[0].priority).toBe(5);
+      expect(results[4].priority).toBe(1);
+    });
+
+    it('should paginate with limit and offset', async () => {
+      const results = await driver.find('task', {
+        orderBy: [{ field: 'priority', order: 'asc' }],
+        limit: 2,
+        offset: 1,
+      });
+      expect(results.length).toBe(2);
+      expect(results[0].id).toBe('2');
+      expect(results[1].id).toBe('3');
+    });
+
+    it('should select specific fields', async () => {
+      const results = await driver.find('task', {
+        fields: ['title', 'status'],
+      });
+      expect(results[0].title).toBeDefined();
+      expect(results[0].status).toBeDefined();
+      expect(results[0].id).toBeDefined(); // id always included
+    });
+  });
+
+  describe('findOne', () => {
+    beforeEach(async () => {
+      await driver.create('task', { id: 'find-1', title: 'Find me' });
+    });
+
+    it('should find a single record by filter', async () => {
+      const result = await driver.findOne('task', { where: { id: 'find-1' } });
+      expect(result).not.toBeNull();
+      expect(result!.title).toBe('Find me');
+      expect(result).not.toHaveProperty('_id');
+    });
+
+    it('should return null for non-existent record', async () => {
+      const result = await driver.findOne('task', { where: { id: 'nonexistent' } });
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('update', () => {
+    it('should update a record and return updated data', async () => {
+      await driver.create('task', { id: 'upd-1', title: 'Original', status: 'new' });
+      const result = await driver.update('task', 'upd-1', { title: 'Updated', status: 'done' });
+      expect(result.title).toBe('Updated');
+      expect(result.status).toBe('done');
+      expect(result.id).toBe('upd-1');
+      expect(result).not.toHaveProperty('_id');
+    });
+
+    it('should update updated_at timestamp', async () => {
+      await driver.create('task', { id: 'upd-2', title: 'Test' });
+      const before = await driver.findOne('task', { where: { id: 'upd-2' } });
+
+      // Small delay to ensure different timestamp
+      await new Promise((r) => setTimeout(r, 10));
+
+      await driver.update('task', 'upd-2', { title: 'Updated' });
+      const after = await driver.findOne('task', { where: { id: 'upd-2' } });
+
+      expect(new Date(after!.updated_at as string).getTime())
+        .toBeGreaterThanOrEqual(new Date(before!.updated_at as string).getTime());
+    });
+  });
+
+  describe('upsert', () => {
+    it('should insert when record does not exist', async () => {
+      const result = await driver.upsert('task', { id: 'ups-1', title: 'New' });
+      expect(result.id).toBe('ups-1');
+      expect(result.title).toBe('New');
+    });
+
+    it('should update when record exists', async () => {
+      await driver.create('task', { id: 'ups-2', title: 'Original' });
+      const result = await driver.upsert('task', { id: 'ups-2', title: 'Updated' });
+      expect(result.title).toBe('Updated');
+    });
+  });
+
+  describe('delete', () => {
+    it('should delete an existing record', async () => {
+      await driver.create('task', { id: 'del-1', title: 'Delete me' });
+      const result = await driver.delete('task', 'del-1');
+      expect(result).toBe(true);
+
+      const found = await driver.findOne('task', { where: { id: 'del-1' } });
+      expect(found).toBeNull();
+    });
+
+    it('should return false for non-existent record', async () => {
+      const result = await driver.delete('task', 'nonexistent');
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('count', () => {
+    beforeEach(async () => {
+      await driver.bulkCreate('task', [
+        { id: '1', status: 'active' },
+        { id: '2', status: 'active' },
+        { id: '3', status: 'done' },
+      ]);
+    });
+
+    it('should count all records', async () => {
+      expect(await driver.count('task')).toBe(3);
+    });
+
+    it('should count with filter', async () => {
+      expect(await driver.count('task', { where: { status: 'active' } })).toBe(2);
+    });
+  });
+
+  // ===========================================================================
+  // Bulk Operations
+  // ===========================================================================
+
+  describe('bulk operations', () => {
+    it('should bulk create records', async () => {
+      const results = await driver.bulkCreate('task', [
+        { title: 'Task 1' },
+        { title: 'Task 2' },
+        { title: 'Task 3' },
+      ]);
+      expect(results.length).toBe(3);
+      expect(results[0].id).toBeDefined();
+      expect(results[0]).not.toHaveProperty('_id');
+    });
+
+    it('should bulk update records', async () => {
+      await driver.bulkCreate('task', [
+        { id: 'bu-1', title: 'One', status: 'new' },
+        { id: 'bu-2', title: 'Two', status: 'new' },
+      ]);
+
+      const results = await driver.bulkUpdate('task', [
+        { id: 'bu-1', data: { status: 'done' } },
+        { id: 'bu-2', data: { status: 'active' } },
+      ]);
+
+      expect(results.length).toBe(2);
+      const statuses = results.map((r) => r.status);
+      expect(statuses).toContain('done');
+      expect(statuses).toContain('active');
+    });
+
+    it('should bulk delete records', async () => {
+      await driver.bulkCreate('task', [
+        { id: 'bd-1', title: 'One' },
+        { id: 'bd-2', title: 'Two' },
+        { id: 'bd-3', title: 'Three' },
+      ]);
+
+      await driver.bulkDelete('task', ['bd-1', 'bd-3']);
+      const remaining = await driver.find('task', {});
+      expect(remaining.length).toBe(1);
+      expect(remaining[0].id).toBe('bd-2');
+    });
+  });
+
+  describe('updateMany', () => {
+    it('should update multiple records matching query', async () => {
+      await driver.bulkCreate('task', [
+        { id: 'um-1', status: 'new' },
+        { id: 'um-2', status: 'new' },
+        { id: 'um-3', status: 'done' },
+      ]);
+
+      const count = await driver.updateMany('task', { where: { status: 'new' } }, { status: 'active' });
+      expect(count).toBe(2);
+    });
+  });
+
+  describe('deleteMany', () => {
+    it('should delete multiple records matching query', async () => {
+      await driver.bulkCreate('task', [
+        { id: 'dm-1', status: 'done' },
+        { id: 'dm-2', status: 'done' },
+        { id: 'dm-3', status: 'active' },
+      ]);
+
+      const count = await driver.deleteMany('task', { where: { status: 'done' } });
+      expect(count).toBe(2);
+      expect(await driver.count('task')).toBe(1);
+    });
+  });
+
+  // ===========================================================================
+  // Streaming
+  // ===========================================================================
+
+  describe('findStream', () => {
+    it('should stream records', async () => {
+      await driver.bulkCreate('task', [
+        { id: 's-1', title: 'One' },
+        { id: 's-2', title: 'Two' },
+        { id: 's-3', title: 'Three' },
+      ]);
+
+      const records: any[] = [];
+      for await (const record of driver.findStream('task', {})) {
+        records.push(record);
+      }
+      expect(records.length).toBe(3);
+      for (const r of records) {
+        expect(r).not.toHaveProperty('_id');
+      }
+    });
+  });
+
+  // ===========================================================================
+  // Aggregation
+  // ===========================================================================
+
+  describe('aggregate', () => {
+    beforeEach(async () => {
+      await driver.bulkCreate('order', [
+        { id: '1', customer_id: 'c1', amount: 100, region: 'US' },
+        { id: '2', customer_id: 'c1', amount: 200, region: 'US' },
+        { id: '3', customer_id: 'c2', amount: 150, region: 'EU' },
+        { id: '4', customer_id: 'c2', amount: 300, region: 'EU' },
+      ]);
+    });
+
+    it('should count all records', async () => {
+      const results = await driver.aggregate('order', {
+        aggregations: [{ function: 'count', alias: 'total' }],
+      } as any);
+      expect(results[0].total).toBe(4);
+    });
+
+    it('should group by field with sum', async () => {
+      const results = await driver.aggregate('order', {
+        aggregations: [{ function: 'sum', field: 'amount', alias: 'total_amount' }],
+        groupBy: ['region'],
+      } as any);
+
+      expect(results.length).toBe(2);
+      const us = results.find((r) => r.region === 'US');
+      const eu = results.find((r) => r.region === 'EU');
+      expect(us!.total_amount).toBe(300);
+      expect(eu!.total_amount).toBe(450);
+    });
+  });
+
+  // ===========================================================================
+  // Schema Sync
+  // ===========================================================================
+
+  describe('syncSchema', () => {
+    it('should create collection and indexes', async () => {
+      await driver.syncSchema('account', {
+        name: 'account',
+        fields: {
+          name: { type: 'string', unique: true },
+          email: { type: 'email', indexed: true },
+          company_id: { type: 'lookup', reference_to: 'company' },
+        },
+      });
+
+      const db = driver.getDb();
+      const indexes = await db.collection('account').indexes();
+      const indexNames = indexes.map((i: any) => i.name);
+
+      expect(indexNames).toContain('idx_id_unique');
+      expect(indexNames).toContain('idx_name_unique');
+      expect(indexNames).toContain('idx_email');
+      expect(indexNames).toContain('idx_company_id_lookup');
+    });
+
+    it('should be idempotent (safe to call multiple times)', async () => {
+      const schema = { name: 'project', fields: { name: { type: 'string' } } };
+      await driver.syncSchema('project', schema);
+      await driver.syncSchema('project', schema);
+
+      const count = await driver.count('project');
+      expect(count).toBe(0); // Collection exists, no data
+    });
+  });
+
+  describe('dropTable', () => {
+    it('should drop collection', async () => {
+      await driver.create('temp_table', { id: '1', name: 'test' });
+      await driver.dropTable('temp_table');
+
+      const count = await driver.count('temp_table');
+      expect(count).toBe(0);
+    });
+  });
+
+  // ===========================================================================
+  // Filters (integration)
+  // ===========================================================================
+
+  describe('filter integration', () => {
+    beforeEach(async () => {
+      await driver.bulkCreate('user', [
+        { id: '1', name: 'Alice', age: 25, role: 'admin' },
+        { id: '2', name: 'Bob', age: 30, role: 'user' },
+        { id: '3', name: 'Charlie', age: 35, role: 'user' },
+        { id: '4', name: 'Diana', age: 28, role: 'manager' },
+      ]);
+    });
+
+    it('should filter with $gt', async () => {
+      const results = await driver.find('user', { where: { age: { $gt: 30 } } });
+      expect(results.length).toBe(1);
+      expect(results[0].name).toBe('Charlie');
+    });
+
+    it('should filter with $in', async () => {
+      const results = await driver.find('user', { where: { role: { $in: ['admin', 'manager'] } } });
+      expect(results.length).toBe(2);
+    });
+
+    it('should filter with $contains', async () => {
+      const results = await driver.find('user', { where: { name: { $contains: 'li' } } });
+      expect(results.length).toBe(2); // Alice, Charlie
+    });
+
+    it('should filter with $and', async () => {
+      const results = await driver.find('user', {
+        where: { $and: [{ role: 'user' }, { age: { $gte: 35 } }] },
+      });
+      expect(results.length).toBe(1);
+      expect(results[0].name).toBe('Charlie');
+    });
+
+    it('should filter with $or', async () => {
+      const results = await driver.find('user', {
+        where: { $or: [{ role: 'admin' }, { age: { $gt: 34 } }] },
+      });
+      expect(results.length).toBe(2);
+    });
+
+    it('should filter with legacy array style', async () => {
+      const results = await driver.find('user', {
+        where: [['age', '>=', 30], ['role', '=', 'user']] as any,
+      });
+      expect(results.length).toBe(2);
+    });
+  });
+});
