@@ -27,16 +27,16 @@ import { Route as AccountTwoFactorRouteImport } from './routes/account.two-facto
 import { Route as AccountSessionsRouteImport } from './routes/account.sessions'
 import { Route as AccountSecurityRouteImport } from './routes/account.security'
 import { Route as AccountProfileRouteImport } from './routes/account.profile'
+import { Route as AccountLinkedAccountsRouteImport } from './routes/account.linked-accounts'
+import { Route as AccountInvitationsRouteImport } from './routes/account.invitations'
 import { Route as AcceptInvitationInvitationIdRouteImport } from './routes/accept-invitation.$invitationId'
 import { Route as OrganizationsOrgIdIndexRouteImport } from './routes/organizations.$orgId.index'
 import { Route as AccountOauthApplicationsIndexRouteImport } from './routes/account.oauth-applications.index'
+import { Route as OrganizationsOrgIdTeamsRouteImport } from './routes/organizations.$orgId.teams'
 import { Route as OrganizationsOrgIdMembersRouteImport } from './routes/organizations.$orgId.members'
 import { Route as OrganizationsOrgIdGeneralRouteImport } from './routes/organizations.$orgId.general'
 import { Route as AccountOauthApplicationsNewRouteImport } from './routes/account.oauth-applications.new'
 import { Route as AccountOauthApplicationsClientIdRouteImport } from './routes/account.oauth-applications.$clientId'
-import { Route as AccountInvitationsRouteImport } from './routes/account.invitations'
-import { Route as AccountLinkedAccountsRouteImport } from './routes/account.linked-accounts'
-import { Route as OrganizationsOrgIdTeamsRouteImport } from './routes/organizations.$orgId.teams'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -128,6 +128,16 @@ const AccountProfileRoute = AccountProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AccountRoute,
 } as any)
+const AccountLinkedAccountsRoute = AccountLinkedAccountsRouteImport.update({
+  id: '/linked-accounts',
+  path: '/linked-accounts',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountInvitationsRoute = AccountInvitationsRouteImport.update({
+  id: '/invitations',
+  path: '/invitations',
+  getParentRoute: () => AccountRoute,
+} as any)
 const AcceptInvitationInvitationIdRoute =
   AcceptInvitationInvitationIdRouteImport.update({
     id: '/accept-invitation/$invitationId',
@@ -145,6 +155,11 @@ const AccountOauthApplicationsIndexRoute =
     path: '/oauth-applications/',
     getParentRoute: () => AccountRoute,
   } as any)
+const OrganizationsOrgIdTeamsRoute = OrganizationsOrgIdTeamsRouteImport.update({
+  id: '/teams',
+  path: '/teams',
+  getParentRoute: () => OrganizationsOrgIdRoute,
+} as any)
 const OrganizationsOrgIdMembersRoute =
   OrganizationsOrgIdMembersRouteImport.update({
     id: '/members',
@@ -169,21 +184,6 @@ const AccountOauthApplicationsClientIdRoute =
     path: '/oauth-applications/$clientId',
     getParentRoute: () => AccountRoute,
   } as any)
-const AccountInvitationsRoute = AccountInvitationsRouteImport.update({
-  id: '/invitations',
-  path: '/invitations',
-  getParentRoute: () => AccountRoute,
-} as any)
-const AccountLinkedAccountsRoute = AccountLinkedAccountsRouteImport.update({
-  id: '/linked-accounts',
-  path: '/linked-accounts',
-  getParentRoute: () => AccountRoute,
-} as any)
-const OrganizationsOrgIdTeamsRoute = OrganizationsOrgIdTeamsRouteImport.update({
-  id: '/teams',
-  path: '/teams',
-  getParentRoute: () => OrganizationsOrgIdRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -195,6 +195,8 @@ export interface FileRoutesByFullPath {
   '/setup': typeof SetupRoute
   '/verify-email': typeof VerifyEmailRoute
   '/accept-invitation/$invitationId': typeof AcceptInvitationInvitationIdRoute
+  '/account/invitations': typeof AccountInvitationsRoute
+  '/account/linked-accounts': typeof AccountLinkedAccountsRoute
   '/account/profile': typeof AccountProfileRoute
   '/account/security': typeof AccountSecurityRoute
   '/account/sessions': typeof AccountSessionsRoute
@@ -210,8 +212,6 @@ export interface FileRoutesByFullPath {
   '/organizations/$orgId/general': typeof OrganizationsOrgIdGeneralRoute
   '/organizations/$orgId/members': typeof OrganizationsOrgIdMembersRoute
   '/organizations/$orgId/teams': typeof OrganizationsOrgIdTeamsRoute
-  '/account/invitations': typeof AccountInvitationsRoute
-  '/account/linked-accounts': typeof AccountLinkedAccountsRoute
   '/account/oauth-applications/': typeof AccountOauthApplicationsIndexRoute
   '/organizations/$orgId/': typeof OrganizationsOrgIdIndexRoute
 }
@@ -224,6 +224,8 @@ export interface FileRoutesByTo {
   '/setup': typeof SetupRoute
   '/verify-email': typeof VerifyEmailRoute
   '/accept-invitation/$invitationId': typeof AcceptInvitationInvitationIdRoute
+  '/account/invitations': typeof AccountInvitationsRoute
+  '/account/linked-accounts': typeof AccountLinkedAccountsRoute
   '/account/profile': typeof AccountProfileRoute
   '/account/security': typeof AccountSecurityRoute
   '/account/sessions': typeof AccountSessionsRoute
@@ -238,8 +240,6 @@ export interface FileRoutesByTo {
   '/organizations/$orgId/general': typeof OrganizationsOrgIdGeneralRoute
   '/organizations/$orgId/members': typeof OrganizationsOrgIdMembersRoute
   '/organizations/$orgId/teams': typeof OrganizationsOrgIdTeamsRoute
-  '/account/invitations': typeof AccountInvitationsRoute
-  '/account/linked-accounts': typeof AccountLinkedAccountsRoute
   '/account/oauth-applications': typeof AccountOauthApplicationsIndexRoute
   '/organizations/$orgId': typeof OrganizationsOrgIdIndexRoute
 }
@@ -254,6 +254,8 @@ export interface FileRoutesById {
   '/setup': typeof SetupRoute
   '/verify-email': typeof VerifyEmailRoute
   '/accept-invitation/$invitationId': typeof AcceptInvitationInvitationIdRoute
+  '/account/invitations': typeof AccountInvitationsRoute
+  '/account/linked-accounts': typeof AccountLinkedAccountsRoute
   '/account/profile': typeof AccountProfileRoute
   '/account/security': typeof AccountSecurityRoute
   '/account/sessions': typeof AccountSessionsRoute
@@ -269,8 +271,6 @@ export interface FileRoutesById {
   '/organizations/$orgId/general': typeof OrganizationsOrgIdGeneralRoute
   '/organizations/$orgId/members': typeof OrganizationsOrgIdMembersRoute
   '/organizations/$orgId/teams': typeof OrganizationsOrgIdTeamsRoute
-  '/account/invitations': typeof AccountInvitationsRoute
-  '/account/linked-accounts': typeof AccountLinkedAccountsRoute
   '/account/oauth-applications/': typeof AccountOauthApplicationsIndexRoute
   '/organizations/$orgId/': typeof OrganizationsOrgIdIndexRoute
 }
@@ -286,6 +286,8 @@ export interface FileRouteTypes {
     | '/setup'
     | '/verify-email'
     | '/accept-invitation/$invitationId'
+    | '/account/invitations'
+    | '/account/linked-accounts'
     | '/account/profile'
     | '/account/security'
     | '/account/sessions'
@@ -301,8 +303,6 @@ export interface FileRouteTypes {
     | '/organizations/$orgId/general'
     | '/organizations/$orgId/members'
     | '/organizations/$orgId/teams'
-    | '/account/invitations'
-    | '/account/linked-accounts'
     | '/account/oauth-applications/'
     | '/organizations/$orgId/'
   fileRoutesByTo: FileRoutesByTo
@@ -315,6 +315,8 @@ export interface FileRouteTypes {
     | '/setup'
     | '/verify-email'
     | '/accept-invitation/$invitationId'
+    | '/account/invitations'
+    | '/account/linked-accounts'
     | '/account/profile'
     | '/account/security'
     | '/account/sessions'
@@ -329,8 +331,6 @@ export interface FileRouteTypes {
     | '/organizations/$orgId/general'
     | '/organizations/$orgId/members'
     | '/organizations/$orgId/teams'
-    | '/account/invitations'
-    | '/account/linked-accounts'
     | '/account/oauth-applications'
     | '/organizations/$orgId'
   id:
@@ -344,6 +344,8 @@ export interface FileRouteTypes {
     | '/setup'
     | '/verify-email'
     | '/accept-invitation/$invitationId'
+    | '/account/invitations'
+    | '/account/linked-accounts'
     | '/account/profile'
     | '/account/security'
     | '/account/sessions'
@@ -359,8 +361,6 @@ export interface FileRouteTypes {
     | '/organizations/$orgId/general'
     | '/organizations/$orgId/members'
     | '/organizations/$orgId/teams'
-    | '/account/invitations'
-    | '/account/linked-accounts'
     | '/account/oauth-applications/'
     | '/organizations/$orgId/'
   fileRoutesById: FileRoutesById
@@ -510,6 +510,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountProfileRouteImport
       parentRoute: typeof AccountRoute
     }
+    '/account/linked-accounts': {
+      id: '/account/linked-accounts'
+      path: '/linked-accounts'
+      fullPath: '/account/linked-accounts'
+      preLoaderRoute: typeof AccountLinkedAccountsRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/invitations': {
+      id: '/account/invitations'
+      path: '/invitations'
+      fullPath: '/account/invitations'
+      preLoaderRoute: typeof AccountInvitationsRouteImport
+      parentRoute: typeof AccountRoute
+    }
     '/accept-invitation/$invitationId': {
       id: '/accept-invitation/$invitationId'
       path: '/accept-invitation/$invitationId'
@@ -530,6 +544,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/account/oauth-applications/'
       preLoaderRoute: typeof AccountOauthApplicationsIndexRouteImport
       parentRoute: typeof AccountRoute
+    }
+    '/organizations/$orgId/teams': {
+      id: '/organizations/$orgId/teams'
+      path: '/teams'
+      fullPath: '/organizations/$orgId/teams'
+      preLoaderRoute: typeof OrganizationsOrgIdTeamsRouteImport
+      parentRoute: typeof OrganizationsOrgIdRoute
     }
     '/organizations/$orgId/members': {
       id: '/organizations/$orgId/members'
@@ -559,37 +580,16 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountOauthApplicationsClientIdRouteImport
       parentRoute: typeof AccountRoute
     }
-    '/account/invitations': {
-      id: '/account/invitations'
-      path: '/invitations'
-      fullPath: '/account/invitations'
-      preLoaderRoute: typeof AccountInvitationsRouteImport
-      parentRoute: typeof AccountRoute
-    }
-    '/account/linked-accounts': {
-      id: '/account/linked-accounts'
-      path: '/linked-accounts'
-      fullPath: '/account/linked-accounts'
-      preLoaderRoute: typeof AccountLinkedAccountsRouteImport
-      parentRoute: typeof AccountRoute
-    }
-    '/organizations/$orgId/teams': {
-      id: '/organizations/$orgId/teams'
-      path: '/teams'
-      fullPath: '/organizations/$orgId/teams'
-      preLoaderRoute: typeof OrganizationsOrgIdTeamsRouteImport
-      parentRoute: typeof OrganizationsOrgIdRoute
-    }
   }
 }
 
 interface AccountRouteChildren {
+  AccountInvitationsRoute: typeof AccountInvitationsRoute
+  AccountLinkedAccountsRoute: typeof AccountLinkedAccountsRoute
   AccountProfileRoute: typeof AccountProfileRoute
   AccountSecurityRoute: typeof AccountSecurityRoute
   AccountSessionsRoute: typeof AccountSessionsRoute
   AccountTwoFactorRoute: typeof AccountTwoFactorRoute
-  AccountInvitationsRoute: typeof AccountInvitationsRoute
-  AccountLinkedAccountsRoute: typeof AccountLinkedAccountsRoute
   AccountIndexRoute: typeof AccountIndexRoute
   AccountOauthApplicationsClientIdRoute: typeof AccountOauthApplicationsClientIdRoute
   AccountOauthApplicationsNewRoute: typeof AccountOauthApplicationsNewRoute
@@ -597,12 +597,12 @@ interface AccountRouteChildren {
 }
 
 const AccountRouteChildren: AccountRouteChildren = {
+  AccountInvitationsRoute: AccountInvitationsRoute,
+  AccountLinkedAccountsRoute: AccountLinkedAccountsRoute,
   AccountProfileRoute: AccountProfileRoute,
   AccountSecurityRoute: AccountSecurityRoute,
   AccountSessionsRoute: AccountSessionsRoute,
   AccountTwoFactorRoute: AccountTwoFactorRoute,
-  AccountInvitationsRoute: AccountInvitationsRoute,
-  AccountLinkedAccountsRoute: AccountLinkedAccountsRoute,
   AccountIndexRoute: AccountIndexRoute,
   AccountOauthApplicationsClientIdRoute: AccountOauthApplicationsClientIdRoute,
   AccountOauthApplicationsNewRoute: AccountOauthApplicationsNewRoute,
