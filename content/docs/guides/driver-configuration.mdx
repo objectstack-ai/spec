@@ -182,6 +182,33 @@ new InMemoryDriver();
 Use the memory driver for unit tests. It requires no setup and runs instantly.
 </Callout>
 
+## `apps/objectos` and Single-Project Local Mode
+
+When running `apps/objectos` (or any boot stack with `runtime: { cloudUrl: 'local' }`),
+two databases are involved:
+
+| DB           | Purpose                                                   | Env var                         |
+|--------------|-----------------------------------------------------------|---------------------------------|
+| Project DB   | Your business data (the records served at `/api/v1/data/*`) | `OS_DATABASE_URL` / `OS_DATABASE_DRIVER` |
+| Control DB   | Framework bookkeeping (`sys_organization`, `sys_project`, …) | `OS_CONTROL_DATABASE_URL`       |
+
+Both honor the same URL-scheme inference described above. If
+`OS_CONTROL_DATABASE_URL` is unset, the control DB defaults to a local
+SQLite file (`<dataDir>/control.db`); for backward compatibility
+`OS_DATABASE_URL` is also accepted as a fallback for the control DB
+when no explicit `OS_CONTROL_DATABASE_URL` is provided **and** no project DB
+URL has consumed it.
+
+```bash
+# Run apps/objectos with MongoDB as the project DB (control DB stays sqlite):
+OS_DATABASE_URL=mongodb://localhost:27017/objectos pnpm dev
+
+# Pin both DBs explicitly:
+OS_DATABASE_URL=mongodb://localhost:27017/objectos \
+OS_CONTROL_DATABASE_URL=postgres://user:pass@host/control \
+pnpm dev
+```
+
 ## Multi-Datasource
 
 ObjectStack supports multiple data sources. Objects can target specific datasources:
