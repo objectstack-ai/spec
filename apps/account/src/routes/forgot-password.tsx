@@ -2,6 +2,7 @@
 
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { GalleryVerticalEnd } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +15,7 @@ export const Route = createFileRoute('/forgot-password')({
 });
 
 function ForgotPasswordPage() {
+  const { t } = useObjectTranslation();
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
@@ -36,7 +38,7 @@ function ForgotPasswordPage() {
       setSent(true);
     } catch (err) {
       toast({
-        title: 'Failed to send reset email',
+        title: t('auth.forgotPassword.failed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -58,31 +60,31 @@ function ForgotPasswordPage() {
           {sent ? (
             <>
               <CardHeader className="text-center">
-                <CardTitle className="text-xl">Check your email</CardTitle>
+                <CardTitle className="text-xl">{t('auth.forgotPassword.checkEmailTitle')}</CardTitle>
                 <CardDescription>
-                  If an account exists for <strong>{email}</strong>, a password reset link has been sent.
+                  {t('auth.forgotPassword.checkEmailDescription', { email })}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
                 <Link to="/login" className="text-sm underline underline-offset-4 hover:text-primary">
-                  Back to sign in
+                  {t('auth.forgotPassword.backToSignIn')}
                 </Link>
               </CardContent>
             </>
           ) : (
             <>
               <CardHeader className="text-center">
-                <CardTitle className="text-xl">Forgot password</CardTitle>
-                <CardDescription>Enter your email to receive a reset link.</CardDescription>
+                <CardTitle className="text-xl">{t('auth.forgotPassword.title')}</CardTitle>
+                <CardDescription>{t('auth.forgotPassword.description')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('auth.emailLabel')}</Label>
                     <Input
                       id="email"
                       type="email"
-                      placeholder="m@example.com"
+                      placeholder={t('auth.emailPlaceholder')}
                       autoComplete="email"
                       required
                       value={email}
@@ -90,12 +92,12 @@ function ForgotPasswordPage() {
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={submitting}>
-                    {submitting ? 'Sending…' : 'Send reset link'}
+                    {submitting ? t('auth.forgotPassword.submitting') : t('auth.forgotPassword.submit')}
                   </Button>
                   <p className="text-center text-sm text-muted-foreground">
-                    Remember your password?{' '}
+                    {t('auth.forgotPassword.rememberPassword')}{' '}
                     <Link to="/login" className="underline underline-offset-4 hover:text-primary">
-                      Sign in
+                      {t('auth.forgotPassword.signIn')}
                     </Link>
                   </p>
                 </form>

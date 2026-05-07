@@ -2,6 +2,7 @@
 
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,7 @@ function slugify(input: string): string {
 }
 
 function NewOrgPage() {
+  const { t } = useObjectTranslation();
   const navigate = useNavigate();
   const { create, creating } = useCreateOrganization();
   const { setActiveOrganization, reloadOrganizations } = useSession();
@@ -45,15 +47,14 @@ function NewOrgPage() {
         await setActiveOrganization(newId).catch(() => {});
       }
       await reloadOrganizations().catch(() => {});
-      toast({ title: 'Organization created' });
-      if (newId) {
-        navigate({ to: '/organizations/$orgId', params: { orgId: newId } });
-      } else {
-        navigate({ to: '/organizations' });
-      }
+      toast({ title: t('organizations.new.successToast') });
+      // Hand off to the platform home — the new org is now the active one,
+      // and the user wants to start using the product, not stare at org
+      // settings. They can manage the org later from /organizations.
+      window.location.assign('/');
     } catch (err) {
       toast({
-        title: 'Failed to create organization',
+        title: t('organizations.new.failed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -66,25 +67,25 @@ function NewOrgPage() {
         <div className="mx-auto max-w-lg">
           <Card>
             <CardHeader>
-              <CardTitle>New organization</CardTitle>
+              <CardTitle>{t('organizations.new.title')}</CardTitle>
               <CardDescription>
-                Organizations group projects, metadata and members together.
+                {t('organizations.new.description')}
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit}>
               <CardContent className="space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">{t('organizations.new.name')}</Label>
                   <Input
                     id="name"
                     required
                     value={name}
                     onChange={(e) => handleNameChange(e.target.value)}
-                    placeholder="Acme Corp"
+                    placeholder={t('organizations.new.namePlaceholder')}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="slug">Slug</Label>
+                  <Label htmlFor="slug">{t('organizations.new.slug')}</Label>
                   <Input
                     id="slug"
                     value={slug}
@@ -92,11 +93,11 @@ function NewOrgPage() {
                       setSlug(e.target.value);
                       setSlugDirty(true);
                     }}
-                    placeholder="acme-corp"
+                    placeholder={t('organizations.new.slugPlaceholder')}
                     pattern="[a-z0-9-]+"
                   />
                   <p className="text-[11px] text-muted-foreground">
-                    Lowercase, dashes only. Used in URLs and APIs.
+                    {t('organizations.new.slugHint')}
                   </p>
                 </div>
               </CardContent>
@@ -106,10 +107,10 @@ function NewOrgPage() {
                   variant="ghost"
                   onClick={() => navigate({ to: '/organizations' })}
                 >
-                  Cancel
+                  {t('organizations.new.cancel')}
                 </Button>
                 <Button type="submit" disabled={creating || !name}>
-                  {creating ? 'Creating…' : 'Create organization'}
+                  {creating ? t('organizations.new.submitting') : t('organizations.new.submit')}
                 </Button>
               </CardFooter>
             </form>

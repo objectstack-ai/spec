@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useClient } from '@objectstack/client-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 
 interface SocialProvider {
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export function SocialSignInButtons({ mode, redirect }: Props) {
+  const { t } = useObjectTranslation();
   const client = useClient() as any;
   const [providers, setProviders] = useState<SocialProvider[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +38,8 @@ export function SocialSignInButtons({ mode, redirect }: Props) {
 
   if (loading || providers.length === 0) return null;
 
-  const label = mode === 'sign-in' ? 'Continue with' : 'Sign up with';
+  const label =
+    mode === 'sign-in' ? t('auth.social.continueWith') : t('auth.social.signUpWith');
 
   const base = window.location.origin + import.meta.env.BASE_URL;
   const loginUrl = base + 'login' + (redirect ? `?redirect=${encodeURIComponent(redirect)}` : '');
@@ -69,7 +72,7 @@ export function SocialSignInButtons({ mode, redirect }: Props) {
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-2 text-muted-foreground">or continue with email</span>
+          <span className="bg-card px-2 text-muted-foreground">{t('auth.social.orContinueEmail')}</span>
         </div>
       </div>
     </div>

@@ -12,6 +12,7 @@
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import { Check, ChevronsUpDown, Plus } from 'lucide-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,7 @@ import { useOrganizations, useSession } from '@/hooks/useSession';
 import { toast } from '@/hooks/use-toast';
 
 export function OrganizationSwitcher() {
+  const { t } = useObjectTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { organizations, loading, reload } = useOrganizations();
@@ -49,7 +51,7 @@ export function OrganizationSwitcher() {
     try {
       await setActiveOrganization(id);
       await reload();
-      toast({ title: 'Organization switched' });
+      toast({ title: t('organizations.general.switched') });
 
       // Mirror the current section onto the new org when applicable.
       const m = location.pathname.match(/^\/organizations\/[^/]+\/(general|members)\/?$/);
@@ -60,7 +62,7 @@ export function OrganizationSwitcher() {
       });
     } catch (err) {
       toast({
-        title: 'Failed to switch organization',
+        title: t('organizations.switchFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -82,7 +84,7 @@ export function OrganizationSwitcher() {
             <span className="max-w-[160px] truncate">{active.name}</span>
           ) : (
             <span className="text-muted-foreground">
-              {loading ? 'Loading…' : 'Select organization'}
+              {loading ? t('organizations.loading') : t('organizationSwitcher.select')}
             </span>
           )}
           <ChevronsUpDown className="h-3 w-3 opacity-50" />
@@ -90,11 +92,11 @@ export function OrganizationSwitcher() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-[280px]" sideOffset={4}>
         <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
-          Organizations
+          {t('organizations.title')}
         </DropdownMenuLabel>
         {organizations.length === 0 && !loading && (
           <div className="px-3 py-4 text-center text-xs text-muted-foreground">
-            No organizations yet.
+            {t('organizations.emptyTitle')}
           </div>
         )}
         {organizations.map((org) => (
@@ -127,7 +129,7 @@ export function OrganizationSwitcher() {
           className="gap-2 text-sm"
         >
           <Plus className="h-3.5 w-3.5" />
-          New organization…
+          {t('organizationSwitcher.new')}
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={(e) => {
@@ -137,7 +139,7 @@ export function OrganizationSwitcher() {
           }}
           className="gap-2 text-sm text-muted-foreground"
         >
-          Manage organizations
+          {t('organizationSwitcher.manage')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

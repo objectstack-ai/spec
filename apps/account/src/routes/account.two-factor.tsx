@@ -2,6 +2,7 @@
 
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,10 +18,8 @@ export const Route = createFileRoute('/account/two-factor')({
 });
 
 function TwoFactorPage() {
+  const { t } = useObjectTranslation();
   const { user, loading: sessionLoading, refresh } = useSession();
-  // `enabled` mirrors the user's `twoFactorEnabled` flag (added by the
-  // better-auth twoFactor plugin). It starts as `null` until the session
-  // resolves so we never flash a stale "Not enabled" state.
   const [enabled, setEnabled] = useState<boolean | null>(null);
   const [enablePassword, setEnablePassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -54,7 +53,7 @@ function TwoFactorPage() {
       setEnablePassword('');
     } catch (err) {
       toast({
-        title: 'Failed to enable 2FA',
+        title: t('twoFactor.enableFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -77,15 +76,14 @@ function TwoFactorPage() {
         const data = await res.json().catch(() => ({}));
         throw new Error((data as any)?.message || `Request failed: ${res.status}`);
       }
-      toast({ title: 'Two-factor authentication enabled' });
+      toast({ title: t('twoFactor.enableSuccess') });
       setEnabled(true);
       setTotpUri(null);
       setVerifyCode('');
-      // Pull the updated `twoFactorEnabled` flag back into the session.
       await refresh();
     } catch (err) {
       toast({
-        title: 'Invalid code',
+        title: t('twoFactor.invalidCode'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -108,13 +106,13 @@ function TwoFactorPage() {
         const data = await res.json().catch(() => ({}));
         throw new Error((data as any)?.message || `Request failed: ${res.status}`);
       }
-      toast({ title: 'Two-factor authentication disabled' });
+      toast({ title: t('twoFactor.disableSuccess') });
       setEnabled(false);
       setDisablePassword('');
       await refresh();
     } catch (err) {
       toast({
-        title: 'Failed to disable 2FA',
+        title: t('twoFactor.disableFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -127,8 +125,8 @@ function TwoFactorPage() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Two-factor authentication</CardTitle>
-          <CardDescription>Loading status…</CardDescription>
+          <CardTitle className="text-base">{t('twoFactor.title')}</CardTitle>
+          <CardDescription>{t('twoFactor.loadingStatus')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           <Skeleton className="h-4 w-48" />
@@ -140,23 +138,18 @@ function TwoFactorPage() {
   }
 
   if (totpUri) {
-    // Render the otpauth:// URI as a QR using a public renderer image.
-    // Using an <img> with the URL keeps the bundle small; the URI is
-    // included verbatim below for users who can't scan.
     const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(totpUri)}`;
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Set up two-factor authentication</CardTitle>
-          <CardDescription>
-            Scan the QR code with your authenticator app, then enter the verification code.
-          </CardDescription>
+          <CardTitle className="text-base">{t('twoFactor.setupTitle')}</CardTitle>
+          <CardDescription>{t('twoFactor.setupDescription')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col items-center gap-3">
             <img
               src={qrSrc}
-              alt="TOTP QR code"
+              alt={t('twoFactor.qrAlt')}
               width={200}
               height={200}
               className="rounded border bg-white p-2"
@@ -164,14 +157,12 @@ function TwoFactorPage() {
             <div className="w-full rounded bg-muted p-3 font-mono text-xs break-all">
               {totpUri}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Copy this URI into your authenticator app if you cannot scan the QR code.
-            </p>
+            <p className="text-xs text-muted-foreground">{t('twoFactor.uriHint')}</p>
           </div>
           <Separator />
           <form onSubmit={handleVerifyTotp} className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="totp-code">Verification code</Label>
+              <Label htmlFor="totp-code">{t('twoFactor.verificationCode')}</Label>
               <Input
                 id="totp-code"
                 placeholder="000000"
@@ -185,10 +176,10 @@ function TwoFactorPage() {
             </div>
             <div className="flex gap-2">
               <Button type="submit" disabled={verifying || verifyCode.length < 6}>
-                {verifying ? 'Verifying…' : 'Verify and enable'}
+                {verifying ? t('twoFactor.verifying') : t('twoFactor.verify')}
               </Button>
               <Button type="button" variant="outline" onClick={() => setTotpUri(null)}>
-                Cancel
+                {t('twoFactor.cancel')}
               </Button>
             </div>
           </form>
@@ -202,19 +193,17 @@ function TwoFactorPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <CardTitle className="text-base">Two-factor authentication</CardTitle>
+            <CardTitle className="text-base">{t('twoFactor.title')}</CardTitle>
             <Badge variant="outline" className="border-green-600 text-green-600">
-              Enabled
+              {t('twoFactor.enabled')}
             </Badge>
           </div>
-          <CardDescription>
-            Your account is protected with 2FA. Enter your password to disable it.
-          </CardDescription>
+          <CardDescription>{t('twoFactor.enabledDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleDisable} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="disable-password">Password</Label>
+              <Label htmlFor="disable-password">{t('twoFactor.password')}</Label>
               <Input
                 id="disable-password"
                 type="password"
@@ -225,7 +214,7 @@ function TwoFactorPage() {
               />
             </div>
             <Button variant="destructive" type="submit" disabled={disabling}>
-              {disabling ? 'Disabling…' : 'Disable 2FA'}
+              {disabling ? t('twoFactor.disabling') : t('twoFactor.disable')}
             </Button>
           </form>
         </CardContent>
@@ -237,17 +226,15 @@ function TwoFactorPage() {
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <CardTitle className="text-base">Two-factor authentication</CardTitle>
-          <Badge variant="outline">Not enabled</Badge>
+          <CardTitle className="text-base">{t('twoFactor.title')}</CardTitle>
+          <Badge variant="outline">{t('twoFactor.notEnabled')}</Badge>
         </div>
-        <CardDescription>
-          Add an extra layer of security to your account using a TOTP authenticator app.
-        </CardDescription>
+        <CardDescription>{t('twoFactor.notEnabledDescription')}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleEnable} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="enable-password">Password</Label>
+            <Label htmlFor="enable-password">{t('twoFactor.password')}</Label>
             <Input
               id="enable-password"
               type="password"
@@ -255,11 +242,11 @@ function TwoFactorPage() {
               required
               value={enablePassword}
               onChange={(e) => setEnablePassword(e.target.value)}
-              placeholder="Confirm with your account password"
+              placeholder={t('twoFactor.passwordPlaceholder')}
             />
           </div>
           <Button type="submit" disabled={loading}>
-            {loading ? 'Loading…' : 'Enable 2FA'}
+            {loading ? t('twoFactor.loading') : t('twoFactor.enable')}
           </Button>
         </form>
       </CardContent>

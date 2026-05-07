@@ -2,6 +2,7 @@
 
 import { createFileRoute, Navigate, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
@@ -32,6 +33,7 @@ function PageShell({ children }: { children: React.ReactNode }) {
 }
 
 function DeviceAuthPage() {
+  const { t } = useObjectTranslation();
   const { user_code: code } = Route.useSearch();
   const { user, loading } = useSession();
   const navigate = useNavigate();
@@ -47,8 +49,8 @@ function DeviceAuthPage() {
       <PageShell>
         <Card>
           <CardHeader className="text-center">
-            <CardTitle>Invalid Request</CardTitle>
-            <CardDescription>No user code provided. Please re-run the CLI command.</CardDescription>
+            <CardTitle>{t('auth.device.invalidTitle')}</CardTitle>
+            <CardDescription>{t('auth.device.invalidDescription')}</CardDescription>
           </CardHeader>
         </Card>
       </PageShell>
@@ -60,7 +62,7 @@ function DeviceAuthPage() {
       <PageShell>
         <Card>
           <CardHeader className="text-center">
-            <CardDescription>Loading…</CardDescription>
+            <CardDescription>{t('auth.device.loading')}</CardDescription>
           </CardHeader>
         </Card>
       </PageShell>
@@ -77,8 +79,8 @@ function DeviceAuthPage() {
         <Card>
           <CardHeader className="text-center">
             <CheckCircle2 className="h-10 w-10 text-green-500 mx-auto mb-2" />
-            <CardTitle>CLI Authorized</CardTitle>
-            <CardDescription>You can close this tab.</CardDescription>
+            <CardTitle>{t('auth.device.approvedTitle')}</CardTitle>
+            <CardDescription>{t('auth.device.approvedDescription')}</CardDescription>
           </CardHeader>
         </Card>
       </PageShell>
@@ -90,8 +92,8 @@ function DeviceAuthPage() {
       <PageShell>
         <Card>
           <CardHeader className="text-center">
-            <CardTitle>Request Denied</CardTitle>
-            <CardDescription>The CLI login request has been denied.</CardDescription>
+            <CardTitle>{t('auth.device.deniedTitle')}</CardTitle>
+            <CardDescription>{t('auth.device.deniedDescription')}</CardDescription>
           </CardHeader>
         </Card>
       </PageShell>
@@ -110,13 +112,16 @@ function DeviceAuthPage() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error((data as any)?.message ?? (data as any)?.error?.message ?? 'Approval failed');
+        throw new Error((data as any)?.message ?? (data as any)?.error?.message ?? t('auth.device.approveFailed'));
       }
 
       setApproved(true);
-      toast({ title: 'CLI login approved', description: 'The CLI has been authenticated.' });
+      toast({
+        title: t('auth.device.approveSuccess'),
+        description: t('auth.device.approveSuccessDescription'),
+      });
     } catch (err: any) {
-      setError(err?.message ?? 'Approval failed');
+      setError(err?.message ?? t('auth.device.approveFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -134,7 +139,7 @@ function DeviceAuthPage() {
       });
       setDenied(true);
     } catch (err: any) {
-      setError(err?.message ?? 'Deny failed');
+      setError(err?.message ?? t('auth.device.denyFailed'));
     } finally {
       setDenying(false);
     }
@@ -144,25 +149,25 @@ function DeviceAuthPage() {
     <PageShell>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle>CLI Login Request</CardTitle>
-          <CardDescription>Approve CLI access for {user.email}</CardDescription>
+          <CardTitle>{t('auth.device.title')}</CardTitle>
+          <CardDescription>{t('auth.device.subtitle', { email: user.email })}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-md border bg-background px-4 py-3 text-center">
-            <p className="text-xs text-muted-foreground mb-1">User Code</p>
+            <p className="text-xs text-muted-foreground mb-1">{t('auth.device.userCodeLabel')}</p>
             <p className="font-mono font-semibold tracking-widest text-lg">{code}</p>
           </div>
 
           <div className="space-y-4">
             <p className="text-sm text-center text-muted-foreground">
-              Logged in as <span className="font-medium text-foreground">{user.email}</span>
+              {t('auth.device.loggedInAs', { email: user.email })}
             </p>
             {error && <p className="text-sm text-destructive text-center">{error}</p>}
             <Button onClick={handleApprove} className="w-full" disabled={submitting || denying}>
-              {submitting ? 'Approving…' : 'Approve CLI Access'}
+              {submitting ? t('auth.device.approving') : t('auth.device.approve')}
             </Button>
             <Button onClick={handleDeny} variant="outline" className="w-full" disabled={submitting || denying}>
-              {denying ? 'Denying…' : 'Deny'}
+              {denying ? t('auth.device.denying') : t('auth.device.deny')}
             </Button>
             <div className="text-center">
               <button
@@ -170,7 +175,7 @@ function DeviceAuthPage() {
                 className="text-sm text-muted-foreground underline-offset-4 hover:underline"
                 onClick={() => navigate({ to: '/' })}
               >
-                Cancel
+                {t('auth.device.cancel')}
               </button>
             </div>
           </div>

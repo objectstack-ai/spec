@@ -2,6 +2,7 @@
 
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ export const Route = createFileRoute('/account/security')({
 });
 
 function SecurityPage() {
+  const { t } = useObjectTranslation();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -21,7 +23,7 @@ function SecurityPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast({ title: 'Passwords do not match', variant: 'destructive' });
+      toast({ title: t('security.passwordsMismatch'), variant: 'destructive' });
       return;
     }
     setSaving(true);
@@ -36,13 +38,13 @@ function SecurityPage() {
         const data = await res.json().catch(() => ({}));
         throw new Error((data as any)?.message || `Request failed: ${res.status}`);
       }
-      toast({ title: 'Password changed' });
+      toast({ title: t('security.changed') });
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err) {
       toast({
-        title: 'Failed to change password',
+        title: t('security.changeFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -54,13 +56,13 @@ function SecurityPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Change password</CardTitle>
-        <CardDescription>Update your account password.</CardDescription>
+        <CardTitle className="text-base">{t('security.title')}</CardTitle>
+        <CardDescription>{t('security.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="current-password">Current password</Label>
+            <Label htmlFor="current-password">{t('security.currentPassword')}</Label>
             <Input
               id="current-password"
               type="password"
@@ -71,7 +73,7 @@ function SecurityPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="new-password">New password</Label>
+            <Label htmlFor="new-password">{t('security.newPassword')}</Label>
             <Input
               id="new-password"
               type="password"
@@ -83,7 +85,7 @@ function SecurityPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="confirm-new-password">Confirm new password</Label>
+            <Label htmlFor="confirm-new-password">{t('security.confirmPassword')}</Label>
             <Input
               id="confirm-new-password"
               type="password"
@@ -95,7 +97,7 @@ function SecurityPage() {
             />
           </div>
           <Button type="submit" disabled={saving}>
-            {saving ? 'Saving…' : 'Change password'}
+            {saving ? t('common.saving') : t('security.submit')}
           </Button>
         </form>
       </CardContent>

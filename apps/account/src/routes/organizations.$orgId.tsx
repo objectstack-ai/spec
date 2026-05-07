@@ -8,6 +8,7 @@
  */
 
 import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { useOrganizations } from '@/hooks/useSession';
 
 export const Route = createFileRoute('/organizations/$orgId')({
@@ -15,6 +16,7 @@ export const Route = createFileRoute('/organizations/$orgId')({
 });
 
 function OrgLayout() {
+  const { t } = useObjectTranslation();
   const { orgId } = Route.useParams();
   const { organizations } = useOrganizations();
   const org = organizations.find((o) => o.id === orgId);
@@ -24,7 +26,7 @@ function OrgLayout() {
       <div className="flex-1 overflow-auto px-6 py-8">
         <div className="mx-auto max-w-4xl space-y-6">
           <header>
-            <h1 className="text-2xl font-semibold">{org?.name ?? 'Organization'}</h1>
+            <h1 className="text-2xl font-semibold">{org?.name ?? t('organizations.title')}</h1>
             {org?.slug && (
               <p className="text-sm text-muted-foreground font-mono">{org.slug}</p>
             )}

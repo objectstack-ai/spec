@@ -10,6 +10,7 @@
  */
 
 import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { useSession } from '@/hooks/useSession';
 
 export const Route = createFileRoute('/account')({
@@ -17,6 +18,7 @@ export const Route = createFileRoute('/account')({
 });
 
 function AccountLayout() {
+  const { t } = useObjectTranslation();
   const { user } = useSession();
 
   return (
@@ -24,7 +26,7 @@ function AccountLayout() {
       <div className="flex-1 overflow-auto px-6 py-8">
         <div className="mx-auto max-w-3xl space-y-6">
           <div>
-            <h1 className="text-2xl font-semibold">Account</h1>
+            <h1 className="text-2xl font-semibold">{t('topBar.breadcrumb.account')}</h1>
             <p className="text-sm text-muted-foreground">{user?.email}</p>
           </div>
 

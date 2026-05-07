@@ -3,6 +3,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useClient } from '@objectstack/client-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -24,13 +25,14 @@ export const Route = createFileRoute('/setup')({
 });
 
 function SetupPage() {
+  const { t } = useObjectTranslation();
   const navigate = useNavigate();
   const client = useClient() as any;
   const { user, refresh } = useSession();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [orgName, setOrgName] = useState('Local');
+  const [orgName, setOrgName] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [bootstrapped, setBootstrapped] = useState<boolean | null>(null);
 
@@ -57,10 +59,11 @@ function SetupPage() {
   }, [bootstrapped, user, navigate]);
 
   useEffect(() => {
-    // Already authenticated — bounce to Studio. Account SPA has no "home";
-    // its index just redirects to /login, which would render a blank flicker.
+    // Already authenticated — bounce to the platform home. Account SPA has no
+    // "home" of its own; its index just redirects to /login, which would
+    // render a blank flicker for an authed user.
     if (user) {
-      window.location.assign('/_studio/');
+      window.location.assign('/');
     }
   }, [user]);
 
@@ -78,25 +81,31 @@ function SetupPage() {
       // 3. Provision the default organization. better-auth's organization
       //    plugin attaches the calling user as owner automatically.
       try {
-        const slug = orgName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'local';
-        await fetch('/api/v1/auth/organization/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ name: orgName.trim() || 'Local', slug }),
-        });
+        const trimmedName = orgName.trim();
+        if (trimmedName) {
+          const slug = trimmedName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+          await fetch('/api/v1/auth/organization/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ name: trimmedName, slug: slug || trimmedName }),
+          });
+        }
       } catch {
         // Non-fatal: user can create an org from the dashboard.
       }
 
-      toast({ title: 'Welcome to ObjectStack', description: 'Your owner account has been created.' });
-      // Hand off to Studio — that's the actual workspace. The redirect-on-user
-      // effect above will also fire, but doing it here avoids a one-frame
-      // flash of the form's "submitting" state.
-      window.location.assign('/_studio/');
+      toast({
+        title: t('auth.setup.welcomeTitle'),
+        description: t('auth.setup.successDescription'),
+      });
+      // Hand off to the platform home. The redirect-on-user effect above will
+      // also fire, but doing it here avoids a one-frame flash of the form's
+      // "submitting" state.
+      window.location.assign('/');
     } catch (err) {
       toast({
-        title: 'Setup failed',
+        title: t('auth.setup.failed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -125,15 +134,15 @@ function SetupPage() {
         <Card>
           <CardHeader className="text-center">
             <ShieldCheck className="mx-auto mb-2 h-10 w-10 text-primary" />
-            <CardTitle className="text-xl">Welcome to ObjectStack</CardTitle>
+            <CardTitle className="text-xl">{t('auth.setup.welcomeTitle')}</CardTitle>
             <CardDescription>
-              No owner account exists yet. Create the first administrator to get started.
+              {t('auth.setup.description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="name">Your name</Label>
+                <Label htmlFor="name">{t('auth.setup.yourName')}</Label>
                 <Input
                   id="name"
                   autoComplete="name"
@@ -143,11 +152,11 @@ function SetupPage() {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('auth.emailLabel')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   autoComplete="email"
                   required
                   value={email}
@@ -155,7 +164,7 @@ function SetupPage() {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('auth.passwordLabel')}</Label>
                 <Input
                   id="password"
                   type="password"
@@ -165,28 +174,29 @@ function SetupPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <p className="text-xs text-muted-foreground">At least 8 characters.</p>
+                <p className="text-xs text-muted-foreground">{t('auth.setup.passwordHint')}</p>
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="orgName">Organization name</Label>
+                <Label htmlFor="orgName">{t('auth.setup.orgName')}</Label>
                 <Input
                   id="orgName"
                   required
+                  placeholder={t('auth.setup.orgNamePlaceholder')}
                   value={orgName}
                   onChange={(e) => setOrgName(e.target.value)}
                 />
                 <p className="text-xs text-muted-foreground">
-                  You can rename or add more organizations later.
+                  {t('auth.setup.orgNameHint')}
                 </p>
               </div>
               <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting ? 'Creating owner account…' : 'Create owner account'}
+                {submitting ? t('auth.setup.submitting') : t('auth.setup.submit')}
               </Button>
             </form>
           </CardContent>
         </Card>
         <p className="px-6 text-center text-xs text-muted-foreground">
-          This screen only appears on first launch. After setup, all users sign in normally.
+          {t('auth.setup.footerNote')}
         </p>
       </div>
     </div>

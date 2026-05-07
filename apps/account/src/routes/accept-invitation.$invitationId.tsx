@@ -2,6 +2,7 @@
 
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { GalleryVerticalEnd } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +14,7 @@ export const Route = createFileRoute('/accept-invitation/$invitationId')({
 });
 
 function AcceptInvitationPage() {
+  const { t } = useObjectTranslation();
   const { invitationId } = Route.useParams();
   const navigate = useNavigate();
   const { reloadOrganizations } = useSession();
@@ -33,11 +35,11 @@ function AcceptInvitationPage() {
         throw new Error((data as any)?.message || `Request failed: ${res.status}`);
       }
       await reloadOrganizations().catch(() => {});
-      toast({ title: 'Invitation accepted' });
+      toast({ title: t('acceptInvitation.accepted') });
       navigate({ to: '/organizations' });
     } catch (err) {
       toast({
-        title: 'Failed to accept invitation',
+        title: t('acceptInvitation.acceptFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -59,11 +61,11 @@ function AcceptInvitationPage() {
         const data = await res.json().catch(() => ({}));
         throw new Error((data as any)?.message || `Request failed: ${res.status}`);
       }
-      toast({ title: 'Invitation declined' });
+      toast({ title: t('acceptInvitation.declined') });
       navigate({ to: '/organizations' });
     } catch (err) {
       toast({
-        title: 'Failed to decline invitation',
+        title: t('acceptInvitation.declineFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -83,9 +85,9 @@ function AcceptInvitationPage() {
         </a>
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-xl">Organization invitation</CardTitle>
+            <CardTitle className="text-xl">{t('acceptInvitation.title')}</CardTitle>
             <CardDescription>
-              You have been invited to join an organization. Accept or decline below.
+              {t('acceptInvitation.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
@@ -94,7 +96,7 @@ function AcceptInvitationPage() {
               onClick={handleAccept}
               disabled={accepting || rejecting}
             >
-              {accepting ? 'Accepting…' : 'Accept invitation'}
+              {accepting ? t('acceptInvitation.accepting') : t('acceptInvitation.accept')}
             </Button>
             <Button
               variant="outline"
@@ -102,7 +104,7 @@ function AcceptInvitationPage() {
               onClick={handleReject}
               disabled={accepting || rejecting}
             >
-              {rejecting ? 'Declining…' : 'Decline'}
+              {rejecting ? t('acceptInvitation.declining') : t('acceptInvitation.decline')}
             </Button>
           </CardContent>
         </Card>

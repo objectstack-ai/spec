@@ -2,6 +2,7 @@
 
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,6 +15,7 @@ export const Route = createFileRoute('/account/profile')({
 });
 
 function ProfilePage() {
+  const { t } = useObjectTranslation();
   const { user, refresh } = useSession();
   const [name, setName] = useState(user?.name ?? '');
   const [saving, setSaving] = useState(false);
@@ -37,10 +39,10 @@ function ProfilePage() {
         throw new Error((data as any)?.message || `Request failed: ${res.status}`);
       }
       await refresh();
-      toast({ title: 'Profile updated' });
+      toast({ title: t('profile.updated') });
     } catch (err) {
       toast({
-        title: 'Failed to update profile',
+        title: t('profile.updateFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -52,26 +54,26 @@ function ProfilePage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Profile</CardTitle>
-        <CardDescription>Update your display name.</CardDescription>
+        <CardTitle className="text-base">{t('profile.title')}</CardTitle>
+        <CardDescription>{t('profile.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSave} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="profile-email">Email</Label>
+            <Label htmlFor="profile-email">{t('profile.email')}</Label>
             <Input id="profile-email" value={user?.email ?? ''} disabled />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="profile-name">Name</Label>
+            <Label htmlFor="profile-name">{t('profile.name')}</Label>
             <Input
               id="profile-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
+              placeholder={t('profile.namePlaceholder')}
             />
           </div>
           <Button type="submit" disabled={saving}>
-            {saving ? 'Saving…' : 'Save changes'}
+            {saving ? t('common.saving') : t('profile.save')}
           </Button>
         </form>
       </CardContent>

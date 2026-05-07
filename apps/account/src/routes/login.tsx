@@ -3,6 +3,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useClient } from '@objectstack/client-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -39,6 +40,7 @@ function resolveRedirect(target: string): string {
 }
 
 function LoginPage() {
+  const { t } = useObjectTranslation();
   const navigate = useNavigate();
   const { redirect } = Route.useSearch();
   const client = useClient() as any;
@@ -57,7 +59,9 @@ function LoginPage() {
       navigate({ to: '/organizations' });
       return;
     }
-    navigate({ to: '/account' });
+    // Default landing after sign-in: the platform home, not the Account
+    // profile page. Users can reach `/account` from the top-bar menu.
+    window.location.assign('/');
   }, [user, session, navigate, redirect]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,10 +71,10 @@ function LoginPage() {
     try {
       await client.auth.login({ type: 'email', email, password });
       await refresh();
-      toast({ title: 'Welcome back' });
+      toast({ title: t('auth.login.welcomeToast') });
     } catch (err) {
       toast({
-        title: 'Sign in failed',
+        title: t('auth.login.failed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -91,19 +95,19 @@ function LoginPage() {
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-xl">Welcome back</CardTitle>
-              <CardDescription>Access your ObjectStack account.</CardDescription>
+              <CardTitle className="text-xl">{t('auth.login.title')}</CardTitle>
+              <CardDescription>{t('auth.login.description')}</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-4">
                   <SocialSignInButtons mode="sign-in" redirect={redirect} />
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('auth.emailLabel')}</Label>
                     <Input
                       id="email"
                       type="email"
-                      placeholder="m@example.com"
+                      placeholder={t('auth.emailPlaceholder')}
                       autoComplete="email"
                       required
                       value={email}
@@ -112,12 +116,12 @@ function LoginPage() {
                   </div>
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center">
-                      <Label htmlFor="password">Password</Label>
+                      <Label htmlFor="password">{t('auth.passwordLabel')}</Label>
                       <Link
                         to="/forgot-password"
                         className="ml-auto text-sm underline-offset-4 hover:underline"
                       >
-                        Forgot your password?
+                        {t('auth.login.forgotPassword')}
                       </Link>
                     </div>
                     <Input
@@ -130,16 +134,16 @@ function LoginPage() {
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={submitting}>
-                    {submitting ? 'Signing in…' : 'Login'}
+                    {submitting ? t('auth.login.submitting') : t('auth.login.submit')}
                   </Button>
                   <p className="text-center text-sm text-muted-foreground">
-                    Don&apos;t have an account?{' '}
+                    {t('auth.login.noAccount')}{' '}
                     <Link
                       to="/register"
                       search={redirect ? { redirect } : undefined}
                       className="underline underline-offset-4 hover:text-primary"
                     >
-                      Sign up
+                      {t('auth.login.signUp')}
                     </Link>
                   </p>
                 </div>
@@ -147,8 +151,8 @@ function LoginPage() {
             </CardContent>
           </Card>
           <p className="px-6 text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
-            By clicking continue, you agree to our{' '}
-            <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+            {t('legal.agreementPrefix')}{' '}
+            <a href="#">{t('legal.termsOfService')}</a> {t('legal.and')} <a href="#">{t('legal.privacyPolicy')}</a>.
           </p>
         </div>
       </div>

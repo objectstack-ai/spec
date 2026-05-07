@@ -12,6 +12,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { Trash2, Save } from 'lucide-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -39,6 +40,7 @@ export const Route = createFileRoute('/organizations/$orgId/general')({
 });
 
 function OrgGeneralPage() {
+  const { t } = useObjectTranslation();
   const { orgId } = Route.useParams();
   const navigate = useNavigate();
   const { organizations } = useOrganizations();
@@ -80,10 +82,10 @@ function OrgGeneralPage() {
   const handleSetActive = async () => {
     try {
       await setActiveOrganization(orgId);
-      toast({ title: 'Organization switched' });
+      toast({ title: t('organizations.general.switched') });
     } catch (err) {
       toast({
-        title: 'Failed to switch',
+        title: t('organizations.general.switchFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -95,7 +97,7 @@ function OrgGeneralPage() {
     const trimmedName = name.trim();
     if (!trimmedName) {
       toast({
-        title: 'Name is required',
+        title: t('organizations.general.nameRequired'),
         variant: 'destructive',
       });
       return;
@@ -106,10 +108,10 @@ function OrgGeneralPage() {
         slug: slug.trim() || undefined,
         logo: logo.trim() || undefined,
       });
-      toast({ title: 'Organization updated' });
+      toast({ title: t('organizations.general.updated') });
     } catch (err) {
       toast({
-        title: 'Failed to update organization',
+        title: t('organizations.general.updateFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -126,8 +128,8 @@ function OrgGeneralPage() {
     if (!org) return;
     if (deleteConfirmText !== org.name) {
       toast({
-        title: 'Confirmation does not match',
-        description: `Type "${org.name}" to confirm deletion.`,
+        title: t('organizations.general.confirmationMismatch'),
+        description: t('organizations.general.confirmationHint', { name: org.name }),
         variant: 'destructive',
       });
       return;
@@ -137,10 +139,17 @@ function OrgGeneralPage() {
       const warnings = (result as any)?.warnings as string[] | undefined;
       const deletedProjects = (result as any)?.deletedProjects ?? 0;
       toast({
-        title: 'Organization deleted',
+        title: t('organizations.general.deleted'),
         description: warnings?.length
-          ? `Removed ${deletedProjects} project(s). Warnings: ${warnings[0]}${warnings.length > 1 ? ` (+${warnings.length - 1} more)` : ''}`
-          : `${org.name} and ${deletedProjects} project(s) (with their databases) have been removed.`,
+          ? t('organizations.general.deletedWithWarnings', {
+              deletedProjects,
+              warning: warnings[0],
+              extraCount: Math.max(warnings.length - 1, 0),
+            })
+          : t('organizations.general.deletedDescription', {
+              name: org.name,
+              deletedProjects,
+            }),
         variant: warnings?.length ? 'destructive' : undefined,
       });
       setDeleteDialogOpen(false);
@@ -148,7 +157,7 @@ function OrgGeneralPage() {
       navigate({ to: '/organizations' });
     } catch (err) {
       toast({
-        title: 'Failed to delete organization',
+        title: t('organizations.general.deleteFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -159,66 +168,66 @@ function OrgGeneralPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          {isActive && <Badge variant="outline">Active</Badge>}
+          {isActive && <Badge variant="outline">{t('organizations.active')}</Badge>}
           {myRole && (
             <Badge variant="secondary" className="capitalize">
-              {myRole}
+              {t(`common.roles.${myRole}`)}
             </Badge>
           )}
         </div>
         {!isActive && (
           <Button size="sm" variant="outline" onClick={handleSetActive}>
-            Set as active
+            {t('organizations.general.setActive')}
           </Button>
         )}
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Details</CardTitle>
+          <CardTitle>{t('organizations.general.detailsTitle')}</CardTitle>
           <CardDescription>
             {canEdit
-              ? 'Update your organization’s display name, URL slug, and logo.'
-              : 'Only owners and admins can edit these details.'}
+              ? t('organizations.general.detailsDescription')
+              : t('organizations.general.detailsReadOnly')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="org-name">Name</Label>
+            <Label htmlFor="org-name">{t('organizations.new.name')}</Label>
             <Input
               id="org-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={!canEdit || updating}
-              placeholder="Acme Inc."
+              placeholder={t('organizations.general.namePlaceholder')}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="org-slug">Slug</Label>
+            <Label htmlFor="org-slug">{t('organizations.new.slug')}</Label>
             <Input
               id="org-slug"
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               disabled={!canEdit || updating}
-              placeholder="acme"
+              placeholder={t('organizations.general.slugPlaceholder')}
               className="font-mono text-sm"
             />
             <p className="text-xs text-muted-foreground">
-              Lowercase, dash-separated. Used in URLs and invitations.
+              {t('organizations.general.slugHint')}
             </p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="org-logo">Logo URL</Label>
+            <Label htmlFor="org-logo">{t('organizations.general.logo')}</Label>
             <Input
               id="org-logo"
               value={logo}
               onChange={(e) => setLogo(e.target.value)}
               disabled={!canEdit || updating}
-              placeholder="https://…"
+              placeholder={t('organizations.general.logoPlaceholder')}
             />
           </div>
           <div className="flex justify-between border-t pt-4 text-xs">
-            <span className="text-muted-foreground">Organization ID</span>
+            <span className="text-muted-foreground">{t('organizations.general.organizationId')}</span>
             <code className="font-mono">{orgId}</code>
           </div>
         </CardContent>
@@ -230,11 +239,11 @@ function OrgGeneralPage() {
               onClick={handleReset}
               disabled={!dirty || updating}
             >
-              Reset
+              {t('organizations.general.reset')}
             </Button>
             <Button size="sm" onClick={handleSave} disabled={!dirty || updating}>
               <Save className="mr-2 h-4 w-4" />
-              {updating ? 'Saving…' : 'Save changes'}
+              {updating ? t('common.saving') : t('organizations.general.save')}
             </Button>
           </CardContent>
         )}
@@ -242,15 +251,15 @@ function OrgGeneralPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">At a glance</CardTitle>
+          <CardTitle className="text-base">{t('organizations.general.overviewTitle')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Members</span>
+            <span className="text-muted-foreground">{t('organizations.general.members')}</span>
             <span>{members.length}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Pending invitations</span>
+            <span className="text-muted-foreground">{t('organizations.general.pendingInvitations')}</span>
             <span>{pendingInvitations.length}</span>
           </div>
         </CardContent>
@@ -259,10 +268,9 @@ function OrgGeneralPage() {
       {canEdit && (
         <Card className="border-destructive/40">
           <CardHeader>
-            <CardTitle className="text-base text-destructive">Danger zone</CardTitle>
+            <CardTitle className="text-base text-destructive">{t('organizations.general.dangerTitle')}</CardTitle>
             <CardDescription>
-              Permanently delete this organization, all of its projects, and every project's
-              underlying database. This action cannot be undone.
+              {t('organizations.general.dangerDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -273,7 +281,7 @@ function OrgGeneralPage() {
               disabled={deletingOrg}
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete organization
+              {t('organizations.general.delete')}
             </Button>
           </CardContent>
         </Card>
@@ -288,18 +296,14 @@ function OrgGeneralPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-destructive">Delete organization</DialogTitle>
+            <DialogTitle className="text-destructive">{t('organizations.general.deleteDialogTitle')}</DialogTitle>
             <DialogDescription>
-              This will permanently delete <strong>{org?.name}</strong>, all of its
-              projects, and every project's underlying database. Members and pending
-              invitations will be removed. This action cannot be undone.
+              {t('organizations.general.deleteDialogDescription', { name: org?.name ?? '' })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="delete-confirm">
-                Type <code className="font-mono text-xs">{org?.name}</code> to confirm
-              </Label>
+              <Label htmlFor="delete-confirm">{t('organizations.general.deleteDialogLabel', { name: org?.name ?? '' })}</Label>
               <Input
                 id="delete-confirm"
                 value={deleteConfirmText}
@@ -315,14 +319,14 @@ function OrgGeneralPage() {
               onClick={() => setDeleteDialogOpen(false)}
               disabled={deletingOrg}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={deletingOrg || !org || deleteConfirmText !== org.name}
             >
-              {deletingOrg ? 'Deleting…' : 'Delete organization'}
+              {deletingOrg ? t('organizations.general.deleting') : t('organizations.general.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

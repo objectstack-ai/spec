@@ -3,6 +3,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useClient } from '@objectstack/client-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -31,10 +32,11 @@ function resolveRedirect(target: string): string {
 }
 
 function RegisterPage() {
+  const { t } = useObjectTranslation();
   const navigate = useNavigate();
   const { redirect } = Route.useSearch();
   const client = useClient() as any;
-  const { user, refresh } = useSession();
+  const { session, user, refresh } = useSession();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,8 +48,15 @@ function RegisterPage() {
       window.location.assign(resolveRedirect(redirect));
       return;
     }
-    navigate({ to: '/' });
-  }, [user, navigate, redirect]);
+    // If the user already has an org (e.g. signed up via an invitation),
+    // hand off to the platform home. Otherwise, send them to the org
+    // creation page — they need an org before they can use the product.
+    if (session?.activeOrganizationId) {
+      window.location.assign('/');
+      return;
+    }
+    navigate({ to: '/organizations/new' });
+  }, [user, session, navigate, redirect]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,11 +65,13 @@ function RegisterPage() {
     try {
       await client.auth.register({ name, email, password });
       await refresh();
-      toast({ title: 'Account created' });
-      navigate({ to: '/organizations/new' });
+      toast({ title: t('auth.register.successToast') });
+      // Navigation is handled by the auth-redirect effect above once the
+      // session updates: it sends users with an active org to the platform
+      // home, otherwise to /organizations/new.
     } catch (err) {
       toast({
-        title: 'Sign up failed',
+        title: t('auth.register.failed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -81,15 +92,15 @@ function RegisterPage() {
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-xl">Create an account</CardTitle>
-              <CardDescription>Join ObjectStack.</CardDescription>
+              <CardTitle className="text-xl">{t('auth.register.title')}</CardTitle>
+              <CardDescription>{t('auth.register.description')}</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-4">
                   <SocialSignInButtons mode="sign-up" redirect={redirect} />
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="name">Name</Label>
+                    <Label htmlFor="name">{t('auth.nameLabel')}</Label>
                     <Input
                       id="name"
                       autoComplete="name"
@@ -99,11 +110,11 @@ function RegisterPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('auth.emailLabel')}</Label>
                     <Input
                       id="email"
                       type="email"
-                      placeholder="m@example.com"
+                      placeholder={t('auth.emailPlaceholder')}
                       autoComplete="email"
                       required
                       value={email}
@@ -111,7 +122,7 @@ function RegisterPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">{t('auth.passwordLabel')}</Label>
                     <Input
                       id="password"
                       type="password"
@@ -123,16 +134,16 @@ function RegisterPage() {
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={submitting}>
-                    {submitting ? 'Creating…' : 'Create account'}
+                    {submitting ? t('auth.register.submitting') : t('auth.register.submit')}
                   </Button>
                   <p className="text-center text-sm text-muted-foreground">
-                    Already have an account?{' '}
+                    {t('auth.register.haveAccount')}{' '}
                     <Link
                       to="/login"
                       search={redirect ? { redirect } : undefined}
                       className="underline underline-offset-4 hover:text-primary"
                     >
-                      Sign in
+                      {t('auth.register.signIn')}
                     </Link>
                   </p>
                 </div>
@@ -140,8 +151,9 @@ function RegisterPage() {
             </CardContent>
           </Card>
           <p className="px-6 text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
-            By clicking continue, you agree to our{' '}
-            <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+            {t('legal.agreementPrefix')}{' '}
+            <a href="#">{t('legal.termsOfService')}</a> {t('legal.and')}{' '}
+            <a href="#">{t('legal.privacyPolicy')}</a>.
           </p>
         </div>
       </div>

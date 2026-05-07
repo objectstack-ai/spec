@@ -8,6 +8,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { KeyRound, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +32,7 @@ export const Route = createFileRoute('/account/oauth-applications/')({
 });
 
 function OAuthApplicationsListPage() {
+  const { t } = useObjectTranslation();
   const navigate = useNavigate();
   const { applications, loading, reload } = useOAuthApplications();
   const { remove, deleting } = useDeleteOAuthApplication();
@@ -40,12 +42,12 @@ function OAuthApplicationsListPage() {
     if (!pendingDelete) return;
     try {
       await remove(pendingDelete.client_id);
-      toast({ title: 'OAuth application deleted' });
+      toast({ title: t('oauth.applications.deleted') });
       setPendingDelete(null);
       await reload();
     } catch (err) {
       toast({
-        title: 'Failed to delete',
+        title: t('oauth.applications.deleteFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -56,22 +58,21 @@ function OAuthApplicationsListPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">OAuth Applications</h1>
+          <h1 className="text-2xl font-semibold">{t('oauth.applications.title')}</h1>
           <p className="text-sm text-muted-foreground">
-            Register applications to authenticate users via this server's
-            OpenID Connect identity provider.
+            {t('oauth.applications.description')}
           </p>
         </div>
         <Button onClick={() => navigate({ to: '/account/oauth-applications/new' })}>
           <Plus className="mr-2 h-4 w-4" />
-          New application
+          {t('oauth.applications.new')}
         </Button>
       </div>
 
       {loading ? (
         <Card>
           <CardContent className="p-8 text-center text-sm text-muted-foreground">
-            Loading…
+            {t('common.loading')}
           </CardContent>
         </Card>
       ) : applications.length === 0 ? (
@@ -79,14 +80,14 @@ function OAuthApplicationsListPage() {
           <CardContent className="flex flex-col items-center gap-3 p-12 text-center">
             <KeyRound className="h-10 w-10 text-muted-foreground" />
             <div>
-              <p className="font-medium">No OAuth applications yet</p>
+              <p className="font-medium">{t('oauth.applications.emptyTitle')}</p>
               <p className="text-sm text-muted-foreground">
-                Register an application to start integrating SSO.
+                {t('oauth.applications.emptyDescription')}
               </p>
             </div>
             <Button onClick={() => navigate({ to: '/account/oauth-applications/new' })}>
               <Plus className="mr-2 h-4 w-4" />
-              Register an application
+              {t('oauth.applications.register')}
             </Button>
           </CardContent>
         </Card>
@@ -113,7 +114,7 @@ function OAuthApplicationsListPage() {
                     <Badge variant="outline" className="capitalize">
                       {app.type}
                     </Badge>
-                    {app.disabled && <Badge variant="destructive">Disabled</Badge>}
+                    {app.disabled && <Badge variant="destructive">{t('oauth.applications.disabled')}</Badge>}
                   </Link>
                   <Button
                     variant="ghost"
@@ -136,11 +137,11 @@ function OAuthApplicationsListPage() {
       <Dialog open={!!pendingDelete} onOpenChange={(open) => !open && setPendingDelete(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete OAuth application?</DialogTitle>
+            <DialogTitle>{t('oauth.applications.deleteDialogTitle')}</DialogTitle>
             <DialogDescription>
-              This will permanently delete <strong>{pendingDelete?.name}</strong>.
-              All access tokens and consents associated with this client will
-              also be revoked. This action cannot be undone.
+              {t('oauth.applications.deleteDialogDescription', {
+                name: pendingDelete?.name ?? '',
+              })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -149,10 +150,10 @@ function OAuthApplicationsListPage() {
               onClick={() => setPendingDelete(null)}
               disabled={deleting}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
-              {deleting ? 'Deleting…' : 'Delete'}
+              {deleting ? t('oauth.applications.deleting') : t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

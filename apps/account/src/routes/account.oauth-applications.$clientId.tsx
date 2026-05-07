@@ -9,6 +9,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { Trash2, Copy } from 'lucide-react';
 import { useClient } from '@objectstack/client-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +33,7 @@ export const Route = createFileRoute('/account/oauth-applications/$clientId')({
 });
 
 function OAuthApplicationDetailPage() {
+  const { t } = useObjectTranslation();
   const { clientId } = Route.useParams();
   const navigate = useNavigate();
   const { applications, loading: listLoading, reload } = useOAuthApplications();
@@ -63,8 +65,8 @@ function OAuthApplicationDetailPage() {
 
   const copy = (value: string, label: string) => {
     navigator.clipboard.writeText(value).then(
-      () => toast({ title: `${label} copied to clipboard` }),
-      () => toast({ title: `Failed to copy ${label}`, variant: 'destructive' }),
+      () => toast({ title: t('oauth.applications.copied', { label }) }),
+      () => toast({ title: t('oauth.applications.copyFailed', { label }), variant: 'destructive' }),
     );
   };
 
@@ -72,12 +74,12 @@ function OAuthApplicationDetailPage() {
     if (!app) return;
     try {
       await remove(app.client_id);
-      toast({ title: 'OAuth application deleted' });
+      toast({ title: t('oauth.applications.deleted') });
       await reload();
       navigate({ to: '/account/oauth-applications' });
     } catch (err) {
       toast({
-        title: 'Failed to delete',
+        title: t('oauth.applications.deleteFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -86,19 +88,19 @@ function OAuthApplicationDetailPage() {
 
   if (listLoading && !app) {
     return (
-      <div className="p-8 text-center text-sm text-muted-foreground">Loading…</div>
+      <div className="p-8 text-center text-sm text-muted-foreground">{t('common.loading')}</div>
     );
   }
 
   if (!app) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold">Application not found</h1>
+        <h1 className="text-2xl font-semibold">{t('oauth.applications.notFoundTitle')}</h1>
         <p className="text-sm text-muted-foreground">
-          We couldn't find an OAuth application with that client ID.
+          {t('oauth.applications.notFoundDescription')}
         </p>
         <Button onClick={() => navigate({ to: '/account/oauth-applications' })}>
-          Back to list
+          {t('oauth.applications.backToList')}
         </Button>
       </div>
     );
@@ -127,21 +129,20 @@ function OAuthApplicationDetailPage() {
               {app.type}
             </Badge>
           )}
-          {app.disabled && <Badge variant="destructive">Disabled</Badge>}
+          {app.disabled && <Badge variant="destructive">{t('oauth.applications.disabled')}</Badge>}
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Credentials</CardTitle>
+          <CardTitle>{t('oauth.applications.credentials')}</CardTitle>
           <CardDescription>
-            The client secret was shown only once at registration. To rotate
-            it, delete this application and register a new one.
+            {t('oauth.applications.credentialsDescriptionDetail')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Client ID</Label>
+            <Label>{t('oauth.applications.clientId')}</Label>
             <div className="flex items-center gap-2">
               <code className="flex-1 rounded-md border bg-muted px-3 py-2 font-mono text-xs">
                 {app.client_id}
@@ -149,16 +150,16 @@ function OAuthApplicationDetailPage() {
               <Button
                 size="icon"
                 variant="outline"
-                onClick={() => copy(app.client_id, 'Client ID')}
+                onClick={() => copy(app.client_id, t('oauth.applications.clientId'))}
               >
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
           </div>
           <div className="space-y-1">
-            <Label>Redirect URIs</Label>
+            <Label>{t('oauth.applications.redirectUris')}</Label>
             {redirectUris.length === 0 ? (
-              <p className="text-sm text-muted-foreground">None configured.</p>
+              <p className="text-sm text-muted-foreground">{t('oauth.applications.noRedirectUris')}</p>
             ) : (
               <ul className="space-y-1">
                 {redirectUris.map((u, i) => (
@@ -174,10 +175,9 @@ function OAuthApplicationDetailPage() {
 
       <Card className="border-destructive/40">
         <CardHeader>
-          <CardTitle className="text-base text-destructive">Danger zone</CardTitle>
+          <CardTitle className="text-base text-destructive">{t('oauth.applications.dangerTitle')}</CardTitle>
           <CardDescription>
-            Deleting this application revokes all access tokens issued to it
-            and removes any recorded user consents.
+            {t('oauth.applications.dangerDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -188,7 +188,7 @@ function OAuthApplicationDetailPage() {
             disabled={deleting}
           >
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete application
+            {t('oauth.applications.delete')}
           </Button>
         </CardContent>
       </Card>
@@ -196,11 +196,9 @@ function OAuthApplicationDetailPage() {
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-destructive">Delete application?</DialogTitle>
+            <DialogTitle className="text-destructive">{t('oauth.applications.deleteDialogTitle')}</DialogTitle>
             <DialogDescription>
-              This will permanently delete <strong>{app.name}</strong> and
-              revoke its access tokens and consents. This action cannot be
-              undone.
+              {t('oauth.applications.deleteDialogDescription', { name: app.name })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -209,10 +207,10 @@ function OAuthApplicationDetailPage() {
               onClick={() => setConfirmOpen(false)}
               disabled={deleting}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
-              {deleting ? 'Deleting…' : 'Delete'}
+              {deleting ? t('oauth.applications.deleting') : t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

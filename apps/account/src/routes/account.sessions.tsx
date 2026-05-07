@@ -3,6 +3,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { LogOut, Monitor } from 'lucide-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
@@ -21,6 +22,7 @@ interface SessionRecord {
 }
 
 function SessionsPage() {
+  const { t } = useObjectTranslation();
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [revoking, setRevoking] = useState<string | null>(null);
@@ -34,7 +36,7 @@ function SessionsPage() {
       setSessions((data as any)?.sessions ?? data ?? []);
     } catch (err) {
       toast({
-        title: 'Failed to load sessions',
+        title: t('sessions.loadFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -60,11 +62,11 @@ function SessionsPage() {
         const data = await res.json().catch(() => ({}));
         throw new Error((data as any)?.message || `Request failed: ${res.status}`);
       }
-      toast({ title: 'Session revoked' });
+      toast({ title: t('sessions.revoked') });
       await loadSessions();
     } catch (err) {
       toast({
-        title: 'Failed to revoke session',
+        title: t('sessions.revokeFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -86,11 +88,11 @@ function SessionsPage() {
         const data = await res.json().catch(() => ({}));
         throw new Error((data as any)?.message || `Request failed: ${res.status}`);
       }
-      toast({ title: 'Other sessions revoked' });
+      toast({ title: t('sessions.othersRevoked') });
       await loadSessions();
     } catch (err) {
       toast({
-        title: 'Failed to revoke sessions',
+        title: t('sessions.revokeOthersFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -104,20 +106,20 @@ function SessionsPage() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base">Active sessions</CardTitle>
-            <CardDescription>Manage devices that are signed in to your account.</CardDescription>
+            <CardTitle className="text-base">{t('sessions.title')}</CardTitle>
+            <CardDescription>{t('sessions.description')}</CardDescription>
           </div>
           {sessions.length > 1 && (
             <Button variant="outline" size="sm" onClick={handleRevokeOthers} disabled={revokingOthers}>
-              {revokingOthers ? 'Revoking…' : 'Revoke all others'}
+              {revokingOthers ? t('sessions.revokingOthers') : t('sessions.revokeOthers')}
             </Button>
           )}
         </div>
       </CardHeader>
       <CardContent>
-        {loading && <p className="text-xs text-muted-foreground">Loading sessions…</p>}
+        {loading && <p className="text-xs text-muted-foreground">{t('sessions.loading')}</p>}
         {!loading && sessions.length === 0 && (
-          <p className="py-6 text-center text-sm text-muted-foreground">No active sessions found.</p>
+          <p className="py-6 text-center text-sm text-muted-foreground">{t('sessions.empty')}</p>
         )}
         {!loading && sessions.length > 0 && (
           <div className="divide-y">
@@ -127,12 +129,12 @@ function SessionsPage() {
                   <div className="flex items-center gap-2">
                     <Monitor className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <span className="truncate text-sm font-medium">
-                      {s.userAgent ?? 'Unknown device'}
+                      {s.userAgent ?? t('sessions.unknownDevice')}
                     </span>
                   </div>
                   <div className="mt-1 space-x-3 text-xs text-muted-foreground">
                     {s.ipAddress && <span>{s.ipAddress}</span>}
-                    <span>Expires {new Date(s.expiresAt).toLocaleDateString()}</span>
+                    <span>{t('sessions.expires', { date: new Date(s.expiresAt).toLocaleDateString() })}</span>
                   </div>
                 </div>
                 <Button

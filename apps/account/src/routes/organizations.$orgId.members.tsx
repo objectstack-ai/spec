@@ -7,6 +7,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Clock, Mail, MoreVertical, Trash2, UserPlus, Users, X } from 'lucide-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -45,6 +46,7 @@ export const Route = createFileRoute('/organizations/$orgId/members')({
 });
 
 function OrgMembersPage() {
+  const { t } = useObjectTranslation();
   const { orgId } = Route.useParams();
   const { organizations } = useOrganizations();
   const org = organizations.find((o) => o.id === orgId);
@@ -72,8 +74,8 @@ function OrgMembersPage() {
   const handleInviteMember = async () => {
     if (!inviteEmail) {
       toast({
-        title: 'Email required',
-        description: 'Please enter an email address',
+        title: t('organizations.members.emailRequired'),
+        description: t('organizations.members.emailRequiredDescription'),
         variant: 'destructive',
       });
       return;
@@ -81,13 +83,13 @@ function OrgMembersPage() {
     setInviting(true);
     try {
       await inviteMember(inviteEmail, inviteRole);
-      toast({ title: 'Invitation sent successfully' });
+      toast({ title: t('organizations.members.invitationSent') });
       setInviteDialogOpen(false);
       setInviteEmail('');
       setInviteRole('member');
     } catch (err) {
       toast({
-        title: 'Failed to send invitation',
+        title: t('organizations.members.inviteFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -97,15 +99,15 @@ function OrgMembersPage() {
   };
 
   const handleRemoveMember = async (userId: string, memberName: string) => {
-    if (!confirm(`Are you sure you want to remove ${memberName} from this organization?`)) {
+    if (!confirm(t('organizations.members.removeConfirm', { name: memberName }))) {
       return;
     }
     try {
       await removeMember(userId);
-      toast({ title: 'Member removed successfully' });
+      toast({ title: t('organizations.members.memberRemoved') });
     } catch (err) {
       toast({
-        title: 'Failed to remove member',
+        title: t('organizations.members.removeFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -113,15 +115,15 @@ function OrgMembersPage() {
   };
 
   const handleCancelInvitation = async (invitationId: string, email: string) => {
-    if (!confirm(`Cancel invitation for ${email}?`)) {
+    if (!confirm(t('organizations.members.cancelConfirm', { email }))) {
       return;
     }
     try {
       await cancelInvitation(invitationId);
-      toast({ title: 'Invitation canceled' });
+      toast({ title: t('organizations.members.invitationCanceled') });
     } catch (err) {
       toast({
-        title: 'Failed to cancel invitation',
+        title: t('organizations.members.cancelFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -134,24 +136,26 @@ function OrgMembersPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base">Members ({members.length})</CardTitle>
-              <CardDescription>People with access to this organization</CardDescription>
+              <CardTitle className="text-base">
+                {t('organizations.members.title', { count: members.length })}
+              </CardTitle>
+              <CardDescription>{t('organizations.members.description')}</CardDescription>
             </div>
             <Button size="sm" onClick={() => setInviteDialogOpen(true)}>
               <UserPlus className="mr-2 h-4 w-4" />
-              Invite
+              {t('organizations.members.invite')}
             </Button>
           </div>
         </CardHeader>
         <CardContent>
           {loadingMembers && (
-            <p className="text-xs text-muted-foreground">Loading members...</p>
+            <p className="text-xs text-muted-foreground">{t('organizations.members.loadingMembers')}</p>
           )}
           {!loadingMembers && members.length === 0 && (
             <div className="text-center py-8">
               <Users className="mx-auto h-12 w-12 text-muted-foreground/50" />
               <p className="mt-4 text-sm text-muted-foreground">
-                No members yet. Invite someone to get started.
+                {t('organizations.members.empty')}
               </p>
               <Button
                 size="sm"
@@ -160,7 +164,7 @@ function OrgMembersPage() {
                 onClick={() => setInviteDialogOpen(true)}
               >
                 <UserPlus className="mr-2 h-4 w-4" />
-                Invite member
+                {t('organizations.members.inviteMember')}
               </Button>
             </div>
           )}
@@ -176,7 +180,7 @@ function OrgMembersPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary" className="text-xs">
-                      {m.role ?? 'member'}
+                      {t(`common.roles.${m.role ?? 'member'}`)}
                     </Badge>
                     {m.role !== 'owner' && (
                       <DropdownMenu>
@@ -196,7 +200,7 @@ function OrgMembersPage() {
                             }
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Remove member
+                            {t('organizations.members.removeMember')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -214,27 +218,27 @@ function OrgMembersPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-base">
-                Pending invitations ({pendingInvitations.length})
+                {t('organizations.members.pendingTitle', { count: pendingInvitations.length })}
               </CardTitle>
-              <CardDescription>Invitations sent to join this organization</CardDescription>
+              <CardDescription>{t('organizations.members.pendingDescription')}</CardDescription>
             </div>
             <Button size="sm" variant="outline" onClick={() => setInviteDialogOpen(true)}>
               <UserPlus className="mr-2 h-4 w-4" />
-              Send invitation
+              {t('organizations.members.sendInvitation')}
             </Button>
           </div>
         </CardHeader>
         <CardContent>
           {loadingInvitations && (
-            <p className="text-xs text-muted-foreground">Loading invitations...</p>
+            <p className="text-xs text-muted-foreground">{t('organizations.members.loadingInvitations')}</p>
           )}
           {!loadingInvitations && pendingInvitations.length === 0 && (
             <div className="text-center py-8">
               <Mail className="mx-auto h-12 w-12 text-muted-foreground/50" />
-              <p className="mt-4 text-sm text-muted-foreground">No pending invitations</p>
-              <p className="text-xs text-muted-foreground mt-2">
-                Invitations will appear here once sent
-              </p>
+                <p className="mt-4 text-sm text-muted-foreground">{t('organizations.members.noPending')}</p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {t('organizations.members.pendingHint')}
+                </p>
             </div>
           )}
           {!loadingInvitations && pendingInvitations.length > 0 && (
@@ -245,11 +249,13 @@ function OrgMembersPage() {
                     <div className="font-medium text-sm">{inv.email}</div>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant="outline" className="text-xs">
-                        {inv.role}
+                        {t(`common.roles.${inv.role}`)}
                       </Badge>
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        Expires {new Date(inv.expiresAt).toLocaleDateString()}
+                        {t('organizations.members.expires', {
+                          date: new Date(inv.expiresAt).toLocaleDateString(),
+                        })}
                       </span>
                     </div>
                   </div>
@@ -271,37 +277,38 @@ function OrgMembersPage() {
       <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Invite member</DialogTitle>
-            <DialogDescription>Send an invitation to join {org?.name}</DialogDescription>
+            <DialogTitle>{t('organizations.members.inviteDialogTitle')}</DialogTitle>
+            <DialogDescription>
+              {t('organizations.members.inviteDialogDescription', { organization: org?.name ?? '' })}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="invite-email">Email address</Label>
+              <Label htmlFor="invite-email">{t('organizations.members.email')}</Label>
               <Input
                 id="invite-email"
                 type="email"
-                placeholder="colleague@example.com"
+                placeholder={t('organizations.members.emailPlaceholder')}
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
+              <Label htmlFor="role">{t('organizations.members.role')}</Label>
               <Select value={inviteRole} onValueChange={setInviteRole}>
                 <SelectTrigger id="role">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="owner">Owner</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="member">Member</SelectItem>
+                  <SelectItem value="owner">{t('common.roles.owner')}</SelectItem>
+                  <SelectItem value="admin">{t('common.roles.admin')}</SelectItem>
+                  <SelectItem value="member">{t('common.roles.member')}</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                {inviteRole === 'owner' && 'Full access to manage the organization'}
-                {inviteRole === 'admin' &&
-                  'Can manage members and settings, but cannot delete the organization'}
-                {inviteRole === 'member' && 'Can view and use organization resources'}
+                {inviteRole === 'owner' && t('organizations.members.roleHints.owner')}
+                {inviteRole === 'admin' && t('organizations.members.roleHints.admin')}
+                {inviteRole === 'member' && t('organizations.members.roleHints.member')}
               </p>
             </div>
           </div>
@@ -311,10 +318,10 @@ function OrgMembersPage() {
               onClick={() => setInviteDialogOpen(false)}
               disabled={inviting}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleInviteMember} disabled={inviting}>
-              {inviting ? 'Sending...' : 'Send invitation'}
+              {inviting ? t('organizations.members.sending') : t('organizations.members.sendInvitation')}
             </Button>
           </DialogFooter>
         </DialogContent>

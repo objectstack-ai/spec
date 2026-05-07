@@ -2,6 +2,7 @@
 
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { Building2, Check, Plus } from 'lucide-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +14,7 @@ export const Route = createFileRoute('/organizations/')({
 });
 
 function OrgsListPage() {
+  const { t } = useObjectTranslation();
   const { organizations, loading } = useOrganizations();
   const { session, setActiveOrganization } = useSession();
   const navigate = useNavigate();
@@ -26,7 +28,7 @@ function OrgsListPage() {
       navigate({ to: '/organizations/$orgId', params: { orgId: id } });
     } catch (err) {
       toast({
-        title: 'Failed to switch organization',
+        title: t('organizations.switchFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -39,28 +41,28 @@ function OrgsListPage() {
         <div className="mx-auto max-w-3xl space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-semibold">Organizations</h1>
+              <h1 className="text-2xl font-semibold">{t('organizations.title')}</h1>
               <p className="text-sm text-muted-foreground">
-                Select an organization to work with, or create a new one.
+                {t('organizations.description')}
               </p>
             </div>
             <Button onClick={() => navigate({ to: '/organizations/new' })}>
-              <Plus className="mr-2 h-4 w-4" /> New organization
+              <Plus className="mr-2 h-4 w-4" /> {t('organizations.newOrganization')}
             </Button>
           </div>
 
-          {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
+          {loading && <p className="text-sm text-muted-foreground">{t('organizations.loading')}</p>}
 
           {!loading && organizations.length === 0 && (
             <Card className="p-10 text-center">
               <Building2 className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-              <h3 className="text-base font-medium">No organizations yet</h3>
+              <h3 className="text-base font-medium">{t('organizations.emptyTitle')}</h3>
               <p className="mb-4 text-sm text-muted-foreground">
-                Create your first organization to start building.
+                {t('organizations.emptyDescription')}
               </p>
               <Button onClick={() => navigate({ to: '/organizations/new' })}>
                 <Plus className="mr-2 h-4 w-4" />
-                Create organization
+                {t('organizations.createOrganization')}
               </Button>
             </Card>
           )}
@@ -93,7 +95,7 @@ function OrgsListPage() {
                         {isActive && (
                           <Badge variant="outline" className="gap-1 text-[10px]">
                             <Check className="h-3 w-3" />
-                            Active
+                            {t('organizations.active')}
                           </Badge>
                         )}
                       </div>

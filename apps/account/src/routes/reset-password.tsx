@@ -2,6 +2,7 @@
 
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { GalleryVerticalEnd } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,6 +19,7 @@ export const Route = createFileRoute('/reset-password')({
 });
 
 function ResetPasswordPage() {
+  const { t } = useObjectTranslation();
   const navigate = useNavigate();
   const { token } = Route.useSearch();
   const [newPassword, setNewPassword] = useState('');
@@ -27,11 +29,11 @@ function ResetPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast({ title: 'Passwords do not match', variant: 'destructive' });
+      toast({ title: t('auth.resetPassword.passwordsMismatch'), variant: 'destructive' });
       return;
     }
     if (!token) {
-      toast({ title: 'Missing reset token', variant: 'destructive' });
+      toast({ title: t('auth.resetPassword.missingToken'), variant: 'destructive' });
       return;
     }
     setSubmitting(true);
@@ -46,11 +48,11 @@ function ResetPasswordPage() {
         const data = await res.json().catch(() => ({}));
         throw new Error((data as any)?.message || `Request failed: ${res.status}`);
       }
-      toast({ title: 'Password reset successfully' });
+      toast({ title: t('auth.resetPassword.success') });
       navigate({ to: '/login' });
     } catch (err) {
       toast({
-        title: 'Failed to reset password',
+        title: t('auth.resetPassword.failed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -70,21 +72,21 @@ function ResetPasswordPage() {
         </a>
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-xl">Reset password</CardTitle>
-            <CardDescription>Choose a new password for your account.</CardDescription>
+            <CardTitle className="text-xl">{t('auth.resetPassword.title')}</CardTitle>
+            <CardDescription>{t('auth.resetPassword.description')}</CardDescription>
           </CardHeader>
           <CardContent>
             {!token ? (
               <p className="text-sm text-muted-foreground text-center">
-                Invalid or missing reset token.{' '}
+                {t('auth.resetPassword.invalidToken')}{' '}
                 <Link to="/forgot-password" className="underline underline-offset-4 hover:text-primary">
-                  Request a new link
+                  {t('auth.resetPassword.requestNewLink')}
                 </Link>
               </p>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="new-password">New password</Label>
+                  <Label htmlFor="new-password">{t('auth.resetPassword.newPassword')}</Label>
                   <Input
                     id="new-password"
                     type="password"
@@ -96,7 +98,7 @@ function ResetPasswordPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="confirm-password">Confirm password</Label>
+                  <Label htmlFor="confirm-password">{t('auth.resetPassword.confirmPassword')}</Label>
                   <Input
                     id="confirm-password"
                     type="password"
@@ -108,7 +110,7 @@ function ResetPasswordPage() {
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={submitting}>
-                  {submitting ? 'Resetting…' : 'Reset password'}
+                  {submitting ? t('auth.resetPassword.submitting') : t('auth.resetPassword.submit')}
                 </Button>
               </form>
             )}

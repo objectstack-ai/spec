@@ -10,6 +10,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Copy, KeyRound } from 'lucide-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,7 @@ export const Route = createFileRoute('/account/oauth-applications/new')({
 type AuthMethod = 'none' | 'client_secret_basic' | 'client_secret_post';
 
 function NewOAuthApplicationPage() {
+  const { t } = useObjectTranslation();
   const navigate = useNavigate();
   const { register, registering } = useRegisterOAuthApplication();
 
@@ -53,11 +55,11 @@ function NewOAuthApplicationPage() {
       .map((u) => u.trim())
       .filter(Boolean);
     if (!trimmedName) {
-      toast({ title: 'Name is required', variant: 'destructive' });
+      toast({ title: t('oauth.applications.form.nameRequired'), variant: 'destructive' });
       return;
     }
     if (uris.length === 0) {
-      toast({ title: 'At least one redirect URI is required', variant: 'destructive' });
+      toast({ title: t('oauth.applications.form.redirectRequired'), variant: 'destructive' });
       return;
     }
     try {
@@ -72,10 +74,10 @@ function NewOAuthApplicationPage() {
         client_id: result?.client_id ?? '',
         client_secret: result?.client_secret,
       });
-      toast({ title: 'Application registered' });
+      toast({ title: t('oauth.applications.registered') });
     } catch (err) {
       toast({
-        title: 'Failed to register application',
+        title: t('oauth.applications.registerFailed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
@@ -84,8 +86,8 @@ function NewOAuthApplicationPage() {
 
   const copy = (value: string, label: string) => {
     navigator.clipboard.writeText(value).then(
-      () => toast({ title: `${label} copied to clipboard` }),
-      () => toast({ title: `Failed to copy ${label}`, variant: 'destructive' }),
+      () => toast({ title: t('oauth.applications.copied', { label }) }),
+      () => toast({ title: t('oauth.applications.copyFailed', { label }), variant: 'destructive' }),
     );
   };
 
@@ -93,23 +95,22 @@ function NewOAuthApplicationPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold">Application registered</h1>
+          <h1 className="text-2xl font-semibold">{t('oauth.applications.registeredTitle')}</h1>
           <p className="text-sm text-muted-foreground">
-            Copy the client secret now — it cannot be displayed again.
+            {t('oauth.applications.registeredDescription')}
           </p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Credentials</CardTitle>
+            <CardTitle>{t('oauth.applications.credentials')}</CardTitle>
             <CardDescription>
-              Use these values to configure the OAuth/OIDC client in your
-              application.
+              {t('oauth.applications.credentialsDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1">
-              <Label>Client ID</Label>
+              <Label>{t('oauth.applications.clientId')}</Label>
               <div className="flex items-center gap-2">
                 <code className="flex-1 rounded-md border bg-muted px-3 py-2 font-mono text-xs">
                   {created.client_id}
@@ -117,7 +118,7 @@ function NewOAuthApplicationPage() {
                 <Button
                   size="icon"
                   variant="outline"
-                  onClick={() => copy(created.client_id, 'Client ID')}
+                  onClick={() => copy(created.client_id, t('oauth.applications.clientId'))}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
@@ -125,7 +126,7 @@ function NewOAuthApplicationPage() {
             </div>
             {created.client_secret && (
               <div className="space-y-1">
-                <Label>Client Secret</Label>
+                <Label>{t('oauth.applications.clientSecret')}</Label>
                 <div className="flex items-center gap-2">
                   <code className="flex-1 break-all rounded-md border bg-muted px-3 py-2 font-mono text-xs">
                     {created.client_secret}
@@ -133,13 +134,13 @@ function NewOAuthApplicationPage() {
                   <Button
                     size="icon"
                     variant="outline"
-                    onClick={() => copy(created.client_secret!, 'Client Secret')}
+                    onClick={() => copy(created.client_secret!, t('oauth.applications.clientSecret'))}
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
                 <p className="text-xs text-destructive">
-                  Save this secret now — it cannot be retrieved later.
+                  {t('oauth.applications.clientSecretWarning')}
                 </p>
               </div>
             )}
@@ -151,7 +152,7 @@ function NewOAuthApplicationPage() {
             variant="outline"
             onClick={() => navigate({ to: '/account/oauth-applications' })}
           >
-            Back to list
+            {t('oauth.applications.backToList')}
           </Button>
           <Button
             onClick={() =>
@@ -161,7 +162,7 @@ function NewOAuthApplicationPage() {
               })
             }
           >
-            View application
+            {t('oauth.applications.viewApplication')}
           </Button>
         </div>
       </div>
@@ -171,10 +172,9 @@ function NewOAuthApplicationPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Register OAuth application</h1>
+        <h1 className="text-2xl font-semibold">{t('oauth.applications.form.title')}</h1>
         <p className="text-sm text-muted-foreground">
-          Create credentials so an external app can authenticate users via
-          this server.
+          {t('oauth.applications.form.description')}
         </p>
       </div>
 
@@ -182,37 +182,36 @@ function NewOAuthApplicationPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <KeyRound className="h-4 w-4" />
-            Application details
+            {t('oauth.applications.form.details')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="oauth-name">Application name</Label>
+            <Label htmlFor="oauth-name">{t('oauth.applications.form.name')}</Label>
             <Input
               id="oauth-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="My Awesome App"
+              placeholder={t('oauth.applications.form.namePlaceholder')}
               disabled={registering}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="oauth-redirect">Redirect URIs</Label>
+            <Label htmlFor="oauth-redirect">{t('oauth.applications.form.redirectUris')}</Label>
             <Textarea
               id="oauth-redirect"
               value={redirectUris}
               onChange={(e) => setRedirectUris(e.target.value)}
-              placeholder="https://app.example.com/callback"
+              placeholder={t('oauth.applications.form.redirectPlaceholder')}
               rows={3}
               disabled={registering}
             />
             <p className="text-xs text-muted-foreground">
-              One per line, or comma-separated. Must exactly match the URI the
-              client uses during the authorization flow.
+              {t('oauth.applications.form.redirectHint')}
             </p>
           </div>
           <div className="space-y-2">
-            <Label>Token endpoint auth method</Label>
+            <Label>{t('oauth.applications.form.authMethod')}</Label>
             <Select
               value={authMethod}
               onValueChange={(v) => setAuthMethod(v as AuthMethod)}
@@ -223,34 +222,34 @@ function NewOAuthApplicationPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="client_secret_basic">
-                  client_secret_basic (recommended)
+                  {t('oauth.applications.form.authMethodBasic')}
                 </SelectItem>
-                <SelectItem value="client_secret_post">client_secret_post</SelectItem>
-                <SelectItem value="none">none (public client / PKCE only)</SelectItem>
+                <SelectItem value="client_secret_post">{t('oauth.applications.form.authMethodPost')}</SelectItem>
+                <SelectItem value="none">{t('oauth.applications.form.authMethodNone')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="oauth-client-uri">Application URL (optional)</Label>
+            <Label htmlFor="oauth-client-uri">{t('oauth.applications.form.clientUri')}</Label>
             <Input
               id="oauth-client-uri"
               value={clientUri}
               onChange={(e) => setClientUri(e.target.value)}
-              placeholder="https://app.example.com"
+              placeholder={t('oauth.applications.form.clientUriPlaceholder')}
               disabled={registering}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="oauth-logo">Logo URL (optional)</Label>
+            <Label htmlFor="oauth-logo">{t('oauth.applications.form.logoUri')}</Label>
             <Input
               id="oauth-logo"
               value={logoUri}
               onChange={(e) => setLogoUri(e.target.value)}
-              placeholder="https://app.example.com/logo.png"
+              placeholder={t('oauth.applications.form.logoUriPlaceholder')}
               disabled={registering}
             />
             <p className="text-xs text-muted-foreground">
-              Shown to users on the consent screen.
+              {t('oauth.applications.form.logoHint')}
             </p>
           </div>
         </CardContent>
@@ -262,10 +261,10 @@ function NewOAuthApplicationPage() {
           onClick={() => navigate({ to: '/account/oauth-applications' })}
           disabled={registering}
         >
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button onClick={handleCreate} disabled={registering}>
-          {registering ? 'Registering…' : 'Register application'}
+          {registering ? t('oauth.applications.form.registering') : t('oauth.applications.register')}
         </Button>
       </div>
     </div>

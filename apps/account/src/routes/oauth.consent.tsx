@@ -17,6 +17,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { Check, KeyRound, X } from 'lucide-react';
 import { useClient } from '@objectstack/client-react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
@@ -32,6 +33,7 @@ export const Route = createFileRoute('/oauth/consent')({
 });
 
 function OAuthConsentPage() {
+  const { t } = useObjectTranslation();
   const navigate = useNavigate();
   const client = useClient() as any;
   const { user, loading: sessionLoading } = useSession();
@@ -86,20 +88,20 @@ function OAuthConsentPage() {
         return;
       }
       toast({
-        title: accept ? 'Consent granted' : 'Consent denied',
-        description: 'No redirect URL returned by the server.',
+        title: accept ? t('oauth.consent.granted') : t('oauth.consent.denied'),
+        description: t('oauth.consent.noRedirect'),
         variant: accept ? undefined : 'destructive',
       });
     } catch (err) {
       toast({
-        title: 'Failed to submit consent',
+        title: t('oauth.consent.failed'),
         description: (err as Error).message,
         variant: 'destructive',
       });
     }
   };
 
-  const appName = clientInfo?.name ?? clientId ?? 'an application';
+  const appName = clientInfo?.name ?? clientId ?? t('oauth.consent.unknownApp');
 
   return (
     <div className="flex min-h-svh w-full flex-1 items-center justify-center bg-background px-4">
@@ -117,21 +119,23 @@ function OAuthConsentPage() {
               <KeyRound className="h-7 w-7 text-muted-foreground" />
             )}
           </div>
-          <CardTitle className="text-xl">Authorize {appName}</CardTitle>
+          <CardTitle className="text-xl">{t('oauth.consent.title', { appName })}</CardTitle>
           <CardDescription>
-            {appName} is requesting access to your ObjectStack account
-            {user?.email ? ` (${user.email})` : ''}.
+            {t('oauth.consent.request', {
+              appName,
+              suffix: user?.email ? ` (${user.email})` : '',
+            })}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {scopes.length > 0 && (
             <div>
-              <p className="mb-2 text-sm font-medium">This will allow it to:</p>
+              <p className="mb-2 text-sm font-medium">{t('oauth.consent.willAllow')}</p>
               <ul className="space-y-1.5 rounded-md border bg-muted/40 p-3 text-sm">
                 {scopes.map((s) => (
                   <li key={s} className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 text-green-600 dark:text-green-400" />
-                    <span>{describeScope(s)}</span>
+                    <span>{describeScope(s, t)}</span>
                   </li>
                 ))}
               </ul>
@@ -145,16 +149,16 @@ function OAuthConsentPage() {
               disabled={submitting}
             >
               <X className="mr-2 h-4 w-4" />
-              Deny
+              {t('oauth.consent.deny')}
             </Button>
             <Button onClick={() => handleDecision(true)} disabled={submitting}>
               <Check className="mr-2 h-4 w-4" />
-              {submitting ? 'Submitting…' : 'Authorize'}
+              {submitting ? t('oauth.consent.submitting') : t('oauth.consent.authorize')}
             </Button>
           </div>
 
           <p className="pt-2 text-center text-xs text-muted-foreground">
-            You can revoke access any time from your account settings.
+            {t('oauth.consent.footer')}
           </p>
         </CardContent>
       </Card>
@@ -162,16 +166,16 @@ function OAuthConsentPage() {
   );
 }
 
-function describeScope(scope: string): string {
+function describeScope(scope: string, t: (key: string) => string): string {
   switch (scope) {
     case 'openid':
-      return 'Verify your identity';
+      return t('oauth.consent.scope.openid');
     case 'profile':
-      return 'Access your basic profile (name, picture)';
+      return t('oauth.consent.scope.profile');
     case 'email':
-      return 'Access your email address';
+      return t('oauth.consent.scope.email');
     case 'offline_access':
-      return 'Stay signed in (refresh tokens)';
+      return t('oauth.consent.scope.offlineAccess');
     default:
       return scope;
   }

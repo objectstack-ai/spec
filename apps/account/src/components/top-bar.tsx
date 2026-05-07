@@ -56,6 +56,12 @@ export function TopBar() {
       else if (p === '/account/security') items.push({ label: tb('security') });
       else if (p === '/account/sessions') items.push({ label: tb('sessions') });
       else if (p === '/account/two-factor') items.push({ label: tb('twoFactor') });
+      else if (p === '/account/oauth-applications') items.push({ label: tb('oauthApps') });
+      else if (p === '/account/oauth-applications/new') {
+        items.push({ label: tb('oauthApps') }, { label: tb('new') });
+      } else if (p.startsWith('/account/oauth-applications/')) {
+        items.push({ label: tb('oauthApps') });
+      }
       return items;
     }
     if (p === '/organizations/new') return [{ label: tb('organizations') }, { label: tb('new') }];
