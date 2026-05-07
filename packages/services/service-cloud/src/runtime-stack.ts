@@ -35,6 +35,29 @@ import type { AppBundleResolver } from './project-kernel-factory.js';
 import { createObjectOSStack } from './objectos-stack.js';
 
 /**
+ * Infer the storage driver type from a database connection-URL scheme.
+ * Returns `''` if the URL is empty or the scheme is unrecognised.
+ *
+ *   mongodb://, mongodb+srv://         → 'mongodb'
+ *   postgres://, postgresql://         → 'postgres'
+ *   mysql://, mysql2://                → 'mysql'
+ *   libsql://, https://*.turso.*       → 'turso'
+ *   file:, sqlite:, :memory:, *.db,
+ *   *.sqlite, *.sqlite3                → 'sqlite'
+ */
+function inferDriverFromUrl(url: string | undefined): string {
+    if (!url) return '';
+    const u = url.trim();
+    if (/^mongodb(\+srv)?:\/\//i.test(u)) return 'mongodb';
+    if (/^postgres(ql)?:\/\//i.test(u)) return 'postgres';
+    if (/^mysql2?:\/\//i.test(u)) return 'mysql';
+    if (/^libsql:\/\//i.test(u)) return 'turso';
+    if (/^https?:\/\//i.test(u) && /\.turso\./i.test(u)) return 'turso';
+    if (/^file:/i.test(u) || /^sqlite:/i.test(u) || u === ':memory:' || /\.(db|sqlite|sqlite3)$/i.test(u)) return 'sqlite';
+    return '';
+}
+
+/**
  * Default ObjectStack Cloud base URL — the local `apps/cloud` instance
  * running on port 4000. Override via `OS_CLOUD_URL` (or
  * `RuntimeStackConfig.cloudUrl`) to point at a remote control plane
@@ -124,8 +147,22 @@ export async function createRuntimeStack(config?: RuntimeStackConfig): Promise<R
     const dataDir = cfg.dataDir ?? resolvePath(cwd, '.objectstack/data');
     mkdirSync(dataDir, { recursive: true });
 
-    const controlDbUrl = `file:${resolvePath(dataDir, 'control.db')}`;
-    const projectDbUrl = `file:${resolvePath(dataDir, `${projectId}.db`)}`;
+    // Control-plane DB. In single-project local mode this is the framework's
+    // bookkeeping DB (sys_organization / sys_project / …). It defaults to a
+    // local SQLite file. Users can override with `OS_CONTROL_DATABASE_URL`
+    // (preferred); `OS_DATABASE_URL` is reserved for the *project's* data.
+    const controlDbUrl = process.env.OS_CONTROL_DATABASE_URL?.trim()
+        || `file:${resolvePath(dataDir, 'control.db')}`;
+
+    // Project DB. This is the user's business-data DB. When `OS_DATABASE_URL`
+    // is set, honour it (and infer the driver from its scheme unless
+    // `OS_DATABASE_DRIVER` overrides). Otherwise fall back to a local
+    // SQLite file beside `control.db`.
+    const envProjectDbUrl = process.env.OS_DATABASE_URL?.trim();
+    const projectDbUrl = envProjectDbUrl || `file:${resolvePath(dataDir, `${projectId}.db`)}`;
+    const projectDbDriver = (process.env.OS_DATABASE_DRIVER?.trim().toLowerCase())
+        || inferDriverFromUrl(projectDbUrl)
+        || 'sqlite';
 
     const authSecret = cfg.authSecret ?? resolveAuthSecret();
     const baseUrl = cfg.baseUrl ?? resolveBaseUrl();
@@ -176,7 +213,7 @@ export async function createRuntimeStack(config?: RuntimeStackConfig): Promise<R
         createSingleProjectPlugin({
             projectId,
             projectDatabaseUrl: projectDbUrl,
-            projectDatabaseDriver: 'sqlite',
+            projectDatabaseDriver: projectDbDriver,
             apiPrefix: cfg.apiPrefix,
         }),
     );

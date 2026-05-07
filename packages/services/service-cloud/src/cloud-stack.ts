@@ -81,9 +81,20 @@ export async function createCloudStack(config: CloudStackConfig): Promise<{
         apiPrefix,
     } = config;
 
+    // Resolve the control-plane DB URL.
+    // Priority:
+    //   1. OS_CONTROL_DATABASE_URL  (explicit, dedicated to the control plane)
+    //   2. controlDriverUrl         (explicit param from the calling stack)
+    //   3. OS_DATABASE_URL          (legacy alias — only used here when no
+    //                                higher-priority source is set; reserved
+    //                                going forward for the project's data DB)
+    //   4. TURSO_DATABASE_URL       (legacy alias)
+    //   5. file:./.objectstack/data/control.db (default)
+    const explicitControlUrl = process.env.OS_CONTROL_DATABASE_URL?.trim();
+    const legacyControlUrl = (process.env.OS_DATABASE_URL || process.env.TURSO_DATABASE_URL)?.trim();
     const controlDriverPromise = buildControlDriver(
-        (process.env.OS_DATABASE_URL || process.env.TURSO_DATABASE_URL)?.trim() || controlDriverUrl,
-        process.env.OS_DATABASE_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN || controlDriverAuthToken,
+        explicitControlUrl || controlDriverUrl || legacyControlUrl || `file:${resolvePath(process.cwd(), '.objectstack/data/control.db')}`,
+        process.env.OS_CONTROL_DATABASE_AUTH_TOKEN || process.env.OS_DATABASE_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN || controlDriverAuthToken,
     );
 
     // Default base plugins (per-project kernel — business data only).
