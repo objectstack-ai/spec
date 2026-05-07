@@ -1,17 +1,8 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { defineStack } from '@objectstack/spec';
-import {
-  AutomationServicePlugin,
-  ScreenNodesPlugin,
-  CrudNodesPlugin,
-  LogicNodesPlugin,
-  HttpConnectorPlugin,
-} from '@objectstack/service-automation';
-import { AnalyticsServicePlugin } from '@objectstack/service-analytics';
 import * as cubes from './src/cubes';
 
-// ─── Barrel Imports (one per metadata type) ─────────────────────────
 import * as objects from './src/objects';
 import * as actions from './src/actions';
 import * as dashboards from './src/dashboards';
@@ -26,7 +17,6 @@ import * as views from './src/views';
 import * as translations from './src/translations';
 import { CrmSeedData } from './src/data';
 
-// ─── Sharing & Security (special: mixed single/array values) ───────
 import {
   AccountTeamSharingRule, TerritorySharingRules,
   OpportunitySalesSharingRule,
@@ -46,19 +36,14 @@ export default defineStack({
     description: 'Comprehensive enterprise CRM demonstrating all ObjectStack Protocol features including AI, security, and automation',
   },
 
-  // Runtime plugins — register the AutomationEngine and its node executors so
-  // server-side flows (e.g. `lead_conversion`) can run end-to-end. CLI serve
-  // does NOT auto-register automation; it must be opted-in here.
-  plugins: [
-    new AutomationServicePlugin(),
-    new CrudNodesPlugin(),
-    new LogicNodesPlugin(),
-    new HttpConnectorPlugin(),
-    new ScreenNodesPlugin(),
-    new AnalyticsServicePlugin({ cubes: Object.values(cubes) }),
-  ],
+  // ─── Platform capabilities this app needs ─────────────────────────
+  // The runtime resolves each capability name to a built-in service plugin
+  // and auto-loads it (with extras like Automation's node packs). No need
+  // to hand-instantiate plugins or pass `--preset` flags. See
+  // packages/cli/src/commands/serve.ts CAPABILITY_PROVIDERS for the
+  // complete map; explicit `plugins: [...]` always shadows the resolver.
+  requires: ['ai', 'automation', 'analytics'],
 
-  // Auto-collected from barrel index files via Object.values()
   objects: Object.values(objects),
   actions: Object.values(actions),
   dashboards: Object.values(dashboards),
@@ -70,14 +55,12 @@ export default defineStack({
   permissions: Object.values(profiles),
   apps: Object.values(apps),
   views: Object.values(views),
+  analyticsCubes: Object.values(cubes),
 
-  // Lifecycle hooks declared as metadata; AppPlugin auto-binds them.
   hooks: allHooks,
 
-  // Seed Data (top-level, registered as metadata)
   data: CrmSeedData,
 
-  // I18n Configuration — per-locale file organization
   i18n: {
     defaultLocale: 'en',
     supportedLocales: ['en', 'zh-CN', 'ja-JP', 'es-ES'],
@@ -85,10 +68,8 @@ export default defineStack({
     fileOrganization: 'per_locale',
   },
 
-  // I18n Translation Bundles (en, zh-CN, ja-JP, es-ES)
   translations: Object.values(translations),
 
-  // Sharing & security
   sharingRules: [
     AccountTeamSharingRule,
     OpportunitySalesSharingRule,

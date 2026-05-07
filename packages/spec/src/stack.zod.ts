@@ -315,6 +315,35 @@ export const ObjectStackDefinitionSchema = lazySchema(() => z.object({
   plugins: z.array(z.unknown()).optional().describe('Plugins to load'),
 
   /**
+   * Required Capabilities
+   *
+   * Declarative dependency on platform-provided capabilities. The
+   * runtime resolves each name to a built-in service plugin and
+   * loads it automatically — no need to construct the plugin in
+   * `plugins[]` or pass `--preset` flags at the CLI level.
+   *
+   * Built-in capability names (mapped in `@objectstack/cli`):
+   *   `ai`         → AIServicePlugin
+   *   `automation` → AutomationServicePlugin (+ default node packs)
+   *   `analytics`  → AnalyticsServicePlugin
+   *   `audit`      → AuditPlugin
+   *   `i18n`       → I18nPlugin
+   *
+   * If a capability is also provided explicitly via `plugins[]`, the
+   * explicit instance wins (and the resolver does not double-register).
+   *
+   * @example
+   * ```ts
+   * defineStack({
+   *   manifest: { ... },
+   *   requires: ['ai', 'automation', 'analytics'],
+   *   objects: [...],
+   * });
+   * ```
+   */
+  requires: z.array(z.string()).optional().describe('Capability names this stack requires from the platform'),
+
+  /**
    * DevPlugins: Development Capabilities
    * List of plugins to load ONLY in development environment.
    * Equivalent to `devDependencies` in package.json.
@@ -782,6 +811,7 @@ const CONCAT_ARRAY_FIELDS = [
   'data',
   'plugins',
   'devPlugins',
+  'requires',
 ] as const satisfies readonly (keyof ObjectStackDefinition)[];
 
 /**

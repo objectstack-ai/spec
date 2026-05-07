@@ -19,6 +19,9 @@ export default class Dev extends Command {
     ui: Flags.boolean({ description: 'Enable Studio UI at /_studio/' }),
     verbose: Flags.boolean({ char: 'v', description: 'Verbose output' }),
     port: Flags.string({ char: 'p', description: 'Server port (overrides $PORT)' }),
+    preset: Flags.string({
+      description: 'Plugin tier preset forwarded to `serve`: minimal | default | full',
+    }),
     compile: Flags.boolean({
       description: 'Compile objectstack.config.ts to dist/objectstack.json before starting (auto if artifact missing)',
       default: false,
@@ -79,6 +82,7 @@ export default class Dev extends Command {
           ...(port ? ['--port', port] : []),
           ...(flags.ui ? ['--ui'] : []),
           ...(flags.verbose ? ['--verbose'] : []),
+          ...(flags.preset ? ['--preset', flags.preset] : []),
         ],
         { stdio: 'inherit', env: localEnv },
       );

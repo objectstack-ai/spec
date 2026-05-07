@@ -212,11 +212,15 @@ export default class Serve extends Command {
       // `@objectstack/runtime` (no cloud dependencies). runtime/cloud
       // modes go through `@objectstack/service-cloud`.
       if (shouldBootWithLibrary(config)) {
+        // The boot stack returns only `{plugins, api}` — preserve the
+        // original stack metadata (notably `requires`, `analyticsCubes`,
+        // `tiers`) so the capability resolver further down can read it.
+        const originalConfig = config;
         const resolvedMode = config.bootMode ?? process.env.OS_MODE ?? 'standalone';
         if (resolvedMode === 'standalone') {
           const { createStandaloneStack } = await import('@objectstack/runtime');
           const bootResult = await createStandaloneStack(config.standalone);
-          config = bootResult as any;
+          config = { ...originalConfig, ...bootResult } as any;
         } else {
           const { createBootStack } = await import('@objectstack/service-cloud');
           const bootResult = await createBootStack({
@@ -224,22 +228,47 @@ export default class Serve extends Command {
             runtime: config.runtime ?? config.project,
             cloud: config.cloud,
           });
-          config = bootResult as any;
+          config = { ...originalConfig, ...bootResult } as any;
         }
       }
 
       // ── Resolve plugin tiers ──────────────────────────────────────
-      // Precedence: config.tiers > --preset > built-in default.
-      // Tiers gate the OPTIONAL auto-registration blocks (AIService,
-      // I18n, Studio UI). Explicitly-listed config.plugins always load.
+      // Precedence: config.requires (capability declarations) >
+      //             config.tiers > --preset > built-in default.
+      //
+      // `requires: ['ai', 'automation', ...]` is the recommended
+      // app-level way to declare platform dependencies. The CLI
+      // expands each capability name into the matching tier so the
+      // optional auto-registration blocks below light up without
+      // extra flags. Explicitly-listed `config.plugins` always load
+      // and shadow any capability resolution (i.e. an explicit
+      // instance wins over the auto-loader).
       const presetName = flags.preset ?? (isDev ? 'default' : 'default');
       const presetTiers = Serve.TIER_PRESETS[presetName] ?? Serve.TIER_PRESETS.default;
-      const tiers: Set<string> = new Set(
+      const requires: string[] = Array.isArray((config as any).requires)
+        ? (config as any).requires.filter((c: unknown) => typeof c === 'string')
+        : [];
+      // Capability → tier: any capability that is gated by a tier
+      // here automatically opens that tier when listed in `requires`.
+      // Capabilities NOT in this map (e.g. `automation`, `analytics`,
+      // `audit`) bypass tier gating and are loaded directly by the
+      // capability-resolver block further down.
+      const CAPABILITY_TO_TIER: Record<string, string> = {
+        ai: 'ai',
+        i18n: 'i18n',
+        ui: 'ui',
+        auth: 'auth',
+      };
+      const requiredTiers = requires
+        .map((c) => CAPABILITY_TO_TIER[c])
+        .filter((t): t is string => typeof t === 'string');
+      const baseTiers =
         Array.isArray((config as any).tiers) && (config as any).tiers.length > 0
           ? (config as any).tiers
-          : presetTiers
-      );
+          : presetTiers;
+      const tiers: Set<string> = new Set([...baseTiers, ...requiredTiers]);
       const tierEnabled = (t: string) => tiers.has(t);
+      const requiresCapability = (c: string) => requires.includes(c);
 
       // Import ObjectStack runtime
       const { Runtime } = await import('@objectstack/runtime');
@@ -655,6 +684,141 @@ export default class Serve extends Command {
             console.error('[AI] AIServicePlugin failed to start:', msg);
           }
           // @objectstack/service-ai not installed — AI features unavailable
+        }
+      }
+
+      // 5. Capability resolver — auto-load service plugins declared in
+      // `requires: [...]` that are NOT tier-gated. Each entry maps to a
+      // package + factory; if the user already provided an explicit
+      // instance via `plugins: [...]` we skip (explicit wins).
+      //
+      // Adding a new built-in capability is a one-line change here.
+      type CapabilitySpec = {
+        pkg: string;
+        export: string;            // named export to import
+        nameMatch: string[];       // plugin.name / constructor.name fragments to detect dupes
+        configKey?: string;        // optional config field passed as constructor arg
+        extras?: Array<{ pkg: string; export: string; nameMatch: string[] }>;
+      };
+      const CAPABILITY_PROVIDERS: Record<string, CapabilitySpec> = {
+        automation: {
+          pkg: '@objectstack/service-automation',
+          export: 'AutomationServicePlugin',
+          nameMatch: ['service-automation', 'AutomationServicePlugin'],
+          // The default node packs ship from the same package; auto-register them
+          // so flows actually have executors. Users can opt out by listing
+          // their own subset explicitly in `plugins: []` (which sets
+          // `nameMatch` to skip these auto-loads).
+          extras: [
+            { pkg: '@objectstack/service-automation', export: 'CrudNodesPlugin',   nameMatch: ['crud-nodes', 'CrudNodesPlugin'] },
+            { pkg: '@objectstack/service-automation', export: 'LogicNodesPlugin',  nameMatch: ['logic-nodes', 'LogicNodesPlugin'] },
+            { pkg: '@objectstack/service-automation', export: 'HttpConnectorPlugin', nameMatch: ['http-connector', 'HttpConnectorPlugin'] },
+            { pkg: '@objectstack/service-automation', export: 'ScreenNodesPlugin', nameMatch: ['screen-nodes', 'ScreenNodesPlugin'] },
+          ],
+        },
+        analytics: {
+          pkg: '@objectstack/service-analytics',
+          export: 'AnalyticsServicePlugin',
+          nameMatch: ['service-analytics', 'AnalyticsServicePlugin'],
+          configKey: 'analyticsCubes',
+        },
+        audit: {
+          pkg: '@objectstack/plugin-audit',
+          export: 'AuditPlugin',
+          nameMatch: ['audit', 'AuditPlugin'],
+        },
+        cache: {
+          pkg: '@objectstack/service-cache',
+          export: 'CacheServicePlugin',
+          nameMatch: ['service-cache', 'CacheServicePlugin'],
+        },
+        storage: {
+          pkg: '@objectstack/service-storage',
+          export: 'StorageServicePlugin',
+          nameMatch: ['service-storage', 'StorageServicePlugin'],
+        },
+        queue: {
+          pkg: '@objectstack/service-queue',
+          export: 'QueueServicePlugin',
+          nameMatch: ['service-queue', 'QueueServicePlugin'],
+        },
+        job: {
+          pkg: '@objectstack/service-job',
+          export: 'JobServicePlugin',
+          nameMatch: ['service-job', 'JobServicePlugin'],
+        },
+        realtime: {
+          pkg: '@objectstack/service-realtime',
+          export: 'RealtimeServicePlugin',
+          nameMatch: ['service-realtime', 'RealtimeServicePlugin'],
+        },
+        feed: {
+          pkg: '@objectstack/service-feed',
+          export: 'FeedServicePlugin',
+          nameMatch: ['service-feed', 'FeedServicePlugin'],
+        },
+        mcp: {
+          pkg: '@objectstack/plugin-mcp-server',
+          export: 'MCPServerPlugin',
+          nameMatch: ['mcp-server', 'MCPServerPlugin'],
+        },
+        marketplace: {
+          pkg: '@objectstack/service-package',
+          export: 'PackageServicePlugin',
+          nameMatch: ['service-package', 'PackageServicePlugin'],
+        },
+      };
+
+      const hasPluginMatching = (fragments: string[]) =>
+        plugins.some((p: any) => {
+          const n = String(p?.name ?? '');
+          const c = String(p?.constructor?.name ?? '');
+          return fragments.some((f) => n.includes(f) || c.includes(f));
+        });
+
+      for (const cap of requires) {
+        const spec = CAPABILITY_PROVIDERS[cap];
+        if (!spec) continue; // tier-gated capabilities (ai/i18n/ui/auth) handled above
+        if (hasPluginMatching(spec.nameMatch)) continue;
+
+        try {
+          const mod: any = await import(/* webpackIgnore: true */ spec.pkg);
+          const Ctor = mod[spec.export];
+          if (!Ctor) {
+            console.warn(chalk.yellow(`  ⚠ Capability "${cap}": ${spec.pkg} did not export ${spec.export}`));
+            continue;
+          }
+          // analytics needs cubes from config, others take no args
+          let arg: any;
+          if (spec.configKey === 'analyticsCubes') {
+            const cubes = (config as any).analyticsCubes ?? (config as any).cubes ?? [];
+            arg = { cubes };
+          }
+          await kernel.use(arg !== undefined ? new Ctor(arg) : new Ctor());
+          trackPlugin(spec.export);
+
+          if (spec.extras) {
+            for (const ex of spec.extras) {
+              if (hasPluginMatching(ex.nameMatch)) continue;
+              try {
+                const exMod: any = await import(/* webpackIgnore: true */ ex.pkg);
+                const ExCtor = exMod[ex.export];
+                if (ExCtor) {
+                  await kernel.use(new ExCtor());
+                  trackPlugin(ex.export);
+                }
+              } catch {
+                // optional extra — silently skip
+              }
+            }
+          }
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          if (!msg.includes('Cannot find module') && !msg.includes('ERR_MODULE_NOT_FOUND')) {
+            console.error(`[Capability:${cap}] failed to load ${spec.pkg}: ${msg}`);
+          } else {
+            console.warn(chalk.yellow(`  ⚠ Capability "${cap}" required but ${spec.pkg} is not installed`));
+          }
         }
       }
 

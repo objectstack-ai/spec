@@ -941,6 +941,9 @@ importers:
       '@objectstack/plugin-hono-server':
         specifier: workspace:*
         version: link:../plugins/plugin-hono-server
+      '@objectstack/plugin-mcp-server':
+        specifier: workspace:*
+        version: link:../plugins/plugin-mcp-server
       '@objectstack/plugin-security':
         specifier: workspace:*
         version: link:../plugins/plugin-security
@@ -953,9 +956,36 @@ importers:
       '@objectstack/service-ai':
         specifier: workspace:*
         version: link:../services/service-ai
+      '@objectstack/service-analytics':
+        specifier: workspace:*
+        version: link:../services/service-analytics
+      '@objectstack/service-automation':
+        specifier: workspace:*
+        version: link:../services/service-automation
+      '@objectstack/service-cache':
+        specifier: workspace:*
+        version: link:../services/service-cache
       '@objectstack/service-cloud':
         specifier: workspace:*
         version: link:../services/service-cloud
+      '@objectstack/service-feed':
+        specifier: workspace:*
+        version: link:../services/service-feed
+      '@objectstack/service-job':
+        specifier: workspace:*
+        version: link:../services/service-job
+      '@objectstack/service-package':
+        specifier: workspace:*
+        version: link:../services/service-package
+      '@objectstack/service-queue':
+        specifier: workspace:*
+        version: link:../services/service-queue
+      '@objectstack/service-realtime':
+        specifier: workspace:*
+        version: link:../services/service-realtime
+      '@objectstack/service-storage':
+        specifier: workspace:*
+        version: link:../services/service-storage
       '@objectstack/spec':
         specifier: workspace:*
         version: link:../spec

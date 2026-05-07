@@ -21,7 +21,7 @@ export const opportunityCube: Cube = {
   dimensions: {
     stage:               { name: 'stage',               label: 'Stage',          type: 'string', sql: 'stage' },
     close_date:          { name: 'close_date',          label: 'Close Date',     type: 'time',   sql: 'close_date',  granularities: ['day', 'week', 'month', 'quarter', 'year'] },
-    'account.industry':  { name: 'account.industry',    label: 'Industry',       type: 'string', sql: 'account.industry' },
+    'account_industry':  { name: 'account_industry',    label: 'Industry',       type: 'string', sql: 'account.industry' },
     owner:               { name: 'owner',               label: 'Owner',          type: 'string', sql: 'owner' },
   },
 };
