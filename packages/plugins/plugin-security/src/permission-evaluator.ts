@@ -35,7 +35,10 @@ export class PermissionEvaluator {
     if (!permKey) return true; // Unknown operations are allowed by default
 
     for (const ps of permissionSets) {
-      const objPerm = ps.objects?.[objectName];
+      // Honour the `'*'` wildcard sentinel — admin permission sets typically
+      // grant blanket access via a single `objects: { '*': … }` entry rather
+      // than enumerating every system object.
+      const objPerm = ps.objects?.[objectName] ?? ps.objects?.['*'];
       if (objPerm) {
         // Check if modifyAllRecords is set (super-user bypass for write ops)
         if (['allowEdit', 'allowDelete'].includes(permKey) && objPerm.modifyAllRecords) {
@@ -88,21 +91,45 @@ export class PermissionEvaluator {
   }
 
   /**
-   * Resolve permission sets for a list of role names from metadata.
+   * Resolve permission sets for a list of identifier names from metadata.
+   *
+   * Identifiers are matched to `PermissionSet.name`. The names may be
+   * either role names (when `sys_role.name` is reused as a permission set
+   * name — common for default admin/member/viewer roles) or explicit
+   * permission set names supplied through `ExecutionContext.permissions[]`
+   * (resolved by `resolveExecutionContext` from `sys_user_permission_set`
+   * and `sys_role_permission_set`).
+   *
+   * Async because the underlying metadata service exposes `list()` as a
+   * Promise — synchronous iteration would silently yield zero results
+   * (the historical SecurityPlugin behaviour, masking all enforcement).
    */
-  resolvePermissionSets(
-    roles: string[],
+  async resolvePermissionSets(
+    identifiers: string[],
     metadataService: any
-  ): PermissionSet[] {
+  ): Promise<PermissionSet[]> {
+    if (identifiers.length === 0) return [];
+
     const result: PermissionSet[] = [];
+    const seen = new Set<string>();
 
-    // Get all permission sets from metadata
-    const allPermSets = metadataService.list?.('permissions') || [];
+    // Get all permission sets from metadata. Support both async (Manager) and
+    // sync (test stub) implementations of `list`.
+    let allPermSets: any = [];
+    try {
+      const listed = metadataService?.list?.('permission')
+        ?? metadataService?.list?.('permissions')
+        ?? [];
+      allPermSets = typeof (listed as any)?.then === 'function' ? await listed : listed;
+    } catch {
+      allPermSets = [];
+    }
+    if (!Array.isArray(allPermSets)) allPermSets = [];
 
+    const wanted = new Set(identifiers);
     for (const ps of allPermSets) {
-      // A permission set is relevant if it's a profile assigned to any of the user's roles,
-      // or if the role name matches the permission set name
-      if (roles.includes(ps.name)) {
+      if (wanted.has(ps.name) && !seen.has(ps.name)) {
+        seen.add(ps.name);
         result.push(ps);
       }
     }

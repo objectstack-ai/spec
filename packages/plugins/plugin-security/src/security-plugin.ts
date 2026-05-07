@@ -5,17 +5,51 @@ import type { PermissionSet, RowLevelSecurityPolicy } from '@objectstack/spec/se
 import { PermissionEvaluator } from './permission-evaluator.js';
 import { RLSCompiler } from './rls-compiler.js';
 import { FieldMasker } from './field-masker.js';
-import { securityObjects, securityPluginManifestHeader } from './manifest.js';
+import { PermissionDeniedError } from './errors.js';
+import {
+  securityObjects,
+  securityDefaultPermissionSets,
+  securityPluginManifestHeader,
+} from './manifest.js';
+
+export interface SecurityPluginOptions {
+  /**
+   * Physical column name used by the multi-tenant RLS isolation policy.
+   * Default: `'organization_id'` — matches the canonical
+   * `sys_organization` foreign key used across platform objects and
+   * better-auth's organization plugin (`session.activeOrganizationId`).
+   *
+   * RLS expressions written as `tenant_id = current_user.tenant_id` are
+   * rewritten on the fly to use this physical column when compiled.
+   */
+  tenantField?: string;
+  /**
+   * Additional permission sets to register with the metadata service on
+   * plugin start. Defaults to {@link securityDefaultPermissionSets}
+   * (admin_full_access / member_default / viewer_readonly).
+   */
+  defaultPermissionSets?: PermissionSet[];
+  /**
+   * Permission set name applied as an implicit baseline whenever an
+   * authenticated request has no resolved permission sets (and no roles
+   * that map to one). This guarantees baseline tenant/owner RLS for
+   * every logged-in user even before an admin assigns explicit
+   * profiles. Set to `null` to disable.
+   *
+   * @default 'member_default'
+   */
+  fallbackPermissionSet?: string | null;
+}
 
 /**
  * SecurityPlugin
- * 
+ *
  * Provides RBAC, Row-Level Security, and Field-Level Security runtime.
  * Registers as an engine middleware on the ObjectQL engine.
- * 
+ *
  * This plugin is fully optional — without it, the system operates
  * without permission checks (same as current behavior).
- * 
+ *
  * Dependencies:
  * - objectql service (ObjectQL engine with middleware support)
  * - metadata service (MetadataFacade for reading permission sets and RLS policies)
@@ -29,6 +63,19 @@ export class SecurityPlugin implements Plugin {
   private permissionEvaluator = new PermissionEvaluator();
   private rlsCompiler = new RLSCompiler();
   private fieldMasker = new FieldMasker();
+  private readonly tenantField: string;
+  private readonly bootstrapPermissionSets: PermissionSet[];
+  private readonly fallbackPermissionSet: string | null;
+
+  constructor(options: SecurityPluginOptions = {}) {
+    this.tenantField = options.tenantField ?? 'organization_id';
+    this.bootstrapPermissionSets =
+      options.defaultPermissionSets ?? securityDefaultPermissionSets;
+    this.fallbackPermissionSet =
+      options.fallbackPermissionSet === undefined
+        ? 'member_default'
+        : options.fallbackPermissionSet;
+  }
 
   async init(ctx: PluginContext): Promise<void> {
     ctx.logger.info('Initializing Security Plugin...');
@@ -41,9 +88,16 @@ export class SecurityPlugin implements Plugin {
     ctx.getService<{ register(m: any): void }>('manifest').register({
       ...securityPluginManifestHeader,
       objects: securityObjects,
+      // Permission sets ride along on the manifest so the metadata service
+      // can resolve them by name when SecurityPlugin middleware queries
+      // `metadata.list('permissions')`.
+      permissions: this.bootstrapPermissionSets,
     });
 
-    ctx.logger.info('Security Plugin initialized');
+    ctx.logger.info('Security Plugin initialized', {
+      tenantField: this.tenantField,
+      defaultPermissionSets: this.bootstrapPermissionSets.map((p) => p.name),
+    });
   }
 
   async start(ctx: PluginContext): Promise<void> {
@@ -74,17 +128,39 @@ export class SecurityPlugin implements Plugin {
       }
 
       const roles = opCtx.context?.roles ?? [];
+      const explicitPermissionSets = opCtx.context?.permissions ?? [];
 
-      // Skip security checks if no roles (anonymous/unauthenticated)
-      // The auth middleware should handle authentication separately
-      if (roles.length === 0 && !opCtx.context?.userId) {
+      // Skip security checks if no roles AND no explicit permission sets
+      // AND no userId (anonymous/unauthenticated). The auth middleware
+      // should handle authentication separately.
+      if (
+        roles.length === 0 &&
+        explicitPermissionSets.length === 0 &&
+        !opCtx.context?.userId
+      ) {
         return next();
       }
 
-      // 1. Resolve permission sets for the user's roles
+      // 1. Resolve permission sets from BOTH role names and explicit
+      //    permission set names attached to the execution context.
       let permissionSets: PermissionSet[] = [];
       try {
-        permissionSets = this.permissionEvaluator.resolvePermissionSets(roles, metadata);
+        const requested = [...roles, ...explicitPermissionSets];
+        // Implicit baseline: when an authenticated request resolved zero
+        // permission sets, fall back to the configured baseline (default
+        // `member_default`). This guarantees tenant + owner RLS even
+        // before an admin has assigned a profile/permission set.
+        if (
+          requested.length === 0 &&
+          opCtx.context?.userId &&
+          this.fallbackPermissionSet
+        ) {
+          requested.push(this.fallbackPermissionSet);
+        }
+        permissionSets = await this.permissionEvaluator.resolvePermissionSets(
+          requested,
+          metadata,
+        );
       } catch (e) {
         // If metadata service is misconfigured, log and continue without permission checks
         // rather than blocking all operations
@@ -100,9 +176,10 @@ export class SecurityPlugin implements Plugin {
         );
 
         if (!allowed) {
-          throw new Error(
+          throw new PermissionDeniedError(
             `[Security] Access denied: operation '${opCtx.operation}' on object '${opCtx.object}' ` +
-            `is not permitted for roles [${roles.join(', ')}]`
+              `is not permitted for roles [${roles.join(', ')}]`,
+            { operation: opCtx.operation, object: opCtx.object, roles, permissionSets: explicitPermissionSets },
           );
         }
       }
@@ -110,7 +187,30 @@ export class SecurityPlugin implements Plugin {
       // 3. RLS filter injection
       const allRlsPolicies = this.collectRLSPolicies(permissionSets, opCtx.object, opCtx.operation);
       if (allRlsPolicies.length > 0 && opCtx.ast) {
-        const rlsFilter = this.rlsCompiler.compileFilter(allRlsPolicies, opCtx.context);
+        // Substitute the canonical `tenant_id` placeholder for the
+        // configured physical column so site-specific tenant columns
+        // (e.g. `organization_id`) work without rewriting every policy.
+        const rewritten = this.tenantField === 'tenant_id'
+          ? allRlsPolicies
+          : allRlsPolicies.map((p) => ({
+              ...p,
+              using: p.using
+                ? p.using.replace(/\btenant_id\b/g, this.tenantField)
+                : p.using,
+            }));
+        // Drop policies whose target field doesn't exist on the object —
+        // wildcard policies like `tenant_id = ...` must not corrupt
+        // queries against system tables that lack the column (sys_jwks,
+        // sys_audit_log, etc.). When schema lookup fails we keep the
+        // policy (fail-closed for unknown objects).
+        const objectFields = await this.getObjectFieldNames(metadata, opCtx.object);
+        const safe = objectFields
+          ? rewritten.filter((p) => {
+              const targetField = this.extractTargetField(p.using);
+              return targetField ? objectFields.has(targetField) : true;
+            })
+          : rewritten;
+        const rlsFilter = this.rlsCompiler.compileFilter(safe, opCtx.context);
         if (rlsFilter) {
           if (opCtx.ast.where) {
             opCtx.ast.where = { $and: [opCtx.ast.where, rlsFilter] };
@@ -155,5 +255,37 @@ export class SecurityPlugin implements Plugin {
     }
 
     return this.rlsCompiler.getApplicablePolicies(objectName, operation, allPolicies);
+  }
+
+  /**
+   * Resolve the column-name set for an object (lowercased). Returns
+   * `null` if the schema can't be loaded — caller should fail-closed.
+   */
+  private async getObjectFieldNames(
+    metadata: any,
+    objectName: string,
+  ): Promise<Set<string> | null> {
+    try {
+      const obj = await metadata?.get?.('object', objectName);
+      if (!obj || !Array.isArray(obj.fields)) return null;
+      const set = new Set<string>(['id']);
+      for (const f of obj.fields) {
+        if (f?.name) set.add(String(f.name));
+      }
+      return set;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Extract the left-hand field name from a simple RLS expression like
+   * `field = current_user.x` or `field IN (current_user.y)`. Returns
+   * `null` for unsupported shapes (in which case we keep the policy).
+   */
+  private extractTargetField(using?: string): string | null {
+    if (!using) return null;
+    const m = using.match(/^\s*([a-z_][a-z0-9_]*)\s*(=|IN|in)\b/);
+    return m ? m[1] : null;
   }
 }

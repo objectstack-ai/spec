@@ -153,19 +153,53 @@ describe('PermissionEvaluator', () => {
     expect(result['title']).toBeUndefined();
   });
 
-  it('should resolve permission sets from metadata service by role name', () => {
+  it('should resolve permission sets from metadata service by role name', async () => {
     const evaluator = new PermissionEvaluator();
     const ps1 = { name: 'admin' };
     const ps2 = { name: 'viewer' };
     const metadata = { list: vi.fn().mockReturnValue([ps1, ps2]) };
-    const result = evaluator.resolvePermissionSets(['admin'], metadata);
+    const result = await evaluator.resolvePermissionSets(['admin'], metadata);
     expect(result).toEqual([ps1]);
   });
 
-  it('should return empty array when metadata has no permission sets', () => {
+  it('should return empty array when metadata has no permission sets', async () => {
     const evaluator = new PermissionEvaluator();
     const metadata = { list: vi.fn().mockReturnValue([]) };
-    expect(evaluator.resolvePermissionSets(['admin'], metadata)).toEqual([]);
+    await expect(
+      evaluator.resolvePermissionSets(['admin'], metadata),
+    ).resolves.toEqual([]);
+  });
+
+  it('resolves permission sets via async metadata.list (real MetadataManager shape)', async () => {
+    const evaluator = new PermissionEvaluator();
+    const psAdmin = { name: 'admin_full_access' };
+    const metadata = {
+      list: vi.fn().mockResolvedValue([psAdmin, { name: 'viewer_readonly' }]),
+    };
+    const result = await evaluator.resolvePermissionSets(
+      ['admin_full_access'],
+      metadata,
+    );
+    expect(metadata.list).toHaveBeenCalledWith('permission');
+    expect(result).toEqual([psAdmin]);
+  });
+
+  it('matches by both role and explicit permission-set identifiers', async () => {
+    const evaluator = new PermissionEvaluator();
+    const sets = [
+      { name: 'admin_full_access' },
+      { name: 'viewer_readonly' },
+      { name: 'export_reports' },
+    ];
+    const metadata = { list: vi.fn().mockReturnValue(sets) };
+    const result = await evaluator.resolvePermissionSets(
+      ['admin_full_access', 'export_reports'],
+      metadata,
+    );
+    expect(result.map((p) => p.name).sort()).toEqual([
+      'admin_full_access',
+      'export_reports',
+    ]);
   });
 });
 

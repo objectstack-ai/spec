@@ -8,13 +8,27 @@
  * registration paths cannot drift (D7).
  */
 
-import { SysPermissionSet, SysRole } from '@objectstack/platform-objects/security';
+import {
+  SysPermissionSet,
+  SysRole,
+  SysUserPermissionSet,
+  SysRolePermissionSet,
+  defaultPermissionSets,
+} from '@objectstack/platform-objects/security';
 
 export const SECURITY_PLUGIN_ID = 'com.objectstack.plugin-security';
 export const SECURITY_PLUGIN_VERSION = '1.0.0';
 
 /** Security objects owned by plugin-security. */
-export const securityObjects = [SysRole, SysPermissionSet];
+export const securityObjects = [
+  SysRole,
+  SysPermissionSet,
+  SysUserPermissionSet,
+  SysRolePermissionSet,
+];
+
+/** Default platform permission sets (admin / member / viewer). */
+export const securityDefaultPermissionSets = defaultPermissionSets;
 
 /** Manifest header shared by compile-time config and runtime registration. */
 export const securityPluginManifestHeader = {

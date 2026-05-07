@@ -263,9 +263,9 @@ The `auth` service in `CoreServiceName` covers both **authentication** (identity
 | **Organization** | Authentication | ✅ | ❌ | ✅ | 📋 Plugin |
 | **Policy** | Authentication | ✅ | ❌ | ✅ | 📋 Plugin |
 | **SCIM** | Authentication | ✅ | ❌ | ✅ | 📋 Plugin |
-| **Permission** | Authorization | ✅ | ❌ | ✅ | 📋 Plugin |
+| **Permission** | Authorization | ✅ | ✅ Phase-1 | ✅ | ✅ `plugin-security` |
 | **Sharing** | Authorization | ✅ | ❌ | ✅ | 📋 Plugin |
-| **RLS** | Authorization | ✅ | ❌ | ✅ | 📋 Plugin |
+| **RLS** | Authorization | ✅ | ✅ Phase-1 (tenant + owner) | ✅ | ✅ `plugin-security` |
 | **Territory** | Authorization | ✅ | ❌ | ✅ | 📋 Plugin |
 
 **Notes:**
@@ -273,6 +273,7 @@ The `auth` service in `CoreServiceName` covers both **authentication** (identity
 - Client SDK supports bearer token header — but token validation requires the auth plugin
 - Auth route (`/auth/*`) only appears in Discovery when the auth plugin is registered
 - Fine-grained authorization (RLS, sharing, territory) is internal to the auth plugin
+- **Phase-1 RBAC enforcement is live end-to-end**: REST → ObjectQL → SecurityPlugin middleware now receives a populated `ExecutionContext` (userId, tenantId, roles, permissions). Default `member_default` permission set ships a wildcard RLS rule `tenant_id = current_user.tenant_id` (rewritten to `organization_id`), which guarantees cross-organization isolation for authenticated users. **Anonymous traffic still bypasses enforcement** until a default-deny pass lands.
 
 ---
 
@@ -386,11 +387,16 @@ The `auth` service in `CoreServiceName` covers both **authentication** (identity
 - [ ] ETL Pipeline Plugin
 - [ ] Trigger Registry Plugin
 
-### Phase 9: Security (Plugin) 📋 **PLANNED**
-- [ ] Authentication Plugin
-- [ ] Authorization Plugin
-- [ ] Row-Level Security Plugin
-- [ ] Multi-tenancy Plugin
+### Phase 9: Security (Plugin) 🟡 **PHASE-1 LANDED**
+- [x] Authentication Plugin (`@objectstack/plugin-auth`, better-auth)
+- [x] Authorization Plugin — `@objectstack/plugin-security` enforces CRUD/FLS/RLS in the ObjectQL middleware chain; REST → ObjectQL now propagates `ExecutionContext` end-to-end (Phase-1)
+- [x] Row-Level Security — default `member_default` permission set applies a wildcard `tenant_id = current_user.tenant_id` rule, rewritten to `organization_id`
+- [x] Multi-tenancy — verified cross-organization isolation on `pnpm dev:crm` (Alice@OrgAlpha vs. Bob@OrgBeta only see their own records)
+- [ ] Default-deny for anonymous traffic
+- [ ] Sharing Rule evaluator
+- [ ] Studio RLS visual editor
+- [ ] Per-user×org permission cache
+- [ ] Audit UI / denied-access logging
 
 ### Phase 10: AI Integration 📋 **PLANNED**
 - [ ] Agent Framework

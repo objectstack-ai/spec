@@ -372,15 +372,49 @@ export class HonoServerPlugin implements Plugin {
         // Basic CRUD data endpoints — delegate to ObjectQL service directly
         const getObjectQL = () => ctx.getService<IDataEngine>('objectql');
 
+        // Helper: resolve ExecutionContext from request headers (cookie session
+        // or API key). Mirrors the runtime's resolveExecutionContext but
+        // self-contained to avoid a cross-package dep.
+        const resolveCtx = async (c: any): Promise<any | undefined> => {
+            try {
+                const authService: any = ctx.getService('auth');
+                if (!authService) return undefined;
+                let api: any = authService.api;
+                if (!api && typeof authService.getApi === 'function') {
+                    api = await authService.getApi();
+                }
+                if (!api?.getSession) return undefined;
+                const session = await api.getSession({ headers: c.req.raw.headers });
+                if (!session?.user?.id) return undefined;
+                return {
+                    userId: session.user.id,
+                    tenantId: session.session?.activeOrganizationId,
+                    roles: [],
+                    permissions: ['member_default'],
+                    isSystem: false,
+                };
+            } catch {
+                return undefined;
+            }
+        };
+
         // Create
         rawApp.post(`${prefix}/data/:object`, async (c: any) => {
             const ql = getObjectQL();
             if (!ql) return c.json({ error: 'Data service not available' }, 503);
             const object = c.req.param('object');
             const data = await c.req.json().catch(() => ({}));
-            const res = await ql.insert(object, data);
-            const record = { ...data, ...res };
-            return c.json({ object, id: record.id, record });
+            const execCtx = await resolveCtx(c);
+            try {
+                const res = await ql.insert(object, data, { context: execCtx } as any);
+                const record = { ...data, ...res };
+                return c.json({ object, id: record.id, record });
+            } catch (err: any) {
+                if (err?.code === 'PERMISSION_DENIED' || err?.name === 'PermissionDeniedError') {
+                    return c.json({ error: err.message ?? 'Forbidden' }, 403);
+                }
+                throw err;
+            }
         });
 
         // Get by ID
@@ -389,10 +423,18 @@ export class HonoServerPlugin implements Plugin {
             if (!ql) return c.json({ error: 'Data service not available' }, 503);
             const object = c.req.param('object');
             const id = c.req.param('id');
-            let all = await ql.find(object);
-            if (!all) all = [];
-            const match = all.find((i: any) => i.id === id);
-            return match ? c.json({ object, id, record: match }) : c.json({ error: 'Not found' }, 404);
+            const execCtx = await resolveCtx(c);
+            try {
+                let all = await ql.find(object, { context: execCtx } as any);
+                if (!all) all = [];
+                const match = all.find((i: any) => i.id === id);
+                return match ? c.json({ object, id, record: match }) : c.json({ error: 'Not found' }, 404);
+            } catch (err: any) {
+                if (err?.code === 'PERMISSION_DENIED' || err?.name === 'PermissionDeniedError') {
+                    return c.json({ error: err.message ?? 'Forbidden' }, 403);
+                }
+                throw err;
+            }
         });
 
         // Find / List
@@ -400,10 +442,18 @@ export class HonoServerPlugin implements Plugin {
             const ql = getObjectQL();
             if (!ql) return c.json({ error: 'Data service not available' }, 503);
             const object = c.req.param('object');
-            let all = await ql.find(object);
-            if (!Array.isArray(all) && all && (all as any).value) all = (all as any).value;
-            if (!all) all = [];
-            return c.json({ object, records: all, total: all.length });
+            const execCtx = await resolveCtx(c);
+            try {
+                let all = await ql.find(object, { context: execCtx } as any);
+                if (!Array.isArray(all) && all && (all as any).value) all = (all as any).value;
+                if (!all) all = [];
+                return c.json({ object, records: all, total: all.length });
+            } catch (err: any) {
+                if (err?.code === 'PERMISSION_DENIED' || err?.name === 'PermissionDeniedError') {
+                    return c.json({ error: err.message ?? 'Forbidden' }, 403);
+                }
+                throw err;
+            }
         });
 
         ctx.logger.debug('Registered standard CRUD data endpoints', { prefix });

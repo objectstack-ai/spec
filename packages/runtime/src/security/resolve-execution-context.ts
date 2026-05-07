@@ -1,0 +1,266 @@
+// Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
+
+/**
+ * resolveExecutionContext — REST entry-point identity resolver.
+ *
+ * Builds an {@link ExecutionContext} from an incoming HTTP request by combining:
+ *  - better-auth Bearer/Session cookies (`authService.api.getSession`)
+ *  - API Key headers (`X-API-Key` / `Authorization: ApiKey <token>`) — first
+ *    via better-auth's apiKey plugin if available, otherwise a direct lookup
+ *    against the `sys_api_key` system object.
+ *  - `sys_member` lookup for `(userId, activeOrganizationId)` to populate
+ *    organization-scoped roles, plus any extra permission sets bound through
+ *    the `sys_user_permission_set` / `sys_role_permission_set` link tables.
+ *
+ * The resolver is intentionally non-fatal: when auth is not wired up or any
+ * of the dependent services are unavailable, it returns the partial context
+ * that can be reconstructed (even an empty `{ isSystem: false, roles: [],
+ * permissions: [] }`). Permission enforcement is the SecurityPlugin's job.
+ */
+
+import type { ExecutionContext } from '@objectstack/spec/kernel';
+
+interface ResolveOptions {
+  /** Function returning a service from the active kernel (or undefined). */
+  getService: (name: string) => Promise<any> | any;
+  /** Function returning the data engine (ObjectQL) for the active scope. */
+  getQl: () => Promise<any> | any;
+  /** The raw incoming HTTP request (Fetch Request, Node IncomingMessage, …). */
+  request: any;
+}
+
+function readHeader(headers: any, name: string): string | undefined {
+  if (!headers) return undefined;
+  const lower = name.toLowerCase();
+  if (typeof headers.get === 'function') {
+    const v = headers.get(name) ?? headers.get(lower);
+    return v == null ? undefined : String(v);
+  }
+  for (const key of Object.keys(headers)) {
+    if (key.toLowerCase() === lower) {
+      const v = headers[key];
+      return Array.isArray(v) ? v[0] : v == null ? undefined : String(v);
+    }
+  }
+  return undefined;
+}
+
+function extractApiKey(headers: any): string | undefined {
+  const x = readHeader(headers, 'x-api-key');
+  if (x) return x.trim();
+  const auth = readHeader(headers, 'authorization');
+  if (!auth) return undefined;
+  const m = auth.match(/^ApiKey\s+(.+)$/i);
+  return m ? m[1].trim() : undefined;
+}
+
+/**
+ * Convert the dispatcher's plain `Record<string,string>` headers map into
+ * a Web `Headers` instance so libraries like better-auth (which reads via
+ * `headers.get('cookie')`) work uniformly.
+ */
+function toHeaders(input: any): any {
+  if (!input) return new Headers();
+  if (typeof Headers !== 'undefined' && input instanceof Headers) return input;
+  const h = new Headers();
+  if (typeof input.entries === 'function') {
+    for (const [k, v] of input.entries()) h.set(String(k), String(v));
+    return h;
+  }
+  for (const k of Object.keys(input)) {
+    const v = (input as any)[k];
+    if (v == null) continue;
+    h.set(String(k), Array.isArray(v) ? v.join(',') : String(v));
+  }
+  return h;
+}
+
+async function tryFind(ql: any, object: string, where: any, limit = 100): Promise<any[]> {
+  if (!ql || typeof ql.find !== 'function') return [];
+  try {
+    let rows = await ql.find(object, { where, limit, context: { isSystem: true } } as any);
+    if (rows && (rows as any).value) rows = (rows as any).value;
+    return Array.isArray(rows) ? rows : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Resolve the {@link ExecutionContext} for an inbound request.
+ *
+ * Always resolves — never throws. Anonymous requests yield
+ * `{ isSystem: false, roles: [], permissions: [] }`.
+ */
+export async function resolveExecutionContext(opts: ResolveOptions): Promise<ExecutionContext> {
+  const headers = opts.request?.headers;
+  const ctx: ExecutionContext = {
+    roles: [],
+    permissions: [],
+    isSystem: false,
+  };
+
+  let userId: string | undefined;
+  let tenantId: string | undefined;
+
+  // 1. API Key path — takes precedence over session, since callers explicitly
+  //    opt in to API-key auth via the header.
+  const apiKey = extractApiKey(headers);
+  if (apiKey) {
+    try {
+      const authService: any = await opts.getService('auth');
+      // better-auth apiKey plugin (if enabled) exposes a verify endpoint.
+      const verify = authService?.api?.verifyApiKey ?? authService?.api?.apiKey?.verify;
+      if (typeof verify === 'function') {
+        const res = await verify({ body: { key: apiKey } });
+        const payload = res?.key ?? res;
+        if (payload?.userId) userId = payload.userId;
+        if (payload?.organizationId) tenantId = payload.organizationId;
+        if (Array.isArray(payload?.permissions)) {
+          ctx.permissions!.push(...payload.permissions);
+        }
+        if (Array.isArray(payload?.scopes)) {
+          ctx.permissions!.push(...payload.scopes);
+        }
+      }
+    } catch {
+      // ignore — fall through to direct lookup
+    }
+
+    if (!userId) {
+      // Direct lookup against sys_api_key — supports keys provisioned outside
+      // of better-auth (legacy or self-managed).
+      const ql = await opts.getQl();
+      const rows = await tryFind(ql, 'sys_api_key', { key: apiKey, active: true }, 1);
+      const row = rows[0];
+      if (row) {
+        userId = row.user_id ?? row.userId;
+        tenantId = row.organization_id ?? row.organizationId;
+        if (Array.isArray(row.scopes)) ctx.permissions!.push(...row.scopes);
+      }
+    }
+  }
+
+  // 2. Session / Bearer path — fall back when API key did not resolve a user.
+  if (!userId) {
+    try {
+      const authService: any = await opts.getService('auth');
+      // better-auth's `getSession` expects a Web `Headers` instance
+      // (it calls `headers.get('cookie')`). The HTTP adapter hands us a
+      // plain `Record<string,string>`, so wrap it before forwarding.
+      const headersInstance = toHeaders(headers);
+      const sessionData = await authService?.api?.getSession?.({ headers: headersInstance });
+      userId = sessionData?.user?.id ?? sessionData?.session?.userId;
+      tenantId = tenantId ?? sessionData?.session?.activeOrganizationId;
+      ctx.accessToken = sessionData?.session?.token ?? ctx.accessToken;
+    } catch {
+      // no auth configured — return anonymous context
+    }
+  }
+
+  if (userId) ctx.userId = userId;
+  if (tenantId) ctx.tenantId = tenantId;
+
+  if (!userId) return ctx;
+
+  // 3. Resolve organization-scoped roles via sys_member, then merge any
+  //    permission sets bound via the link tables. All lookups go through
+  //    ObjectQL with `isSystem: true` to avoid recursion through the
+  //    SecurityPlugin middleware.
+  const ql = await opts.getQl();
+  if (!ql) return ctx;
+
+  const memberWhere: any = tenantId
+    ? { user_id: userId, organization_id: tenantId }
+    : { user_id: userId };
+  const members = await tryFind(ql, 'sys_member', memberWhere, 50);
+  for (const m of members) {
+    if (m.role && typeof m.role === 'string') {
+      // better-auth stores comma-separated roles for multi-role membership.
+      for (const r of m.role.split(',').map((s: string) => s.trim()).filter(Boolean)) {
+        if (!ctx.roles!.includes(r)) ctx.roles!.push(r);
+      }
+    }
+  }
+
+  // Resolve user-scoped permission sets.
+  const upsRows = await tryFind(
+    ql,
+    'sys_user_permission_set',
+    tenantId
+      ? { user_id: userId, organization_id: tenantId }
+      : { user_id: userId },
+    100,
+  );
+  const psIds = new Set<string>(
+    upsRows.map((r) => r.permission_set_id ?? r.permissionSetId).filter(Boolean),
+  );
+
+  // Resolve role-bound permission sets.
+  if (ctx.roles!.length > 0) {
+    const roleRows = await tryFind(ql, 'sys_role', { name: { $in: ctx.roles } }, 100);
+    const roleIds = roleRows.map((r) => r.id).filter(Boolean);
+    if (roleIds.length > 0) {
+      const rpsRows = await tryFind(
+        ql,
+        'sys_role_permission_set',
+        { role_id: { $in: roleIds } },
+        500,
+      );
+      for (const r of rpsRows) {
+        const id = r.permission_set_id ?? r.permissionSetId;
+        if (id) psIds.add(id);
+      }
+    }
+  }
+
+  if (psIds.size > 0) {
+    // Surface permission set names through ctx.permissions so downstream
+    // SecurityPlugin can look them up. We store the canonical `name` field.
+    const psRows = await tryFind(
+      ql,
+      'sys_permission_set',
+      { id: { $in: Array.from(psIds) } },
+      500,
+    );
+    for (const ps of psRows) {
+      if (ps.name && !ctx.permissions!.includes(ps.name)) {
+        ctx.permissions!.push(ps.name);
+      }
+    }
+  }
+
+  return ctx;
+}
+
+/**
+ * Typed sentinel error thrown by SecurityPlugin (and re-thrown here) when an
+ * operation is denied. The dispatcher catches it and translates to HTTP 403.
+ *
+ * Kept structurally identical to {@link `@objectstack/plugin-security`}'s
+ * `PermissionDeniedError` so `isPermissionDeniedError` matches whichever
+ * class instance crosses the boundary, regardless of which package owns
+ * the actual class identity at runtime. We do not add a hard dependency
+ * on `plugin-security` here to keep the runtime usable in stack
+ * compositions without security enforcement.
+ */
+export class PermissionDeniedError extends Error {
+  readonly code = 'PERMISSION_DENIED';
+  readonly statusCode = 403;
+  readonly details?: Record<string, unknown>;
+  constructor(message: string, details?: Record<string, unknown>) {
+    super(message);
+    this.name = 'PermissionDeniedError';
+    this.details = details;
+  }
+}
+
+export function isPermissionDeniedError(e: unknown): e is PermissionDeniedError {
+  if (!e || typeof e !== 'object') return false;
+  const anyE = e as any;
+  return (
+    anyE.name === 'PermissionDeniedError' ||
+    anyE.code === 'PERMISSION_DENIED' ||
+    (typeof anyE.message === 'string' && anyE.message.startsWith('[Security] Access denied'))
+  );
+}

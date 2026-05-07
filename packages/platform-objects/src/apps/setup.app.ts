@@ -59,6 +59,8 @@ export const SETUP_APP: App = {
         { id: 'nav_api_keys', type: 'object', label: 'API Keys', objectName: 'sys_api_key', icon: 'key' },
         { id: 'nav_roles', type: 'object', label: 'Roles', objectName: 'sys_role', icon: 'shield-check' },
         { id: 'nav_permission_sets', type: 'object', label: 'Permission Sets', objectName: 'sys_permission_set', icon: 'lock' },
+        { id: 'nav_user_permission_sets', type: 'object', label: 'User Permission Sets', objectName: 'sys_user_permission_set', icon: 'user-check' },
+        { id: 'nav_role_permission_sets', type: 'object', label: 'Role Permission Sets', objectName: 'sys_role_permission_set', icon: 'shield-plus' },
         { id: 'nav_oauth_apps', type: 'object', label: 'OAuth Apps', objectName: 'sys_oauth_application', icon: 'app-window' },
         { id: 'nav_jwks', type: 'object', label: 'Signing Keys', objectName: 'sys_jwks', icon: 'key-round' },
       ],
