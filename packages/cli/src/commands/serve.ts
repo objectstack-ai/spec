@@ -138,6 +138,19 @@ export default class Serve extends Command {
     };
     const trackPlugin = (name: string) => { loadedPlugins.push(shortPluginName(name)); };
 
+    // Track resolved storage driver + redacted URL for the startup banner.
+    let resolvedDriverLabel: string | undefined;
+    let resolvedDatabaseUrl: string | undefined;
+    const redactDbUrl = (url: string | undefined): string | undefined => {
+      if (!url) return undefined;
+      try {
+        // Redact passwords inside connection URLs: protocol://user:****@host/db
+        return url.replace(/(\/\/[^/@:]+):[^/@]+@/, '$1:****@');
+      } catch {
+        return url;
+      }
+    };
+
     // Save original console/stdout methods — we'll suppress noise during boot
     const originalConsoleLog = console.log;
     const originalConsoleDebug = console.debug;
@@ -299,6 +312,8 @@ export default class Serve extends Command {
                url: databaseUrl ?? 'mongodb://localhost:27017/objectstack',
              }) as any));
              trackPlugin('MongoDBDriver');
+             resolvedDriverLabel = 'MongoDBDriver';
+             resolvedDatabaseUrl = databaseUrl ?? 'mongodb://localhost:27017/objectstack';
            } else if (driverType === 'sqlite' || driverType === 'sql') {
              const { SqlDriver } = await import('@objectstack/driver-sql');
              const filePath = (databaseUrl ?? ':memory:').replace(/^file:/, '').replace(/^sqlite:/, '').replace(/^sql:\/\//, '');
@@ -308,6 +323,8 @@ export default class Serve extends Command {
                useNullAsDefault: true,
              }) as any));
              trackPlugin('SqlDriver');
+             resolvedDriverLabel = 'SqlDriver(sqlite)';
+             resolvedDatabaseUrl = databaseUrl ?? ':memory:';
            } else if (driverType === 'postgres' || driverType === 'postgresql' || driverType === 'pg') {
              const { SqlDriver } = await import('@objectstack/driver-sql');
              await kernel.use(new DriverPlugin(new SqlDriver({
@@ -316,6 +333,8 @@ export default class Serve extends Command {
                pool: { min: 0, max: 5 },
              }) as any));
              trackPlugin('PostgresDriver');
+             resolvedDriverLabel = 'SqlDriver(pg)';
+             resolvedDatabaseUrl = databaseUrl;
            } else if (driverType === 'mysql' || driverType === 'mysql2') {
              const { SqlDriver } = await import('@objectstack/driver-sql');
              await kernel.use(new DriverPlugin(new SqlDriver({
@@ -324,6 +343,8 @@ export default class Serve extends Command {
                pool: { min: 0, max: 5 },
              }) as any));
              trackPlugin('MySQLDriver');
+             resolvedDriverLabel = 'SqlDriver(mysql2)';
+             resolvedDatabaseUrl = databaseUrl;
            } else if (driverType === 'turso' || driverType === 'libsql') {
              const { TursoDriver } = await import('@objectstack/driver-turso');
              await kernel.use(new DriverPlugin(new TursoDriver({
@@ -331,11 +352,15 @@ export default class Serve extends Command {
                authToken: process.env.OS_DATABASE_AUTH_TOKEN,
              } as any) as any));
              trackPlugin('TursoDriver');
+             resolvedDriverLabel = 'TursoDriver';
+             resolvedDatabaseUrl = databaseUrl ?? 'file:./local.db';
            } else if (isDev) {
              // Default in dev: in-memory driver
              const { InMemoryDriver } = await import('@objectstack/driver-memory');
              await kernel.use(new DriverPlugin(new InMemoryDriver()));
              trackPlugin('MemoryDriver');
+             resolvedDriverLabel = 'InMemoryDriver';
+             resolvedDatabaseUrl = '(in-memory)';
            }
          } catch (e: any) {
            // silent
@@ -708,6 +733,8 @@ export default class Serve extends Command {
         studioPath: STUDIO_PATH,
         accountPath: ACCOUNT_PATH,
         dashboardPath: loadedPlugins.includes('DashboardUI') ? DASHBOARD_PATH : undefined,
+        driverLabel: resolvedDriverLabel,
+        databaseUrl: redactDbUrl(resolvedDatabaseUrl),
       });
 
       // Kernel already registers SIGINT/SIGTERM handlers during bootstrap.

@@ -1,5 +1,5 @@
 {
-  "name": "@example/app-crm",
+  "name": "@objectstack/example-crm",
   "version": "4.0.4",
   "description": "Example CRM implementation using ObjectStack Protocol",
   "license": "Apache-2.0",
@@ -16,7 +16,8 @@
     "build": "objectstack build",
     "typecheck": "tsc --noEmit",
     "test": "objectstack test",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:drivers": "./scripts/run-driver-acceptance.sh"
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",

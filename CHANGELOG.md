@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **`@objectstack/driver-sql` tests failing in CI** — Added `vitest.config.ts` with resolve aliases for `@objectstack/spec/*` subpath exports (`/data`, `/contracts`, `/system`). Without these aliases, vitest could not resolve the source paths at test time, causing all 81 tests to fail with `ERR_MODULE_NOT_FOUND`.
+
 ### Added
 - **Account portal: full better-auth SDK migration** — All user-settings pages (`/account/*`) and the first-run `/setup` wizard now use typed SDK methods from `@objectstack/client` instead of raw `fetch()` calls against `/api/v1/auth/…`. This fixes several silent bugs (wrong parameter names, invented endpoints) and adds missing features:
   - **SDK extensions** (`packages/client`): `auth.{updateUser, changePassword, changeEmail, sendVerificationEmail, verifyEmail, deleteUser, bootstrapStatus}`, `auth.sessions.{list, revoke, revokeOthers, revokeAll}`, `auth.twoFactor.{enable, verifyTotp, disable, generateBackupCodes, verifyBackupCode}`, `auth.accounts.{list, unlink, linkSocial}`, `organizations.{removeMember, updateMemberRole, getActiveMember, leave}`, `organizations.invitations.{list, listMine, cancel, accept, reject, resend}`, `organizations.teams.{list, create, update, delete, listMembers, addMember, removeMember}`.

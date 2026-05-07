@@ -13,7 +13,6 @@ import * as cubes from './src/cubes';
 
 // ─── Barrel Imports (one per metadata type) ─────────────────────────
 import * as objects from './src/objects';
-import * as apis from './src/apis';
 import * as actions from './src/actions';
 import * as dashboards from './src/dashboards';
 import * as reports from './src/reports';
@@ -60,7 +59,6 @@ export default defineStack({
 
   // Auto-collected from barrel index files via Object.values()
   objects: Object.values(objects),
-  apis: Object.values(apis),
   actions: Object.values(actions),
   dashboards: Object.values(dashboards),
   reports: Object.values(reports),
