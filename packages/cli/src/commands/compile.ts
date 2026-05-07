@@ -35,9 +35,18 @@ export default class Compile extends Command {
       description: 'Fail the build if any hook/action callable could not be lowered into a metadata-only body (no .mjs fallback)',
       default: false,
     }),
-    'no-runtime-bundle': Flags.boolean({
-      description: 'Skip emitting the legacy objectstack-runtime.{hash}.mjs bundle. Requires every callable to have a metadata body — otherwise the build fails.',
+    'runtime-bundle': Flags.boolean({
+      description: 'Force-emit the legacy objectstack-runtime.{hash}.mjs shim even when every callable has a metadata body. Useful for back-compat with older runtime loaders. By default the bundle is auto-emitted only when at least one callable could not be lowered to a body.',
       default: false,
+      allowNo: true,
+    }),
+    // Deprecated alias kept for back-compat. Auto-skip is now the default,
+    // so this flag is a no-op except that it forces a hard failure when any
+    // callable still needs the legacy bundle (same semantics as before).
+    'no-runtime-bundle': Flags.boolean({
+      description: '[deprecated] Auto-skip is now the default. Pass --no-runtime-bundle to fail loudly if any callable still requires the legacy bundle.',
+      default: false,
+      hidden: true,
     }),
   };
 
@@ -133,23 +142,34 @@ export default class Compile extends Command {
       //     follow-up safeParse of the artifact preserves it.
       let runtimeBundle: { outputFileName: string; hash: string; size: number } | null = null;
       if (lowering.count > 0) {
-        if (flags['no-runtime-bundle']) {
-          // Refuse to skip the bundle if any callable still relies on it.
-          const stillNeeded = lowering.count - lowering.bodyExtracted;
-          if (stillNeeded > 0 || lowering.bodyExtractionWarnings.length > 0) {
-            const msg = `--no-runtime-bundle requires every callable to have a metadata body (${stillNeeded} missing, ${lowering.bodyExtractionWarnings.length} extraction warning(s)). Re-run with --strict-body to see details, or omit --no-runtime-bundle.`;
-            if (flags.json) {
-              console.log(JSON.stringify({ success: false, error: msg }));
-              this.exit(1);
-            }
-            console.log('');
-            printError(msg);
+        // New default: auto-skip the legacy bundle when every callable is
+        // body-only (the metadata is fully self-describing). The bundle is
+        // emitted only when (a) some callable could not be lowered, or
+        // (b) the user explicitly opted in via --runtime-bundle.
+        const stillNeeded = lowering.count - lowering.bodyExtracted;
+        const needsBundle = stillNeeded > 0 || lowering.bodyExtractionWarnings.length > 0;
+        const forceBundle = flags['runtime-bundle'];
+        const strictNoBundle = flags['no-runtime-bundle'];
+
+        if (strictNoBundle && needsBundle) {
+          // Legacy strict mode: explicit --no-runtime-bundle fails loudly
+          // when any callable still requires the bundle. Preserved so CI
+          // pipelines can guard against accidental regressions.
+          const msg = `--no-runtime-bundle requires every callable to have a metadata body (${stillNeeded} missing, ${lowering.bodyExtractionWarnings.length} extraction warning(s)). Re-run with --strict-body to see details, or omit --no-runtime-bundle.`;
+          if (flags.json) {
+            console.log(JSON.stringify({ success: false, error: msg }));
             this.exit(1);
           }
+          console.log('');
+          printError(msg);
+          this.exit(1);
+        }
+
+        if (!needsBundle && !forceBundle) {
           if (!flags.json) printStep(`Skipping legacy runtime bundle (all ${lowering.count} callables are body-only)`);
           // Drop any previously emitted bundle so the artifact dir doesn't carry stale code.
           cleanupOldRuntimeBundles(artifactDir, '');
-        } else if (lowering.count > 0) {
+        } else {
           if (!flags.json) printStep(`Bundling ${lowering.count} handler${lowering.count === 1 ? '' : 's'}...`);
           try {
             runtimeBundle = await buildRuntimeBundle({
