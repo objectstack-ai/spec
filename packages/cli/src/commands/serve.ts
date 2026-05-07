@@ -261,14 +261,47 @@ export default class Serve extends Command {
          }
       }
 
-      // 2. Auto-register Memory Driver if in Dev and no driver configured
+      // 2. Auto-register storage driver
+      // Priority:
+      //   1. OS_DATABASE_DRIVER env var (mongodb, sqlite, memory, postgres, ...)
+      //   2. Default: InMemoryDriver in dev mode
       const hasDriver = plugins.some((p: any) => p.name?.includes('driver') || p.constructor?.name?.includes('Driver'));
-      if (isDev && !hasDriver && config.objects) {
+      if (!hasDriver && config.objects) {
+         const driverType = (process.env.OS_DATABASE_DRIVER ?? '').toLowerCase().trim();
+         const databaseUrl = process.env.OS_DATABASE_URL;
+
          try {
            const { DriverPlugin } = await import('@objectstack/runtime');
-           const { InMemoryDriver } = await import('@objectstack/driver-memory');
-           await kernel.use(new DriverPlugin(new InMemoryDriver()));
-           trackPlugin('MemoryDriver');
+
+           if (driverType === 'mongodb' || driverType === 'mongo') {
+             const { MongoDBDriver } = await import('@objectstack/driver-mongodb');
+             await kernel.use(new DriverPlugin(new MongoDBDriver({
+               url: databaseUrl ?? 'mongodb://localhost:27017/objectstack',
+             }) as any));
+             trackPlugin('MongoDBDriver');
+           } else if (driverType === 'sqlite' || driverType === 'sql') {
+             const { SqlDriver } = await import('@objectstack/driver-sql');
+             const filePath = (databaseUrl ?? ':memory:').replace(/^file:/, '').replace(/^sql:\/\//, '');
+             await kernel.use(new DriverPlugin(new SqlDriver({
+               client: 'better-sqlite3',
+               connection: { filename: filePath },
+               useNullAsDefault: true,
+             }) as any));
+             trackPlugin('SqlDriver');
+           } else if (driverType === 'postgres' || driverType === 'postgresql' || driverType === 'pg') {
+             const { SqlDriver } = await import('@objectstack/driver-sql');
+             await kernel.use(new DriverPlugin(new SqlDriver({
+               client: 'pg',
+               connection: databaseUrl,
+               pool: { min: 0, max: 5 },
+             }) as any));
+             trackPlugin('PostgresDriver');
+           } else if (isDev) {
+             // Default in dev: in-memory driver
+             const { InMemoryDriver } = await import('@objectstack/driver-memory');
+             await kernel.use(new DriverPlugin(new InMemoryDriver()));
+             trackPlugin('MemoryDriver');
+           }
          } catch (e: any) {
            // silent
          }

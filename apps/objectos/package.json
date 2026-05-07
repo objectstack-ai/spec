@@ -23,6 +23,7 @@
     "@hono/node-server": "^2.0.1",
     "@libsql/client": "^0.17.3",
     "@objectstack/driver-memory": "workspace:*",
+    "@objectstack/driver-mongodb": "workspace:*",
     "@objectstack/driver-sql": "workspace:*",
     "@objectstack/driver-turso": "workspace:*",
     "@objectstack/hono": "workspace:*",

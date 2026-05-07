@@ -438,6 +438,9 @@ importers:
       '@objectstack/driver-memory':
         specifier: workspace:*
         version: link:../../packages/plugins/driver-memory
+      '@objectstack/driver-mongodb':
+        specifier: workspace:*
+        version: link:../../packages/plugins/driver-mongodb
       '@objectstack/driver-sql':
         specifier: workspace:*
         version: link:../../packages/plugins/driver-sql
@@ -750,6 +753,9 @@ importers:
       '@objectstack/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@playwright/test':
+        specifier: ^1.49.1
+        version: 1.59.1
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -914,6 +920,12 @@ importers:
       '@objectstack/driver-memory':
         specifier: workspace:^
         version: link:../plugins/driver-memory
+      '@objectstack/driver-mongodb':
+        specifier: workspace:^
+        version: link:../plugins/driver-mongodb
+      '@objectstack/driver-sql':
+        specifier: workspace:^
+        version: link:../plugins/driver-sql
       '@objectstack/objectql':
         specifier: workspace:^
         version: link:../objectql
@@ -1641,6 +1653,9 @@ importers:
       '@objectstack/driver-memory':
         specifier: workspace:^
         version: link:../../plugins/driver-memory
+      '@objectstack/driver-mongodb':
+        specifier: workspace:^
+        version: link:../../plugins/driver-mongodb
       '@objectstack/driver-sql':
         specifier: workspace:^
         version: link:../../plugins/driver-sql

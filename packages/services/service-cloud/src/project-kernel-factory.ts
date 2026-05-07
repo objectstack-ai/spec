@@ -348,6 +348,11 @@ export class DefaultProjectKernelFactory implements ProjectKernelFactory {
           pool: { min: 0, max: 5 },
         }) as unknown as IDataDriver;
       }
+      case 'mongodb':
+      case 'mongo': {
+        const { MongoDBDriver } = await import('@objectstack/driver-mongodb');
+        return new MongoDBDriver({ url: databaseUrl }) as unknown as IDataDriver;
+      }
       default:
         throw new Error(`[ProjectKernelFactory] Unsupported driver type: ${driverType}`);
     }
