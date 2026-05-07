@@ -2,27 +2,74 @@
 
 import type { Action } from '@objectstack/spec/ui';
 
-/** Clone Opportunity */
+/**
+ * Clone Opportunity.
+ *
+ * Script-typed action: clones the current record into a new
+ * `prospecting`-stage opportunity. Runs sandboxed under `api.read`
+ * (to fetch the source) and `api.write` (to write the copy).
+ */
 export const CloneOpportunityAction: Action = {
   name: 'clone_opportunity',
   label: 'Clone Opportunity',
   objectName: 'opportunity',
   icon: 'copy',
   type: 'script',
-  target: 'cloneRecord',
+  body: {
+    language: 'js',
+    source: `
+      const id = ctx.recordId;
+      if (!id) throw new Error('clone_opportunity requires a recordId');
+      const rows = await ctx.api.object('opportunity').find({ where: { id } });
+      const source = Array.isArray(rows) ? rows[0] : null;
+      if (!source) throw new Error('opportunity ' + id + ' not found');
+      const fields = { ...source };
+      delete fields.id;
+      delete fields.created_at;
+      delete fields.updated_at;
+      fields.name = 'Copy of ' + (fields.name ?? 'Untitled');
+      fields.stage = 'prospecting';
+      const inserted = await ctx.api.object('opportunity').insert(fields);
+      return { id: inserted?.id ?? null };
+    `,
+    capabilities: ['api.read', 'api.write'],
+    timeoutMs: 5000,
+  },
   locations: ['record_header', 'record_more'],
   successMessage: 'Opportunity cloned successfully!',
   refreshAfter: true,
 };
 
-/** Mass Update Opportunity Stage */
+/**
+ * Mass Update Opportunity Stage.
+ *
+ * Modal-typed action: collects a target `stage` then patches every
+ * selected opportunity through the metadata body. Selected ids come
+ * from `input.selectedIds` (populated by the list toolbar).
+ */
 export const MassUpdateStageAction: Action = {
   name: 'mass_update_stage',
   label: 'Update Stage',
   objectName: 'opportunity',
   icon: 'layers',
   type: 'modal',
-  target: 'massUpdateStage',
+  target: 'mass_update_stage',
+  body: {
+    language: 'js',
+    source: `
+      const newStage = input.stage ?? null;
+      if (!newStage) throw new Error('mass_update_stage requires a stage');
+      const ids = Array.isArray(input.selectedIds) ? input.selectedIds : [];
+      let updated = 0;
+      for (const id of ids) {
+        await ctx.api.object('opportunity').update({ id, stage: newStage }, { where: { id } });
+        updated++;
+      }
+      return { stage: newStage, updated };
+    `,
+    capabilities: ['api.write'],
+    timeoutMs: 10000,
+  },
   locations: ['list_toolbar'],
   params: [
     {

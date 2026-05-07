@@ -3,11 +3,13 @@
 /**
  * Action Definitions Barrel
  *
- * Exports action metadata definitions only. Used by `Object.values()` in
- * objectstack.config.ts to auto-collect all action declarations for defineStack().
+ * Exports CRM action metadata. Every action ships an inline metadata
+ * `body` (sandboxed JS) so the AppPlugin auto-binds the handler at
+ * boot — no imperative `engine.registerAction(...)` wiring is needed.
  *
- * **Handler functions** are exported from `./handlers/` — see register-handlers.ts
- * for the complete registration flow.
+ * `ConvertLeadAction` is the only exception: it is a `flow`-typed
+ * action and the screen flow under `src/flows/lead-conversion.flow.ts`
+ * carries the implementation.
  */
 export { EscalateCaseAction, CloseCaseAction } from './case.actions';
 export { MarkPrimaryContactAction, SendEmailAction } from './contact.actions';

@@ -34,30 +34,7 @@ import {
   RoleHierarchy,
 } from './src/sharing';
 
-// ─── Action Handler Registration (runtime lifecycle) ────────────────
-// Handlers are wired separately from metadata. The `onEnable` export
-// is called by the kernel's AppPlugin after the engine is ready.
-// See: src/actions/register-handlers.ts for the full registration flow.
-import { registerCrmActionHandlers } from './src/actions/register-handlers';
 import { allHooks } from './src/hooks';
-
-/**
- * Plugin lifecycle hook — called by AppPlugin when the engine is ready.
- *
- * Action handlers are still wired imperatively because actions reference
- * their handler via a string `target` and the function registry binding
- * happens here. Lifecycle hooks (`*.hook.ts`) are now metadata: they are
- * picked up automatically from `defineStack({ hooks: allHooks })` below
- * and bound to the ObjectQL engine by `AppPlugin`. No manual
- * `registerHook(...)` wiring is needed for hooks any more.
- */
-export const onEnable = async (ctx: {
-  ql: {
-    registerAction: (...args: unknown[]) => void;
-  };
-}) => {
-  registerCrmActionHandlers(ctx.ql as Parameters<typeof registerCrmActionHandlers>[0]);
-};
 
 export default defineStack({
   manifest: {

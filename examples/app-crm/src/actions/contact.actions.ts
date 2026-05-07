@@ -34,14 +34,40 @@ export const MarkPrimaryContactAction: Action = {
   refreshAfter: true,
 };
 
-/** Send Email to Contact */
+/**
+ * Send Email to Contact.
+ *
+ * Modal-typed action: collects subject + body, then logs an `activity`
+ * record via the metadata body. Runs sandboxed under `api.write`.
+ */
 export const SendEmailAction: Action = {
   name: 'send_email',
   label: 'Send Email',
   objectName: 'contact',
   icon: 'mail',
   type: 'modal',
-  target: 'sendEmail',
+  target: 'send_email',
+  body: {
+    language: 'js',
+    source: `
+      const record = ctx.record ?? {};
+      const recipientId = ctx.recordId ?? record.id ?? null;
+      const activity = await ctx.api.object('activity').insert({
+        type: 'email',
+        subject: input.subject ? String(input.subject) : ('Email to ' + (record.email ?? '')),
+        body: input.body ? String(input.body) : '',
+        contact_id: recipientId,
+        account_id: record.account_id ?? null,
+        direction: 'outbound',
+        status: 'sent',
+        created_by: ctx.user?.id ?? null,
+        sent_at: new Date().toISOString(),
+      });
+      return { activityId: activity?.id };
+    `,
+    capabilities: ['api.write'],
+    timeoutMs: 5000,
+  },
   locations: ['record_header', 'list_item'],
   visible: 'email_opt_out == false',
   params: [

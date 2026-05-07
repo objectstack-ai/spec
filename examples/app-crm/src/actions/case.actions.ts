@@ -2,14 +2,38 @@
 
 import type { Action } from '@objectstack/spec/ui';
 
-/** Escalate Case */
+/**
+ * Escalate Case.
+ *
+ * Modal-typed action: the UI collects `reason` then POSTs to
+ * `/api/v1/actions/case/escalate_case`. The body runs in the QuickJS
+ * sandbox via `actionBodyRunnerFactory`, gated by `api.write`.
+ */
 export const EscalateCaseAction: Action = {
   name: 'escalate_case',
   label: 'Escalate Case',
   objectName: 'case',
   icon: 'alert-triangle',
   type: 'modal',
-  target: 'escalateCase',
+  target: 'escalate_case',
+  body: {
+    language: 'js',
+    source: `
+      const id = ctx.recordId;
+      if (!id) throw new Error('escalate_case requires a recordId');
+      await ctx.api.object('case').update({
+        id,
+        is_escalated: true,
+        escalation_reason: input.reason ?? null,
+        escalated_by: ctx.user?.id ?? null,
+        escalated_at: new Date().toISOString(),
+        priority: 'urgent',
+      }, { where: { id } });
+      return { ok: true, id };
+    `,
+    capabilities: ['api.write'],
+    timeoutMs: 5000,
+  },
   locations: ['record_header', 'list_item'],
   visible: 'is_escalated == false && is_closed == false',
   params: [
@@ -25,14 +49,37 @@ export const EscalateCaseAction: Action = {
   refreshAfter: true,
 };
 
-/** Close Case */
+/**
+ * Close Case.
+ *
+ * Modal-typed action: collects `resolution` then closes the case via
+ * the metadata body. Runs sandboxed under `api.write`.
+ */
 export const CloseCaseAction: Action = {
   name: 'close_case',
   label: 'Close Case',
   objectName: 'case',
   icon: 'check-circle',
   type: 'modal',
-  target: 'closeCase',
+  target: 'close_case',
+  body: {
+    language: 'js',
+    source: `
+      const id = ctx.recordId;
+      if (!id) throw new Error('close_case requires a recordId');
+      await ctx.api.object('case').update({
+        id,
+        is_closed: true,
+        resolution: input.resolution ?? null,
+        closed_by: ctx.user?.id ?? null,
+        closed_at: new Date().toISOString(),
+        status: 'closed',
+      }, { where: { id } });
+      return { ok: true, id };
+    `,
+    capabilities: ['api.write'],
+    timeoutMs: 5000,
+  },
   locations: ['record_header'],
   visible: 'is_closed == false',
   params: [
