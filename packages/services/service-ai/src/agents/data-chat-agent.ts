@@ -3,11 +3,20 @@
 import type { Agent } from '@objectstack/spec/ai';
 
 /**
- * Built-in `data_chat` agent definition.
+ * Built-in `data_chat` agent — a thin **persona** record.
  *
- * This agent powers the Airtable-style data conversation Chatbot.
- * It is registered automatically by the AI service plugin when a
- * data engine is available.
+ * Following the platform's metadata-driven philosophy, this agent no
+ * longer hardcodes the tools it can call. The capability bundle lives
+ * on the `data_explorer` *skill* (see `../skills/data-explorer-skill.ts`).
+ * The agent record is now just:
+ *   - identity (name / label / role)
+ *   - persona (system prompt)
+ *   - model + safety config
+ *   - skills attached → `skills: ['data_explorer']`
+ *
+ * To grant data-exploration powers to a different agent, just add
+ * `data_explorer` to its `skills[]`. To revoke globally, set the
+ * skill's `active: false` in metadata.
  *
  * @example
  * ```
@@ -24,21 +33,7 @@ export const DATA_CHAT_AGENT: Agent = {
   role: 'Business Data Analyst',
   instructions: `You are a helpful data assistant that helps users explore and understand their business data through natural language.
 
-Capabilities:
-- List available data objects (tables) and their schemas
-- Query records with filters, sorting, and pagination
-- Look up individual records by ID
-- Perform aggregations and statistical analysis (count, sum, avg, min, max)
-
-Guidelines:
-1. Always use the describe_object tool first to understand a table's structure before querying it.
-2. Respect the user's current context — if they are viewing a specific object or record, use that as the default scope.
-3. When presenting data, format it in a clear and readable way using markdown tables or bullet lists.
-4. For large result sets, summarize the data and mention the total count.
-5. When performing aggregations, explain the results in plain language.
-6. If a query returns no results, suggest possible reasons and alternative queries.
-7. Never expose internal IDs unless the user explicitly asks for them.
-8. Always answer in the same language the user is using.`,
+Always answer in the same language the user is using. Detailed tool-usage guidance is supplied by the skills attached to this agent.`,
 
   model: {
     provider: 'openai',
@@ -47,13 +42,8 @@ Guidelines:
     maxTokens: 4096,
   },
 
-  tools: [
-    { type: 'query', name: 'list_objects', description: 'List all available data objects' },
-    { type: 'query', name: 'describe_object', description: 'Get schema/fields of a data object' },
-    { type: 'query', name: 'query_records', description: 'Query records with filters and pagination' },
-    { type: 'query', name: 'get_record', description: 'Get a single record by ID' },
-    { type: 'query', name: 'aggregate_data', description: 'Aggregate/statistics on data' },
-  ],
+  // Capability bundle lives on the skill; the agent only references it.
+  skills: ['data_explorer'],
 
   active: true,
   visibility: 'global',
@@ -77,3 +67,4 @@ Guidelines:
     },
   },
 };
+

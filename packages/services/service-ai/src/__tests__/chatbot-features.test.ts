@@ -16,6 +16,7 @@ import { ToolRegistry } from '../tools/tool-registry.js';
 import { registerDataTools, DATA_TOOL_DEFINITIONS } from '../tools/data-tools.js';
 import type { DataToolContext } from '../tools/data-tools.js';
 import { AgentRuntime } from '../agent-runtime.js';
+import { SkillRegistry } from '../skill-registry.js';
 import type { AgentChatContext } from '../agent-runtime.js';
 import { buildAgentRoutes } from '../routes/agent-routes.js';
 import { DATA_CHAT_AGENT } from '../agents/data-chat-agent.js';
@@ -603,7 +604,8 @@ describe('AgentRuntime', () => {
 
   beforeEach(() => {
     metadataService = createMockMetadataService();
-    runtime = new AgentRuntime(metadataService);
+    const skillRegistry = new SkillRegistry(metadataService);
+    runtime = new AgentRuntime(metadataService, skillRegistry);
   });
 
   describe('loadAgent', () => {
@@ -663,16 +665,17 @@ describe('AgentRuntime', () => {
       expect(options.maxTokens).toBe(4096);
     });
 
-    it('should resolve agent tool references against available tools', () => {
+    it('should resolve skill tool references against available tools', async () => {
       const availableTools: AIToolDefinition[] = [
         { name: 'list_objects', description: 'List objects', parameters: {} },
         { name: 'query_records', description: 'Query records', parameters: {} },
-        { name: 'unrelated_tool', description: 'Not in agent', parameters: {} },
+        { name: 'unrelated_tool', description: 'Not in any skill', parameters: {} },
       ];
 
-      const options = runtime.buildRequestOptions(DATA_CHAT_AGENT, availableTools);
+      // DATA_CHAT_AGENT now references the data_explorer skill which carries the tools.
+      const { DATA_EXPLORER_SKILL } = await import('../skills/data-explorer-skill.js');
+      const options = runtime.buildRequestOptions(DATA_CHAT_AGENT, availableTools, [DATA_EXPLORER_SKILL]);
 
-      // Only tools declared in agent.tools that exist in available should be resolved
       const resolvedNames = options.tools?.map(t => t.name) ?? [];
       expect(resolvedNames).toContain('list_objects');
       expect(resolvedNames).toContain('query_records');
@@ -1036,14 +1039,9 @@ describe('DATA_CHAT_AGENT', () => {
     expect(DATA_CHAT_AGENT.visibility).toBe('global');
   });
 
-  it('should reference all 5 data tools', () => {
-    expect(DATA_CHAT_AGENT.tools).toHaveLength(5);
-    const toolNames = DATA_CHAT_AGENT.tools!.map(t => t.name);
-    expect(toolNames).toContain('list_objects');
-    expect(toolNames).toContain('describe_object');
-    expect(toolNames).toContain('query_records');
-    expect(toolNames).toContain('get_record');
-    expect(toolNames).toContain('aggregate_data');
+  it('should reference the data_explorer skill (capability bundle moved to skill metadata)', () => {
+    expect(DATA_CHAT_AGENT.tools ?? []).toHaveLength(0);
+    expect(DATA_CHAT_AGENT.skills).toEqual(['data_explorer']);
   });
 
   it('should have guardrails configured', () => {
@@ -1071,23 +1069,14 @@ describe('METADATA_ASSISTANT_AGENT', () => {
     expect(METADATA_ASSISTANT_AGENT.visibility).toBe('global');
   });
 
-  it('should reference all 6 metadata tools', () => {
-    expect(METADATA_ASSISTANT_AGENT.tools).toHaveLength(6);
-    const toolNames = METADATA_ASSISTANT_AGENT.tools!.map(t => t.name);
-    expect(toolNames).toContain('create_object');
-    expect(toolNames).toContain('add_field');
-    expect(toolNames).toContain('modify_field');
-    expect(toolNames).toContain('delete_field');
-    expect(toolNames).toContain('list_objects');
-    expect(toolNames).toContain('describe_object');
+  it('should reference the metadata_authoring skill (capability bundle moved to skill metadata)', () => {
+    expect(METADATA_ASSISTANT_AGENT.tools ?? []).toHaveLength(0);
+    expect(METADATA_ASSISTANT_AGENT.skills).toEqual(['metadata_authoring']);
   });
 
-  it('should use action type for mutation tools and query type for read tools', () => {
-    const tools = METADATA_ASSISTANT_AGENT.tools!;
-    const actionTools = tools.filter(t => t.type === 'action');
-    const queryTools = tools.filter(t => t.type === 'query');
-    expect(actionTools).toHaveLength(4); // create, add, modify, delete
-    expect(queryTools).toHaveLength(2); // list, describe
+  it('should keep the schema-architect persona in instructions', () => {
+    const instructions = METADATA_ASSISTANT_AGENT.instructions;
+    expect(instructions).toMatch(/architect/i);
   });
 
   it('should have guardrails configured', () => {
@@ -1107,10 +1096,8 @@ describe('METADATA_ASSISTANT_AGENT', () => {
     expect(METADATA_ASSISTANT_AGENT.planning!.allowReplan).toBe(true);
   });
 
-  it('should have instructions mentioning metadata management capabilities', () => {
+  it('should have instructions mentioning the architect persona', () => {
     const instructions = METADATA_ASSISTANT_AGENT.instructions;
-    expect(instructions).toContain('snake_case');
-    expect(instructions).toContain('list_objects');
-    expect(instructions).toContain('describe_object');
+    expect(instructions).toMatch(/architect|metadata/i);
   });
 });

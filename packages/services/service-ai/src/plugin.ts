@@ -15,6 +15,7 @@ import { registerMetadataTools } from './tools/metadata-tools.js';
 import { AgentRuntime } from './agent-runtime.js';
 import { SkillRegistry } from './skill-registry.js';
 import { DATA_CHAT_AGENT, METADATA_ASSISTANT_AGENT } from './agents/index.js';
+import { DATA_EXPLORER_SKILL, METADATA_AUTHORING_SKILL } from './skills/index.js';
 import { VercelLLMAdapter } from './adapters/vercel-adapter.js';
 import { MemoryLLMAdapter } from './adapters/memory-adapter.js';
 
@@ -311,6 +312,25 @@ export class AIServicePlugin implements Plugin {
           } catch (err) {
             ctx.logger.warn('[AI] Failed to register data_chat agent', err instanceof Error ? { error: err.message, stack: err.stack } : { error: String(err) });
           }
+
+          // Register the built-in data_explorer skill (capability bundle for data_chat)
+          try {
+            const skillExists =
+              typeof metadataService.exists === 'function'
+                ? await withTimeout(metadataService.exists('skill', DATA_EXPLORER_SKILL.name))
+                : false;
+
+            if (skillExists === null) {
+              ctx.logger.warn('[AI] Metadata service timed out checking data_explorer skill, skipping');
+            } else if (!skillExists) {
+              await withTimeout(metadataService.register('skill', DATA_EXPLORER_SKILL.name, DATA_EXPLORER_SKILL));
+              ctx.logger.info('[AI] data_explorer skill registered');
+            } else {
+              ctx.logger.debug('[AI] data_explorer skill already exists, skipping auto-registration');
+            }
+          } catch (err) {
+            ctx.logger.warn('[AI] Failed to register data_explorer skill', err instanceof Error ? { error: err.message } : { error: String(err) });
+          }
         }
       }
     } catch {
@@ -366,6 +386,25 @@ export class AIServicePlugin implements Plugin {
           }
         } catch (err) {
           ctx.logger.warn('[AI] Failed to register metadata_assistant agent', err instanceof Error ? { error: err.message, stack: err.stack } : { error: String(err) });
+        }
+
+        // Register the built-in metadata_authoring skill (capability bundle for metadata_assistant)
+        try {
+          const skillExists =
+            typeof metadataService.exists === 'function'
+              ? await withTimeout(metadataService.exists('skill', METADATA_AUTHORING_SKILL.name))
+              : false;
+
+          if (skillExists === null) {
+            ctx.logger.warn('[AI] Metadata service timed out checking metadata_authoring skill, skipping');
+          } else if (!skillExists) {
+            await withTimeout(metadataService.register('skill', METADATA_AUTHORING_SKILL.name, METADATA_AUTHORING_SKILL));
+            ctx.logger.info('[AI] metadata_authoring skill registered');
+          } else {
+            ctx.logger.debug('[AI] metadata_authoring skill already exists, skipping auto-registration');
+          }
+        } catch (err) {
+          ctx.logger.warn('[AI] Failed to register metadata_authoring skill', err instanceof Error ? { error: err.message } : { error: String(err) });
         }
       } catch (err) {
         ctx.logger.debug('[AI] Failed to register metadata tools', err instanceof Error ? err : undefined);
