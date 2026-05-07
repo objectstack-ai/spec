@@ -128,7 +128,7 @@ import { useQuery, useMutation } from '@objectstack/client-react';
 - **README**: [View README](/packages/plugins/driver-memory/README.md)
 
 ```typescript
-import { DriverMemory } from '@objectstack/driver-memory';
+import { InMemoryDriver } from '@objectstack/driver-memory';
 ```
 
 ### @objectstack/driver-sql
@@ -141,8 +141,8 @@ import { DriverMemory } from '@objectstack/driver-memory';
 - **README**: [View README](/packages/plugins/driver-sql/README.md)
 
 ```typescript
-import { DriverSQL } from '@objectstack/driver-sql';
-const driver = DriverSQL.configure({
+import { SqlDriver } from '@objectstack/driver-sql';
+const driver = new SqlDriver({
   client: 'pg',
   connection: { /* PostgreSQL config */ },
 });
@@ -158,8 +158,8 @@ const driver = DriverSQL.configure({
 - **README**: [View README](/packages/plugins/driver-turso/README.md)
 
 ```typescript
-import { DriverTurso } from '@objectstack/driver-turso';
-const driver = DriverTurso.configure({
+import { TursoDriver } from '@objectstack/driver-turso';
+const driver = new TursoDriver({
   url: 'libsql://mydb-username.turso.io',
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
@@ -448,11 +448,11 @@ npx create-objectstack my-app
 
 ```typescript
 import { defineStack } from '@objectstack/spec';
-import { DriverTurso } from '@objectstack/driver-turso'; // Edge-first
+import { TursoDriver } from '@objectstack/driver-turso'; // Edge-first
 import { ServiceAI } from '@objectstack/service-ai'; // AI features
 
 const stack = defineStack({
-  driver: DriverTurso.configure({ /* ... */ }),
+  driver: new TursoDriver({ /* ... */ }),
   services: [ServiceAI.configure({ /* ... */ })],
 });
 ```
@@ -460,12 +460,12 @@ const stack = defineStack({
 ### For Traditional Web Apps
 
 ```typescript
-import { DriverSQL } from '@objectstack/driver-sql'; // PostgreSQL/MySQL
+import { SqlDriver } from '@objectstack/driver-sql'; // PostgreSQL/MySQL/SQLite
 import { PluginAuth } from '@objectstack/plugin-auth'; // Authentication
 import { ServiceQueue } from '@objectstack/service-queue'; // Background jobs
 
 const stack = defineStack({
-  driver: DriverSQL.configure({ client: 'pg', /* ... */ }),
+  driver: new SqlDriver({ client: 'pg', /* ... */ }),
   plugins: [PluginAuth.configure({ /* ... */ })],
   services: [ServiceQueue.configure({ /* ... */ })],
 });
@@ -479,7 +479,7 @@ import { PluginAudit } from '@objectstack/plugin-audit'; // Compliance
 import { ServiceAnalytics } from '@objectstack/service-analytics'; // BI
 
 const stack = defineStack({
-  driver: DriverSQL.configure({ /* PostgreSQL */ }),
+  driver: new SqlDriver({ client: 'pg', /* PostgreSQL */ }),
   plugins: [
     PluginSecurity.configure({ /* ... */ }),
     PluginAudit.configure({ /* ... */ }),

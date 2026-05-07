@@ -15,7 +15,8 @@
     "start": "objectstack start",
     "build": "objectstack build",
     "typecheck": "tsc --noEmit",
-    "test": "objectstack test"
+    "test": "objectstack test",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@objectstack/spec": "workspace:*",
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "@objectstack/cli": "workspace:*",
+    "@playwright/test": "^1.49.1",
     "typescript": "^6.0.3"
   }
 }

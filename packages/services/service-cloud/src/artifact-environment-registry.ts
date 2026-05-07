@@ -250,6 +250,11 @@ async function createDriver(driverType: string, databaseUrl: string, authToken: 
                 pool: { min: 0, max: 5 },
             }) as unknown as IDataDriver;
         }
+        case 'mongodb':
+        case 'mongo': {
+            const { MongoDBDriver } = await import('@objectstack/driver-mongodb');
+            return new MongoDBDriver({ url: databaseUrl }) as unknown as IDataDriver;
+        }
         default:
             throw new Error(`[ArtifactEnvironmentRegistry] Unsupported driver type: ${driverType}`);
     }

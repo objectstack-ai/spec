@@ -40,10 +40,10 @@ pnpm add better-sqlite3
 
 ```typescript
 import { defineStack } from '@objectstack/spec';
-import { DriverSQL } from '@objectstack/driver-sql';
+import { SqlDriver } from '@objectstack/driver-sql';
 
 const stack = defineStack({
-  driver: DriverSQL.configure({
+  driver: new SqlDriver({
     client: 'pg',
     connection: {
       host: 'localhost',
@@ -64,7 +64,7 @@ const stack = defineStack({
 
 ```typescript
 const stack = defineStack({
-  driver: DriverSQL.configure({
+  driver: new SqlDriver({
     client: 'mysql2',
     connection: {
       host: 'localhost',
@@ -81,7 +81,7 @@ const stack = defineStack({
 
 ```typescript
 const stack = defineStack({
-  driver: DriverSQL.configure({
+  driver: new SqlDriver({
     client: 'better-sqlite3',
     connection: {
       filename: './data/app.db',

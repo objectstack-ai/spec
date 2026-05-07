@@ -5,61 +5,93 @@ description: Configuration reference for supported database drivers
 
 # Database Drivers
 
-ObjectStack supports multiple database backends through a unified driver interface. Configure your data source in `objectstack.config.ts`:
+ObjectStack supports multiple database backends through a unified driver interface.
+Drivers can be selected in two ways:
 
-```typescript
-import { defineStack } from '@objectstack/spec';
+1. **Env var only — auto-inferred from the URL scheme** (the simplest path):
+   ```bash
+   export OS_DATABASE_URL=mongodb://localhost:27017/myapp   # → MongoDB
+   export OS_DATABASE_URL=postgres://user:pass@host/db      # → PostgreSQL
+   export OS_DATABASE_URL=mysql://user:pass@host/db         # → MySQL
+   export OS_DATABASE_URL=libsql://mydb.turso.io            # → Turso / libSQL
+   export OS_DATABASE_URL=file:./data/app.db                # → SQLite
+   pnpm dev
+   ```
+   The CLI inspects the connection-string scheme and picks the right driver
+   automatically. You only need to set `OS_DATABASE_DRIVER` when you want to
+   override the inference (e.g. force `sqlite` for an ambiguous path).
 
-export default defineStack({
-  manifest: { /* ... */ },
-  datasources: {
-    default: {
-      driver: 'postgres',
-      url: process.env.DATABASE_URL,
-    },
-  },
-});
-```
+2. **Programmatic** in `objectstack.config.ts`:
+   ```typescript
+   import { defineStack } from '@objectstack/spec';
+   import { SqlDriver } from '@objectstack/driver-sql';
+
+   export default defineStack({
+     manifest: { /* ... */ },
+     driver: new SqlDriver({
+       client: 'pg',
+       connection: process.env.DATABASE_URL,
+     }),
+   });
+   ```
+
+## URL → Driver Inference Table
+
+| URL pattern | Inferred driver | npm package |
+| :--- | :--- | :--- |
+| `mongodb://…`, `mongodb+srv://…` | MongoDB | `@objectstack/driver-mongodb` |
+| `postgres://…`, `postgresql://…` | PostgreSQL (Knex `pg`) | `@objectstack/driver-sql` + `pg` |
+| `mysql://…`, `mysql2://…` | MySQL (Knex `mysql2`) | `@objectstack/driver-sql` + `mysql2` |
+| `libsql://…`, `https://*.turso.…` | Turso / libSQL | `@objectstack/driver-turso` |
+| `file:…`, `sqlite:…`, `:memory:`, `*.db` / `*.sqlite` | SQLite (Knex `better-sqlite3`) | `@objectstack/driver-sql` + `better-sqlite3` |
+| _(unset, dev mode)_ | In-memory (default) | `@objectstack/driver-memory` |
 
 ## Supported Drivers
 
-| Driver | Package | Use Case |
-| :--- | :--- | :--- |
-| **PostgreSQL** | `@objectstack/driver-postgres` | Production, enterprise workloads |
-| **MongoDB** | `@objectstack/driver-mongo` | Document-oriented, flexible schema |
-| **SQLite** | `@objectstack/driver-sqlite` | Local development, embedded apps |
-| **Memory** | `@objectstack/driver-memory` | Testing, prototyping |
-
-## PostgreSQL
-
-Configuration properties for the PostgreSQL driver (node-postgres / pg).
-
-| Property | Type | Required | Description |
+| Driver | npm package | Class | Explicit `OS_DATABASE_DRIVER` value |
 | :--- | :--- | :--- | :--- |
-| **url** | `string` | optional | Connection URI (e.g., `postgres://user:pass@host:5432/db`) |
-| **database** | `string` | ✅ | Database Name |
-| **host** | `string` | optional | Host address (default: `localhost`) |
-| **port** | `number` | optional | Port number (default: `5432`) |
-| **username** | `string` | optional | Auth User |
-| **password** | `string` | optional | Auth Password |
-| **schema** | `string` | optional | Default Schema (default: `public`) |
-| **ssl** | `boolean \| object` | optional | Enable SSL |
-| **applicationName** | `string` | optional | Application Name |
-| **max** | `number` | optional | Max Pool Size (default: `10`) |
-| **min** | `number` | optional | Min Pool Size (default: `2`) |
+| **PostgreSQL** | `@objectstack/driver-sql` (peer: `pg`) | `SqlDriver` | `postgres` \| `postgresql` \| `pg` |
+| **MySQL** | `@objectstack/driver-sql` (peer: `mysql2`) | `SqlDriver` | `mysql` \| `mysql2` |
+| **SQLite** | `@objectstack/driver-sql` (peer: `better-sqlite3`) | `SqlDriver` | `sqlite` \| `sql` |
+| **Turso / libSQL** | `@objectstack/driver-turso` | `TursoDriver` | `turso` \| `libsql` |
+| **MongoDB** | `@objectstack/driver-mongodb` | `MongoDBDriver` | `mongodb` \| `mongo` |
+| **Memory** | `@objectstack/driver-memory` | `InMemoryDriver` | `memory` (dev default) |
 
-**Example:**
+> All SQL flavours (PostgreSQL / MySQL / SQLite) are served by a single
+> `@objectstack/driver-sql` package — there is no separate
+> `driver-postgres`, `driver-mysql`, or `driver-sqlite` package. Pick the
+> Knex client name (`pg` / `mysql2` / `better-sqlite3`) when you instantiate
+> `SqlDriver`.
+
+## PostgreSQL (via `@objectstack/driver-sql`)
+
+```bash
+pnpm add @objectstack/driver-sql pg
+```
+
+`SqlDriver`'s constructor accepts a [Knex `Knex.Config`](https://knexjs.org/guide/#configuration-options) object verbatim.
 
 ```typescript
-datasources: {
-  default: {
-    driver: 'postgres',
-    url: 'postgres://admin:secret@db.example.com:5432/myapp',
-    schema: 'public',
+import { SqlDriver } from '@objectstack/driver-sql';
+
+new SqlDriver({
+  client: 'pg',
+  connection: {
+    host: 'db.example.com',
+    port: 5432,
+    user: 'admin',
+    password: process.env.DB_PASSWORD,
+    database: 'myapp',
     ssl: true,
-    max: 20,
   },
-}
+  pool: { min: 2, max: 10 },
+});
+```
+
+Or via env var alone (driver inferred from `postgres://` scheme):
+
+```bash
+export OS_DATABASE_URL=postgres://admin:secret@db.example.com:5432/myapp
 ```
 
 ## MongoDB
@@ -81,12 +113,14 @@ Configuration properties for the MongoDB driver.
 | **maxPoolSize** | `number` | optional | Max Connection Pool Size (default: `10`) |
 | **minPoolSize** | `number` | optional | Min Connection Pool Size (default: `0`) |
 
-**Example:**
+**Example (config):**
 
 ```typescript
+import { MongoDBDriver } from '@objectstack/driver-mongodb';
+
 datasources: {
   default: {
-    driver: 'mongo',
+    driver: 'mongodb',
     url: 'mongodb+srv://admin:secret@cluster.mongodb.net/myapp',
     readPreference: 'nearest',
     maxPoolSize: 50,
@@ -94,36 +128,54 @@ datasources: {
 }
 ```
 
-## SQLite
+**Example (env-var, recommended for `objectstack dev` / `objectstack serve`):**
+
+```bash
+export OS_DATABASE_URL=mongodb://localhost:27017/myapp
+pnpm dev
+```
+
+The CLI infers the MongoDB driver from the `mongodb://` (or `mongodb+srv://`)
+URL scheme automatically — no `OS_DATABASE_DRIVER` needed. Set
+`OS_DATABASE_DRIVER=mongodb` only if you want to be explicit.
+
+## SQLite (via `@objectstack/driver-sql`)
 
 SQLite is ideal for local-first development and embedded applications.
+It uses the same `SqlDriver` class with `client: 'better-sqlite3'`.
 
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| **filename** | `string` | ✅ | Path to the SQLite database file |
-| **mode** | `string` | optional | `readwrite` (default), `readonly`, or `memory` |
-
-**Example:**
+```bash
+pnpm add @objectstack/driver-sql better-sqlite3
+```
 
 ```typescript
-datasources: {
-  default: {
-    driver: 'sqlite',
-    filename: './data/app.db',
-  },
-}
+import { SqlDriver } from '@objectstack/driver-sql';
+
+new SqlDriver({
+  client: 'better-sqlite3',
+  connection: { filename: './data/app.db' },
+  useNullAsDefault: true,
+});
+```
+
+Env-var path (driver inferred from `file:` / `:memory:` / `.db` paths):
+
+```bash
+export OS_DATABASE_URL=file:./data/app.db
+# or
+export OS_DATABASE_URL=:memory:
 ```
 
 ## Memory Driver
 
 The in-memory driver stores data in a JavaScript `Map`. Data is lost when the process exits.
+This is the **default** driver auto-registered by `objectstack dev` when no
+`OS_DATABASE_DRIVER` is set and no driver is provided programmatically.
 
 ```typescript
-datasources: {
-  default: {
-    driver: 'memory',
-  },
-}
+import { InMemoryDriver } from '@objectstack/driver-memory';
+
+new InMemoryDriver();
 ```
 
 <Callout type="tip">
@@ -135,11 +187,14 @@ Use the memory driver for unit tests. It requires no setup and runs instantly.
 ObjectStack supports multiple data sources. Objects can target specific datasources:
 
 ```typescript
+import { SqlDriver } from '@objectstack/driver-sql';
+import { MongoDBDriver } from '@objectstack/driver-mongodb';
+
 export default defineStack({
   datasources: {
-    primary: { driver: 'postgres', url: process.env.PG_URL },
-    analytics: { driver: 'postgres', url: process.env.ANALYTICS_URL },
-    cache: { driver: 'mongo', url: process.env.MONGO_URL },
+    primary:   new SqlDriver({ client: 'pg', connection: process.env.PG_URL }),
+    analytics: new SqlDriver({ client: 'pg', connection: process.env.ANALYTICS_URL }),
+    cache:     new MongoDBDriver({ url: process.env.MONGO_URL! }),
   },
 });
 ```

@@ -324,6 +324,14 @@ export class DefaultEnvironmentDriverRegistry implements EnvironmentDriverRegist
         }) as unknown as IDataDriver;
       }
 
+      case 'mongodb':
+      case 'mongo': {
+        const { MongoDBDriver } = await import('@objectstack/driver-mongodb');
+        return new MongoDBDriver({
+          url: databaseUrl,
+        }) as unknown as IDataDriver;
+      }
+
       default:
         throw new Error(`[EnvironmentRegistry] Unsupported driver type: ${driverType}`);
     }
