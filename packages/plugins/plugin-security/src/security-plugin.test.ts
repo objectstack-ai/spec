@@ -322,7 +322,7 @@ describe('RLSCompiler', () => {
     const policies: any[] = [
       { object: 'task', operation: 'select', using: 'owner_id = current_user.id' },
       { object: 'task', operation: 'insert', using: "status = 'open'" },
-      { object: 'contact', operation: 'all', using: 'tenant_id = current_user.tenant_id' },
+      { object: 'contact', operation: 'all', using: 'organization_id = current_user.organization_id' },
       { object: '*', operation: 'all', using: "active = 'true'" },
     ];
 

@@ -18,7 +18,7 @@ import { z } from 'zod';
  * 
  * 1. **Multi-Tenant Data Isolation**
  *    - Users only see records from their organization
- *    - `using: "tenant_id = current_user.tenant_id"`
+ *    - `using: "organization_id = current_user.organization_id"`
  * 
  * 2. **Ownership-Based Access**
  *    - Users only see records they own
@@ -55,7 +55,7 @@ import { z } from 'zod';
  *   name: 'tenant_isolation',
  *   object: 'account',
  *   operation: 'select',
- *   using: 'tenant_id = current_user.tenant_id'
+ *   using: 'organization_id = current_user.organization_id'
  * }
  * ```
  * 
@@ -122,7 +122,7 @@ export type RLSOperation = z.infer<typeof RLSOperation>;
  *   label: 'Multi-Tenant Data Isolation',
  *   object: 'account',
  *   operation: 'select',
- *   using: 'tenant_id = current_user.tenant_id',
+ *   using: 'organization_id = current_user.organization_id',
  *   enabled: true
  * }
  * ```
@@ -159,7 +159,7 @@ export type RLSOperation = z.infer<typeof RLSOperation>;
  *   label: 'Prevent Cross-Tenant Data Creation',
  *   object: 'account',
  *   operation: 'insert',
- *   check: 'tenant_id = current_user.tenant_id',
+ *   check: 'organization_id = current_user.organization_id',
  *   enabled: true
  * }
  * ```
@@ -278,7 +278,7 @@ export const RowLevelSecurityPolicySchema = lazySchema(() => z.object({
    * 
    * Available context variables:
    * - `current_user.id` - Current user's ID
-   * - `current_user.tenant_id` - Current user's tenant (maps to `tenantId` in RLSUserContext)
+   * - `current_user.organization_id` - Active organization id (maps to `tenantId` in RLSUserContext / `ExecutionContext.tenantId`)
    * - `current_user.role` - Current user's role
    * - `current_user.department` - Current user's department
    * - `current_user.*` - Any custom user field
@@ -287,7 +287,7 @@ export const RowLevelSecurityPolicySchema = lazySchema(() => z.object({
    * - `CURRENT_TIME` - Current time
    * 
    * **Context Variable Mapping**: The RLSUserContext schema uses camelCase (e.g., `tenantId`),
-   * but expressions use snake_case with `current_user.` prefix (e.g., `current_user.tenant_id`).
+   * but expressions use snake_case with `current_user.` prefix (e.g., `current_user.organization_id`).
    * Implementations must handle this mapping.
    * 
    * Supported operators:
@@ -302,7 +302,7 @@ export const RowLevelSecurityPolicySchema = lazySchema(() => z.object({
    * 
    * **Prohibited**: Dynamic SQL, DDL statements, DML statements (INSERT/UPDATE/DELETE)
    * 
-   * @example "tenant_id = current_user.tenant_id"
+   * @example "organization_id = current_user.organization_id"
    * @example "owner_id = current_user.id OR created_by = current_user.id"
    * @example "department IN (SELECT department FROM user_departments WHERE user_id = current_user.id)"
    * @example "status = 'active' AND expiry_date > NOW()"
@@ -327,7 +327,7 @@ export const RowLevelSecurityPolicySchema = lazySchema(() => z.object({
    * - Validate data integrity rules
    * - Restrict certain operations (e.g., only allow creating "draft" status)
    * 
-   * @example "tenant_id = current_user.tenant_id"
+   * @example "organization_id = current_user.organization_id"
    * @example "status IN ('draft', 'pending')" - Only allow certain statuses
    * @example "created_by = current_user.id" - Must be the creator
    */
@@ -722,15 +722,21 @@ export const RLS = {
   }),
 
   /**
-   * Create a tenant isolation policy
+   * Create a tenant isolation policy.
+   *
+   * The default `tenantField` is `organization_id` to match better-auth's
+   * organization plugin and the canonical platform schema. The
+   * `current_user.organization_id` placeholder is resolved by
+   * `RLSCompiler` from `ExecutionContext.tenantId` at request time.
+   * Pass a custom field name if your schema uses a different column.
    */
-  tenantPolicy: (object: string, tenantField: string = 'tenant_id'): RowLevelSecurityPolicy => ({
+  tenantPolicy: (object: string, tenantField: string = 'organization_id'): RowLevelSecurityPolicy => ({
     name: `${object}_tenant_isolation`,
     label: `Tenant Isolation for ${object}`,
     object,
     operation: 'all',
-    using: `${tenantField} = current_user.tenant_id`,
-    check: `${tenantField} = current_user.tenant_id`,
+    using: `${tenantField} = current_user.organization_id`,
+    check: `${tenantField} = current_user.organization_id`,
     enabled: true,
     priority: 0,
   }),

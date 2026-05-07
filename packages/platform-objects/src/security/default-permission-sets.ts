@@ -20,9 +20,11 @@ import { PermissionSetSchema, type PermissionSet } from '@objectstack/spec/secur
  * `PermissionEvaluator` — admins do not need an explicit row per object.
  *
  * RLS policies use the canonical `current_user.*` placeholders compiled
- * by `RLSCompiler`. The default tenant column is `organization_id` so the
- * SecurityPlugin's `tenantField` config (defaults to `organization_id`)
- * rewrites `tenant_id = current_user.tenant_id` accordingly at runtime.
+ * by `RLSCompiler`. The active organization is exposed under
+ * `current_user.organization_id` (sourced from
+ * `ExecutionContext.tenantId` at request time) — there is no rewrite
+ * step or `tenantField` indirection in SecurityPlugin. Schemas with a
+ * different physical tenant column should fork these defaults.
  */
 export const defaultPermissionSets: PermissionSet[] = [
   PermissionSetSchema.parse({
@@ -58,7 +60,7 @@ export const defaultPermissionSets: PermissionSet[] = [
         name: 'tenant_isolation',
         object: '*',
         operation: 'all',
-        using: 'tenant_id = current_user.tenant_id',
+        using: 'organization_id = current_user.organization_id',
       },
       {
         name: 'owner_only_writes',
@@ -78,7 +80,7 @@ export const defaultPermissionSets: PermissionSet[] = [
         name: 'sys_organization_self',
         object: 'sys_organization',
         operation: 'all',
-        using: 'id = current_user.tenant_id',
+        using: 'id = current_user.organization_id',
       },
       {
         name: 'sys_user_self',
@@ -105,13 +107,13 @@ export const defaultPermissionSets: PermissionSet[] = [
         name: 'tenant_isolation',
         object: '*',
         operation: 'select',
-        using: 'tenant_id = current_user.tenant_id',
+        using: 'organization_id = current_user.organization_id',
       },
       {
         name: 'sys_organization_self',
         object: 'sys_organization',
         operation: 'select',
-        using: 'id = current_user.tenant_id',
+        using: 'id = current_user.organization_id',
       },
       {
         name: 'sys_user_self',

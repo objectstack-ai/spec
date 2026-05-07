@@ -14,16 +14,6 @@ import {
 
 export interface SecurityPluginOptions {
   /**
-   * Physical column name used by the multi-tenant RLS isolation policy.
-   * Default: `'organization_id'` — matches the canonical
-   * `sys_organization` foreign key used across platform objects and
-   * better-auth's organization plugin (`session.activeOrganizationId`).
-   *
-   * RLS expressions written as `tenant_id = current_user.tenant_id` are
-   * rewritten on the fly to use this physical column when compiled.
-   */
-  tenantField?: string;
-  /**
    * Additional permission sets to register with the metadata service on
    * plugin start. Defaults to {@link securityDefaultPermissionSets}
    * (admin_full_access / member_default / viewer_readonly).
@@ -63,12 +53,10 @@ export class SecurityPlugin implements Plugin {
   private permissionEvaluator = new PermissionEvaluator();
   private rlsCompiler = new RLSCompiler();
   private fieldMasker = new FieldMasker();
-  private readonly tenantField: string;
   private readonly bootstrapPermissionSets: PermissionSet[];
   private readonly fallbackPermissionSet: string | null;
 
   constructor(options: SecurityPluginOptions = {}) {
-    this.tenantField = options.tenantField ?? 'organization_id';
     this.bootstrapPermissionSets =
       options.defaultPermissionSets ?? securityDefaultPermissionSets;
     this.fallbackPermissionSet =
@@ -95,7 +83,6 @@ export class SecurityPlugin implements Plugin {
     });
 
     ctx.logger.info('Security Plugin initialized', {
-      tenantField: this.tenantField,
       defaultPermissionSets: this.bootstrapPermissionSets.map((p) => p.name),
     });
   }
@@ -188,38 +175,18 @@ export class SecurityPlugin implements Plugin {
       // 3. RLS filter injection
       const allRlsPolicies = this.collectRLSPolicies(permissionSets, opCtx.object, opCtx.operation);
       if (allRlsPolicies.length > 0 && opCtx.ast) {
-        // Substitute the canonical `tenant_id` placeholder for the
-        // configured physical column so site-specific tenant columns
-        // (e.g. `organization_id`) work without rewriting every policy.
-        const rewritten = this.tenantField === 'tenant_id'
-          ? allRlsPolicies
-          : allRlsPolicies.map((p) => ({
-              ...p,
-              using: p.using
-                // Rewrite the LEFT-hand column reference only.
-                // The placeholder `current_user.tenant_id` is a context
-                // lookup key (resolved against `RLSUserContext.tenant_id`)
-                // and must NOT be rewritten — otherwise compileExpression
-                // looks up `userCtx[<tenantField>]` which doesn't exist
-                // and silently drops the policy.
-                ? p.using.replace(
-                    /(^|[^.\w])tenant_id\b/g,
-                    (_m, prefix) => `${prefix}${this.tenantField}`,
-                  )
-                : p.using,
-            }));
         // Drop policies whose target field doesn't exist on the object —
-        // wildcard policies like `tenant_id = ...` must not corrupt
+        // wildcard policies like `organization_id = ...` must not corrupt
         // queries against system tables that lack the column (sys_jwks,
         // sys_audit_log, etc.). When schema lookup fails we keep the
         // policy (fail-closed for unknown objects).
         const objectFields = await this.getObjectFieldNames(metadata, opCtx.object);
         const safe = objectFields
-          ? rewritten.filter((p) => {
+          ? allRlsPolicies.filter((p) => {
               const targetField = this.extractTargetField(p.using);
               return targetField ? objectFields.has(targetField) : true;
             })
-          : rewritten;
+          : allRlsPolicies;
         const rlsFilter = this.rlsCompiler.compileFilter(safe, opCtx.context);
         if (rlsFilter) {
           if (opCtx.ast.where) {

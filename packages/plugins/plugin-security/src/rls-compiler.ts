@@ -9,7 +9,14 @@ import type { ExecutionContext } from '@objectstack/spec/kernel';
  */
 interface RLSUserContext {
   id?: string;
-  tenant_id?: string;
+  /**
+   * Active organization id for the request. RLS expressions reference
+   * this as `current_user.organization_id`. Sourced from
+   * `ExecutionContext.tenantId` (the runtime keeps the abstract
+   * "tenant" name, but at the data/RLS layer the canonical column is
+   * `organization_id` — see better-auth's organization plugin).
+   */
+  organization_id?: string;
   roles?: string[];
   [key: string]: unknown;
 }
@@ -33,7 +40,7 @@ export class RLSCompiler {
 
     const userCtx: RLSUserContext = {
       id: executionContext?.userId,
-      tenant_id: executionContext?.tenantId,
+      organization_id: executionContext?.tenantId,
       roles: executionContext?.roles,
     };
 

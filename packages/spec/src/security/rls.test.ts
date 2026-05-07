@@ -33,7 +33,7 @@ describe('Row-Level Security (RLS) Protocol', () => {
         name: 'tenant_isolation',
         object: 'account',
         operation: 'select',
-        using: 'tenant_id = current_user.tenant_id',
+        using: 'organization_id = current_user.organization_id',
       };
 
       const result = RowLevelSecurityPolicySchema.parse(policy);
@@ -137,8 +137,8 @@ describe('Row-Level Security (RLS) Protocol', () => {
         name: 'tenant_all_ops',
         object: 'account',
         operation: 'all',
-        using: 'tenant_id = current_user.tenant_id',
-        check: 'tenant_id = current_user.tenant_id',
+        using: 'organization_id = current_user.organization_id',
+        check: 'organization_id = current_user.organization_id',
       };
 
       const result = RowLevelSecurityPolicySchema.parse(policy);
@@ -378,16 +378,16 @@ describe('Row-Level Security (RLS) Protocol', () => {
         expect(policy.name).toBe('account_tenant_isolation');
         expect(policy.object).toBe('account');
         expect(policy.operation).toBe('all');
-        expect(policy.using).toBe('tenant_id = current_user.tenant_id');
-        expect(policy.check).toBe('tenant_id = current_user.tenant_id');
+        expect(policy.using).toBe('organization_id = current_user.organization_id');
+        expect(policy.check).toBe('organization_id = current_user.organization_id');
         expect(policy.enabled).toBe(true);
       });
 
       it('should create tenant isolation policy with custom field', () => {
-        const policy = RLS.tenantPolicy('order', 'organization_id');
+        const policy = RLS.tenantPolicy('order', 'workspace_id');
 
-        expect(policy.using).toBe('organization_id = current_user.tenant_id');
-        expect(policy.check).toBe('organization_id = current_user.tenant_id');
+        expect(policy.using).toBe('workspace_id = current_user.organization_id');
+        expect(policy.check).toBe('workspace_id = current_user.organization_id');
       });
     });
 
@@ -430,14 +430,14 @@ describe('Row-Level Security (RLS) Protocol', () => {
         description: 'Ensure users only access data from their own organization',
         object: 'customer',
         operation: 'all',
-        using: 'tenant_id = current_user.tenant_id',
-        check: 'tenant_id = current_user.tenant_id',
+        using: 'organization_id = current_user.organization_id',
+        check: 'organization_id = current_user.organization_id',
         enabled: true,
         tags: ['multi-tenant', 'security'],
       };
 
       const result = RowLevelSecurityPolicySchema.parse(policy);
-      expect(result.using).toContain('tenant_id');
+      expect(result.using).toContain('organization_id');
     });
 
     it('should support hierarchical access (manager sees team data)', () => {

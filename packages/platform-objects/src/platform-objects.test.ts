@@ -120,10 +120,10 @@ describe('@objectstack/platform-objects', () => {
         'tenant_isolation',
       ]);
       const tenantPolicy = (member.rowLevelSecurity ?? []).find((p) => p.name === 'tenant_isolation')!;
-      expect(tenantPolicy.using).toBe('tenant_id = current_user.tenant_id');
+      expect(tenantPolicy.using).toBe('organization_id = current_user.organization_id');
       const orgSelf = (member.rowLevelSecurity ?? []).find((p) => p.name === 'sys_organization_self')!;
       expect(orgSelf.object).toBe('sys_organization');
-      expect(orgSelf.using).toBe('id = current_user.tenant_id');
+      expect(orgSelf.using).toBe('id = current_user.organization_id');
     });
 
     it('viewer_readonly denies writes', () => {

@@ -130,7 +130,7 @@ export const PermissionSetSchema = lazySchema(() => z.object({
    *   name: 'tenant_filter',
    *   object: 'account',
    *   operation: 'select',
-   *   using: 'tenant_id = current_user.tenant_id'
+   *   using: 'organization_id = current_user.organization_id'
    * }]
    * ```
    */
@@ -145,7 +145,7 @@ export const PermissionSetSchema = lazySchema(() => z.object({
    * 
    * Common context variables:
    * - `current_user.id` - Current user ID
-   * - `current_user.tenant_id` - User's tenant/organization ID
+   * - `current_user.organization_id` - Active organization id
    * - `current_user.department` - User's department
    * - `current_user.role` - User's role
    * - `current_user.region` - User's geographic region

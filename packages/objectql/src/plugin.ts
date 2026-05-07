@@ -198,12 +198,13 @@ export class ObjectQLPlugin implements Plugin {
     this.registerAuditHooks(ctx);
 
     // Tenant isolation is now handled by `@objectstack/plugin-security`
-    // via the `member_default` permission set's RLS rule (with field-existence
-    // guards and configurable tenantField rewrite). The legacy hard-coded
-    // `tenant_id` filter middleware was removed because it (a) collided with
-    // the SecurityPlugin RLS pipeline and (b) blindly filtered tables that
-    // don't have a `tenant_id` column (e.g. `sys_organization`), returning
-    // 0 rows instead of all rows.
+    // via the `member_default` permission set's RLS rule
+    // (`organization_id = current_user.organization_id`, with
+    // field-existence guards). The legacy hard-coded `tenant_id` filter
+    // middleware was removed because it (a) collided with the
+    // SecurityPlugin RLS pipeline and (b) blindly filtered tables that
+    // don't have a `tenant_id` column (e.g. `sys_organization`),
+    // returning 0 rows instead of all rows.
 
     ctx.logger.info('ObjectQL engine started', {
         driversRegistered: this.ql?.['drivers']?.size || 0,
@@ -322,11 +323,13 @@ export class ObjectQLPlugin implements Plugin {
 
   /**
    * Tenant isolation moved to `@objectstack/plugin-security`'s
-   * `member_default` permission set RLS (with field-existence guards and
-   * configurable `tenantField`). The legacy `registerTenantMiddleware`
-   * method was removed because it (a) collided with SecurityPlugin's RLS
-   * pipeline and (b) blindly filtered tables that don't have a `tenant_id`
-   * column (e.g. `sys_organization`), returning 0 rows instead of all rows.
+   * `member_default` permission set RLS
+   * (`organization_id = current_user.organization_id`, with
+   * field-existence guards). The legacy `registerTenantMiddleware`
+   * method was removed because it (a) collided with SecurityPlugin's
+   * RLS pipeline and (b) blindly filtered tables that don't have a
+   * `tenant_id` column (e.g. `sys_organization`), returning 0 rows
+   * instead of all rows.
    */
 
   /**
