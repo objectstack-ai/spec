@@ -15,7 +15,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { cn } from '@/lib/utils';
 import { useAiChatPanel, loadMessages, saveMessages } from '@/hooks/use-ai-chat-panel';
 import { useAssistantContext } from '@/hooks/use-assistant-context';
-import { useAssistantResolution, type SkillSummary } from '@/hooks/use-assistant-skills';
+import { useAssistantResolution, STUDIO_AGENT, type SkillSummary } from '@/hooks/use-assistant-skills';
 import { getApiBaseUrl } from '@/lib/config';
 
 const PANEL_WIDTH = 380;
@@ -397,6 +397,7 @@ export function AiChatPanel() {
             ...body,
             messages,
             context,
+            agent: STUDIO_AGENT,
             ...(skillOverride ? { skill: skillOverride } : {}),
           },
         }),

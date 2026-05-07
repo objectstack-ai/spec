@@ -7,6 +7,22 @@ import {
   type AssistantContext,
 } from './use-assistant-context';
 
+/**
+ * Hard-coded copilot for the Studio workspace.
+ *
+ * Studio is a first-party React host (not an ObjectUI-rendered App),
+ * so it does NOT register an `app('studio')` metadata record on the
+ * server. Instead it tells the Universal Assistant endpoint which
+ * agent to use via an explicit `?agent=` query param on
+ * `GET /api/v1/ai/assistant` and a top-level `agent` field on
+ * `POST /api/v1/ai/assistant/chat`.
+ *
+ * The server still keeps the standard resolution chain
+ * (`app.defaultAgent` → first active) for runtime ObjectUI apps that
+ * DO have App metadata.
+ */
+export const STUDIO_AGENT = 'metadata_assistant';
+
 export interface SkillSummary {
   name: string;
   label: string;
@@ -30,8 +46,10 @@ export interface ResolvedAssistant {
  * Resolve the default agent + active skills for the current Studio
  * context.
  *
- * Backed by `GET /api/v1/ai/assistant?<context>`. Re-fetches whenever
- * the context changes (route navigation, package switch, etc.).
+ * Backed by `GET /api/v1/ai/assistant?<context>&agent=metadata_assistant`.
+ * Re-fetches whenever the context changes (route navigation, package
+ * switch, etc.). The explicit `agent=` is what makes Studio always
+ * land on `metadata_assistant` regardless of server-side defaults.
  *
  * Used by:
  * - the chat panel header (to render "via {agent} · {skills}")
@@ -41,7 +59,9 @@ export function useAssistantResolution(context: AssistantContext): ResolvedAssis
   const baseUrl = getApiBaseUrl();
   const [state, setState] = useState<ResolvedAssistant>({ skills: [], loading: true });
 
-  const queryString = encodeAssistantContext(context).toString();
+  const params = encodeAssistantContext(context);
+  params.set('agent', STUDIO_AGENT);
+  const queryString = params.toString();
 
   useEffect(() => {
     let cancelled = false;
@@ -73,3 +93,4 @@ export function useAssistantResolution(context: AssistantContext): ResolvedAssis
 
   return state;
 }
+

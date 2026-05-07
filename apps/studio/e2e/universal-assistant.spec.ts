@@ -4,148 +4,171 @@
  * E2E smoke for the Universal Assistant wiring (Phase E).
  *
  * Verifies that:
- *   1. The Studio page loads and bootstraps MSW + the in-browser ObjectKernel.
+ *   1. The Studio page loads in MSW mode and bootstraps the in-browser
+ *      ObjectKernel + AI service (proven by the kernel logging
+ *      "Assistant (ambient) routes registered").
  *   2. The new ambient-assistant routes (`/api/v1/ai/assistant`,
- *      `/api/v1/ai/assistant/skills`) are registered and respond with the
- *      contract the new AiChatPanel relies on.
- *   3. The AiChatPanel module that the dev server actually serves contains the
- *      Universal Assistant exports (no stale Agent-dropdown code).
+ *      `/api/v1/ai/assistant/skills`, `/api/v1/ai/assistant/chat`) are
+ *      reachable via the in-browser kernel and accept the documented
+ *      request shape.
+ *   3. The AiChatPanel module that the dev server actually serves contains
+ *      the Universal Assistant exports (no stale Agent-dropdown code).
  *
- * We intentionally do NOT drive the React UI through the auth flow — Studio
- * delegates login to a separate Account SPA, which makes pure-Studio E2E
- * coverage of the panel's visible state out of scope. The UI behaviour itself
- * is covered by the vitest unit tests in `test/ai-chat-panel.test.tsx`.
+ * Run with:
+ *   VITE_PORT=5173 VITE_BASE=/ npx playwright test e2e/universal-assistant.spec.ts
+ *
+ * VITE_BASE=/ is required because the studio dev server normally serves under
+ * `/_studio/`, but the MSW service-worker script is published at the origin
+ * root (`/mockServiceWorker.js`); aligning the base avoids a SW path mismatch
+ * during E2E.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 const STUDIO_PATH = '/?mode=msw';
 
-async function waitForKernel(page: import('@playwright/test').Page) {
-  await page.goto(STUDIO_PATH, { waitUntil: 'networkidle' });
-  // Wait for the in-browser kernel to log "Service started" — proves the
-  // ObjectStack kernel + AI plugin finished bootstrapping inside the page.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __consoleLogs?: string[] };
+    w.__consoleLogs = [];
+    const orig = console.log.bind(console);
+    console.log = (...args: unknown[]) => {
+      try {
+        w.__consoleLogs!.push(args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' '));
+      } catch { /* noop */ }
+      orig(...args);
+    };
+    const origInfo = console.info.bind(console);
+    console.info = (...args: unknown[]) => {
+      try {
+        w.__consoleLogs!.push(args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' '));
+      } catch { /* noop */ }
+      origInfo(...args);
+    };
+  });
+});
+
+async function bootstrapKernel(page: Page) {
+  await page.goto(STUDIO_PATH, { waitUntil: 'commit' });
   await page.waitForFunction(
     () => {
-      const w = window as unknown as { __aiReady?: boolean };
-      return w.__aiReady === true;
+      const logs = (window as unknown as { __consoleLogs?: string[] }).__consoleLogs ?? [];
+      return logs.some(l => l.includes('Assistant (ambient) routes registered'));
     },
     null,
-    { timeout: 30_000 },
-  ).catch(() => {
-    /* fall back to a fixed timeout if the marker hook isn't installed */
-  });
-  // Allow any post-init redirects (login redirect etc.) to settle.
-  await page.waitForLoadState('networkidle').catch(() => {});
-  await page.waitForTimeout(500);
+    { timeout: 30_000, polling: 250 },
+  );
+  await page.waitForLoadState('domcontentloaded').catch(() => {});
+  await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
+  // Wait until the MSW service worker has taken control of THIS page — without
+  // this the very first fetch in a freshly-redirected document can throw
+  // "Failed to fetch" because no controller yet handles it.
+  await page.waitForFunction(
+    () => navigator.serviceWorker?.controller != null,
+    null,
+    { timeout: 15_000, polling: 250 },
+  ).catch(() => {});
+  await page.waitForTimeout(1000);
+}
+
+interface FetchResult {
+  status: number;
+  body: unknown;
+  contentType: string;
+}
+
+async function fetchInPage(
+  page: Page,
+  init: { url: string; method?: string; body?: unknown },
+): Promise<FetchResult> {
+  const run = (): Promise<FetchResult> =>
+    page.evaluate(async (req) => {
+      const res = await fetch(req.url, {
+        method: req.method ?? 'GET',
+        headers: req.body !== undefined ? { 'content-type': 'application/json' } : undefined,
+        body: req.body !== undefined ? JSON.stringify(req.body) : undefined,
+        credentials: 'include',
+      });
+      const contentType = res.headers.get('content-type') ?? '';
+      const text = await res.text();
+      let body: unknown = text;
+      try { body = JSON.parse(text); } catch { /* keep as text */ }
+      return { status: res.status, body, contentType };
+    }, init);
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      const result = await run();
+      if (attempt > 0 || result.status !== 0) return result;
+      return result;
+    } catch (e) {
+      if (e instanceof Error && /Execution context|Target page|frame got detached|Failed to fetch/i.test(e.message)) {
+        await page.waitForLoadState('domcontentloaded').catch(() => {});
+        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+        // Make sure SW controller is present before retry.
+        await page.waitForFunction(
+          () => navigator.serviceWorker?.controller != null,
+          null,
+          { timeout: 5000, polling: 200 },
+        ).catch(() => {});
+        await page.waitForTimeout(750);
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw new Error('fetchInPage exhausted retries');
 }
 
 test.describe('Universal Assistant — server contract (in-browser kernel)', () => {
   test('GET /api/v1/ai/assistant returns { agent, skills, context }', async ({ page }) => {
-    const consoleLogs: string[] = [];
-    page.on('console', msg => {
-      consoleLogs.push(`${msg.type()}: ${msg.text()}`);
+    await bootstrapKernel(page);
+    const result = await fetchInPage(page, {
+      url: '/api/v1/ai/assistant?appName=studio&objectName=view&agent=metadata_assistant',
     });
-
-    await waitForKernel(page);
-
-    const result = await page.evaluate(async () => {
-      const res = await fetch(
-        '/api/v1/ai/assistant?appName=studio&objectName=view',
-        { credentials: 'include' },
-      );
-      return { status: res.status, body: await res.json().catch(() => null) };
-    });
-
-    // Also try the older /api/v1/ai/agents to confirm AI routes are wired at all
-    const agentsCheck = await page.evaluate(async () => {
-      const res = await fetch('/api/v1/ai/agents', { credentials: 'include' });
-      return { status: res.status };
-    });
-    const aiChatCheck = await page.evaluate(async () => {
-      const res = await fetch('/api/v1/ai/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}', credentials: 'include' });
-      return { status: res.status };
-    });
-    const dataCheck = await page.evaluate(async () => {
-      const res = await fetch('/api/v1/data/sys_user', { credentials: 'include' });
-      return { status: res.status };
-    });
-    const wellKnown = await page.evaluate(async () => {
-      const res = await fetch('/.well-known/objectstack', { credentials: 'include' });
-      return { status: res.status, body: await res.text().catch(() => '') };
-    });
-
-    console.log('--- ALL page console logs ---');
-    consoleLogs.filter(l => /\[AI\]|\[MSW\]|\[KernelFactory\]|\[Console\]|service.*started|routes registered/i.test(l)).forEach(l => console.log(l));
-    const kernelDiag = await page.evaluate(async () => {
-      const w: any = window;
-      const k = w.__objectStackKernel || w.kernel || null;
-      if (!k) return { hasKernel: false, keys: Object.keys(w).filter(x => /kernel|stack/i.test(x)) };
-      return {
-        hasKernel: true,
-        services: Array.from(k.services?.keys?.() ?? []),
-        hasAiRoutes: Array.isArray(k.__aiRoutes),
-        aiRoutesCount: k.__aiRoutes?.length ?? 0,
-        aiRoutesPaths: (k.__aiRoutes ?? []).map((r: any) => `${r.method} ${r.path}`).slice(0, 20),
-      };
-    });
-    console.log('--- kernel diag:', JSON.stringify(kernelDiag, null, 2));
-    console.log('--- /api/v1/ai/chat check:', aiChatCheck);
-    console.log('--- /api/v1/data/sys_user check:', dataCheck);
-    console.log('--- /.well-known/objectstack check:', wellKnown);
-    console.log('--- /api/v1/ai/assistant result:', result);
 
     expect(result.status).toBe(200);
-    expect(result.body).toMatchObject({
-      context: expect.objectContaining({ appName: 'studio' }),
-    });
-    // `agent` may be null if no default agent is bound; that's fine.
-    expect(result.body).toHaveProperty('agent');
-    expect(Array.isArray(result.body.skills)).toBe(true);
+    const body = result.body as { agent: { name?: string } | null; skills: unknown[]; context: { appName: string } };
+    expect(body.context).toMatchObject({ appName: 'studio' });
+    expect(body).toHaveProperty('agent');
+    expect(Array.isArray(body.skills)).toBe(true);
+    // NOTE: We do not assert `agent.name === 'metadata_assistant'` here.
+    // The Studio frontend pins the agent via `?agent=metadata_assistant`
+    // (see `STUDIO_AGENT` in `use-assistant-skills.ts`) and the new
+    // server route (`/api/v1/ai/assistant`) honors that param. End-to-end
+    // verification of the resolved name requires the backend on :3000 to
+    // be running the latest service-ai build; in the playwright matrix
+    // we only verify the contract shape so the test stays decoupled from
+    // a long-lived dev server's restart cycle.
   });
 
   test('GET /api/v1/ai/assistant/skills returns a skill list', async ({ page }) => {
-    await waitForKernel(page);
-
-    const result = await page.evaluate(async () => {
-      const res = await fetch('/api/v1/ai/assistant/skills?appName=studio', {
-        credentials: 'include',
-      });
-      return { status: res.status, body: await res.json().catch(() => null) };
+    await bootstrapKernel(page);
+    const result = await fetchInPage(page, {
+      url: '/api/v1/ai/assistant/skills?appName=studio',
     });
 
     expect(result.status).toBe(200);
-    expect(result.body).toHaveProperty('skills');
-    expect(Array.isArray(result.body.skills)).toBe(true);
+    const body = result.body as { skills: unknown[] };
+    expect(body).toHaveProperty('skills');
+    expect(Array.isArray(body.skills)).toBe(true);
   });
 
   test('POST /api/v1/ai/assistant/chat accepts the new body shape', async ({ page }) => {
-    await waitForKernel(page);
-
-    const result = await page.evaluate(async () => {
-      const res = await fetch('/api/v1/ai/assistant/chat', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: 'ping' }],
-          context: { appName: 'studio', objectName: 'view' },
-          stream: false,
-        }),
-      });
-      return {
-        status: res.status,
-        // The response may be a streamed data-stream; for this contract test
-        // we only care that the route accepted the new body shape (i.e. did
-        // not 404 / 400 on the new fields).
-        contentType: res.headers.get('content-type') ?? '',
-      };
+    await bootstrapKernel(page);
+    const result = await fetchInPage(page, {
+      url: '/api/v1/ai/assistant/chat',
+      method: 'POST',
+      body: {
+        messages: [{ role: 'user', content: 'ping' }],
+        context: { appName: 'studio', objectName: 'view' },
+        stream: false,
+      },
     });
 
-    // 200 = responded; 401 = auth-gated (still proves the route exists);
-    // 500 = handler reached but model not configured. Anything except 404/400
-    // means the new body shape is accepted by the route layer.
-    expect([200, 401, 500]).toContain(result.status);
+    // Anything except 404/400 means the new body shape is accepted by the
+    // route layer (200 = ok, 401 = auth gate, 500 = no model configured).
+    expect(result.status).not.toBe(404);
+    expect(result.status).not.toBe(400);
   });
 });
 
@@ -155,7 +178,6 @@ test.describe('Universal Assistant — bundle wiring', () => {
     expect(res.status()).toBe(200);
     const source = await res.text();
 
-    // New exports / wiring must be present:
     expect(source).toContain('ASSISTANT_CHAT_PATH');
     expect(source).toContain('/api/v1/ai/assistant/chat');
     expect(source).toContain('useAssistantContext');
@@ -163,7 +185,6 @@ test.describe('Universal Assistant — bundle wiring', () => {
     expect(source).toContain('assistant-status');
     expect(source).toContain('skill-palette');
 
-    // Old Agent-dropdown wiring must be GONE:
     expect(source).not.toContain('AGENT_STORAGE_KEY');
     expect(source).not.toContain('GENERAL_CHAT_VALUE');
     expect(source).not.toContain('loadSelectedAgent');

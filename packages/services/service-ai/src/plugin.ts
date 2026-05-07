@@ -375,6 +375,49 @@ export class AIServicePlugin implements Plugin {
     // Trigger hook to notify AI service is ready — other plugins can register tools
     await ctx.trigger('ai:ready', this.service);
 
+    // ── Bridge stack-defined agents from the ObjectQL registry into the
+    //    MetadataService so AgentRuntime.listAgents() / loadAgent() can see
+    //    them. Agents declared via defineStack({ agents: [...] }) are stored
+    //    in the ObjectQL registry by the AppPlugin, but the MetadataManager
+    //    keeps an independent in-memory store. Without this bridge,
+    //    /api/v1/ai/agents would only return agents the AI plugin registered
+    //    itself (data_chat, metadata_assistant).
+    if (metadataService) {
+      try {
+        const objectql = ctx.getService<any>('objectql');
+        const registry = objectql?.registry;
+        if (registry && typeof registry.listItems === 'function') {
+          const stackAgents = registry.listItems('agent') as Array<any>;
+          let bridged = 0;
+          for (const entry of stackAgents) {
+            const agent = entry?.content ?? entry;
+            const agentName = agent?.name;
+            if (!agentName || typeof agentName !== 'string') continue;
+            const exists =
+              typeof metadataService.exists === 'function'
+                ? await withTimeout(metadataService.exists('agent', agentName))
+                : false;
+            if (exists === true) continue;
+            try {
+              await withTimeout(metadataService.register('agent', agentName, agent));
+              bridged++;
+            } catch (err) {
+              ctx.logger.warn(
+                '[AI] Failed to bridge stack agent into metadata service (non-fatal)',
+                err instanceof Error ? { agent: agentName, error: err.message } : { agent: agentName },
+              );
+            }
+          }
+          if (bridged > 0) {
+            ctx.logger.info(`[AI] Bridged ${bridged} stack-defined agent(s) from ObjectQL registry`);
+            console.log(`[AI] Bridged ${bridged} stack-defined agent(s) from ObjectQL registry`);
+          }
+        }
+      } catch (err) {
+        ctx.logger.debug('[AI] ObjectQL registry not available, skipping agent bridge', err instanceof Error ? err : undefined);
+      }
+    }
+
     // Build and expose route definitions
     const routes = buildAIRoutes(this.service, this.service.conversationService, ctx.logger);
 

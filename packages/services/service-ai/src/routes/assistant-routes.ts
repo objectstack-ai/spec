@@ -67,7 +67,13 @@ export function buildAssistantRoutes(
       handler: async (req) => {
         try {
           const context = parseContextFromQuery(req.query);
-          const agent = await agentRuntime.resolveDefaultAgent(context);
+          // Optional explicit agent override (e.g. Studio passes
+          // `?agent=metadata_assistant`). Falls back to the standard
+          // resolution chain (app.defaultAgent → first active).
+          const explicitAgentName = typeof req.query?.agent === 'string' ? req.query.agent : undefined;
+          const agent = explicitAgentName
+            ? await agentRuntime.loadAgent(explicitAgentName)
+            : await agentRuntime.resolveDefaultAgent(context);
           if (!agent) {
             return {
               status: 200,
