@@ -22,7 +22,6 @@ export default defineConfig({
     reuseExistingServer: true,
     timeout: 180_000,
     env: {
-      OS_DATABASE_DRIVER: process.env.OS_DATABASE_DRIVER ?? 'mongodb',
       OS_DATABASE_URL:
         process.env.OS_DATABASE_URL ??
         'mongodb://localhost:27017/objectstack_crm_test',

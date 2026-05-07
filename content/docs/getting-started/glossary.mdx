@@ -90,7 +90,7 @@ The fundamental unit of data modeling in ObjectStack. Roughly equivalent to a "T
 
 ### Driver
 An adapter plugin in the Data Protocol runtime stack that allows the Data Layer to communicate with a specific underlying storage engine.
-* *Example:* `@objectstack/driver-postgres`, `@objectstack/driver-mongodb`, `@objectstack/driver-sqlite`.
+* *Example:* `@objectstack/driver-sql` (Postgres / MySQL / SQLite via Knex), `@objectstack/driver-mongodb`, `@objectstack/driver-turso`.
 
 ### AST (Abstract Syntax Tree)
 The intermediate representation of a query or schema. The Data Protocol parses a JSON request into an AST before the Driver translates it into SQL/NoSQL queries. This allows for security validation and optimization before execution.

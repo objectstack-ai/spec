@@ -926,6 +926,9 @@ importers:
       '@objectstack/driver-sql':
         specifier: workspace:^
         version: link:../plugins/driver-sql
+      '@objectstack/driver-turso':
+        specifier: workspace:^
+        version: link:../plugins/driver-turso
       '@objectstack/objectql':
         specifier: workspace:^
         version: link:../objectql

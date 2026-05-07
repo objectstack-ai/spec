@@ -45,6 +45,7 @@
     "@objectstack/driver-memory": "workspace:^",
     "@objectstack/driver-mongodb": "workspace:^",
     "@objectstack/driver-sql": "workspace:^",
+    "@objectstack/driver-turso": "workspace:^",
     "@objectstack/objectql": "workspace:^",
     "@objectstack/plugin-audit": "workspace:*",
     "@objectstack/plugin-auth": "workspace:*",

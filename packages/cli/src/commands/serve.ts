@@ -263,12 +263,32 @@ export default class Serve extends Command {
 
       // 2. Auto-register storage driver
       // Priority:
-      //   1. OS_DATABASE_DRIVER env var (mongodb, sqlite, memory, postgres, ...)
-      //   2. Default: InMemoryDriver in dev mode
+      //   1. OS_DATABASE_DRIVER env var (explicit override)
+      //   2. URL scheme inferred from OS_DATABASE_URL
+      //        mongodb://, mongodb+srv://       → mongodb
+      //        postgres://, postgresql://       → postgres
+      //        mysql://, mysql2://              → mysql
+      //        libsql://, http(s):// + .turso.  → turso
+      //        file:, sqlite:, *.db, :memory:   → sqlite
+      //   3. Default: InMemoryDriver in dev mode
       const hasDriver = plugins.some((p: any) => p.name?.includes('driver') || p.constructor?.name?.includes('Driver'));
       if (!hasDriver && config.objects) {
-         const driverType = (process.env.OS_DATABASE_DRIVER ?? '').toLowerCase().trim();
+         const explicitDriver = (process.env.OS_DATABASE_DRIVER ?? '').toLowerCase().trim();
          const databaseUrl = process.env.OS_DATABASE_URL;
+
+         const inferDriverFromUrl = (url: string | undefined): string => {
+           if (!url) return '';
+           const u = url.trim();
+           if (/^mongodb(\+srv)?:\/\//i.test(u)) return 'mongodb';
+           if (/^postgres(ql)?:\/\//i.test(u)) return 'postgres';
+           if (/^mysql2?:\/\//i.test(u)) return 'mysql';
+           if (/^libsql:\/\//i.test(u)) return 'turso';
+           if (/^https?:\/\//i.test(u) && /\.turso\./i.test(u)) return 'turso';
+           if (/^file:/i.test(u) || /^sqlite:/i.test(u) || u === ':memory:' || /\.(db|sqlite|sqlite3)$/i.test(u)) return 'sqlite';
+           return '';
+         };
+
+         const driverType = explicitDriver || inferDriverFromUrl(databaseUrl);
 
          try {
            const { DriverPlugin } = await import('@objectstack/runtime');
@@ -281,7 +301,7 @@ export default class Serve extends Command {
              trackPlugin('MongoDBDriver');
            } else if (driverType === 'sqlite' || driverType === 'sql') {
              const { SqlDriver } = await import('@objectstack/driver-sql');
-             const filePath = (databaseUrl ?? ':memory:').replace(/^file:/, '').replace(/^sql:\/\//, '');
+             const filePath = (databaseUrl ?? ':memory:').replace(/^file:/, '').replace(/^sqlite:/, '').replace(/^sql:\/\//, '');
              await kernel.use(new DriverPlugin(new SqlDriver({
                client: 'better-sqlite3',
                connection: { filename: filePath },
@@ -296,6 +316,21 @@ export default class Serve extends Command {
                pool: { min: 0, max: 5 },
              }) as any));
              trackPlugin('PostgresDriver');
+           } else if (driverType === 'mysql' || driverType === 'mysql2') {
+             const { SqlDriver } = await import('@objectstack/driver-sql');
+             await kernel.use(new DriverPlugin(new SqlDriver({
+               client: 'mysql2',
+               connection: databaseUrl,
+               pool: { min: 0, max: 5 },
+             }) as any));
+             trackPlugin('MySQLDriver');
+           } else if (driverType === 'turso' || driverType === 'libsql') {
+             const { TursoDriver } = await import('@objectstack/driver-turso');
+             await kernel.use(new DriverPlugin(new TursoDriver({
+               url: databaseUrl ?? 'file:./local.db',
+               authToken: process.env.OS_DATABASE_AUTH_TOKEN,
+             } as any) as any));
+             trackPlugin('TursoDriver');
            } else if (isDev) {
              // Default in dev: in-memory driver
              const { InMemoryDriver } = await import('@objectstack/driver-memory');

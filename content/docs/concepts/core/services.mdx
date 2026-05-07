@@ -75,7 +75,7 @@ The core ecosystem defines several standard service contracts:
 | Service Name | Interface | Provider Example |
 | :--- | :--- | :--- |
 | `http-server` | `IHttpServer` | `plugin-hono-server`, `adapter-nextjs` |
-| `database` | `IDatabaseDriver` | `driver-postgres`, `driver-sqlite`, `driver-mongo` |
+| `database` | `IDatabaseDriver` | `driver-sql` (pg/mysql/sqlite), `driver-mongodb`, `driver-turso` |
 | `auth` | `IAuthService` | `plugin-auth` |
 | `protocol` | `IProtocolEngine` | `@objectstack/objectql` |
 | `api-registry` | `IApiRegistry` | `@objectstack/core` |
