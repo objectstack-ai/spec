@@ -6,6 +6,7 @@ export * from './object.zod';
 export * from './field.zod';
 export * from './validation.zod';
 export * from './hook.zod';
+export * from './hook-body.zod';
 export * from './mapping.zod';
 export * from './data-engine.zod';
 export * from './driver.zod';

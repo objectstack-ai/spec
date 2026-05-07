@@ -13,12 +13,14 @@
     "test": "objectstack test",
     "test:e2e": "tsx test/multi-project-e2e.test.ts",
     "test:provisioning": "tsx test/provisioning.test.ts",
+    "test:crm-bundle": "tsx test/single-project-crm-bundle.test.ts",
+    "test:multi-bundles": "tsx test/multi-project-bundles.test.ts",
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
     "@example/app-crm": "workspace:*",
     "@example/app-todo": "workspace:*",
-    "@hono/node-server": "^1.19.14",
+    "@hono/node-server": "^2.0.1",
     "@libsql/client": "^0.17.3",
     "@objectstack/driver-memory": "workspace:*",
     "@objectstack/driver-sql": "workspace:*",
@@ -39,7 +41,7 @@
     "@objectstack/service-package": "workspace:*",
     "@objectstack/service-tenant": "workspace:*",
     "@objectstack/spec": "workspace:*",
-    "hono": "^4.12.17"
+    "hono": "^4.12.18"
   },
   "devDependencies": {
     "@objectstack/cli": "workspace:*",

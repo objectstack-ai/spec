@@ -73,11 +73,23 @@ export class HonoHttpServer implements IHttpServer {
                 } catch(e) {}
             }
 
+            const rawHeaders = c.req.header();
+            // Fetch API `Request` objects don't expose the `Host` header
+            // (it's a forbidden header — derived from the URL by the
+            // transport). Hostname-based routing in REST/dispatcher
+            // depends on it, so we backfill from `c.req.url`.
+            if (!rawHeaders.host) {
+                try {
+                    const u = new URL(c.req.url);
+                    if (u.host) rawHeaders.host = u.host;
+                } catch { /* non-URL request, leave headers as-is */ }
+            }
+
             const req = {
                 params: c.req.param(),
                 query: c.req.query(),
                 body,
-                headers: c.req.header(),
+                headers: rawHeaders,
                 method: c.req.method,
                 path: c.req.path
             };

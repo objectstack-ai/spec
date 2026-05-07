@@ -68,6 +68,7 @@ export class HttpDispatcher {
     private kernel: any; // Casting to any to access dynamic props like services, graphql
     private defaultKernel: ObjectKernel;
     private envRegistry?: any; // EnvironmentDriverRegistry
+    private defaultProject?: { projectId: string; orgId?: string };
     private kernelManager?: KernelManager;
     private scopeManager?: import('./project-scope-manager.js').ProjectScopeManager;
     /**
@@ -94,10 +95,6 @@ export class HttpDispatcher {
     constructor(kernel: ObjectKernel, envRegistry?: any, options?: HttpDispatcherOptions) {
         this.kernel = kernel;
         this.defaultKernel = kernel;
-        // Auto-resolve multi-project services from the kernel registry when
-        // the caller didn't pass them explicitly. Lets `MultiProjectPlugin`
-        // wire everything up by just registering services — no dispatcher
-        // constructor threading required.
         const resolveService = (name: string): any => {
             try { return (kernel as any).getService?.(name); } catch { return undefined; }
         };
@@ -105,6 +102,23 @@ export class HttpDispatcher {
         this.enforceMembership = options?.enforceProjectMembership ?? true;
         this.kernelManager = options?.kernelManager ?? resolveService('kernel-manager');
         this.scopeManager = options?.scopeManager ?? resolveService('scope-manager');
+        // Single-project default is resolved lazily on first request — the
+        // plugin that registers it (`createSingleProjectPlugin`) may run
+        // its `init()` after the HttpDispatcher is constructed.
+    }
+
+    private resolveDefaultProject(): { projectId: string; orgId?: string } | undefined {
+        if (this.defaultProject) return this.defaultProject;
+        try {
+            const v = (this.kernel as any).getService?.('default-project');
+            if (v?.projectId) {
+                this.defaultProject = v;
+                return v;
+            }
+        } catch {
+            // service not registered — single-project plugin not in stack
+        }
+        return undefined;
     }
 
     private success(data: any, meta?: any) {
@@ -248,6 +262,10 @@ export class HttpDispatcher {
      * 2. request.headers['x-project-id'] → envRegistry.resolveById(id)
      * 3. session.activeEnvironmentId → envRegistry.resolveById(id)
      * 4. session.activeOrganizationId → find default project → envRegistry.resolveById(id)
+     * 5. single-project default (registered by `createSingleProjectPlugin`)
+     *    → envRegistry.resolveById(defaultProject.projectId). Lets bare
+     *    `/api/v1/data/...` URLs resolve to the lone project in
+     *    `cloudUrl: 'local'` deployments.
      *
      * Skip for paths: /auth, /cloud, /health, /discovery (NOT /meta when scoped,
      * so project-scoped meta routes can resolve their project).
@@ -373,6 +391,20 @@ export class HttpDispatcher {
             } catch (sessionError) {
                 // Session resolution failed, continue without environment context
                 console.debug('[HttpDispatcher] Session resolution failed:', sessionError);
+            }
+
+            // 5. Single-project default fallback. Registered by
+            //    `createSingleProjectPlugin()` in `cloudUrl: 'local'` boot
+            //    shapes (apps/objectos default). Lets bare URLs like
+            //    `/api/v1/data/account` resolve to the lone project.
+            if (this.defaultProject?.projectId || this.resolveDefaultProject()) {
+                const def = this.defaultProject!;
+                const driver = await this.envRegistry.resolveById(def.projectId);
+                if (driver) {
+                    context.projectId = def.projectId;
+                    context.dataDriver = driver;
+                    return;
+                }
             }
         } catch (error) {
             console.error('[HttpDispatcher] Environment resolution failed:', error);
@@ -1758,14 +1790,18 @@ export class HttpDispatcher {
                                 ? adapterErr
                                 : new Error(String(adapterErr));
                         }
-                        const finishedAt = new Date().toISOString();
+                        // Persist `database_url` first (still `provisioning`) so
+                        // kernel-factory / template-seeder can resolve the
+                        // physical DB while seeding runs. Status flips to
+                        // `active` only AFTER seeding completes — clients
+                        // polling `waitForActive` then know the project's
+                        // schema and seed data are queryable.
+                        const seedStartedAt = new Date().toISOString();
                         await ql.update(
                             ENV,
                             {
-                                status: 'active',
                                 database_url: databaseUrl,
-                                provisioned_at: finishedAt,
-                                updated_at: finishedAt,
+                                updated_at: seedStartedAt,
                             },
                             { where: { id: projectId } } as any,
                         );
@@ -1776,8 +1812,8 @@ export class HttpDispatcher {
                             encryption_key_id: 'noop',
                             authorization: 'full_access',
                             status: 'active',
-                            created_at: finishedAt,
-                            updated_at: finishedAt,
+                            created_at: seedStartedAt,
+                            updated_at: seedStartedAt,
                         });
 
                         // Seed template metadata into the newly-provisioned project.
@@ -1820,42 +1856,24 @@ export class HttpDispatcher {
                         // ObjectStack bundle JSON) and we delegate to the same
                         // seeder pipeline that templates use. Resolved relative
                         // to OS_PROJECT_ARTIFACT_ROOT (or process.cwd
-                        // if unset).
+                        // if unset). Uses the shared `loadArtifactBundle`
+                        // helper (read JSON + dynamic-import sibling
+                        // runtime ESM + merge `functions` map) so this path
+                        // stays in lockstep with FsAppBundleResolver and
+                        // runtime-stack basePlugins.
                         const artifactPathRaw = (baseMetadata as any).artifact_path;
                         if (typeof artifactPathRaw === 'string' && artifactPathRaw.length > 0) {
                             try {
-                                const fs = await import('node:fs/promises');
                                 const path = await import('node:path');
                                 const root = process.env.OS_PROJECT_ARTIFACT_ROOT
                                     ?? process.cwd();
                                 const resolved = path.isAbsolute(artifactPathRaw)
                                     ? artifactPathRaw
                                     : path.resolve(root, artifactPathRaw);
-                                const text = await fs.readFile(resolved, 'utf8');
-                                const bundle = JSON.parse(text);
-                                // If the artifact references a sibling
-                                // runtime ESM (declarative handler bundle
-                                // produced by `objectstack build`), load it
-                                // and merge `module.functions` into the
-                                // bundle so seedBundle can wire them onto
-                                // the engine via bindHooks.
-                                if (typeof bundle?.runtimeModule === 'string' && bundle.runtimeModule.length > 0) {
-                                    try {
-                                        const runtimeAbs = path.isAbsolute(bundle.runtimeModule)
-                                            ? bundle.runtimeModule
-                                            : path.resolve(resolved, '..', bundle.runtimeModule);
-                                        const mod: any = await import(`file://${runtimeAbs}`);
-                                        const fns = (mod && (mod.functions ?? mod.default?.functions)) ?? null;
-                                        if (fns && typeof fns === 'object') {
-                                            const existing = (bundle.functions && typeof bundle.functions === 'object' && !Array.isArray(bundle.functions))
-                                                ? bundle.functions
-                                                : {};
-                                            bundle.functions = { ...existing, ...fns };
-                                        }
-                                    } catch (rtErr) {
-                                        // Surface as part of bindMessage so it ends up in artifactBindError.
-                                        throw new Error(`runtime module load failed: ${rtErr instanceof Error ? rtErr.message : String(rtErr)}`);
-                                    }
+                                const { loadArtifactBundle } = await import('./load-artifact-bundle.js');
+                                const bundle = await loadArtifactBundle(resolved, { tag: '[bind-artifact]' });
+                                if (!bundle) {
+                                    throw new Error(`failed to load artifact bundle at '${resolved}'`);
                                 }
                                 const seeder: any = await this.resolveService('template-seeder');
                                 if (seeder?.seedBundle) {
@@ -1885,6 +1903,21 @@ export class HttpDispatcher {
                                 }
                             }
                         }
+
+                        // All seeding + binding completed (or recorded as
+                        // non-fatal errors). Flip the project to `active` so
+                        // request routing + waitForActive observers can see
+                        // the project as ready.
+                        const finishedAt = new Date().toISOString();
+                        await ql.update(
+                            ENV,
+                            {
+                                status: 'active',
+                                provisioned_at: finishedAt,
+                                updated_at: finishedAt,
+                            },
+                            { where: { id: projectId } } as any,
+                        );
                     } catch (err) {
                         const message = err instanceof Error ? err.message : String(err);
                         const failedAt = new Date().toISOString();
@@ -2948,7 +2981,40 @@ export class HttpDispatcher {
         const actionName = parts[1];
         const recordIdFromPath = parts[2];
 
-        const ql: any = await this.getObjectQLService(_context?.projectId);
+        // Resolve project scope so the right project kernel's ObjectQL is
+        // used. For bare URLs the URL prefix already stripped any `/projects/:id`
+        // segment, so fall back to the single-project default if unset.
+        if (!_context.projectId) {
+            const def = this.resolveDefaultProject();
+            if (def?.projectId) _context.projectId = def.projectId;
+        }
+
+        // Replicate the kernel swap that `dispatcher.handle()` does for
+        // data/meta/automation routes. Action routes are registered on the
+        // raw HTTP server and skip the `handle()` chain, so without this
+        // swap `getObjectQLService` would resolve the control-plane kernel
+        // (where the CRM bundle's actions are NOT registered).
+        let projectQl: any = null;
+        if (this.kernelManager && _context.projectId && _context.projectId !== 'platform') {
+            try {
+                const projectKernel: any = await this.kernelManager.getOrCreate(_context.projectId);
+                if (projectKernel) {
+                    this.kernel = projectKernel;
+                    // Resolve the project kernel's own ObjectQL DIRECTLY so we
+                    // bypass the control-plane's scoped factory (which would
+                    // hand back a different instance with no registered
+                    // actions/hooks for this project's bundle).
+                    if (typeof projectKernel.getServiceAsync === 'function') {
+                        projectQl = await projectKernel.getServiceAsync('objectql').catch(() => null);
+                    }
+                }
+            } catch {
+                // fall back to defaultKernel — getObjectQLService will report
+                // "Data engine not available" if no engine is reachable.
+            }
+        }
+
+        const ql: any = projectQl ?? await this.getObjectQLService(_context?.projectId);
         if (!ql || typeof ql.executeAction !== 'function') {
             return { handled: true, response: this.error('Data engine not available', 503) };
         }

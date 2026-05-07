@@ -18,6 +18,99 @@ pnpm dev
 
 Best for: local development, quick prototyping, CI.
 
+#### Serving a compiled app bundle locally
+
+Point ObjectOS at a third-party app bundle compiled by `objectstack build` (e.g. `examples/app-crm`). The bundle is a JSON file plus a sibling `objectstack-runtime.<hash>.mjs` that carries the compiled hook handlers; both are loaded automatically.
+
+```bash
+# Build the example app once
+pnpm --filter @objectstack/app-crm build
+
+# Boot ObjectOS pointing at the bundle
+cd apps/objectos
+OS_ARTIFACT_PATH=$PWD/../../examples/app-crm/dist/objectstack.json \
+  PORT=3000 pnpm start
+
+# All three URL shapes resolve to the same project kernel:
+curl -X POST http://localhost:3000/api/v1/data/account \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Acme","website":"bogus"}'
+# → 400 Website must start with http:// or https://  (CRM hook fired)
+
+curl -X POST http://localhost:3000/api/v1/projects/proj_local/data/account \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Acme","website":"https://acme.com","account_number":"abc-9"}'
+# → 200 with record.account_number === "ABC-9"  (uppercase hook fired)
+```
+
+The bare `/api/v1/data/...` URL is routed to the default project (`proj_local`) by `createSingleProjectPlugin`. Tables are auto-created by the SQL driver on first access; the bundle's seed data (e.g. `Acme Corporation`) is upserted on boot.
+
+#### Hosting multiple compiled bundles
+
+Two bundles can share a single ObjectOS host. Each bundle gets its own
+project kernel; isolation is enforced at the kernel boundary (separate
+SQLite file per project, separate object registry, separate hooks).
+
+There are three binding mechanisms, evaluated in this order at request
+time (first hit wins):
+
+| Priority | Source | Scope | Best for |
+|:---|:---|:---|:---|
+| 1 | `OS_PROJECT_ARTIFACTS` env | per-project, ephemeral | Local dev, CI |
+| 2 | `sys_project.metadata.artifact_path` (DB row) | per-project, persisted | Production, control-plane managed |
+| 3 | `OS_ARTIFACT_PATH` env | shared default for unbound projects | Single-bundle hosts |
+
+**Mode 1 — env-driven (recommended for local multi-bundle):**
+
+```bash
+# Build both bundles once
+pnpm --filter @objectstack/app-crm build
+pnpm --filter @example/app-todo build
+
+cd apps/objectos
+OS_PROJECT_ARTIFACTS="proj_crm:$PWD/../../examples/app-crm/dist/objectstack.json,proj_todo:$PWD/../../examples/app-todo/dist/objectstack.json" \
+  PORT=3000 pnpm start
+
+# Address each project explicitly via scoped URL
+curl -X POST http://localhost:3000/api/v1/projects/proj_crm/data/account \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Acme","website":"https://acme.com","account_number":"abc-9"}'
+
+curl -X POST http://localhost:3000/api/v1/projects/proj_todo/data/todo_task \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"Buy Milk","priority":"high"}'
+
+# Or use the X-Project-Id header on a bare URL — equivalent
+curl -X POST http://localhost:3000/api/v1/data/account \
+  -H 'X-Project-Id: proj_crm' \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Beta","website":"https://beta.io"}'
+```
+
+**Mode 2 — DB-persisted (recommended for production):**
+
+```bash
+# Bind once via CLI; the path is stored in sys_project.metadata.artifact_path
+pnpm exec objectstack projects bind proj_crm \
+  $PWD/examples/app-crm/dist/objectstack.json
+
+# Subsequent boots load the binding from the control plane DB
+pnpm --filter @objectstack/objectos start
+```
+
+**Routing rules:**
+
+- A scoped URL `/api/v1/projects/<id>/...` always targets the named
+  project (assuming it's bound).
+- A bare URL `/api/v1/data/...` resolves a project via this chain:
+  hostname → `X-Project-Id` header → `defaultProjectId` (set by
+  `createSingleProjectPlugin` in single-project mode). Multi-bundle
+  hosts should not rely on the default fallback — always specify the
+  project via URL or header.
+- `OS_ARTIFACT_PATH` is **only** the default fallback for projects with
+  no other binding. In multi-bundle mode, leave it unset so each
+  project picks up its own bundle from `OS_PROJECT_ARTIFACTS` or DB.
+
 ---
 
 ### 2. Local + External Control Plane
@@ -73,7 +166,8 @@ Behavior:
 |:---|:---|:---|
 | `OS_CLOUD_URL` | `local` | `local` = standalone; URL = connect to that control plane |
 | `OS_CLOUD_API_KEY` | — | API key when connecting to a remote control plane |
-| `OS_ARTIFACT_PATH` | `dist/objectstack.json` | Path to the compiled app artifact |
+| `OS_ARTIFACT_PATH` | `dist/objectstack.json` | Path to the compiled app artifact (single-bundle default) |
+| `OS_PROJECT_ARTIFACTS` | — | Comma list of `<projectId>:<path>` pairs for multi-bundle hosting |
 | `OS_MODE` | — | `standalone` (default), `runtime`, `cloud`, or `preview` |
 
 ### Database (Local / Standalone mode)
@@ -169,3 +263,48 @@ curl -X PATCH http://localhost:3000/api/v1/data/todo_task/<id> \
 # Delete
 curl -X DELETE http://localhost:3000/api/v1/data/todo_task/<id>
 ```
+
+---
+
+## Production-shape verification (cloud + hostname routing)
+
+The full production deployment shape — `apps/cloud` as the control plane,
+`apps/objectos` as a runtime node, vanity hostnames routed by
+`EnvironmentRegistry.resolveByHostname` to per-project kernels — is
+covered end-to-end by an in-process test that exercises the same code
+paths a 2-process deployment would (the only difference is HTTP vs
+in-memory transport between the registry and the control-plane SQL
+driver).
+
+```bash
+# from repo root
+pnpm --filter @objectstack/cloud build
+pnpm --filter @objectstack/cloud test:production-flow
+```
+
+What it verifies (6 steps, all in one process):
+
+1. Boot `apps/cloud` in `OS_MODE=cloud` (control plane + runtime node).
+2. Seed an organization via the control-plane `objectql` engine.
+3. `GET /api/v1/cloud/templates` returns `crm` in the catalog.
+4. `POST /api/v1/cloud/projects` with `template_id=crm` + `hostname=<vanity>`
+   provisions a project. The provisioning workflow:
+   1. Create the project SQLite file (or Turso DB).
+   2. Persist `database_url` so kernel-factory can resolve the DB.
+   3. Run the template seeder — registers metadata, binds hooks,
+      `initObjects` to create physical tables, loads seed data.
+   4. Flip `status` to `active` (so `waitForActive` clients only see
+      the project as ready *after* schema + seed data are queryable).
+5. `POST /api/v1/data/account` with `Host: <vanity>` and `website: bogus`
+   → routed to the project kernel by hostname → CRM hook returns
+   `400 Website must start with http:// or https://`.
+6. `POST /api/v1/data/account` with a valid payload → 2xx, and the
+   `account_number` is uppercased by the `account_protection` hook;
+   subsequent `GET /api/v1/data/account` returns the row through the
+   same hostname-routed kernel.
+
+For a true 2-process verification, run `apps/cloud` and `apps/objectos`
+on separate ports with `OS_CLOUD_URL=http://<cloud-host>:<port>` on the
+runtime node. Browser users add `127.0.0.1 crm.localhost` to `/etc/hosts`
+and visit `http://crm.localhost:<runtime-port>/`. The framework code
+paths exercised are identical to the in-process test above.

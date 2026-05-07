@@ -24,7 +24,7 @@
       "@objectstack/plugin-msw",
       "@objectstack/plugin-dev",
       "@objectstack/plugin-security",
-      "@objectstack/plugin-setup",
+      "@objectstack/plugin-mcp-server",
       "@objectstack/express",
       "@objectstack/fastify",
       "@objectstack/hono",
@@ -42,6 +42,9 @@
       "@objectstack/service-realtime",
       "@objectstack/service-ai",
       "@objectstack/service-storage",
+      "@objectstack/service-cloud",
+      "@objectstack/service-package",
+      "@objectstack/service-tenant",
       "@objectstack/docs",
       "create-objectstack",
       "objectstack-vscode"

@@ -55,6 +55,26 @@ const leadHook: Hook = {
   handler: async (ctx: HookContext) => {
     const { event, input } = ctx;
 
+    const HIGH_VALUE_INDUSTRIES = new Set(['technology', 'finance', 'healthcare']);
+    const SENIOR_TITLE_PATTERN = /\b(ceo|cto|cfo|cio|coo|founder|vp|vice president|director|head of)\b/i;
+    function computeRating(input: Record<string, unknown>): number {
+      let score = 0;
+      const email = typeof input.email === 'string' ? input.email : '';
+      const phone = typeof input.phone === 'string' ? input.phone : '';
+      const title = typeof input.title === 'string' ? input.title : '';
+      const industry = typeof input.industry === 'string' ? input.industry : '';
+      const employees = typeof input.number_of_employees === 'number' ? input.number_of_employees : 0;
+      const revenue = typeof input.annual_revenue === 'number' ? input.annual_revenue : 0;
+      if (email && !/(gmail|yahoo|hotmail|outlook|qq|163)\.com$/i.test(email)) score += 1;
+      if (phone.length > 0) score += 0.5;
+      if (SENIOR_TITLE_PATTERN.test(title)) score += 1.5;
+      if (HIGH_VALUE_INDUSTRIES.has(industry)) score += 1;
+      if (employees >= 200) score += 0.5;
+      if (revenue >= 10_000_000) score += 0.5;
+      const clamped = Math.max(1, Math.min(5, score));
+      return Math.round(clamped * 2) / 2;
+    }
+
     if (event === 'beforeInsert') {
       if (typeof input.rating !== 'number') {
         input.rating = computeRating(input);

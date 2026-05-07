@@ -2,7 +2,7 @@
 
 import { ObjectKernel, Plugin } from '@objectstack/core';
 import type * as Contracts from '@objectstack/spec/contracts';
-import { DriverPlugin, AppPlugin } from '@objectstack/runtime';
+import { DriverPlugin, AppPlugin, hookBodyRunnerFactory, QuickJSScriptRunner } from '@objectstack/runtime';
 import { ControlPlaneProxyDriver } from './control-plane-proxy-driver.js';
 import type { ProjectKernelFactory } from './kernel-manager.js';
 import type { EnvironmentDriverRegistry, SecretEncryptor } from './environment-registry.js';
@@ -176,6 +176,16 @@ export class DefaultProjectKernelFactory implements ProjectKernelFactory {
     await kernel.bootstrap();
 
     try {
+      const ql: any = await (kernel as any).getServiceAsync?.('objectql');
+      if (ql && typeof ql.setDefaultBodyRunner === 'function' && typeof ql._defaultBodyRunner !== 'function') {
+        const runner = new QuickJSScriptRunner();
+        ql.setDefaultBodyRunner(hookBodyRunnerFactory(runner, { ql, appId: `project:${projectId}` }));
+      }
+    } catch (err: any) {
+      this.logger.warn?.('[ProjectKernelFactory] default body-runner install failed', { projectId, error: err?.message });
+    }
+
+    try {
       const currentNames = new Set(
         bundles
           .map((b: any) => {
@@ -251,6 +261,16 @@ export class DefaultProjectKernelFactory implements ProjectKernelFactory {
     }
 
     await kernel.bootstrap();
+
+    try {
+      const ql: any = await (kernel as any).getServiceAsync?.('objectql');
+      if (ql && typeof ql.setDefaultBodyRunner === 'function' && typeof ql._defaultBodyRunner !== 'function') {
+        const runner = new QuickJSScriptRunner();
+        ql.setDefaultBodyRunner(hookBodyRunnerFactory(runner, { ql, appId: `project:${projectId}` }));
+      }
+    } catch (err: any) {
+      this.logger.warn?.('[ProjectKernelFactory] default body-runner install failed (local)', { projectId, error: err?.message });
+    }
 
     this.logger.info?.('[ProjectKernelFactory] local kernel ready', {
       projectId,

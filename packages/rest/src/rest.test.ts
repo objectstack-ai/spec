@@ -763,3 +763,162 @@ describe('RestServer project-scoped routing', () => {
     );
   });
 });
+
+// ---------------------------------------------------------------------------
+// resolveProtocol resolution chain — hostname, X-Project-Id header,
+// default fallback, control-plane.
+// ---------------------------------------------------------------------------
+
+describe('RestServer.resolveProtocol', () => {
+  function makeKernel(label: string) {
+    const projectProtocol = { __label: label } as any;
+    return {
+      getServiceAsync: vi.fn().mockResolvedValue(projectProtocol),
+      __projectProtocol: projectProtocol,
+    };
+  }
+
+  function makeFixture(opts: {
+    envRegistry?: { resolveByHostname?: any; resolveById?: any } | undefined;
+    defaultProvider?: () => string | undefined;
+    kernels?: Record<string, any>;
+  }) {
+    const server = createMockServer();
+    const controlProtocol = createMockProtocol();
+    const kernels = opts.kernels ?? {};
+    const kernelManager = {
+      getOrCreate: vi.fn(async (id: string) => {
+        const k = kernels[id];
+        if (!k) throw new Error(`unknown project ${id}`);
+        return k;
+      }),
+    };
+    const rest = new RestServer(
+      server as any,
+      controlProtocol as any,
+      {},
+      kernelManager as any,
+      opts.envRegistry as any,
+      opts.defaultProvider,
+    );
+    return { rest, controlProtocol, kernelManager, kernels };
+  }
+
+  it('routes to project kernel when hostname resolves', async () => {
+    const projectKernel = makeKernel('proj_a');
+    const f = makeFixture({
+      envRegistry: {
+        resolveByHostname: vi.fn().mockResolvedValue({ projectId: 'proj_a' }),
+        resolveById: vi.fn(),
+      },
+      kernels: { proj_a: projectKernel },
+    });
+    const result = await (f.rest as any).resolveProtocol(undefined, {
+      headers: { host: 'a.example.com' },
+    });
+    expect(result).toBe(projectKernel.__projectProtocol);
+    expect(f.kernelManager.getOrCreate).toHaveBeenCalledWith('proj_a');
+  });
+
+  it('routes via X-Project-Id header when hostname resolution fails', async () => {
+    const projectKernel = makeKernel('proj_b');
+    const resolveById = vi.fn().mockResolvedValue({ /* truthy driver */ });
+    const f = makeFixture({
+      envRegistry: {
+        resolveByHostname: vi.fn().mockResolvedValue(null),
+        resolveById,
+      },
+      kernels: { proj_b: projectKernel },
+    });
+    const result = await (f.rest as any).resolveProtocol(undefined, {
+      headers: { host: 'unknown.example.com', 'x-project-id': 'proj_b' },
+    });
+    expect(result).toBe(projectKernel.__projectProtocol);
+    expect(resolveById).toHaveBeenCalledWith('proj_b');
+    expect(f.kernelManager.getOrCreate).toHaveBeenCalledWith('proj_b');
+  });
+
+  it('reads X-Project-Id from Fetch-style headers.get()', async () => {
+    const projectKernel = makeKernel('proj_c');
+    const resolveById = vi.fn().mockResolvedValue({});
+    const f = makeFixture({
+      envRegistry: {
+        resolveByHostname: vi.fn().mockResolvedValue(null),
+        resolveById,
+      },
+      kernels: { proj_c: projectKernel },
+    });
+    const headers = new Map<string, string>([['x-project-id', 'proj_c']]);
+    const fetchHeaders = {
+      get: (k: string) => headers.get(k.toLowerCase()) ?? null,
+    };
+    const result = await (f.rest as any).resolveProtocol(undefined, {
+      headers: fetchHeaders,
+    });
+    expect(result).toBe(projectKernel.__projectProtocol);
+    expect(resolveById).toHaveBeenCalledWith('proj_c');
+  });
+
+  it('ignores X-Project-Id when envRegistry rejects the id', async () => {
+    const f = makeFixture({
+      envRegistry: {
+        resolveByHostname: vi.fn().mockResolvedValue(null),
+        // resolveById returns null → unknown project, must not route there
+        resolveById: vi.fn().mockResolvedValue(null),
+      },
+      defaultProvider: () => undefined,
+    });
+    const result = await (f.rest as any).resolveProtocol(undefined, {
+      headers: { 'x-project-id': 'proj_bogus' },
+    });
+    expect(result).toBe(f.controlProtocol);
+    expect(f.kernelManager.getOrCreate).not.toHaveBeenCalled();
+  });
+
+  it('falls back to defaultProjectIdProvider when host & header miss', async () => {
+    const projectKernel = makeKernel('proj_local');
+    const f = makeFixture({
+      envRegistry: {
+        resolveByHostname: vi.fn().mockResolvedValue(null),
+        resolveById: vi.fn(),
+      },
+      defaultProvider: () => 'proj_local',
+      kernels: { proj_local: projectKernel },
+    });
+    const result = await (f.rest as any).resolveProtocol(undefined, {
+      headers: { host: 'localhost' },
+    });
+    expect(result).toBe(projectKernel.__projectProtocol);
+    expect(f.kernelManager.getOrCreate).toHaveBeenCalledWith('proj_local');
+  });
+
+  it('returns control-plane protocol when nothing resolves', async () => {
+    const f = makeFixture({
+      envRegistry: {
+        resolveByHostname: vi.fn().mockResolvedValue(null),
+        resolveById: vi.fn().mockResolvedValue(null),
+      },
+      defaultProvider: () => undefined,
+    });
+    const result = await (f.rest as any).resolveProtocol(undefined, {
+      headers: { host: 'localhost', 'x-project-id': 'proj_unknown' },
+    });
+    expect(result).toBe(f.controlProtocol);
+    expect(f.kernelManager.getOrCreate).not.toHaveBeenCalled();
+  });
+
+  it('always returns control-plane for the reserved "platform" id', async () => {
+    const f = makeFixture({
+      envRegistry: {
+        resolveByHostname: vi.fn(),
+        resolveById: vi.fn(),
+      },
+      defaultProvider: () => 'proj_local',
+    });
+    const result = await (f.rest as any).resolveProtocol('platform', {
+      headers: { 'x-project-id': 'proj_local' },
+    });
+    expect(result).toBe(f.controlProtocol);
+    expect(f.kernelManager.getOrCreate).not.toHaveBeenCalled();
+  });
+});

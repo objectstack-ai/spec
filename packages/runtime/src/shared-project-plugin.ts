@@ -99,6 +99,23 @@ export class SharedProjectPlugin implements Plugin {
                 const driver = await _ctx.getServiceScoped<any>('driver', scopeId);
                 const ql = new ObjectQL({ logger: _ctx.logger });
                 ql.registerDriver(driver);
+                // Install a default body-runner so any subsequent bindHooks
+                // call (AppPlugin, metadata sync, multi-project seed) can
+                // execute L2 script bodies without each call site needing
+                // to know about the sandbox runner.
+                try {
+                    const { hookBodyRunnerFactory } = await import('./sandbox/body-runner.js');
+                    const { QuickJSScriptRunner } = await import('./sandbox/quickjs-runner.js');
+                    ql.setDefaultBodyRunner(
+                        hookBodyRunnerFactory(new QuickJSScriptRunner(), {
+                            ql,
+                            logger: _ctx.logger,
+                            appId: scopeId,
+                        }),
+                    );
+                } catch (err: any) {
+                    _ctx.logger.warn('[SharedProjectPlugin] failed to install default body-runner', { error: err?.message });
+                }
                 return ql;
             },
             ServiceLifecycle.SCOPED,

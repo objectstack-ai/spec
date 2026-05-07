@@ -142,11 +142,20 @@ type NormalizedRestServerConfig = {
  */
 /**
  * Minimal env registry shape consumed by the REST server for hostname →
- * projectId resolution on unscoped routes. Mirrors the surface of
- * `EnvironmentDriverRegistry` defined in `@objectstack/service-cloud`.
+ * projectId resolution and `X-Project-Id` header validation on unscoped
+ * routes. Mirrors the surface of `EnvironmentDriverRegistry` defined in
+ * `@objectstack/service-cloud`.
  */
 export interface RestEnvRegistry {
     resolveByHostname(hostname: string): Promise<{ projectId: string } | null | undefined>;
+    /**
+     * Look up a project by id. Returns a truthy value (typically an
+     * `IDataDriver`) when the project exists and is bound, `null` when
+     * unknown. The REST server only uses the truthiness; it does not
+     * touch the driver itself (the actual driver is loaded later via
+     * `KernelManager.getOrCreate(projectId)`).
+     */
+    resolveById?(projectId: string): Promise<unknown | null>;
 }
 
 export class RestServer {
@@ -155,6 +164,7 @@ export class RestServer {
     private routeManager: RouteManager;
     private kernelManager?: RestKernelManager;
     private envRegistry?: RestEnvRegistry;
+    private defaultProjectIdProvider?: () => string | undefined;
 
     constructor(
         server: IHttpServer,
@@ -162,23 +172,29 @@ export class RestServer {
         config: RestServerConfig = {},
         kernelManager?: RestKernelManager,
         envRegistry?: RestEnvRegistry,
+        defaultProjectIdProvider?: () => string | undefined,
     ) {
         this.protocol = protocol;
         this.config = this.normalizeConfig(config);
         this.routeManager = new RouteManager(server);
         this.kernelManager = kernelManager;
         this.envRegistry = envRegistry;
+        this.defaultProjectIdProvider = defaultProjectIdProvider;
     }
 
     /**
      * Resolve the protocol for a given request. When `projectId` is present
      * and a KernelManager is wired, fetch the per-project kernel's
      * `protocol` service so metadata / data / UI reads hit the project's
-     * own registry and datastore. When `projectId` is absent on an
-     * unscoped route but an `envRegistry` is wired (runtime mode),
-     * resolve the hostname to a projectId and load the matching kernel.
-     * Otherwise fall back to the control-kernel protocol captured at
-     * boot.
+     * own registry and datastore.
+     *
+     * When `projectId` is absent on an unscoped route and an `envRegistry`
+     * is wired (runtime mode), the resolution chain is:
+     *   1. Hostname → projectId (`envRegistry.resolveByHostname`)
+     *   2. `X-Project-Id` header → projectId (`envRegistry.resolveById`)
+     *   3. Default-project fallback (`defaultProjectIdProvider`, set by
+     *      `createSingleProjectPlugin`)
+     *   4. Control-plane protocol captured at boot.
      *
      * Special case: `projectId === 'platform'` is a reserved virtual id used
      * by Studio to address the control plane through the regular project
@@ -195,17 +211,143 @@ export class RestServer {
             if (host) {
                 try {
                     const result = await this.envRegistry.resolveByHostname(host);
-                    if (result?.projectId) {
-                        projectId = result.projectId;
-                    }
+                    if (result?.projectId) projectId = result.projectId;
                 } catch {
-                    // fall through to default protocol
+                    // fall through to next strategy
                 }
             }
+            // 2. `X-Project-Id` request header → projectId. Lets clients
+            //    explicitly target a project when the URL is unscoped and
+            //    no hostname binding exists (e.g. a single shared origin
+            //    serving multiple compiled bundles via OS_PROJECT_ARTIFACTS).
+            //    We validate the id through the env registry to avoid
+            //    routing to a non-existent kernel.
+            if (!projectId && typeof this.envRegistry.resolveById === 'function') {
+                const headerVal = this.extractProjectIdHeader(req);
+                if (headerVal) {
+                    try {
+                        const driver = await this.envRegistry.resolveById(headerVal);
+                        if (driver) projectId = headerVal;
+                    } catch {
+                        // fall through to default fallback
+                    }
+                }
+            }
+        }
+        // 3. Single-project default fallback. Registered by
+        //    `createSingleProjectPlugin()` so bare `/api/v1/data/...` URLs
+        //    (no `/projects/<id>` prefix, no hostname mapping, no header)
+        //    resolve to the lone project's kernel rather than the control
+        //    plane.
+        if (!projectId && this.defaultProjectIdProvider) {
+            try {
+                const def = this.defaultProjectIdProvider();
+                if (def) projectId = def;
+            } catch { /* fall through */ }
         }
         if (!projectId || !this.kernelManager) return this.protocol;
         const kernel = await this.kernelManager.getOrCreate(projectId);
         return kernel.getServiceAsync<ObjectStackProtocol>('protocol');
+    }
+
+    /**
+     * Resolve the i18n service for the request's project (or control plane
+     * when no project id is in scope). Returns `undefined` when no service is
+     * registered, so callers can short-circuit and skip translation rather
+     * than failing.
+     *
+     * Mirrors `resolveProtocol`'s lookup chain: explicit `projectId` from the
+     * route → kernel-managed `i18n` service. Control-plane / unscoped
+     * requests intentionally return `undefined` because the platform kernel
+     * does not own per-app translation bundles.
+     */
+    private async resolveI18nService(projectId?: string): Promise<any | undefined> {
+        if (!projectId || projectId === 'platform' || !this.kernelManager) return undefined;
+        try {
+            const kernel = await this.kernelManager.getOrCreate(projectId);
+            return await kernel.getServiceAsync<any>('i18n');
+        } catch {
+            return undefined;
+        }
+    }
+
+    /**
+     * Build a `TranslationBundle` (`Record<locale, TranslationData>`) from an
+     * `II18nService` instance. Returns `undefined` when no locales are
+     * registered so callers can avoid translation work.
+     */
+    private buildTranslationBundle(i18n: any): any | undefined {
+        if (!i18n || typeof i18n.getLocales !== 'function' || typeof i18n.getTranslations !== 'function') {
+            return undefined;
+        }
+        const locales: string[] = i18n.getLocales();
+        if (!locales.length) return undefined;
+        const bundle: Record<string, any> = {};
+        for (const locale of locales) {
+            const data = i18n.getTranslations(locale);
+            if (data && typeof data === 'object') bundle[locale] = data;
+        }
+        return Object.keys(bundle).length ? bundle : undefined;
+    }
+
+    /**
+     * Parse the highest-priority locale from an `Accept-Language` header.
+     * Falls back to a `?locale=` query parameter, then to the i18n service's
+     * default locale. Returns `undefined` when no preference is expressed
+     * (callers will then return untranslated metadata).
+     */
+    private extractLocale(req: any, i18n?: any): string | undefined {
+        const headers = req?.headers;
+        let header: string | undefined;
+        if (headers) {
+            header = typeof headers.get === 'function'
+                ? headers.get('accept-language') ?? undefined
+                : headers['accept-language'] ?? headers['Accept-Language'];
+        }
+        if (typeof header === 'string' && header.length > 0) {
+            const top = header.split(',')[0]?.split(';')[0]?.trim();
+            if (top) return top;
+        }
+        const queryLocale = req?.query?.locale;
+        if (typeof queryLocale === 'string' && queryLocale.length > 0) return queryLocale;
+        if (i18n && typeof i18n.getDefaultLocale === 'function') {
+            const def = i18n.getDefaultLocale();
+            if (typeof def === 'string' && def.length > 0) return def;
+        }
+        return undefined;
+    }
+
+    /**
+     * Translate a single metadata document (view or action) when an i18n
+     * service is registered for the request's project and the requested
+     * locale yields a match. Falls through unchanged for unsupported types
+     * or missing translations.
+     */
+    private async translateMetaItem(req: any, type: string, projectId: string | undefined, item: any): Promise<any> {
+        if (!item || typeof item !== 'object') return item;
+        if (type !== 'view' && type !== 'action') return item;
+        const i18n = await this.resolveI18nService(projectId);
+        const bundle = this.buildTranslationBundle(i18n);
+        if (!bundle) return item;
+        const locale = this.extractLocale(req, i18n);
+        if (!locale) return item;
+        const { translateMetadataDocument } = await import('@objectstack/spec/system');
+        return translateMetadataDocument(type, item, bundle, { locale });
+    }
+
+    /**
+     * Translate a list of metadata documents using `translateMetaItem`.
+     */
+    private async translateMetaItems(req: any, type: string, projectId: string | undefined, items: any): Promise<any> {
+        if (!Array.isArray(items)) return items;
+        if (type !== 'view' && type !== 'action') return items;
+        const i18n = await this.resolveI18nService(projectId);
+        const bundle = this.buildTranslationBundle(i18n);
+        if (!bundle) return items;
+        const locale = this.extractLocale(req, i18n);
+        if (!locale) return items;
+        const { translateMetadataDocument } = await import('@objectstack/spec/system');
+        return items.map((item) => translateMetadataDocument(type, item, bundle, { locale }));
     }
 
     /**
@@ -224,8 +366,37 @@ export class RestServer {
             }
         }
         if (!host && typeof req?.hostname === 'string') host = req.hostname;
+        if (!host && typeof req?.url === 'string') {
+            // Fetch-style requests expose the hostname via `req.url` even
+            // when the (forbidden) `Host` header has been stripped by the
+            // runtime. This branch keeps hostname-routing working when
+            // tests build a `Request` object through `app.fetch(...)`.
+            try {
+                host = new (globalThis as any).URL(req.url).host;
+            } catch { /* ignore */ }
+        }
         if (!host) return undefined;
         return String(host).split(':')[0].toLowerCase();
+    }
+
+    /**
+     * Pull the `X-Project-Id` header from a Node- or Fetch-style request.
+     * Header names are case-insensitive; we probe both casings to cover
+     * adapters that don't normalize headers (e.g. raw Node http).
+     */
+    private extractProjectIdHeader(req: any): string | undefined {
+        const headers = req?.headers;
+        if (!headers) return undefined;
+        let val: unknown;
+        if (typeof headers.get === 'function') {
+            val = headers.get('x-project-id') ?? headers.get('X-Project-Id');
+        } else {
+            val = headers['x-project-id'] ?? headers['X-Project-Id'];
+        }
+        if (Array.isArray(val)) val = val[0];
+        if (typeof val !== 'string') return undefined;
+        const trimmed = val.trim();
+        return trimmed.length > 0 ? trimmed : undefined;
     }
     
     /**
@@ -484,7 +655,9 @@ export class RestServer {
                             packageId,
                             ...(projectId ? { projectId } : {}),
                         } as any);
-                        res.json(items);
+                        const translated = await this.translateMetaItems(req, req.params.type, projectId, items);
+                        res.header('Vary', 'Accept-Language');
+                        res.json(translated);
                     } catch (error: any) {
                         logError("[REST] Unhandled error:", error);
                         res.status(404).json({ error: error.message });
@@ -543,7 +716,8 @@ export class RestServer {
                                 res.header('Cache-Control', directives + maxAge);
                             }
 
-                            res.json(result.data);
+                            res.header('Vary', 'Accept-Language');
+                            res.json(await this.translateMetaItem(req, req.params.type, projectId, result.data));
                         } else {
                             // Non-cached version
                             const packageId = req.query?.package || undefined;
@@ -552,7 +726,8 @@ export class RestServer {
                                 name: req.params.name,
                                 packageId,
                             } as any);
-                            res.json(item);
+                            res.header('Vary', 'Accept-Language');
+                            res.json(await this.translateMetaItem(req, req.params.type, projectId, item));
                         }
                     } catch (error: any) {
                         logError("[REST] Unhandled error:", error);

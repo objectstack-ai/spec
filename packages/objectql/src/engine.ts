@@ -117,6 +117,32 @@ export interface ObjectQLHostContext {
 }
 
 /**
+ * Derive the registry key for a metadata item.
+ *
+ * Most metadata items expose a top-level `name` (or `id`). The `View`
+ * container defined by `@objectstack/spec/ui` is special: it aggregates
+ * `list / form / listViews / formViews` for a single object and is
+ * keyed implicitly by its target object name (see `data.object`).
+ *
+ * Per spec, `ViewSchema` does NOT have a top-level `name` field
+ * (view.zod.ts), so we resolve it from the inner data source. This
+ * matches the server-side metadata API contract (`/api/v1/meta/views/:object`).
+ */
+function resolveMetadataItemName(key: string, item: any): string | undefined {
+  if (!item) return undefined;
+  if (item.name) return item.name;
+  if (item.id) return item.id;
+  if (key === 'views') {
+    return (
+      item?.list?.data?.object ||
+      item?.form?.data?.object ||
+      undefined
+    );
+  }
+  return undefined;
+}
+
+/**
  * ObjectQL Engine
  * 
  * Implements the IDataEngine interface for data persistence.
@@ -184,6 +210,16 @@ export class ObjectQL implements IDataEngine {
     this.hostContext = hostContext;
     // Use provided logger or create a new one
     this.logger = hostContext.logger || createLogger({ level: 'info', format: 'pretty' });
+    // Pick up production hardening switches from env so deployers can
+    // enforce strict-body without code changes:
+    //   OBJECTQL_STRICT_HOOKS=1 → unresolved hooks throw at bind time
+    //   OBJECTQL_WARN_LEGACY_HANDLER=1 → log a deprecation per legacy bind
+    if (process?.env?.OBJECTQL_STRICT_HOOKS === '1') {
+      (this as any)._strictHookBinding = true;
+    }
+    if (process?.env?.OBJECTQL_WARN_LEGACY_HANDLER === '1') {
+      (this as any)._warnLegacyHandler = true;
+    }
     this.logger.info('ObjectQL Engine Instance Created');
   }
 
@@ -343,8 +379,64 @@ export class ObjectQL implements IDataEngine {
   bindHooks(hooks: any[] | undefined, opts?: {
     packageId?: string;
     functions?: Record<string, HookHandler>;
+    bodyRunner?: any;
+    strict?: boolean;
+    warnLegacyHandler?: boolean;
+    metrics?: any;
   }): void {
-    bindHooksToEngine(this, hooks, { ...(opts ?? {}), logger: this.logger });
+    const merged = { ...(opts ?? {}), logger: this.logger } as any;
+    if (!merged.bodyRunner && (this as any)._defaultBodyRunner) {
+      merged.bodyRunner = (this as any)._defaultBodyRunner;
+    }
+    if (merged.strict === undefined && (this as any)._strictHookBinding) {
+      merged.strict = true;
+    }
+    if (merged.warnLegacyHandler === undefined && (this as any)._warnLegacyHandler) {
+      merged.warnLegacyHandler = true;
+    }
+    if (!merged.metrics && (this as any)._hookMetricsRecorder) {
+      merged.metrics = (this as any)._hookMetricsRecorder;
+    }
+    bindHooksToEngine(this, hooks, merged);
+  }
+
+  /**
+   * Install a default body-runner used when `bindHooks` is called without
+   * an explicit one. The runtime layer sets this once on each per-project
+   * engine so every binding path (template seed, metadata sync, AppPlugin)
+   * can execute hook `body.source` consistently.
+   */
+  setDefaultBodyRunner(runner: any): void {
+    (this as any)._defaultBodyRunner = runner;
+  }
+
+  /**
+   * Toggle strict hook-binding mode for this engine. When enabled, every
+   * subsequent `bindHooks` call rejects on the first unresolved hook
+   * instead of silently warning. Production runtimes should enable this.
+   */
+  setStrictHookBinding(strict: boolean): void {
+    (this as any)._strictHookBinding = strict;
+  }
+
+  /** Toggle deprecation warnings for hooks still using legacy `handler` ref. */
+  setWarnLegacyHandler(warn: boolean): void {
+    (this as any)._warnLegacyHandler = warn;
+  }
+
+  /**
+   * Install a metrics recorder used by every subsequent `bindHooks` call.
+   * The recorder's methods are invoked per-execution to count outcomes
+   * (success / error / timeout / capability_rejected), skips, and retries.
+   * Defaults to no-op so the engine pays zero cost when nobody is observing.
+   */
+  setHookMetricsRecorder(recorder: any): void {
+    (this as any)._hookMetricsRecorder = recorder;
+  }
+
+  /** Read the engine's installed metrics recorder, if any. */
+  getHookMetricsRecorder(): any {
+    return (this as any)._hookMetricsRecorder;
   }
 
   public async triggerHooks(event: string, context: HookContext) {
@@ -578,9 +670,12 @@ export class ObjectQL implements IDataEngine {
           if (Array.isArray(items) && items.length > 0) {
               this.logger.debug(`Registering ${key} from manifest`, { id, count: items.length });
               for (const item of items) {
-                  const itemName = item.name || item.id;
+                  const itemName = resolveMetadataItemName(key, item);
                   if (itemName) {
-                      this._registry.registerItem(pluralToSingular(key), item, 'name' as any, id);
+                      const toRegister = item.name === itemName ? item : { ...item, name: itemName };
+                      this._registry.registerItem(pluralToSingular(key), toRegister, 'name' as any, id);
+                  } else {
+                      this.logger.warn(`Skipping ${pluralToSingular(key)} without a derivable name`, { id });
                   }
               }
           }
@@ -708,9 +803,10 @@ export class ObjectQL implements IDataEngine {
           const items = (plugin as any)[key];
           if (Array.isArray(items) && items.length > 0) {
               for (const item of items) {
-                  const itemName = item.name || item.id;
+                  const itemName = resolveMetadataItemName(key, item);
                   if (itemName) {
-                      this._registry.registerItem(pluralToSingular(key), item, 'name' as any, ownerId);
+                      const toRegister = item.name === itemName ? item : { ...item, name: itemName };
+                      this._registry.registerItem(pluralToSingular(key), toRegister, 'name' as any, ownerId);
                   }
               }
           }

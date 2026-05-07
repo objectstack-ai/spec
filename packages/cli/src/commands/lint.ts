@@ -4,6 +4,7 @@ import { Args, Command, Flags } from '@oclif/core';
 import chalk from 'chalk';
 import { normalizeStackInput } from '@objectstack/spec';
 import { loadConfig } from '../utils/config.js';
+import { computeI18nCoverage } from '../utils/i18n-coverage.js';
 import {
   printHeader,
   printSuccess,
@@ -198,6 +199,14 @@ export default class Lint extends Command {
   static override flags = {
     json: Flags.boolean({ description: 'Output as JSON' }),
     fix: Flags.boolean({ description: 'Show what would be fixed (dry-run)' }),
+    'skip-i18n': Flags.boolean({ description: 'Skip translation coverage checks' }),
+    'i18n-strict': Flags.boolean({
+      description: 'Treat missing translations in non-default locales as errors',
+    }),
+    'default-locale': Flags.string({
+      description: 'Default locale for i18n coverage (must be 100% translated)',
+      default: 'en',
+    }),
   };
 
   async run(): Promise<void> {
@@ -219,6 +228,22 @@ export default class Lint extends Command {
 
       const normalized = normalizeStackInput(config as Record<string, unknown>);
       const issues = lintConfig(normalized);
+
+      // ── Translation coverage ──
+      if (!flags['skip-i18n']) {
+        const coverage = computeI18nCoverage(normalized, {
+          defaultLocale: flags['default-locale'],
+          strict: flags['i18n-strict'],
+        });
+        for (const c of coverage.issues) {
+          issues.push({
+            severity: c.severity === 'error' ? 'error' : 'warning',
+            rule: `i18n/missing-${c.source}`,
+            message: c.message,
+            path: `translations.${c.locale}.${c.key}`,
+          });
+        }
+      }
 
       // ── JSON output ──
       if (flags.json) {

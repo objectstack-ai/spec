@@ -1,7 +1,14 @@
 // Copyright (c) 2025 ObjectStack. Licensed under the Apache-2.0 license.
 
 import { Plugin, PluginContext } from '@objectstack/core';
-import { SeedLoaderService } from '@objectstack/runtime';
+import {
+    SeedLoaderService,
+    collectBundleHooks,
+    collectBundleFunctions,
+    collectBundleActions,
+    actionBodyRunnerFactory,
+    QuickJSScriptRunner,
+} from '@objectstack/runtime';
 import { SeedLoaderConfigSchema } from '@objectstack/spec/data';
 import {
     DefaultEnvironmentDriverRegistry,
@@ -136,8 +143,113 @@ function createTemplateSeeder(
             try { (engine as any).registerApp(bundle); } catch { /* best effort */ }
         }
 
-        if (items.length > 0 && typeof engine?.syncSchemas === 'function') {
-            try { await engine.syncSchemas(); } catch { /* best effort */ }
+        // Wire declarative hooks + their handler functions onto the engine.
+        // `engine.registerApp(bundle)` only registers schema + hook *names*;
+        // the actual handler-binding step (which AppPlugin.onInstall does in
+        // standalone mode) must be replicated here so hooks fire when records
+        // are mutated through this project kernel. Without this, runtime
+        // bundles loaded via `metadata.artifact_path` (cloud mode) silently
+        // skip beforeInsert/afterInsert/etc. handlers.
+        if (typeof engine?.bindHooks === 'function') {
+            const hooks = collectBundleHooks(bundle);
+            const functions = collectBundleFunctions(bundle);
+            if (hooks.length > 0 || Object.keys(functions).length > 0) {
+                try {
+                    engine.bindHooks(hooks, { engine, functions });
+                } catch (err: any) {
+                    // Non-fatal — schema is still registered; only handlers
+                    // are missing. Log loudly so the operator can investigate.
+                    // eslint-disable-next-line no-console
+                    console.error(
+                        `[MultiProjectPlugin] bindHooks failed for project ${projectId}:`,
+                        err?.message ?? err,
+                    );
+                }
+            }
+        }
+
+        // Wire declarative Action bodies. Symmetric with hooks above:
+        // `engine.registerApp(bundle)` only persists schema metadata — it
+        // does NOT install action handlers. Without this loop, any action
+        // shipped with a metadata `body` (extracted by the CLI from inline
+        // `execute:` arrow functions) would be unreachable through
+        // `POST /api/v1/projects/:projectId/actions/...`.
+        if (typeof engine?.registerAction === 'function') {
+            const actions = collectBundleActions(bundle);
+            if (actions.length > 0) {
+                const actionBodyRunner = actionBodyRunnerFactory(new QuickJSScriptRunner(), {
+                    ql: engine,
+                    appId: projectId,
+                });
+                let registered = 0;
+                for (const action of actions) {
+                    const handler = actionBodyRunner(action);
+                    if (!handler) continue;
+                    const objectKey =
+                        typeof action.object === 'string' && action.object.length > 0
+                            ? action.object
+                            : 'global';
+                    try {
+                        engine.registerAction(
+                            objectKey,
+                            action.name,
+                            handler,
+                            `app:${projectId}`,
+                        );
+                        registered++;
+                    } catch (err: any) {
+                        // eslint-disable-next-line no-console
+                        console.warn(
+                            `[MultiProjectPlugin] registerAction failed for ${objectKey}.${action.name} in project ${projectId}:`,
+                            err?.message ?? err,
+                        );
+                    }
+                }
+                if (registered > 0) {
+                    // eslint-disable-next-line no-console
+                    console.log(
+                        `[MultiProjectPlugin] Bound ${registered} action body(s) for project ${projectId}`,
+                    );
+                }
+            }
+        }
+
+        // Ensure physical tables exist for the bundle's objects. We bypass
+        // engine.syncSchemas() (which iterates *all* registered objects
+        // across the kernel — including platform objects whose drivers may
+        // not be wired) and instead drive `initObjects` per-driver for the
+        // bundle's own object set. This is the same code path that
+        // AppPlugin.onInstall takes in standalone mode.
+        const bundleObjectsRaw: any = (bundle as any)?.objects;
+        const bundleObjects: any[] = Array.isArray(bundleObjectsRaw)
+            ? bundleObjectsRaw
+            : (bundleObjectsRaw && typeof bundleObjectsRaw === 'object' ? Object.values(bundleObjectsRaw) : []);
+        if (bundleObjects.length > 0) {
+            const driverGroups = new Map<any, any[]>();
+            for (const obj of bundleObjects) {
+                let driver: any;
+                try { driver = (engine as any).getDriverForObject?.(obj.name) ?? (engine as any).defaultDriver; }
+                catch { driver = (engine as any).defaultDriver; }
+                if (!driver || typeof driver.initObjects !== 'function') continue;
+                if (!driverGroups.has(driver)) driverGroups.set(driver, []);
+                driverGroups.get(driver)!.push(obj);
+            }
+            for (const [driver, objs] of driverGroups) {
+                try {
+                    await driver.initObjects(objs);
+                } catch (err: any) {
+                    // Non-fatal — schema is registered but the physical
+                    // table couldn't be created. Surface so the operator
+                    // can investigate (mismatched datasource binding,
+                    // permission errors, etc.). Subsequent inserts will
+                    // fail with `no such table` from the SQL driver.
+                    // eslint-disable-next-line no-console
+                    console.error(
+                        `[MultiProjectPlugin] initObjects failed for project ${projectId}:`,
+                        err?.message ?? err,
+                    );
+                }
+            }
         }
 
         if (dataSets.length > 0) {

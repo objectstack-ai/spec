@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { FieldType } from '../data/field.zod';
 import { SnakeCaseIdentifierSchema } from '../shared/identifiers.zod';
 import { I18nLabelSchema, AriaPropsSchema } from './i18n.zod';
+import { HookBodySchema } from '../data/hook-body.zod';
 
 /**
  * Action Parameter Schema
@@ -102,9 +103,25 @@ export const ActionSchema = lazySchema(() => z.object({
   /** 
    * Payload / Target — the canonical binding for the action handler.
    * Required for url, flow, modal, and api types.
-   * Recommended for script type.
+   * For `script` type: prefer `body` over `target`. `target` is kept only for
+   * legacy bundle.functions[name] references.
    */
   target: z.string().optional().describe('URL, Script Name, Flow ID, or API Endpoint'),
+
+  /**
+   * Action Body (L1 expression or L2 sandboxed JS).
+   *
+   * Only meaningful when `type === 'script'`. When set, the runtime invokes
+   * the body inside the sandbox as `(input, ctx) => Promise<output>` and
+   * ignores `target`.
+   *
+   * - `{ language: 'expression', source: '...' }` — pure formula (L1).
+   * - `{ language: 'js', source: '...', capabilities: [...] }` — sandboxed JS (L2).
+   *
+   * Compiled-module bodies are not supported. Outbound IO (HTTP, etc.) goes
+   * through Connector recipes (separate spec).
+   */
+  body: HookBodySchema.optional().describe('Action body — expression (L1) or sandboxed JS (L2). Only used when type is `script`.'),
 
   /** 
    * @deprecated Use `target` instead. This field is auto-migrated to `target` during parsing.

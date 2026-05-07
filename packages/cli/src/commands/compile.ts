@@ -31,6 +31,14 @@ export default class Compile extends Command {
   static override flags = {
     output: Flags.string({ char: 'o', description: 'Output JSON file', default: 'dist/objectstack.json' }),
     json: Flags.boolean({ description: 'Output compile result as JSON (for CI)' }),
+    'strict-body': Flags.boolean({
+      description: 'Fail the build if any hook/action callable could not be lowered into a metadata-only body (no .mjs fallback)',
+      default: false,
+    }),
+    'no-runtime-bundle': Flags.boolean({
+      description: 'Skip emitting the legacy objectstack-runtime.{hash}.mjs bundle. Requires every callable to have a metadata body — otherwise the build fails.',
+      default: false,
+    }),
   };
 
   async run(): Promise<void> {
@@ -66,6 +74,31 @@ export default class Compile extends Command {
       if (!flags.json) printStep('Lowering inline handlers...');
       const lowering = lowerCallables(normalized);
 
+      // Strict-body gate: refuse to ship if any callable failed body extraction.
+      // Body-only is the long-term target — `--strict-body` lets CI enforce it
+      // before ESM-bundle emission becomes mandatory-off.
+      const missingBody = lowering.count - lowering.bodyExtracted;
+      if (flags['strict-body']) {
+        const issues = [
+          ...lowering.bodyExtractionWarnings,
+          ...(missingBody > 0
+            ? [{ origin: '<aggregate>', reason: `${missingBody} callable(s) lowered to handler ref but produced no body` }]
+            : []),
+        ];
+        if (issues.length > 0) {
+          if (flags.json) {
+            console.log(JSON.stringify({ success: false, error: 'strict-body: missing body', issues }));
+            this.exit(1);
+          }
+          console.log('');
+          printError(`--strict-body: ${issues.length} callable(s) lack a metadata body`);
+          for (const w of issues.slice(0, 20)) {
+            console.log(`  • ${w.origin}: ${w.reason}`);
+          }
+          this.exit(1);
+        }
+      }
+
       // 3. Validate the lowered (JSON-safe) stack against the Protocol.
       if (!flags.json) printStep('Validating protocol compliance...');
       const result = ObjectStackDefinitionSchema.safeParse(lowering.lowered);
@@ -100,23 +133,41 @@ export default class Compile extends Command {
       //     follow-up safeParse of the artifact preserves it.
       let runtimeBundle: { outputFileName: string; hash: string; size: number } | null = null;
       if (lowering.count > 0) {
-        if (!flags.json) printStep(`Bundling ${lowering.count} handler${lowering.count === 1 ? '' : 's'}...`);
-        try {
-          runtimeBundle = await buildRuntimeBundle({
-            sourceConfigPath: absolutePath,
-            refs: Object.keys(lowering.functions),
-            outputDir: artifactDir,
-          });
-          finalBundle.runtimeModule = `./${runtimeBundle.outputFileName}`;
-          cleanupOldRuntimeBundles(artifactDir, runtimeBundle.outputFileName);
-        } catch (err: any) {
-          if (flags.json) {
-            console.log(JSON.stringify({ success: false, error: `runtime bundle failed: ${err.message}` }));
+        if (flags['no-runtime-bundle']) {
+          // Refuse to skip the bundle if any callable still relies on it.
+          const stillNeeded = lowering.count - lowering.bodyExtracted;
+          if (stillNeeded > 0 || lowering.bodyExtractionWarnings.length > 0) {
+            const msg = `--no-runtime-bundle requires every callable to have a metadata body (${stillNeeded} missing, ${lowering.bodyExtractionWarnings.length} extraction warning(s)). Re-run with --strict-body to see details, or omit --no-runtime-bundle.`;
+            if (flags.json) {
+              console.log(JSON.stringify({ success: false, error: msg }));
+              this.exit(1);
+            }
+            console.log('');
+            printError(msg);
             this.exit(1);
           }
-          console.log('');
-          printError(`Runtime bundle failed: ${err.message}`);
-          this.error(err.message);
+          if (!flags.json) printStep(`Skipping legacy runtime bundle (all ${lowering.count} callables are body-only)`);
+          // Drop any previously emitted bundle so the artifact dir doesn't carry stale code.
+          cleanupOldRuntimeBundles(artifactDir, '');
+        } else if (lowering.count > 0) {
+          if (!flags.json) printStep(`Bundling ${lowering.count} handler${lowering.count === 1 ? '' : 's'}...`);
+          try {
+            runtimeBundle = await buildRuntimeBundle({
+              sourceConfigPath: absolutePath,
+              refs: Object.keys(lowering.functions),
+              outputDir: artifactDir,
+            });
+            finalBundle.runtimeModule = `./${runtimeBundle.outputFileName}`;
+            cleanupOldRuntimeBundles(artifactDir, runtimeBundle.outputFileName);
+          } catch (err: any) {
+            if (flags.json) {
+              console.log(JSON.stringify({ success: false, error: `runtime bundle failed: ${err.message}` }));
+              this.exit(1);
+            }
+            console.log('');
+            printError(`Runtime bundle failed: ${err.message}`);
+            this.error(err.message);
+          }
         }
       }
 

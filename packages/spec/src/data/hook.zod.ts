@@ -7,6 +7,7 @@ import { z } from 'zod';
  * Defines the interception points in the ObjectQL execution pipeline.
  */
 import { lazySchema } from '../shared/lazy-schema';
+import { HookBodySchema } from './hook-body.zod';
 export const HookEvent = z.enum([
   // Read Operations
   'beforeFind', 'afterFind',
@@ -80,7 +81,21 @@ export const HookSchema = lazySchema(() => z.object({
    * top-level `runtimeModule` field. The JSON artifact therefore only
    * ever contains the string form.
    */
-  handler: z.union([z.string(), z.function()]).optional().describe('Handler function name (string, post-build) or inline function (pre-build)'),
+  handler: z.union([z.string(), z.custom<(...args: any[]) => any>((v) => typeof v === 'function', { message: 'Expected function' })]).optional().describe('Handler function name (string, post-build) or inline function (pre-build) — DEPRECATED, prefer `body`'),
+
+  /**
+   * Hook Body (L1 expression or L2 sandboxed JS).
+   *
+   * Preferred over `handler` for new code. When both are present, runtime
+   * loader uses `body` and ignores `handler`.
+   *
+   * - `{ language: 'expression', source: '...' }` — pure formula (L1).
+   * - `{ language: 'js', source: '...', capabilities: [...] }` — sandboxed JS (L2).
+   *
+   * Authoring convenience: `objectstack build` extracts inline TS handlers from
+   * `*.hook.ts` files, AST-checks them, and emits the result here. See plan §6.
+   */
+  body: HookBodySchema.optional().describe('Hook body — expression (L1) or sandboxed JS (L2)'),
 
   /**
    * Execution Order

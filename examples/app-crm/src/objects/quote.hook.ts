@@ -34,6 +34,12 @@ const quoteValidation: Hook = {
     const { event, input } = ctx;
     const previous = ctx.previous;
 
+    function addDays(iso: string, days: number): string {
+      const d = new Date(iso);
+      d.setDate(d.getDate() + days);
+      return d.toISOString().slice(0, 10);
+    }
+
     if (event === 'beforeInsert' && !input.expiration_date) {
       const base =
         typeof input.quote_date === 'string'
@@ -73,6 +79,12 @@ const quoteAccepted: Hook = {
     if (input.status !== 'accepted' || previous?.status === 'accepted') return;
     const api = ctx.api as ApiShape | undefined;
     if (!api) return;
+
+    function addDays(iso: string, days: number): string {
+      const d = new Date(iso);
+      d.setDate(d.getDate() + days);
+      return d.toISOString().slice(0, 10);
+    }
 
     const quoteId = (typeof input.id === 'string' && input.id) || previous?.id;
     const accountId =

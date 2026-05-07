@@ -56,6 +56,30 @@ export const ObjectTranslationDataSchema = lazySchema(() => z.object({
   description: z.string().optional().describe('Translated object description'),
   /** Field-level translations keyed by field name (snake_case) */
   fields: z.record(z.string(), FieldTranslationSchema).optional().describe('Field-level translations'),
+
+  /**
+   * View translations keyed by view name (snake_case).
+   * Convention (auto-resolved by `resolveViewLabel`):
+   *   objects.<object>._views.<view_name>.label
+   *   objects.<object>._views.<view_name>.description
+   */
+  _views: z.record(z.string(), z.object({
+    label: z.string().optional().describe('Translated view label'),
+    description: z.string().optional().describe('Translated view description'),
+  })).optional().describe('View translations keyed by view name'),
+
+  /**
+   * Action translations keyed by action name (snake_case).
+   * Convention (auto-resolved by `resolveActionLabel`/`resolveActionConfirm`/`resolveActionSuccess`):
+   *   objects.<object>._actions.<action_name>.label
+   *   objects.<object>._actions.<action_name>.confirmText
+   *   objects.<object>._actions.<action_name>.successMessage
+   */
+  _actions: z.record(z.string(), z.object({
+    label: z.string().optional().describe('Translated action label'),
+    confirmText: z.string().optional().describe('Translated confirmation prompt'),
+    successMessage: z.string().optional().describe('Translated success toast/message'),
+  })).optional().describe('Action translations keyed by action name'),
 }).describe('Translation data for a single object'));
 
 export type ObjectTranslationData = z.infer<typeof ObjectTranslationDataSchema>;
@@ -94,6 +118,21 @@ export const TranslationDataSchema = lazySchema(() => z.object({
   
   /** Validation Error Messages */
   validationMessages: z.record(z.string(), z.string()).optional().describe('Translatable validation error messages keyed by rule name (e.g., {"discount_limit": "折扣不能超过40%"})'),
+
+  /**
+   * Global (object-less) action translations keyed by action name (snake_case).
+   * Used for actions like `log_call` or `export_csv` that are not bound to a
+   * specific object via `objectName`. Convention (auto-resolved by
+   * `resolveActionLabel`/`resolveActionConfirm`/`resolveActionSuccess`):
+   *   globalActions.<action_name>.label
+   *   globalActions.<action_name>.confirmText
+   *   globalActions.<action_name>.successMessage
+   */
+  globalActions: z.record(z.string(), z.object({
+    label: z.string().optional().describe('Translated action label'),
+    confirmText: z.string().optional().describe('Translated confirmation prompt'),
+    successMessage: z.string().optional().describe('Translated success toast/message'),
+  })).optional().describe('Global action translations keyed by action name'),
 
   /**
    * Dashboard translations keyed by dashboard name.

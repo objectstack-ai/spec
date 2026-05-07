@@ -2,14 +2,31 @@
 
 import type { Action } from '@objectstack/spec/ui';
 
-/** Mark Contact as Primary */
+/**
+ * Mark Contact as Primary.
+ *
+ * Demonstrates the L2 metadata-body action shape. The `body.source` runs
+ * in the QuickJS sandbox via `actionBodyRunnerFactory`. The script receives
+ * `(input, ctx)` where `ctx.recordId` is the contact id from the action
+ * URL and `ctx.api.object('contact').update(...)` is gated by `api.write`.
+ */
 export const MarkPrimaryContactAction: Action = {
   name: 'mark_primary',
   label: 'Mark as Primary Contact',
   objectName: 'contact',
   icon: 'star',
   type: 'script',
-  target: 'markAsPrimaryContact',
+  body: {
+    language: 'js',
+    source: `
+      const id = ctx.recordId;
+      if (!id) throw new Error('mark_primary requires a recordId');
+      await ctx.api.object('contact').update({ id, is_primary: true }, { where: { id } });
+      return { ok: true, id, is_primary: true };
+    `,
+    capabilities: ['api.write'],
+    timeoutMs: 2000,
+  },
   locations: ['record_header', 'list_item'],
   visible: 'is_primary == false',
   confirmText: 'Mark this contact as the primary contact for the account?',

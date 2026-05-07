@@ -13,7 +13,7 @@ export type { StandaloneStackConfig, StandaloneStackResult } from './standalone-
 
 // Export Plugins
 export { DriverPlugin } from './driver-plugin.js';
-export { AppPlugin } from './app-plugin.js';
+export { AppPlugin, collectBundleHooks, collectBundleFunctions, collectBundleActions } from './app-plugin.js';
 export { SeedLoaderService } from './seed-loader.js';
 export { createDispatcherPlugin } from './dispatcher-plugin.js';
 export type { DispatcherPluginConfig } from './dispatcher-plugin.js';
@@ -25,6 +25,22 @@ export { HttpServer } from './http-server.js';
 export { HttpDispatcher } from './http-dispatcher.js';
 export type { HttpProtocolContext, HttpDispatcherResult } from './http-dispatcher.js';
 export { MiddlewareManager } from './middleware.js';
+
+// Export Artifact Loader
+export { loadArtifactBundle, mergeRuntimeModule } from './load-artifact-bundle.js';
+export type { LoadArtifactBundleOptions } from './load-artifact-bundle.js';
+
+// Export Sandbox (script body runner) — engine choice is quickjs-emscripten.
+// See packages/runtime/src/sandbox/script-runner.ts for the decision rationale.
+export { UnimplementedScriptRunner, QuickJSScriptRunner, SandboxError, hookBodyRunnerFactory, actionBodyRunnerFactory } from './sandbox/index.js';
+export type {
+  ScriptRunner,
+  ScriptContext,
+  ScriptOrigin,
+  ScriptResult,
+  ScriptRunOptions,
+  QuickJSScriptRunnerOptions,
+} from './sandbox/index.js';
 
 // Re-export from @objectstack/rest
 export {
