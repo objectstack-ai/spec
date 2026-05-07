@@ -60,7 +60,10 @@
       "overview": "概览",
       "general": "常规",
       "members": "成员",
-      "oauthApps": "OAuth 应用"
+      "oauthApps": "OAuth 应用",
+      "invitations": "邀请",
+      "linkedAccounts": "关联账号",
+      "teams": "团队"
     },
     "expand": "展开侧边栏",
     "collapse": "收起侧边栏"
@@ -85,7 +88,13 @@
     "namePlaceholder": "你的姓名",
     "save": "保存修改",
     "updated": "资料已更新",
-    "updateFailed": "更新资料失败"
+    "updateFailed": "更新资料失败",
+    "changeAvatar": "更换头像",
+    "avatarUploading": "上传中…",
+    "avatarHint": "JPG、PNG 或 GIF，最大 2 MB。",
+    "avatarUpdated": "头像已更新",
+    "avatarUploadFailed": "头像上传失败",
+    "avatarStorageUnavailable": "存储服务不可用"
   },
   "security": {
     "title": "修改密码",
@@ -96,7 +105,29 @@
     "submit": "修改密码",
     "passwordsMismatch": "两次输入的密码不一致",
     "changed": "密码已修改",
-    "changeFailed": "修改密码失败"
+    "changeFailed": "修改密码失败",
+    "revokeOtherSessions": "同时撤销所有其他会话",
+    "email": {
+      "title": "更改邮箱",
+      "description": "更新与您账户关联的电子邮件地址。",
+      "current": "当前邮箱",
+      "new": "新邮箱地址",
+      "placeholder": "new@example.com",
+      "submit": "更改邮箱",
+      "requested": "验证邮件已发送到新地址",
+      "requestFailed": "更改邮箱失败"
+    },
+    "delete": {
+      "title": "删除账户",
+      "description": "永久删除您的账户及所有关联数据。此操作不可撤销。",
+      "dialogTitle": "您确定要执行此操作吗？",
+      "confirm": "请输入您的邮箱以确认：{{email}}",
+      "confirmationMismatch": "邮箱不匹配",
+      "password": "输入密码以确认",
+      "cta": "删除我的账户",
+      "success": "账户已删除",
+      "failed": "删除账户失败"
+    }
   },
   "sessions": {
     "title": "活跃会话",
@@ -111,7 +142,8 @@
     "revoked": "会话已注销",
     "revokeFailed": "注销会话失败",
     "othersRevoked": "其他会话已注销",
-    "revokeOthersFailed": "注销其他会话失败"
+    "revokeOthersFailed": "注销其他会话失败",
+    "current": "当前会话"
   },
   "twoFactor": {
     "title": "双因素认证",
@@ -138,7 +170,21 @@
     "disableSuccess": "双因素认证已禁用",
     "enableFailed": "启用 2FA 失败",
     "disableFailed": "禁用 2FA 失败",
-    "invalidCode": "验证码无效"
+    "invalidCode": "验证码无效",
+    "trustDevice": "信任此设备",
+    "backupCodes": {
+      "title": "备用验证码",
+      "description": "当您无法使用验证器应用时，可使用备用验证码登录。",
+      "savedTitle": "请保存这些备用验证码",
+      "savedHint": "请将这些验证码保存在安全的地方，每个验证码只能使用一次。",
+      "newTitle": "已生成新的备用验证码",
+      "regenerate": "重新生成备用验证码",
+      "regenerated": "备用验证码已重新生成",
+      "regenerateFailed": "重新生成备用验证码失败",
+      "copy": "复制",
+      "copied": "备用验证码已复制到剪贴板",
+      "copyFailed": "复制到剪贴板失败"
+    }
   },
   "auth": {
     "emailLabel": "邮箱",
@@ -214,14 +260,23 @@
       "successDescription": "你的所有者账户已创建。",
       "failed": "初始化失败",
       "description": "尚未创建所有者账户，创建第一个管理员以开始使用。",
-      "yourName": "你的姓名",
+      "yourName": "您的姓名",
       "passwordHint": "至少 8 个字符。",
       "orgName": "组织名称",
       "orgNamePlaceholder": "示例公司",
       "orgNameHint": "你之后可以重命名或添加更多组织。",
       "submit": "创建所有者账户",
       "submitting": "正在创建所有者账户…",
-      "footerNote": "此页面仅在首次启动时出现。完成初始化后，所有用户均按常规方式登录。"
+      "footerNote": "此页面仅在首次启动时出现。完成初始化后，所有用户均按常规方式登录。",
+      "orgSlug": "组织标识",
+      "orgSlugHint": "URL 友好的标识符（根据名称自动生成）。",
+      "inviteTeammates": "邀请团队成员",
+      "inviteTeammatesHint": "可选。您可以稍后随时邀请。",
+      "addInvite": "添加",
+      "inviteEmpty": "暂无邀请 — 在上方添加团队成员。",
+      "invitePartialFailure": "部分邀请发送失败",
+      "invitePartialFailureDescription": "{{total}} 个邀请中有 {{failed}} 个未能发送。",
+      "invitesSent": "已发送 {{count}} 个邀请"
     },
     "device": {
       "invalidTitle": "无效请求",
@@ -432,7 +487,27 @@
       "cancelConfirm": "取消发送给 {{email}} 的邀请？",
       "invitationCanceled": "邀请已取消",
       "cancelFailed": "取消邀请失败",
-      "sending": "发送中..."
+      "sending": "发送中...",
+      "you": "你",
+      "leave": "退出",
+      "leaveConfirm": "退出\"{{org}}\"？您将失去对该组织的访问权限。",
+      "leftOrg": "您已退出该组织",
+      "leaveFailed": "退出组织失败",
+      "roleUpdated": "角色已更新",
+      "roleUpdateFailed": "更新角色失败",
+      "singleInvite": "单个",
+      "bulkInvite": "批量",
+      "bulkEmails": "邮箱地址",
+      "bulkEmailsPlaceholder": "one@example.com\ntwo@example.com",
+      "bulkEmailsHint": "每行一个邮箱，或用逗号分隔。",
+      "invitationResent": "邀请已重新发送",
+      "resend": "重新发送",
+      "resendFailed": "重新发送邀请失败",
+      "copyLink": "复制邀请链接",
+      "linkCopied": "邀请链接已复制",
+      "linkCopyFailed": "复制链接失败",
+      "cancel": "取消邀请",
+      "invitePartialSuccess": "{{sent}} 个已发送，{{failed}} 个失败"
     }
   },
   "legal": {
@@ -440,5 +515,57 @@
     "termsOfService": "服务条款",
     "and": "和",
     "privacyPolicy": "隐私政策"
+  },
+  "invitations": {
+    "title": "邀请",
+    "description": "您收到的待处理组织邀请。",
+    "empty": "没有待处理的邀请。",
+    "accept": "接受",
+    "accepted": "已接受邀请",
+    "acceptFailed": "接受邀请失败",
+    "reject": "拒绝",
+    "rejected": "已拒绝邀请",
+    "rejectFailed": "拒绝邀请失败",
+    "expires": "过期时间 {{date}}"
+  },
+  "linkedAccounts": {
+    "title": "关联账号",
+    "description": "连接到您个人资料的社交和 OAuth 账号。",
+    "empty": "暂无关联账号。",
+    "unlink": "取消关联",
+    "unlinkConfirm": "取消关联 {{provider}}？",
+    "unlinked": "已取消关联",
+    "unlinkFailed": "取消关联失败",
+    "linkedOn": "关联于 {{date}}",
+    "addTitle": "关联新账号",
+    "addDescription": "连接其他登录方式以便快速登录。",
+    "linkFailed": "关联失败"
+  },
+  "teams": {
+    "title": "团队（{{count}}）",
+    "description": "在组织内将成员分组为团队进行管理。",
+    "empty": "暂无团队。",
+    "create": "创建团队",
+    "createTitle": "创建新团队",
+    "createDescription": "团队可以帮助您对成员进行分组管理。",
+    "created": "团队已创建",
+    "createFailed": "创建团队失败",
+    "nameLabel": "团队名称",
+    "namePlaceholder": "例如：工程团队",
+    "delete": "删除团队",
+    "deleteConfirm": "删除团队\"{{name}}\"？此操作不可撤销。",
+    "deleted": "团队已删除",
+    "deleteFailed": "删除团队失败",
+    "members": "成员（{{count}}）",
+    "noMembers": "该团队暂无成员。",
+    "addMember": "添加成员",
+    "addMemberTitle": "添加团队成员",
+    "addMemberDescription": "选择一位组织成员添加到此团队。",
+    "selectMember": "成员",
+    "selectMemberPlaceholder": "选择成员…",
+    "memberAdded": "成员已添加到团队",
+    "addMemberFailed": "添加成员失败",
+    "memberRemoved": "成员已从团队移除",
+    "removeMemberFailed": "移除成员失败"
   }
 }

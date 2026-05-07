@@ -60,7 +60,10 @@
       "overview": "Overview",
       "general": "General",
       "members": "Members",
-      "oauthApps": "OAuth Apps"
+      "oauthApps": "OAuth Apps",
+      "invitations": "Invitations",
+      "linkedAccounts": "Linked Accounts",
+      "teams": "Teams"
     },
     "expand": "Expand sidebar",
     "collapse": "Collapse sidebar"
@@ -85,7 +88,13 @@
     "namePlaceholder": "Your name",
     "save": "Save changes",
     "updated": "Profile updated",
-    "updateFailed": "Failed to update profile"
+    "updateFailed": "Failed to update profile",
+    "changeAvatar": "Change avatar",
+    "avatarUploading": "Uploading…",
+    "avatarHint": "JPG, PNG or GIF. Max 2 MB.",
+    "avatarUpdated": "Avatar updated",
+    "avatarUploadFailed": "Failed to upload avatar",
+    "avatarStorageUnavailable": "Storage service unavailable"
   },
   "security": {
     "title": "Change password",
@@ -96,7 +105,29 @@
     "submit": "Change password",
     "passwordsMismatch": "Passwords do not match",
     "changed": "Password changed",
-    "changeFailed": "Failed to change password"
+    "changeFailed": "Failed to change password",
+    "revokeOtherSessions": "Also revoke all other sessions",
+    "email": {
+      "title": "Change email",
+      "description": "Update the email address associated with your account.",
+      "current": "Current email",
+      "new": "New email address",
+      "placeholder": "new@example.com",
+      "submit": "Change email",
+      "requested": "Verification email sent to your new address",
+      "requestFailed": "Failed to change email"
+    },
+    "delete": {
+      "title": "Delete account",
+      "description": "Permanently delete your account and all associated data. This action cannot be undone.",
+      "dialogTitle": "Are you absolutely sure?",
+      "confirm": "Type your email to confirm: {{email}}",
+      "confirmationMismatch": "Email does not match",
+      "password": "Enter your password to confirm",
+      "cta": "Delete my account",
+      "success": "Account deleted",
+      "failed": "Failed to delete account"
+    }
   },
   "sessions": {
     "title": "Active sessions",
@@ -111,7 +142,8 @@
     "revoked": "Session revoked",
     "revokeFailed": "Failed to revoke session",
     "othersRevoked": "Other sessions revoked",
-    "revokeOthersFailed": "Failed to revoke sessions"
+    "revokeOthersFailed": "Failed to revoke sessions",
+    "current": "Current session"
   },
   "twoFactor": {
     "title": "Two-factor authentication",
@@ -138,7 +170,21 @@
     "disableSuccess": "Two-factor authentication disabled",
     "enableFailed": "Failed to enable 2FA",
     "disableFailed": "Failed to disable 2FA",
-    "invalidCode": "Invalid code"
+    "invalidCode": "Invalid code",
+    "trustDevice": "Trust this device",
+    "backupCodes": {
+      "title": "Backup codes",
+      "description": "Use backup codes to sign in if you lose access to your authenticator app.",
+      "savedTitle": "Save these backup codes",
+      "savedHint": "Store these codes in a safe place. Each code can only be used once.",
+      "newTitle": "New backup codes generated",
+      "regenerate": "Regenerate backup codes",
+      "regenerated": "Backup codes regenerated",
+      "regenerateFailed": "Failed to regenerate backup codes",
+      "copy": "Copy",
+      "copied": "Backup codes copied to clipboard",
+      "copyFailed": "Failed to copy to clipboard"
+    }
   },
   "auth": {
     "emailLabel": "Email",
@@ -221,7 +267,16 @@
       "orgNameHint": "You can rename or add more organizations later.",
       "submit": "Create owner account",
       "submitting": "Creating owner account…",
-      "footerNote": "This screen only appears on first launch. After setup, all users sign in normally."
+      "footerNote": "This screen only appears on first launch. After setup, all users sign in normally.",
+      "orgSlug": "Organization slug",
+      "orgSlugHint": "URL-friendly identifier (auto-generated from name).",
+      "inviteTeammates": "Invite teammates",
+      "inviteTeammatesHint": "Optional. You can always invite people later.",
+      "addInvite": "Add",
+      "inviteEmpty": "No invitations yet — add teammates above.",
+      "invitePartialFailure": "Some invitations failed",
+      "invitePartialFailureDescription": "{{failed}} of {{total}} invitations could not be sent.",
+      "invitesSent": "{{count}} invitation(s) sent"
     },
     "device": {
       "invalidTitle": "Invalid Request",
@@ -432,7 +487,27 @@
       "cancelConfirm": "Cancel invitation for {{email}}?",
       "invitationCanceled": "Invitation canceled",
       "cancelFailed": "Failed to cancel invitation",
-      "sending": "Sending..."
+      "sending": "Sending...",
+      "you": "You",
+      "leave": "Leave",
+      "leaveConfirm": "Leave \"{{org}}\"? You will lose access to this organization.",
+      "leftOrg": "You have left the organization",
+      "leaveFailed": "Failed to leave organization",
+      "roleUpdated": "Role updated",
+      "roleUpdateFailed": "Failed to update role",
+      "singleInvite": "Single",
+      "bulkInvite": "Bulk",
+      "bulkEmails": "Email addresses",
+      "bulkEmailsPlaceholder": "one@example.com\ntwo@example.com",
+      "bulkEmailsHint": "One email per line, or separated by commas.",
+      "invitationResent": "Invitation resent",
+      "resend": "Resend",
+      "resendFailed": "Failed to resend invitation",
+      "copyLink": "Copy invite link",
+      "linkCopied": "Invite link copied",
+      "linkCopyFailed": "Failed to copy link",
+      "cancel": "Cancel invitation",
+      "invitePartialSuccess": "{{sent}} sent, {{failed}} failed"
     }
   },
   "legal": {
@@ -440,5 +515,57 @@
     "termsOfService": "Terms of Service",
     "and": "and",
     "privacyPolicy": "Privacy Policy"
+  },
+  "invitations": {
+    "title": "Invitations",
+    "description": "Pending organization invitations sent to you.",
+    "empty": "No pending invitations.",
+    "accept": "Accept",
+    "accepted": "Invitation accepted",
+    "acceptFailed": "Failed to accept invitation",
+    "reject": "Reject",
+    "rejected": "Invitation rejected",
+    "rejectFailed": "Failed to reject invitation",
+    "expires": "Expires {{date}}"
+  },
+  "linkedAccounts": {
+    "title": "Linked accounts",
+    "description": "Social and OAuth accounts connected to your profile.",
+    "empty": "No linked accounts.",
+    "unlink": "Unlink",
+    "unlinkConfirm": "Unlink {{provider}}?",
+    "unlinked": "Account unlinked",
+    "unlinkFailed": "Failed to unlink account",
+    "linkedOn": "Linked on {{date}}",
+    "addTitle": "Link a new account",
+    "addDescription": "Connect additional providers for quick sign-in.",
+    "linkFailed": "Failed to initiate linking"
+  },
+  "teams": {
+    "title": "Teams ({{count}})",
+    "description": "Organize members into teams within this organization.",
+    "empty": "No teams yet.",
+    "create": "Create team",
+    "createTitle": "Create a new team",
+    "createDescription": "Teams let you group members for easier management.",
+    "created": "Team created",
+    "createFailed": "Failed to create team",
+    "nameLabel": "Team name",
+    "namePlaceholder": "e.g. Engineering",
+    "delete": "Delete team",
+    "deleteConfirm": "Delete team \"{{name}}\"? This cannot be undone.",
+    "deleted": "Team deleted",
+    "deleteFailed": "Failed to delete team",
+    "members": "Members ({{count}})",
+    "noMembers": "No members in this team.",
+    "addMember": "Add member",
+    "addMemberTitle": "Add member to team",
+    "addMemberDescription": "Select an organization member to add to this team.",
+    "selectMember": "Member",
+    "selectMemberPlaceholder": "Select a member…",
+    "memberAdded": "Member added to team",
+    "addMemberFailed": "Failed to add member",
+    "memberRemoved": "Member removed from team",
+    "removeMemberFailed": "Failed to remove member"
   }
 }
