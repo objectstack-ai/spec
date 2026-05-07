@@ -116,8 +116,17 @@ export class VercelLLMAdapter implements LLMAdapter {
       ...buildVercelOptions(options),
     });
 
-    for await (const part of result.fullStream) {
-      yield part as TextStreamPart<ToolSet>;
+    try {
+      for await (const part of result.fullStream) {
+        yield part as TextStreamPart<ToolSet>;
+      }
+    } catch (err) {
+      // Convert provider errors into a typed `error` part so the encoder can
+      // surface them to the client instead of leaving the SSE stream open.
+      yield {
+        type: 'error',
+        error: err instanceof Error ? err : new Error(String(err)),
+      } as unknown as TextStreamPart<ToolSet>;
     }
   }
 

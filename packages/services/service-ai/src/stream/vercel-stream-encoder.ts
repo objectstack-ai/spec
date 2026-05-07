@@ -118,27 +118,50 @@ export async function* encodeVercelDataStream(
 
   let textOpen = true;
   let finishReason = 'stop';
+  let errorMessage: string | undefined;
 
-  for await (const part of events) {
-    // Capture finish reason
-    if (part.type === 'finish') {
-      finishReason = part.finishReason ?? 'stop';
-    }
-
-    // Before finish-step/finish, close the text part first
-    if (part.type === 'finish-step' || part.type === 'finish') {
-      if (textOpen) {
-        yield sse({ type: 'text-end', id: '0' });
-        textOpen = false;
+  try {
+    for await (const part of events) {
+      // Surface error parts emitted by the underlying provider stream.
+      if ((part as { type: string }).type === 'error') {
+        const errPart = part as unknown as { error?: unknown };
+        const raw = errPart.error;
+        errorMessage =
+          (raw && typeof raw === 'object' && 'message' in raw
+            ? String((raw as { message: unknown }).message)
+            : typeof raw === 'string'
+              ? raw
+              : 'Unknown provider error');
+        finishReason = 'error';
+        break;
       }
-      // Don't emit these via encodeStreamPart — we handle them in postamble
-      continue;
-    }
 
-    const frame = encodeStreamPart(part);
-    if (frame) {
-      yield frame;
+      // Capture finish reason
+      if (part.type === 'finish') {
+        finishReason = part.finishReason ?? 'stop';
+      }
+
+      // Before finish-step/finish, close the text part first
+      if (part.type === 'finish-step' || part.type === 'finish') {
+        if (textOpen) {
+          yield sse({ type: 'text-end', id: '0' });
+          textOpen = false;
+        }
+        // Don't emit these via encodeStreamPart — we handle them in postamble
+        continue;
+      }
+
+      const frame = encodeStreamPart(part);
+      if (frame) {
+        yield frame;
+      }
     }
+  } catch (err) {
+    // Upstream provider threw (auth failure, network error, etc.). Without
+    // this catch the SSE response would hang half-open and the client would
+    // never leave its "streaming" state.
+    errorMessage = err instanceof Error ? err.message : String(err);
+    finishReason = 'error';
   }
 
   // Close text if still open (safety)
@@ -146,7 +169,13 @@ export async function* encodeVercelDataStream(
     yield sse({ type: 'text-end', id: '0' });
   }
 
-  // Postamble
+  // If we recorded an error, emit it as a UI Message Stream `error` part so
+  // the client can display it instead of spinning forever.
+  if (errorMessage) {
+    yield sse({ type: 'error', errorText: errorMessage });
+  }
+
+  // Postamble — always emit so the client transitions out of "streaming".
   yield sse({ type: 'finish-step' });
   yield sse({ type: 'finish', finishReason });
   yield 'data: [DONE]\n\n';

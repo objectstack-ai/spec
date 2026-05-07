@@ -258,7 +258,14 @@ export function buildAssistantRoutes(
             '[AI Route] /assistant/chat error',
             err instanceof Error ? err : undefined,
           );
-          return { status: 500, body: { error: 'Internal AI service error' } };
+          // Surface a brief upstream message so the client UI can render it
+          // instead of an opaque "Internal AI service error". Stack traces
+          // stay in the logger.
+          const upstreamMsg = err instanceof Error ? err.message : String(err);
+          return {
+            status: 500,
+            body: { error: 'Internal AI service error', detail: upstreamMsg },
+          };
         }
       },
     },

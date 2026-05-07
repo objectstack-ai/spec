@@ -131,11 +131,24 @@ export class AIServicePlugin implements Plugin {
       if (process.env[envKey]) {
         try {
           const mod = await import(/* webpackIgnore: true */ pkg);
-          const createModel = mod[factory] ?? mod.default;
-          if (typeof createModel === 'function') {
+          const provider = mod[factory] ?? mod.default;
+          if (typeof provider === 'function') {
             const modelId = process.env.AI_MODEL ?? defaultModel;
-            const adapter = new VercelLLMAdapter({ model: createModel(modelId) });
-            return { adapter, description: `${displayName} (model: ${modelId})` };
+            // For OpenAI, prefer the Chat Completions API (`openai.chat(...)`)
+            // over the new Responses API. The Responses endpoint
+            // (`/v1/responses`) is not supported by common reverse proxies
+            // such as the Vercel AI Gateway, Cloudflare AI Gateway, or
+            // Azure-style OpenAI deployments — calling it returns 403
+            // Forbidden and the chat completion silently fails. The Chat
+            // Completions endpoint (`/v1/chat/completions`) is the
+            // industry-standard contract every gateway supports.
+            const useChatApi = factory === 'openai' && typeof (provider as any).chat === 'function';
+            const model = useChatApi
+              ? (provider as any).chat(modelId)
+              : provider(modelId);
+            const adapter = new VercelLLMAdapter({ model });
+            const apiSuffix = useChatApi ? ' [chat-completions]' : '';
+            return { adapter, description: `${displayName} (model: ${modelId})${apiSuffix}` };
           }
         } catch (err) {
           ctx.logger.warn(
