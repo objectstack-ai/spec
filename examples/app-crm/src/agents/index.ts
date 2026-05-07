@@ -4,24 +4,21 @@ import type { Agent } from '@objectstack/spec/ai';
 
 /**
  * Agent Definitions Barrel
+ *
+ * After the move to the Universal Assistant pattern, the CRM ships
+ * two persona-level Agents (Sales Copilot, Service Copilot) that
+ * compose capabilities via Skills. The previous task-specific agents
+ * (email_campaign, lead_enrichment, revenue_intelligence,
+ * sales_assistant, service_agent) have been refactored into Skills
+ * under `../skills/`.
  */
-export { EmailCampaignAgent } from './email-campaign.agent';
-export { LeadEnrichmentAgent } from './lead-enrichment.agent';
-export { RevenueIntelligenceAgent } from './revenue-intelligence.agent';
-export { SalesAssistantAgent } from './sales.agent';
-export { ServiceAgent } from './service.agent';
+export { SalesCopilotAgent } from './sales-copilot.agent';
+export { ServiceCopilotAgent } from './service-copilot.agent';
 
-import { EmailCampaignAgent } from './email-campaign.agent';
-import { LeadEnrichmentAgent } from './lead-enrichment.agent';
-import { RevenueIntelligenceAgent } from './revenue-intelligence.agent';
-import { SalesAssistantAgent } from './sales.agent';
-import { ServiceAgent } from './service.agent';
+import { SalesCopilotAgent } from './sales-copilot.agent';
+import { ServiceCopilotAgent } from './service-copilot.agent';
 
-/** All agent definitions as a typed array for defineStack() */
 export const allAgents: Agent[] = [
-  EmailCampaignAgent,
-  LeadEnrichmentAgent,
-  RevenueIntelligenceAgent,
-  SalesAssistantAgent,
-  ServiceAgent,
+  SalesCopilotAgent,
+  ServiceCopilotAgent,
 ];

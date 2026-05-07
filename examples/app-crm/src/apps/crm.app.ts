@@ -6,6 +6,7 @@ export const CrmApp = App.create({
   name: 'crm_enterprise',
   label: 'Enterprise CRM',
   icon: 'briefcase',
+  defaultAgent: 'sales_copilot',
   branding: {
     primaryColor: '#4169E1',
     secondaryColor: '#00AA00',

@@ -201,75 +201,63 @@ describe('Messages with tool invocation parts', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════
-// Agent Selector
+// Universal Assistant — endpoint + skill override
 // ═══════════════════════════════════════════════════════════════════
 
 import {
-  AGENT_STORAGE_KEY,
-  GENERAL_CHAT_VALUE,
+  ASSISTANT_CHAT_PATH,
+  SKILL_OVERRIDE_KEY,
   chatApiUrl,
-  loadSelectedAgent,
-  saveSelectedAgent,
+  loadSkillOverride,
+  saveSkillOverride,
 } from '../src/components/AiChatPanel';
 
-describe('Agent Selector', () => {
+describe('Universal Assistant integration', () => {
   beforeEach(() => {
     localStorage.clear();
   });
 
   describe('chatApiUrl', () => {
-    it('should return general chat URL when no agent selected', () => {
-      expect(chatApiUrl('', null)).toBe('/api/v1/ai/chat');
-      expect(chatApiUrl('', GENERAL_CHAT_VALUE)).toBe('/api/v1/ai/chat');
+    it('always points to the assistant chat endpoint', () => {
+      expect(chatApiUrl('')).toBe(ASSISTANT_CHAT_PATH);
+      expect(chatApiUrl('http://localhost:3000'))
+        .toBe('http://localhost:3000' + ASSISTANT_CHAT_PATH);
     });
 
-    it('should return agent-specific URL when agent selected', () => {
-      expect(chatApiUrl('', 'metadata_assistant')).toBe('/api/v1/ai/agents/metadata_assistant/chat');
-      expect(chatApiUrl('', 'data_chat')).toBe('/api/v1/ai/agents/data_chat/chat');
-    });
-
-    it('should include baseUrl prefix', () => {
-      expect(chatApiUrl('http://localhost:3000', 'metadata_assistant'))
-        .toBe('http://localhost:3000/api/v1/ai/agents/metadata_assistant/chat');
-      expect(chatApiUrl('http://localhost:3000', GENERAL_CHAT_VALUE))
-        .toBe('http://localhost:3000/api/v1/ai/chat');
+    it('uses the canonical /api/v1/ai/assistant/chat path', () => {
+      expect(ASSISTANT_CHAT_PATH).toBe('/api/v1/ai/assistant/chat');
     });
   });
 
-  describe('loadSelectedAgent', () => {
-    it('should return GENERAL_CHAT_VALUE when nothing stored', () => {
-      expect(loadSelectedAgent()).toBe(GENERAL_CHAT_VALUE);
+  describe('skill override persistence', () => {
+    it('returns null when nothing stored', () => {
+      expect(loadSkillOverride()).toBeNull();
     });
 
-    it('should return stored agent name', () => {
-      localStorage.setItem(AGENT_STORAGE_KEY, 'metadata_assistant');
-      expect(loadSelectedAgent()).toBe('metadata_assistant');
-    });
-  });
-
-  describe('saveSelectedAgent', () => {
-    it('should persist agent selection to localStorage', () => {
-      saveSelectedAgent('metadata_assistant');
-      expect(localStorage.getItem(AGENT_STORAGE_KEY)).toBe('metadata_assistant');
+    it('round-trips a skill name through localStorage', () => {
+      saveSkillOverride('lead_qualification');
+      expect(localStorage.getItem(SKILL_OVERRIDE_KEY)).toBe('lead_qualification');
+      expect(loadSkillOverride()).toBe('lead_qualification');
     });
 
-    it('should overwrite previous selection', () => {
-      saveSelectedAgent('data_chat');
-      saveSelectedAgent('metadata_assistant');
-      expect(localStorage.getItem(AGENT_STORAGE_KEY)).toBe('metadata_assistant');
+    it('clears the override when saved as null', () => {
+      saveSkillOverride('lead_qualification');
+      saveSkillOverride(null);
+      expect(localStorage.getItem(SKILL_OVERRIDE_KEY)).toBeNull();
+      expect(loadSkillOverride()).toBeNull();
     });
 
-    it('should not throw when localStorage is unavailable', () => {
+    it('does not throw when localStorage is unavailable', () => {
       const originalSetItem = localStorage.setItem.bind(localStorage);
       localStorage.setItem = () => { throw new Error('QuotaExceeded'); };
-      expect(() => saveSelectedAgent('metadata_assistant')).not.toThrow();
+      expect(() => saveSkillOverride('x')).not.toThrow();
       localStorage.setItem = originalSetItem;
     });
   });
 
-  describe('AGENT_STORAGE_KEY', () => {
-    it('should be a valid localStorage key', () => {
-      expect(AGENT_STORAGE_KEY).toBe('objectstack:ai-chat-agent');
+  describe('SKILL_OVERRIDE_KEY', () => {
+    it('uses the namespaced key convention', () => {
+      expect(SKILL_OVERRIDE_KEY).toBe('objectstack:ai-chat-skill');
     });
   });
 });

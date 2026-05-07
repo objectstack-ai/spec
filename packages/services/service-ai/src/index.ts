@@ -60,6 +60,10 @@ export {
 export { AgentRuntime } from './agent-runtime.js';
 export type { AgentChatContext } from './agent-runtime.js';
 
+// Skill registry (Agent → Skill → Tool composition)
+export { SkillRegistry } from './skill-registry.js';
+export type { SkillContext, SkillSummary } from './skill-registry.js';
+
 // Built-in agents
 export { DATA_CHAT_AGENT, METADATA_ASSISTANT_AGENT } from './agents/index.js';
 
@@ -69,5 +73,6 @@ export { AiConversationObject, AiMessageObject } from './objects/index.js';
 // Routes
 export { buildAIRoutes } from './routes/ai-routes.js';
 export { buildAgentRoutes } from './routes/agent-routes.js';
+export { buildAssistantRoutes } from './routes/assistant-routes.js';
 export { buildToolRoutes } from './routes/tool-routes.js';
 export type { RouteDefinition, RouteRequest, RouteResponse, RouteUserContext } from './routes/ai-routes.js';

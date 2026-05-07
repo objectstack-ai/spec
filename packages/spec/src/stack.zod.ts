@@ -37,6 +37,7 @@ import { FeatureFlagSchema } from './kernel/feature.zod';
 
 // AI Protocol
 import { AgentSchema } from './ai/agent.zod';
+import { SkillSchema } from './ai/skill.zod';
 import { RAGPipelineConfigSchema } from './ai/rag-pipeline.zod';
 
 // Data Protocol (additional)
@@ -228,8 +229,22 @@ export const ObjectStackDefinitionSchema = lazySchema(() => z.object({
 
   /**
    * ObjectAI: Artificial Intelligence Layer
+   *
+   * Three-tier composition (Agent → Skill → Tool) aligned with Salesforce
+   * Agentforce Topics, Microsoft Copilot Studio Topics, and ServiceNow Now
+   * Assist Skills:
+   *
+   * - **agents**: Persona-bearing copilots (1-3 per app). Each agent declares
+   *   its base instructions, model, knowledge, and the set of skills it can
+   *   draw on. Users typically don't pick an agent per message — the active
+   *   app's `defaultAgent` is selected automatically.
+   * - **skills**: Reusable capability bundles ("topics" in Salesforce parlance).
+   *   Each skill groups related tools, declares trigger phrases for
+   *   intent matching, and trigger conditions for context-aware activation.
+   * - **ragPipelines**: Retrieval pipelines wired into agent `knowledge`.
    */
   agents: z.array(AgentSchema).optional().describe('AI Agents and Assistants'),
+  skills: z.array(SkillSchema).optional().describe('AI Skills (reusable capability bundles referenced by Agents)'),
   ragPipelines: z.array(RAGPipelineConfigSchema).optional().describe('RAG Pipelines'),
 
   /**
@@ -758,6 +773,7 @@ const CONCAT_ARRAY_FIELDS = [
   'apis',
   'webhooks',
   'agents',
+  'skills',
   'ragPipelines',
   'hooks',
   'mappings',

@@ -18,6 +18,7 @@ import * as dashboards from './src/dashboards';
 import * as reports from './src/reports';
 import { allFlows } from './src/flows';
 import { allAgents } from './src/agents';
+import { allSkills } from './src/skills';
 import * as ragPipelines from './src/rag';
 import * as profiles from './src/profiles';
 import * as apps from './src/apps';
@@ -64,6 +65,7 @@ export default defineStack({
   reports: Object.values(reports),
   flows: allFlows,
   agents: allAgents,
+  skills: allSkills,
   ragPipelines: Object.values(ragPipelines),
   permissions: Object.values(profiles),
   apps: Object.values(apps),

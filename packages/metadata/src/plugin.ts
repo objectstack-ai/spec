@@ -38,6 +38,7 @@ const ARTIFACT_FIELD_TO_TYPE: Record<string, string> = {
     apis: 'api',
     webhooks: 'webhook',
     agents: 'agent',
+    skills: 'skill',
     ragPipelines: 'rag_pipeline',
     hooks: 'hook',
     mappings: 'mapping',

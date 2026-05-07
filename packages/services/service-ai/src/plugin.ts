@@ -6,12 +6,14 @@ import { AIService } from './ai-service.js';
 import type { AIServiceConfig } from './ai-service.js';
 import { buildAIRoutes } from './routes/ai-routes.js';
 import { buildAgentRoutes } from './routes/agent-routes.js';
+import { buildAssistantRoutes } from './routes/assistant-routes.js';
 import { buildToolRoutes } from './routes/tool-routes.js';
 import { ObjectQLConversationService } from './conversation/objectql-conversation-service.js';
 import { AiConversationObject, AiMessageObject } from './objects/index.js';
 import { registerDataTools } from './tools/data-tools.js';
 import { registerMetadataTools } from './tools/metadata-tools.js';
 import { AgentRuntime } from './agent-runtime.js';
+import { SkillRegistry } from './skill-registry.js';
 import { DATA_CHAT_AGENT, METADATA_ASSISTANT_AGENT } from './agents/index.js';
 import { VercelLLMAdapter } from './adapters/vercel-adapter.js';
 import { MemoryLLMAdapter } from './adapters/memory-adapter.js';
@@ -383,12 +385,17 @@ export class AIServicePlugin implements Plugin {
 
     // Build agent routes if metadata service is available
     if (metadataService) {
-      const agentRuntime = new AgentRuntime(metadataService);
+      const skillRegistry = new SkillRegistry(metadataService);
+      const agentRuntime = new AgentRuntime(metadataService, skillRegistry);
       const agentRoutes = buildAgentRoutes(this.service, agentRuntime, ctx.logger);
       routes.push(...agentRoutes);
       ctx.logger.info(`[AI] Agent routes registered (${agentRoutes.length} routes)`);
+
+      const assistantRoutes = buildAssistantRoutes(this.service, agentRuntime, skillRegistry, ctx.logger);
+      routes.push(...assistantRoutes);
+      ctx.logger.info(`[AI] Assistant (ambient) routes registered (${assistantRoutes.length} routes)`);
     } else {
-      ctx.logger.debug('[AI] Metadata service not available, skipping agent routes');
+      ctx.logger.debug('[AI] Metadata service not available, skipping agent and assistant routes');
     }
 
     // Trigger hook so HTTP server plugins can mount these routes

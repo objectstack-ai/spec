@@ -333,6 +333,25 @@ export const AppSchema = lazySchema(() => z.object({
       .describe('Navigation item IDs to show in bottom nav (max 5)'),
   }).optional().describe('Mobile-specific navigation configuration'),
 
+  /**
+   * Default AI Copilot for this app.
+   *
+   * When set, the ambient chat endpoint (`POST /api/v1/ai/chat` with
+   * `context.appName`) auto-resolves to this agent without the user
+   * having to pick from a list. The agent's `skills[]` are loaded
+   * from the SkillRegistry and exposed to the LLM.
+   *
+   * Mirrors the Salesforce Agentforce / ServiceNow Now Assist pattern
+   * where each application surface has one ambient copilot.
+   *
+   * @example
+   * ```ts
+   * defineApp({ name: 'crm', defaultAgent: 'sales_copilot', ... })
+   * ```
+   */
+  defaultAgent: SnakeCaseIdentifierSchema.optional()
+    .describe('Name of the default AI agent for this app (used by the ambient chat endpoint)'),
+
   /** ARIA accessibility attributes */
   aria: AriaPropsSchema.optional().describe('ARIA accessibility attributes for the application'),
 }));

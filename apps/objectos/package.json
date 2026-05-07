@@ -18,7 +18,7 @@
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
-    "@example/app-crm": "workspace:*",
+    "@objectstack/example-crm": "workspace:*",
     "@example/app-todo": "workspace:*",
     "@hono/node-server": "^2.0.1",
     "@libsql/client": "^0.17.3",

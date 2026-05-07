@@ -120,6 +120,7 @@ function extractMetadataItems(bundle: any): ExtractedItem[] {
     pushAll('report', bundle?.reports);
     pushAll('flow', bundle?.flows);
     pushAll('agent', bundle?.agents);
+    pushAll('skill', bundle?.skills);
     pushAll('app', bundle?.apps);
     pushAll('action', bundle?.actions);
     pushAll('hook', bundle?.hooks);

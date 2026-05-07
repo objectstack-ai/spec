@@ -117,13 +117,17 @@ export function buildAgentRoutes(
         }
 
         try {
-          // Build system messages from agent instructions + UI context
-          const systemMessages = agentRuntime.buildSystemMessages(agent, chatContext);
+          // Resolve active skills for this agent in the current context
+          const activeSkills = await agentRuntime.resolveActiveSkills(agent, chatContext);
 
-          // Resolve agent model/tools → request options
+          // Build system messages from agent instructions + UI context + skills
+          const systemMessages = agentRuntime.buildSystemMessages(agent, chatContext, activeSkills);
+
+          // Resolve agent model/tools + skill tools → request options
           const agentOptions = agentRuntime.buildRequestOptions(
             agent,
             aiService.toolRegistry.getAll(),
+            activeSkills,
           );
 
           // Whitelist only safe caller overrides — block tools/toolChoice/model
