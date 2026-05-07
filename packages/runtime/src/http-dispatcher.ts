@@ -3,7 +3,12 @@
 import { ObjectKernel, getEnv, resolveLocale } from '@objectstack/core';
 import { CoreServiceName } from '@objectstack/spec/system';
 import { pluralToSingular } from '@objectstack/spec/shared';
+import type { ExecutionContext } from '@objectstack/spec/kernel';
 import type { KernelManager } from './kernel-manager.js';
+import {
+    resolveExecutionContext,
+    isPermissionDeniedError,
+} from './security/resolve-execution-context.js';
 
 /** Browser-safe UUID generator — prefers Web Crypto, falls back to RFC 4122 v4 */
 function randomUUID(): string {
@@ -22,6 +27,12 @@ export interface HttpProtocolContext {
     response?: any;
     projectId?: string;   // Resolved environment ID
     dataDriver?: any; // IDataDriver - Resolved environment-scoped driver
+    /**
+     * Identity envelope resolved by `resolveExecutionContext` and threaded
+     * into every ObjectQL call so the SecurityPlugin middleware can apply
+     * RBAC/RLS/FLS. Optional — anonymous requests carry an empty context.
+     */
+    executionContext?: ExecutionContext;
 }
 
 export interface HttpDispatcherResult {
@@ -161,14 +172,25 @@ export class HttpDispatcher {
      * @param dataDriver - Optional environment-scoped driver to use instead of kernel default
      * @param scopeId - Optional project ID for scoped service resolution (SharedProjectPlugin mode)
      */
-    private async callData(action: string, params: any, dataDriver?: any, scopeId?: string): Promise<any> {
+    private async callData(
+        action: string,
+        params: any,
+        dataDriver?: any,
+        scopeId?: string,
+        executionContext?: ExecutionContext,
+    ): Promise<any> {
         const protocol = await this.resolveService('protocol', scopeId);
         const qlService = dataDriver ?? await this.getObjectQLService(scopeId);
         const ql = qlService ?? await this.resolveService('objectql', scopeId);
+        const qlOpts = executionContext ? { context: executionContext } : undefined;
+        const findOpts = (extra?: any) => {
+            const base = qlOpts ? { ...qlOpts } : {};
+            return extra ? { ...base, ...extra } : (qlOpts ? base : undefined);
+        };
 
         if (action === 'create') {
             if (ql) {
-                const res = await ql.insert(params.object, params.data);
+                const res = await ql.insert(params.object, params.data, qlOpts);
                 const record = { ...params.data, ...res };
                 return { object: params.object, id: record.id, record };
             }
@@ -177,12 +199,13 @@ export class HttpDispatcher {
 
         if (action === 'get') {
             if (protocol && typeof protocol.getData === 'function') {
-                return await protocol.getData({ object: params.object, id: params.id, expand: params.expand, select: params.select });
+                return await protocol.getData({ object: params.object, id: params.id, expand: params.expand, select: params.select, context: executionContext });
             }
             if (ql) {
-                let all = await ql.find(params.object);
+                let all = await ql.find(params.object, findOpts({ where: { id: params.id }, limit: 1 }));
+                if (all && (all as any).value) all = (all as any).value;
                 if (!all) all = [];
-                const match = all.find((i: any) => i.id === params.id);
+                const match = (all as any[]).find((i: any) => i.id === params.id);
                 return match ? { object: params.object, id: params.id, record: match } : null;
             }
             throw { statusCode: 503, message: 'Data service not available' };
@@ -190,12 +213,12 @@ export class HttpDispatcher {
 
         if (action === 'update') {
             if (ql && params.id) {
-                let all = await ql.find(params.object);
+                let all = await ql.find(params.object, findOpts({ where: { id: params.id }, limit: 1 }));
                 if (all && (all as any).value) all = (all as any).value;
                 if (!all) all = [];
-                const existing = all.find((i: any) => i.id === params.id);
+                const existing = (all as any[]).find((i: any) => i.id === params.id);
                 if (!existing) throw new Error('[ObjectStack] Not Found');
-                await ql.update(params.object, params.data, { where: { id: params.id } });
+                await ql.update(params.object, params.data, findOpts({ where: { id: params.id } }));
                 return { object: params.object, id: params.id, record: { ...existing, ...params.data } };
             }
             throw { statusCode: 503, message: 'Data service not available' };
@@ -203,7 +226,7 @@ export class HttpDispatcher {
 
         if (action === 'delete') {
             if (ql) {
-                await ql.delete(params.object, { where: { id: params.id } });
+                await ql.delete(params.object, findOpts({ where: { id: params.id } }));
                 return { object: params.object, id: params.id, deleted: true };
             }
             throw { statusCode: 503, message: 'Data service not available' };
@@ -216,10 +239,10 @@ export class HttpDispatcher {
                     const { object, ...rest } = params;
                     return rest;
                 })();
-                return await protocol.findData({ object: params.object, query });
+                return await protocol.findData({ object: params.object, query, context: executionContext });
             }
             if (ql) {
-                let all = await ql.find(params.object);
+                let all = await ql.find(params.object, qlOpts);
                 if (!Array.isArray(all) && all && (all as any).value) all = (all as any).value;
                 if (!all) all = [];
                 return { object: params.object, records: all, total: all.length };
@@ -1007,7 +1030,7 @@ export class HttpDispatcher {
             // POST /data/:object/query
             if (action === 'query' && m === 'POST') {
                 // Spec: returns FindDataResponse = { object, records, total?, hasMore? }
-                const result = await this.callData('query', { object: objectName, ...body }, _context.dataDriver, _context.projectId);
+                const result = await this.callData('query', { object: objectName, ...body }, _context.dataDriver, _context.projectId, _context.executionContext);
                 return { handled: true, response: this.success(result) };
             }
 
@@ -1021,7 +1044,7 @@ export class HttpDispatcher {
                 if (select != null) allowedParams.select = select;
                 if (expand != null) allowedParams.expand = expand;
                 // Spec: returns GetDataResponse = { object, id, record }
-                const result = await this.callData('get', { object: objectName, id, ...allowedParams }, _context.dataDriver, _context.projectId);
+                const result = await this.callData('get', { object: objectName, id, ...allowedParams }, _context.dataDriver, _context.projectId, _context.executionContext);
                 return { handled: true, response: this.success(result) };
             }
 
@@ -1029,7 +1052,7 @@ export class HttpDispatcher {
             if (parts.length === 2 && m === 'PATCH') {
                 const id = parts[1];
                 // Spec: returns UpdateDataResponse = { object, id, record }
-                const result = await this.callData('update', { object: objectName, id, data: body }, _context.dataDriver, _context.projectId);
+                const result = await this.callData('update', { object: objectName, id, data: body }, _context.dataDriver, _context.projectId, _context.executionContext);
                 return { handled: true, response: this.success(result) };
             }
 
@@ -1037,7 +1060,7 @@ export class HttpDispatcher {
             if (parts.length === 2 && m === 'DELETE') {
                 const id = parts[1];
                 // Spec: returns DeleteDataResponse = { object, id, deleted }
-                const result = await this.callData('delete', { object: objectName, id }, _context.dataDriver, _context.projectId);
+                const result = await this.callData('delete', { object: objectName, id }, _context.dataDriver, _context.projectId, _context.executionContext);
                 return { handled: true, response: this.success(result) };
             }
         } else {
@@ -1085,14 +1108,14 @@ export class HttpDispatcher {
                 }
 
                 // Spec: returns FindDataResponse = { object, records, total?, hasMore? }
-                const result = await this.callData('query', { object: objectName, query: normalized }, _context.dataDriver, _context.projectId);
+                const result = await this.callData('query', { object: objectName, query: normalized }, _context.dataDriver, _context.projectId, _context.executionContext);
                 return { handled: true, response: this.success(result) };
             }
 
             // POST /data/:object (Create)
             if (m === 'POST') {
                 // Spec: returns CreateDataResponse = { object, id, record }
-                const result = await this.callData('create', { object: objectName, data: body }, _context.dataDriver, _context.projectId);
+                const result = await this.callData('create', { object: objectName, data: body }, _context.dataDriver, _context.projectId, _context.executionContext);
                 const res = this.success(result);
                 res.status = 201;
                 return { handled: true, response: res };
@@ -3034,7 +3057,7 @@ export class HttpDispatcher {
         let record: Record<string, unknown> = {};
         if (recordId && objectName !== 'global') {
             try {
-                const got = await this.callData('get', { object: objectName, id: recordId }, _context.dataDriver, _context.projectId);
+                const got = await this.callData('get', { object: objectName, id: recordId }, _context.dataDriver, _context.projectId, _context.executionContext);
                 if (got?.record) record = got.record;
             } catch { /* record may not exist for new-record actions; pass empty */ }
         }
@@ -3220,6 +3243,19 @@ export class HttpDispatcher {
             this.scopeManager.touch(context.projectId);
         }
 
+        // ── Identity Resolution (RBAC/RLS/FLS context) ──
+        // Resolve once per request; SecurityPlugin middleware reads
+        // ctx.userId/roles/permissions/tenantId via opCtx.context.
+        try {
+            context.executionContext = await resolveExecutionContext({
+                getService: (n: string) => this.resolveService(n, context.projectId),
+                getQl: () => Promise.resolve(this.getObjectQLService(context.projectId)),
+                request: context.request,
+            });
+        } catch {
+            // anonymous request — leave executionContext undefined
+        }
+
         // ── Project Membership Enforcement ──
         // Once the projectId is known, gate scoped data/meta/AI/automation
         // routes on `sys_project_member`. Control-plane paths, the system
@@ -3244,6 +3280,7 @@ export class HttpDispatcher {
         // 0. Discovery Endpoint (GET /discovery or GET /)
         // Standard route: /discovery (protocol-compliant)
         // Legacy route: / (empty path, for backward compatibility — MSW strips base URL)
+        try {
         if ((cleanPath === '/discovery' || cleanPath === '') && method === 'GET') {
              const info = await this.getDiscoveryInfo(prefix ?? '');
              return { 
@@ -3343,6 +3380,15 @@ export class HttpDispatcher {
             handled: true,
             response: this.routeNotFound(cleanPath),
         };
+        } catch (e) {
+            if (isPermissionDeniedError(e)) {
+                return {
+                    handled: true,
+                    response: this.error(e.message, 403, { code: 'PERMISSION_DENIED', ...(e.details ?? {}) }),
+                };
+            }
+            throw e;
+        }
     }
 
     /**

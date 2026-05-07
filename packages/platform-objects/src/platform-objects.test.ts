@@ -15,7 +15,13 @@ import {
   SysUserPreference,
   SysVerification,
 } from './identity/index.js';
-import { SysPermissionSet, SysRole } from './security/index.js';
+import {
+  SysPermissionSet,
+  SysRole,
+  SysUserPermissionSet,
+  SysRolePermissionSet,
+  defaultPermissionSets,
+} from './security/index.js';
 import { SysAuditLog, SysPresence } from './audit/index.js';
 import {
   SysApp,
@@ -51,6 +57,8 @@ const systemObjects = [
   ['SysUserPreference', SysUserPreference, 'sys_user_preference'],
   ['SysRole', SysRole, 'sys_role'],
   ['SysPermissionSet', SysPermissionSet, 'sys_permission_set'],
+  ['SysUserPermissionSet', SysUserPermissionSet, 'sys_user_permission_set'],
+  ['SysRolePermissionSet', SysRolePermissionSet, 'sys_role_permission_set'],
   ['SysAuditLog', SysAuditLog, 'sys_audit_log'],
   ['SysPresence', SysPresence, 'sys_presence'],
   ['SysProject', SysProject, 'sys_project'],
@@ -81,5 +89,50 @@ describe('@objectstack/platform-objects', () => {
   it.each(systemObjects)('%s does not use deprecated storage identity fields', (_exportName, object) => {
     expect((object as any).namespace).toBeUndefined();
     expect((object as any).tableName).toBeUndefined();
+  });
+
+  describe('default permission sets', () => {
+    it('exposes the three canonical platform permission sets', () => {
+      const names = defaultPermissionSets.map((p) => p.name).sort();
+      expect(names).toEqual(['admin_full_access', 'member_default', 'viewer_readonly']);
+    });
+
+    it('admin_full_access grants wildcard CRUD with viewAll/modifyAll', () => {
+      const admin = defaultPermissionSets.find((p) => p.name === 'admin_full_access')!;
+      const wildcard = admin.objects['*'];
+      expect(wildcard).toBeDefined();
+      expect(wildcard.allowRead).toBe(true);
+      expect(wildcard.allowCreate).toBe(true);
+      expect(wildcard.allowEdit).toBe(true);
+      expect(wildcard.allowDelete).toBe(true);
+      expect(wildcard.viewAllRecords).toBe(true);
+      expect(wildcard.modifyAllRecords).toBe(true);
+    });
+
+    it('member_default ships tenant + owner RLS policies plus better-auth system table guards', () => {
+      const member = defaultPermissionSets.find((p) => p.name === 'member_default')!;
+      const policyNames = (member.rowLevelSecurity ?? []).map((p) => p.name).sort();
+      expect(policyNames).toEqual([
+        'owner_only_deletes',
+        'owner_only_writes',
+        'sys_organization_self',
+        'sys_user_self',
+        'tenant_isolation',
+      ]);
+      const tenantPolicy = (member.rowLevelSecurity ?? []).find((p) => p.name === 'tenant_isolation')!;
+      expect(tenantPolicy.using).toBe('tenant_id = current_user.tenant_id');
+      const orgSelf = (member.rowLevelSecurity ?? []).find((p) => p.name === 'sys_organization_self')!;
+      expect(orgSelf.object).toBe('sys_organization');
+      expect(orgSelf.using).toBe('id = current_user.tenant_id');
+    });
+
+    it('viewer_readonly denies writes', () => {
+      const viewer = defaultPermissionSets.find((p) => p.name === 'viewer_readonly')!;
+      const wildcard = viewer.objects['*'];
+      expect(wildcard.allowRead).toBe(true);
+      expect(wildcard.allowCreate).toBe(false);
+      expect(wildcard.allowEdit).toBe(false);
+      expect(wildcard.allowDelete).toBe(false);
+    });
   });
 });

@@ -165,6 +165,7 @@ export class RestServer {
     private kernelManager?: RestKernelManager;
     private envRegistry?: RestEnvRegistry;
     private defaultProjectIdProvider?: () => string | undefined;
+    private authServiceProvider?: (projectId?: string) => Promise<any | undefined>;
 
     constructor(
         server: IHttpServer,
@@ -173,6 +174,7 @@ export class RestServer {
         kernelManager?: RestKernelManager,
         envRegistry?: RestEnvRegistry,
         defaultProjectIdProvider?: () => string | undefined,
+        authServiceProvider?: (projectId?: string) => Promise<any | undefined>,
     ) {
         this.protocol = protocol;
         this.config = this.normalizeConfig(config);
@@ -180,6 +182,7 @@ export class RestServer {
         this.kernelManager = kernelManager;
         this.envRegistry = envRegistry;
         this.defaultProjectIdProvider = defaultProjectIdProvider;
+        this.authServiceProvider = authServiceProvider;
     }
 
     /**
@@ -266,6 +269,79 @@ export class RestServer {
         try {
             const kernel = await this.kernelManager.getOrCreate(projectId);
             return await kernel.getServiceAsync<any>('i18n');
+        } catch {
+            return undefined;
+        }
+    }
+
+    /**
+     * Resolve the request's execution context (RBAC/RLS/FLS) by looking up
+     * the better-auth session via the project's `auth` service. Returns
+     * `undefined` for anonymous requests so callers can pass `context` as-is
+     * to the protocol layer (the SecurityPlugin treats undefined as anon).
+     */
+    private async resolveExecCtx(projectId: string | undefined, req: any): Promise<any | undefined> {
+        try {
+            // Look up the auth service in the right kernel. For unscoped
+            // single-project apps the kernelManager will hand us the lone
+            // tenant kernel; for multi-project hosts we use the resolved
+            // projectId.
+            let authService: any;
+            if (projectId && projectId !== 'platform' && this.kernelManager) {
+                const kernel = await this.kernelManager.getOrCreate(projectId);
+                authService = await kernel.getServiceAsync('auth').catch(() => undefined);
+            }
+            if (!authService && this.defaultProjectIdProvider && this.kernelManager) {
+                try {
+                    const def = this.defaultProjectIdProvider();
+                    if (def) {
+                        const kernel = await this.kernelManager.getOrCreate(def);
+                        authService = await kernel.getServiceAsync('auth').catch(() => undefined);
+                    }
+                } catch { /* fall through */ }
+            }
+            // Single-kernel deployment fallback — no kernelManager, but
+            // the plugin wired an `authServiceProvider` that hits the
+            // local kernel directly.
+            if (!authService && this.authServiceProvider) {
+                authService = await this.authServiceProvider(projectId).catch(() => undefined);
+            }
+            if (!authService) return undefined;
+            // The auth service may be the AuthManager wrapper (which exposes
+            // `getApi()`) or the raw better-auth instance (which exposes
+            // `.api` directly). Normalize to the raw API object.
+            let api: any = authService.api;
+            if (!api && typeof authService.getApi === 'function') {
+                api = await authService.getApi();
+            }
+            if (!api?.getSession) return undefined;
+
+            // better-auth's `getSession` requires a Web `Headers` instance
+            // (it calls `headers.get('cookie')`). Adapter req.headers may
+            // already be one, or a plain object — normalize.
+            const rawHeaders: any = req?.headers;
+            let headers: any;
+            if (rawHeaders && typeof rawHeaders.get === 'function') {
+                headers = rawHeaders;
+            } else if (rawHeaders && typeof rawHeaders === 'object') {
+                headers = new (globalThis as any).Headers();
+                for (const [k, v] of Object.entries(rawHeaders)) {
+                    if (Array.isArray(v)) v.forEach((x) => headers.append(k, String(x)));
+                    else if (v != null) headers.set(k, String(v));
+                }
+            } else {
+                return undefined;
+            }
+
+            const session = await api.getSession({ headers });
+            if (!session?.user?.id) return undefined;
+            return {
+                userId: session.user.id,
+                tenantId: session.session?.activeOrganizationId,
+                roles: [],
+                permissions: ['member_default'],
+                isSystem: false,
+            };
         } catch {
             return undefined;
         }
@@ -831,10 +907,12 @@ export class RestServer {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
                         const p = await this.resolveProtocol(projectId, req);
+                        const context = await this.resolveExecCtx(projectId, req);
                         const result = await p.findData({
                             object: req.params.object,
                             query: req.query,
                             ...(projectId ? { projectId } : {}),
+                            ...(context ? { context } : {}),
                         } as any);
                         res.json(result);
                     } catch (error: any) {
@@ -864,12 +942,14 @@ export class RestServer {
                         const projectId = isScoped ? req.params?.projectId : undefined;
                         const p = await this.resolveProtocol(projectId, req);
                         const { select, expand } = req.query || {};
+                        const context = await this.resolveExecCtx(projectId, req);
                         const result = await p.getData({
                             object: req.params.object,
                             id: req.params.id,
                             ...(select != null ? { select } : {}),
                             ...(expand != null ? { expand } : {}),
                             ...(projectId ? { projectId } : {}),
+                            ...(context ? { context } : {}),
                         } as any);
                         res.json(result);
                     } catch (error: any) {
@@ -894,10 +974,12 @@ export class RestServer {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
                         const p = await this.resolveProtocol(projectId, req);
+                        const context = await this.resolveExecCtx(projectId, req);
                         const result = await p.createData({
                             object: req.params.object,
                             data: req.body,
                             ...(projectId ? { projectId } : {}),
+                            ...(context ? { context } : {}),
                         } as any);
                         res.status(201).json(result);
                     } catch (error: any) {
@@ -922,11 +1004,13 @@ export class RestServer {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
                         const p = await this.resolveProtocol(projectId, req);
+                        const context = await this.resolveExecCtx(projectId, req);
                         const result = await p.updateData({
                             object: req.params.object,
                             id: req.params.id,
                             data: req.body,
                             ...(projectId ? { projectId } : {}),
+                            ...(context ? { context } : {}),
                         } as any);
                         res.json(result);
                     } catch (error: any) {
@@ -951,10 +1035,12 @@ export class RestServer {
                     try {
                         const projectId = isScoped ? req.params?.projectId : undefined;
                         const p = await this.resolveProtocol(projectId, req);
+                        const context = await this.resolveExecCtx(projectId, req);
                         const result = await p.deleteData({
                             object: req.params.object,
                             id: req.params.id,
                             ...(projectId ? { projectId } : {}),
+                            ...(context ? { context } : {}),
                         } as any);
                         res.json(result);
                     } catch (error: any) {

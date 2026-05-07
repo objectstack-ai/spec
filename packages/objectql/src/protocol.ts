@@ -505,8 +505,14 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         }
     }
 
-    async findData(request: { object: string, query?: any }) {
+    async findData(request: { object: string, query?: any, context?: any }) {
         const options: any = { ...request.query };
+        // Forward the dispatcher's ExecutionContext so RBAC/RLS middleware
+        // can apply per-request enforcement. The protocol layer is purely
+        // a normalizer — it must never strip security context.
+        if (request.context !== undefined) {
+            options.context = request.context;
+        }
 
         // ====================================================================
         // Normalize legacy params → QueryAST standard (where/fields/orderBy/offset/expand)
@@ -643,10 +649,13 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         };
     }
 
-    async getData(request: { object: string, id: string, expand?: string | string[], select?: string | string[] }) {
+    async getData(request: { object: string, id: string, expand?: string | string[], select?: string | string[], context?: any }) {
         const queryOptions: any = {
             where: { id: request.id }
         };
+        if (request.context !== undefined) {
+            queryOptions.context = request.context;
+        }
 
         // Support fields for single-record retrieval
         if (request.select) {
@@ -677,8 +686,12 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         throw new Error(`Record ${request.id} not found in ${request.object}`);
     }
 
-    async createData(request: { object: string, data: any }) {
-        const result = await this.engine.insert(request.object, request.data);
+    async createData(request: { object: string, data: any, context?: any }) {
+        const result = await this.engine.insert(
+            request.object,
+            request.data,
+            request.context !== undefined ? { context: request.context } as any : undefined,
+        );
         return {
             object: request.object,
             id: result.id,
@@ -686,9 +699,10 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         };
     }
 
-    async updateData(request: { object: string, id: string, data: any }) {
-        // Adapt: update(obj, id, data) -> update(obj, data, options)
-        const result = await this.engine.update(request.object, request.data, { where: { id: request.id } });
+    async updateData(request: { object: string, id: string, data: any, context?: any }) {
+        const opts: any = { where: { id: request.id } };
+        if (request.context !== undefined) opts.context = request.context;
+        const result = await this.engine.update(request.object, request.data, opts);
         return {
             object: request.object,
             id: request.id,
@@ -696,9 +710,10 @@ export class ObjectStackProtocolImplementation implements ObjectStackProtocol {
         };
     }
 
-    async deleteData(request: { object: string, id: string }) {
-        // Adapt: delete(obj, id) -> delete(obj, options)
-        await this.engine.delete(request.object, { where: { id: request.id } });
+    async deleteData(request: { object: string, id: string, context?: any }) {
+        const opts: any = { where: { id: request.id } };
+        if (request.context !== undefined) opts.context = request.context;
+        await this.engine.delete(request.object, opts);
         return {
             object: request.object,
             id: request.id,

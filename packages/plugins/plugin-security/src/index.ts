@@ -11,3 +11,11 @@ export { SecurityPlugin } from './security-plugin.js';
 export { PermissionEvaluator } from './permission-evaluator.js';
 export { RLSCompiler } from './rls-compiler.js';
 export { FieldMasker } from './field-masker.js';
+export { PermissionDeniedError, isPermissionDeniedError } from './errors.js';
+export {
+  securityObjects,
+  securityDefaultPermissionSets,
+  securityPluginManifestHeader,
+  SECURITY_PLUGIN_ID,
+  SECURITY_PLUGIN_VERSION,
+} from './manifest.js';
