@@ -77,13 +77,9 @@ export const ExportToCsvAction: Action = {
     source: `
       const objectName = input.objectName ?? 'account';
       const raw = await ctx.api.object(objectName).find();
-      // DEBUG: surface what the engine returned
-      return {
-        rawType: typeof raw,
-        isArray: Array.isArray(raw),
-        keys: raw && typeof raw === 'object' ? Object.keys(raw).slice(0, 5) : null,
-        len: Array.isArray(raw) ? raw.length : (raw?.records?.length ?? raw?.value?.length ?? 'n/a'),
-      };
+      // Drivers may return either a plain array or { records, total }.
+      const records = Array.isArray(raw) ? raw : (raw?.records ?? raw?.value ?? []);
+      if (!Array.isArray(records) || records.length === 0) return '';
       const keys = Object.keys(records[0]);
       const header = keys.join(',');
       const rows = records.map((r) => keys.map((k) => r[k] ?? '').join(','));
