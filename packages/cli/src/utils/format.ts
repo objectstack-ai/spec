@@ -187,6 +187,10 @@ export interface ServerReadyOptions {
   studioPath?: string;
   accountPath?: string;
   dashboardPath?: string;
+  /** Resolved storage driver display name (e.g. "MongoDBDriver", "SqlDriver(pg)"). */
+  driverLabel?: string;
+  /** Resolved DB URL with credentials redacted. */
+  databaseUrl?: string;
 }
 
 export function printServerReady(opts: ServerReadyOptions) {
@@ -207,6 +211,10 @@ export function printServerReady(opts: ServerReadyOptions) {
   console.log('');
   console.log(chalk.dim(`  Config:  ${opts.configFile}`));
   console.log(chalk.dim(`  Mode:    ${opts.isDev ? 'development' : 'production'}`));
+  if (opts.driverLabel) {
+    const dbInfo = opts.databaseUrl ? `${opts.driverLabel}  ${chalk.dim('→')} ${opts.databaseUrl}` : opts.driverLabel;
+    console.log(chalk.dim(`  Driver:  ${dbInfo}`));
+  }
   console.log(chalk.dim(`  Plugins: ${opts.pluginCount} loaded`));
   if (opts.pluginNames && opts.pluginNames.length > 0) {
     console.log(chalk.dim(`           ${opts.pluginNames.join(', ')}`));
