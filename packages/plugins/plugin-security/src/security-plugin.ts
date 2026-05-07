@@ -160,6 +160,7 @@ export class SecurityPlugin implements Plugin {
         permissionSets = await this.permissionEvaluator.resolvePermissionSets(
           requested,
           metadata,
+          this.bootstrapPermissionSets,
         );
       } catch (e) {
         // If metadata service is misconfigured, log and continue without permission checks
@@ -195,7 +196,16 @@ export class SecurityPlugin implements Plugin {
           : allRlsPolicies.map((p) => ({
               ...p,
               using: p.using
-                ? p.using.replace(/\btenant_id\b/g, this.tenantField)
+                // Rewrite the LEFT-hand column reference only.
+                // The placeholder `current_user.tenant_id` is a context
+                // lookup key (resolved against `RLSUserContext.tenant_id`)
+                // and must NOT be rewritten — otherwise compileExpression
+                // looks up `userCtx[<tenantField>]` which doesn't exist
+                // and silently drops the policy.
+                ? p.using.replace(
+                    /(^|[^.\w])tenant_id\b/g,
+                    (_m, prefix) => `${prefix}${this.tenantField}`,
+                  )
                 : p.using,
             }));
         // Drop policies whose target field doesn't exist on the object —

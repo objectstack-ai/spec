@@ -109,16 +109,21 @@ describe('@objectstack/platform-objects', () => {
       expect(wildcard.modifyAllRecords).toBe(true);
     });
 
-    it('member_default ships tenant + owner RLS policies', () => {
+    it('member_default ships tenant + owner RLS policies plus better-auth system table guards', () => {
       const member = defaultPermissionSets.find((p) => p.name === 'member_default')!;
       const policyNames = (member.rowLevelSecurity ?? []).map((p) => p.name).sort();
       expect(policyNames).toEqual([
         'owner_only_deletes',
         'owner_only_writes',
+        'sys_organization_self',
+        'sys_user_self',
         'tenant_isolation',
       ]);
       const tenantPolicy = (member.rowLevelSecurity ?? []).find((p) => p.name === 'tenant_isolation')!;
       expect(tenantPolicy.using).toBe('tenant_id = current_user.tenant_id');
+      const orgSelf = (member.rowLevelSecurity ?? []).find((p) => p.name === 'sys_organization_self')!;
+      expect(orgSelf.object).toBe('sys_organization');
+      expect(orgSelf.using).toBe('id = current_user.tenant_id');
     });
 
     it('viewer_readonly denies writes', () => {

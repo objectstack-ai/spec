@@ -103,10 +103,19 @@ export class PermissionEvaluator {
    * Async because the underlying metadata service exposes `list()` as a
    * Promise — synchronous iteration would silently yield zero results
    * (the historical SecurityPlugin behaviour, masking all enforcement).
+   *
+   * `bootstrapPermissionSets` is a fallback list of plugin-owned permission
+   * sets (typically the platform defaults: admin_full_access /
+   * member_default / viewer_readonly) that are registered via
+   * `manifest.register({ permissions })` but do not currently propagate
+   * into the metadata service's `list()` index. Without this fallback,
+   * SecurityPlugin would never resolve the defaults and all enforcement
+   * would be silently disabled for authenticated requests.
    */
   async resolvePermissionSets(
     identifiers: string[],
-    metadataService: any
+    metadataService: any,
+    bootstrapPermissionSets: PermissionSet[] = []
   ): Promise<PermissionSet[]> {
     if (identifiers.length === 0) return [];
 
@@ -128,6 +137,17 @@ export class PermissionEvaluator {
 
     const wanted = new Set(identifiers);
     for (const ps of allPermSets) {
+      if (wanted.has(ps.name) && !seen.has(ps.name)) {
+        seen.add(ps.name);
+        result.push(ps);
+      }
+    }
+
+    // Fallback: any wanted name not yet matched is sourced from the
+    // bootstrap list (plugin-owned defaults). Avoids silent failure when
+    // permission sets are registered via `manifest.register` but the
+    // metadata service hasn't indexed them.
+    for (const ps of bootstrapPermissionSets) {
       if (wanted.has(ps.name) && !seen.has(ps.name)) {
         seen.add(ps.name);
         result.push(ps);

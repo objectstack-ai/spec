@@ -72,6 +72,20 @@ export const defaultPermissionSets: PermissionSet[] = [
         operation: 'delete',
         using: 'owner_id = current_user.id',
       },
+      // ── better-auth system tables that lack `organization_id` and would
+      //    otherwise be left unprotected by the wildcard rule above. ────
+      {
+        name: 'sys_organization_self',
+        object: 'sys_organization',
+        operation: 'all',
+        using: 'id = current_user.tenant_id',
+      },
+      {
+        name: 'sys_user_self',
+        object: 'sys_user',
+        operation: 'select',
+        using: 'id = current_user.id',
+      },
     ],
   }),
   PermissionSetSchema.parse({
@@ -92,6 +106,18 @@ export const defaultPermissionSets: PermissionSet[] = [
         object: '*',
         operation: 'select',
         using: 'tenant_id = current_user.tenant_id',
+      },
+      {
+        name: 'sys_organization_self',
+        object: 'sys_organization',
+        operation: 'select',
+        using: 'id = current_user.tenant_id',
+      },
+      {
+        name: 'sys_user_self',
+        object: 'sys_user',
+        operation: 'select',
+        using: 'id = current_user.id',
       },
     ],
   }),

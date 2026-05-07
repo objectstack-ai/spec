@@ -197,8 +197,13 @@ export class ObjectQLPlugin implements Plugin {
     // Register built-in audit hooks
     this.registerAuditHooks(ctx);
 
-    // Register tenant isolation middleware
-    this.registerTenantMiddleware(ctx);
+    // Tenant isolation is now handled by `@objectstack/plugin-security`
+    // via the `member_default` permission set's RLS rule (with field-existence
+    // guards and configurable tenantField rewrite). The legacy hard-coded
+    // `tenant_id` filter middleware was removed because it (a) collided with
+    // the SecurityPlugin RLS pipeline and (b) blindly filtered tables that
+    // don't have a `tenant_id` column (e.g. `sys_organization`), returning
+    // 0 rows instead of all rows.
 
     ctx.logger.info('ObjectQL engine started', {
         driversRegistered: this.ql?.['drivers']?.size || 0,
@@ -316,35 +321,13 @@ export class ObjectQLPlugin implements Plugin {
   }
 
   /**
-   * Register tenant isolation middleware that auto-injects tenant_id filter
-   * for multi-tenant operations.
+   * Tenant isolation moved to `@objectstack/plugin-security`'s
+   * `member_default` permission set RLS (with field-existence guards and
+   * configurable `tenantField`). The legacy `registerTenantMiddleware`
+   * method was removed because it (a) collided with SecurityPlugin's RLS
+   * pipeline and (b) blindly filtered tables that don't have a `tenant_id`
+   * column (e.g. `sys_organization`), returning 0 rows instead of all rows.
    */
-  private registerTenantMiddleware(ctx: PluginContext) {
-    if (!this.ql) return;
-
-    this.ql.registerMiddleware(async (opCtx, next) => {
-      // Only apply to operations with tenantId that are not system-level
-      if (!opCtx.context?.tenantId || opCtx.context?.isSystem) {
-        return next();
-      }
-
-      // Read operations: inject tenant_id filter into AST
-      if (['find', 'findOne', 'count', 'aggregate'].includes(opCtx.operation)) {
-        if (opCtx.ast) {
-          const tenantFilter = { tenant_id: opCtx.context.tenantId };
-          if (opCtx.ast.where) {
-            opCtx.ast.where = { $and: [opCtx.ast.where, tenantFilter] };
-          } else {
-            opCtx.ast.where = tenantFilter;
-          }
-        }
-      }
-
-      await next();
-    });
-
-    ctx.logger.debug('Tenant isolation middleware registered');
-  }
 
   /**
    * Synchronize all registered object schemas to the database.
