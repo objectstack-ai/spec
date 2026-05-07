@@ -42,7 +42,6 @@ export const TaskViews = defineView({
       colors: { critical: '#dc2626', high: '#f97316', medium: '#eab308', low: '#94a3b8' },
     },
     selection: { type: 'multiple' },
-    inlineEdit: true,
     pagination: { pageSize: 50 },
     appearance: {
       showDescription: true,

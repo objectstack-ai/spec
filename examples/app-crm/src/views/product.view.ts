@@ -34,7 +34,6 @@ export const ProductViews = defineView({
     grouping: { fields: [{ field: 'category', order: 'asc' }] },
     pagination: { pageSize: 50 },
     selection: { type: 'multiple' },
-    inlineEdit: true,
     appearance: {
       allowedVisualizations: ['grid', 'gallery'],
     },

@@ -20,7 +20,7 @@ export interface IHttpRequest {
     params: Record<string, string>;
     /** Request query parameters */
     query: Record<string, string | string[]>;
-    /** Request body */
+    /** Request body (parsed — JSON or form data when applicable) */
     body?: any;
     /** Request headers */
     headers: Record<string, string | string[]>;
@@ -28,6 +28,13 @@ export interface IHttpRequest {
     method: string;
     /** Request path */
     path: string;
+    /**
+     * Raw body accessor for binary uploads (file streams, multipart parts).
+     * Implementations should consume the underlying request stream lazily so
+     * handlers that only need `body` do not pay the parsing cost. May be
+     * undefined when the underlying framework cannot expose the raw stream.
+     */
+    rawBody?: () => Promise<Buffer>;
 }
 
 /**

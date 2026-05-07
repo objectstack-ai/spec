@@ -34,7 +34,6 @@ export const ContactViews = defineView({
     grouping: { fields: [{ field: 'account', order: 'asc', collapsed: true }] },
     selection: { type: 'multiple' },
     pagination: { pageSize: 50, pageSizeOptions: [25, 50, 100] },
-    inlineEdit: true,
     exportOptions: ['csv', 'xlsx'],
     appearance: {
       showDescription: true,

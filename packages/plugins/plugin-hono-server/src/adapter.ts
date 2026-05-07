@@ -56,8 +56,11 @@ export class HonoHttpServer implements IHttpServer {
         return async (c: any) => {
             let body: any = {};
 
+            const contentType = c.req.header('content-type') ?? '';
+            const isOctetStream = contentType.includes('application/octet-stream');
+
             // Try to parse JSON body first if content-type is JSON
-            if (c.req.header('content-type')?.includes('application/json')) {
+            if (contentType.includes('application/json')) {
                 try {
                     body = await c.req.json();
                 } catch(e) {
@@ -66,8 +69,10 @@ export class HonoHttpServer implements IHttpServer {
                         body = await c.req.parseBody();
                     } catch(e2) {}
                 }
-            } else {
-                // For non-JSON content types, use parseBody
+            } else if (!isOctetStream) {
+                // For non-JSON / non-binary content types, use parseBody
+                // (Skipping for octet-stream so the raw stream stays consumable
+                //  via `req.rawBody()` for binary uploads.)
                 try {
                     body = await c.req.parseBody();
                 } catch(e) {}
@@ -91,7 +96,11 @@ export class HonoHttpServer implements IHttpServer {
                 body,
                 headers: rawHeaders,
                 method: c.req.method,
-                path: c.req.path
+                path: c.req.path,
+                rawBody: async () => {
+                    const ab = await c.req.arrayBuffer();
+                    return Buffer.from(ab);
+                },
             };
 
             let capturedResponse: any;

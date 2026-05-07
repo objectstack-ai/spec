@@ -35,7 +35,6 @@ export const AccountViews = defineView({
     rowColor: { field: 'is_active', colors: { true: '#16a34a', false: '#94a3b8' } },
     selection: { type: 'multiple' },
     pagination: { pageSize: 50, pageSizeOptions: [25, 50, 100] },
-    inlineEdit: true,
     exportOptions: ['csv', 'xlsx'],
     appearance: {
       showDescription: true,
