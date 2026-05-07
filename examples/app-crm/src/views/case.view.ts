@@ -45,7 +45,6 @@ export const CaseViews = defineView({
     },
     selection: { type: 'multiple' },
     pagination: { pageSize: 50 },
-    inlineEdit: true,
     appearance: {
       showDescription: true,
       allowedVisualizations: ['grid', 'kanban', 'calendar', 'timeline'],

@@ -112,10 +112,8 @@ export const LeadViews = defineView({
     bulkActions: ['mass_update', 'mass_delete', 'assign_owner'],
     
     // Features
-    selection: { type: 'multiple' },
     pagination: { pageSize: 25, pageSizeOptions: [10, 25, 50, 100] },
     rowHeight: 'medium',
-    inlineEdit: true,
     exportOptions: ['csv', 'xlsx'],
     
     // Empty State

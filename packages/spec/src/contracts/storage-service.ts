@@ -41,6 +41,36 @@ export interface StorageFileInfo {
     metadata?: Record<string, string>;
 }
 
+/**
+ * Descriptor returned by `IStorageService.getPresignedUpload()`.
+ *
+ * Consumed by the client SDK to perform a direct browser-to-storage upload.
+ * Maps 1:1 onto `PresignedUrlResponse.data` defined in
+ * `packages/spec/src/api/storage.zod.ts`.
+ */
+export interface PresignedUploadDescriptor {
+    /** Absolute URL the client should send the bytes to */
+    uploadUrl: string;
+    /** HTTP method to use (most adapters use PUT) */
+    method: 'PUT' | 'POST';
+    /** Headers the client must include in the upload request */
+    headers?: Record<string, string>;
+    /** Time-to-live in seconds */
+    expiresIn: number;
+    /** Optional preview / download URL once the file is committed */
+    downloadUrl?: string;
+}
+
+/**
+ * Descriptor returned by `IStorageService.getPresignedDownload()`.
+ */
+export interface PresignedDownloadDescriptor {
+    /** Absolute URL the client can GET to retrieve the bytes */
+    downloadUrl: string;
+    /** Time-to-live in seconds */
+    expiresIn: number;
+}
+
 export interface IStorageService {
     /**
      * Upload a file to storage
@@ -91,6 +121,41 @@ export interface IStorageService {
      * @returns Pre-signed URL string
      */
     getSignedUrl?(key: string, expiresIn: number): Promise<string>;
+
+    // ==========================================
+    // Presigned Upload / Download (browser-direct)
+    // ==========================================
+
+    /**
+     * Generate a presigned upload descriptor that allows the browser to
+     * upload bytes directly to the storage backend without proxying through
+     * the API server.
+     *
+     * For S3-compatible backends this returns the actual signed PUT URL.
+     * For local-filesystem backends this returns a server-mounted endpoint
+     * (e.g. `/api/v1/storage/_local/raw/<token>`) that accepts the bytes
+     * and writes them to the configured root directory.
+     *
+     * @param key - Storage key/path for the final file
+     * @param expiresIn - Upload URL expiration time in seconds
+     * @param options - Upload options (content type, metadata, ACL)
+     * @returns Descriptor consumed by the client SDK
+     */
+    getPresignedUpload?(
+        key: string,
+        expiresIn: number,
+        options?: StorageUploadOptions,
+    ): Promise<PresignedUploadDescriptor>;
+
+    /**
+     * Generate a presigned download URL for the given key.
+     * For local-filesystem backends this returns a server-mounted endpoint
+     * that streams the file when accessed within the expiration window.
+     *
+     * @param key - Storage key/path
+     * @param expiresIn - URL expiration time in seconds
+     */
+    getPresignedDownload?(key: string, expiresIn: number): Promise<PresignedDownloadDescriptor>;
 
     // ==========================================
     // Chunked / Multipart Upload Methods
